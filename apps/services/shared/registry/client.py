@@ -6,14 +6,15 @@ Client for querying the agent registry and invoking remote agents.
 عميل للاستعلام عن سجل الوكلاء واستدعاء الوكلاء عن بعد.
 """
 
-from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, HttpUrl
+from datetime import datetime
+from typing import Any
+
 import httpx
 import structlog
-from datetime import datetime
+from pydantic import BaseModel, Field
 
 from .agent_card import AgentCard, SecurityScheme
-from .registry import HealthCheckResult, HealthStatus
+from .registry import HealthCheckResult
 
 logger = structlog.get_logger()
 
@@ -25,8 +26,8 @@ class AgentInvocationRequest(BaseModel):
     """
 
     capability: str = Field(..., description="Capability to invoke")
-    input_data: Dict[str, Any] = Field(..., description="Input data for the agent")
-    context: Optional[Dict[str, Any]] = Field(
+    input_data: dict[str, Any] = Field(..., description="Input data for the agent")
+    context: dict[str, Any] | None = Field(
         default=None, description="Additional context"
     )
     timeout_seconds: int = Field(
@@ -56,17 +57,17 @@ class AgentInvocationResponse(BaseModel):
     status: str = Field(..., description="Response status (success/error)")
     agent_id: str = Field(..., description="ID of the agent that processed the request")
     capability: str = Field(..., description="Capability that was invoked")
-    output_data: Optional[Dict[str, Any]] = Field(
+    output_data: dict[str, Any] | None = Field(
         None, description="Output data from the agent"
     )
-    error: Optional[str] = Field(None, description="Error message if failed")
-    metadata: Dict[str, Any] = Field(
+    error: str | None = Field(None, description="Error message if failed")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Response metadata"
     )
     timestamp: datetime = Field(
         default_factory=datetime.utcnow, description="Response timestamp"
     )
-    response_time_ms: Optional[float] = Field(
+    response_time_ms: float | None = Field(
         None, description="Response time in milliseconds"
     )
 
@@ -107,7 +108,7 @@ class RegistryClient:
     def __init__(
         self,
         registry_url: str,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         timeout_seconds: int = 30,
     ):
         """
@@ -147,7 +148,7 @@ class RegistryClient:
         """Context manager exit / خروج مدير السياق"""
         await self.close()
 
-    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    async def get_agent(self, agent_id: str) -> AgentCard | None:
         """
         Get agent card by ID
         الحصول على بطاقة الوكيل بواسطة المعرف
@@ -180,9 +181,9 @@ class RegistryClient:
 
     async def list_agents(
         self,
-        status: Optional[str] = None,
-        category: Optional[str] = None,
-    ) -> List[AgentCard]:
+        status: str | None = None,
+        category: str | None = None,
+    ) -> list[AgentCard]:
         """
         List all agents with optional filters
         قائمة بجميع الوكلاء مع مرشحات اختيارية
@@ -211,7 +212,7 @@ class RegistryClient:
             self._logger.error("list_agents_error", error=str(e))
             raise
 
-    async def discover_by_capability(self, capability_name: str) -> List[AgentCard]:
+    async def discover_by_capability(self, capability_name: str) -> list[AgentCard]:
         """
         Discover agents by capability
         اكتشاف الوكلاء حسب القدرة
@@ -238,7 +239,7 @@ class RegistryClient:
             )
             raise
 
-    async def discover_by_skill(self, skill_id: str) -> List[AgentCard]:
+    async def discover_by_skill(self, skill_id: str) -> list[AgentCard]:
         """
         Discover agents by skill
         اكتشاف الوكلاء حسب المهارة
@@ -262,7 +263,7 @@ class RegistryClient:
             self._logger.error("discover_by_skill_error", skill=skill_id, error=str(e))
             raise
 
-    async def discover_by_tags(self, tags: List[str]) -> List[AgentCard]:
+    async def discover_by_tags(self, tags: list[str]) -> list[AgentCard]:
         """
         Discover agents by tags
         اكتشاف الوكلاء حسب العلامات
@@ -314,7 +315,7 @@ class RegistryClient:
         self,
         agent_id: str,
         request: AgentInvocationRequest,
-        auth_token: Optional[str] = None,
+        auth_token: str | None = None,
     ) -> AgentInvocationResponse:
         """
         Invoke an agent capability
@@ -418,7 +419,7 @@ class RegistryClient:
                 response_time_ms=response_time,
             )
 
-    async def get_registry_stats(self) -> Dict[str, Any]:
+    async def get_registry_stats(self) -> dict[str, Any]:
         """
         Get registry statistics
         الحصول على إحصائيات السجل

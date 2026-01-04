@@ -7,12 +7,11 @@ Demonstrates various usage patterns for the A2A protocol implementation.
 """
 
 import asyncio
-from typing import List
+
 import structlog
 
 from .client import A2AClient, AgentDiscovery
-from .protocol import TaskMessage, TaskState
-from .agent import A2AAgent, AgentCapability
+from .protocol import TaskState
 
 logger = structlog.get_logger()
 
@@ -89,7 +88,7 @@ async def example_send_task():
         priority=8,
     )
 
-    print(f"\n📥 Received Result:")
+    print("\n📥 Received Result:")
     print(f"   State: {result.state}")
     print(f"   Execution Time: {result.execution_time_ms}ms")
 
@@ -137,7 +136,7 @@ async def example_streaming_task():
             },
         ):
             if update.is_final:
-                print(f"\n✅ Analysis Complete!")
+                print("\n✅ Analysis Complete!")
                 print(f"   Execution Time: {update.execution_time_ms}ms")
                 print(f"   Results: {list(update.result.keys())}")
             else:
@@ -328,7 +327,7 @@ async def example_conversation_tracking():
     )
     print(f"📥 Irrigation Plan: {result3.result}\n")
 
-    print(f"✅ Conversation complete with 3 turns")
+    print("✅ Conversation complete with 3 turns")
 
 
 # Example 7: Error Handling
@@ -372,10 +371,10 @@ async def example_error_handling():
     )
 
     if result.state == TaskState.FAILED:
-        print(f"   ❌ Task failed (expected)")
+        print("   ❌ Task failed (expected)")
         print(f"   Error: {result.result.get('error', 'Unknown error')}")
     else:
-        print(f"   ✅ Task succeeded unexpectedly")
+        print("   ✅ Task succeeded unexpectedly")
 
 
 # Main function to run all examples

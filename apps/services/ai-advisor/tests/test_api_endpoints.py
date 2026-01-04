@@ -3,10 +3,10 @@ Integration Tests for AI Advisor API Endpoints
 اختبارات التكامل لنقاط نهاية API المستشار الذكي
 """
 
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
-import sys
 
 
 @pytest.fixture

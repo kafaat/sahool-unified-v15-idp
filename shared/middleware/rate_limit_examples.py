@@ -6,21 +6,21 @@ This file contains practical examples of how to use rate limiting
 in your FastAPI applications.
 """
 
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
+
+from shared.auth.middleware import RateLimitMiddleware
 
 # Import rate limiting components
 from shared.middleware import (
+    RateLimitConfig,
+    RateLimiter,
     rate_limit,
-    rate_limit_by_user,
     rate_limit_by_api_key,
     rate_limit_by_tenant,
+    rate_limit_by_user,
     rate_limit_middleware,
-    RateLimiter,
-    RateLimitConfig,
 )
-from shared.auth.middleware import RateLimitMiddleware
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Example 1: Basic FastAPI Application with Global Rate Limiting

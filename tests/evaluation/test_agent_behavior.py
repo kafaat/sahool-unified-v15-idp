@@ -11,19 +11,14 @@ Tests include:
 - Multi-agent coordination
 """
 
+from typing import Any
+
 import pytest
-import asyncio
-import time
-from typing import Dict, Any, List
-from unittest.mock import AsyncMock, Mock, patch
 
 from tests.evaluation.evaluator import (
     AgentEvaluator,
     SimilarityCalculator,
-    SafetyChecker,
-    LatencyEvaluator,
 )
-
 
 # ============================================================================
 # GOLDEN DATASET TESTS
@@ -41,7 +36,7 @@ class TestGoldenDataset:
 
     async def test_golden_dataset_disease_diagnosis(
         self,
-        golden_dataset: List[Dict[str, Any]],
+        golden_dataset: list[dict[str, Any]],
         test_supervisor,
         evaluation_metrics_tracker,
         latency_tracker,
@@ -112,7 +107,7 @@ class TestGoldenDataset:
 
     async def test_golden_dataset_irrigation_advice(
         self,
-        golden_dataset: List[Dict[str, Any]],
+        golden_dataset: list[dict[str, Any]],
         test_supervisor,
         evaluation_metrics_tracker,
         latency_tracker,
@@ -171,7 +166,7 @@ class TestGoldenDataset:
 
     async def test_golden_dataset_field_analysis(
         self,
-        golden_dataset: List[Dict[str, Any]],
+        golden_dataset: list[dict[str, Any]],
         test_supervisor,
         evaluation_metrics_tracker,
         latency_tracker,
@@ -229,7 +224,7 @@ class TestGoldenDataset:
 
     async def test_golden_dataset_yield_prediction(
         self,
-        golden_dataset: List[Dict[str, Any]],
+        golden_dataset: list[dict[str, Any]],
         test_supervisor,
         evaluation_metrics_tracker,
         latency_tracker,
@@ -287,7 +282,7 @@ class TestGoldenDataset:
 
     async def test_golden_dataset_multi_agent(
         self,
-        golden_dataset: List[Dict[str, Any]],
+        golden_dataset: list[dict[str, Any]],
         test_supervisor,
         evaluation_metrics_tracker,
         latency_tracker,
@@ -342,7 +337,7 @@ class TestGoldenDataset:
             assert result.passed, f"Test {result.test_id} failed: {result.errors}"
 
     # Helper methods for mocking responses
-    def _mock_disease_response(self, query: str, context: Dict[str, Any]) -> str:
+    def _mock_disease_response(self, query: str, context: dict[str, Any]) -> str:
         """Mock disease diagnosis response"""
         if (
             "arabic" in query
@@ -354,7 +349,7 @@ class TestGoldenDataset:
         else:
             return "Yellow spots on wheat leaves typically indicate fungal disease such as leaf rust or septoria leaf blotch. I recommend inspecting the field and considering appropriate fungicide treatment."
 
-    def _mock_irrigation_response(self, query: str, context: Dict[str, Any]) -> str:
+    def _mock_irrigation_response(self, query: str, context: dict[str, Any]) -> str:
         """Mock irrigation advice response"""
         crop = context.get("crop_type", "crop")
         stage = context.get("growth_stage", "growth stage")
@@ -362,7 +357,7 @@ class TestGoldenDataset:
 
         return f"For {crop} plants during {stage} stage, maintain soil moisture above 50%. Current moisture at {moisture}% is good. Irrigate when moisture drops below 50% to ensure optimal growth."
 
-    def _mock_field_analysis_response(self, query: str, context: Dict[str, Any]) -> str:
+    def _mock_field_analysis_response(self, query: str, context: dict[str, Any]) -> str:
         """Mock field analysis response"""
         ndvi = context.get("ndvi_average", 0.7)
         crop = context.get("crop_type", "crop")
@@ -370,7 +365,7 @@ class TestGoldenDataset:
         return f"Your {crop} field shows NDVI value of {ndvi}. This indicates moderate to good vegetation health. For optimal health, aim for NDVI values above 0.7."
 
     def _mock_yield_prediction_response(
-        self, query: str, context: Dict[str, Any]
+        self, query: str, context: dict[str, Any]
     ) -> str:
         """Mock yield prediction response"""
         crop = context.get("crop_type", "crop")
@@ -378,7 +373,7 @@ class TestGoldenDataset:
 
         return f"Based on current conditions, your {crop} field ({size} hectares) should yield approximately 4-5 tons per hectare, resulting in a total expected yield of 40-50 tons."
 
-    def _mock_multi_agent_response(self, query: str, context: Dict[str, Any]) -> str:
+    def _mock_multi_agent_response(self, query: str, context: dict[str, Any]) -> str:
         """Mock multi-agent coordination response"""
         ndvi = context.get("ndvi_average", 0.5)
         moisture = context.get("soil_moisture", 30)
@@ -402,7 +397,7 @@ class TestArabicSupport:
 
     async def test_arabic_disease_diagnosis(
         self,
-        golden_dataset: List[Dict[str, Any]],
+        golden_dataset: list[dict[str, Any]],
         test_supervisor,
         evaluation_metrics_tracker,
     ):
@@ -472,7 +467,7 @@ class TestEnglishSupport:
 
     async def test_english_responses_quality(
         self,
-        golden_dataset: List[Dict[str, Any]],
+        golden_dataset: list[dict[str, Any]],
         test_supervisor,
         evaluation_metrics_tracker,
     ):
@@ -538,7 +533,7 @@ class TestLatencyPerformance:
 
     async def test_response_latency_within_limits(
         self,
-        golden_dataset: List[Dict[str, Any]],
+        golden_dataset: list[dict[str, Any]],
         test_supervisor,
         latency_tracker,
         evaluation_config,

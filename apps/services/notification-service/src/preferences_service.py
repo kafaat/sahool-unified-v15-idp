@@ -5,8 +5,8 @@ SAHOOL Notification Service - Preferences Service
 Handles business logic for managing user notification preferences
 """
 
-from typing import List, Optional, Dict, Any
 import logging
+from typing import Any
 
 from .repository import NotificationPreferenceRepository
 
@@ -22,8 +22,8 @@ class PreferencesService:
     @staticmethod
     async def get_user_preferences(
         user_id: str,
-        tenant_id: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        tenant_id: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         الحصول على تفضيلات المستخدم
         Get all notification preferences for a user
@@ -76,11 +76,11 @@ class PreferencesService:
     async def update_event_preference(
         user_id: str,
         event_type: str,
-        channels: List[str],
+        channels: list[str],
         enabled: bool = True,
-        tenant_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        tenant_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         تحديث تفضيلات نوع حدث معين
         Update preferences for a specific event type
@@ -142,10 +142,10 @@ class PreferencesService:
     @staticmethod
     async def set_quiet_hours(
         user_id: str,
-        quiet_hours_start: Optional[str] = None,
-        quiet_hours_end: Optional[str] = None,
-        tenant_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        quiet_hours_start: str | None = None,
+        quiet_hours_end: str | None = None,
+        tenant_id: str | None = None,
+    ) -> dict[str, Any]:
         """
         تحديد ساعات الهدوء
         Set quiet hours for all user preferences
@@ -213,9 +213,9 @@ class PreferencesService:
     @staticmethod
     async def bulk_update_preferences(
         user_id: str,
-        preferences: List[Dict[str, Any]],
-        tenant_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        preferences: list[dict[str, Any]],
+        tenant_id: str | None = None,
+    ) -> dict[str, Any]:
         """
         تحديث تفضيلات متعددة دفعة واحدة
         Bulk update multiple preferences
@@ -239,7 +239,7 @@ class PreferencesService:
                 metadata = pref_data.get("metadata")
 
                 if not event_type:
-                    logger.warning(f"Skipping preference without event_type")
+                    logger.warning("Skipping preference without event_type")
                     continue
 
                 pref = await NotificationPreferenceRepository.create_or_update(
@@ -277,8 +277,8 @@ class PreferencesService:
     async def get_event_preference(
         user_id: str,
         event_type: str,
-        tenant_id: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+        tenant_id: str | None = None,
+    ) -> dict[str, Any] | None:
         """
         الحصول على تفضيلات نوع حدث معين
         Get preference for a specific event type
@@ -330,8 +330,8 @@ class PreferencesService:
     async def check_if_should_send(
         user_id: str,
         event_type: str,
-        tenant_id: Optional[str] = None,
-    ) -> tuple[bool, List[str]]:
+        tenant_id: str | None = None,
+    ) -> tuple[bool, list[str]]:
         """
         التحقق من إمكانية إرسال إشعار
         Check if notification should be sent for this event type

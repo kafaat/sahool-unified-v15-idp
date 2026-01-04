@@ -13,11 +13,9 @@ Updated: December 2025
 import logging
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 
 from .policies import (
     ContentSafetyLevel,
-    OutputValidationPolicy,
     PolicyManager,
     TrustLevel,
 )
@@ -37,8 +35,8 @@ class OutputFilterResult:
     is_safe: bool
     filtered_output: str
     safety_level: ContentSafetyLevel
-    warnings: List[str]
-    metadata: Dict[str, any]
+    warnings: list[str]
+    metadata: dict[str, any]
 
     # Flags for specific issues
     has_pii_leakage: bool = False
@@ -108,7 +106,7 @@ class HallucinationDetector:
             "|".join(self.self_reference_patterns), re.IGNORECASE
         )
 
-    def detect(self, text: str) -> Tuple[bool, List[str], float]:
+    def detect(self, text: str) -> tuple[bool, list[str], float]:
         """
         Detect hallucination markers in text.
 
@@ -224,7 +222,7 @@ class SafetyContentChecker:
             "|".join(self.dangerous_agricultural_patterns), re.IGNORECASE
         )
 
-    def check_safety(self, text: str) -> Tuple[bool, List[str]]:
+    def check_safety(self, text: str) -> tuple[bool, list[str]]:
         """
         Check if output is safe.
 
@@ -335,7 +333,7 @@ class PIILeakageDetector:
 
         self.leakage_regex = re.compile("|".join(self.leakage_patterns), re.IGNORECASE)
 
-    def detect_leakage(self, text: str) -> Tuple[bool, Dict[str, int]]:
+    def detect_leakage(self, text: str) -> tuple[bool, dict[str, int]]:
         """
         Detect PII leakage in output.
 
@@ -378,7 +376,7 @@ class OutputFilter:
             # Handle unsafe output
     """
 
-    def __init__(self, policy_manager: Optional[PolicyManager] = None):
+    def __init__(self, policy_manager: PolicyManager | None = None):
         self.policy_manager = policy_manager or PolicyManager()
         self.hallucination_detector = HallucinationDetector()
         self.safety_checker = SafetyContentChecker()

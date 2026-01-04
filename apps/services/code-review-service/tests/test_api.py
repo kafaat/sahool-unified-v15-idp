@@ -2,8 +2,9 @@
 Test Code Review Service API endpoints
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
 
 
@@ -12,12 +13,12 @@ def mock_ollama():
     """Mock Ollama API responses"""
     with patch('src.main.CodeReviewService.check_ollama_health') as mock_health, \
          patch('src.main.CodeReviewService.review_code') as mock_review:
-        
+
         # Mock health check
         async def health_check():
             return True
         mock_health.return_value = AsyncMock(return_value=True)()
-        
+
         # Mock code review
         async def review_code(code, language=None, filename=None):
             return {
@@ -34,7 +35,7 @@ def mock_ollama():
             "security_concerns": [],
             "score": 85
         })()
-        
+
         yield mock_health, mock_review
 
 
@@ -49,7 +50,7 @@ def client():
 def test_health_endpoint(mock_ollama, client):
     """Test health check endpoint"""
     response = client.get("/health")
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["service"] == "code-review-service"
@@ -68,7 +69,7 @@ def test_review_code_endpoint(mock_ollama, client):
             "filename": "test.py"
         }
     )
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "summary" in data
@@ -88,7 +89,7 @@ def test_review_code_without_language(mock_ollama, client):
             "code": "console.log('hello');"
         }
     )
-    
+
     assert response.status_code == 200
     data = response.json()
     assert "summary" in data
@@ -105,7 +106,7 @@ def test_review_code_with_all_fields(mock_ollama, client):
             "filename": "test.js"
         }
     )
-    
+
     assert response.status_code == 200
     data = response.json()
     assert data["score"] >= 0
@@ -120,7 +121,7 @@ def test_review_file_not_found(mock_ollama, client):
             "file_path": "nonexistent/file.py"
         }
     )
-    
+
     # The file won't exist, so this should return 404
     assert response.status_code == 404
     data = response.json()

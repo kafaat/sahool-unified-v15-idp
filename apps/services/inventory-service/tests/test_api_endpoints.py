@@ -3,11 +3,10 @@ Integration Tests for Inventory Service API
 اختبارات التكامل لواجهة برمجة خدمة المخزون
 """
 
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch
-from decimal import Decimal
-from datetime import date, timedelta
 
 
 @pytest.fixture

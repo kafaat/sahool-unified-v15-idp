@@ -16,8 +16,9 @@ Indices:
 - NDRE: Normalized Difference Red Edge
 """
 
-from typing import Optional, Dict, Any, Callable
 import logging
+from typing import Dict, Optional
+
 import numpy as np
 
 logger = logging.getLogger(__name__)

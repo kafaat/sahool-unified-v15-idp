@@ -5,36 +5,37 @@ Distributed Tracing with OpenTelemetry
 Provides comprehensive distributed tracing following Google Cloud best practices.
 """
 
-import os
 import logging
-from typing import Optional, Dict, Any, Callable
+import os
+from collections.abc import Callable
 from contextlib import contextmanager
 from functools import wraps
+from typing import Any, Optional
 
 try:
     from opentelemetry import trace
+    from opentelemetry.baggage.propagation import W3CBaggagePropagator
+    from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+    from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+    from opentelemetry.instrumentation.redis import RedisInstrumentor
+    from opentelemetry.propagate import set_global_textmap
+    from opentelemetry.propagators.cloud_trace_propagator import (
+        CloudTraceFormatPropagator,
+    )
+    from opentelemetry.propagators.composite import CompositeHTTPPropagator
+    from opentelemetry.sdk.resources import SERVICE_NAME, SERVICE_VERSION, Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import (
         BatchSpanProcessor,
         ConsoleSpanExporter,
     )
-    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-    from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
-    from opentelemetry.sdk.resources import Resource, SERVICE_NAME, SERVICE_VERSION
-    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-    from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-    from opentelemetry.instrumentation.redis import RedisInstrumentor
-    from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
-    from opentelemetry.propagate import set_global_textmap
-    from opentelemetry.propagators.cloud_trace_propagator import (
-        CloudTraceFormatPropagator,
-    )
-    from opentelemetry.trace import Status, StatusCode, SpanKind
+    from opentelemetry.trace import SpanKind, Status, StatusCode
     from opentelemetry.trace.propagation.tracecontext import (
         TraceContextTextMapPropagator,
     )
-    from opentelemetry.baggage.propagation import W3CBaggagePropagator
-    from opentelemetry.propagators.composite import CompositeHTTPPropagator
 
     OTEL_AVAILABLE = True
 except ImportError:
@@ -55,9 +56,9 @@ class TracingConfig:
         self,
         service_name: str,
         service_version: str = "1.0.0",
-        environment: Optional[str] = None,
-        gcp_project_id: Optional[str] = None,
-        otlp_endpoint: Optional[str] = None,
+        environment: str | None = None,
+        gcp_project_id: str | None = None,
+        otlp_endpoint: str | None = None,
         sample_rate: float = 1.0,
         enable_console_export: bool = False,
     ):
@@ -243,7 +244,7 @@ class DistributedTracer:
         self,
         name: str,
         kind: Optional["SpanKind"] = None,
-        attributes: Optional[Dict[str, Any]] = None,
+        attributes: dict[str, Any] | None = None,
     ):
         """
         Create a custom span.
@@ -277,10 +278,10 @@ class DistributedTracer:
         self,
         agent_name: str,
         model: str,
-        prompt_tokens: Optional[int] = None,
-        completion_tokens: Optional[int] = None,
-        total_tokens: Optional[int] = None,
-        cost: Optional[float] = None,
+        prompt_tokens: int | None = None,
+        completion_tokens: int | None = None,
+        total_tokens: int | None = None,
+        cost: float | None = None,
     ):
         """
         Decorator to trace AI agent calls.
@@ -369,7 +370,7 @@ class DistributedTracer:
 
         return decorator
 
-    def get_trace_context(self) -> Dict[str, str]:
+    def get_trace_context(self) -> dict[str, str]:
         """
         Get current trace context for propagation.
         الحصول على سياق التتبع الحالي.
@@ -415,7 +416,7 @@ class DistributedTracer:
                     span.set_attribute(key, str(value))
 
     def add_span_event(
-        self, name: str, attributes: Optional[Dict[str, Any]] = None
+        self, name: str, attributes: dict[str, Any] | None = None
     ) -> None:
         """
         Add an event to current span.
@@ -443,7 +444,7 @@ class DistributedTracer:
 
 
 # Global tracer instance
-_tracer: Optional[DistributedTracer] = None
+_tracer: DistributedTracer | None = None
 
 
 def setup_tracing(
@@ -479,7 +480,7 @@ def setup_tracing(
     return _tracer
 
 
-def get_tracer() -> Optional[DistributedTracer]:
+def get_tracer() -> DistributedTracer | None:
     """
     Get the global tracer instance.
     الحصول على مثيل التتبع العالمي.
@@ -488,7 +489,7 @@ def get_tracer() -> Optional[DistributedTracer]:
 
 
 def trace_function(
-    name: Optional[str] = None, attributes: Optional[Dict[str, Any]] = None
+    name: str | None = None, attributes: dict[str, Any] | None = None
 ):
     """
     Decorator to trace a function.

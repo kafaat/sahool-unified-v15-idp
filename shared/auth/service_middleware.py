@@ -4,13 +4,12 @@ Middleware and dependencies for verifying service tokens
 """
 
 import logging
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from fastapi import Depends, Header, Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from .config import config
 from .service_auth import ServiceAuthErrors, verify_service_token
 
 logger = logging.getLogger(__name__)
@@ -47,7 +46,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
         self,
         app,
         current_service: str,
-        exclude_paths: Optional[list[str]] = None,
+        exclude_paths: list[str] | None = None,
         require_service_auth: bool = False,
     ):
         """
@@ -149,7 +148,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
 
 async def verify_service_request(
     request: Request,
-    x_service_token: Optional[str] = Header(None),
+    x_service_token: str | None = Header(None),
 ) -> dict:
     """
     FastAPI dependency to verify service-to-service requests.
@@ -215,7 +214,7 @@ async def verify_service_request(
         )
 
 
-def require_service_auth(allowed_services: Optional[list[str]] = None):
+def require_service_auth(allowed_services: list[str] | None = None):
     """
     FastAPI dependency factory to require service authentication.
 
@@ -270,7 +269,7 @@ def require_service_auth(allowed_services: Optional[list[str]] = None):
     return _verify_service
 
 
-def get_calling_service(request: Request) -> Optional[str]:
+def get_calling_service(request: Request) -> str | None:
     """
     Get the name of the calling service from request state.
 

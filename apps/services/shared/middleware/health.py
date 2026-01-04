@@ -11,15 +11,15 @@ Version: 1.0.0
 Created: 2024
 """
 
+import logging
 import os
 import time
-import logging
-from typing import Optional, Dict, Any, Callable, List
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
 
 from fastapi import FastAPI, Response
-from fastapi.responses import JSONResponse
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +43,9 @@ class HealthCheckResult:
 
     name: str
     status: HealthStatus
-    message: Optional[str] = None
-    latency_ms: Optional[float] = None
-    details: Optional[Dict[str, Any]] = None
+    message: str | None = None
+    latency_ms: float | None = None
+    details: dict[str, Any] | None = None
 
 
 @dataclass
@@ -56,9 +56,9 @@ class ServiceHealth:
     service_name: str
     version: str
     uptime_seconds: float
-    checks: List[HealthCheckResult] = field(default_factory=list)
+    checks: list[HealthCheckResult] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON response."""
         return {
             "status": self.status.value,
@@ -94,7 +94,7 @@ class HealthCheckManager:
         self.service_name = service_name
         self.version = version
         self.start_time = time.time()
-        self._checks: Dict[str, Callable[[], HealthCheckResult]] = {}
+        self._checks: dict[str, Callable[[], HealthCheckResult]] = {}
         self._ready = True
 
     def register_check(
@@ -160,7 +160,7 @@ class HealthCheckManager:
             checks=results,
         )
 
-    def liveness_check(self) -> Dict[str, Any]:
+    def liveness_check(self) -> dict[str, Any]:
         """Simple liveness check - is the process alive?"""
         return {
             "status": "alive",
@@ -168,7 +168,7 @@ class HealthCheckManager:
             "uptime_seconds": round(self.uptime, 2),
         }
 
-    async def readiness_check(self) -> tuple[bool, Dict[str, Any]]:
+    async def readiness_check(self) -> tuple[bool, dict[str, Any]]:
         """Readiness check - is the service ready to accept traffic?"""
         if not self._ready:
             return False, {
@@ -227,7 +227,7 @@ def create_database_check(
 
 
 def create_redis_check(
-    redis_url: Optional[str] = None,
+    redis_url: str | None = None,
     name: str = "redis",
 ) -> Callable[[], HealthCheckResult]:
     """Create a Redis health check.
@@ -282,8 +282,8 @@ def create_redis_check(
 
 def setup_health_endpoints(
     app: FastAPI,
-    service_name: Optional[str] = None,
-    version: Optional[str] = None,
+    service_name: str | None = None,
+    version: str | None = None,
     include_livez: bool = True,
     include_readyz: bool = True,
     include_healthz: bool = True,

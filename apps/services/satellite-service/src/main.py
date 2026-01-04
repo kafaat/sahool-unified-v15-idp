@@ -16,20 +16,19 @@ Field-First Architecture:
 - ActionTemplate output for mobile app task cards
 """
 
+import io
+import logging
 import os
 import sys
+import uuid
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Request
+from datetime import date, datetime, timedelta
+from enum import Enum
+from typing import Any
+
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any, Tuple
-from enum import Enum
-import asyncio
-import json
-import uuid
-import logging
-import io
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +48,8 @@ _change_detector = None
 try:
     from .multi_provider import (
         MultiSatelliteService,
+    )
+    from .multi_provider import (
         SatelliteType as MultiSatelliteType,
     )
 
@@ -68,10 +69,10 @@ _cloud_masker = None
 
 try:
     from .sar_processor import (
-        SARProcessor,
-        SoilMoistureResult,
         IrrigationEvent,
         SARDataPoint,
+        SARProcessor,
+        SoilMoistureResult,
     )
 
     logger.info("SAR Processor module loaded")
@@ -83,13 +84,13 @@ except ImportError as e:
 _cache_available = False
 try:
     from .cache import (
-        is_cache_available,
-        get_cached_analysis,
         cache_analysis,
-        get_cached_timeseries,
+        cache_health_check,
         cache_timeseries,
         get_cache_stats,
-        cache_health_check,
+        get_cached_analysis,
+        get_cached_timeseries,
+        is_cache_available,
     )
 
     _cache_available = True
@@ -102,84 +103,61 @@ except ImportError:
 
 
 # Import eo-learn integration
-from .eo_integration import (
-    fetch_real_satellite_data,
-    convert_eo_result_to_api_format,
-    get_data_source_status,
-    check_eo_configuration,
-    EO_LEARN_AVAILABLE,
-    SENTINEL_HUB_CONFIGURED,
-)
-
-# Import yield predictor
-from .yield_predictor import YieldPredictor, YieldPrediction
-
-# Import phenology detector
-from .phenology_detector import (
-    PhenologyDetector,
-    PhenologyResult,
-    PhenologyTimeline,
-    GrowthStage,
-)
+# Import boundary endpoints
+from .boundary_endpoints import register_boundary_endpoints
 
 # Import change detector
 from .change_detector import (
     ChangeDetector,
-    ChangeEvent,
-    ChangeReport,
-    ChangeType,
-    SeverityLevel,
-    TrendDirection,
     NDVIDataPoint,
+)
+
+# Import cloud masking system
+from .cloud_masking import (
+    get_cloud_masker,
+)
+
+# Import data exporter
+from .data_exporter import DataExporter, ExportFormat
+from .eo_integration import (
+    EO_LEARN_AVAILABLE,
+    SENTINEL_HUB_CONFIGURED,
+    check_eo_configuration,
+    convert_eo_result_to_api_format,
+    fetch_real_satellite_data,
+    get_data_source_status,
 )
 
 # Import field boundary detector
 from .field_boundary_detector import (
     FieldBoundaryDetector,
-    FieldBoundary,
-    BoundaryChange,
-    DetectionMethod,
 )
 
-# Import boundary endpoints
-from .boundary_endpoints import register_boundary_endpoints
+# Import phenology detector
+from .phenology_detector import (
+    GrowthStage,
+    PhenologyDetector,
+    PhenologyResult,
+)
 
 # Import VRA endpoints
 from .vra_endpoints import register_vra_endpoints
 
 # Import weather integration
-from .weather_integration import (
-    WeatherIntegration,
-    WeatherForecast,
-    HistoricalWeather,
-    FrostRisk,
-    IrrigationRecommendation,
-    get_weather_service,
-)
-
-# Import data exporter
-from .data_exporter import DataExporter, ExportFormat, ExportResult
-
-# Import cloud masking system
-from .cloud_masking import (
-    CloudMasker,
-    CloudMaskResult,
-    ClearObservation,
-    SCLClass,
-    get_cloud_masker,
-)
+# Import yield predictor
+from .yield_predictor import YieldPredictor
 
 # Import advanced vegetation indices
 try:
     from .vegetation_indices import (
-        VegetationIndicesCalculator,
-        IndexInterpreter,
-        BandData,
         AllIndices,
+        BandData,
         CropType,
         GrowthStage,
         HealthStatus,
+        IndexInterpreter,
         VegetationIndex,
+        VegetationIndicesCalculator,
     )
 
     _indices_available = True
@@ -192,12 +170,12 @@ except ImportError as e:
 _vra_generator = None
 try:
     from .vra_generator import (
-        VRAGenerator,
-        VRAType,
-        ZoneMethod,
-        ZoneLevel,
         ManagementZone,
         PrescriptionMap,
+        VRAGenerator,
+        VRAType,
+        ZoneLevel,
+        ZoneMethod,
         ZoneStatistics,
     )
 
@@ -393,7 +371,7 @@ class ImageryRequest(BaseModel):
     longitude: float = Field(..., ge=-180, le=180)
     satellite: SatelliteSource = SatelliteSource.SENTINEL2
     start_date: date = Field(default_factory=date.today)
-    end_date: Optional[date] = None
+    end_date: date | None = None
     cloud_cover_max: float = Field(default=20.0, ge=0, le=100)
 
 
@@ -411,7 +389,7 @@ class SatelliteImagery(BaseModel):
     acquisition_date: datetime
     cloud_cover_percent: float
     sun_elevation: float
-    bands: List[SatelliteBand]
+    bands: list[SatelliteBand]
     scene_id: str
     tile_id: str
     processing_level: str
@@ -434,9 +412,9 @@ class FieldAnalysis(BaseModel):
     indices: VegetationIndices
     health_score: float = Field(..., ge=0, le=100)
     health_status: str
-    anomalies: List[str]
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    anomalies: list[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
 
 
 class AdvancedVegetationIndices(BaseModel):
@@ -473,9 +451,9 @@ class InterpretRequest(BaseModel):
     """Request for interpreting indices"""
 
     field_id: str = Field(..., description="معرف الحقل")
-    indices: Dict[str, float] = Field(..., description="Index values to interpret")
-    crop_type: Optional[str] = Field(default="unknown", description="نوع المحصول")
-    growth_stage: Optional[str] = Field(default="vegetative", description="مرحلة النمو")
+    indices: dict[str, float] = Field(..., description="Index values to interpret")
+    crop_type: str | None = Field(default="unknown", description="نوع المحصول")
+    growth_stage: str | None = Field(default="vegetative", description="مرحلة النمو")
 
 
 class IndexInterpretationResponse(BaseModel):
@@ -487,7 +465,7 @@ class IndexInterpretationResponse(BaseModel):
     description_ar: str
     description_en: str
     confidence: float
-    threshold_info: Dict[str, float]
+    threshold_info: dict[str, float]
 
 
 # =============================================================================
@@ -667,7 +645,7 @@ def calculate_ndmi(nir: float, swir: float) -> float:
 
 def assess_vegetation_health(
     indices: VegetationIndices,
-) -> tuple[float, str, List[str]]:
+) -> tuple[float, str, list[str]]:
     """Assess crop health based on vegetation indices"""
     anomalies = []
     score = 50.0  # Base score
@@ -726,8 +704,8 @@ def assess_vegetation_health(
 
 
 def generate_recommendations(
-    indices: VegetationIndices, anomalies: List[str]
-) -> tuple[List[str], List[str]]:
+    indices: VegetationIndices, anomalies: list[str]
+) -> tuple[list[str], list[str]]:
     """Generate bilingual recommendations based on analysis"""
     recommendations_ar = []
     recommendations_en = []
@@ -1016,18 +994,18 @@ class AnalyzeWithActionRequest(BaseModel):
     """Request for analysis with ActionTemplate output"""
 
     field_id: str = Field(..., description="معرف الحقل")
-    farmer_id: Optional[str] = Field(None, description="معرف المزارع")
-    tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
+    farmer_id: str | None = Field(None, description="معرف المزارع")
+    tenant_id: str | None = Field(None, description="معرف المستأجر")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     satellite: SatelliteSource = SatelliteSource.SENTINEL2
     start_date: date = Field(default_factory=date.today)
-    end_date: Optional[date] = None
+    end_date: date | None = None
     cloud_cover_max: float = Field(default=20.0, ge=0, le=100)
     publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
 
 
-def _determine_urgency_from_anomalies(anomalies: List[str], health_score: float) -> str:
+def _determine_urgency_from_anomalies(anomalies: list[str], health_score: float) -> str:
     """Determine urgency level based on anomalies and health score"""
     if health_score < 20 or "water_stress_detected" in anomalies:
         return "high"
@@ -1040,9 +1018,9 @@ def _determine_urgency_from_anomalies(anomalies: List[str], health_score: float)
 
 def _create_satellite_action_template(
     analysis: FieldAnalysis,
-    farmer_id: Optional[str] = None,
-    tenant_id: Optional[str] = None,
-) -> Dict[str, Any]:
+    farmer_id: str | None = None,
+    tenant_id: str | None = None,
+) -> dict[str, Any]:
     """Create an ActionTemplate from satellite analysis"""
 
     urgency = _determine_urgency_from_anomalies(
@@ -1213,7 +1191,7 @@ class RealAnalysisRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     start_date: date = Field(default_factory=date.today)
-    end_date: Optional[date] = None
+    end_date: date | None = None
     cloud_cover_max: float = Field(default=30.0, ge=0, le=100)
 
 
@@ -1334,7 +1312,7 @@ async def get_phenology(
     ),
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
-    planting_date: Optional[str] = Query(
+    planting_date: str | None = Query(
         None, description="Planting date (YYYY-MM-DD)"
     ),
     days: int = Query(default=60, ge=14, le=365, description="Days of historical data"),
@@ -1541,12 +1519,12 @@ class PhenologyActionRequest(BaseModel):
     """Request for phenology detection with ActionTemplate output"""
 
     field_id: str = Field(..., description="معرف الحقل")
-    farmer_id: Optional[str] = Field(None, description="معرف المزارع")
-    tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
+    farmer_id: str | None = Field(None, description="معرف المزارع")
+    tenant_id: str | None = Field(None, description="معرف المستأجر")
     crop_type: str = Field(..., description="نوع المحصول")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
-    planting_date: Optional[str] = Field(None, description="تاريخ الزراعة")
+    planting_date: str | None = Field(None, description="تاريخ الزراعة")
     days: int = Field(default=60, ge=14, le=365)
     publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
 
@@ -1674,9 +1652,9 @@ async def analyze_phenology_with_action(
 
 def _create_phenology_action_template(
     result: PhenologyResult,
-    farmer_id: Optional[str] = None,
-    tenant_id: Optional[str] = None,
-) -> Dict[str, Any]:
+    farmer_id: str | None = None,
+    tenant_id: str | None = None,
+) -> dict[str, Any]:
     """Create an ActionTemplate from phenology detection"""
 
     stage = result.current_stage
@@ -1707,8 +1685,8 @@ def _create_phenology_action_template(
         title_en = f"Fertilization - {stage.label_en} Stage"
     elif stage == GrowthStage.FLOWERING:
         action_type = "monitoring"
-        title_ar = f"مراقبة دقيقة - مرحلة الإزهار الحرجة"
-        title_en = f"Close Monitoring - Critical Flowering Stage"
+        title_ar = "مراقبة دقيقة - مرحلة الإزهار الحرجة"
+        title_en = "Close Monitoring - Critical Flowering Stage"
     elif stage == GrowthStage.RIPENING:
         action_type = "harvest_prep"
         title_ar = f"تحضير للحصاد - {result.days_to_next_stage} يوم متبقي"
@@ -1773,7 +1751,7 @@ async def get_soil_moisture(
     field_id: str,
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
-    date: Optional[str] = Query(
+    date: str | None = Query(
         None, description="Target date (YYYY-MM-DD), defaults to today"
     ),
 ):
@@ -1912,8 +1890,8 @@ async def get_sar_timeseries(
     field_id: str,
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
-    lat: Optional[float] = Query(None, ge=-90, le=90, description="Field latitude"),
-    lon: Optional[float] = Query(None, ge=-180, le=180, description="Field longitude"),
+    lat: float | None = Query(None, ge=-90, le=90, description="Field latitude"),
+    lon: float | None = Query(None, ge=-180, le=180, description="Field longitude"),
 ):
     """
     سلسلة زمنية لبيانات SAR ورطوبة التربة
@@ -2068,8 +2046,8 @@ async def get_specific_index(
     index_name: str,
     lat: float = Query(..., description="Latitude", ge=-90, le=90),
     lon: float = Query(..., description="Longitude", ge=-180, le=180),
-    crop_type: Optional[str] = Query(default="unknown", description="نوع المحصول"),
-    growth_stage: Optional[str] = Query(
+    crop_type: str | None = Query(default="unknown", description="نوع المحصول"),
+    growth_stage: str | None = Query(
         default="vegetative", description="مرحلة النمو"
     ),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
@@ -2343,28 +2321,28 @@ class YieldPredictionRequest(BaseModel):
     crop_code: str = Field(..., description="رمز المحصول (WHEAT, TOMATO, etc.)")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
-    planting_date: Optional[date] = Field(None, description="تاريخ الزراعة")
+    planting_date: date | None = Field(None, description="تاريخ الزراعة")
     field_area_ha: float = Field(
         default=1.0, ge=0.01, description="مساحة الحقل بالهكتار"
     )
 
     # Optional: provide NDVI time series (if available)
-    ndvi_series: Optional[List[float]] = Field(
+    ndvi_series: list[float] | None = Field(
         None,
         description="سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا لم تقدم)",
     )
 
     # Weather data (optional - will be estimated if not provided)
-    precipitation_mm: Optional[float] = Field(None, description="الأمطار الكلية (مم)")
-    avg_temp_min: Optional[float] = Field(
+    precipitation_mm: float | None = Field(None, description="الأمطار الكلية (مم)")
+    avg_temp_min: float | None = Field(
         None, description="متوسط درجة الحرارة الصغرى (°س)"
     )
-    avg_temp_max: Optional[float] = Field(
+    avg_temp_max: float | None = Field(
         None, description="متوسط درجة الحرارة الكبرى (°س)"
     )
 
     # Optional: soil moisture from SAR
-    soil_moisture: Optional[float] = Field(
+    soil_moisture: float | None = Field(
         None, ge=0, le=1, description="رطوبة التربة (0-1)"
     )
 
@@ -2381,15 +2359,15 @@ class YieldPredictionResponse(BaseModel):
     yield_range_min: float
     yield_range_max: float
     confidence: float
-    factors: Dict[str, float]
+    factors: dict[str, float]
     comparison_to_average: float
     comparison_to_base: float
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
     prediction_date: str
     growth_stage: str
-    days_to_harvest: Optional[int]
-    data_sources_used: List[str]
+    days_to_harvest: int | None
+    data_sources_used: list[str]
 
 
 class YieldHistoryItem(BaseModel):
@@ -2400,7 +2378,7 @@ class YieldHistoryItem(BaseModel):
     crop_code: str
     crop_name_ar: str
     predicted_yield_ton_ha: float
-    actual_yield_ton_ha: Optional[float]
+    actual_yield_ton_ha: float | None
     confidence: float
     growth_stage: str
 
@@ -2440,13 +2418,13 @@ class VRARequest(BaseModel):
         default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)"
     )
     zone_method: str = Field(default="ndvi", description="طريقة تصنيف المناطق")
-    min_rate: Optional[float] = Field(None, gt=0, description="الحد الأدنى للمعدل")
-    max_rate: Optional[float] = Field(None, gt=0, description="الحد الأقصى للمعدل")
-    product_price_per_unit: Optional[float] = Field(
+    min_rate: float | None = Field(None, gt=0, description="الحد الأدنى للمعدل")
+    max_rate: float | None = Field(None, gt=0, description="الحد الأقصى للمعدل")
+    product_price_per_unit: float | None = Field(
         None, description="سعر الوحدة للمنتج"
     )
-    notes: Optional[str] = Field(None, description="ملاحظات (إنجليزي)")
-    notes_ar: Optional[str] = Field(None, description="ملاحظات (عربي)")
+    notes: str | None = Field(None, description="ملاحظات (إنجليزي)")
+    notes_ar: str | None = Field(None, description="ملاحظات (عربي)")
 
 
 class ManagementZoneResponse(BaseModel):
@@ -2460,7 +2438,7 @@ class ManagementZoneResponse(BaseModel):
     ndvi_max: float
     area_ha: float
     percentage: float
-    centroid: List[float]  # [lon, lat]
+    centroid: list[float]  # [lon, lat]
     recommended_rate: float
     unit: str
     total_product: float
@@ -2480,18 +2458,18 @@ class PrescriptionMapResponse(BaseModel):
     unit: str
     num_zones: int
     zone_method: str
-    zones: List[ManagementZoneResponse]
+    zones: list[ManagementZoneResponse]
     total_area_ha: float
     total_product_needed: float
     flat_rate_product: float
     savings_percent: float
     savings_amount: float
-    cost_savings: Optional[float]
-    notes: Optional[str]
-    notes_ar: Optional[str]
-    geojson_url: Optional[str]
-    shapefile_url: Optional[str]
-    isoxml_url: Optional[str]
+    cost_savings: float | None
+    notes: str | None
+    notes_ar: str | None
+    geojson_url: str | None
+    shapefile_url: str | None
+    isoxml_url: str | None
 
 
 # =============================================================================
@@ -2506,7 +2484,7 @@ class ChangeEventResponse(BaseModel):
     change_type: str
     severity: str
     detected_date: str
-    location: Dict[str, float]
+    location: dict[str, float]
     ndvi_before: float
     ndvi_after: float
     ndvi_change: float
@@ -2516,24 +2494,24 @@ class ChangeEventResponse(BaseModel):
     description_en: str
     recommended_action_ar: str
     recommended_action_en: str
-    additional_metrics: Optional[Dict[str, float]] = None
+    additional_metrics: dict[str, float] | None = None
 
 
 class ChangeReportResponse(BaseModel):
     """Response model for comprehensive change detection report"""
 
     field_id: str
-    analysis_period: Dict[str, str]
-    events: List[ChangeEventResponse]
+    analysis_period: dict[str, str]
+    events: list[ChangeEventResponse]
     overall_trend: str
     ndvi_trend: float
     anomaly_count: int
-    severity_summary: Dict[str, int]
-    change_type_summary: Dict[str, int]
+    severity_summary: dict[str, int]
+    change_type_summary: dict[str, int]
     summary_ar: str
     summary_en: str
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
 
 
 # =============================================================================
@@ -2688,7 +2666,7 @@ async def get_yield_history(
     seasons: int = Query(
         default=5, ge=1, le=20, description="Number of past seasons to retrieve"
     ),
-    crop_code: Optional[str] = Query(None, description="Filter by crop code"),
+    crop_code: str | None = Query(None, description="Filter by crop code"),
 ):
     """
     الحصول على سجل التنبؤات السابقة | Get Yield Prediction History
@@ -2788,7 +2766,7 @@ async def get_yield_history(
 @app.get("/v1/regional-yields/{governorate}")
 async def get_regional_yields(
     governorate: str,
-    crop: Optional[str] = Query(
+    crop: str | None = Query(
         None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"
     ),
 ):
@@ -2908,7 +2886,7 @@ async def get_cloud_cover(
     field_id: str,
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
-    date: Optional[str] = Query(
+    date: str | None = Query(
         None, description="Target date (YYYY-MM-DD), defaults to today"
     ),
 ):
@@ -3103,7 +3081,7 @@ async def interpolate_cloudy_pixels(
     method: str = Query(
         "linear", description="Interpolation method: linear, spline, previous"
     ),
-    ndvi_series: List[Dict] = None,
+    ndvi_series: list[dict] = None,
 ):
     """
     Interpolate cloudy observations using temporal neighbors
@@ -3523,7 +3501,7 @@ async def export_report(
 
 async def _perform_analysis(
     field_id: str, lat: float, lon: float, analysis_date: date = None
-) -> Dict:
+) -> dict:
     """
     Helper function to perform field analysis.
     This reuses logic from the existing /v1/analyze endpoint.
@@ -3609,7 +3587,7 @@ async def detect_changes(
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
-    crop_type: Optional[str] = Query(
+    crop_type: str | None = Query(
         None, description="Crop type (e.g., wheat, sorghum, coffee, qat)"
     ),
 ):
@@ -3747,7 +3725,7 @@ async def get_anomalies(
     days: int = Query(
         90, description="Number of days to analyze (default: 90)", ge=1, le=365
     ),
-    crop_type: Optional[str] = Query(
+    crop_type: str | None = Query(
         None, description="Crop type for expected pattern"
     ),
 ):
@@ -3769,7 +3747,7 @@ async def get_anomalies(
         start_date = end_date - timedelta(days=days)
 
         # Fetch NDVI time series
-        logger.info(f"Fetching NDVI time series for anomaly detection")
+        logger.info("Fetching NDVI time series for anomaly detection")
         ndvi_timeseries = await _fetch_ndvi_timeseries(
             field_id, lat, lon, start_date, end_date
         )
@@ -3849,7 +3827,7 @@ async def _fetch_ndvi_timeseries(
     lon: float,
     start_date: date,
     end_date: date,
-) -> List[NDVIDataPoint]:
+) -> list[NDVIDataPoint]:
     """
     Fetch NDVI time series for change detection.
     In production, this would call the actual timeseries endpoint.
@@ -3857,8 +3835,8 @@ async def _fetch_ndvi_timeseries(
     try:
         # Try to fetch from the timeseries endpoint
         # For now, return simulated data
-        import random
         import math
+        import random
 
         data_points = []
         current = start_date
@@ -3908,15 +3886,15 @@ async def _fetch_single_ndvi(
     lat: float,
     lon: float,
     target_date: date,
-) -> Tuple[float, Optional[float]]:
+) -> tuple[float, float | None]:
     """
     Fetch NDVI and NDWI for a single date.
     In production, this would call the actual analysis endpoint.
     Returns (ndvi, ndwi)
     """
     try:
-        import random
         import math
+        import random
 
         # Simulate seasonal pattern
         day_of_year = target_date.timetuple().tm_yday

@@ -7,7 +7,8 @@ import asyncio
 import json
 import logging
 import os
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 import nats
 from nats.aio.client import Client as NATS
@@ -35,8 +36,8 @@ class ChatProjectionWorker:
     3. Triggers notifications
     """
 
-    def __init__(self, broadcast_callback: Optional[Callable[[str, dict], Any]] = None):
-        self.nc: Optional[NATS] = None
+    def __init__(self, broadcast_callback: Callable[[str, dict], Any] | None = None):
+        self.nc: NATS | None = None
         self.js = None
         self.subscriptions = []
         self.running = False

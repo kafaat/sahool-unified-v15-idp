@@ -16,11 +16,11 @@ Architecture:
 """
 
 import logging
-from enum import Enum
-from typing import Optional, List, Set, Dict, Any
 from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any
 
-from .rbac import Role, Permission, has_permission, has_any_permission, ROLE_PERMISSIONS
+from .rbac import Permission, Role, has_permission
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +44,9 @@ class PolicyResult:
 
     decision: PolicyDecision
     reason: str
-    redirect_to: Optional[str] = None
-    required_permissions: Optional[List[str]] = None
-    missing_permissions: Optional[List[str]] = None
+    redirect_to: str | None = None
+    required_permissions: list[str] | None = None
+    missing_permissions: list[str] | None = None
 
     @property
     def allowed(self) -> bool:
@@ -71,17 +71,17 @@ class PolicyContext:
     """Context for policy evaluation"""
 
     # User info
-    user_id: Optional[str] = None
-    tenant_id: Optional[str] = None
-    roles: List[str] = field(default_factory=list)
-    scopes: List[str] = field(default_factory=list)
+    user_id: str | None = None
+    tenant_id: str | None = None
+    roles: list[str] = field(default_factory=list)
+    scopes: list[str] = field(default_factory=list)
 
     # Request info
-    path: Optional[str] = None
+    path: str | None = None
     method: str = "GET"
-    resource_type: Optional[str] = None
-    resource_id: Optional[str] = None
-    resource_tenant_id: Optional[str] = None
+    resource_type: str | None = None
+    resource_id: str | None = None
+    resource_tenant_id: str | None = None
 
     # Auth state
     is_authenticated: bool = False
@@ -125,16 +125,16 @@ class RoutePolicy:
 
     path_pattern: str
     require_auth: bool = True
-    require_roles: List[str] = field(default_factory=list)
-    require_permissions: List[str] = field(default_factory=list)
-    require_any_permission: List[str] = field(default_factory=list)
+    require_roles: list[str] = field(default_factory=list)
+    require_permissions: list[str] = field(default_factory=list)
+    require_any_permission: list[str] = field(default_factory=list)
     require_tenant: bool = True
     redirect_to: str = "/login"
     allow_public: bool = False
 
 
 # Default route policies
-DEFAULT_POLICIES: Dict[str, RoutePolicy] = {
+DEFAULT_POLICIES: dict[str, RoutePolicy] = {
     # Public routes
     "/login": RoutePolicy("/login", require_auth=False, allow_public=True),
     "/register": RoutePolicy("/register", require_auth=False, allow_public=True),
@@ -202,14 +202,14 @@ class PolicyEngine:
             redirect(result.redirect_to)
     """
 
-    def __init__(self, policies: Optional[Dict[str, RoutePolicy]] = None):
+    def __init__(self, policies: dict[str, RoutePolicy] | None = None):
         self._policies = policies or DEFAULT_POLICIES.copy()
 
     def add_policy(self, path: str, policy: RoutePolicy) -> None:
         """Add or update a route policy"""
         self._policies[path] = policy
 
-    def get_policy(self, path: str) -> Optional[RoutePolicy]:
+    def get_policy(self, path: str) -> RoutePolicy | None:
         """Get policy for a path (exact match first, then prefix match)"""
         # Exact match
         if path in self._policies:
@@ -231,9 +231,9 @@ class PolicyEngine:
     def evaluate(
         self,
         context: PolicyContext,
-        path: Optional[str] = None,
-        resource_type: Optional[str] = None,
-        action: Optional[str] = None,
+        path: str | None = None,
+        resource_type: str | None = None,
+        action: str | None = None,
     ) -> PolicyResult:
         """
         Evaluate policy for a request.
@@ -432,7 +432,7 @@ class PolicyEngine:
 
 
 # Global instance
-_policy_engine: Optional[PolicyEngine] = None
+_policy_engine: PolicyEngine | None = None
 
 
 def get_policy_engine() -> PolicyEngine:
@@ -446,7 +446,7 @@ def get_policy_engine() -> PolicyEngine:
 # Convenience functions
 def evaluate_policy(
     context: PolicyContext,
-    path: Optional[str] = None,
+    path: str | None = None,
 ) -> PolicyResult:
     """Evaluate policy for a request"""
     return get_policy_engine().evaluate(context, path)

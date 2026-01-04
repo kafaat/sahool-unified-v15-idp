@@ -6,8 +6,9 @@ Connects to MQTT broker and forwards messages
 import asyncio
 import json
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Optional
+from typing import Any
 
 # Using aiomqtt (formerly asyncio-mqtt)
 try:
@@ -50,7 +51,7 @@ class MqttClient:
         self.port = port or MQTT_PORT
         self.username = username or MQTT_USERNAME
         self.password = password or MQTT_PASSWORD
-        self._client: Optional[Client] = None
+        self._client: Client | None = None
         self._running = False
         self._reconnect_interval = 5
 

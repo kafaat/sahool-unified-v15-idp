@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import select
@@ -18,11 +18,10 @@ from .hashchain import build_canonical_string, compute_entry_hash
 from .models import AuditLog
 from .redact import redact_dict
 
-
 logger = logging.getLogger(__name__)
 
 
-def get_last_hash(db: Session, tenant_id: UUID) -> Optional[str]:
+def get_last_hash(db: Session, tenant_id: UUID) -> str | None:
     """
     Get the hash of the last audit entry for a tenant.
 
@@ -46,15 +45,15 @@ def write_audit_log(
     db: Session,
     *,
     tenant_id: UUID,
-    actor_id: Optional[UUID],
+    actor_id: UUID | None,
     actor_type: str,
     action: str,
     resource_type: str,
     resource_id: str,
     correlation_id: UUID,
-    ip: Optional[str] = None,
-    user_agent: Optional[str] = None,
-    details: Optional[dict[str, Any]] = None,
+    ip: str | None = None,
+    user_agent: str | None = None,
+    details: dict[str, Any] | None = None,
 ) -> AuditLog:
     """
     Write an audit log entry with hash chain integrity.
@@ -158,12 +157,12 @@ def query_audit_logs(
     db: Session,
     *,
     tenant_id: UUID,
-    actor_id: Optional[UUID] = None,
-    resource_type: Optional[str] = None,
-    resource_id: Optional[str] = None,
-    action: Optional[str] = None,
-    start_date: Optional[datetime] = None,
-    end_date: Optional[datetime] = None,
+    actor_id: UUID | None = None,
+    resource_type: str | None = None,
+    resource_id: str | None = None,
+    action: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
     limit: int = 100,
     offset: int = 0,
 ) -> list[AuditLog]:
@@ -222,7 +221,7 @@ def get_audit_log_by_id(
     db: Session,
     audit_id: UUID,
     tenant_id: UUID,
-) -> Optional[AuditLog]:
+) -> AuditLog | None:
     """Get a specific audit log entry"""
     stmt = (
         select(AuditLog)

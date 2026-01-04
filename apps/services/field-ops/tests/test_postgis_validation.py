@@ -10,17 +10,12 @@ Tests cover:
 5. Index Performance - أداء الفهارس المكانية
 """
 
-import asyncio
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
-from shapely.geometry import Point, Polygon, MultiPolygon, mapping, shape
+from shapely.geometry import MultiPolygon, Point, Polygon, mapping, shape
 from shapely.validation import explain_validity
-from shapely.ops import unary_union
-
 
 # ============================================================================
 # Test Fixtures - إعداد الاختبارات
@@ -897,7 +892,7 @@ class TestUtilityFunctions:
         Test Haversine distance calculation
         اختبار حساب المسافة باستخدام صيغة Haversine
         """
-        from math import radians, sin, cos, sqrt, atan2
+        from math import atan2, cos, radians, sin, sqrt
 
         def haversine_distance(lon1: float, lat1: float,
                              lon2: float, lat2: float) -> float:

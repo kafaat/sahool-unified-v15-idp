@@ -6,10 +6,8 @@ Tests the complete audit logging flow including hash chain integrity
 from __future__ import annotations
 
 import json
-import pytest
-from datetime import datetime, timezone
-from typing import Generator
-from uuid import UUID, uuid4
+from datetime import UTC, datetime
+from uuid import uuid4
 
 from shared.libs.audit.hashchain import (
     build_canonical_string,
@@ -17,6 +15,7 @@ from shared.libs.audit.hashchain import (
     sha256_hex,
     verify_chain,
 )
+from shared.libs.audit.middleware import AuditContext
 from shared.libs.audit.models import AuditLog
 from shared.libs.audit.redact import (
     REDACTED,
@@ -26,8 +25,6 @@ from shared.libs.audit.redact import (
     redact_dict,
     redact_value,
 )
-from shared.libs.audit.middleware import AuditContext
-
 
 # ---------------------------------------------------------------------------
 # Hash Chain Tests
@@ -347,7 +344,7 @@ class TestAuditLogModel:
             details_json="{}",
             prev_hash=None,
             entry_hash="abc123",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
         data = log.to_dict()
@@ -371,7 +368,7 @@ class TestAuditLogModel:
             details_json="{}",
             prev_hash=None,
             entry_hash="abc123",
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
         repr_str = repr(log)
@@ -419,7 +416,7 @@ class TestAuditIntegration:
 
         # Build canonical string
         details_json = json.dumps(safe_details, sort_keys=True)
-        created_at = datetime.now(timezone.utc).isoformat()
+        created_at = datetime.now(UTC).isoformat()
 
         canonical = build_canonical_string(
             tenant_id=str(tenant_id),
@@ -446,7 +443,7 @@ class TestAuditIntegration:
 
         # Create 10 entries
         for i in range(10):
-            created_at = datetime.now(timezone.utc).isoformat()
+            created_at = datetime.now(UTC).isoformat()
             canonical = build_canonical_string(
                 tenant_id=str(tenant_id),
                 actor_id=str(uuid4()),

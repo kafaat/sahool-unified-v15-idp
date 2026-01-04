@@ -6,8 +6,7 @@ Dependency injection for authentication and authorization
 import logging
 import time
 from collections import defaultdict
-from functools import wraps
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -26,7 +25,7 @@ oauth2_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(oauth2_scheme),
     request: Request = None,
 ) -> User:
     """
@@ -512,8 +511,8 @@ async def rate_limit_dependency(
 
 
 def get_optional_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(oauth2_scheme),
-) -> Optional[User]:
+    credentials: HTTPAuthorizationCredentials | None = Depends(oauth2_scheme),
+) -> User | None:
     """
     Get the current user if authenticated, otherwise None.
 

@@ -16,7 +16,6 @@ import hmac
 import logging
 import secrets
 from enum import Enum
-from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +23,9 @@ logger = logging.getLogger(__name__)
 try:
     from argon2 import PasswordHasher
     from argon2.exceptions import (
-        VerifyMismatchError,
-        VerificationError,
         InvalidHashError,
+        VerificationError,
+        VerifyMismatchError,
     )
 
     ARGON2_AVAILABLE = True
@@ -125,7 +124,7 @@ class PasswordHasher:
         # Fallback 2: PBKDF2-SHA256
         return self._hash_pbkdf2(password)
 
-    def verify_password(self, password: str, hashed_password: str) -> Tuple[bool, bool]:
+    def verify_password(self, password: str, hashed_password: str) -> tuple[bool, bool]:
         """
         Verify a password against its hash
 
@@ -151,7 +150,7 @@ class PasswordHasher:
             elif algorithm == HashAlgorithm.PBKDF2_SHA256:
                 return self._verify_pbkdf2(password, hashed_password)
             else:
-                logger.warning(f"Unknown hash algorithm for password")
+                logger.warning("Unknown hash algorithm for password")
                 return False, False
 
         except Exception as e:
@@ -182,7 +181,7 @@ class PasswordHasher:
         else:
             return HashAlgorithm.UNKNOWN
 
-    def _verify_argon2(self, password: str, hashed_password: str) -> Tuple[bool, bool]:
+    def _verify_argon2(self, password: str, hashed_password: str) -> tuple[bool, bool]:
         """Verify Argon2id password"""
         if not ARGON2_AVAILABLE or not self.argon2_hasher:
             logger.error("Argon2 not available but hash is Argon2 format")
@@ -196,7 +195,7 @@ class PasswordHasher:
         except (VerifyMismatchError, VerificationError, InvalidHashError):
             return False, False
 
-    def _verify_bcrypt(self, password: str, hashed_password: str) -> Tuple[bool, bool]:
+    def _verify_bcrypt(self, password: str, hashed_password: str) -> tuple[bool, bool]:
         """Verify bcrypt password - always needs migration to Argon2id"""
         if not BCRYPT_AVAILABLE:
             logger.error("bcrypt not available but hash is bcrypt format")
@@ -212,7 +211,7 @@ class PasswordHasher:
             logger.error(f"bcrypt verification error: {e}")
             return False, False
 
-    def _verify_pbkdf2(self, password: str, hashed_password: str) -> Tuple[bool, bool]:
+    def _verify_pbkdf2(self, password: str, hashed_password: str) -> tuple[bool, bool]:
         """Verify PBKDF2-SHA256 password - always needs migration to Argon2id"""
         try:
             parts = hashed_password.split("$")
@@ -279,7 +278,7 @@ class PasswordHasher:
 
 
 # Global instance with recommended parameters
-_default_hasher: Optional[PasswordHasher] = None
+_default_hasher: PasswordHasher | None = None
 
 
 def get_password_hasher() -> PasswordHasher:
@@ -314,7 +313,7 @@ def hash_password(password: str) -> str:
     return get_password_hasher().hash_password(password)
 
 
-def verify_password(password: str, hashed_password: str) -> Tuple[bool, bool]:
+def verify_password(password: str, hashed_password: str) -> tuple[bool, bool]:
     """
     Verify a password using the default hasher
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 SAHOOL Astronomical Calendar Service
 خدمة التقويم الفلكي الزراعي - سهول
@@ -17,14 +16,12 @@ Version: 15.5.0
 
 import math
 import os
-from datetime import datetime, date, timedelta
-from enum import Enum
-from typing import List, Optional, Dict, Any
+from datetime import datetime, timedelta
+
+import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-import httpx
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # التطبيق الرئيسي
@@ -766,9 +763,9 @@ class LunarMansion(BaseModel):
     element: str = Field(..., description="العنصر")
     farming: str = Field(..., description="حالة الزراعة")
     farming_score: int = Field(..., ge=1, le=10, description="درجة ملاءمة الزراعة")
-    crops: List[str] = Field(..., description="المحاصيل الموصى بها")
-    activities: List[str] = Field(..., description="الأنشطة الموصى بها")
-    avoid: List[str] = Field(..., description="الأنشطة التي يجب تجنبها")
+    crops: list[str] = Field(..., description="المحاصيل الموصى بها")
+    activities: list[str] = Field(..., description="الأنشطة الموصى بها")
+    avoid: list[str] = Field(..., description="الأنشطة التي يجب تجنبها")
     description: str = Field(..., description="وصف المنزلة")
 
 
@@ -799,8 +796,8 @@ class SeasonInfo(BaseModel):
     name: str = Field(..., description="اسم الموسم بالعربية")
     name_en: str = Field(..., description="اسم الموسم بالإنجليزية")
     description: str = Field(..., description="وصف الموسم")
-    main_crops: List[str] = Field(..., description="المحاصيل الرئيسية")
-    activities: List[str] = Field(..., description="الأنشطة الموصى بها")
+    main_crops: list[str] = Field(..., description="المحاصيل الرئيسية")
+    activities: list[str] = Field(..., description="الأنشطة الموصى بها")
 
 
 class FarmingRecommendation(BaseModel):
@@ -810,7 +807,7 @@ class FarmingRecommendation(BaseModel):
     suitability: str = Field(..., description="مدى الملاءمة")
     suitability_score: int = Field(..., ge=1, le=10, description="درجة الملاءمة")
     reason: str = Field(..., description="السبب")
-    best_time: Optional[str] = Field(None, description="أفضل وقت")
+    best_time: str | None = Field(None, description="أفضل وقت")
 
 
 class DailyAstronomicalData(BaseModel):
@@ -825,7 +822,7 @@ class DailyAstronomicalData(BaseModel):
     overall_farming_score: int = Field(
         ..., ge=1, le=10, description="درجة الزراعة الإجمالية"
     )
-    recommendations: List[FarmingRecommendation] = Field(
+    recommendations: list[FarmingRecommendation] = Field(
         ..., description="التوصيات الزراعية"
     )
 
@@ -835,10 +832,10 @@ class WeeklyForecast(BaseModel):
 
     start_date: str
     end_date: str
-    days: List[DailyAstronomicalData]
-    best_planting_days: List[str]
-    best_harvesting_days: List[str]
-    avoid_days: List[str]
+    days: list[DailyAstronomicalData]
+    best_planting_days: list[str]
+    best_harvesting_days: list[str]
+    avoid_days: list[str]
 
 
 class CropCalendar(BaseModel):
@@ -846,10 +843,10 @@ class CropCalendar(BaseModel):
 
     crop_name: str
     crop_name_en: str
-    best_planting_mansions: List[int]
-    best_moon_phases: List[str]
-    best_zodiac_signs: List[str]
-    optimal_months: List[int]
+    best_planting_mansions: list[int]
+    best_moon_phases: list[str]
+    best_zodiac_signs: list[str]
+    optimal_months: list[int]
     planting_guide: str
     current_suitability: int
 
@@ -1008,9 +1005,7 @@ def get_zodiac_sign(dt: datetime) -> ZodiacInfo:
             sign_key = zd[2]
             break
 
-    if month == 12 and day >= 22:
-        sign_key = "capricorn"
-    elif month == 1 and day < 20:
+    if month == 12 and day >= 22 or month == 1 and day < 20:
         sign_key = "capricorn"
 
     # تحديد البرج بناءً على الشهر والتاريخ
@@ -1070,7 +1065,7 @@ def get_current_season(month: int) -> SeasonInfo:
 
 def calculate_farming_recommendations(
     moon_phase: MoonPhase, lunar_mansion: LunarMansion, zodiac: ZodiacInfo
-) -> List[FarmingRecommendation]:
+) -> list[FarmingRecommendation]:
     """حساب التوصيات الزراعية"""
     recommendations = []
 
@@ -1160,7 +1155,7 @@ def calculate_farming_recommendations(
                 else "جيدة" if pruning_score >= 6 else "متوسطة"
             ),
             suitability_score=pruning_score,
-            reason=f"القمر المتناقص أفضل للتقليم",
+            reason="القمر المتناقص أفضل للتقليم",
             best_time="الصباح",
         )
     )
@@ -1262,7 +1257,7 @@ def get_date(date_str: str):
 
 @app.get("/v1/week", response_model=WeeklyForecast, tags=["Calendar"])
 def get_weekly_forecast(
-    start_date: Optional[str] = Query(None, description="تاريخ البداية (YYYY-MM-DD)")
+    start_date: str | None = Query(None, description="تاريخ البداية (YYYY-MM-DD)")
 ):
     """
     الحصول على التوقعات الفلكية الأسبوعية
@@ -1316,7 +1311,7 @@ def get_weekly_forecast(
 
 @app.get("/v1/moon-phase", response_model=MoonPhase, tags=["Astronomy"])
 def get_moon_phase(
-    date_str: Optional[str] = Query(None, description="التاريخ (YYYY-MM-DD)")
+    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")
 ):
     """الحصول على مرحلة القمر"""
     if date_str:
@@ -1332,7 +1327,7 @@ def get_moon_phase(
 
 @app.get("/v1/lunar-mansion", response_model=LunarMansion, tags=["Astronomy"])
 def get_lunar_mansion(
-    date_str: Optional[str] = Query(None, description="التاريخ (YYYY-MM-DD)")
+    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")
 ):
     """الحصول على المنزلة القمرية الحالية"""
     if date_str:
@@ -1367,7 +1362,7 @@ def list_lunar_mansions():
 
 @app.get("/v1/hijri", response_model=HijriDate, tags=["Calendar"])
 def get_hijri_date(
-    date_str: Optional[str] = Query(None, description="التاريخ الميلادي (YYYY-MM-DD)")
+    date_str: str | None = Query(None, description="التاريخ الميلادي (YYYY-MM-DD)")
 ):
     """تحويل تاريخ ميلادي إلى هجري"""
     if date_str:
@@ -1389,7 +1384,7 @@ def list_hijri_months():
 
 @app.get("/v1/zodiac", response_model=ZodiacInfo, tags=["Astronomy"])
 def get_zodiac(
-    date_str: Optional[str] = Query(None, description="التاريخ (YYYY-MM-DD)")
+    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")
 ):
     """الحصول على البرج الشمسي"""
     if date_str:
@@ -1615,7 +1610,7 @@ def get_best_farming_days(
 @app.get("/v1/integration/weather", tags=["Integration"])
 async def get_integrated_data(
     location_id: str = Query("sanaa", description="معرف الموقع"),
-    date_str: Optional[str] = Query(None, description="التاريخ (YYYY-MM-DD)"),
+    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)"),
 ):
     """
     دمج البيانات الفلكية مع بيانات الطقس

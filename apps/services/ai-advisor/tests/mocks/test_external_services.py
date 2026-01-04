@@ -3,9 +3,10 @@ Mock Tests for External Service Dependencies
 اختبارات محاكاة للتبعيات الخارجية
 """
 
-import pytest
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, Mock, patch
+
 import httpx
+import pytest
 
 
 class TestCropHealthToolMock:

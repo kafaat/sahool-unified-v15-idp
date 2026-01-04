@@ -11,17 +11,12 @@ Specialized agent for:
 Uses ensemble of prediction models (NDVI, GDD, Water Balance, Soil).
 """
 
-from typing import Any, Dict, List, Optional
-from datetime import datetime, timedelta
-from dataclasses import dataclass
-import asyncio
 import logging
-import math
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +32,8 @@ class YieldPrediction:
     harvest_date: datetime
     days_to_harvest: int
     growth_stage: str
-    limiting_factors: List[str]
-    recommendations: List[str]
+    limiting_factors: list[str]
+    recommendations: list[str]
 
 
 class YieldPredictorAgent(BaseAgent):
@@ -123,7 +118,7 @@ class YieldPredictorAgent(BaseAgent):
         )
 
         # Prediction history for learning
-        self.prediction_history: List[Dict[str, Any]] = []
+        self.prediction_history: list[dict[str, Any]] = []
 
         # Set utility function
         self.set_utility_function(self._recommendation_utility)
@@ -161,7 +156,7 @@ class YieldPredictorAgent(BaseAgent):
             self.context = AgentContext()
         self.context.metadata["yield_beliefs"] = self.state.beliefs
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """حساب التوقع واتخاذ القرار"""
         crop_info = self.state.beliefs.get("crop", {})
         crop_type = crop_info.get("type", "wheat")
@@ -208,7 +203,7 @@ class YieldPredictorAgent(BaseAgent):
             source_agent=self.agent_id
         )
 
-    async def _predict_yield(self, crop_type: str) -> Optional[YieldPrediction]:
+    async def _predict_yield(self, crop_type: str) -> YieldPrediction | None:
         """التوقع باستخدام نماذج متعددة"""
         if crop_type not in self.BASE_YIELDS:
             return None
@@ -292,7 +287,7 @@ class YieldPredictorAgent(BaseAgent):
             recommendations=[]
         )
 
-    async def _ndvi_model(self, base_yield: float, params: Dict) -> Dict[str, float]:
+    async def _ndvi_model(self, base_yield: float, params: dict) -> dict[str, float]:
         """نموذج NDVI"""
         ndvi_data = self.state.beliefs.get("ndvi_history", {})
         peak_ndvi = ndvi_data.get("peak", 0.5)
@@ -305,7 +300,7 @@ class YieldPredictorAgent(BaseAgent):
 
         return {"yield": yield_estimate, "confidence": confidence}
 
-    async def _gdd_model(self, base_yield: float, params: Dict) -> Dict[str, float]:
+    async def _gdd_model(self, base_yield: float, params: dict) -> dict[str, float]:
         """نموذج درجات الحرارة التراكمية"""
         weather = self.state.beliefs.get("weather", {})
         accumulated_gdd = weather.get("accumulated_gdd", params["gdd_required"] * 0.5)
@@ -320,7 +315,7 @@ class YieldPredictorAgent(BaseAgent):
 
         return {"yield": yield_estimate, "confidence": confidence}
 
-    async def _water_model(self, base_yield: float, params: Dict) -> Dict[str, float]:
+    async def _water_model(self, base_yield: float, params: dict) -> dict[str, float]:
         """نموذج توازن المياه"""
         irrigation = self.state.beliefs.get("irrigation", {})
         weather = self.state.beliefs.get("weather", {})
@@ -342,7 +337,7 @@ class YieldPredictorAgent(BaseAgent):
 
         return {"yield": yield_estimate, "confidence": confidence}
 
-    async def _soil_model(self, base_yield: float) -> Dict[str, float]:
+    async def _soil_model(self, base_yield: float) -> dict[str, float]:
         """نموذج جودة التربة"""
         soil = self.state.beliefs.get("soil", {})
 
@@ -376,7 +371,7 @@ class YieldPredictorAgent(BaseAgent):
 
         return {"yield": yield_estimate, "confidence": confidence}
 
-    async def _generate_recommendations(self, prediction: YieldPrediction) -> List[AgentAction]:
+    async def _generate_recommendations(self, prediction: YieldPrediction) -> list[AgentAction]:
         """توليد التوصيات"""
         actions = []
 
@@ -423,7 +418,7 @@ class YieldPredictorAgent(BaseAgent):
 
         return actions
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ التوصية"""
         result = {
             "action_type": action.action_type,

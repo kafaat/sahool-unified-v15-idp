@@ -5,8 +5,7 @@ SAHOOL GlobalGAP Integration - NATS Events
 
 import json
 import os
-from datetime import datetime, timezone
-from typing import Optional, Any
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import nats
@@ -68,13 +67,13 @@ class GlobalGAPEventPublisher:
         event_type: str,
         tenant_id: str,
         data: dict,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> dict:
         """إنشاء حدث موحد"""
         return {
             "event_id": str(uuid4()),
             "event_type": event_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "source": "globalgap-integration",
             "version": "1.0.0",
             "tenant_id": tenant_id,
@@ -95,9 +94,9 @@ class GlobalGAPEventPublisher:
         farm_id: str,
         control_point: str,
         compliance_status: str,
-        previous_status: Optional[str] = None,
-        assessment_data: Optional[dict] = None,
-        correlation_id: Optional[str] = None,
+        previous_status: str | None = None,
+        assessment_data: dict | None = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث تحديث الامتثال
@@ -112,7 +111,7 @@ class GlobalGAPEventPublisher:
                 "compliance_status": compliance_status,
                 "previous_status": previous_status,
                 "assessment_data": assessment_data or {},
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -125,7 +124,7 @@ class GlobalGAPEventPublisher:
         control_point: str,
         reason: str,
         priority: str = "medium",
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث الحاجة لفحص الامتثال
@@ -153,8 +152,8 @@ class GlobalGAPEventPublisher:
         audit_id: str,
         audit_type: str,
         scheduled_date: str,
-        auditor_info: Optional[dict] = None,
-        correlation_id: Optional[str] = None,
+        auditor_info: dict | None = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث جدولة تدقيق
@@ -181,8 +180,8 @@ class GlobalGAPEventPublisher:
         audit_id: str,
         result: str,
         findings: list,
-        score: Optional[float] = None,
-        correlation_id: Optional[str] = None,
+        score: float | None = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث اكتمال التدقيق
@@ -197,7 +196,7 @@ class GlobalGAPEventPublisher:
                 "result": result,
                 "findings": findings,
                 "score": score,
-                "completed_at": datetime.now(timezone.utc).isoformat(),
+                "completed_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -212,9 +211,9 @@ class GlobalGAPEventPublisher:
         control_point: str,
         severity: str,
         description: str,
-        field_id: Optional[str] = None,
-        detected_at: Optional[str] = None,
-        correlation_id: Optional[str] = None,
+        field_id: str | None = None,
+        detected_at: str | None = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث اكتشاف عدم مطابقة
@@ -229,7 +228,7 @@ class GlobalGAPEventPublisher:
                 "control_point": control_point,
                 "severity": severity,
                 "description": description,
-                "detected_at": detected_at or datetime.now(timezone.utc).isoformat(),
+                "detected_at": detected_at or datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -242,7 +241,7 @@ class GlobalGAPEventPublisher:
         non_conformance_id: str,
         resolution_notes: str,
         resolved_by: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث حل عدم المطابقة
@@ -256,7 +255,7 @@ class GlobalGAPEventPublisher:
                 "non_conformance_id": non_conformance_id,
                 "resolution_notes": resolution_notes,
                 "resolved_by": resolved_by,
-                "resolved_at": datetime.now(timezone.utc).isoformat(),
+                "resolved_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -272,7 +271,7 @@ class GlobalGAPEventPublisher:
         certificate_type: str,
         expiry_date: str,
         days_until_expiry: int,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث قرب انتهاء الشهادة
@@ -299,7 +298,7 @@ class GlobalGAPEventPublisher:
         certificate_id: str,
         certificate_type: str,
         new_expiry_date: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث تجديد الشهادة
@@ -313,7 +312,7 @@ class GlobalGAPEventPublisher:
                 "certificate_id": certificate_id,
                 "certificate_type": certificate_type,
                 "new_expiry_date": new_expiry_date,
-                "renewed_at": datetime.now(timezone.utc).isoformat(),
+                "renewed_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
@@ -328,8 +327,8 @@ class GlobalGAPEventPublisher:
         farm_id: str,
         records_synced: int,
         sync_status: str,
-        error_message: Optional[str] = None,
-        correlation_id: Optional[str] = None,
+        error_message: str | None = None,
+        correlation_id: str | None = None,
     ) -> str:
         """
         نشر حدث مزامنة التكامل
@@ -353,14 +352,14 @@ class GlobalGAPEventPublisher:
                 "records_synced": records_synced,
                 "sync_status": sync_status,
                 "error_message": error_message,
-                "synced_at": datetime.now(timezone.utc).isoformat(),
+                "synced_at": datetime.now(UTC).isoformat(),
             },
             correlation_id=correlation_id,
         )
         return await self._publish(topic, event)
 
 
-async def get_publisher() -> Optional[GlobalGAPEventPublisher]:
+async def get_publisher() -> GlobalGAPEventPublisher | None:
     """
     الحصول على ناشر أحداث GlobalGAP
     Get GlobalGAP event publisher

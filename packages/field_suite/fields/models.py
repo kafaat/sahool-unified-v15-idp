@@ -5,10 +5,9 @@ Data models for field management
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -81,13 +80,13 @@ class Field:
     tenant_id: str
     farm_id: str
     name: str
-    name_ar: Optional[str]
+    name_ar: str | None
     boundary: FieldBoundary
     area_hectares: float
     soil_type: SoilType
     irrigation_type: IrrigationType
     status: FieldStatus
-    current_crop_id: Optional[str]
+    current_crop_id: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -101,10 +100,10 @@ class Field:
         area_hectares: float,
         soil_type: SoilType = SoilType.LOAMY,
         irrigation_type: IrrigationType = IrrigationType.DRIP,
-        name_ar: Optional[str] = None,
+        name_ar: str | None = None,
     ) -> Field:
         """Factory method to create a new field"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             id=str(uuid4()),
             tenant_id=tenant_id,

@@ -4,13 +4,13 @@ Test Crop Phenology Detection
 """
 
 import sys
+from datetime import date, timedelta
 from pathlib import Path
-from datetime import date, datetime, timedelta
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from phenology_detector import PhenologyDetector, GrowthStage
+from phenology_detector import GrowthStage, PhenologyDetector
 
 
 def test_wheat_phenology():
@@ -109,14 +109,14 @@ def test_timeline_generation():
         print(f"Planting: {timeline.planting_date}")
         print(f"Harvest: {timeline.harvest_estimate}")
         print(f"Season Length: {timeline.season_length_days} days")
-        print(f"\nStages:")
+        print("\nStages:")
         for stage in timeline.stages[:3]:  # Show first 3 stages
             print(
                 f"  - {stage['stage_en']} ({stage['stage_ar']}): {stage['start_date']} to {stage['end_date']}"
             )
 
         if timeline.critical_periods:
-            print(f"\nCritical Periods:")
+            print("\nCritical Periods:")
             for cp in timeline.critical_periods:
                 print(f"  - {cp['stage_en']}: {cp['reason_en']}")
 

@@ -6,9 +6,9 @@ Data models for GlobalGAP GGN certificates.
 نماذج البيانات لشهادات GGN الخاصة بـ GlobalGAP.
 """
 
-from datetime import datetime, date
+from datetime import date, datetime
 from enum import Enum
-from typing import Optional, List, Dict, Any
+
 from pydantic import BaseModel, Field
 
 
@@ -54,10 +54,10 @@ class CertificationBody(BaseModel):
     )
     code: str = Field(..., description="CB code | رمز الجهة")
     country: str = Field(..., description="Country | الدولة")
-    contact_email: Optional[str] = None
-    contact_phone: Optional[str] = None
-    website: Optional[str] = None
-    accreditation_number: Optional[str] = None
+    contact_email: str | None = None
+    contact_phone: str | None = None
+    website: str | None = None
+    accreditation_number: str | None = None
 
 
 class GGNCertificate(BaseModel):
@@ -66,7 +66,7 @@ class GGNCertificate(BaseModel):
     شهادة GlobalGAP GGN
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     farm_id: str = Field(..., description="Farm identifier | معرف المزرعة")
     tenant_id: str = Field(..., description="Tenant identifier | معرف المستأجر")
 
@@ -77,7 +77,7 @@ class GGNCertificate(BaseModel):
         min_length=13,
         max_length=13,
     )
-    gln_number: Optional[str] = Field(
+    gln_number: str | None = Field(
         None,
         description="Global Location Number (GLN) | رقم الموقع العالمي",
         min_length=13,
@@ -95,10 +95,10 @@ class GGNCertificate(BaseModel):
     scope: CertificationScope = Field(
         ..., description="Certification scope | نطاق الشهادة"
     )
-    products: List[str] = Field(
+    products: list[str] = Field(
         default_factory=list, description="Certified products | المنتجات المعتمدة"
     )
-    production_methods: List[str] = Field(
+    production_methods: list[str] = Field(
         default_factory=list,
         description="e.g., conventional, organic | مثل: تقليدي، عضوي",
     )
@@ -107,8 +107,8 @@ class GGNCertificate(BaseModel):
     issue_date: date = Field(..., description="Issue date | تاريخ الإصدار")
     valid_from: date = Field(..., description="Valid from date | صالح من تاريخ")
     valid_until: date = Field(..., description="Valid until date | صالح حتى تاريخ")
-    last_audit_date: Optional[date] = None
-    next_audit_date: Optional[date] = None
+    last_audit_date: date | None = None
+    next_audit_date: date | None = None
 
     # Certification body | الجهة المانحة للشهادة
     certification_body: CertificationBody = Field(
@@ -129,7 +129,7 @@ class GGNCertificate(BaseModel):
     producer_name: str = Field(
         ..., description="Producer/farmer name | اسم المنتج/المزارع"
     )
-    producer_contact: Optional[str] = None
+    producer_contact: str | None = None
 
     # Compliance information | معلومات الامتثال
     ifa_version: str = Field(
@@ -151,9 +151,9 @@ class GGNCertificate(BaseModel):
     )
 
     # Certificate documents | مستندات الشهادة
-    certificate_pdf_url: Optional[str] = None
-    audit_report_url: Optional[str] = None
-    attachments: List[str] = Field(default_factory=list)
+    certificate_pdf_url: str | None = None
+    audit_report_url: str | None = None
+    attachments: list[str] = Field(default_factory=list)
 
     # Public information | معلومات عامة
     publicly_searchable: bool = Field(
@@ -163,7 +163,7 @@ class GGNCertificate(BaseModel):
 
     # Renewal tracking | تتبع التجديد
     renewal_notification_sent: bool = Field(default=False)
-    renewal_notification_date: Optional[datetime] = None
+    renewal_notification_date: datetime | None = None
 
     # Metadata | بيانات وصفية
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -232,7 +232,7 @@ class CertificateRenewal(BaseModel):
     طلب تجديد الشهادة
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     certificate_id: str
     farm_id: str
     tenant_id: str
@@ -244,7 +244,7 @@ class CertificateRenewal(BaseModel):
 
     # Pre-renewal audit | التدقيق قبل التجديد
     pre_renewal_audit_scheduled: bool = False
-    pre_renewal_audit_date: Optional[datetime] = None
+    pre_renewal_audit_date: datetime | None = None
     pre_renewal_audit_completed: bool = False
 
     # Renewal status | حالة التجديد
@@ -252,16 +252,16 @@ class CertificateRenewal(BaseModel):
         default="pending",
         description="pending, in_progress, approved, rejected | معلق، قيد التنفيذ، موافق عليه، مرفوض",
     )
-    approval_date: Optional[datetime] = None
-    approved_by: Optional[str] = None
+    approval_date: datetime | None = None
+    approved_by: str | None = None
 
     # New certificate | الشهادة الجديدة
-    new_certificate_id: Optional[str] = None
-    new_valid_from: Optional[date] = None
-    new_valid_until: Optional[date] = None
+    new_certificate_id: str | None = None
+    new_valid_from: date | None = None
+    new_valid_until: date | None = None
 
     # Notes | ملاحظات
-    notes: Optional[str] = None
+    notes: str | None = None
 
     # Metadata | بيانات وصفية
     created_at: datetime = Field(default_factory=datetime.utcnow)

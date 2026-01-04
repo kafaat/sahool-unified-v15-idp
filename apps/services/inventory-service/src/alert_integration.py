@@ -146,7 +146,6 @@ PUT /v1/alerts/settings
 """
 
 import logging
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +183,8 @@ def setup_alert_endpoints(app):
     Args:
         app: FastAPI application instance
     """
-    from alert_endpoints import router as alert_router, init_alert_manager
+    from alert_endpoints import init_alert_manager
+    from alert_endpoints import router as alert_router
     from alert_manager import AlertManager
 
     # Initialize alert manager

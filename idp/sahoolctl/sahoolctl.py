@@ -9,7 +9,6 @@ Features:
 """
 
 import argparse
-import json
 import os
 import re
 import sys
@@ -244,7 +243,7 @@ def cmd_create(args):
         )
         sys.exit(1)
 
-    print(f"🔍 Governance validation passed")
+    print("🔍 Governance validation passed")
     print(f"   Owner: {values['owner']}")
     print(f"   Team: {values['team']}")
     print(f"   Lifecycle: {values['lifecycle']}")

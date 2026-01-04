@@ -11,9 +11,8 @@ Based on:
 Last updated: December 2025
 """
 
-from enum import Enum
 from dataclasses import dataclass
-from typing import Optional, Dict, List
+from enum import Enum
 
 
 class CropCategory(str, Enum):
@@ -72,16 +71,16 @@ class CropInfo:
     yield_unit: str = "ton/ha"  # وحدة القياس
 
     # Yemen specific
-    yemen_regions: List[str] = None  # المناطق اليمنية المناسبة
-    local_varieties: List[str] = None  # الأصناف المحلية
+    yemen_regions: list[str] = None  # المناطق اليمنية المناسبة
+    local_varieties: list[str] = None  # الأصناف المحلية
 
     # FAO Kc coefficients (optional)
-    kc_ini: Optional[float] = None  # معامل المحصول الأولي
-    kc_mid: Optional[float] = None  # معامل المحصول الأقصى
-    kc_end: Optional[float] = None  # معامل المحصول النهائي
+    kc_ini: float | None = None  # معامل المحصول الأولي
+    kc_mid: float | None = None  # معامل المحصول الأقصى
+    kc_end: float | None = None  # معامل المحصول النهائي
 
     # Economic data (USD/ton)
-    price_usd_per_ton: Optional[float] = None
+    price_usd_per_ton: float | None = None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1104,7 +1103,7 @@ SUGAR = {
 # UNIFIED CROP CATALOG
 # ═══════════════════════════════════════════════════════════════════════════════
 
-ALL_CROPS: Dict[str, CropInfo] = {
+ALL_CROPS: dict[str, CropInfo] = {
     **CEREALS,
     **LEGUMES,
     **VEGETABLES,
@@ -1123,24 +1122,24 @@ ALL_CROPS: Dict[str, CropInfo] = {
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def get_crop(code: str) -> Optional[CropInfo]:
+def get_crop(code: str) -> CropInfo | None:
     """Get crop by code"""
     return ALL_CROPS.get(code.upper())
 
 
-def get_crops_by_category(category: CropCategory) -> List[CropInfo]:
+def get_crops_by_category(category: CropCategory) -> list[CropInfo]:
     """Get all crops in a category"""
     return [crop for crop in ALL_CROPS.values() if crop.category == category]
 
 
-def get_crops_by_water_requirement(requirement: WaterRequirement) -> List[CropInfo]:
+def get_crops_by_water_requirement(requirement: WaterRequirement) -> list[CropInfo]:
     """Get crops by water requirement"""
     return [
         crop for crop in ALL_CROPS.values() if crop.water_requirement == requirement
     ]
 
 
-def get_crops_for_region(region: str) -> List[CropInfo]:
+def get_crops_for_region(region: str) -> list[CropInfo]:
     """Get crops suitable for a Yemen region"""
     return [
         crop
@@ -1149,7 +1148,7 @@ def get_crops_for_region(region: str) -> List[CropInfo]:
     ]
 
 
-def search_crops(query: str) -> List[CropInfo]:
+def search_crops(query: str) -> list[CropInfo]:
     """Search crops by name (English or Arabic)"""
     query_lower = query.lower()
     return [
@@ -1159,17 +1158,17 @@ def search_crops(query: str) -> List[CropInfo]:
     ]
 
 
-def get_crop_codes() -> List[str]:
+def get_crop_codes() -> list[str]:
     """Get all crop codes"""
     return list(ALL_CROPS.keys())
 
 
-def get_crop_names_ar() -> Dict[str, str]:
+def get_crop_names_ar() -> dict[str, str]:
     """Get mapping of code to Arabic name"""
     return {code: crop.name_ar for code, crop in ALL_CROPS.items()}
 
 
-def get_crop_names_en() -> Dict[str, str]:
+def get_crop_names_en() -> dict[str, str]:
     """Get mapping of code to English name"""
     return {code: crop.name_en for code, crop in ALL_CROPS.items()}
 

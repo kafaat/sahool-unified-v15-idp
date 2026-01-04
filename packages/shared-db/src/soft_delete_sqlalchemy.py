@@ -17,10 +17,11 @@ Author: SAHOOL Team
 """
 
 from datetime import datetime
-from typing import Optional, Type, TypeVar, List, Any
-from sqlalchemy import Column, DateTime, String, event, inspect
-from sqlalchemy.orm import Session, Query, declarative_mixin
+from typing import Any, TypeVar
+
+from sqlalchemy import Column, DateTime, String, event
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import Query, Session, declarative_mixin
 
 # Type variable for generic model classes
 T = TypeVar("T")
@@ -78,7 +79,7 @@ class SoftDeleteMixin:
             comment="من قام بالحذف - User who deleted the record",
         )
 
-    def soft_delete(self, deleted_by: Optional[str] = None) -> None:
+    def soft_delete(self, deleted_by: str | None = None) -> None:
         """
         Soft delete this record instance.
 
@@ -219,7 +220,7 @@ def soft_delete_filter(query: Query) -> Query:
     return query
 
 
-def get_active_records(session: Session, model: Type[T], **filters) -> List[T]:
+def get_active_records(session: Session, model: type[T], **filters) -> list[T]:
     """
     Get all active (non-deleted) records for a model.
 
@@ -254,7 +255,7 @@ def get_active_records(session: Session, model: Type[T], **filters) -> List[T]:
     return query.all()
 
 
-def get_deleted_records(session: Session, model: Type[T], **filters) -> List[T]:
+def get_deleted_records(session: Session, model: type[T], **filters) -> list[T]:
     """
     Get all soft-deleted records for a model.
 
@@ -281,7 +282,7 @@ def get_deleted_records(session: Session, model: Type[T], **filters) -> List[T]:
     return query.all()
 
 
-def get_all_records(session: Session, model: Type[T], **filters) -> List[T]:
+def get_all_records(session: Session, model: type[T], **filters) -> list[T]:
     """
     Get all records (including deleted ones) for a model.
 
@@ -313,11 +314,11 @@ def get_all_records(session: Session, model: Type[T], **filters) -> List[T]:
 
 def soft_delete_record(
     session: Session,
-    model: Type[T],
+    model: type[T],
     record_id: Any,
-    deleted_by: Optional[str] = None,
+    deleted_by: str | None = None,
     id_field: str = "id",
-) -> Optional[T]:
+) -> T | None:
     """
     Soft delete a single record by ID.
 
@@ -354,7 +355,7 @@ def soft_delete_record(
 
 
 def soft_delete_many(
-    session: Session, model: Type[T], deleted_by: Optional[str] = None, **filters
+    session: Session, model: type[T], deleted_by: str | None = None, **filters
 ) -> int:
     """
     Soft delete multiple records matching filters.
@@ -402,8 +403,8 @@ def soft_delete_many(
 
 
 def restore_record(
-    session: Session, model: Type[T], record_id: Any, id_field: str = "id"
-) -> Optional[T]:
+    session: Session, model: type[T], record_id: Any, id_field: str = "id"
+) -> T | None:
     """
     Restore a soft-deleted record by ID.
 
@@ -433,7 +434,7 @@ def restore_record(
     return None
 
 
-def restore_many(session: Session, model: Type[T], **filters) -> int:
+def restore_many(session: Session, model: type[T], **filters) -> int:
     """
     Restore multiple soft-deleted records.
 
@@ -472,7 +473,7 @@ def restore_many(session: Session, model: Type[T], **filters) -> int:
 
 
 def hard_delete_record(
-    session: Session, model: Type[T], record_id: Any, id_field: str = "id"
+    session: Session, model: type[T], record_id: Any, id_field: str = "id"
 ) -> bool:
     """
     Permanently delete a record (hard delete).
@@ -544,7 +545,7 @@ def enable_soft_delete_filter(session: Session) -> None:
     # a custom Query class. See the documentation for advanced usage.
 
 
-def count_active_records(session: Session, model: Type[T]) -> int:
+def count_active_records(session: Session, model: type[T]) -> int:
     """
     Count active (non-deleted) records.
 
@@ -561,7 +562,7 @@ def count_active_records(session: Session, model: Type[T]) -> int:
     return query.count()
 
 
-def count_deleted_records(session: Session, model: Type[T]) -> int:
+def count_deleted_records(session: Session, model: type[T]) -> int:
     """
     Count soft-deleted records.
 
@@ -583,7 +584,7 @@ def count_deleted_records(session: Session, model: Type[T]) -> int:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def get_deletion_metadata(record: Any) -> Optional[dict]:
+def get_deletion_metadata(record: Any) -> dict | None:
     """
     Get deletion metadata from a record.
 
@@ -606,7 +607,7 @@ def get_deletion_metadata(record: Any) -> Optional[dict]:
     return None
 
 
-def is_soft_deletable(model: Type) -> bool:
+def is_soft_deletable(model: type) -> bool:
     """
     Check if a model supports soft delete.
 

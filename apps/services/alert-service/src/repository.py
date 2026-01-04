@@ -7,15 +7,13 @@ Data access layer for alerts and alert rules
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Sequence
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import and_, func, select, or_
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from .db_models import Alert, AlertRule
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Alerts Repository
@@ -185,7 +183,7 @@ def update_alert_status(
         return None
 
     alert.status = status
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if status == "acknowledged":
         alert.acknowledged_at = now
@@ -219,7 +217,7 @@ def get_active_alerts(
     Returns:
         List of active alerts
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     query = (
         select(Alert)
@@ -277,7 +275,7 @@ def get_alert_statistics(
     Returns:
         Dictionary with statistics
     """
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff = datetime.now(UTC) - timedelta(days=days)
 
     query = select(Alert).where(Alert.created_at >= cutoff)
 
@@ -450,7 +448,7 @@ def update_alert_rule(
         if hasattr(rule, key):
             setattr(rule, key, value)
 
-    rule.updated_at = datetime.now(timezone.utc)
+    rule.updated_at = datetime.now(UTC)
 
     return rule
 
@@ -491,7 +489,7 @@ def mark_rule_triggered(db: Session, rule_id: UUID) -> AlertRule | None:
     if not rule:
         return None
 
-    rule.last_triggered_at = datetime.now(timezone.utc)
+    rule.last_triggered_at = datetime.now(UTC)
 
     return rule
 
@@ -511,7 +509,7 @@ def get_rules_ready_to_trigger(
     Returns:
         List of rules ready to trigger
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     query = select(AlertRule).where(AlertRule.enabled == True)
 

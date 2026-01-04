@@ -10,12 +10,10 @@ Tests for critical identity flows:
 5. Multi-factor authentication (MFA)
 """
 
-import pytest
 from datetime import datetime, timedelta
-from typing import Dict, Optional
-import jwt
-import httpx
 
+import jwt
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Configuration
@@ -64,7 +62,7 @@ def jwt_helper():
     class JWTHelper:
         @staticmethod
         def create_access_token(
-            user_id: str, tenant_id: str, extra_claims: Optional[Dict] = None
+            user_id: str, tenant_id: str, extra_claims: dict | None = None
         ) -> str:
             """Create a valid access token"""
             payload = {
@@ -104,7 +102,7 @@ def jwt_helper():
             return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
         @staticmethod
-        def decode_token(token: str) -> Dict:
+        def decode_token(token: str) -> dict:
             """Decode and verify a token"""
             return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
 
@@ -130,7 +128,7 @@ class TestLoginFlow:
         }
 
         # Mock authentication logic
-        def authenticate(username: str, password: str) -> Optional[Dict]:
+        def authenticate(username: str, password: str) -> dict | None:
             # In real implementation, this would verify password hash
             if username == mock_user["username"]:
                 return mock_user
@@ -166,7 +164,7 @@ class TestLoginFlow:
             "password": "wrong_password",
         }
 
-        def authenticate(username: str, password: str) -> Optional[Dict]:
+        def authenticate(username: str, password: str) -> dict | None:
             # Simulate password verification failure
             return None
 
@@ -177,7 +175,7 @@ class TestLoginFlow:
         """Test login failure with inactive user"""
         inactive_user = {**mock_user, "is_active": False}
 
-        def authenticate(username: str, password: str) -> Optional[Dict]:
+        def authenticate(username: str, password: str) -> dict | None:
             # Check if user is active
             if not inactive_user["is_active"]:
                 return None

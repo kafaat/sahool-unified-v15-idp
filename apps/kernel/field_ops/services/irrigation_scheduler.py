@@ -8,31 +8,26 @@ Based on FAO-56 methodology (Penman-Monteith)
 """
 
 import math
-from datetime import datetime, date, timedelta
-from typing import List, Dict, Optional, Tuple
-from collections import defaultdict
+from datetime import date, datetime, timedelta
 
 from ..models.irrigation import (
-    IrrigationType,
-    SoilType,
     CropType,
     GrowthStage,
-    IrrigationStatus,
-    WeatherData,
-    SoilProperties,
-    CropCoefficient,
-    WaterBalance,
     IrrigationEvent,
-    IrrigationSchedule,
     IrrigationRecommendation,
+    IrrigationSchedule,
+    IrrigationType,
+    SoilProperties,
+    SoilType,
+    WaterBalance,
+    WeatherData,
 )
-
 
 # ============== جداول معاملات المحاصيل اليمنية - Yemen Crop Coefficient Tables ==============
 
 # معاملات المحاصيل (Kc) حسب مراحل النمو لمحاصيل اليمن
 # Crop coefficients by growth stage for Yemen crops (FAO-56 + local adaptations)
-YEMEN_CROP_KC_TABLE: Dict[CropType, Dict[GrowthStage, Dict[str, float]]] = {
+YEMEN_CROP_KC_TABLE: dict[CropType, dict[GrowthStage, dict[str, float]]] = {
     # محاصيل الحبوب - Cereals
     CropType.WHEAT: {
         GrowthStage.INITIAL: {"kc": 0.3, "duration_days": 15, "p": 0.55},
@@ -180,7 +175,7 @@ YEMEN_CROP_KC_TABLE: Dict[CropType, Dict[GrowthStage, Dict[str, float]]] = {
 
 
 # جداول خصائص التربة - Soil properties table
-SOIL_PROPERTIES_TABLE: Dict[SoilType, Dict[str, float]] = {
+SOIL_PROPERTIES_TABLE: dict[SoilType, dict[str, float]] = {
     SoilType.SANDY: {
         "field_capacity": 0.10,  # 10% محتوى مائي
         "wilting_point": 0.04,  # 4%
@@ -215,7 +210,7 @@ SOIL_PROPERTIES_TABLE: Dict[SoilType, Dict[str, float]] = {
 
 
 # كفاءة أنظمة الري - Irrigation system efficiency
-IRRIGATION_EFFICIENCY: Dict[IrrigationType, float] = {
+IRRIGATION_EFFICIENCY: dict[IrrigationType, float] = {
     IrrigationType.DRIP: 0.90,  # 90% كفاءة عالية
     IrrigationType.SPRINKLER: 0.75,  # 75%
     IrrigationType.SURFACE: 0.60,  # 60% كفاءة منخفضة
@@ -554,7 +549,7 @@ class IrrigationScheduler:
         growth_stage: GrowthStage,
         soil_properties: SoilProperties,
         irrigation_amount: float = 0.0,
-        previous_balance: Optional[WaterBalance] = None,
+        previous_balance: WaterBalance | None = None,
     ) -> WaterBalance:
         """
         حساب توازن المياه في التربة
@@ -631,9 +626,9 @@ class IrrigationScheduler:
         growth_stage: GrowthStage,
         soil_type: SoilType,
         irrigation_type: IrrigationType,
-        weather_forecast: List[WeatherData],
+        weather_forecast: list[WeatherData],
         field_area_ha: float,
-        start_date: Optional[date] = None,
+        start_date: date | None = None,
         optimize_for_cost: bool = True,
         electricity_night_discount: float = 0.3,
     ) -> IrrigationSchedule:
@@ -930,7 +925,7 @@ class IrrigationScheduler:
         soil_properties: SoilProperties,
         crop_type: CropType,
         growth_stage: GrowthStage,
-        weather_forecast: List[WeatherData],
+        weather_forecast: list[WeatherData],
     ) -> IrrigationRecommendation:
         """
         الحصول على توصية ري

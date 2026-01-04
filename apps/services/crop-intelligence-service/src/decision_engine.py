@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Literal
+from typing import Any, Literal
 
 
 class GrowthStage(str, Enum):
@@ -76,7 +76,7 @@ def _get_health_status(ndvi: float) -> tuple[str, str]:
         return "critical", "حرج"
 
 
-def diagnose_zone(obs: ZoneObservation) -> List[Dict[str, Any]]:
+def diagnose_zone(obs: ZoneObservation) -> list[dict[str, Any]]:
     """
     تشخيص منطقة وإرجاع قائمة الإجراءات المطلوبة
 
@@ -87,7 +87,7 @@ def diagnose_zone(obs: ZoneObservation) -> List[Dict[str, Any]]:
     - NDVI منخفض جداً = ضعف عام يحتاج تفقد
     """
     idx = obs.indices
-    actions: List[Dict[str, Any]] = []
+    actions: list[dict[str, Any]] = []
 
     # تطبيع القيم
     ndvi = _clamp01(idx.ndvi)
@@ -234,7 +234,7 @@ def diagnose_zone(obs: ZoneObservation) -> List[Dict[str, Any]]:
     return actions
 
 
-def classify_zone_status(actions: List[Dict[str, Any]]) -> str:
+def classify_zone_status(actions: list[dict[str, Any]]) -> str:
     """تصنيف حالة المنطقة بناءً على الإجراءات"""
     if not actions:
         return "ok"
@@ -250,8 +250,8 @@ def classify_zone_status(actions: List[Dict[str, Any]]) -> str:
 
 
 def generate_vrt_properties(
-    zone_id: str, actions: List[Dict[str, Any]]
-) -> Dict[str, Any]:
+    zone_id: str, actions: list[dict[str, Any]]
+) -> dict[str, Any]:
     """
     توليد خصائص VRT للمنطقة (للتصدير إلى آلات الرش/الري)
     """

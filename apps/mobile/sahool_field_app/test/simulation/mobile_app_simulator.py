@@ -8,14 +8,12 @@ backend services integration and API endpoints.
 """
 
 import asyncio
-import json
-import uuid
-from datetime import datetime, timedelta
-from dataclasses import dataclass, field, asdict
-from typing import Optional, List, Dict, Any
-from enum import Enum
 import random
-
+import uuid
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
 
 # =============================================================================
 # Models - نماذج البيانات
@@ -37,9 +35,9 @@ class User:
     email: str
     name: str
     tenant_id: str
-    roles: List[str] = field(default_factory=list)
-    access_token: Optional[str] = None
-    refresh_token: Optional[str] = None
+    roles: list[str] = field(default_factory=list)
+    access_token: str | None = None
+    refresh_token: str | None = None
 
 
 @dataclass
@@ -50,9 +48,9 @@ class Field:
     tenant_id: str
     name: str
     area_hectares: float
-    crop_type: Optional[str] = None
-    location: Optional[Dict[str, float]] = None
-    ndvi_latest: Optional[float] = None
+    crop_type: str | None = None
+    location: dict[str, float] | None = None
+    ndvi_latest: float | None = None
     sync_status: SyncStatus = SyncStatus.SYNCED
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
@@ -64,9 +62,9 @@ class Task:
     id: str
     field_id: str
     title: str
-    description: Optional[str] = None
+    description: str | None = None
     status: str = "pending"
-    due_date: Optional[str] = None
+    due_date: str | None = None
     sync_status: SyncStatus = SyncStatus.SYNCED
 
 
@@ -90,7 +88,7 @@ class SyncQueueItem:
     entity_type: str
     entity_id: str
     action: str  # create, update, delete
-    data: Dict[str, Any]
+    data: dict[str, Any]
     created_at: str
     retry_count: int = 0
 
@@ -104,11 +102,11 @@ class LocalStorage:
     """Simulated local storage (SharedPreferences + Drift DB)"""
 
     def __init__(self):
-        self._data: Dict[str, Any] = {}
-        self._fields: Dict[str, Field] = {}
-        self._tasks: Dict[str, Task] = {}
-        self._sync_queue: List[SyncQueueItem] = []
-        self._cache: Dict[str, tuple] = {}  # key -> (value, expires_at)
+        self._data: dict[str, Any] = {}
+        self._fields: dict[str, Field] = {}
+        self._tasks: dict[str, Task] = {}
+        self._sync_queue: list[SyncQueueItem] = []
+        self._cache: dict[str, tuple] = {}  # key -> (value, expires_at)
 
     def set(self, key: str, value: Any):
         self._data[key] = value
@@ -130,7 +128,7 @@ class LocalStorage:
         expires_at = datetime.now() + timedelta(seconds=ttl_seconds)
         self._cache[key] = (value, expires_at)
 
-    def cache_get(self, key: str) -> Optional[Any]:
+    def cache_get(self, key: str) -> Any | None:
         if key in self._cache:
             value, expires_at = self._cache[key]
             if datetime.now() < expires_at:
@@ -141,16 +139,16 @@ class LocalStorage:
     def save_field(self, f: Field):
         self._fields[f.id] = f
 
-    def get_fields(self) -> List[Field]:
+    def get_fields(self) -> list[Field]:
         return list(self._fields.values())
 
-    def get_field(self, field_id: str) -> Optional[Field]:
+    def get_field(self, field_id: str) -> Field | None:
         return self._fields.get(field_id)
 
     def save_task(self, t: Task):
         self._tasks[t.id] = t
 
-    def get_tasks(self, field_id: Optional[str] = None) -> List[Task]:
+    def get_tasks(self, field_id: str | None = None) -> list[Task]:
         if field_id:
             return [t for t in self._tasks.values() if t.field_id == field_id]
         return list(self._tasks.values())
@@ -158,7 +156,7 @@ class LocalStorage:
     def add_to_sync_queue(self, item: SyncQueueItem):
         self._sync_queue.append(item)
 
-    def get_sync_queue(self) -> List[SyncQueueItem]:
+    def get_sync_queue(self) -> list[SyncQueueItem]:
         return self._sync_queue.copy()
 
     def remove_from_sync_queue(self, item_id: str):
@@ -175,7 +173,7 @@ class MockApiClient:
 
     def __init__(self, base_url: str = "http://localhost:8000/api/v1"):
         self.base_url = base_url
-        self.auth_token: Optional[str] = None
+        self.auth_token: str | None = None
         self.tenant_id: str = "tenant-demo-001"
         self.is_online = True
         self._request_count = 0
@@ -190,7 +188,7 @@ class MockApiClient:
         """Simulate network latency"""
         await asyncio.sleep(random.uniform(0.1, 0.5))
 
-    async def login(self, email: str, password: str) -> Dict[str, Any]:
+    async def login(self, email: str, password: str) -> dict[str, Any]:
         """Simulate login API"""
         if not self.is_online:
             raise ConnectionError("لا يوجد اتصال بالإنترنت")
@@ -221,7 +219,7 @@ class MockApiClient:
             },
         }
 
-    async def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
+    async def refresh_token(self, refresh_token: str) -> dict[str, Any]:
         """Simulate token refresh"""
         if not self.is_online:
             raise ConnectionError("لا يوجد اتصال بالإنترنت")
@@ -237,7 +235,7 @@ class MockApiClient:
             "expires_in": 1800,
         }
 
-    async def get_fields(self) -> Dict[str, Any]:
+    async def get_fields(self) -> dict[str, Any]:
         """Simulate fetching fields"""
         if not self.is_online:
             raise ConnectionError("لا يوجد اتصال بالإنترنت")
@@ -267,7 +265,7 @@ class MockApiClient:
 
         return {"success": True, "data": fields}
 
-    async def create_field(self, field_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_field(self, field_data: dict[str, Any]) -> dict[str, Any]:
         """Simulate creating a field"""
         if not self.is_online:
             raise ConnectionError("لا يوجد اتصال بالإنترنت")
@@ -285,7 +283,7 @@ class MockApiClient:
 
         return {"success": True, "data": created_field}
 
-    async def get_weather(self, lat: float, lng: float) -> Dict[str, Any]:
+    async def get_weather(self, lat: float, lng: float) -> dict[str, Any]:
         """Simulate weather API"""
         if not self.is_online:
             raise ConnectionError("لا يوجد اتصال بالإنترنت")
@@ -320,7 +318,7 @@ class MockApiClient:
             },
         }
 
-    async def get_tasks(self, field_id: Optional[str] = None) -> Dict[str, Any]:
+    async def get_tasks(self, field_id: str | None = None) -> dict[str, Any]:
         """Simulate fetching tasks"""
         if not self.is_online:
             raise ConnectionError("لا يوجد اتصال بالإنترنت")
@@ -356,7 +354,7 @@ class MockApiClient:
 
         return {"success": True, "data": tasks}
 
-    async def sync_changes(self, changes: List[Dict[str, Any]]) -> Dict[str, Any]:
+    async def sync_changes(self, changes: list[dict[str, Any]]) -> dict[str, Any]:
         """Simulate syncing offline changes"""
         if not self.is_online:
             raise ConnectionError("لا يوجد اتصال بالإنترنت")
@@ -387,7 +385,7 @@ class MobileAppSimulator:
     def __init__(self):
         self.storage = LocalStorage()
         self.api = MockApiClient()
-        self.current_user: Optional[User] = None
+        self.current_user: User | None = None
         self.is_authenticated = False
         self._sync_interval = 30  # seconds
         self._bg_sync_running = False
@@ -477,7 +475,7 @@ class MobileAppSimulator:
     # Fields - الحقول
     # =========================================================================
 
-    async def fetch_fields(self) -> List[Field]:
+    async def fetch_fields(self) -> list[Field]:
         """Fetch fields from API or cache"""
         self.log("جاري جلب الحقول...", "INFO")
 
@@ -518,8 +516,8 @@ class MobileAppSimulator:
         return self.storage.get_fields()
 
     async def create_field(
-        self, name: str, area: float, crop_type: Optional[str] = None
-    ) -> Optional[Field]:
+        self, name: str, area: float, crop_type: str | None = None
+    ) -> Field | None:
         """Create a new field"""
         self.log(f"جاري إنشاء حقل جديد: {name}", "INFO")
 
@@ -579,7 +577,7 @@ class MobileAppSimulator:
 
     async def get_weather(
         self, lat: float = 15.3694, lng: float = 44.1910
-    ) -> Optional[WeatherData]:
+    ) -> WeatherData | None:
         """Get weather data for location"""
         self.log(f"جاري جلب بيانات الطقس: ({lat:.4f}, {lng:.4f})", "INFO")
 
@@ -619,7 +617,7 @@ class MobileAppSimulator:
     # Tasks - المهام
     # =========================================================================
 
-    async def fetch_tasks(self, field_id: Optional[str] = None) -> List[Task]:
+    async def fetch_tasks(self, field_id: str | None = None) -> list[Task]:
         """Fetch tasks"""
         self.log("جاري جلب المهام...", "INFO")
 

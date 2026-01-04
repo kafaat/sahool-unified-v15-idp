@@ -4,8 +4,7 @@ HTTP client for creating tasks in FieldOps service
 """
 
 import os
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import httpx
 
@@ -19,7 +18,7 @@ class FieldOpsClient:
 
     def __init__(self, base_url: str = None):
         self.base_url = base_url or FIELDOPS_URL
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create HTTP client"""
@@ -70,7 +69,7 @@ class FieldOpsClient:
         """
         client = await self._get_client()
 
-        due_date = datetime.now(timezone.utc) + timedelta(hours=due_hours)
+        due_date = datetime.now(UTC) + timedelta(hours=due_hours)
 
         payload = {
             "tenant_id": tenant_id,
@@ -128,7 +127,7 @@ class FieldOpsClient:
             print(f"❌ Task update failed: {e}")
             return {"status": "error", "error": str(e)}
 
-    async def get_task(self, task_id: str) -> Optional[dict]:
+    async def get_task(self, task_id: str) -> dict | None:
         """Get task by ID"""
         client = await self._get_client()
 
@@ -180,7 +179,7 @@ class FieldOpsClient:
 
 
 # Singleton instance
-_client: Optional[FieldOpsClient] = None
+_client: FieldOpsClient | None = None
 
 
 def get_fieldops_client() -> FieldOpsClient:

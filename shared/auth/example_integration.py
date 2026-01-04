@@ -5,18 +5,18 @@ Example Integration: Two-Factor Authentication
 This file demonstrates how to integrate 2FA into a FastAPI application.
 """
 
-from fastapi import FastAPI, Depends
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import 2FA components
-from shared.auth.auth_api import router as auth_router, set_user_service
+from shared.auth.auth_api import router as auth_router
+from shared.auth.auth_api import set_user_service
+from shared.auth.dependencies import get_current_user
 from shared.auth.twofa_api import router as twofa_router
 from shared.auth.twofa_config import (
-    configure_twofa,
     TwoFAEnforcementLevel,
-    get_production_config,
+    configure_twofa,
 )
-from shared.auth.dependencies import get_current_user
 from shared.domain.users.service import UserService
 
 # ══════════════════════════════════════════════════════════════════════════════

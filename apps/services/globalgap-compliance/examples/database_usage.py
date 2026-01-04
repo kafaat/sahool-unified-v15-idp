@@ -12,14 +12,14 @@ from uuid import uuid4
 
 # Import database components
 from src.database import (
-    init_db,
-    close_pool,
-    registrations_repo,
-    compliance_repo,
     checklist_repo,
-    non_conformance_repo,
-    transaction,
+    close_pool,
+    compliance_repo,
     db_health_check,
+    init_db,
+    non_conformance_repo,
+    registrations_repo,
+    transaction,
 )
 
 

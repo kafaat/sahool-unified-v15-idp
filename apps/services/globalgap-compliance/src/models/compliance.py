@@ -8,7 +8,7 @@ Data models for compliance status, records, and audit results.
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Dict, Any
+
 from pydantic import BaseModel, Field
 
 
@@ -43,7 +43,7 @@ class ComplianceRecord(BaseModel):
     سجل الامتثال للمزرعة
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     farm_id: str = Field(..., description="Farm identifier | معرف المزرعة")
     tenant_id: str = Field(..., description="Tenant identifier | معرف المستأجر")
 
@@ -81,15 +81,15 @@ class ComplianceRecord(BaseModel):
     )
 
     # Assessment details | تفاصيل التقييم
-    assessed_by: Optional[str] = None
-    assessment_date: Optional[datetime] = None
-    next_assessment_date: Optional[datetime] = None
+    assessed_by: str | None = None
+    assessment_date: datetime | None = None
+    next_assessment_date: datetime | None = None
 
     # Metadata | بيانات وصفية
     ifa_version: str = Field(
         default="6.0", description="IFA version | إصدار معايير IFA"
     )
-    notes: Optional[str] = None
+    notes: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -116,7 +116,7 @@ class NonConformity(BaseModel):
     نتيجة عدم المطابقة
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     compliance_record_id: str
     control_point_id: str
     control_point_number: str = Field(
@@ -134,22 +134,22 @@ class NonConformity(BaseModel):
 
     # Corrective actions | الإجراءات التصحيحية
     corrective_action_required: bool = True
-    corrective_action_taken: Optional[str] = None
-    corrective_action_deadline: Optional[datetime] = None
+    corrective_action_taken: str | None = None
+    corrective_action_deadline: datetime | None = None
     corrective_action_completed: bool = False
 
     # Evidence | الأدلة
-    evidence_photos: List[str] = Field(
+    evidence_photos: list[str] = Field(
         default_factory=list, description="Photo URLs | روابط الصور"
     )
-    evidence_documents: List[str] = Field(
+    evidence_documents: list[str] = Field(
         default_factory=list, description="Document URLs | روابط المستندات"
     )
 
     # Tracking | المتابعة
     identified_date: datetime = Field(default_factory=datetime.utcnow)
-    resolved_date: Optional[datetime] = None
-    verified_by: Optional[str] = None
+    resolved_date: datetime | None = None
+    verified_by: str | None = None
 
     class Config:
         json_schema_extra = {
@@ -171,7 +171,7 @@ class AuditResult(BaseModel):
     ملخص نتائج التدقيق
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     farm_id: str
     tenant_id: str
     compliance_record_id: str
@@ -181,7 +181,7 @@ class AuditResult(BaseModel):
         ..., description="internal, external, certification | داخلي، خارجي، إصدار شهادة"
     )
     auditor_name: str = Field(..., description="Auditor name | اسم المدقق")
-    auditor_organization: Optional[str] = None
+    auditor_organization: str | None = None
 
     # Audit dates | تواريخ التدقيق
     audit_date: datetime
@@ -205,16 +205,16 @@ class AuditResult(BaseModel):
     observations: int = Field(default=0)
 
     # Report | التقرير
-    report_url: Optional[str] = None
-    executive_summary_ar: Optional[str] = None
-    executive_summary_en: Optional[str] = None
+    report_url: str | None = None
+    executive_summary_ar: str | None = None
+    executive_summary_en: str | None = None
 
     # Recommendations | التوصيات
-    recommendations: List[str] = Field(default_factory=list)
+    recommendations: list[str] = Field(default_factory=list)
 
     # Follow-up | المتابعة
     follow_up_required: bool = False
-    follow_up_deadline: Optional[datetime] = None
+    follow_up_deadline: datetime | None = None
 
     # Metadata | بيانات وصفية
     created_at: datetime = Field(default_factory=datetime.utcnow)

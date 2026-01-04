@@ -7,25 +7,23 @@ Comprehensive tests for rate limiting middleware with all three strategies.
 اختبارات شاملة لميدلوير حد المعدل مع جميع الاستراتيجيات الثلاثة.
 """
 
-import pytest
-import asyncio
 import time
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
-from unittest.mock import MagicMock, AsyncMock
 
 from apps.kernel.common.middleware import (
+    ClientIdentifier,
+    EndpointConfig,
+    FixedWindowLimiter,
     RateLimiter,
     RateLimitMiddleware,
-    FixedWindowLimiter,
     SlidingWindowLimiter,
     TokenBucketLimiter,
-    EndpointConfig,
-    ClientIdentifier,
-    setup_rate_limiting,
     rate_limit,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # تركيبات الاختبار

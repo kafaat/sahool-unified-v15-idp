@@ -10,18 +10,14 @@ Author: SAHOOL Platform Team
 
 import asyncio
 from datetime import datetime
-from typing import List
 
 from shared.globalgap import (
-    GlobalGAPClient,
-    CertificateInfo,
-    CertificateStatus,
-    Producer,
     CertificateNotFound,
-    InvalidGGN,
+    CertificateStatus,
     GlobalGAPAPIError,
+    GlobalGAPClient,
+    InvalidGGN,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Example 1: Basic Certificate Verification
@@ -49,7 +45,7 @@ async def example_verify_certificate():
             # التحقق من الشهادة
             cert = await client.verify_certificate("4063061891234")
 
-            print(f"\nCertificate Information / معلومات الشهادة:")
+            print("\nCertificate Information / معلومات الشهادة:")
             print(f"  GGN: {cert.ggn}")
             print(f"  Status / الحالة: {cert.status.value}")
             print(f"  Producer / المنتج: {cert.producer_name}")
@@ -65,17 +61,17 @@ async def example_verify_certificate():
             )
 
         except CertificateNotFound as e:
-            print(f"\n❌ Certificate not found / الشهادة غير موجودة")
+            print("\n❌ Certificate not found / الشهادة غير موجودة")
             print(f"   English: {e.message}")
             print(f"   Arabic: {e.message_ar}")
 
         except InvalidGGN as e:
-            print(f"\n❌ Invalid GGN / رقم GGN غير صالح")
+            print("\n❌ Invalid GGN / رقم GGN غير صالح")
             print(f"   English: {e.message}")
             print(f"   Arabic: {e.message_ar}")
 
         except GlobalGAPAPIError as e:
-            print(f"\n❌ API Error / خطأ في واجهة البرمجة")
+            print("\n❌ API Error / خطأ في واجهة البرمجة")
             print(f"   English: {e.message}")
             print(f"   Arabic: {e.message_ar}")
 
@@ -297,7 +293,7 @@ async def example_sahool_integration():
             # Check if certificate is valid
             # التحقق من صحة الشهادة
             if cert.is_valid():
-                print(f"\n✅ Certificate is VALID / الشهادة صالحة")
+                print("\n✅ Certificate is VALID / الشهادة صالحة")
                 print(f"   Valid until / صالحة حتى: {cert.valid_to.date()}")
                 print(
                     f"   Days remaining / الأيام المتبقية: {cert.days_until_expiry()}"
@@ -305,7 +301,7 @@ async def example_sahool_integration():
 
                 # Update farm record in database
                 # تحديث سجل المزرعة في قاعدة البيانات
-                print(f"\n📝 Updating farm record...")
+                print("\n📝 Updating farm record...")
                 farm_update = {
                     "globalgap_status": "VALID",
                     "globalgap_valid_until": cert.valid_to,
@@ -314,7 +310,7 @@ async def example_sahool_integration():
                     "certified_products": cert.product_categories,
                 }
                 print(
-                    f"   Farm record updated successfully / تم تحديث سجل المزرعة بنجاح"
+                    "   Farm record updated successfully / تم تحديث سجل المزرعة بنجاح"
                 )
 
                 # Check expiry warning
@@ -323,11 +319,11 @@ async def example_sahool_integration():
                 if days_left <= 60:
                     print(f"\n⚠️  WARNING: Certificate expires in {days_left} days")
                     print(f"   تحذير: الشهادة تنتهي في {days_left} يوماً")
-                    print(f"   Consider scheduling renewal audit")
-                    print(f"   يُنصح بجدولة تدقيق التجديد")
+                    print("   Consider scheduling renewal audit")
+                    print("   يُنصح بجدولة تدقيق التجديد")
 
             else:
-                print(f"\n❌ Certificate is NOT VALID / الشهادة غير صالحة")
+                print("\n❌ Certificate is NOT VALID / الشهادة غير صالحة")
                 print(f"   Status / الحالة: {cert.status.value}")
 
                 # Update farm record
@@ -336,20 +332,20 @@ async def example_sahool_integration():
                     "globalgap_status": cert.status.value.upper(),
                     "globalgap_verified_at": datetime.now(),
                 }
-                print(f"\n⚠️  Farm certification needs attention")
-                print(f"   شهادة المزرعة تحتاج إلى اهتمام")
+                print("\n⚠️  Farm certification needs attention")
+                print("   شهادة المزرعة تحتاج إلى اهتمام")
 
         except CertificateNotFound:
-            print(f"\n❌ Certificate not found in GlobalGAP database")
-            print(f"   الشهادة غير موجودة في قاعدة بيانات GlobalGAP")
-            print(f"   Farm may not be certified or GGN is incorrect")
-            print(f"   قد لا تكون المزرعة معتمدة أو رقم GGN غير صحيح")
+            print("\n❌ Certificate not found in GlobalGAP database")
+            print("   الشهادة غير موجودة في قاعدة بيانات GlobalGAP")
+            print("   Farm may not be certified or GGN is incorrect")
+            print("   قد لا تكون المزرعة معتمدة أو رقم GGN غير صحيح")
 
         except InvalidGGN:
             print(f"\n❌ Invalid GGN format: {farm['ggn']}")
             print(f"   تنسيق GGN غير صالح: {farm['ggn']}")
-            print(f"   Please verify the GGN number")
-            print(f"   يرجى التحقق من رقم GGN")
+            print("   Please verify the GGN number")
+            print("   يرجى التحقق من رقم GGN")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -374,7 +370,7 @@ async def example_error_handling():
         try:
             await client.verify_certificate("123456")  # Invalid
         except InvalidGGN as e:
-            print(f"  ✓ Caught InvalidGGN / تم اكتشاف GGN غير صالح")
+            print("  ✓ Caught InvalidGGN / تم اكتشاف GGN غير صالح")
             print(f"    English: {e.message}")
             print(f"    Arabic: {e.message_ar}")
 
@@ -384,7 +380,7 @@ async def example_error_handling():
         try:
             await client.verify_certificate("")
         except InvalidGGN as e:
-            print(f"  ✓ Caught InvalidGGN / تم اكتشاف GGN غير صالح")
+            print("  ✓ Caught InvalidGGN / تم اكتشاف GGN غير صالح")
             print(f"    English: {e.message}")
             print(f"    Arabic: {e.message_ar}")
 

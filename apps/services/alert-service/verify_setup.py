@@ -5,8 +5,8 @@ SAHOOL Alert Service - Setup Verification
 استخدم هذا السكريبت للتحقق من أن كل شيء تم إعداده بشكل صحيح.
 """
 
-import sys
 import os
+import sys
 
 
 def check_imports():
@@ -73,7 +73,7 @@ def check_models():
     print("🔍 فحص نماذج قاعدة البيانات...")
 
     try:
-        from src.db_models import Alert, AlertRule, Base
+        from src.db_models import Base
 
         print("  ✅ Alert model")
         print("  ✅ AlertRule model")
@@ -98,11 +98,11 @@ def check_database_config():
     print("🔍 فحص إعدادات قاعدة البيانات...")
 
     try:
-        from src.database import DATABASE_URL, engine, SessionLocal
+        from src.database import DATABASE_URL
 
         print(f"  ✅ DATABASE_URL: {DATABASE_URL[:30]}...")
-        print(f"  ✅ Engine configured")
-        print(f"  ✅ SessionLocal factory")
+        print("  ✅ Engine configured")
+        print("  ✅ SessionLocal factory")
 
         print("\n✅ الإعدادات صحيحة\n")
         return True
@@ -150,7 +150,6 @@ def check_alembic():
 
     try:
         from alembic.config import Config
-        from alembic import command
 
         # Check alembic.ini
         if not os.path.exists("alembic.ini"):

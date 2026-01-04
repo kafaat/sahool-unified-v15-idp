@@ -5,10 +5,9 @@ Data models for AI recommendations
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -38,9 +37,9 @@ class RecommendationAction:
     """Specific action within a recommendation"""
 
     action: str
-    action_ar: Optional[str]
+    action_ar: str | None
     priority: int  # 1 = highest
-    estimated_impact: Optional[str] = None
+    estimated_impact: str | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -57,16 +56,16 @@ class AdvisorResponse:
 
     id: str
     tenant_id: str
-    field_id: Optional[str]
+    field_id: str | None
     query: str
     recommendation_type: RecommendationType
     summary: str
-    summary_ar: Optional[str]
+    summary_ar: str | None
     actions: list[RecommendationAction]
     confidence: ConfidenceLevel
     sources: list[str]
-    explanation: Optional[str]
-    explanation_ar: Optional[str]
+    explanation: str | None
+    explanation_ar: str | None
     created_at: datetime
 
     @classmethod
@@ -79,10 +78,10 @@ class AdvisorResponse:
         actions: list[RecommendationAction],
         confidence: ConfidenceLevel,
         sources: list[str],
-        field_id: Optional[str] = None,
-        summary_ar: Optional[str] = None,
-        explanation: Optional[str] = None,
-        explanation_ar: Optional[str] = None,
+        field_id: str | None = None,
+        summary_ar: str | None = None,
+        explanation: str | None = None,
+        explanation_ar: str | None = None,
     ) -> AdvisorResponse:
         """Factory method to create a new advisor response"""
         return cls(
@@ -98,7 +97,7 @@ class AdvisorResponse:
             sources=sources,
             explanation=explanation,
             explanation_ar=explanation_ar,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     def to_dict(self) -> dict:

@@ -6,7 +6,6 @@ Port: 8097
 
 import os
 from contextlib import asynccontextmanager
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -60,9 +59,9 @@ def health():
 class NdviComputeRequest(BaseModel):
     tenant_id: str
     field_id: str
-    correlation_id: Optional[str] = None
+    correlation_id: str | None = None
     use_sentinel: bool = False
-    geometry: Optional[dict] = None
+    geometry: dict | None = None
 
 
 class NdviZonesRequest(BaseModel):
@@ -73,9 +72,9 @@ class NdviZonesRequest(BaseModel):
 class IndicesRequest(BaseModel):
     red: float = Field(ge=0, le=1)
     nir: float = Field(ge=0, le=1)
-    blue: Optional[float] = Field(default=None, ge=0, le=1)
-    green: Optional[float] = Field(default=None, ge=0, le=1)
-    swir: Optional[float] = Field(default=None, ge=0, le=1)
+    blue: float | None = Field(default=None, ge=0, le=1)
+    green: float | None = Field(default=None, ge=0, le=1)
+    swir: float | None = Field(default=None, ge=0, le=1)
 
 
 class AnomalyRequest(BaseModel):
@@ -84,7 +83,7 @@ class AnomalyRequest(BaseModel):
     current_ndvi: float = Field(ge=-1, le=1)
     historical_mean: float = Field(ge=-1, le=1)
     historical_std: float = Field(ge=0)
-    correlation_id: Optional[str] = None
+    correlation_id: str | None = None
 
 
 # ============== NDVI Endpoints ==============

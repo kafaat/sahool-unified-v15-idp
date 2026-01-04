@@ -15,16 +15,16 @@ Field-First Architecture:
 - Badge "تقدير افتراضي" لتمييز البيانات عن IoT
 """
 
-import os
-import math
-import uuid
 import logging
-from datetime import datetime, date, time, timedelta
-from enum import Enum
-from typing import Optional, Dict, Any, List
+import math
+import os
+import uuid
 from contextlib import asynccontextmanager
+from datetime import date, datetime, timedelta
+from enum import Enum
+from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -410,10 +410,10 @@ class WeatherInput(BaseModel):
     temperature_min: float = Field(..., description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
     wind_speed: float = Field(..., ge=0, description="Wind speed at 2m height (m/s)")
-    solar_radiation: Optional[float] = Field(
+    solar_radiation: float | None = Field(
         None, description="Solar radiation (MJ/m²/day)"
     )
-    sunshine_hours: Optional[float] = Field(
+    sunshine_hours: float | None = Field(
         None, ge=0, le=24, description="Sunshine hours"
     )
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")
@@ -438,8 +438,8 @@ class CropWaterRequirement(BaseModel):
 
     crop_type: str
     growth_stage: GrowthStage
-    planting_date: Optional[date] = None
-    days_after_planting: Optional[int] = None
+    planting_date: date | None = None
+    days_after_planting: int | None = None
     field_area_hectares: float = Field(1.0, gt=0)
 
 
@@ -500,9 +500,9 @@ class IrrigationRecommendationInput(BaseModel):
     soil_type: SoilType
     irrigation_method: IrrigationMethod
     field_area_hectares: float = Field(1.0, gt=0)
-    last_irrigation_date: Optional[date] = None
-    last_irrigation_amount: Optional[float] = None
-    current_soil_moisture: Optional[float] = Field(
+    last_irrigation_date: date | None = None
+    last_irrigation_amount: float | None = None
+    current_soil_moisture: float | None = Field(
         None, description="Current moisture if known (m³/m³)"
     )
     weather: WeatherInput
@@ -1094,8 +1094,8 @@ async def get_supported_crops():
 @app.get("/v1/crops/{crop_type}/kc")
 async def get_crop_kc_values(
     crop_type: str,
-    growth_stage: Optional[GrowthStage] = None,
-    days_in_stage: Optional[int] = None,
+    growth_stage: GrowthStage | None = None,
+    days_in_stage: int | None = None,
 ):
     """Get Kc values for a specific crop"""
     if crop_type not in CROP_COEFFICIENTS:
@@ -1131,7 +1131,7 @@ async def calculate_crop_etc(
     crop_type: str = Query(..., description="Crop type"),
     growth_stage: GrowthStage = Query(..., description="Current growth stage"),
     field_area_hectares: float = Query(1.0, gt=0, description="Field area in hectares"),
-    days_in_stage: Optional[int] = Query(None, description="Days in current stage"),
+    days_in_stage: int | None = Query(None, description="Days in current stage"),
 ):
     """
     Calculate crop evapotranspiration (ETc = ET0 × Kc).
@@ -1420,8 +1420,8 @@ class VirtualSensorActionRequest(BaseModel):
     """Request for virtual sensor analysis with ActionTemplate output"""
 
     field_id: str = Field(..., description="معرف الحقل")
-    farmer_id: Optional[str] = Field(None, description="معرف المزارع")
-    tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
+    farmer_id: str | None = Field(None, description="معرف المزارع")
+    tenant_id: str | None = Field(None, description="معرف المستأجر")
     crop_type: str = Field(..., description="نوع المحصول")
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
     soil_type: SoilType = Field(SoilType.LOAM, description="نوع التربة")
@@ -1429,8 +1429,8 @@ class VirtualSensorActionRequest(BaseModel):
         IrrigationMethod.DRIP, description="طريقة الري"
     )
     field_area_hectares: float = Field(1.0, gt=0, description="مساحة الحقل بالهكتار")
-    last_irrigation_date: Optional[date] = Field(None, description="تاريخ آخر ري")
-    last_irrigation_amount: Optional[float] = Field(
+    last_irrigation_date: date | None = Field(None, description="تاريخ آخر ري")
+    last_irrigation_amount: float | None = Field(
         None, description="كمية آخر ري بالمم"
     )
     weather: WeatherInput = Field(..., description="بيانات الطقس")
@@ -1440,9 +1440,9 @@ class VirtualSensorActionRequest(BaseModel):
 def _create_virtual_sensor_action(
     recommendation: IrrigationRecommendation,
     field_id: str,
-    farmer_id: Optional[str] = None,
-    tenant_id: Optional[str] = None,
-) -> Dict[str, Any]:
+    farmer_id: str | None = None,
+    tenant_id: str | None = None,
+) -> dict[str, Any]:
     """Create an ActionTemplate from virtual sensor analysis"""
 
     # Map urgency
@@ -1625,7 +1625,7 @@ async def get_irrigation_recommendation_with_action(
 @app.get("/v1/quick-check-with-action")
 async def quick_check_with_action(
     field_id: str = Query(..., description="معرف الحقل"),
-    farmer_id: Optional[str] = Query(None, description="معرف المزارع"),
+    farmer_id: str | None = Query(None, description="معرف المزارع"),
     crop_type: str = Query(..., description="نوع المحصول"),
     growth_stage: GrowthStage = Query(..., description="مرحلة النمو"),
     soil_type: SoilType = Query(SoilType.LOAM, description="نوع التربة"),

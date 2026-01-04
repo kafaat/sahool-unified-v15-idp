@@ -8,7 +8,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-
 # Keys that should always be redacted
 SENSITIVE_KEYS: set[str] = {
     # Authentication

@@ -16,7 +16,7 @@ from advisor.rag.doc_store import DocChunk, VectorStore
 # Optional import - Qdrant client may not be installed
 try:
     from qdrant_client import QdrantClient
-    from qdrant_client.http.models import Distance, VectorParams, PointStruct
+    from qdrant_client.http.models import Distance, PointStruct, VectorParams
 
     QDRANT_AVAILABLE = True
 except ImportError:

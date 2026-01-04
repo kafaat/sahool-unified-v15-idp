@@ -10,9 +10,9 @@ Provides integration classes for:
 """
 
 from .crop_health_integration import CropHealthIntegration
+from .events import EventPublisher
 from .fertilizer_integration import FertilizerIntegration
 from .irrigation_integration import IrrigationIntegration
-from .events import EventPublisher
 
 __all__ = [
     "CropHealthIntegration",

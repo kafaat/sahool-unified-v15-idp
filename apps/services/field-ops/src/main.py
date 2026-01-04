@@ -4,10 +4,10 @@ Agricultural field management and operations
 Port: 8080
 """
 
+import logging
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query
@@ -15,8 +15,6 @@ from pydantic import BaseModel, Field
 
 # Import API routers - استيراد موجهات الواجهة البرمجية
 from .api.v1.field_health import router as field_health_router
-
-import logging
 
 # Configure logging
 logging.basicConfig(
@@ -94,7 +92,7 @@ def health():
         "status": "ok",
         "service": "field_ops",
         "version": "15.3.3",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -113,29 +111,29 @@ def readiness():
 class FieldCreate(BaseModel):
     tenant_id: str
     name: str
-    name_ar: Optional[str] = None
+    name_ar: str | None = None
     area_hectares: float = Field(gt=0)
-    crop_type: Optional[str] = None
-    geometry: Optional[dict] = None
-    metadata: Optional[dict] = None
+    crop_type: str | None = None
+    geometry: dict | None = None
+    metadata: dict | None = None
 
 
 class FieldUpdate(BaseModel):
-    name: Optional[str] = None
-    name_ar: Optional[str] = None
-    area_hectares: Optional[float] = Field(default=None, gt=0)
-    crop_type: Optional[str] = None
-    geometry: Optional[dict] = None
-    metadata: Optional[dict] = None
+    name: str | None = None
+    name_ar: str | None = None
+    area_hectares: float | None = Field(default=None, gt=0)
+    crop_type: str | None = None
+    geometry: dict | None = None
+    metadata: dict | None = None
 
 
 class FieldResponse(BaseModel):
     id: str
     tenant_id: str
     name: str
-    name_ar: Optional[str]
+    name_ar: str | None
     area_hectares: float
-    crop_type: Optional[str]
+    crop_type: str | None
     created_at: str
     updated_at: str
 
@@ -144,9 +142,9 @@ class OperationCreate(BaseModel):
     tenant_id: str
     field_id: str
     operation_type: str  # planting, irrigation, fertilizing, harvesting, etc.
-    scheduled_date: Optional[str] = None
-    notes: Optional[str] = None
-    metadata: Optional[dict] = None
+    scheduled_date: str | None = None
+    notes: str | None = None
+    metadata: dict | None = None
 
 
 class OperationResponse(BaseModel):
@@ -154,8 +152,8 @@ class OperationResponse(BaseModel):
     field_id: str
     operation_type: str
     status: str
-    scheduled_date: Optional[str]
-    completed_date: Optional[str]
+    scheduled_date: str | None
+    completed_date: str | None
     created_at: str
 
 
@@ -173,7 +171,7 @@ _operations: dict = {}
 async def create_field(field: FieldCreate):
     """Create a new agricultural field"""
     field_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     field_data = {
         "id": field_id,
@@ -267,7 +265,7 @@ async def delete_field(field_id: str):
 async def create_operation(op: OperationCreate):
     """Create a field operation"""
     op_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     op_data = {
         "id": op_id,
@@ -298,7 +296,7 @@ async def get_operation(operation_id: str):
 @app.get("/operations")
 async def list_operations(
     field_id: str = Query(...),
-    status: Optional[str] = Query(None),
+    status: str | None = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
 ):

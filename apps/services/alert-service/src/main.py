@@ -5,17 +5,15 @@ Port: 8113
 Version: 16.0.0
 """
 
+import logging
 import os
 import sys
-import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, timedelta
-from typing import Optional, List
+from datetime import UTC, datetime, timedelta
+from pathlib import Path as PathLib
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query, Path, Depends, Header
-from pydantic import BaseModel
-from pathlib import Path as PathLib
+from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
 
 # Add path to shared modules
 # In Docker, shared is at /app/shared
@@ -33,20 +31,19 @@ except ImportError:
         pass
 
 
+from .events import AlertTopics, get_publisher, get_subscriber
 from .models import (
-    AlertType,
-    AlertSeverity,
-    AlertStatus,
     AlertCreate,
-    AlertUpdate,
     AlertResponse,
     AlertRuleCreate,
     AlertRuleResponse,
+    AlertSeverity,
     AlertStats,
+    AlertStatus,
+    AlertType,
+    AlertUpdate,
     PaginatedResponse,
 )
-from .events import get_publisher, get_subscriber, AlertTopics, AlertEventPublisher
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Logging Configuration
@@ -65,7 +62,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_tenant_id(
-    x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
 ) -> str:
     """Extract and validate tenant ID from X-Tenant-Id header"""
     if not x_tenant_id:
@@ -315,7 +312,7 @@ def health():
         "status": "healthy",
         "service": "alert-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
             "nats": (
                 "connected"
@@ -333,7 +330,7 @@ def healthz():
         "status": "healthy",
         "service": "alert-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -357,7 +354,7 @@ def readiness():
 async def create_alert_internal(alert_data: AlertCreate) -> dict:
     """إنشاء تنبيه داخلياً"""
     alert_id = str(uuid4())
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     alert = {
         "id": alert_id,
@@ -448,9 +445,9 @@ async def get_alert(
 @app.get("/alerts/field/{field_id}", response_model=PaginatedResponse, tags=["Alerts"])
 async def get_alerts_by_field(
     field_id: str = Path(..., description="معرف الحقل"),
-    status: Optional[AlertStatus] = Query(None, description="تصفية حسب الحالة"),
-    severity: Optional[AlertSeverity] = Query(None, description="تصفية حسب الخطورة"),
-    alert_type: Optional[AlertType] = Query(
+    status: AlertStatus | None = Query(None, description="تصفية حسب الحالة"),
+    severity: AlertSeverity | None = Query(None, description="تصفية حسب الخطورة"),
+    alert_type: AlertType | None = Query(
         None, alias="type", description="تصفية حسب النوع"
     ),
     skip: int = Query(0, ge=0),
@@ -509,7 +506,7 @@ async def update_alert(
     if alert["tenant_id"] != tenant_id:
         raise HTTPException(status_code=403, detail="Access denied")
     old_status = alert["status"]
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if update_data.status:
         alert["status"] = update_data.status.value
@@ -598,7 +595,7 @@ async def acknowledge_alert(
         )
 
     alert["status"] = AlertStatus.ACKNOWLEDGED.value
-    alert["acknowledged_at"] = datetime.now(timezone.utc).isoformat()
+    alert["acknowledged_at"] = datetime.now(UTC).isoformat()
     alert["acknowledged_by"] = user_id
 
     if hasattr(app.state, "publisher") and app.state.publisher:
@@ -615,7 +612,7 @@ async def acknowledge_alert(
 async def resolve_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
     user_id: str = Query(..., description="معرف المستخدم"),
-    note: Optional[str] = Query(None, description="ملاحظة الحل"),
+    note: str | None = Query(None, description="ملاحظة الحل"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -633,7 +630,7 @@ async def resolve_alert(
         raise HTTPException(status_code=400, detail="Alert is already resolved")
 
     alert["status"] = AlertStatus.RESOLVED.value
-    alert["resolved_at"] = datetime.now(timezone.utc).isoformat()
+    alert["resolved_at"] = datetime.now(UTC).isoformat()
     alert["resolved_by"] = user_id
     alert["resolution_note"] = note
 
@@ -668,7 +665,7 @@ async def dismiss_alert(
         raise HTTPException(status_code=400, detail="Alert is already dismissed")
 
     alert["status"] = AlertStatus.DISMISSED.value
-    alert["dismissed_at"] = datetime.now(timezone.utc).isoformat()
+    alert["dismissed_at"] = datetime.now(UTC).isoformat()
     alert["dismissed_by"] = user_id
 
     return alert
@@ -686,7 +683,7 @@ async def create_rule(rule_data: AlertRuleCreate):
     Create an alert rule
     """
     rule_id = str(uuid4())
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     rule = {
         "id": rule_id,
@@ -708,10 +705,10 @@ async def create_rule(rule_data: AlertRuleCreate):
     return rule
 
 
-@app.get("/alerts/rules", response_model=List[AlertRuleResponse], tags=["Alert Rules"])
+@app.get("/alerts/rules", response_model=list[AlertRuleResponse], tags=["Alert Rules"])
 async def get_rules(
-    field_id: Optional[str] = Query(None, description="تصفية حسب الحقل"),
-    enabled: Optional[bool] = Query(None, description="تصفية حسب الحالة"),
+    field_id: str | None = Query(None, description="تصفية حسب الحقل"),
+    enabled: bool | None = Query(None, description="تصفية حسب الحالة"),
 ):
     """
     جلب قواعد التنبيه
@@ -748,7 +745,7 @@ async def delete_rule(rule_id: str = Path(..., description="معرف القاع�
 
 @app.get("/alerts/stats", response_model=AlertStats, tags=["Statistics"])
 async def get_stats(
-    field_id: Optional[str] = Query(None, description="تصفية حسب الحقل"),
+    field_id: str | None = Query(None, description="تصفية حسب الحقل"),
     period: str = Query("30d", description="الفترة الزمنية (7d, 30d, 90d)"),
 ):
     """
@@ -757,7 +754,7 @@ async def get_stats(
     """
     # Parse period
     days = int(period.replace("d", ""))
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff = datetime.now(UTC) - timedelta(days=days)
 
     # Filter alerts
     filtered = list(_alerts.values())

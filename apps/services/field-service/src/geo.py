@@ -4,10 +4,10 @@ SAHOOL Field Service - Geo-spatial Utilities
 """
 
 import math
-from typing import List, Tuple, Optional, Dict, Any
+from typing import Any
 
 
-def calculate_polygon_area(coordinates: List[List[List[float]]]) -> float:
+def calculate_polygon_area(coordinates: list[list[list[float]]]) -> float:
     """
     حساب مساحة المضلع بالهكتار
     باستخدام صيغة Shoelace مع تحويل الإحداثيات
@@ -55,7 +55,7 @@ def calculate_polygon_area(coordinates: List[List[List[float]]]) -> float:
     return area / 10000.0
 
 
-def calculate_centroid(coordinates: List[List[List[float]]]) -> Tuple[float, float]:
+def calculate_centroid(coordinates: list[list[list[float]]]) -> tuple[float, float]:
     """
     حساب مركز المضلع
 
@@ -77,7 +77,7 @@ def calculate_centroid(coordinates: List[List[List[float]]]) -> Tuple[float, flo
     return (lat_sum / n, lng_sum / n)
 
 
-def is_polygon_closed(coordinates: List[List[List[float]]]) -> bool:
+def is_polygon_closed(coordinates: list[list[list[float]]]) -> bool:
     """التحقق من أن المضلع مغلق"""
     if not coordinates or not coordinates[0]:
         return False
@@ -90,8 +90,8 @@ def is_polygon_closed(coordinates: List[List[List[float]]]) -> bool:
 
 
 def validate_polygon(
-    coordinates: List[List[List[float]]],
-) -> Tuple[bool, Optional[str]]:
+    coordinates: list[list[list[float]]],
+) -> tuple[bool, str | None]:
     """
     التحقق من صحة المضلع
 
@@ -126,8 +126,8 @@ def validate_polygon(
 
 
 def check_polygon_overlap(
-    polygon1: List[List[List[float]]], polygon2: List[List[List[float]]]
-) -> Tuple[bool, float]:
+    polygon1: list[list[list[float]]], polygon2: list[list[list[float]]]
+) -> tuple[bool, float]:
     """
     فحص تداخل مضلعين
 
@@ -154,7 +154,7 @@ def check_polygon_overlap(
 
 
 def point_in_polygon(
-    point: Tuple[float, float], polygon: List[List[List[float]]]
+    point: tuple[float, float], polygon: list[list[list[float]]]
 ) -> bool:
     """
     فحص إذا كانت النقطة داخل المضلع
@@ -189,7 +189,7 @@ def point_in_polygon(
 
 
 def distance_between_points(
-    point1: Tuple[float, float], point2: Tuple[float, float]
+    point1: tuple[float, float], point2: tuple[float, float]
 ) -> float:
     """
     حساب المسافة بين نقطتين بالكيلومتر
@@ -220,8 +220,8 @@ def distance_between_points(
 def polygon_to_kml(
     field_id: str,
     field_name: str,
-    coordinates: List[List[List[float]]],
-    description: Optional[str] = None,
+    coordinates: list[list[list[float]]],
+    description: str | None = None,
 ) -> str:
     """
     تحويل المضلع إلى صيغة KML
@@ -270,9 +270,9 @@ def polygon_to_kml(
 def polygon_to_geojson(
     field_id: str,
     field_name: str,
-    coordinates: List[List[List[float]]],
-    properties: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    coordinates: list[list[list[float]]],
+    properties: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     تحويل المضلع إلى صيغة GeoJSON Feature
 

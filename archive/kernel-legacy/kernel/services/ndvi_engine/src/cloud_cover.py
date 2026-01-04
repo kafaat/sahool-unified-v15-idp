@@ -7,9 +7,9 @@ Sprint 8: Provider-agnostic cloud detection
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Sequence
 
 
 class SCLClass(IntEnum):

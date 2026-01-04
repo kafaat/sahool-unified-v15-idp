@@ -372,7 +372,7 @@ async def get_regional_yields(
         import sys
 
         sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
-        from apps.services.shared.crops import ALL_CROPS, get_crops_for_region
+        from apps.services.shared.crops import ALL_CROPS
 
         # Get crops suitable for this region
         if crop:

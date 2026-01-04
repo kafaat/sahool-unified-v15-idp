@@ -8,13 +8,12 @@ Sentinel-1 SAR (Synthetic Aperture Radar) Integration
 - Weather-independent monitoring (cloud penetration)
 """
 
-import os
 import logging
-from dataclasses import dataclass
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any, Tuple
-from enum import Enum
 import math
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta
+from typing import Any
+
 import httpx
 
 logger = logging.getLogger(__name__)
@@ -105,8 +104,8 @@ class SARProcessor:
 
     def __init__(self):
         """Initialize SAR processor"""
-        self._client: Optional[httpx.AsyncClient] = None
-        self._cache: Dict[str, Tuple[Any, datetime]] = {}
+        self._client: httpx.AsyncClient | None = None
+        self._cache: dict[str, tuple[Any, datetime]] = {}
         self._cache_duration = timedelta(hours=6)  # SAR data updates less frequently
         logger.info("SAR Processor initialized with Yemen soil calibration")
 
@@ -141,7 +140,7 @@ class SARProcessor:
         longitude: float,
         start_date: date,
         end_date: date,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Search for Sentinel-1 SAR scenes via Copernicus STAC
 
@@ -208,7 +207,7 @@ class SARProcessor:
         vv_db: float,
         vh_db: float,
         incidence_angle: float,
-    ) -> Tuple[float, float, float]:
+    ) -> tuple[float, float, float]:
         """
         Calculate soil moisture from SAR backscatter using Water Cloud Model
 
@@ -269,7 +268,7 @@ class SARProcessor:
         latitude: float,
         longitude: float,
         target_date: datetime,
-    ) -> Tuple[float, float, float]:
+    ) -> tuple[float, float, float]:
         """
         Generate simulated SAR backscatter based on location and season
 
@@ -309,7 +308,7 @@ class SARProcessor:
         latitude: float,
         longitude: float,
         field_id: str,
-        date: Optional[datetime] = None,
+        date: datetime | None = None,
     ) -> SoilMoistureResult:
         """
         Estimate soil moisture from Sentinel-1 SAR backscatter
@@ -361,7 +360,7 @@ class SARProcessor:
                 latitude, longitude, target_date
             )
             data_source = "simulated"
-            logger.info(f"No Sentinel-1 data available, using simulated values")
+            logger.info("No Sentinel-1 data available, using simulated values")
 
         # Calculate soil moisture
         sm_percent, vwc, confidence = self._calculate_soil_moisture(
@@ -389,7 +388,7 @@ class SARProcessor:
         self,
         field_id: str,
         days_back: int = 14,
-    ) -> List[IrrigationEvent]:
+    ) -> list[IrrigationEvent]:
         """
         Detect irrigation events from sudden soil moisture increases
 
@@ -447,9 +446,9 @@ class SARProcessor:
         field_id: str,
         start_date: datetime,
         end_date: datetime,
-        latitude: Optional[float] = None,
-        longitude: Optional[float] = None,
-    ) -> List[SARDataPoint]:
+        latitude: float | None = None,
+        longitude: float | None = None,
+    ) -> list[SARDataPoint]:
         """
         Get time series of SAR backscatter and derived soil moisture
 
@@ -515,7 +514,7 @@ class SARProcessor:
 
     def get_moisture_interpretation(
         self, soil_moisture_percent: float
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """
         Get interpretation of soil moisture level
 

@@ -3,11 +3,9 @@ Authentication Models
 نماذج المصادقة
 """
 
-import uuid
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Set
-from dataclasses import dataclass, field
 
 
 class UserStatus(str, Enum):
@@ -41,7 +39,7 @@ class Permission:
     name: str
     description: str = ""
     resource: str = ""  # Resource this permission applies to
-    actions: List[str] = field(default_factory=list)  # create, read, update, delete
+    actions: list[str] = field(default_factory=list)  # create, read, update, delete
 
     def __hash__(self):
         return hash(self.id)
@@ -62,9 +60,9 @@ class Role:
     id: str
     name: str
     description: str = ""
-    permissions: Set[Permission] = field(default_factory=set)
+    permissions: set[Permission] = field(default_factory=set)
     is_system_role: bool = False  # System roles cannot be deleted
-    tenant_id: Optional[str] = None  # None for system-wide roles
+    tenant_id: str | None = None  # None for system-wide roles
 
     def has_permission(self, permission_id: str) -> bool:
         """Check if role has a specific permission"""
@@ -93,13 +91,13 @@ class User:
     email: str
     hashed_password: str
     status: UserStatus = UserStatus.ACTIVE
-    tenant_id: Optional[str] = None
-    roles: List[Role] = field(default_factory=list)
+    tenant_id: str | None = None
+    roles: list[Role] = field(default_factory=list)
 
     # Profile
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    phone: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    phone: str | None = None
 
     # Security
     email_verified: bool = False
@@ -108,8 +106,8 @@ class User:
 
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: Optional[datetime] = None
-    last_login: Optional[datetime] = None
+    updated_at: datetime | None = None
+    last_login: datetime | None = None
 
     @property
     def is_active(self) -> bool:
@@ -123,7 +121,7 @@ class User:
         return " ".join(p for p in parts if p) or self.email
 
     @property
-    def all_permissions(self) -> Set[Permission]:
+    def all_permissions(self) -> set[Permission]:
         """Get all permissions from all roles"""
         permissions = set()
         for role in self.roles:
@@ -131,12 +129,12 @@ class User:
         return permissions
 
     @property
-    def role_names(self) -> List[str]:
+    def role_names(self) -> list[str]:
         """Get list of role names"""
         return [role.name for role in self.roles]
 
     @property
-    def permission_ids(self) -> List[str]:
+    def permission_ids(self) -> list[str]:
         """Get list of permission IDs"""
         return [p.id for p in self.all_permissions]
 
@@ -148,11 +146,11 @@ class User:
         """Check if user has a specific permission"""
         return any(p.id == permission_id for p in self.all_permissions)
 
-    def has_any_role(self, role_names: List[str]) -> bool:
+    def has_any_role(self, role_names: list[str]) -> bool:
         """Check if user has any of the specified roles"""
         return any(self.has_role(name) for name in role_names)
 
-    def has_all_roles(self, role_names: List[str]) -> bool:
+    def has_all_roles(self, role_names: list[str]) -> bool:
         """Check if user has all specified roles"""
         return all(self.has_role(name) for name in role_names)
 

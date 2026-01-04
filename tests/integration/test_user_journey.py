@@ -16,11 +16,10 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import pytest
 import asyncio
-from typing import Dict, Any, List
 from datetime import datetime, timedelta
 
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # New Farmer Onboarding Journey - رحلة تسجيل المزارع الجديد
@@ -32,9 +31,9 @@ from datetime import datetime, timedelta
 @pytest.mark.slow
 async def test_new_farmer_onboarding_journey(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     field_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار رحلة تسجيل مزارع جديد
@@ -141,8 +140,8 @@ async def test_new_farmer_onboarding_journey(
 @pytest.mark.slow
 async def test_daily_farming_operations_journey(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار رحلة العمليات الزراعية اليومية
@@ -249,8 +248,8 @@ async def test_daily_farming_operations_journey(
 @pytest.mark.slow
 async def test_crisis_management_journey(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار رحلة إدارة الأزمات
@@ -365,8 +364,8 @@ async def test_crisis_management_journey(
 @pytest.mark.slow
 async def test_seasonal_planning_journey(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار رحلة التخطيط الموسمي
@@ -506,8 +505,8 @@ async def test_seasonal_planning_journey(
 @pytest.mark.slow
 async def test_business_growth_journey(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار رحلة نمو الأعمال
@@ -635,8 +634,8 @@ async def test_business_growth_journey(
 @pytest.mark.slow
 async def test_multi_service_integration_journey(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار رحلة التكامل متعدد الخدمات

@@ -7,9 +7,7 @@ Contains models for readings, aggregated data, and sensor health
 """
 
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict, List, Optional
 
 
 class AggregationMethod(str, Enum):
@@ -62,8 +60,8 @@ class SensorReading:
     value: float  # القيمة
     unit: str  # الوحدة
     timestamp: str  # وقت القراءة
-    metadata: Optional[Dict] = None  # بيانات إضافية
-    quality_score: Optional[float] = None  # نقاط الجودة (0-100)
+    metadata: dict | None = None  # بيانات إضافية
+    quality_score: float | None = None  # نقاط الجودة (0-100)
     is_outlier: bool = False  # هل هي قيمة شاذة
 
     def to_dict(self) -> dict:
@@ -90,31 +88,31 @@ class AggregatedData:
     granularity: TimeGranularity  # دقة الوقت
 
     # إحصائيات أساسية - Basic statistics
-    mean: Optional[float] = None  # المتوسط
-    median: Optional[float] = None  # الوسيط
-    min: Optional[float] = None  # القيمة الدنيا
-    max: Optional[float] = None  # القيمة القصوى
-    std: Optional[float] = None  # الانحراف المعياري
+    mean: float | None = None  # المتوسط
+    median: float | None = None  # الوسيط
+    min: float | None = None  # القيمة الدنيا
+    max: float | None = None  # القيمة القصوى
+    std: float | None = None  # الانحراف المعياري
     count: int = 0  # عدد القراءات
 
     # المئينات - Percentiles
-    percentile_10: Optional[float] = None  # المئين العاشر
-    percentile_25: Optional[float] = None  # المئين الخامس والعشرون (الربيع الأول)
-    percentile_75: Optional[float] = None  # المئين الخامس والسبعون (الربيع الثالث)
-    percentile_90: Optional[float] = None  # المئين التسعون
+    percentile_10: float | None = None  # المئين العاشر
+    percentile_25: float | None = None  # المئين الخامس والعشرون (الربيع الأول)
+    percentile_75: float | None = None  # المئين الخامس والسبعون (الربيع الثالث)
+    percentile_90: float | None = None  # المئين التسعون
 
     # مقاييس متقدمة - Advanced metrics
-    rate_of_change: Optional[float] = None  # معدل التغيير (وحدة/ساعة)
-    cumulative_sum: Optional[float] = None  # المجموع التراكمي (للأمطار)
+    rate_of_change: float | None = None  # معدل التغيير (وحدة/ساعة)
+    cumulative_sum: float | None = None  # المجموع التراكمي (للأمطار)
 
     # بيانات الجودة - Quality metrics
-    data_quality_score: Optional[float] = None  # نقاط جودة البيانات (0-100)
+    data_quality_score: float | None = None  # نقاط جودة البيانات (0-100)
     outlier_count: int = 0  # عدد القيم الشاذة
     missing_count: int = 0  # عدد القراءات المفقودة
 
     # بيانات إضافية - Additional metadata
-    devices: List[str] = field(default_factory=list)  # قائمة الأجهزة المساهمة
-    metadata: Optional[Dict] = None  # بيانات إضافية
+    devices: list[str] = field(default_factory=list)  # قائمة الأجهزة المساهمة
+    metadata: dict | None = None  # بيانات إضافية
 
     def to_dict(self) -> dict:
         """تحويل إلى قاموس - Convert to dictionary"""
@@ -146,14 +144,14 @@ class SensorHealth:
     # مقاييس الصحة - Health metrics
     data_quality_score: float = 0.0  # نقاط جودة البيانات (0-100)
     uptime_percentage: float = 0.0  # نسبة وقت التشغيل (0-100)
-    battery_level: Optional[float] = None  # مستوى البطارية (0-100)
-    signal_strength: Optional[float] = None  # قوة الإشارة (dBm)
+    battery_level: float | None = None  # مستوى البطارية (0-100)
+    signal_strength: float | None = None  # قوة الإشارة (dBm)
 
     # اكتشاف المشاكل - Issue detection
     drift_detected: bool = False  # هل تم اكتشاف انحراف
-    drift_magnitude: Optional[float] = None  # مقدار الانحراف
+    drift_magnitude: float | None = None  # مقدار الانحراف
     consecutive_errors: int = 0  # عدد الأخطاء المتتالية
-    last_successful_reading: Optional[str] = None  # آخر قراءة ناجحة
+    last_successful_reading: str | None = None  # آخر قراءة ناجحة
 
     # الإحصائيات - Statistics
     readings_count_24h: int = 0  # عدد القراءات في 24 ساعة
@@ -161,12 +159,12 @@ class SensorHealth:
     outlier_percentage: float = 0.0  # نسبة القيم الشاذة
 
     # التنبيهات - Alerts
-    alerts: List[str] = field(default_factory=list)  # قائمة التنبيهات
-    recommendations_ar: List[str] = field(default_factory=list)  # التوصيات بالعربية
-    recommendations_en: List[str] = field(default_factory=list)  # التوصيات بالإنجليزية
+    alerts: list[str] = field(default_factory=list)  # قائمة التنبيهات
+    recommendations_ar: list[str] = field(default_factory=list)  # التوصيات بالعربية
+    recommendations_en: list[str] = field(default_factory=list)  # التوصيات بالإنجليزية
 
     # بيانات إضافية - Additional metadata
-    metadata: Optional[Dict] = None  # بيانات إضافية
+    metadata: dict | None = None  # بيانات إضافية
 
     def to_dict(self) -> dict:
         """تحويل إلى قاموس - Convert to dictionary"""
@@ -201,8 +199,8 @@ class AlertThreshold:
     min_value: float  # القيمة الدنيا
     max_value: float  # القيمة القصوى
     unit: str  # الوحدة
-    critical_min: Optional[float] = None  # القيمة الدنيا الحرجة
-    critical_max: Optional[float] = None  # القيمة القصوى الحرجة
+    critical_min: float | None = None  # القيمة الدنيا الحرجة
+    critical_max: float | None = None  # القيمة القصوى الحرجة
     description_ar: str = ""  # الوصف بالعربية
     description_en: str = ""  # الوصف بالإنجليزية
 
@@ -293,7 +291,7 @@ YEMEN_THRESHOLDS = {
 }
 
 
-def get_threshold(sensor_type: str) -> Optional[AlertThreshold]:
+def get_threshold(sensor_type: str) -> AlertThreshold | None:
     """
     الحصول على عتبة التنبيه لنوع المستشعر
     Get alert threshold for sensor type
@@ -303,7 +301,7 @@ def get_threshold(sensor_type: str) -> Optional[AlertThreshold]:
 
 def check_value_in_range(
     sensor_type: str, value: float
-) -> tuple[bool, Optional[str]]:
+) -> tuple[bool, str | None]:
     """
     التحقق من القيمة ضمن النطاق المقبول
     Check if value is within acceptable range

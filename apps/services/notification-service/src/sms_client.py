@@ -10,18 +10,18 @@ Features:
 - Proper error handling and logging
 """
 
-import os
-import logging
-from typing import Optional, Dict, Any
-from dataclasses import dataclass
 import asyncio
+import logging
+import os
+from dataclasses import dataclass
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # Twilio SDK imports
 try:
-    from twilio.rest import Client as TwilioClient
     from twilio.base.exceptions import TwilioRestException
+    from twilio.rest import Client as TwilioClient
 
     _TWILIO_AVAILABLE = True
 except ImportError:
@@ -35,7 +35,7 @@ class SMSMessage:
 
     to: str  # Phone number in E.164 format (e.g., +967771234567)
     body: str  # Message content
-    body_ar: Optional[str] = None  # Arabic version
+    body_ar: str | None = None  # Arabic version
 
     def get_content(self, language: str = "ar") -> str:
         """الحصول على المحتوى بناءً على اللغة"""
@@ -62,15 +62,15 @@ class SMSClient:
 
     def __init__(self):
         self._initialized = False
-        self._client: Optional[TwilioClient] = None
-        self._from_number: Optional[str] = None
-        self._account_sid: Optional[str] = None
+        self._client: TwilioClient | None = None
+        self._from_number: str | None = None
+        self._account_sid: str | None = None
 
     def initialize(
         self,
-        account_sid: Optional[str] = None,
-        auth_token: Optional[str] = None,
-        from_number: Optional[str] = None,
+        account_sid: str | None = None,
+        auth_token: str | None = None,
+        from_number: str | None = None,
     ) -> bool:
         """
         تهيئة عميل Twilio
@@ -133,10 +133,10 @@ class SMSClient:
         self,
         to: str,
         body: str,
-        body_ar: Optional[str] = None,
+        body_ar: str | None = None,
         language: str = "ar",
         max_length: int = 1600,  # Twilio SMS limit
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         إرسال رسالة نصية
 
@@ -184,7 +184,7 @@ class SMSClient:
             logger.error(f"Error sending SMS to {to}: {e}")
             return None
 
-    def _send_sync(self, to: str, content: str) -> Optional[str]:
+    def _send_sync(self, to: str, content: str) -> str | None:
         """Synchronous send (for thread executor)"""
         try:
             message = self._client.messages.create(
@@ -202,9 +202,9 @@ class SMSClient:
         self,
         recipients: list[str],
         body: str,
-        body_ar: Optional[str] = None,
+        body_ar: str | None = None,
         language: str = "ar",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         إرسال رسائل متعددة
 
@@ -251,7 +251,7 @@ class SMSClient:
 
     async def send_sms_with_retry(
         self, to: str, body: str, max_retries: int = 3, retry_delay: int = 5, **kwargs
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         إرسال رسالة مع إعادة المحاولة
 
@@ -277,7 +277,7 @@ class SMSClient:
         logger.error(f"Failed to send SMS to {to} after {max_retries} attempts")
         return None
 
-    async def get_message_status(self, message_sid: str) -> Optional[Dict[str, Any]]:
+    async def get_message_status(self, message_sid: str) -> dict[str, Any] | None:
         """
         الحصول على حالة الرسالة
 
@@ -333,7 +333,7 @@ class SMSClient:
 
 
 # Global client instance
-_sms_client: Optional[SMSClient] = None
+_sms_client: SMSClient | None = None
 
 
 def get_sms_client() -> SMSClient:

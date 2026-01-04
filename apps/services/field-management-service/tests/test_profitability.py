@@ -2,19 +2,17 @@
 Tests for Crop Profitability Analyzer
 """
 
-import pytest
-import sys
 import os
+import sys
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from profitability_analyzer import (
-    ProfitabilityAnalyzer,
-    CostCategory,
-    CostItem,
-    RevenueItem,
     CropProfitability,
+    ProfitabilityAnalyzer,
 )
 
 
@@ -243,7 +241,6 @@ class TestProfitabilityAnalyzer:
     def test_generate_recommendations(self, analyzer):
         """Test recommendation generation"""
         # Create a mock analysis with low yield
-        from dataclasses import dataclass
 
         analysis = CropProfitability(
             field_id="field-001",

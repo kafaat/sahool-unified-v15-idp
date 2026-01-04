@@ -8,9 +8,8 @@ Hierarchy: Farm → Field → Zone → SubZone
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -105,7 +104,7 @@ class Zone:
     tenant_id: str
     field_id: str
     name: str
-    name_ar: Optional[str]
+    name_ar: str | None
     zone_type: ZoneType
     boundary: ZoneBoundary
     area_hectares: float
@@ -122,11 +121,11 @@ class Zone:
         zone_type: ZoneType,
         boundary: ZoneBoundary,
         area_hectares: float,
-        name_ar: Optional[str] = None,
-        properties: Optional[dict] = None,
+        name_ar: str | None = None,
+        properties: dict | None = None,
     ) -> Zone:
         """Factory method to create a new zone"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             id=str(uuid4()),
             tenant_id=tenant_id,
@@ -173,7 +172,7 @@ class SubZone:
     tenant_id: str
     zone_id: str
     name: str
-    name_ar: Optional[str]
+    name_ar: str | None
     boundary: ZoneBoundary
     area_hectares: float
     properties: dict  # sensor_ids, vra_settings, etc.
@@ -188,11 +187,11 @@ class SubZone:
         name: str,
         boundary: ZoneBoundary,
         area_hectares: float,
-        name_ar: Optional[str] = None,
-        properties: Optional[dict] = None,
+        name_ar: str | None = None,
+        properties: dict | None = None,
     ) -> SubZone:
         """Factory method to create a new sub-zone"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             id=str(uuid4()),
             tenant_id=tenant_id,

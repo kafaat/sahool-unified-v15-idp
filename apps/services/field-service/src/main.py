@@ -7,11 +7,10 @@ Port: 3000
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from typing import Optional, List
+from datetime import UTC, datetime
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query, Response, Header, Depends
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
@@ -21,41 +20,38 @@ except ImportError:
     # Fallback if shared config not available
     setup_cors_middleware = None
 
+import logging
+
+from .events import get_publisher
+from .geo import (
+    calculate_centroid,
+    calculate_polygon_area,
+    check_polygon_overlap,
+    polygon_to_geojson,
+    polygon_to_kml,
+    validate_polygon,
+)
 from .models import (
-    FieldCreate,
-    FieldUpdate,
-    FieldResponse,
-    FieldDetailResponse,
-    FieldStatsResponse,
-    FieldStatus,
+    AreaCalculationResponse,
     BoundaryUpdate,
-    CropSeasonCreate,
     CropSeasonClose,
+    CropSeasonCreate,
     CropSeasonResponse,
     CropSeasonStatus,
-    ZoneCreate,
-    ZoneResponse,
+    FieldCreate,
+    FieldDetailResponse,
+    FieldResponse,
+    FieldStatsResponse,
+    FieldStatus,
+    FieldUpdate,
+    GeoPoint,
+    NDVIRecord,
     OverlapCheckRequest,
     OverlapCheckResponse,
-    AreaCalculationResponse,
     UserFieldsStats,
-    NDVIRecord,
-    NDVITrend,
-    PaginatedResponse,
-    GeoPoint,
+    ZoneCreate,
+    ZoneResponse,
 )
-from .geo import (
-    calculate_polygon_area,
-    calculate_centroid,
-    validate_polygon,
-    check_polygon_overlap,
-    polygon_to_kml,
-    polygon_to_geojson,
-)
-from .events import get_publisher, FieldEventPublisher
-
-
-import logging
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -67,7 +63,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_tenant_id(
-    x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
 ) -> str:
     """Extract and validate tenant ID from X-Tenant-Id header"""
     if not x_tenant_id:
@@ -162,7 +158,7 @@ def health():
         "status": "healthy",
         "service": "field-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
             "nats": (
                 "connected"
@@ -180,7 +176,7 @@ def healthz():
         "status": "healthy",
         "service": "field-service",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -203,7 +199,7 @@ async def create_field(field: FieldCreate, tenant_id: str = Depends(get_tenant_i
     if field.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     field_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # التحقق من الحدود إذا وجدت
     if field.boundary:
@@ -304,7 +300,7 @@ async def get_field(field_id: str, tenant_id: str = Depends(get_tenant_id)):
 @app.get("/fields")
 async def list_fields(
     user_id: str = Query(None),
-    status: Optional[str] = Query(None),
+    status: str | None = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
     tenant_id: str = Depends(get_tenant_id),
@@ -356,7 +352,7 @@ async def update_field(
                 field_data[key] = value
             updated_fields.append(key)
 
-    field_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    field_data["updated_at"] = datetime.now(UTC).isoformat()
     _fields[field_id] = field_data
 
     # نشر الحدث
@@ -437,7 +433,7 @@ async def update_boundary(field_id: str, update: BoundaryUpdate):
     if update.recalculate_area:
         field_data["area_hectares"] = round(new_area, 4)
 
-    field_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    field_data["updated_at"] = datetime.now(UTC).isoformat()
     _fields[field_id] = field_data
 
     # نشر الحدث
@@ -600,7 +596,7 @@ async def start_crop_season(field_id: str, season: CropSeasonCreate):
         )
 
     season_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     season_data = {
         "id": season_id,
@@ -691,7 +687,7 @@ async def close_crop_season(field_id: str, close_data: CropSeasonClose):
 
     # مسح المحصول الحالي
     _fields[field_id]["current_crop"] = None
-    _fields[field_id]["updated_at"] = datetime.now(timezone.utc).isoformat()
+    _fields[field_id]["updated_at"] = datetime.now(UTC).isoformat()
 
     # نشر الحدث
     if app.state.publisher:
@@ -726,7 +722,7 @@ async def create_zone(field_id: str, zone: ZoneCreate):
 
     zone_id = str(uuid4())
     zone_area = calculate_polygon_area(zone.boundary.coordinates)
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     zone_data = {
         "id": zone_id,

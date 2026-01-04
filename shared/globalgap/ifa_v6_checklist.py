@@ -9,9 +9,9 @@ for Fruit & Vegetables certification.
 لشهادة الفواكه والخضروات.
 """
 
-from typing import List, Dict, Optional
-from .models import ChecklistItem, ChecklistCategory
+
 from .constants import ComplianceLevel
+from .models import ChecklistCategory, ChecklistItem
 
 # =============================================================================
 # IFA v6 CHECKLIST CATEGORIES
@@ -1071,7 +1071,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
 # قائمة التحقق الكاملة
 # =============================================================================
 
-IFA_V6_CHECKLIST: Dict[str, ChecklistCategory] = {
+IFA_V6_CHECKLIST: dict[str, ChecklistCategory] = {
     category.code: category for category in CHECKLIST_CATEGORIES_DETAIL
 }
 
@@ -1081,7 +1081,7 @@ IFA_V6_CHECKLIST: Dict[str, ChecklistCategory] = {
 # =============================================================================
 
 
-def get_category(category_code: str) -> Optional[ChecklistCategory]:
+def get_category(category_code: str) -> ChecklistCategory | None:
     """
     Get a checklist category by code
     احصل على فئة قائمة التحقق بالرمز
@@ -1095,7 +1095,7 @@ def get_category(category_code: str) -> Optional[ChecklistCategory]:
     return IFA_V6_CHECKLIST.get(category_code)
 
 
-def get_checklist_item(item_id: str) -> Optional[ChecklistItem]:
+def get_checklist_item(item_id: str) -> ChecklistItem | None:
     """
     Get a specific checklist item by ID
     احصل على عنصر قائمة تحقق محدد بالمعرف
@@ -1114,8 +1114,8 @@ def get_checklist_item(item_id: str) -> Optional[ChecklistItem]:
 
 
 def get_items_by_compliance_level(
-    compliance_level: ComplianceLevel, category_code: Optional[str] = None
-) -> List[ChecklistItem]:
+    compliance_level: ComplianceLevel, category_code: str | None = None
+) -> list[ChecklistItem]:
     """
     Get all checklist items by compliance level
     احصل على جميع عناصر قائمة التحقق حسب مستوى الامتثال
@@ -1143,7 +1143,7 @@ def get_items_by_compliance_level(
     return items
 
 
-def calculate_compliance_score(findings: List[Dict[str, any]]) -> Dict[str, any]:
+def calculate_compliance_score(findings: list[dict[str, any]]) -> dict[str, any]:
     """
     Calculate compliance score from audit findings
     احسب درجة الامتثال من نتائج التدقيق
@@ -1222,7 +1222,7 @@ def calculate_compliance_score(findings: List[Dict[str, any]]) -> Dict[str, any]
     }
 
 
-def get_all_items() -> List[ChecklistItem]:
+def get_all_items() -> list[ChecklistItem]:
     """
     Get all checklist items across all categories
     احصل على جميع عناصر قائمة التحقق عبر جميع الفئات
@@ -1236,7 +1236,7 @@ def get_all_items() -> List[ChecklistItem]:
     return items
 
 
-def get_statistics() -> Dict[str, any]:
+def get_statistics() -> dict[str, any]:
     """
     Get statistics about the checklist
     احصل على إحصائيات حول قائمة التحقق

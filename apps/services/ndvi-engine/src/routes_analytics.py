@@ -7,22 +7,14 @@ Sprint 8: Analytics contract for NDVI data
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
-from typing import Optional
-from uuid import UUID
+from datetime import date, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from .analytics import (
-    analyze_trend,
-    compare_periods,
     compare_to_historical_mean,
-    summarize,
 )
-from .confidence import confidence_grade
-from .repository import get_latest_observation, get_series, get_field_stats
-
 
 router = APIRouter(prefix="/analytics", tags=["NDVI Analytics"])
 
@@ -41,11 +33,11 @@ class SummaryResponse(BaseModel):
     ndvi_mean: float
     ndvi_min: float
     ndvi_max: float
-    ndvi_std: Optional[float]
+    ndvi_std: float | None
     confidence_mean: float
     confidence_grade: str
     trend: str
-    trend_slope: Optional[float]
+    trend_slope: float | None
 
 
 class TrendResponse(BaseModel):
@@ -87,8 +79,8 @@ class LatestResponse(BaseModel):
     field_id: str
     obs_date: str
     ndvi_mean: float
-    ndvi_min: Optional[float]
-    ndvi_max: Optional[float]
+    ndvi_min: float | None
+    ndvi_max: float | None
     cloud_coverage: float
     confidence: float
     confidence_grade: str

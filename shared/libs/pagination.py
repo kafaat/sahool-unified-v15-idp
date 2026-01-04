@@ -9,12 +9,12 @@ Provides utilities for:
 4. Query optimization helpers
 """
 
-from typing import TypeVar, Generic, List, Optional, Dict, Any, AsyncIterator
-from dataclasses import dataclass
-from enum import Enum
 import base64
 import json
-
+from collections.abc import AsyncIterator
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Generic, TypeVar
 
 T = TypeVar("T")
 
@@ -32,19 +32,19 @@ class PageInfo:
 
     has_next_page: bool
     has_previous_page: bool
-    start_cursor: Optional[str] = None
-    end_cursor: Optional[str] = None
-    total_count: Optional[int] = None
+    start_cursor: str | None = None
+    end_cursor: str | None = None
+    total_count: int | None = None
 
 
 @dataclass
 class Page(Generic[T]):
     """Generic paginated response"""
 
-    items: List[T]
+    items: list[T]
     page_info: PageInfo
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
         return {
             "items": [
@@ -64,13 +64,13 @@ class Page(Generic[T]):
 class OffsetPage(Generic[T]):
     """Offset-based paginated response"""
 
-    items: List[T]
+    items: list[T]
     total: int
     page: int
     page_size: int
     total_pages: int
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
         return {
             "items": [
@@ -132,7 +132,7 @@ class PaginationHelper:
 
     @staticmethod
     def get_page_size(
-        requested_size: Optional[int], default: int = 50, max_size: int = 1000
+        requested_size: int | None, default: int = 50, max_size: int = 1000
     ) -> int:
         """
         Get validated page size.
@@ -238,10 +238,10 @@ class SQLAlchemyPagination:
     async def cursor_paginate_query(
         query,
         cursor_field: str,
-        first: Optional[int] = None,
-        after: Optional[str] = None,
-        last: Optional[int] = None,
-        before: Optional[str] = None,
+        first: int | None = None,
+        after: str | None = None,
+        last: int | None = None,
+        before: str | None = None,
         order_by: SortOrder = SortOrder.ASC,
         max_page_size: int = 1000,
     ) -> Page:
@@ -438,10 +438,10 @@ def create_pagination_params(
 
 
 def create_cursor_pagination_params(
-    first: Optional[int] = None,
-    after: Optional[str] = None,
-    last: Optional[int] = None,
-    before: Optional[str] = None,
+    first: int | None = None,
+    after: str | None = None,
+    last: int | None = None,
+    before: str | None = None,
 ):
     """
     FastAPI dependency for cursor-based pagination parameters.

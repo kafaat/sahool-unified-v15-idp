@@ -3,8 +3,9 @@ Unit Tests for LLM Providers
 اختبارات وحدة لمزودي LLM
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, Mock, patch
 from src.llm.multi_provider import MultiProviderLLM
 
 

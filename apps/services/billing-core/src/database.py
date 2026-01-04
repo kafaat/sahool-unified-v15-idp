@@ -9,20 +9,20 @@ This module provides:
 - Database initialization
 """
 
-import os
 import logging
-from typing import AsyncGenerator
+import os
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    AsyncSession,
-    AsyncEngine,
-    async_sessionmaker,
-)
-from sqlalchemy.pool import NullPool, QueuePool
-from sqlalchemy.orm import declarative_base
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.pool import NullPool, QueuePool
 
 logger = logging.getLogger("sahool-billing")
 
@@ -103,7 +103,7 @@ def get_engine() -> AsyncEngine:
                 "timeout": 10,  # Connection timeout in seconds
             },
         }
-        
+
         if IS_DEV:
             # Development: Use NullPool (no pooling) for simplicity
             engine_kwargs["poolclass"] = NullPool

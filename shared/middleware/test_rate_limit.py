@@ -6,23 +6,22 @@ Run with: pytest shared/middleware/test_rate_limit.py -v
 """
 
 import time
-import asyncio
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import Mock
+
 import pytest
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
 from shared.middleware.rate_limit import (
-    RateLimiter,
     RateLimitConfig,
+    RateLimiter,
     TierConfig,
     TokenBucket,
     rate_limit,
-    rate_limit_by_user,
     rate_limit_by_api_key,
     rate_limit_by_tenant,
+    rate_limit_by_user,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test TokenBucket

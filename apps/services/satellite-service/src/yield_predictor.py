@@ -12,14 +12,12 @@ ML-based yield prediction using:
 Based on FAO methodology and Yemen-specific calibration.
 """
 
-from dataclasses import dataclass
-from typing import List, Optional, Dict, Tuple
-from datetime import datetime, timedelta
-from enum import Enum
 import math
 
 # Import shared crop catalog
 import sys
+from dataclasses import dataclass
+from datetime import datetime
 
 sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
 try:
@@ -44,14 +42,14 @@ class YieldPrediction:
     yield_range_min: float
     yield_range_max: float
     confidence: float  # 0-1
-    factors: Dict[str, float]  # contribution of each factor (0-1)
+    factors: dict[str, float]  # contribution of each factor (0-1)
     comparison_to_average: float  # % above/below regional average
     comparison_to_base: float  # % above/below crop base yield
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
     prediction_date: datetime
     growth_stage: str  # current growth stage
-    days_to_harvest: Optional[int]
+    days_to_harvest: int | None
 
 
 class YieldPredictor:
@@ -150,10 +148,10 @@ class YieldPredictor:
         self,
         field_id: str,
         crop_code: str,
-        ndvi_series: List[float],
-        weather_data: Dict,
-        soil_moisture: Optional[float] = None,
-        planting_date: Optional[datetime] = None,
+        ndvi_series: list[float],
+        weather_data: dict,
+        soil_moisture: float | None = None,
+        planting_date: datetime | None = None,
         field_area_ha: float = 1.0,
     ) -> YieldPrediction:
         """
@@ -317,7 +315,7 @@ class YieldPredictor:
             days_to_harvest=days_to_harvest,
         )
 
-    def calculate_ndvi_integral(self, ndvi_series: List[float]) -> float:
+    def calculate_ndvi_integral(self, ndvi_series: list[float]) -> float:
         """
         Calculate cumulative NDVI (area under curve).
         Represents total photosynthetic activity over the season.
@@ -334,8 +332,8 @@ class YieldPredictor:
 
     def calculate_gdd(
         self,
-        temp_min_series: List[float],
-        temp_max_series: List[float],
+        temp_min_series: list[float],
+        temp_max_series: list[float],
         base_temp: float = 10.0,
     ) -> float:
         """
@@ -360,7 +358,7 @@ class YieldPredictor:
         precipitation: float,
         et0: float,
         kc: float,
-        soil_moisture: Optional[float],
+        soil_moisture: float | None,
     ) -> float:
         """
         Calculate water stress factor (0-1, where 1 = no stress).
@@ -456,7 +454,7 @@ class YieldPredictor:
     def predict_from_soil_moisture(
         self,
         base_yield: float,
-        soil_moisture: Optional[float],
+        soil_moisture: float | None,
     ) -> float:
         """
         Predict yield from soil moisture.
@@ -478,11 +476,11 @@ class YieldPredictor:
 
     def estimate_growth_stage(
         self,
-        planting_date: Optional[datetime],
+        planting_date: datetime | None,
         gdd_accumulated: float,
         crop_code: str,
-        crop_info: Optional[CropInfo],
-    ) -> Tuple[str, Optional[int]]:
+        crop_info: CropInfo | None,
+    ) -> tuple[str, int | None]:
         """
         Estimate current growth stage and days to harvest.
         """
@@ -514,11 +512,11 @@ class YieldPredictor:
 
     def calculate_confidence(
         self,
-        ndvi_series: List[float],
+        ndvi_series: list[float],
         ndvi_peak: float,
         gdd: float,
         water_stress_factor: float,
-        model_variance: List[float],
+        model_variance: list[float],
     ) -> float:
         """
         Calculate prediction confidence (0-1) based on data quality and model agreement.
@@ -563,7 +561,7 @@ class YieldPredictor:
         water_stress_factor: float,
         soil_moisture: float,
         crop_code: str,
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """
         Return contribution of each factor to yield (normalized 0-1).
         """
@@ -601,13 +599,13 @@ class YieldPredictor:
         crop_name_en: str,
         ndvi_peak: float,
         water_stress_factor: float,
-        soil_moisture: Optional[float],
+        soil_moisture: float | None,
         gdd: float,
         growth_stage: str,
         predicted_yield: float,
         base_yield: float,
-        factors: Dict[str, float],
-    ) -> Tuple[List[str], List[str]]:
+        factors: dict[str, float],
+    ) -> tuple[list[str], list[str]]:
         """
         Generate actionable recommendations based on prediction factors.
         """

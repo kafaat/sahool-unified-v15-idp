@@ -19,12 +19,11 @@ References:
 - Cesaraccio et al. (2001) - Comparison of GDD calculation methods
 """
 
-from dataclasses import dataclass
-from typing import List, Dict, Optional, Tuple
-from datetime import date, datetime, timedelta
-from enum import Enum
-import math
 import logging
+import math
+from dataclasses import dataclass
+from datetime import date, timedelta
+from enum import Enum
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +47,7 @@ class GDDDataPoint:
     daily_gdd: float
     accumulated_gdd: float
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "date": self.date.isoformat(),
             "temp_min_c": round(self.temp_min, 1),
@@ -68,13 +67,13 @@ class GrowthMilestone:
     gdd_required: float
     gdd_accumulated: float
     is_reached: bool
-    reached_date: Optional[date]
-    expected_date: Optional[date]
-    days_remaining: Optional[int]
+    reached_date: date | None
+    expected_date: date | None
+    days_remaining: int | None
     description_ar: str
     description_en: str
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "stage_name_en": self.stage_name_en,
             "stage_name_ar": self.stage_name_ar,
@@ -103,7 +102,7 @@ class GDDChart:
     crop_name_en: str
     planting_date: date
     base_temp: float
-    upper_temp: Optional[float]  # Upper cutoff temperature
+    upper_temp: float | None  # Upper cutoff temperature
 
     # Current status
     current_date: date
@@ -112,10 +111,10 @@ class GDDChart:
     avg_daily_gdd: float
 
     # Data series
-    daily_data: List[GDDDataPoint]
+    daily_data: list[GDDDataPoint]
 
     # Milestones
-    milestones: List[GrowthMilestone]
+    milestones: list[GrowthMilestone]
     current_stage: str
     current_stage_ar: str
     next_stage: str
@@ -136,7 +135,7 @@ class GDDChart:
     calculation_method: str
     confidence: float
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "field_id": self.field_id,
             "crop": {
@@ -187,11 +186,11 @@ class CropGDDRequirements:
     crop_name_ar: str
     crop_name_en: str
     base_temp: float
-    upper_temp: Optional[float]
+    upper_temp: float | None
     total_gdd_required: float
-    stages: List[Dict]  # [{name_en, name_ar, gdd_start, gdd_end, description}]
+    stages: list[dict]  # [{name_en, name_ar, gdd_start, gdd_end, description}]
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "crop_code": self.crop_code,
             "crop_name_ar": self.crop_name_ar,
@@ -1015,7 +1014,7 @@ class GDDTracker:
         planting_date: date,
         latitude: float,
         longitude: float,
-        end_date: Optional[date] = None,
+        end_date: date | None = None,
         method: str = "simple",
     ) -> GDDChart:
         """
@@ -1164,9 +1163,9 @@ class GDDTracker:
         current_gdd: float,
         target_gdd: float,
         base_temp: float = 10,
-        upper_temp: Optional[float] = None,
+        upper_temp: float | None = None,
         method: str = "simple",
-    ) -> Dict:
+    ) -> dict:
         """
         Forecast when target GDD will be reached using weather forecast.
 
@@ -1253,7 +1252,7 @@ class GDDTracker:
         temp_min: float,
         temp_max: float,
         base_temp: float,
-        upper_temp: Optional[float] = None,
+        upper_temp: float | None = None,
         method: str = "simple",
     ) -> float:
         """
@@ -1325,7 +1324,7 @@ class GDDTracker:
 
     def get_current_stage(
         self, crop_code: str, accumulated_gdd: float
-    ) -> Tuple[str, str, str, str, float]:
+    ) -> tuple[str, str, str, str, float]:
         """
         Get current growth stage based on accumulated GDD.
 
@@ -1381,8 +1380,8 @@ class GDDTracker:
         accumulated_gdd: float,
         daily_avg_gdd: float,
         current_date: date,
-        daily_data: List[GDDDataPoint],
-    ) -> List[GrowthMilestone]:
+        daily_data: list[GDDDataPoint],
+    ) -> list[GrowthMilestone]:
         """
         Generate milestone list with actual/predicted dates.
 
@@ -1454,9 +1453,9 @@ class GDDTracker:
         current_gdd: float,
         days_since_planting: int,
         base_temp: float,
-        upper_temp: Optional[float] = None,
+        upper_temp: float | None = None,
         method: str = "simple",
-    ) -> Tuple[float, str, str]:
+    ) -> tuple[float, str, str]:
         """
         Compare current GDD accumulation to historical 10-year average.
 
@@ -1582,7 +1581,7 @@ class GDDTracker:
             stages=stages,
         )
 
-    def get_all_crops(self) -> List[Dict]:
+    def get_all_crops(self) -> list[dict]:
         """
         Get list of all supported crops.
 

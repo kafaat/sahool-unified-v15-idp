@@ -33,11 +33,10 @@ Usage:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -72,13 +71,13 @@ class DLQMessage(BaseModel):
     timestamp: datetime = Field(..., description="Message timestamp")
     size: int = Field(..., description="Message size in bytes")
     metadata: DLQMessageMetadata = Field(..., description="DLQ metadata")
-    original_data: Optional[str] = Field(None, description="Original message payload")
+    original_data: str | None = Field(None, description="Original message payload")
 
 
 class DLQMessageList(BaseModel):
     """List of DLQ messages with pagination."""
 
-    messages: List[DLQMessage] = Field(default_factory=list)
+    messages: list[DLQMessage] = Field(default_factory=list)
     total_count: int = Field(..., description="Total message count")
     page: int = Field(..., description="Current page")
     page_size: int = Field(..., description="Page size")
@@ -91,14 +90,14 @@ class DLQStats(BaseModel):
     stream_name: str
     total_messages: int
     total_bytes: int
-    oldest_message_age_seconds: Optional[int] = None
+    oldest_message_age_seconds: int | None = None
     consumers: int
-    subjects: List[str]
+    subjects: list[str]
 
     # Aggregated stats
-    messages_by_subject: Dict[str, int] = Field(default_factory=dict)
-    messages_by_error_type: Dict[str, int] = Field(default_factory=dict)
-    messages_by_service: Dict[str, int] = Field(default_factory=dict)
+    messages_by_subject: dict[str, int] = Field(default_factory=dict)
+    messages_by_error_type: dict[str, int] = Field(default_factory=dict)
+    messages_by_service: dict[str, int] = Field(default_factory=dict)
 
     # Alert status
     alert_triggered: bool = False
@@ -108,7 +107,7 @@ class DLQStats(BaseModel):
 class ReplayRequest(BaseModel):
     """Request to replay message(s)."""
 
-    message_seqs: List[int] = Field(
+    message_seqs: list[int] = Field(
         ..., description="Message sequence numbers to replay"
     )
     delete_after_replay: bool = Field(
@@ -121,7 +120,7 @@ class ReplayResponse(BaseModel):
 
     success_count: int
     failure_count: int
-    results: List[Dict[str, Any]] = Field(default_factory=list)
+    results: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class ArchiveRequest(BaseModel):
@@ -140,7 +139,7 @@ class ArchiveResponse(BaseModel):
 
     archived_count: int
     deleted_count: int
-    oldest_archived: Optional[datetime] = None
+    oldest_archived: datetime | None = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -154,12 +153,12 @@ class DLQManager:
     مدير قائمة انتظار الرسائل الفاشلة
     """
 
-    def __init__(self, config: Optional[DLQConfig] = None):
+    def __init__(self, config: DLQConfig | None = None):
         self.config = config or DLQConfig()
         self._nc = None
-        self._js: Optional[JetStreamContext] = None
+        self._js: JetStreamContext | None = None
         self._connected = False
-        self._publisher: Optional[EventPublisher] = None
+        self._publisher: EventPublisher | None = None
 
     async def connect(self):
         """Connect to NATS and JetStream."""
@@ -198,9 +197,9 @@ class DLQManager:
         self,
         page: int = 1,
         page_size: int = 50,
-        subject_filter: Optional[str] = None,
-        error_type_filter: Optional[str] = None,
-        service_filter: Optional[str] = None,
+        subject_filter: str | None = None,
+        error_type_filter: str | None = None,
+        service_filter: str | None = None,
     ) -> DLQMessageList:
         """
         Get DLQ messages with filtering and pagination.
@@ -410,7 +409,7 @@ class DLQManager:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def create_dlq_router(manager: Optional[DLQManager] = None) -> APIRouter:
+def create_dlq_router(manager: DLQManager | None = None) -> APIRouter:
     """
     Create FastAPI router for DLQ management endpoints.
 
@@ -438,9 +437,9 @@ def create_dlq_router(manager: Optional[DLQManager] = None) -> APIRouter:
     async def list_dlq_messages(
         page: int = Query(1, ge=1),
         page_size: int = Query(50, ge=1, le=200),
-        subject: Optional[str] = Query(None),
-        error_type: Optional[str] = Query(None),
-        service: Optional[str] = Query(None),
+        subject: str | None = Query(None),
+        error_type: str | None = Query(None),
+        service: str | None = Query(None),
     ):
         """List DLQ messages with filtering and pagination."""
         return await dlq_manager.get_messages(
@@ -456,7 +455,7 @@ def create_dlq_router(manager: Optional[DLQManager] = None) -> APIRouter:
         """Get DLQ statistics and health metrics."""
         return await dlq_manager.get_stats()
 
-    @router.post("/replay/{seq}", response_model=Dict[str, Any])
+    @router.post("/replay/{seq}", response_model=dict[str, Any])
     async def replay_single_message(
         seq: int,
         delete_after: bool = Query(True),

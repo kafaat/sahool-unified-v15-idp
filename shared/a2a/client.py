@@ -6,20 +6,21 @@ Client for discovering agents and sending tasks.
 عميل لاكتشاف الوكلاء وإرسال المهام.
 """
 
-from typing import Dict, Any, List, Optional, AsyncIterator
+import asyncio
+from collections.abc import AsyncIterator
+from typing import Any
+
 import httpx
 import structlog
-from datetime import datetime
-import asyncio
 
+from .agent import AgentCard
 from .protocol import (
+    ErrorMessage,
+    MessageType,
     TaskMessage,
     TaskResultMessage,
-    ErrorMessage,
     TaskState,
-    MessageType,
 )
-from .agent import AgentCard
 
 logger = structlog.get_logger()
 
@@ -42,9 +43,9 @@ class AgentDiscovery:
             timeout: HTTP request timeout in seconds
         """
         self.timeout = timeout
-        self.discovered_agents: Dict[str, AgentCard] = {}
+        self.discovered_agents: dict[str, AgentCard] = {}
 
-    async def discover_agent(self, base_url: str) -> Optional[AgentCard]:
+    async def discover_agent(self, base_url: str) -> AgentCard | None:
         """
         Discover agent at given URL
         اكتشاف الوكيل على عنوان URL المحدد
@@ -93,7 +94,7 @@ class AgentDiscovery:
             logger.error("agent_discovery_failed", base_url=base_url, error=str(e))
             return None
 
-    async def discover_multiple(self, base_urls: List[str]) -> List[AgentCard]:
+    async def discover_multiple(self, base_urls: list[str]) -> list[AgentCard]:
         """
         Discover multiple agents concurrently
         اكتشاف وكلاء متعددة بشكل متزامن
@@ -119,7 +120,7 @@ class AgentDiscovery:
 
         return agent_cards
 
-    def get_agent_by_id(self, agent_id: str) -> Optional[AgentCard]:
+    def get_agent_by_id(self, agent_id: str) -> AgentCard | None:
         """
         Get cached agent card by ID
         الحصول على بطاقة الوكيل المخزنة مؤقتاً بواسطة المعرف
@@ -132,7 +133,7 @@ class AgentDiscovery:
         """
         return self.discovered_agents.get(agent_id)
 
-    def get_agents_by_capability(self, capability_id: str) -> List[AgentCard]:
+    def get_agents_by_capability(self, capability_id: str) -> list[AgentCard]:
         """
         Find agents with specific capability
         البحث عن الوكلاء بقدرة محددة
@@ -155,10 +156,10 @@ class AgentDiscovery:
 
     def search_agents(
         self,
-        name_pattern: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        provider: Optional[str] = None,
-    ) -> List[AgentCard]:
+        name_pattern: str | None = None,
+        tags: list[str] | None = None,
+        provider: str | None = None,
+    ) -> list[AgentCard]:
         """
         Search for agents by various criteria
         البحث عن الوكلاء بمعايير متنوعة
@@ -230,11 +231,11 @@ class A2AClient:
         agent_card: AgentCard,
         task_type: str,
         task_description: str,
-        parameters: Dict[str, Any],
+        parameters: dict[str, Any],
         priority: int = 5,
-        timeout_seconds: Optional[int] = None,
-        context: Optional[Dict[str, Any]] = None,
-        conversation_id: Optional[str] = None,
+        timeout_seconds: int | None = None,
+        context: dict[str, Any] | None = None,
+        conversation_id: str | None = None,
     ) -> TaskResultMessage:
         """
         Send task to agent and wait for result
@@ -331,10 +332,10 @@ class A2AClient:
         agent_card: AgentCard,
         task_type: str,
         task_description: str,
-        parameters: Dict[str, Any],
+        parameters: dict[str, Any],
         priority: int = 5,
-        context: Optional[Dict[str, Any]] = None,
-        conversation_id: Optional[str] = None,
+        context: dict[str, Any] | None = None,
+        conversation_id: str | None = None,
     ) -> AsyncIterator[TaskResultMessage]:
         """
         Send task with streaming results via WebSocket
@@ -447,10 +448,10 @@ class A2AClient:
 
     async def batch_send_tasks(
         self,
-        tasks: List[Dict[str, Any]],
+        tasks: list[dict[str, Any]],
         agent_card: AgentCard,
-        conversation_id: Optional[str] = None,
-    ) -> List[TaskResultMessage]:
+        conversation_id: str | None = None,
+    ) -> list[TaskResultMessage]:
         """
         Send multiple tasks to the same agent concurrently
         إرسال مهام متعددة إلى نفس الوكيل بشكل متزامن

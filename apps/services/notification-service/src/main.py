@@ -15,17 +15,18 @@ Field-First Architecture:
 - Decoupling بين خدمات التحليل والإشعارات
 """
 
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
-from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
-from enum import Enum
-from uuid import UUID, uuid4
 import asyncio
 import logging
 import os
 import sys
+from contextlib import asynccontextmanager
+from datetime import date, datetime
+from enum import Enum
+from typing import Any
+from uuid import UUID
+
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from pydantic import BaseModel
 
 # Add shared middleware to path
 shared_path = os.path.abspath(
@@ -34,22 +35,20 @@ shared_path = os.path.abspath(
 sys.path.insert(0, shared_path)
 
 # Database imports
-from .database import init_db, close_db, check_db_health, get_db_stats
+# Multi-channel support
+from .channels_controller import router as channels_router
+from .database import check_db_health, close_db, get_db_stats, init_db
+from .email_client import get_email_client
+from .preferences_controller import router as preferences_router
+from .preferences_service import PreferencesService
 from .repository import (
-    NotificationRepository,
-    NotificationTemplateRepository,
-    NotificationPreferenceRepository,
     NotificationLogRepository,
+    NotificationPreferenceRepository,
+    NotificationRepository,
 )
 
 # Notification clients
 from .sms_client import get_sms_client
-from .email_client import get_email_client
-
-# Multi-channel support
-from .channels_controller import router as channels_router
-from .preferences_controller import router as preferences_router
-from .preferences_service import PreferencesService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -172,13 +171,13 @@ class FarmerProfile(BaseModel):
     name: str
     name_ar: str
     governorate: Governorate
-    district: Optional[str] = None
-    crops: List[CropType]
-    field_ids: List[str] = []
-    phone: Optional[str] = None
-    email: Optional[str] = None
-    fcm_token: Optional[str] = None  # Firebase Cloud Messaging
-    notification_channels: List[NotificationChannel] = [NotificationChannel.IN_APP]
+    district: str | None = None
+    crops: list[CropType]
+    field_ids: list[str] = []
+    phone: str | None = None
+    email: str | None = None
+    fcm_token: str | None = None  # Firebase Cloud Messaging
+    notification_channels: list[NotificationChannel] = [NotificationChannel.IN_APP]
     language: str = "ar"
 
 
@@ -191,8 +190,8 @@ class NotificationPreferences(BaseModel):
     irrigation_reminders: bool = True
     crop_health_alerts: bool = True
     market_prices: bool = True
-    quiet_hours_start: Optional[str] = "22:00"  # HH:MM
-    quiet_hours_end: Optional[str] = "06:00"
+    quiet_hours_start: str | None = "22:00"  # HH:MM
+    quiet_hours_end: str | None = "06:00"
     min_priority: NotificationPriority = NotificationPriority.LOW
 
 
@@ -208,15 +207,15 @@ class Notification(BaseModel):
     title_ar: str
     body: str
     body_ar: str
-    data: Dict[str, Any] = {}
-    target_farmers: List[str] = []  # Empty = broadcast
-    target_governorates: List[Governorate] = []
-    target_crops: List[CropType] = []
-    channels: List[NotificationChannel] = [NotificationChannel.IN_APP]
+    data: dict[str, Any] = {}
+    target_farmers: list[str] = []  # Empty = broadcast
+    target_governorates: list[Governorate] = []
+    target_crops: list[CropType] = []
+    channels: list[NotificationChannel] = [NotificationChannel.IN_APP]
     created_at: datetime
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     is_read: bool = False
-    action_url: Optional[str] = None
+    action_url: str | None = None
 
 
 class CreateNotificationRequest(BaseModel):
@@ -228,22 +227,22 @@ class CreateNotificationRequest(BaseModel):
     title_ar: str
     body: str
     body_ar: str
-    data: Dict[str, Any] = {}
-    target_farmers: List[str] = []
-    target_governorates: List[Governorate] = []
-    target_crops: List[CropType] = []
-    channels: List[NotificationChannel] = [NotificationChannel.IN_APP]
-    expires_in_hours: Optional[int] = 24
+    data: dict[str, Any] = {}
+    target_farmers: list[str] = []
+    target_governorates: list[Governorate] = []
+    target_crops: list[CropType] = []
+    channels: list[NotificationChannel] = [NotificationChannel.IN_APP]
+    expires_in_hours: int | None = 24
 
 
 class WeatherAlertRequest(BaseModel):
     """طلب تنبيه طقس"""
 
-    governorates: List[Governorate]
+    governorates: list[Governorate]
     alert_type: str  # frost, heat_wave, storm, flood, drought
     severity: NotificationPriority
     expected_date: date
-    details: Dict[str, Any] = {}
+    details: dict[str, Any] = {}
 
 
 class PestAlertRequest(BaseModel):
@@ -252,10 +251,10 @@ class PestAlertRequest(BaseModel):
     governorate: Governorate
     pest_name: str
     pest_name_ar: str
-    affected_crops: List[CropType]
+    affected_crops: list[CropType]
     severity: NotificationPriority
-    recommendations: List[str] = []
-    recommendations_ar: List[str] = []
+    recommendations: list[str] = []
+    recommendations_ar: list[str] = []
 
 
 class IrrigationReminderRequest(BaseModel):
@@ -292,7 +291,7 @@ class IrrigationReminderRequest(BaseModel):
 # Migration Priority: HIGH - Farmer data is critical and should persist
 
 # Simulated farmer profiles
-FARMER_PROFILES: Dict[str, FarmerProfile] = {
+FARMER_PROFILES: dict[str, FarmerProfile] = {
     "farmer-1": FarmerProfile(
         farmer_id="farmer-1",
         name="Ahmed Ali",
@@ -320,8 +319,8 @@ FARMER_PROFILES: Dict[str, FarmerProfile] = {
 # Action: Remove NOTIFICATIONS and FARMER_NOTIFICATIONS dicts entirely
 # Note: These are legacy from pre-database implementation and no longer used
 # Migration Priority: LOW - Already migrated to database, just remove unused code
-NOTIFICATIONS: Dict[str, Notification] = {}
-FARMER_NOTIFICATIONS: Dict[str, List[str]] = {}  # farmer_id -> [notification_ids]
+NOTIFICATIONS: dict[str, Notification] = {}
+FARMER_NOTIFICATIONS: dict[str, list[str]] = {}  # farmer_id -> [notification_ids]
 
 
 # =============================================================================
@@ -336,13 +335,13 @@ async def create_notification(
     title_ar: str,
     body: str,
     body_ar: str,
-    data: Dict[str, Any] = {},
-    target_farmers: List[str] = [],
-    target_governorates: List[Governorate] = [],
-    target_crops: List[CropType] = [],
-    channels: List[NotificationChannel] = [NotificationChannel.IN_APP],
-    expires_in_hours: Optional[int] = 24,
-    tenant_id: Optional[str] = None,
+    data: dict[str, Any] = {},
+    target_farmers: list[str] = [],
+    target_governorates: list[Governorate] = [],
+    target_crops: list[CropType] = [],
+    channels: list[NotificationChannel] = [NotificationChannel.IN_APP],
+    expires_in_hours: int | None = 24,
+    tenant_id: str | None = None,
 ):
     """إنشاء إشعار جديد - Database version with preference checking"""
 
@@ -717,10 +716,10 @@ async def send_whatsapp_notification(notification, farmer_id: str):
 
 
 def determine_recipients_by_criteria(
-    target_farmers: List[str] = [],
-    target_governorates: List[Governorate] = [],
-    target_crops: List[CropType] = [],
-) -> List[str]:
+    target_farmers: list[str] = [],
+    target_governorates: list[Governorate] = [],
+    target_crops: list[CropType] = [],
+) -> list[str]:
     """تحديد المستلمين بناءً على معايير الإشعار"""
     # If specific farmers targeted, return them
     if target_farmers:
@@ -757,32 +756,32 @@ def get_weather_alert_message(alert_type: str, governorate: Governorate) -> tupl
         "frost": (
             f"Frost Warning in {governorate.value}",
             f"⚠️ تحذير من الصقيع في {gov_ar}",
-            f"Expected frost tonight. Protect your crops by covering them or using heating methods.",
-            f"يُتوقع صقيع الليلة. قم بحماية محاصيلك بتغطيتها أو استخدام طرق التدفئة. درجات الحرارة قد تنخفض إلى ما دون الصفر.",
+            "Expected frost tonight. Protect your crops by covering them or using heating methods.",
+            "يُتوقع صقيع الليلة. قم بحماية محاصيلك بتغطيتها أو استخدام طرق التدفئة. درجات الحرارة قد تنخفض إلى ما دون الصفر.",
         ),
         "heat_wave": (
             f"Heat Wave Alert in {governorate.value}",
             f"🌡️ تنبيه موجة حر في {gov_ar}",
-            f"Extreme heat expected. Increase irrigation and provide shade for sensitive crops.",
-            f"متوقع حرارة شديدة. زِد من الري ووفر الظل للمحاصيل الحساسة. تجنب العمل في الحقل خلال ساعات الذروة.",
+            "Extreme heat expected. Increase irrigation and provide shade for sensitive crops.",
+            "متوقع حرارة شديدة. زِد من الري ووفر الظل للمحاصيل الحساسة. تجنب العمل في الحقل خلال ساعات الذروة.",
         ),
         "storm": (
             f"Storm Warning in {governorate.value}",
             f"🌧️ تحذير من عاصفة في {gov_ar}",
-            f"Heavy rain and strong winds expected. Secure equipment and protect vulnerable crops.",
-            f"متوقع أمطار غزيرة ورياح قوية. أمّن المعدات واحمِ المحاصيل المعرضة للخطر.",
+            "Heavy rain and strong winds expected. Secure equipment and protect vulnerable crops.",
+            "متوقع أمطار غزيرة ورياح قوية. أمّن المعدات واحمِ المحاصيل المعرضة للخطر.",
         ),
         "flood": (
             f"Flood Risk in {governorate.value}",
             f"🌊 خطر فيضان في {gov_ar}",
-            f"Flood risk due to heavy rainfall. Move equipment to higher ground and check drainage.",
-            f"خطر فيضان بسبب الأمطار الغزيرة. انقل المعدات لمناطق مرتفعة وتحقق من الصرف.",
+            "Flood risk due to heavy rainfall. Move equipment to higher ground and check drainage.",
+            "خطر فيضان بسبب الأمطار الغزيرة. انقل المعدات لمناطق مرتفعة وتحقق من الصرف.",
         ),
         "drought": (
             f"Drought Alert in {governorate.value}",
             f"☀️ تنبيه جفاف في {gov_ar}",
-            f"Extended dry period expected. Conserve water and prioritize essential irrigation.",
-            f"متوقع فترة جفاف ممتدة. حافظ على المياه وأعطِ الأولوية للري الضروري.",
+            "Extended dry period expected. Conserve water and prioritize essential irrigation.",
+            "متوقع فترة جفاف ممتدة. حافظ على المياه وأعطِ الأولوية للري الضروري.",
         ),
     }
 
@@ -812,7 +811,7 @@ except ImportError:
     logger.info("NATS subscriber not available - running in REST-only mode")
 
 
-def create_notification_from_nats(notification_data: Dict[str, Any]):
+def create_notification_from_nats(notification_data: dict[str, Any]):
     """Callback for NATS subscriber to create notifications"""
     try:
         # Map notification type string to enum
@@ -1156,7 +1155,7 @@ async def create_irrigation_reminder(request: IrrigationReminderRequest):
 async def get_farmer_notifications(
     farmer_id: str,
     unread_only: bool = Query(default=False),
-    type: Optional[NotificationType] = Query(default=None),
+    type: NotificationType | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ):
@@ -1240,8 +1239,8 @@ async def mark_notification_read(notification_id: str, farmer_id: str = Query(..
 
 @app.get("/v1/notifications/broadcast")
 async def get_broadcast_notifications(
-    governorate: Optional[Governorate] = None,
-    crop: Optional[CropType] = None,
+    governorate: Governorate | None = None,
+    crop: CropType | None = None,
     limit: int = Query(default=20, ge=1, le=50),
 ):
     """الحصول على الإشعارات العامة (البث)"""

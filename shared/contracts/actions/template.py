@@ -10,12 +10,13 @@ SAHOOL Action Template
 - Fallback: تعليمات للعمل بدون اتصال
 """
 
-from datetime import datetime, date, time
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
 import uuid
+from datetime import date, datetime, time
+from typing import Any
 
-from .types import ActionType, ActionStatus, UrgencyLevel, ResourceType
+from pydantic import BaseModel, Field
+
+from .types import ActionStatus, ActionType, ResourceType, UrgencyLevel
 
 
 class TimeWindow(BaseModel):
@@ -23,9 +24,9 @@ class TimeWindow(BaseModel):
 
     start_date: date
     end_date: date
-    preferred_time_start: Optional[time] = None
-    preferred_time_end: Optional[time] = None
-    avoid_conditions: List[str] = Field(
+    preferred_time_start: time | None = None
+    preferred_time_end: time | None = None
+    avoid_conditions: list[str] = Field(
         default_factory=list,
         description="ظروف يجب تجنبها مثل: rain, high_wind, extreme_heat",
     )
@@ -40,9 +41,9 @@ class Resource(BaseModel):
     quantity: float
     unit: str
     unit_ar: str
-    estimated_cost: Optional[float] = None
+    estimated_cost: float | None = None
     currency: str = "YER"
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class ActionStep(BaseModel):
@@ -53,11 +54,11 @@ class ActionStep(BaseModel):
     title_en: str
     description_ar: str
     description_en: str
-    duration_minutes: Optional[int] = None
+    duration_minutes: int | None = None
     requires_photo: bool = False
     requires_confirmation: bool = True
-    safety_notes_ar: Optional[str] = None
-    safety_notes_en: Optional[str] = None
+    safety_notes_ar: str | None = None
+    safety_notes_en: str | None = None
 
 
 class ActionTemplate(BaseModel):
@@ -79,7 +80,7 @@ class ActionTemplate(BaseModel):
     title_en: str = Field(..., min_length=3, max_length=200)
     description_ar: str = Field(..., min_length=10)
     description_en: str = Field(..., min_length=10)
-    summary_ar: Optional[str] = Field(
+    summary_ar: str | None = Field(
         None, max_length=500, description="ملخص قصير للعرض في الإشعارات"
     )
 
@@ -87,41 +88,41 @@ class ActionTemplate(BaseModel):
     source_service: str = Field(
         ..., description="اسم الخدمة المصدر مثل: satellite-service, crop-health-ai"
     )
-    source_analysis_id: Optional[str] = Field(None, description="معرف التحليل المصدر")
-    source_analysis_type: Optional[str] = Field(
+    source_analysis_id: str | None = Field(None, description="معرف التحليل المصدر")
+    source_analysis_type: str | None = Field(
         None, description="نوع التحليل مثل: ndvi_drop, disease_detected"
     )
     confidence: float = Field(
         ..., ge=0, le=1, description="مستوى الثقة في التوصية (0-1)"
     )
-    reasoning_ar: Optional[str] = Field(None, description="شرح سبب التوصية بالعربية")
-    reasoning_en: Optional[str] = Field(None, description="شرح سبب التوصية بالإنجليزية")
+    reasoning_ar: str | None = Field(None, description="شرح سبب التوصية بالعربية")
+    reasoning_en: str | None = Field(None, description="شرح سبب التوصية بالإنجليزية")
 
     # === When (متى) ===
     urgency: UrgencyLevel = Field(..., description="مستوى الاستعجال")
-    deadline: Optional[datetime] = Field(None, description="الموعد النهائي للتنفيذ")
-    optimal_window: Optional[TimeWindow] = Field(
+    deadline: datetime | None = Field(None, description="الموعد النهائي للتنفيذ")
+    optimal_window: TimeWindow | None = Field(
         None, description="النافذة الزمنية المثالية"
     )
 
     # === Where (أين) ===
     field_id: str = Field(..., description="معرف الحقل")
-    zone_ids: List[str] = Field(
+    zone_ids: list[str] = Field(
         default_factory=list, description="معرفات المناطق المحددة داخل الحقل"
     )
-    geometry: Optional[Dict[str, Any]] = Field(
+    geometry: dict[str, Any] | None = Field(
         None, description="GeoJSON للمنطقة المستهدفة"
     )
 
     # === How (كيف) ===
-    steps: List[ActionStep] = Field(default_factory=list, description="خطوات التنفيذ")
-    resources_needed: List[Resource] = Field(
+    steps: list[ActionStep] = Field(default_factory=list, description="خطوات التنفيذ")
+    resources_needed: list[Resource] = Field(
         default_factory=list, description="الموارد المطلوبة"
     )
     estimated_duration_minutes: int = Field(
         ..., gt=0, description="الوقت المتوقع للتنفيذ بالدقائق"
     )
-    estimated_cost: Optional[float] = Field(None, description="التكلفة التقديرية")
+    estimated_cost: float | None = Field(None, description="التكلفة التقديرية")
     cost_currency: str = "YER"
 
     # === Field-First: Offline Support ===
@@ -140,17 +141,17 @@ class ActionTemplate(BaseModel):
 
     # === Metadata ===
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     status: ActionStatus = Field(default=ActionStatus.PENDING)
     priority_score: float = Field(
         default=0, ge=0, le=100, description="درجة الأولوية للترتيب (0-100)"
     )
-    tags: List[str] = Field(default_factory=list)
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    tags: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
     # === Tracking ===
-    tenant_id: Optional[str] = None
-    created_by_service: Optional[str] = None
+    tenant_id: str | None = None
+    created_by_service: str | None = None
     version: str = "1.0"
 
     class Config:
@@ -198,7 +199,7 @@ class ActionTemplate(BaseModel):
         self.priority_score = min(100, base_score + confidence_bonus + deadline_bonus)
         return self.priority_score
 
-    def to_notification_payload(self) -> Dict[str, Any]:
+    def to_notification_payload(self) -> dict[str, Any]:
         """تحويل إلى حمولة إشعار"""
         return {
             "action_id": self.action_id,
@@ -213,7 +214,7 @@ class ActionTemplate(BaseModel):
             "offline_executable": self.offline_executable,
         }
 
-    def to_task_card(self) -> Dict[str, Any]:
+    def to_task_card(self) -> dict[str, Any]:
         """تحويل إلى بطاقة مهمة للعرض"""
         return {
             "id": self.action_id,

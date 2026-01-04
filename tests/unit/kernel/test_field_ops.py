@@ -3,17 +3,16 @@ SAHOOL Field Operations Unit Tests
 Tests for field operations logic without I/O
 """
 
-from datetime import datetime, timezone
+# Import from the service
+import sys
+from datetime import UTC, datetime
 
 import pytest
 from pydantic import ValidationError
 
-# Import from the service
-import sys
-
 sys.path.insert(0, "archive/kernel-legacy/kernel/services/field_ops/src")
 
-from main import FieldCreate, FieldUpdate, FieldResponse, OperationCreate
+from main import FieldCreate, FieldResponse, FieldUpdate, OperationCreate
 
 
 class TestFieldCreateModel:
@@ -144,7 +143,7 @@ class TestOperationCreateModel:
 
     def test_operation_with_schedule(self, test_tenant_id):
         """Operation should accept scheduled date"""
-        scheduled = datetime.now(timezone.utc).isoformat()
+        scheduled = datetime.now(UTC).isoformat()
 
         op = OperationCreate(
             tenant_id=test_tenant_id,
@@ -195,8 +194,8 @@ class TestFieldResponse:
             "name_ar": None,
             "area_hectares": 25.0,
             "crop_type": "wheat",
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
+            "updated_at": datetime.now(UTC).isoformat(),
         }
 
         response = FieldResponse(**data)

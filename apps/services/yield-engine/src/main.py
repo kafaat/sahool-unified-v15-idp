@@ -11,16 +11,14 @@ This service provides ML-powered yield predictions using:
 Port: 8098
 """
 
-import os
 import logging
+import os
 from datetime import datetime
-from typing import Optional, List, Dict
 from enum import Enum
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-import numpy as np
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -87,23 +85,23 @@ class CropType(str, Enum):
 class YieldRequest(BaseModel):
     """طلب التنبؤ بالإنتاجية"""
 
-    field_id: Optional[str] = Field(None, description="معرف الحقل")
+    field_id: str | None = Field(None, description="معرف الحقل")
     area_hectares: float = Field(..., gt=0, description="المساحة بالهكتار")
     crop_type: CropType = Field(..., description="نوع المحصول")
-    avg_rainfall: Optional[float] = Field(None, ge=0, description="متوسط الأمطار (مم)")
-    avg_temperature: Optional[float] = Field(None, description="متوسط درجة الحرارة")
-    soil_quality: Optional[str] = Field(
+    avg_rainfall: float | None = Field(None, ge=0, description="متوسط الأمطار (مم)")
+    avg_temperature: float | None = Field(None, description="متوسط درجة الحرارة")
+    soil_quality: str | None = Field(
         "medium", description="جودة التربة: poor/medium/good"
     )
-    irrigation_type: Optional[str] = Field("rain-fed", description="نوع الري")
-    governorate: Optional[str] = Field(None, description="المحافظة")
+    irrigation_type: str | None = Field("rain-fed", description="نوع الري")
+    governorate: str | None = Field(None, description="المحافظة")
 
 
 class YieldPrediction(BaseModel):
     """نتيجة التنبؤ"""
 
     prediction_id: str
-    field_id: Optional[str]
+    field_id: str | None
     crop_type: str
     crop_name_ar: str
     area_hectares: float
@@ -114,8 +112,8 @@ class YieldPrediction(BaseModel):
     estimated_revenue_usd: float
     estimated_revenue_yer: float  # ريال يمني
     confidence_percent: float
-    factors_applied: List[str]
-    recommendations: List[str]
+    factors_applied: list[str]
+    recommendations: list[str]
     timestamp: datetime
 
 
@@ -432,8 +430,8 @@ class YieldPredictor:
     def _calculate_weather_factor(
         self,
         crop_type: CropType,
-        rainfall: Optional[float],
-        temperature: Optional[float],
+        rainfall: float | None,
+        temperature: float | None,
     ) -> tuple:
         """حساب معامل الطقس"""
         crop_info = CROP_DATA[crop_type]
@@ -597,9 +595,9 @@ class YieldPredictor:
         self,
         crop_type: CropType,
         yield_factor: float,
-        irrigation_type: Optional[str],
-        soil_quality: Optional[str],
-    ) -> List[str]:
+        irrigation_type: str | None,
+        soil_quality: str | None,
+    ) -> list[str]:
         """توليد التوصيات"""
         recommendations = []
 
@@ -702,7 +700,7 @@ async def predict_yield(request: YieldRequest):
         raise HTTPException(status_code=500, detail=f"فشل التنبؤ: {str(e)}")
 
 
-@app.get("/v1/crops", response_model=List[Dict])
+@app.get("/v1/crops", response_model=list[dict])
 async def list_supported_crops():
     """
     قائمة المحاصيل المدعومة للتنبؤ

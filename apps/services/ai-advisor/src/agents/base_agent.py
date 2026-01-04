@@ -6,14 +6,15 @@ Base class for all AI agents in the system.
 الفئة الأساسية لجميع وكلاء الذكاء الاصطناعي في النظام.
 """
 
-from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional
-from collections import deque
 import sys
-from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from langchain_core.tools import Tool
+from abc import ABC, abstractmethod
+from collections import deque
+from typing import Any
+
 import structlog
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.tools import Tool
 
 from ..config import settings
 
@@ -85,8 +86,8 @@ class BaseAgent(ABC):
         self,
         name: str,
         role: str,
-        tools: Optional[List[Tool]] = None,
-        retriever: Optional[Any] = None,
+        tools: list[Tool] | None = None,
+        retriever: Any | None = None,
     ):
         """
         Initialize the base agent
@@ -159,8 +160,8 @@ class BaseAgent(ABC):
             return ""
 
     async def think(
-        self, query: str, context: Optional[Dict[str, Any]] = None, use_rag: bool = True
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any] | None = None, use_rag: bool = True
+    ) -> dict[str, Any]:
         """
         Process a query and generate a response
         معالجة استعلام وإنشاء استجابة
@@ -218,7 +219,7 @@ class BaseAgent(ABC):
             logger.error("agent_thinking_failed", agent_name=self.name, error=str(e))
             raise
 
-    def _format_context(self, context: Dict[str, Any]) -> str:
+    def _format_context(self, context: dict[str, Any]) -> str:
         """
         Format context dictionary into a string
         تنسيق قاموس السياق إلى نص
@@ -313,7 +314,7 @@ class BaseAgent(ABC):
         self.conversation_memory.clear()
         logger.debug("conversation_reset", agent_name=self.name)
 
-    def get_info(self) -> Dict[str, Any]:
+    def get_info(self) -> dict[str, Any]:
         """
         Get agent information
         الحصول على معلومات الوكيل

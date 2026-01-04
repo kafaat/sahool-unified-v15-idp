@@ -32,8 +32,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -70,16 +70,16 @@ class DLQAlert(BaseModel):
     stream_name: str
 
     # Additional context
-    messages_by_subject: Dict[str, int] = Field(default_factory=dict)
-    messages_by_error: Dict[str, int] = Field(default_factory=dict)
-    oldest_message_age_hours: Optional[float] = None
+    messages_by_subject: dict[str, int] = Field(default_factory=dict)
+    messages_by_error: dict[str, int] = Field(default_factory=dict)
+    oldest_message_age_hours: float | None = None
 
 
 class DLQMonitorStats(BaseModel):
     """DLQ monitoring statistics."""
 
     monitor_running: bool
-    last_check_time: Optional[datetime] = None
+    last_check_time: datetime | None = None
     total_checks: int = 0
     alerts_triggered: int = 0
     current_dlq_size: int = 0
@@ -99,8 +99,8 @@ class DLQMonitor:
 
     def __init__(
         self,
-        config: Optional[DLQConfig] = None,
-        alert_callback: Optional[Callable[[DLQAlert], None]] = None,
+        config: DLQConfig | None = None,
+        alert_callback: Callable[[DLQAlert], None] | None = None,
     ):
         """
         Initialize DLQ monitor.
@@ -113,15 +113,15 @@ class DLQMonitor:
         self.alert_callback = alert_callback
 
         self._nc = None
-        self._js: Optional[JetStreamContext] = None
+        self._js: JetStreamContext | None = None
         self._running = False
-        self._task: Optional[asyncio.Task] = None
+        self._task: asyncio.Task | None = None
 
         # Statistics
         self._total_checks = 0
         self._alerts_triggered = 0
-        self._last_check_time: Optional[datetime] = None
-        self._last_alert_time: Optional[datetime] = None
+        self._last_check_time: datetime | None = None
+        self._last_alert_time: datetime | None = None
         self._alert_cooldown = timedelta(minutes=15)  # Don't spam alerts
 
     async def connect(self):

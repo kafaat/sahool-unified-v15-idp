@@ -8,14 +8,10 @@ Provides data aggregation, statistics, and anomaly detection for sensor readings
 
 import statistics
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional, Tuple
+from datetime import UTC, datetime, timedelta
 
 from .models.sensor_data import (
-    YEMEN_THRESHOLDS,
     AggregatedData,
-    AggregationMethod,
-    AlertThreshold,
     SensorHealth,
     SensorReading,
     SensorStatus,
@@ -36,16 +32,16 @@ class SensorAggregator:
 
     def __init__(self):
         """تهيئة المجمع - Initialize aggregator"""
-        self.readings_cache: Dict[str, List[SensorReading]] = {}
-        self.health_cache: Dict[str, SensorHealth] = {}
+        self.readings_cache: dict[str, list[SensorReading]] = {}
+        self.health_cache: dict[str, SensorHealth] = {}
 
     def aggregate_by_field(
         self,
         field_id: str,
-        time_range: Tuple[datetime, datetime],
-        readings: List[SensorReading],
+        time_range: tuple[datetime, datetime],
+        readings: list[SensorReading],
         granularity: TimeGranularity = TimeGranularity.DAILY,
-    ) -> List[AggregatedData]:
+    ) -> list[AggregatedData]:
         """
         تجميع البيانات حسب الحقل
         Aggregate data by field
@@ -84,10 +80,10 @@ class SensorAggregator:
     def aggregate_by_sensor_type(
         self,
         sensor_type: str,
-        time_range: Tuple[datetime, datetime],
-        readings: List[SensorReading],
+        time_range: tuple[datetime, datetime],
+        readings: list[SensorReading],
         granularity: TimeGranularity = TimeGranularity.DAILY,
-    ) -> Dict[str, AggregatedData]:
+    ) -> dict[str, AggregatedData]:
         """
         تجميع البيانات حسب نوع المستشعر
         Aggregate data by sensor type
@@ -129,8 +125,8 @@ class SensorAggregator:
         self,
         field_id: str,
         sensor_type: str,
-        time_range: Tuple[datetime, datetime],
-        readings: List[SensorReading],
+        time_range: tuple[datetime, datetime],
+        readings: list[SensorReading],
         granularity: TimeGranularity,
     ) -> AggregatedData:
         """
@@ -195,7 +191,7 @@ class SensorAggregator:
             devices=devices,
         )
 
-    def calculate_statistics(self, readings: List[float]) -> Dict[str, Optional[float]]:
+    def calculate_statistics(self, readings: list[float]) -> dict[str, float | None]:
         """
         حساب الإحصائيات الأساسية
         Calculate basic statistics
@@ -249,7 +245,7 @@ class SensorAggregator:
             "p90": round(p90, 2),
         }
 
-    def _percentile(self, sorted_values: List[float], percentile: int) -> float:
+    def _percentile(self, sorted_values: list[float], percentile: int) -> float:
         """
         حساب المئين
         Calculate percentile
@@ -273,10 +269,10 @@ class SensorAggregator:
 
     def detect_outliers(
         self,
-        readings: List[SensorReading],
+        readings: list[SensorReading],
         method: str = "zscore",
         threshold: float = 3.0,
-    ) -> List[SensorReading]:
+    ) -> list[SensorReading]:
         """
         اكتشاف القيم الشاذة
         Detect outliers in readings
@@ -304,8 +300,8 @@ class SensorAggregator:
             return self._detect_outliers_zscore(readings, values, threshold)
 
     def _detect_outliers_zscore(
-        self, readings: List[SensorReading], values: List[float], threshold: float
-    ) -> List[SensorReading]:
+        self, readings: list[SensorReading], values: list[float], threshold: float
+    ) -> list[SensorReading]:
         """
         اكتشاف القيم الشاذة باستخدام Z-Score
         Detect outliers using Z-Score method
@@ -329,8 +325,8 @@ class SensorAggregator:
         return outliers
 
     def _detect_outliers_iqr(
-        self, readings: List[SensorReading], values: List[float], multiplier: float
-    ) -> List[SensorReading]:
+        self, readings: list[SensorReading], values: list[float], multiplier: float
+    ) -> list[SensorReading]:
         """
         اكتشاف القيم الشاذة باستخدام IQR (Interquartile Range)
         Detect outliers using IQR method
@@ -352,8 +348,8 @@ class SensorAggregator:
         return outliers
 
     def _detect_outliers_threshold(
-        self, readings: List[SensorReading]
-    ) -> List[SensorReading]:
+        self, readings: list[SensorReading]
+    ) -> list[SensorReading]:
         """
         اكتشاف القيم الشاذة باستخدام عتبات اليمن
         Detect outliers using Yemen-specific thresholds
@@ -370,8 +366,8 @@ class SensorAggregator:
         return outliers
 
     def _calculate_rate_of_change(
-        self, readings: List[SensorReading]
-    ) -> Optional[float]:
+        self, readings: list[SensorReading]
+    ) -> float | None:
         """
         حساب معدل التغيير
         Calculate rate of change (units per hour)
@@ -410,8 +406,8 @@ class SensorAggregator:
     # ============ Time-based Aggregations ============
 
     def hourly_average(
-        self, readings: List[SensorReading]
-    ) -> Dict[str, AggregatedData]:
+        self, readings: list[SensorReading]
+    ) -> dict[str, AggregatedData]:
         """
         المتوسط الساعي
         Calculate hourly averages
@@ -424,7 +420,7 @@ class SensorAggregator:
         """
         return self._time_based_aggregation(readings, TimeGranularity.HOURLY)
 
-    def daily_summary(self, readings: List[SensorReading]) -> Dict[str, AggregatedData]:
+    def daily_summary(self, readings: list[SensorReading]) -> dict[str, AggregatedData]:
         """
         الملخص اليومي
         Calculate daily summaries
@@ -437,7 +433,7 @@ class SensorAggregator:
         """
         return self._time_based_aggregation(readings, TimeGranularity.DAILY)
 
-    def weekly_trend(self, readings: List[SensorReading]) -> Dict[str, AggregatedData]:
+    def weekly_trend(self, readings: list[SensorReading]) -> dict[str, AggregatedData]:
         """
         الاتجاه الأسبوعي
         Calculate weekly trends
@@ -451,8 +447,8 @@ class SensorAggregator:
         return self._time_based_aggregation(readings, TimeGranularity.WEEKLY)
 
     def monthly_report(
-        self, readings: List[SensorReading]
-    ) -> Dict[str, AggregatedData]:
+        self, readings: list[SensorReading]
+    ) -> dict[str, AggregatedData]:
         """
         التقرير الشهري
         Calculate monthly reports
@@ -466,8 +462,8 @@ class SensorAggregator:
         return self._time_based_aggregation(readings, TimeGranularity.MONTHLY)
 
     def _time_based_aggregation(
-        self, readings: List[SensorReading], granularity: TimeGranularity
-    ) -> Dict[str, AggregatedData]:
+        self, readings: list[SensorReading], granularity: TimeGranularity
+    ) -> dict[str, AggregatedData]:
         """
         تجميع حسب الوقت
         Time-based aggregation helper
@@ -530,7 +526,7 @@ class SensorAggregator:
 
     def _get_time_range_from_bucket(
         self, bucket_key: str, granularity: TimeGranularity
-    ) -> Tuple[datetime, datetime]:
+    ) -> tuple[datetime, datetime]:
         """
         الحصول على نطاق الوقت من مفتاح الفترة
         Get time range from bucket key
@@ -553,7 +549,7 @@ class SensorAggregator:
             else:
                 end = datetime(start.year, start.month + 1, 1)
         else:
-            start = datetime.now(timezone.utc)
+            start = datetime.now(UTC)
             end = start
 
         return (start, end)
@@ -561,7 +557,7 @@ class SensorAggregator:
     # ============ Sensor Health Monitoring ============
 
     def check_sensor_status(
-        self, device_id: str, readings: List[SensorReading], expected_interval_minutes: int = 15
+        self, device_id: str, readings: list[SensorReading], expected_interval_minutes: int = 15
     ) -> SensorHealth:
         """
         فحص حالة المستشعر
@@ -582,7 +578,7 @@ class SensorAggregator:
                 field_id="unknown",
                 sensor_type="unknown",
                 status=SensorStatus.OFFLINE,
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 data_quality_score=0.0,
                 alerts=["لا توجد قراءات - No readings available"],
             )
@@ -633,7 +629,7 @@ class SensorAggregator:
             field_id=field_id,
             sensor_type=sensor_type,
             status=status,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             data_quality_score=round(quality_score, 2),
             uptime_percentage=round(uptime_percentage, 2),
             battery_level=battery_level,
@@ -650,8 +646,8 @@ class SensorAggregator:
         )
 
     def detect_sensor_drift(
-        self, readings: List[SensorReading], window_size: int = 10
-    ) -> Tuple[bool, Optional[float]]:
+        self, readings: list[SensorReading], window_size: int = 10
+    ) -> tuple[bool, float | None]:
         """
         اكتشاف انحراف المستشعر
         Detect sensor drift (gradual degradation)
@@ -689,7 +685,7 @@ class SensorAggregator:
 
         return drift_detected, round(drift_percentage, 2) if drift_detected else None
 
-    def calculate_data_quality_score(self, readings: List[SensorReading]) -> float:
+    def calculate_data_quality_score(self, readings: list[SensorReading]) -> float:
         """
         حساب نقاط جودة البيانات
         Calculate data quality score (0-100)
@@ -727,7 +723,7 @@ class SensorAggregator:
             readings, key=lambda r: datetime.fromisoformat(r.timestamp), reverse=True
         )
         last_reading_time = datetime.fromisoformat(sorted_readings[0].timestamp)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # إذا كانت آخر قراءة أحدث من ساعة، نقاط كاملة
         # If last reading is within 1 hour, full points
@@ -778,7 +774,7 @@ class SensorAggregator:
         drift_detected: bool,
         outlier_percentage: float,
         sensor_type: str,
-    ) -> Tuple[List[str], List[str], List[str]]:
+    ) -> tuple[list[str], list[str], list[str]]:
         """
         توليد التنبيهات والتوصيات
         Generate alerts and recommendations
@@ -839,7 +835,7 @@ def create_sample_readings(
     count: int = 96,
     base_value: float = 25.0,
     noise: float = 2.0,
-) -> List[SensorReading]:
+) -> list[SensorReading]:
     """
     إنشاء قراءات تجريبية للاختبار
     Create sample readings for testing
@@ -858,7 +854,7 @@ def create_sample_readings(
     import random
 
     readings = []
-    start_time = datetime.now(timezone.utc) - timedelta(hours=24)
+    start_time = datetime.now(UTC) - timedelta(hours=24)
 
     for i in range(count):
         timestamp = start_time + timedelta(minutes=15 * i)

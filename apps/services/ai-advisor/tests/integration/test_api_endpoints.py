@@ -5,10 +5,10 @@ Integration Tests for API Endpoints
 Tests all FastAPI endpoints with mock dependencies.
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from httpx import AsyncClient
 from fastapi import status
-from unittest.mock import patch, AsyncMock, MagicMock
 
 
 @pytest.mark.asyncio

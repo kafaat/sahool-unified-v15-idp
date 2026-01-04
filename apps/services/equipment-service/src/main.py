@@ -13,9 +13,8 @@ import os
 import uuid
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Depends
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -101,39 +100,39 @@ class EquipmentCreate(BaseModel):
     """Create a new equipment"""
 
     name: str = Field(..., min_length=1, max_length=200)
-    name_ar: Optional[str] = None
+    name_ar: str | None = None
     equipment_type: EquipmentType
-    brand: Optional[str] = None
-    model: Optional[str] = None
-    serial_number: Optional[str] = None
-    year: Optional[int] = None
-    purchase_date: Optional[datetime] = None
-    purchase_price: Optional[float] = None
-    field_id: Optional[str] = None
-    location_name: Optional[str] = None
-    horsepower: Optional[int] = None
-    fuel_capacity_liters: Optional[float] = None
-    metadata: Optional[dict] = None
+    brand: str | None = None
+    model: str | None = None
+    serial_number: str | None = None
+    year: int | None = None
+    purchase_date: datetime | None = None
+    purchase_price: float | None = None
+    field_id: str | None = None
+    location_name: str | None = None
+    horsepower: int | None = None
+    fuel_capacity_liters: float | None = None
+    metadata: dict | None = None
 
 
 class EquipmentUpdate(BaseModel):
     """Update equipment properties"""
 
-    name: Optional[str] = None
-    name_ar: Optional[str] = None
-    equipment_type: Optional[EquipmentType] = None
-    status: Optional[EquipmentStatus] = None
-    brand: Optional[str] = None
-    model: Optional[str] = None
-    serial_number: Optional[str] = None
-    year: Optional[int] = None
-    field_id: Optional[str] = None
-    location_name: Optional[str] = None
-    current_fuel_percent: Optional[float] = None
-    current_hours: Optional[float] = None
-    current_lat: Optional[float] = None
-    current_lon: Optional[float] = None
-    metadata: Optional[dict] = None
+    name: str | None = None
+    name_ar: str | None = None
+    equipment_type: EquipmentType | None = None
+    status: EquipmentStatus | None = None
+    brand: str | None = None
+    model: str | None = None
+    serial_number: str | None = None
+    year: int | None = None
+    field_id: str | None = None
+    location_name: str | None = None
+    current_fuel_percent: float | None = None
+    current_hours: float | None = None
+    current_lat: float | None = None
+    current_lon: float | None = None
+    metadata: dict | None = None
 
 
 class MaintenanceRecord(BaseModel):
@@ -143,12 +142,12 @@ class MaintenanceRecord(BaseModel):
     equipment_id: str
     maintenance_type: MaintenanceType
     description: str
-    description_ar: Optional[str] = None
+    description_ar: str | None = None
     performed_at: datetime
-    performed_by: Optional[str] = None
-    cost: Optional[float] = None
-    notes: Optional[str] = None
-    parts_replaced: Optional[list[str]] = None
+    performed_by: str | None = None
+    cost: float | None = None
+    notes: str | None = None
+    parts_replaced: list[str] | None = None
 
 
 class MaintenanceAlert(BaseModel):
@@ -159,10 +158,10 @@ class MaintenanceAlert(BaseModel):
     equipment_name: str
     maintenance_type: MaintenanceType
     description: str
-    description_ar: Optional[str] = None
+    description_ar: str | None = None
     priority: MaintenancePriority
-    due_at: Optional[datetime] = None
-    due_hours: Optional[float] = None
+    due_at: datetime | None = None
+    due_hours: float | None = None
     is_overdue: bool = False
     created_at: datetime
 
@@ -173,30 +172,30 @@ class Equipment(BaseModel):
     equipment_id: str
     tenant_id: str
     name: str
-    name_ar: Optional[str] = None
+    name_ar: str | None = None
     equipment_type: EquipmentType
     status: EquipmentStatus
-    brand: Optional[str] = None
-    model: Optional[str] = None
-    serial_number: Optional[str] = None
-    year: Optional[int] = None
-    purchase_date: Optional[datetime] = None
-    purchase_price: Optional[float] = None
-    field_id: Optional[str] = None
-    location_name: Optional[str] = None
-    horsepower: Optional[int] = None
-    fuel_capacity_liters: Optional[float] = None
-    current_fuel_percent: Optional[float] = None
-    current_hours: Optional[float] = None
-    current_lat: Optional[float] = None
-    current_lon: Optional[float] = None
-    last_maintenance_at: Optional[datetime] = None
-    next_maintenance_at: Optional[datetime] = None
-    next_maintenance_hours: Optional[float] = None
+    brand: str | None = None
+    model: str | None = None
+    serial_number: str | None = None
+    year: int | None = None
+    purchase_date: datetime | None = None
+    purchase_price: float | None = None
+    field_id: str | None = None
+    location_name: str | None = None
+    horsepower: int | None = None
+    fuel_capacity_liters: float | None = None
+    current_fuel_percent: float | None = None
+    current_hours: float | None = None
+    current_lat: float | None = None
+    current_lon: float | None = None
+    last_maintenance_at: datetime | None = None
+    next_maintenance_at: datetime | None = None
+    next_maintenance_hours: float | None = None
     created_at: datetime
     updated_at: datetime
-    metadata: Optional[dict] = None
-    qr_code: Optional[str] = None
+    metadata: dict | None = None
+    qr_code: str | None = None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -439,9 +438,9 @@ async def health_check():
 
 @app.get("/api/v1/equipment", response_model=dict)
 async def list_equipment(
-    equipment_type: Optional[EquipmentType] = Query(None, description="Filter by type"),
-    status: Optional[EquipmentStatus] = Query(None, description="Filter by status"),
-    field_id: Optional[str] = Query(None, description="Filter by field"),
+    equipment_type: EquipmentType | None = Query(None, description="Filter by type"),
+    status: EquipmentStatus | None = Query(None, description="Filter by status"),
+    field_id: str | None = Query(None, description="Filter by field"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     tenant_id: str = Depends(get_tenant_id),
@@ -497,7 +496,7 @@ async def get_equipment_stats(
 
 @app.get("/api/v1/equipment/alerts", response_model=dict)
 async def get_maintenance_alerts(
-    priority: Optional[MaintenancePriority] = Query(None),
+    priority: MaintenancePriority | None = Query(None),
     overdue_only: bool = Query(False),
     tenant_id: str = Depends(get_tenant_id),
 ):
@@ -633,7 +632,7 @@ async def update_equipment_location(
     equipment_id: str,
     lat: float = Query(...),
     lon: float = Query(...),
-    location_name: Optional[str] = None,
+    location_name: str | None = None,
     tenant_id: str = Depends(get_tenant_id),
 ):
     """Update equipment GPS location"""
@@ -653,10 +652,10 @@ async def update_equipment_location(
 @app.post("/api/v1/equipment/{equipment_id}/telemetry", response_model=Equipment)
 async def update_equipment_telemetry(
     equipment_id: str,
-    fuel_percent: Optional[float] = None,
-    hours: Optional[float] = None,
-    lat: Optional[float] = None,
-    lon: Optional[float] = None,
+    fuel_percent: float | None = None,
+    hours: float | None = None,
+    lat: float | None = None,
+    lon: float | None = None,
     tenant_id: str = Depends(get_tenant_id),
 ):
     """Update equipment telemetry data (fuel, hours, location)"""
@@ -708,11 +707,11 @@ async def add_maintenance_record(
     equipment_id: str,
     maintenance_type: MaintenanceType,
     description: str,
-    description_ar: Optional[str] = None,
-    performed_by: Optional[str] = None,
-    cost: Optional[float] = None,
-    notes: Optional[str] = None,
-    parts_replaced: Optional[list[str]] = None,
+    description_ar: str | None = None,
+    performed_by: str | None = None,
+    cost: float | None = None,
+    notes: str | None = None,
+    parts_replaced: list[str] | None = None,
     tenant_id: str = Depends(get_tenant_id),
 ):
     """Add a maintenance record"""

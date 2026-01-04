@@ -29,19 +29,19 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import asyncio
-import aiohttp
 import argparse
+import asyncio
+import json
+import logging
 import random
 import time
-import json
 import uuid
-from datetime import datetime, timezone, timedelta
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List, Callable
-from enum import Enum
-import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+import aiohttp
 
 logging.basicConfig(
     level=logging.INFO,
@@ -91,7 +91,7 @@ class ServiceStats:
 @dataclass
 class SimulatorStats:
     start_time: float = field(default_factory=time.time)
-    services: Dict[str, ServiceStats] = field(default_factory=dict)
+    services: dict[str, ServiceStats] = field(default_factory=dict)
 
     def get_service(self, name: str) -> ServiceStats:
         if name not in self.services:
@@ -118,7 +118,7 @@ class ServiceSimulator(ABC):
         self.session = session
         self.base_url = base_url.rstrip("/")
         self.stats = stats
-        self.token: Optional[str] = None
+        self.token: str | None = None
 
     @property
     @abstractmethod
@@ -126,7 +126,7 @@ class ServiceSimulator(ABC):
         pass
 
     @property
-    def headers(self) -> Dict[str, str]:
+    def headers(self) -> dict[str, str]:
         h = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -163,7 +163,7 @@ class ServiceSimulator(ABC):
 
                 return success, data
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             self.stats.record(self.service_name, False, 30000)
             logger.warning(f"{self.service_name}: {method} {path} -> Timeout")
             return False, None
@@ -183,7 +183,7 @@ class ServiceSimulator(ABC):
 class AuthSimulator(ServiceSimulator):
     service_name = "auth"
 
-    async def login(self, username: str, password: str) -> Optional[str]:
+    async def login(self, username: str, password: str) -> str | None:
         success, data = await self.request("POST", "/api/auth/login", json={
             "username": username,
             "password": password,
@@ -238,7 +238,7 @@ class FieldSimulator(ServiceSimulator):
             "nitrogen": random.uniform(10, 100),
             "phosphorus": random.uniform(5, 50),
             "potassium": random.uniform(50, 200),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         })
 
     async def simulate(self):
@@ -326,7 +326,7 @@ class BillingSimulator(ServiceSimulator):
 class InventorySimulator(ServiceSimulator):
     service_name = "inventory"
 
-    async def list_items(self, category: Optional[str] = None):
+    async def list_items(self, category: str | None = None):
         path = "/api/inventory/items?page=1&limit=20"
         if category:
             path += f"&category={category}"
@@ -368,7 +368,7 @@ class InventorySimulator(ServiceSimulator):
 class MarketplaceSimulator(ServiceSimulator):
     service_name = "marketplace"
 
-    async def list_products(self, category: Optional[str] = None):
+    async def list_products(self, category: str | None = None):
         path = "/api/marketplace/products?page=1&limit=20"
         if category:
             path += f"&category={category}"
@@ -545,7 +545,7 @@ class YieldSimulator(ServiceSimulator):
     service_name = "yield"
 
     async def predict_yield(self, field_id: str):
-        return await self.request("POST", f"/api/yield/predict", json={
+        return await self.request("POST", "/api/yield/predict", json={
             "field_id": field_id,
             "crop_type": random.choice(CROP_TYPES),
             "planting_date": (datetime.now() - timedelta(days=random.randint(30, 120))).strftime("%Y-%m-%d"),
@@ -634,7 +634,7 @@ class EquipmentSimulator(ServiceSimulator):
             "operator_id": f"operator-{random.randint(1, 20)}",
             "field_id": f"field-{random.randint(1, 50)}",
             "task_type": random.choice(TASK_TYPES),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         })
 
     async def schedule_maintenance(self, equipment_id: str):
@@ -665,7 +665,7 @@ class EquipmentSimulator(ServiceSimulator):
 class TaskSimulator(ServiceSimulator):
     service_name = "tasks"
 
-    async def list_tasks(self, status: Optional[str] = None):
+    async def list_tasks(self, status: str | None = None):
         path = "/api/tasks?page=1&limit=20"
         if status:
             path += f"&status={status}"
@@ -755,7 +755,7 @@ class NotificationSimulator(ServiceSimulator):
 class AlertSimulator(ServiceSimulator):
     service_name = "alerts"
 
-    async def list_alerts(self, alert_type: Optional[str] = None):
+    async def list_alerts(self, alert_type: str | None = None):
         path = "/api/alerts?page=1&limit=20"
         if alert_type:
             path += f"&type={alert_type}"
@@ -885,7 +885,7 @@ class IoTSimulator(ServiceSimulator):
         payload = {
             "device_id": device_id,
             "device_type": device_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "location": {
                 "latitude": location["lat"] + random.uniform(-0.1, 0.1),
                 "longitude": location["lng"] + random.uniform(-0.1, 0.1),
@@ -1100,7 +1100,7 @@ class ComprehensiveSimulator:
         duration = time.time() - self.stats.start_time
 
         results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "configuration": {
                 "gateway_url": self.gateway_url,
                 "num_users": self.num_users,

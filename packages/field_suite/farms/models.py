@@ -5,10 +5,9 @@ Data models for farm management
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -26,10 +25,10 @@ class FarmLocation:
 
     latitude: float
     longitude: float
-    address: Optional[str] = None
-    address_ar: Optional[str] = None
-    region: Optional[str] = None
-    governorate: Optional[str] = None
+    address: str | None = None
+    address_ar: str | None = None
+    region: str | None = None
+    governorate: str | None = None
 
     def to_dict(self) -> dict:
         return {
@@ -49,7 +48,7 @@ class Farm:
     id: str
     tenant_id: str
     name: str
-    name_ar: Optional[str]
+    name_ar: str | None
     location: FarmLocation
     total_area_hectares: float
     status: FarmStatus
@@ -65,10 +64,10 @@ class Farm:
         location: FarmLocation,
         total_area_hectares: float,
         owner_id: str,
-        name_ar: Optional[str] = None,
+        name_ar: str | None = None,
     ) -> Farm:
         """Factory method to create a new farm"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             id=str(uuid4()),
             tenant_id=tenant_id,

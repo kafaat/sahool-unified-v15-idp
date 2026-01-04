@@ -3,11 +3,12 @@ Tests for Crop Rotation Planning
 اختبارات تخطيط تدوير المحاصيل
 """
 
-import pytest
 from datetime import date
+
+import pytest
 from src.crop_rotation import (
-    CropRotationPlanner,
     CropFamily,
+    CropRotationPlanner,
     SeasonPlan,
     to_dict,
 )

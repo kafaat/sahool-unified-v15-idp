@@ -3,28 +3,25 @@ Unit Tests for NDVI Processing Functions
 اختبارات الوحدة لدوال معالجة NDVI
 """
 
-import pytest
-from datetime import datetime
-from src.processing import (
-    create_job,
-    get_job,
-    update_job_status,
-    cancel_job,
-    list_jobs,
-    process_ndvi_mock,
-    get_field_ndvi,
-    get_ndvi_timeseries,
-    analyze_change,
-    analyze_seasonal,
-    detect_anomaly,
-    create_composite,
-    get_composites,
-)
 from src.models import (
+    CompositeMethod,
     JobStatus,
     SatelliteSource,
-    CompositeMethod,
-    TrendDirection,
+)
+from src.processing import (
+    analyze_change,
+    analyze_seasonal,
+    cancel_job,
+    create_composite,
+    create_job,
+    detect_anomaly,
+    get_composites,
+    get_field_ndvi,
+    get_job,
+    get_ndvi_timeseries,
+    list_jobs,
+    process_ndvi_mock,
+    update_job_status,
 )
 
 

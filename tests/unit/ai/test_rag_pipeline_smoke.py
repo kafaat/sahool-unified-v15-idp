@@ -3,14 +3,13 @@ SAHOOL RAG Pipeline Smoke Tests
 Sprint 9: Integration smoke tests without external dependencies
 """
 
-import pytest
 import sys
 
 sys.path.insert(0, "packages")
 
 from advisor.ai.llm_client import LlmClient, LlmResponse
 from advisor.ai.rag_models import RagRequest, RetrievedChunk
-from advisor.ai.rag_pipeline import run_rag, _chunks_to_text
+from advisor.ai.rag_pipeline import _chunks_to_text, run_rag
 from advisor.rag.doc_store import DocChunk, InMemoryVectorStore
 
 

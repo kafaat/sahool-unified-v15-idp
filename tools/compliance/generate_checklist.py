@@ -10,13 +10,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import ast
 import re
 import sys
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterator
 
 
 @dataclass
@@ -36,7 +35,7 @@ class ComplianceReport:
     """Full compliance report"""
 
     timestamp: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
     checks: list[ComplianceCheck] = field(default_factory=list)
     summary: dict = field(default_factory=dict)
@@ -632,8 +631,8 @@ def generate_markdown(report: ComplianceReport) -> str:
         "",
         "## Summary",
         "",
-        f"| Metric | Value |",
-        f"|--------|-------|",
+        "| Metric | Value |",
+        "|--------|-------|",
         f"| Total Checks | {report.summary['total']} |",
         f"| Passed | {report.summary['passed']} ✅ |",
         f"| Failed | {report.summary['failed']} ❌ |",

@@ -5,10 +5,11 @@ SAHOOL Notification Service - Preferences Controller
 Handles HTTP endpoints for managing user notification preferences
 """
 
+import logging
+from typing import Any
+
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
-import logging
 
 from .preferences_service import PreferencesService
 
@@ -30,10 +31,10 @@ class UpdateEventPreferenceRequest(BaseModel):
     event_type: str = Field(
         ..., description="Event type (weather_alert, pest_outbreak, etc.)"
     )
-    channels: List[str] = Field(..., description="List of channel types to use")
+    channels: list[str] = Field(..., description="List of channel types to use")
     enabled: bool = Field(True, description="Whether this event type is enabled")
-    tenant_id: Optional[str] = Field(None, description="Tenant ID for multi-tenancy")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
+    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
+    metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
 
     class Config:
         json_schema_extra = {
@@ -51,13 +52,13 @@ class SetQuietHoursRequest(BaseModel):
     """طلب تحديد ساعات الهدوء - Set Quiet Hours Request"""
 
     user_id: str = Field(..., description="User ID")
-    quiet_hours_start: Optional[str] = Field(
+    quiet_hours_start: str | None = Field(
         None, description="Start time in HH:MM format (e.g., '22:00')"
     )
-    quiet_hours_end: Optional[str] = Field(
+    quiet_hours_end: str | None = Field(
         None, description="End time in HH:MM format (e.g., '06:00')"
     )
-    tenant_id: Optional[str] = Field(None, description="Tenant ID for multi-tenancy")
+    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
 
     class Config:
         json_schema_extra = {
@@ -74,10 +75,10 @@ class BulkUpdatePreferencesRequest(BaseModel):
     """طلب تحديث تفضيلات متعددة - Bulk Update Preferences Request"""
 
     user_id: str = Field(..., description="User ID")
-    preferences: List[Dict[str, Any]] = Field(
+    preferences: list[dict[str, Any]] = Field(
         ..., description="List of preference updates"
     )
-    tenant_id: Optional[str] = Field(None, description="Tenant ID for multi-tenancy")
+    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
 
     class Config:
         json_schema_extra = {
@@ -113,7 +114,7 @@ class BulkUpdatePreferencesRequest(BaseModel):
 @router.get("/", summary="الحصول على تفضيلات المستخدم - Get User Preferences")
 async def get_preferences(
     user_id: str = Query(..., description="User ID"),
-    tenant_id: Optional[str] = Query(None, description="Tenant ID"),
+    tenant_id: str | None = Query(None, description="Tenant ID"),
 ):
     """
     الحصول على جميع تفضيلات الإشعارات للمستخدم
@@ -145,7 +146,7 @@ async def get_preferences(
 async def get_event_preference(
     event_type: str,
     user_id: str = Query(..., description="User ID"),
-    tenant_id: Optional[str] = Query(None, description="Tenant ID"),
+    tenant_id: str | None = Query(None, description="Tenant ID"),
 ):
     """
     الحصول على تفضيلات نوع حدث معين

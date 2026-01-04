@@ -4,7 +4,7 @@ Authentication and authorization dependencies for route handlers
 """
 
 import logging
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -76,7 +76,7 @@ async def get_principal(
 async def get_optional_principal(
     request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-) -> Optional[dict]:
+) -> dict | None:
     """
     Extract principal if present, but don't require it.
 
@@ -126,7 +126,7 @@ async def get_user_id(principal: dict = Depends(get_principal)) -> str:
 
 async def get_tenant_from_header(
     x_tenant_id: str = Header(None, alias="X-Tenant-ID"),
-    principal: Optional[dict] = Depends(get_optional_principal),
+    principal: dict | None = Depends(get_optional_principal),
 ) -> str:
     """
     Get tenant ID from either JWT or X-Tenant-ID header.
@@ -153,7 +153,7 @@ async def get_tenant_from_header(
 
 async def get_api_key(
     x_api_key: str = Header(None, alias="X-API-Key"),
-) -> Optional[str]:
+) -> str | None:
     """
     Extract API key from header for external integrations.
     Validation should be done by the service.
@@ -184,6 +184,6 @@ async def require_api_key(
 # ─────────────────────────────────────────────────────────────────────────────
 
 Principal = Annotated[dict, Depends(get_principal)]
-OptionalPrincipal = Annotated[Optional[dict], Depends(get_optional_principal)]
+OptionalPrincipal = Annotated[dict | None, Depends(get_optional_principal)]
 TenantID = Annotated[str, Depends(get_tenant_id)]
 UserID = Annotated[str, Depends(get_user_id)]

@@ -26,8 +26,7 @@ import asyncio
 import json
 import logging
 import os
-from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -61,7 +60,7 @@ class PublisherConfig(BaseModel):
     إعدادات ناشر NATS
     """
 
-    servers: List[str] = Field(
+    servers: list[str] = Field(
         default_factory=lambda: [os.getenv("NATS_URL", "nats://localhost:4222")],
         description="NATS server URLs",
     )
@@ -83,7 +82,7 @@ class PublisherConfig(BaseModel):
     enable_jetstream: bool = Field(
         default=True, description="Enable JetStream for persistence"
     )
-    jetstream_domain: Optional[str] = Field(None, description="JetStream domain")
+    jetstream_domain: str | None = Field(None, description="JetStream domain")
 
     # Publishing options
     default_timeout: float = Field(default=5.0, description="Default publish timeout")
@@ -118,9 +117,9 @@ class EventPublisher:
 
     def __init__(
         self,
-        config: Optional[PublisherConfig] = None,
-        service_name: Optional[str] = None,
-        service_version: Optional[str] = None,
+        config: PublisherConfig | None = None,
+        service_name: str | None = None,
+        service_version: str | None = None,
     ):
         """
         Initialize the event publisher.
@@ -134,8 +133,8 @@ class EventPublisher:
         self.service_name = service_name or os.getenv("SERVICE_NAME", "unknown")
         self.service_version = service_version or os.getenv("SERVICE_VERSION", "0.0.0")
 
-        self._nc: Optional[NATSClient] = None
-        self._js: Optional[JetStreamContext] = None
+        self._nc: NATSClient | None = None
+        self._js: JetStreamContext | None = None
         self._connected = False
         self._publish_count = 0
         self._error_count = 0
@@ -146,7 +145,7 @@ class EventPublisher:
         return self._connected and self._nc is not None
 
     @property
-    def stats(self) -> Dict[str, Any]:
+    def stats(self) -> dict[str, Any]:
         """Get publisher statistics."""
         return {
             "connected": self._connected,
@@ -228,8 +227,8 @@ class EventPublisher:
         self,
         subject: str,
         event: BaseEvent,
-        timeout: Optional[float] = None,
-        use_jetstream: Optional[bool] = None,
+        timeout: float | None = None,
+        use_jetstream: bool | None = None,
     ) -> bool:
         """
         Publish an event to NATS.
@@ -299,8 +298,8 @@ class EventPublisher:
 
     async def publish_events(
         self,
-        events: List[tuple[str, BaseEvent]],
-        use_jetstream: Optional[bool] = None,
+        events: list[tuple[str, BaseEvent]],
+        use_jetstream: bool | None = None,
     ) -> int:
         """
         Publish multiple events in batch.
@@ -329,8 +328,8 @@ class EventPublisher:
     async def publish_json(
         self,
         subject: str,
-        data: Dict[str, Any],
-        timeout: Optional[float] = None,
+        data: dict[str, Any],
+        timeout: float | None = None,
     ) -> bool:
         """
         Publish raw JSON data to NATS.
@@ -456,12 +455,12 @@ class EventPublisher:
 # Singleton Instance (optional convenience)
 # ─────────────────────────────────────────────────────────────────────────────
 
-_publisher_instance: Optional[EventPublisher] = None
+_publisher_instance: EventPublisher | None = None
 
 
 async def get_publisher(
-    service_name: Optional[str] = None,
-    service_version: Optional[str] = None,
+    service_name: str | None = None,
+    service_version: str | None = None,
 ) -> EventPublisher:
     """
     Get or create the singleton publisher instance.

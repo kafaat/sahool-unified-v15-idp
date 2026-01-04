@@ -9,10 +9,10 @@ Links with fertilizer-advisor service to:
 """
 
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime, timedelta
 from enum import Enum
+from typing import Any
 
 from .events import GlobalGAPEventPublisher
 
@@ -70,12 +70,12 @@ class FertilizerApplication:
     quantity_kg: float
     area_hectares: float
     application_rate_kg_per_ha: float
-    npk_composition: Dict[str, float]  # {"N": 10.0, "P": 5.0, "K": 5.0}
+    npk_composition: dict[str, float]  # {"N": 10.0, "P": 5.0, "K": 5.0}
     applicator_name: str
     equipment_calibrated: bool
-    weather_conditions: Optional[Dict[str, Any]] = None
-    soil_moisture_level: Optional[float] = None
-    notes: Optional[str] = None
+    weather_conditions: dict[str, Any] | None = None
+    soil_moisture_level: float | None = None
+    notes: str | None = None
 
 
 @dataclass
@@ -87,8 +87,8 @@ class SoilTest:
     test_date: datetime
     ph: float
     organic_matter_percent: float
-    nutrient_levels: Dict[str, float]  # ppm or appropriate units
-    recommendations: List[str]
+    nutrient_levels: dict[str, float]  # ppm or appropriate units
+    recommendations: list[str]
     lab_name: str
     lab_accredited: bool
 
@@ -104,12 +104,12 @@ class NutrientManagementPlan:
     season_id: str
     created_date: datetime
     valid_until: datetime
-    soil_test_results: Optional[SoilTest]
+    soil_test_results: SoilTest | None
     target_yield_kg_per_ha: float
     total_nitrogen_required_kg: float
     total_phosphorus_required_kg: float
     total_potassium_required_kg: float
-    planned_applications: List[Dict[str, Any]]
+    planned_applications: list[dict[str, Any]]
     compliance_status: str
     created_by: str
 
@@ -132,7 +132,7 @@ class InputManagementReport:
     mrl_compliant: bool
     storage_compliant: bool
     application_records_complete: bool
-    recommendations: List[str]
+    recommendations: list[str]
 
 
 class FertilizerIntegration:
@@ -150,7 +150,7 @@ class FertilizerIntegration:
 
     async def track_fertilizer_application(
         self, application_data: dict, field_id: str, tenant_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         تتبع تطبيق الأسمدة لإدارة المدخلات
         Track fertilizer application for input management
@@ -183,7 +183,7 @@ class FertilizerIntegration:
                 "field_id": field_id,
                 "farm_id": application_data.get("farm_id"),
                 "timestamp": application_data.get(
-                    "timestamp", datetime.now(timezone.utc).isoformat()
+                    "timestamp", datetime.now(UTC).isoformat()
                 ),
                 # Product details
                 "product": {
@@ -272,7 +272,7 @@ class FertilizerIntegration:
                 correlation_id=application_data.get("correlation_id"),
             )
 
-            self.logger.info(f"Fertilizer application tracked successfully")
+            self.logger.info("Fertilizer application tracked successfully")
             return tracked_data
 
         except Exception as e:
@@ -298,7 +298,7 @@ class FertilizerIntegration:
         tenant_id: str,
         crop_type: str,
         target_yield_kg_per_ha: float,
-        soil_test: Optional[SoilTest] = None,
+        soil_test: SoilTest | None = None,
     ) -> NutrientManagementPlan:
         """
         إنشاء خطة إدارة المغذيات
@@ -338,13 +338,13 @@ class FertilizerIntegration:
                 compliance_status = "imbalanced"
 
             plan = NutrientManagementPlan(
-                plan_id=f"NMP_{field_id}_{datetime.now(timezone.utc).strftime('%Y%m%d')}",
+                plan_id=f"NMP_{field_id}_{datetime.now(UTC).strftime('%Y%m%d')}",
                 farm_id=farm_id,
                 field_id=field_id,
                 crop_type=crop_type,
-                season_id=f"season_{datetime.now(timezone.utc).year}",
-                created_date=datetime.now(timezone.utc),
-                valid_until=datetime.now(timezone.utc) + timedelta(days=365),
+                season_id=f"season_{datetime.now(UTC).year}",
+                created_date=datetime.now(UTC),
+                valid_until=datetime.now(UTC) + timedelta(days=365),
                 soil_test_results=soil_test,
                 target_yield_kg_per_ha=target_yield_kg_per_ha,
                 total_nitrogen_required_kg=nutrient_requirements["N"],
@@ -376,10 +376,10 @@ class FertilizerIntegration:
         farm_id: str,
         field_id: str,
         tenant_id: str,
-        applications: List[FertilizerApplication],
+        applications: list[FertilizerApplication],
         crop_type: str,
-        harvest_date: Optional[datetime] = None,
-    ) -> Dict[str, Any]:
+        harvest_date: datetime | None = None,
+    ) -> dict[str, Any]:
         """
         ضمان الامتثال للحد الأقصى من مستويات البقايا (MRL)
         Ensure Maximum Residue Level (MRL) compliance
@@ -486,7 +486,7 @@ class FertilizerIntegration:
         tenant_id: str,
         start_date: datetime,
         end_date: datetime,
-        applications: List[FertilizerApplication],
+        applications: list[FertilizerApplication],
     ) -> InputManagementReport:
         """
         إنشاء تقرير إدارة المدخلات
@@ -597,8 +597,8 @@ class FertilizerIntegration:
         self,
         crop_type: str,
         target_yield_kg_per_ha: float,
-        soil_test: Optional[SoilTest],
-    ) -> Dict[str, float]:
+        soil_test: SoilTest | None,
+    ) -> dict[str, float]:
         """حساب احتياجات المغذيات - Calculate nutrient requirements"""
         # Simplified calculation - should use crop-specific coefficients
         base_n = target_yield_kg_per_ha * 0.03  # 3% of yield as N
@@ -621,9 +621,9 @@ class FertilizerIntegration:
     def _generate_application_schedule(
         self,
         crop_type: str,
-        nutrient_requirements: Dict[str, float],
-        soil_test: Optional[SoilTest],
-    ) -> List[Dict[str, Any]]:
+        nutrient_requirements: dict[str, float],
+        soil_test: SoilTest | None,
+    ) -> list[dict[str, Any]]:
         """إنشاء جدول التطبيق - Generate application schedule"""
         # Simplified schedule - split into 3 applications
         total_n = nutrient_requirements["N"]
@@ -655,7 +655,7 @@ class FertilizerIntegration:
         ]
 
     def _validate_nutrient_balance(
-        self, nutrient_requirements: Dict[str, float]
+        self, nutrient_requirements: dict[str, float]
     ) -> bool:
         """التحقق من توازن المغذيات - Validate nutrient balance"""
         n = nutrient_requirements["N"]
@@ -674,7 +674,7 @@ class FertilizerIntegration:
 
     def _estimate_heavy_metal_content(
         self, application: FertilizerApplication
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """تقدير محتوى المعادن الثقيلة - Estimate heavy metal content"""
         # This should use actual lab data or regulatory limits
         # Placeholder estimates for organic fertilizers
@@ -700,11 +700,11 @@ class FertilizerIntegration:
 
     def _generate_input_recommendations(
         self,
-        applications: List[FertilizerApplication],
+        applications: list[FertilizerApplication],
         total_n: float,
         total_p: float,
         total_k: float,
-    ) -> List[str]:
+    ) -> list[str]:
         """إنشاء توصيات إدارة المدخلات - Generate input management recommendations"""
         recommendations = []
 

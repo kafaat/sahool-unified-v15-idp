@@ -8,7 +8,6 @@ import json
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Optional
 from uuid import uuid4
 
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
@@ -233,7 +232,7 @@ def get_stats():
 async def websocket_endpoint(
     websocket: WebSocket,
     tenant_id: str = Query(...),
-    token: Optional[str] = Query(None),
+    token: str | None = Query(None),
 ):
     """
     Main WebSocket endpoint for real-time communication
@@ -362,7 +361,7 @@ async def handle_client_message(connection_id: str, tenant_id: str, data: dict):
 class BroadcastRequest(BaseModel):
     tenant_id: str
     message: dict
-    topic: Optional[str] = None
+    topic: str | None = None
 
 
 @app.post("/broadcast")

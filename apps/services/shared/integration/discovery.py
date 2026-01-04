@@ -5,17 +5,16 @@ Service Discovery
 Provides service health monitoring and discovery
 """
 
-import os
-import logging
 import asyncio
-from datetime import datetime
-from typing import Dict, Optional, List
+import logging
+import os
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
 
 import httpx
 
-from ..versions import SERVICE_PORTS, SERVICE_VERSIONS
+from ..versions import SERVICE_PORTS
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +34,11 @@ class ServiceHealth:
 
     name: str
     status: HealthStatus
-    version: Optional[str] = None
-    last_check: Optional[datetime] = None
-    response_time_ms: Optional[float] = None
-    error: Optional[str] = None
-    details: Dict = field(default_factory=dict)
+    version: str | None = None
+    last_check: datetime | None = None
+    response_time_ms: float | None = None
+    error: str | None = None
+    details: dict = field(default_factory=dict)
 
 
 class ServiceDiscovery:
@@ -62,9 +61,9 @@ class ServiceDiscovery:
     ):
         self.host = host or os.getenv("SERVICES_HOST", "localhost")
         self.check_interval = check_interval_seconds
-        self._health_cache: Dict[str, ServiceHealth] = {}
+        self._health_cache: dict[str, ServiceHealth] = {}
         self._running = False
-        self._check_task: Optional[asyncio.Task] = None
+        self._check_task: asyncio.Task | None = None
 
     def _get_service_url(self, service_name: str) -> str:
         """Get URL for a service"""
@@ -136,7 +135,7 @@ class ServiceDiscovery:
         self._health_cache[service_name] = health
         return health
 
-    async def check_all_services(self) -> Dict[str, ServiceHealth]:
+    async def check_all_services(self) -> dict[str, ServiceHealth]:
         """
         Check health of all services
         فحص صحة جميع الخدمات
@@ -188,15 +187,15 @@ class ServiceDiscovery:
                 pass
         logger.info("Stopped background health checks")
 
-    def get_service_health(self, service_name: str) -> Optional[ServiceHealth]:
+    def get_service_health(self, service_name: str) -> ServiceHealth | None:
         """Get cached health for a service"""
         return self._health_cache.get(service_name)
 
-    def get_all_health(self) -> Dict[str, ServiceHealth]:
+    def get_all_health(self) -> dict[str, ServiceHealth]:
         """Get cached health for all services"""
         return dict(self._health_cache)
 
-    def get_healthy_services(self) -> List[str]:
+    def get_healthy_services(self) -> list[str]:
         """Get list of healthy services"""
         return [
             name
@@ -204,7 +203,7 @@ class ServiceDiscovery:
             if health.status == HealthStatus.HEALTHY
         ]
 
-    def get_unhealthy_services(self) -> List[str]:
+    def get_unhealthy_services(self) -> list[str]:
         """Get list of unhealthy services"""
         return [
             name
@@ -212,7 +211,7 @@ class ServiceDiscovery:
             if health.status in (HealthStatus.UNHEALTHY, HealthStatus.UNKNOWN)
         ]
 
-    def get_summary(self) -> Dict:
+    def get_summary(self) -> dict:
         """Get health summary"""
         total = len(SERVICE_PORTS)
         healthy = len(
@@ -250,7 +249,7 @@ class ServiceDiscovery:
 # Global Discovery Instance
 # =============================================================================
 
-_discovery: Optional[ServiceDiscovery] = None
+_discovery: ServiceDiscovery | None = None
 
 
 def get_service_discovery() -> ServiceDiscovery:

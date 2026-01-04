@@ -11,11 +11,11 @@ End-to-end tests for complete field management workflow:
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
 import asyncio
-from typing import Dict, Any
+from typing import Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Complete Field Workflow Test - اختبار سير عمل الحقل الكامل
@@ -28,13 +28,13 @@ from typing import Dict, Any
 @pytest.mark.asyncio
 async def test_complete_field_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_field_data: Dict[str, Any],
-    test_location_yemen: Dict[str, float],
+    e2e_headers: dict[str, str],
+    test_field_data: dict[str, Any],
+    test_location_yemen: dict[str, float],
     ensure_field_ops_ready,
     ensure_weather_ready,
     ensure_ndvi_ready,
-    cleanup_test_data: Dict[str, list],
+    cleanup_test_data: dict[str, list],
 ):
     """
     Test complete field workflow: Create → NDVI → Weather → Recommendations
@@ -123,7 +123,7 @@ async def test_complete_field_workflow(
 
     if weather_response.status_code == 200:
         weather_data = weather_response.json()
-        print(f"✓ Weather data retrieved for location")
+        print("✓ Weather data retrieved for location")
 
         # Verify weather data structure
         assert any(
@@ -150,7 +150,7 @@ async def test_complete_field_workflow(
 
     if recommendations_response.status_code == 200:
         recommendations = recommendations_response.json()
-        print(f"✓ Recommendations retrieved")
+        print("✓ Recommendations retrieved")
     else:
         print(
             f"⚠ Recommendations not yet available: {recommendations_response.status_code}"
@@ -194,7 +194,7 @@ async def test_complete_field_workflow(
 @pytest.mark.asyncio
 async def test_field_creation_validation_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
+    e2e_headers: dict[str, str],
     ensure_field_ops_ready,
 ):
     """
@@ -231,7 +231,7 @@ async def test_field_creation_validation_workflow(
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_ndvi_analysis_workflow(
-    workflow_client: httpx.AsyncClient, e2e_headers: Dict[str, str], ensure_ndvi_ready
+    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str], ensure_ndvi_ready
 ):
     """
     Test NDVI analysis workflow
@@ -277,8 +277,8 @@ async def test_ndvi_analysis_workflow(
 @pytest.mark.asyncio
 async def test_weather_forecast_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_location_yemen: Dict[str, float],
+    e2e_headers: dict[str, str],
+    test_location_yemen: dict[str, float],
     ensure_weather_ready,
 ):
     """
@@ -328,8 +328,8 @@ async def test_weather_forecast_workflow(
 @pytest.mark.asyncio
 async def test_satellite_imagery_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_location_yemen: Dict[str, float],
+    e2e_headers: dict[str, str],
+    test_location_yemen: dict[str, float],
 ):
     """
     Test satellite imagery workflow
@@ -369,8 +369,8 @@ async def test_satellite_imagery_workflow(
 @pytest.mark.asyncio
 async def test_irrigation_recommendation_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_location_yemen: Dict[str, float],
+    e2e_headers: dict[str, str],
+    test_location_yemen: dict[str, float],
 ):
     """
     Test irrigation recommendation workflow
@@ -430,8 +430,8 @@ async def test_irrigation_recommendation_workflow(
 @pytest.mark.asyncio
 async def test_field_operations_complete_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_field_data: Dict[str, Any],
+    e2e_headers: dict[str, str],
+    test_field_data: dict[str, Any],
     ensure_field_ops_ready,
 ):
     """

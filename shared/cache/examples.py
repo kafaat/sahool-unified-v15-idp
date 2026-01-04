@@ -7,14 +7,14 @@ Redis Sentinel Usage Examples
 Author: Sahool Platform Team
 """
 
-import time
 import json
-from functools import wraps
-from typing import Any, Callable, Optional
+import time
 import uuid
+from collections.abc import Callable
+from functools import wraps
+from typing import Any
 
 from redis_sentinel import get_redis_client
-
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Example 1: Basic Cache Decorator
@@ -172,7 +172,7 @@ class DistributedLock:
         self.identifier = str(uuid.uuid4())
 
     def acquire(
-        self, blocking: bool = True, acquire_timeout: Optional[int] = None
+        self, blocking: bool = True, acquire_timeout: int | None = None
     ) -> bool:
         """
         الحصول على القفل
@@ -265,7 +265,7 @@ class SessionManager:
         key = f"{self.prefix}:{session_id}"
         return self.redis.set(key, json.dumps(data), ex=ttl)
 
-    def get(self, session_id: str) -> Optional[dict]:
+    def get(self, session_id: str) -> dict | None:
         """
         الحصول على بيانات الجلسة
 
@@ -279,7 +279,7 @@ class SessionManager:
         data = self.redis.get(key, use_slave=True)
         return json.loads(data) if data else None
 
-    def update(self, session_id: str, data: dict, ttl: Optional[int] = None) -> bool:
+    def update(self, session_id: str, data: dict, ttl: int | None = None) -> bool:
         """
         تحديث بيانات الجلسة
 

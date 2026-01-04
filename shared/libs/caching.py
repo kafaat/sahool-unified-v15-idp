@@ -10,15 +10,15 @@ Provides caching utilities with:
 5. Cache warming
 """
 
-import os
-import logging
-import time
-import json
 import hashlib
-from typing import Optional, Any, Callable, List
+import json
+import logging
+import os
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
-import asyncio
+from typing import Any
 
 try:
     import redis.asyncio as aioredis
@@ -38,7 +38,7 @@ class CacheConfig:
     enabled: bool = True
     ttl_seconds: int = 300  # 5 minutes default
     max_size: int = 10000
-    redis_url: Optional[str] = None
+    redis_url: str | None = None
     key_prefix: str = "sahool:"
 
     @classmethod
@@ -64,7 +64,7 @@ class InMemoryCache:
         self._expiry: dict = {}
         self._max_size = max_size
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from cache"""
         # Check if key exists and not expired
         if key in self._cache:
@@ -77,7 +77,7 @@ class InMemoryCache:
             return self._cache[key]
         return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set value in cache with optional TTL"""
         # Check size limit
         if len(self._cache) >= self._max_size and key not in self._cache:
@@ -120,7 +120,7 @@ class RedisCache:
         if not REDIS_AVAILABLE:
             raise ImportError("redis is required. Install with: pip install redis")
 
-        self._redis: Optional[aioredis.Redis] = None
+        self._redis: aioredis.Redis | None = None
         self._redis_url = redis_url
 
     async def initialize(self) -> None:
@@ -139,7 +139,7 @@ class RedisCache:
             await self._redis.close()
             self._redis = None
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """Get value from cache"""
         if not self._redis:
             await self.initialize()
@@ -152,7 +152,7 @@ class RedisCache:
                 return value
         return None
 
-    async def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
+    async def set(self, key: str, value: Any, ttl: int | None = None) -> None:
         """Set value in cache with optional TTL"""
         if not self._redis:
             await self.initialize()
@@ -224,7 +224,7 @@ class CacheManager:
         """Add prefix to key"""
         return f"{self.config.key_prefix}{key}"
 
-    async def get(self, key: str) -> Optional[Any]:
+    async def get(self, key: str) -> Any | None:
         """
         Get value from cache.
         الحصول على قيمة من ذاكرة التخزين المؤقت.
@@ -248,7 +248,7 @@ class CacheManager:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ) -> None:
         """
         Set value in cache.
@@ -284,7 +284,7 @@ class CacheManager:
         except Exception as e:
             logger.error(f"Cache delete error: {e}")
 
-    async def clear(self, pattern: Optional[str] = None) -> None:
+    async def clear(self, pattern: str | None = None) -> None:
         """
         Clear cache by pattern.
         مسح ذاكرة التخزين المؤقت حسب النمط.
@@ -315,10 +315,10 @@ class CacheManager:
 
 
 # Global cache manager
-_cache_manager: Optional[CacheManager] = None
+_cache_manager: CacheManager | None = None
 
 
-def get_cache_manager(config: Optional[CacheConfig] = None) -> CacheManager:
+def get_cache_manager(config: CacheConfig | None = None) -> CacheManager:
     """
     Get the global cache manager instance.
     الحصول على نسخة مدير التخزين المؤقت العامة.
@@ -341,8 +341,8 @@ def get_cache_manager(config: Optional[CacheConfig] = None) -> CacheManager:
 
 # Caching decorator
 def cached(
-    key_func: Optional[Callable[..., str]] = None,
-    ttl: Optional[int] = None,
+    key_func: Callable[..., str] | None = None,
+    ttl: int | None = None,
     key_prefix: str = "",
 ):
     """

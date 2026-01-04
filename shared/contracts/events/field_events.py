@@ -7,7 +7,7 @@ Events related to field management operations.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from .base import BaseEvent
@@ -24,16 +24,16 @@ class FieldCreatedEvent(BaseEvent):
     # Required payload fields
     field_id: UUID = None
     name: str = ""
-    geometry: Dict[str, Any] = field(default_factory=dict)
+    geometry: dict[str, Any] = field(default_factory=dict)
     area_hectares: float = 0.0
 
     # Optional payload fields
-    soil_type: Optional[str] = None
-    irrigation_type: Optional[str] = None
-    owner_id: Optional[UUID] = None
-    location: Optional[Dict[str, str]] = None
+    soil_type: str | None = None
+    irrigation_type: str | None = None
+    owner_id: UUID | None = None
+    location: dict[str, str] | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         payload = {
             "field_id": str(self.field_id),
             "tenant_id": str(self.tenant_id),
@@ -54,7 +54,7 @@ class FieldCreatedEvent(BaseEvent):
         return payload
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "FieldCreatedEvent":
+    def from_dict(cls, data: dict[str, Any]) -> "FieldCreatedEvent":
         payload = data.get("payload", {})
         return cls(
             event_id=UUID(data["event_id"]),
@@ -81,13 +81,13 @@ class FieldUpdatedEvent(BaseEvent):
 
     # Required payload fields
     field_id: UUID = None
-    updated_fields: List[str] = field(default_factory=list)
-    changes: Dict[str, Any] = field(default_factory=dict)
+    updated_fields: list[str] = field(default_factory=list)
+    changes: dict[str, Any] = field(default_factory=dict)
 
     # Optional
-    updated_by: Optional[UUID] = None
+    updated_by: UUID | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         payload = {
             "field_id": str(self.field_id),
             "updated_fields": self.updated_fields,
@@ -110,11 +110,11 @@ class FieldBoundaryChangedEvent(BaseEvent):
     SCHEMA_PATH = "field.boundary_changed.v1.json"
 
     field_id: UUID = None
-    old_geometry: Dict[str, Any] = field(default_factory=dict)
-    new_geometry: Dict[str, Any] = field(default_factory=dict)
+    old_geometry: dict[str, Any] = field(default_factory=dict)
+    new_geometry: dict[str, Any] = field(default_factory=dict)
     area_change_hectares: float = 0.0
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         return {
             "field_id": str(self.field_id),
             "old_geometry": self.old_geometry,

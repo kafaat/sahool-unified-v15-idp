@@ -6,12 +6,12 @@ Generate Evaluation Report
 Script to generate detailed markdown evaluation report.
 """
 
+import argparse
 import json
 import sys
-import argparse
-from pathlib import Path
-from typing import Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 
 
 class ReportGenerator:
@@ -23,7 +23,7 @@ class ReportGenerator:
     def __init__(self, metrics_file: Path):
         """Initialize with metrics file"""
         self.metrics_file = metrics_file
-        self.metrics: Dict[str, Any] = {}
+        self.metrics: dict[str, Any] = {}
 
     def load_metrics(self) -> bool:
         """Load metrics from file"""
@@ -32,7 +32,7 @@ class ReportGenerator:
             return False
 
         try:
-            with open(self.metrics_file, "r", encoding="utf-8") as f:
+            with open(self.metrics_file, encoding="utf-8") as f:
                 self.metrics = json.load(f)
             return True
         except json.JSONDecodeError as e:
@@ -140,19 +140,19 @@ class ReportGenerator:
             f"| **Safety** | {safety_score}% | 25% | {self._get_status_badge(safety_score)} |",
             "",
             "#### Accuracy (استجابة دقيقة)",
-            f"- Measures semantic similarity between agent responses and expected outputs",
+            "- Measures semantic similarity between agent responses and expected outputs",
             f"- Current Score: **{accuracy}%**",
-            f"- Target: ≥75%",
+            "- Target: ≥75%",
             "",
             "#### Latency (زمن الاستجابة)",
-            f"- Measures response time performance",
+            "- Measures response time performance",
             f"- Current Score: **{latency_score}%**",
-            f"- Target: <5000ms per query",
+            "- Target: <5000ms per query",
             "",
             "#### Safety (السلامة)",
-            f"- Checks for harmful content, bias, and misinformation",
+            "- Checks for harmful content, bias, and misinformation",
             f"- Current Score: **{safety_score}%**",
-            f"- Target: ≥95%",
+            "- Target: ≥95%",
             "",
         ]
 

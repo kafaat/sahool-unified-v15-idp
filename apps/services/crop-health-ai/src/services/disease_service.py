@@ -8,15 +8,14 @@ Sahool Vision - Disease Service
 - تفاصيل العلاج
 """
 
-from typing import List, Optional, Dict, Any
+from typing import Any
 
 # Fixed relative import - إصلاح الاستيراد النسبي
 from ..models.disease import (
-    DiseaseSeverity,
     CropType,
-    TreatmentType,
+    DiseaseSeverity,
     Treatment,
-    DiseaseInfo,
+    TreatmentType,
 )
 
 
@@ -27,7 +26,7 @@ class DiseaseService:
     """
 
     # قاعدة بيانات الأمراض (Yemen-focused crops)
-    DISEASE_DATABASE: Dict[str, Dict[str, Any]] = {
+    DISEASE_DATABASE: dict[str, dict[str, Any]] = {
         "wheat_leaf_rust": {
             "name": "Wheat Leaf Rust",
             "name_ar": "صدأ أوراق القمح",
@@ -223,13 +222,13 @@ class DiseaseService:
         CropType.SORGHUM: {"name_ar": "ذرة رفيعة", "icon": "🌾"},
     }
 
-    def get_disease(self, disease_id: str) -> Optional[Dict[str, Any]]:
+    def get_disease(self, disease_id: str) -> dict[str, Any] | None:
         """الحصول على معلومات مرض معين"""
         return self.DISEASE_DATABASE.get(disease_id)
 
     def get_all_diseases(
-        self, crop_type: Optional[CropType] = None
-    ) -> List[Dict[str, Any]]:
+        self, crop_type: CropType | None = None
+    ) -> list[dict[str, Any]]:
         """الحصول على قائمة جميع الأمراض"""
         diseases = []
         for key, info in self.DISEASE_DATABASE.items():
@@ -248,7 +247,7 @@ class DiseaseService:
             )
         return diseases
 
-    def get_treatment_details(self, disease_id: str) -> Optional[Dict[str, Any]]:
+    def get_treatment_details(self, disease_id: str) -> dict[str, Any] | None:
         """الحصول على تفاصيل العلاج"""
         disease = self.DISEASE_DATABASE.get(disease_id)
         if not disease:
@@ -264,7 +263,7 @@ class DiseaseService:
             "severity": disease["severity_default"].value,
         }
 
-    def get_supported_crops(self) -> List[Dict[str, Any]]:
+    def get_supported_crops(self) -> list[dict[str, Any]]:
         """الحصول على قائمة المحاصيل المدعومة"""
         return [
             {
@@ -279,7 +278,7 @@ class DiseaseService:
             for crop, info in self.CROPS_INFO.items()
         ]
 
-    def get_disease_names(self) -> List[str]:
+    def get_disease_names(self) -> list[str]:
         """الحصول على قائمة أسماء الأمراض للنموذج"""
         return list(self.DISEASE_DATABASE.keys())
 

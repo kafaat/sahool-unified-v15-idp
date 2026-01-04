@@ -8,10 +8,9 @@ import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, validator
 
 from .events import IoTPublisher, get_publisher
@@ -36,10 +35,10 @@ DEFAULT_TENANT = os.getenv("DEFAULT_TENANT", "default")
 
 
 # Global state
-mqtt_client: Optional[MqttClient] = None
-publisher: Optional[IoTPublisher] = None
-registry: Optional[DeviceRegistry] = None
-mqtt_task: Optional[asyncio.Task] = None
+mqtt_client: MqttClient | None = None
+publisher: IoTPublisher | None = None
+registry: DeviceRegistry | None = None
+mqtt_task: asyncio.Task | None = None
 
 
 async def handle_mqtt_message(msg: MqttMessage):
@@ -149,7 +148,7 @@ async def check_offline_devices():
                     field_id=device.field_id,
                     status=DeviceStatus.OFFLINE.value,
                     last_seen=device.last_seen
-                    or datetime.now(timezone.utc).isoformat(),
+                    or datetime.now(UTC).isoformat(),
                 )
 
                 # Also publish alert
@@ -283,8 +282,8 @@ class SensorReadingRequest(BaseModel):
     sensor_type: str = Field(..., min_length=1, max_length=50)
     value: float
     unit: str = Field("", max_length=20)
-    timestamp: Optional[str] = None
-    metadata: Optional[dict] = None
+    timestamp: str | None = None
+    metadata: dict | None = None
 
     @validator("sensor_type")
     def validate_sensor_type(cls, v):
@@ -323,8 +322,8 @@ class DeviceRegisterRequest(BaseModel):
     device_type: str = Field(..., min_length=1, max_length=50)
     name_ar: str = Field(..., min_length=1, max_length=200)
     name_en: str = Field(..., min_length=1, max_length=200)
-    location: Optional[dict] = None
-    metadata: Optional[dict] = None
+    location: dict | None = None
+    metadata: dict | None = None
 
 
 # ============== Authorization & Validation Functions ==============
@@ -421,7 +420,7 @@ async def post_sensor_reading(req: SensorReadingRequest):
         req.device_id, req.tenant_id, req.field_id, req.sensor_type, req.value
     )
 
-    timestamp = req.timestamp or datetime.now(timezone.utc).isoformat()
+    timestamp = req.timestamp or datetime.now(UTC).isoformat()
 
     # Update device status
     registry.update_status(
@@ -530,7 +529,7 @@ async def post_batch_readings(req: BatchReadingRequest):
                 sensor_type=sensor_type,
                 value=float(value),
                 unit=unit,
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
             )
             event_ids.append(event_id)
             validated_count += 1

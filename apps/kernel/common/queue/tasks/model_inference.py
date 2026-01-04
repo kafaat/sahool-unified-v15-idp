@@ -10,12 +10,12 @@ License: MIT
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def handle_model_inference(payload: Dict[str, Any]) -> Dict[str, Any]:
+def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
     """
     تشغيل استنتاج النموذج
     Run model inference

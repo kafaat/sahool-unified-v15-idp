@@ -5,10 +5,11 @@ SAHOOL Notification Service - Channels Controller
 Handles HTTP endpoints for managing user notification channels
 """
 
-from fastapi import APIRouter, HTTPException, Query, Body
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
 import logging
+from typing import Any
+
+from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel, Field
 
 from .channels_service import ChannelsService
 
@@ -33,8 +34,8 @@ class AddChannelRequest(BaseModel):
     address: str = Field(
         ..., description="Channel address (email, phone, FCM token, etc.)"
     )
-    tenant_id: Optional[str] = Field(None, description="Tenant ID for multi-tenancy")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
+    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
+    metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
 
     class Config:
         json_schema_extra = {
@@ -190,8 +191,8 @@ async def remove_channel(
 @router.get("/list", summary="قائمة قنوات المستخدم - List User Channels")
 async def list_channels(
     user_id: str = Query(..., description="User ID"),
-    tenant_id: Optional[str] = Query(None, description="Tenant ID"),
-    channel_type: Optional[str] = Query(None, description="Filter by channel type"),
+    tenant_id: str | None = Query(None, description="Tenant ID"),
+    channel_type: str | None = Query(None, description="Filter by channel type"),
     enabled_only: bool = Query(False, description="Show only enabled channels"),
 ):
     """

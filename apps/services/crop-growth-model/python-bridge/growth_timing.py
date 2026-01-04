@@ -19,13 +19,13 @@ Field-First Architecture:
 - Action Timing Recommendation
 """
 
-from datetime import datetime, date, timedelta
-from enum import Enum
-from typing import Optional, List, Dict, Any
-import uuid
 import logging
+import uuid
+from datetime import date, datetime, timedelta
+from enum import Enum
+from typing import Any
 
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, Query
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -186,20 +186,20 @@ class GrowthTimingRequest(BaseModel):
     """Request for growth timing analysis"""
 
     field_id: str = Field(..., description="معرف الحقل")
-    farmer_id: Optional[str] = Field(None, description="معرف المزارع")
-    tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
+    farmer_id: str | None = Field(None, description="معرف المزارع")
+    tenant_id: str | None = Field(None, description="معرف المستأجر")
     crop_type: CropType = Field(..., description="نوع المحصول")
     planting_date: date = Field(..., description="تاريخ الزراعة")
-    current_ndvi: Optional[float] = Field(
+    current_ndvi: float | None = Field(
         None, ge=-1, le=1, description="قيمة NDVI الحالية"
     )
-    ndvi_trend: Optional[str] = Field(
+    ndvi_trend: str | None = Field(
         None, description="اتجاه NDVI: improving, stable, declining"
     )
-    expected_temperature: Optional[float] = Field(
+    expected_temperature: float | None = Field(
         None, description="درجة الحرارة المتوقعة"
     )
-    expected_rainfall_mm: Optional[float] = Field(
+    expected_rainfall_mm: float | None = Field(
         None, ge=0, description="هطول الأمطار المتوقع بالمم"
     )
     publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
@@ -213,8 +213,8 @@ class GrowthStageInfo(BaseModel):
     days_in_stage: int
     stage_progress_percent: float
     days_until_next_stage: int
-    next_stage: Optional[GrowthStage]
-    next_stage_name_ar: Optional[str]
+    next_stage: GrowthStage | None
+    next_stage_name_ar: str | None
     is_critical_period: bool
 
 
@@ -240,9 +240,9 @@ class GrowthTimingResponse(BaseModel):
     days_after_planting: int
     growth_stage: GrowthStageInfo
     risk_window: RiskLevel
-    risk_factors: List[str]
-    timing_recommendations: List[TimingRecommendation]
-    action_template: Optional[Dict[str, Any]]
+    risk_factors: list[str]
+    timing_recommendations: list[TimingRecommendation]
+    action_template: dict[str, Any] | None
 
 
 # =============================================================================
@@ -317,10 +317,10 @@ def get_current_growth_stage(
 
 def analyze_risk_window(
     growth_stage: GrowthStageInfo,
-    ndvi_trend: Optional[str],
-    expected_temperature: Optional[float],
-    expected_rainfall_mm: Optional[float],
-) -> tuple[RiskLevel, List[str]]:
+    ndvi_trend: str | None,
+    expected_temperature: float | None,
+    expected_rainfall_mm: float | None,
+) -> tuple[RiskLevel, list[str]]:
     """Analyze risk window based on growth stage and conditions"""
 
     risk_factors = []
@@ -373,7 +373,7 @@ def generate_timing_recommendations(
     growth_stage: GrowthStageInfo,
     risk_level: RiskLevel,
     crop_type: CropType,
-) -> List[TimingRecommendation]:
+) -> list[TimingRecommendation]:
     """Generate timing recommendations based on growth stage and risk"""
 
     recommendations = []
@@ -452,8 +452,8 @@ def generate_timing_recommendations(
 
 def create_growth_timing_action(
     response: "GrowthTimingResponse",
-    recommendations: List[TimingRecommendation],
-) -> Dict[str, Any]:
+    recommendations: list[TimingRecommendation],
+) -> dict[str, Any]:
     """Create ActionTemplate from growth timing analysis"""
 
     # Get most urgent recommendation

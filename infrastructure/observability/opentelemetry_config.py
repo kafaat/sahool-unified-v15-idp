@@ -32,27 +32,27 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import os
-from typing import Optional, Dict, Any
-from functools import wraps
 import logging
+import os
+from functools import wraps
+from typing import Any
 
 # OpenTelemetry imports
 try:
     from opentelemetry import trace
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+    from opentelemetry.instrumentation.redis import RedisInstrumentor
+    from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
+    from opentelemetry.propagate import set_global_textmap
+    from opentelemetry.propagators.b3 import B3MultiFormat
+    from opentelemetry.sdk.resources import SERVICE_NAME, Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import (
         BatchSpanProcessor,
         ConsoleSpanExporter,
     )
-    from opentelemetry.sdk.resources import Resource, SERVICE_NAME
-    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-    from opentelemetry.instrumentation.aiohttp_client import AioHttpClientInstrumentor
-    from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
-    from opentelemetry.instrumentation.redis import RedisInstrumentor
-    from opentelemetry.propagate import set_global_textmap
-    from opentelemetry.propagators.b3 import B3MultiFormat
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
@@ -85,7 +85,7 @@ TRACE_CONSOLE_OUTPUT = os.getenv("TRACE_CONSOLE_OUTPUT", "false").lower() == "tr
 # TRACER PROVIDER SETUP
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_tracer: Optional[trace.Tracer] = None
+_tracer: trace.Tracer | None = None
 
 
 def setup_tracing(
@@ -94,7 +94,7 @@ def setup_tracing(
     environment: str = ENVIRONMENT,
     otlp_endpoint: str = OTLP_ENDPOINT,
     enable_console: bool = TRACE_CONSOLE_OUTPUT,
-) -> Optional[trace.Tracer]:
+) -> trace.Tracer | None:
     """
     Initialize OpenTelemetry tracing for a service.
 
@@ -153,7 +153,7 @@ def setup_tracing(
     return _tracer
 
 
-def get_tracer() -> Optional[trace.Tracer]:
+def get_tracer() -> trace.Tracer | None:
     """Get the configured tracer instance."""
     global _tracer
     if _tracer is None and OTEL_AVAILABLE:
@@ -234,8 +234,8 @@ def instrument_aiohttp():
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def traced(
-    operation_name: Optional[str] = None,
-    attributes: Optional[Dict[str, Any]] = None,
+    operation_name: str | None = None,
+    attributes: dict[str, Any] | None = None,
 ):
     """
     Decorator to trace a function with custom span.

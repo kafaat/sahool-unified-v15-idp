@@ -41,11 +41,8 @@ Usage:
 from __future__ import annotations
 
 import os
-from datetime import timedelta
-from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Field
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DLQ Configuration
@@ -115,7 +112,7 @@ class DLQConfig(BaseModel):
 
     # Environment overrides
     @classmethod
-    def from_env(cls) -> "DLQConfig":
+    def from_env(cls) -> DLQConfig:
         """Create configuration from environment variables."""
         return cls(
             max_retry_attempts=int(os.getenv("DLQ_MAX_RETRIES", "3")),
@@ -174,8 +171,8 @@ class DLQMessageMetadata(BaseModel):
 
     # Original message info
     original_subject: str = Field(..., description="Original NATS subject")
-    original_event_id: Optional[str] = Field(None, description="Original event ID")
-    correlation_id: Optional[str] = Field(
+    original_event_id: str | None = Field(None, description="Original event ID")
+    correlation_id: str | None = Field(
         None, description="Correlation ID for tracing"
     )
 
@@ -185,28 +182,28 @@ class DLQMessageMetadata(BaseModel):
     failure_timestamp: str = Field(
         ..., description="ISO 8601 timestamp of final failure"
     )
-    error_type: Optional[str] = Field(None, description="Python exception class name")
-    error_traceback: Optional[str] = Field(None, description="Stack trace (truncated)")
+    error_type: str | None = Field(None, description="Python exception class name")
+    error_traceback: str | None = Field(None, description="Stack trace (truncated)")
 
     # Consumer info
-    consumer_service: Optional[str] = Field(
+    consumer_service: str | None = Field(
         None, description="Service that failed to process"
     )
-    consumer_version: Optional[str] = Field(None, description="Service version")
-    handler_function: Optional[str] = Field(None, description="Handler function name")
+    consumer_version: str | None = Field(None, description="Service version")
+    handler_function: str | None = Field(None, description="Handler function name")
 
     # Retry history
-    retry_timestamps: List[str] = Field(
+    retry_timestamps: list[str] = Field(
         default_factory=list, description="ISO 8601 timestamps of each retry attempt"
     )
-    retry_errors: List[str] = Field(
+    retry_errors: list[str] = Field(
         default_factory=list, description="Error messages from each retry"
     )
 
     # Replay info
     replayed: bool = Field(default=False, description="Has this message been replayed")
     replay_count: int = Field(default=0, ge=0, description="Number of replay attempts")
-    last_replay_timestamp: Optional[str] = Field(
+    last_replay_timestamp: str | None = Field(
         None, description="Last replay timestamp"
     )
 
@@ -220,12 +217,12 @@ class StreamConfig(BaseModel):
     """JetStream stream configuration."""
 
     name: str
-    subjects: List[str]
+    subjects: list[str]
     retention: str = "limits"  # limits, interest, workqueue
-    max_age_seconds: Optional[int] = None
-    max_messages: Optional[int] = None
-    max_bytes: Optional[int] = None
-    max_msg_size: Optional[int] = None
+    max_age_seconds: int | None = None
+    max_messages: int | None = None
+    max_bytes: int | None = None
+    max_msg_size: int | None = None
     storage: str = "file"  # file or memory
     replicas: int = 1
     discard: str = "old"  # old or new
@@ -255,7 +252,7 @@ def get_dlq_stream_config(config: DLQConfig) -> StreamConfig:
     )
 
 
-async def create_dlq_streams(js, config: Optional[DLQConfig] = None):
+async def create_dlq_streams(js, config: DLQConfig | None = None):
     """
     Create or update DLQ JetStream streams.
     إنشاء أو تحديث تدفقات JetStream لقائمة الانتظار الفاشلة
@@ -287,9 +284,9 @@ async def create_dlq_streams(js, config: Optional[DLQConfig] = None):
             num_replicas=stream_config.replicas,
             discard=stream_config.discard,
         )
-        print(f"✅ Updated DLQ stream configuration")
+        print("✅ Updated DLQ stream configuration")
 
-    except Exception as e:
+    except Exception:
         # Stream doesn't exist, create it
         try:
             await js.add_stream(

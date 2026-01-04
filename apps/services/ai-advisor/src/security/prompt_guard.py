@@ -3,9 +3,8 @@ Prompt Injection Guard
 حماية من حقن الأوامر
 """
 
-import re
-from typing import Tuple, List
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +81,7 @@ class PromptGuard:
         return text
 
     @classmethod
-    def detect_injection(cls, text: str) -> Tuple[bool, List[str]]:
+    def detect_injection(cls, text: str) -> tuple[bool, list[str]]:
         """
         Detect potential prompt injection attempts
         Returns: (is_suspicious, matched_patterns)
@@ -105,7 +104,7 @@ class PromptGuard:
         return is_suspicious, matched
 
     @classmethod
-    def validate_and_sanitize(cls, text: str, strict: bool = False) -> Tuple[str, bool, List[str]]:
+    def validate_and_sanitize(cls, text: str, strict: bool = False) -> tuple[str, bool, list[str]]:
         """
         Validate and sanitize input text
 

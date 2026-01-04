@@ -6,7 +6,8 @@ Specialized agent for analyzing field data, NDVI, and crop health metrics.
 وكيل متخصص لتحليل بيانات الحقل ومؤشر NDVI ومقاييس صحة المحاصيل.
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Any
+
 from langchain_core.tools import Tool
 
 from .base_agent import BaseAgent
@@ -32,8 +33,8 @@ class FieldAnalystAgent(BaseAgent):
 
     def __init__(
         self,
-        tools: Optional[List[Tool]] = None,
-        retriever: Optional[Any] = None,
+        tools: list[Tool] | None = None,
+        retriever: Any | None = None,
     ):
         """
         Initialize Field Analyst Agent
@@ -96,9 +97,9 @@ Always base your analysis on data and provide confidence levels for your assessm
     async def analyze_field(
         self,
         field_id: str,
-        satellite_data: Optional[Dict[str, Any]] = None,
-        historical_data: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[str, Any]:
+        satellite_data: dict[str, Any] | None = None,
+        historical_data: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """
         Comprehensive field analysis
         تحليل شامل للحقل
@@ -125,9 +126,9 @@ Always base your analysis on data and provide confidence levels for your assessm
     async def interpret_ndvi(
         self,
         ndvi_value: float,
-        crop_type: Optional[str] = None,
-        growth_stage: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        crop_type: str | None = None,
+        growth_stage: str | None = None,
+    ) -> dict[str, Any]:
         """
         Interpret NDVI value in agricultural context
         تفسير قيمة NDVI في السياق الزراعي
@@ -156,9 +157,9 @@ Always base your analysis on data and provide confidence levels for your assessm
 
     async def detect_anomalies(
         self,
-        current_data: Dict[str, Any],
-        baseline_data: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        current_data: dict[str, Any],
+        baseline_data: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Detect anomalies by comparing current and baseline data
         كشف الشذوذات بمقارنة البيانات الحالية والأساسية
@@ -182,8 +183,8 @@ Always base your analysis on data and provide confidence levels for your assessm
 
     async def recommend_monitoring(
         self,
-        field_status: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        field_status: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Recommend monitoring strategy based on field status
         التوصية باستراتيجية المراقبة بناءً على حالة الحقل

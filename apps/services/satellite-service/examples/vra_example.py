@@ -7,10 +7,10 @@ This script demonstrates how to use the SAHOOL VRA API to generate
 prescription maps for variable rate application.
 """
 
-import requests
 import json
-from typing import Dict, Any
+from typing import Any
 
+import requests
 
 # Configuration
 API_BASE_URL = "http://localhost:8090"
@@ -22,7 +22,7 @@ def generate_fertilizer_prescription(
     longitude: float,
     target_rate: float = 100.0,
     num_zones: int = 3,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate a fertilizer prescription map
 
@@ -37,8 +37,8 @@ def generate_fertilizer_prescription(
         Prescription map data
     """
     print(f"\n{'='*60}")
-    print(f"Generating Fertilizer Prescription")
-    print(f"توليد وصفة التسميد")
+    print("Generating Fertilizer Prescription")
+    print("توليد وصفة التسميد")
     print(f"{'='*60}")
 
     url = f"{API_BASE_URL}/v1/vra/generate"
@@ -56,7 +56,7 @@ def generate_fertilizer_prescription(
         "notes_ar": "تطبيق النيتروجين الربيعي",
     }
 
-    print(f"\nRequest:")
+    print("\nRequest:")
     print(f"  Field: {field_id}")
     print(f"  Location: ({latitude}, {longitude})")
     print(f"  Target Rate: {target_rate} kg/ha")
@@ -67,7 +67,7 @@ def generate_fertilizer_prescription(
 
     prescription = response.json()
 
-    print(f"\n✅ Prescription Generated:")
+    print("\n✅ Prescription Generated:")
     print(f"  ID: {prescription['id']}")
     print(f"  Total Area: {prescription['total_area_ha']:.2f} ha")
     print(
@@ -77,7 +77,7 @@ def generate_fertilizer_prescription(
     if prescription.get("cost_savings"):
         print(f"  Cost Savings: ${prescription['cost_savings']:.2f}")
 
-    print(f"\n  Zones:")
+    print("\n  Zones:")
     for zone in prescription["zones"]:
         print(f"    {zone['zone_id']}. {zone['zone_name']} ({zone['zone_name_ar']}):")
         print(f"       Area: {zone['area_ha']:.2f} ha ({zone['percentage']:.1f}%)")
@@ -91,7 +91,7 @@ def generate_seed_prescription(
     field_id: str,
     latitude: float,
     longitude: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate a variable seeding rate prescription
 
@@ -104,8 +104,8 @@ def generate_seed_prescription(
         Prescription map data
     """
     print(f"\n{'='*60}")
-    print(f"Generating Seed Prescription")
-    print(f"توليد وصفة البذار")
+    print("Generating Seed Prescription")
+    print("توليد وصفة البذار")
     print(f"{'='*60}")
 
     url = f"{API_BASE_URL}/v1/vra/generate"
@@ -124,23 +124,23 @@ def generate_seed_prescription(
         "notes_ar": "زراعة الذرة الرفيعة - الكثافة المثلى",
     }
 
-    print(f"\nRequest:")
+    print("\nRequest:")
     print(f"  Field: {field_id}")
-    print(f"  Crop: Sorghum (ذرة رفيعة)")
-    print(f"  Target Rate: 50,000 seeds/ha")
-    print(f"  Rate Range: 40,000 - 60,000 seeds/ha")
+    print("  Crop: Sorghum (ذرة رفيعة)")
+    print("  Target Rate: 50,000 seeds/ha")
+    print("  Rate Range: 40,000 - 60,000 seeds/ha")
 
     response = requests.post(url, json=payload)
     response.raise_for_status()
 
     prescription = response.json()
 
-    print(f"\n✅ Prescription Generated:")
+    print("\n✅ Prescription Generated:")
     print(f"  ID: {prescription['id']}")
     print(f"  Total Area: {prescription['total_area_ha']:.2f} ha")
     print(f"  Total Seeds: {prescription['total_product_needed']:,.0f}")
 
-    print(f"\n  Zones:")
+    print("\n  Zones:")
     for zone in prescription["zones"]:
         print(f"    {zone['zone_id']}. {zone['zone_name']} ({zone['zone_name_ar']}):")
         print(f"       Rate: {zone['recommended_rate']:,.0f} {zone['unit']}")
@@ -150,7 +150,7 @@ def generate_seed_prescription(
 
 def preview_management_zones(
     field_id: str, latitude: float, longitude: float, num_zones: int = 3
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Preview management zones without generating a prescription
 
@@ -164,14 +164,14 @@ def preview_management_zones(
         Zone classification data
     """
     print(f"\n{'='*60}")
-    print(f"Previewing Management Zones")
-    print(f"معاينة مناطق الإدارة")
+    print("Previewing Management Zones")
+    print("معاينة مناطق الإدارة")
     print(f"{'='*60}")
 
     url = f"{API_BASE_URL}/v1/vra/zones/{field_id}"
     params = {"lat": latitude, "lon": longitude, "num_zones": num_zones}
 
-    print(f"\nRequest:")
+    print("\nRequest:")
     print(f"  Field: {field_id}")
     print(f"  Location: ({latitude}, {longitude})")
     print(f"  Zones: {num_zones}")
@@ -181,15 +181,15 @@ def preview_management_zones(
 
     zones_data = response.json()
 
-    print(f"\n✅ Zones Classified:")
+    print("\n✅ Zones Classified:")
     print(f"  Total Area: {zones_data['total_area_ha']:.2f} ha")
-    print(f"  NDVI Statistics:")
+    print("  NDVI Statistics:")
     print(f"    Mean: {zones_data['ndvi_statistics']['mean']:.3f}")
     print(
         f"    Range: {zones_data['ndvi_statistics']['min']:.3f} - {zones_data['ndvi_statistics']['max']:.3f}"
     )
 
-    print(f"\n  Zones:")
+    print("\n  Zones:")
     for zone in zones_data["zones"]:
         print(f"    {zone['zone_id']}. {zone['zone_name']} ({zone['zone_name_ar']}):")
         print(f"       NDVI: {zone['ndvi_min']:.2f} - {zone['ndvi_max']:.2f}")
@@ -217,7 +217,7 @@ def export_prescription(prescription_id: str, format: str = "geojson") -> Any:
     url = f"{API_BASE_URL}/v1/vra/export/{prescription_id}"
     params = {"format": format}
 
-    print(f"\nRequest:")
+    print("\nRequest:")
     print(f"  Prescription ID: {prescription_id}")
     print(f"  Format: {format}")
 
@@ -227,7 +227,7 @@ def export_prescription(prescription_id: str, format: str = "geojson") -> Any:
     data = response.json()
 
     if format == "geojson":
-        print(f"\n✅ GeoJSON Export:")
+        print("\n✅ GeoJSON Export:")
         print(f"  Type: {data['type']}")
         print(f"  Features: {len(data['features'])}")
         print(f"  Total Area: {data['properties']['total_area_ha']} ha")
@@ -239,7 +239,7 @@ def export_prescription(prescription_id: str, format: str = "geojson") -> Any:
         print(f"  Saved to: {filename}")
 
     elif format == "isoxml":
-        print(f"\n✅ ISO-XML Export:")
+        print("\n✅ ISO-XML Export:")
         print(f"  Format: {data['format']}")
         print(f"  XML Length: {len(data['xml'])} characters")
 
@@ -252,7 +252,7 @@ def export_prescription(prescription_id: str, format: str = "geojson") -> Any:
     return data
 
 
-def get_prescription_history(field_id: str) -> Dict[str, Any]:
+def get_prescription_history(field_id: str) -> dict[str, Any]:
     """
     Get prescription history for a field
 
@@ -263,8 +263,8 @@ def get_prescription_history(field_id: str) -> Dict[str, Any]:
         Prescription history data
     """
     print(f"\n{'='*60}")
-    print(f"Prescription History")
-    print(f"سجل الوصفات")
+    print("Prescription History")
+    print("سجل الوصفات")
     print(f"{'='*60}")
 
     url = f"{API_BASE_URL}/v1/vra/prescriptions/{field_id}"
@@ -288,7 +288,7 @@ def get_prescription_history(field_id: str) -> Dict[str, Any]:
     return history
 
 
-def get_vra_info() -> Dict[str, Any]:
+def get_vra_info() -> dict[str, Any]:
     """
     Get VRA system information
 
@@ -296,8 +296,8 @@ def get_vra_info() -> Dict[str, Any]:
         VRA system information
     """
     print(f"\n{'='*60}")
-    print(f"VRA System Information")
-    print(f"معلومات نظام التطبيق المتغير")
+    print("VRA System Information")
+    print("معلومات نظام التطبيق المتغير")
     print(f"{'='*60}")
 
     url = f"{API_BASE_URL}/v1/vra/info"
@@ -311,22 +311,22 @@ def get_vra_info() -> Dict[str, Any]:
     print(f"Service (AR): {info['service_ar']}")
     print(f"Version: {info['version']}")
 
-    print(f"\nSupported VRA Types:")
+    print("\nSupported VRA Types:")
     for vra_type in info["capabilities"]["vra_types"]:
         print(f"  - {vra_type['type']}: {vra_type['name']} ({vra_type['name_ar']})")
         print(f"    Strategy: {vra_type['strategy']}")
 
-    print(f"\nZone Methods:")
+    print("\nZone Methods:")
     for method in info["capabilities"]["zone_methods"]:
         print(f"  - {method['method']}: {method['name']} ({method['name_ar']})")
 
     print(f"\nExport Formats: {', '.join(info['capabilities']['export_formats'])}")
 
-    print(f"\nBenefits (EN):")
+    print("\nBenefits (EN):")
     for benefit in info["benefits"]["en"]:
         print(f"  - {benefit}")
 
-    print(f"\nBenefits (AR):")
+    print("\nBenefits (AR):")
     for benefit in info["benefits"]["ar"]:
         print(f"  - {benefit}")
 
@@ -378,7 +378,7 @@ def main():
         print(f"\n❌ Error: {e}")
         print(f"\nMake sure the satellite service is running on {API_BASE_URL}")
         print(
-            f"Start it with: cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service && python -m src.main"
+            "Start it with: cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service && python -m src.main"
         )
 
 

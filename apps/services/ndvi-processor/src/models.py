@@ -3,12 +3,10 @@ SAHOOL NDVI Processor - Data Models
 نماذج بيانات معالج NDVI
 """
 
-from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Dict, Any
+from typing import Any
 
 from pydantic import BaseModel, Field
-
 
 # ============== Enums ==============
 
@@ -88,9 +86,9 @@ class ProcessRequest(BaseModel):
     field_id: str
     source: SatelliteSource = Field(default=SatelliteSource.SENTINEL_2)
     date_range: DateRange
-    options: Optional[ProcessingOptions] = None
+    options: ProcessingOptions | None = None
     priority: int = Field(default=5, ge=1, le=10)
-    callback_url: Optional[str] = None
+    callback_url: str | None = None
 
 
 class CompositeRequest(BaseModel):
@@ -129,18 +127,18 @@ class NDVIStatistics(BaseModel):
     """إحصائيات NDVI"""
 
     mean: float = Field(..., ge=-1, le=1)
-    median: Optional[float] = Field(None, ge=-1, le=1)
+    median: float | None = Field(None, ge=-1, le=1)
     std: float = Field(..., ge=0)
     min: float = Field(..., ge=-1, le=1)
     max: float = Field(..., ge=-1, le=1)
-    percentiles: Optional[Dict[str, float]] = None
+    percentiles: dict[str, float] | None = None
 
 
 class QualityMetrics(BaseModel):
     """مقاييس الجودة"""
 
     cloud_cover_percent: float = Field(..., ge=0, le=100)
-    shadow_percent: Optional[float] = Field(None, ge=0, le=100)
+    shadow_percent: float | None = Field(None, ge=0, le=100)
     valid_pixels_percent: float = Field(..., ge=0, le=100)
 
 
@@ -156,17 +154,17 @@ class SourceInfo(BaseModel):
 class ProcessingInfo(BaseModel):
     """معلومات المعالجة"""
 
-    atmospheric_correction: Optional[str]
-    cloud_mask: Optional[str]
+    atmospheric_correction: str | None
+    cloud_mask: str | None
     processed_at: str
 
 
 class FileUrls(BaseModel):
     """روابط الملفات"""
 
-    geotiff: Optional[str] = None
-    png: Optional[str] = None
-    thumbnail: Optional[str] = None
+    geotiff: str | None = None
+    png: str | None = None
+    thumbnail: str | None = None
 
 
 class NDVIResult(BaseModel):
@@ -199,16 +197,16 @@ class TimeseriesResponse(BaseModel):
     field_id: str
     start_date: str
     end_date: str
-    data: List[TimeseriesPoint]
+    data: list[TimeseriesPoint]
     total_points: int
-    sources: List[str]
+    sources: list[str]
 
 
 class ZoneChange(BaseModel):
     """تغير منطقة"""
 
     zone: str
-    zone_name_ar: Optional[str]
+    zone_name_ar: str | None
     ndvi_date1: float
     ndvi_date2: float
     change: float
@@ -223,8 +221,8 @@ class ChangeAnalysisResponse(BaseModel):
     date1: str
     date2: str
     days_between: int
-    change: Dict[str, Any]
-    zones: Optional[List[ZoneChange]]
+    change: dict[str, Any]
+    zones: list[ZoneChange] | None
 
 
 class SeasonalStats(BaseModel):
@@ -232,7 +230,7 @@ class SeasonalStats(BaseModel):
 
     season: str
     season_ar: str
-    months: List[int]
+    months: list[int]
     ndvi_mean: float
     ndvi_max: float
     ndvi_min: float
@@ -244,7 +242,7 @@ class SeasonalAnalysisResponse(BaseModel):
 
     field_id: str
     year: int
-    seasons: List[SeasonalStats]
+    seasons: list[SeasonalStats]
     peak_month: int
     trough_month: int
     annual_mean: float
@@ -260,8 +258,8 @@ class AnomalyResponse(BaseModel):
     historical_std: float
     z_score: float
     is_anomaly: bool
-    anomaly_type: Optional[str]
-    severity: Optional[str]
+    anomaly_type: str | None
+    severity: str | None
 
 
 # ============== Job Models ==============
@@ -276,18 +274,18 @@ class JobResponse(BaseModel):
     type: str
     status: JobStatus
     progress_percent: int = Field(..., ge=0, le=100)
-    parameters: Dict[str, Any]
-    started_at: Optional[str]
-    completed_at: Optional[str]
-    estimated_completion: Optional[str]
-    result: Optional[Dict[str, Any]]
-    error: Optional[str]
+    parameters: dict[str, Any]
+    started_at: str | None
+    completed_at: str | None
+    estimated_completion: str | None
+    result: dict[str, Any] | None
+    error: str | None
 
 
 class JobListResponse(BaseModel):
     """قائمة المهام"""
 
-    jobs: List[JobResponse]
+    jobs: list[JobResponse]
     total: int
     active_count: int
 
@@ -314,5 +312,5 @@ class CompositeListResponse(BaseModel):
     """قائمة المركبات"""
 
     field_id: str
-    composites: List[CompositeResponse]
+    composites: list[CompositeResponse]
     total: int

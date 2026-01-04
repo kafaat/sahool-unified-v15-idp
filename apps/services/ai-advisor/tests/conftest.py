@@ -3,15 +3,16 @@ Pytest Configuration and Fixtures
 تكوين pytest والتجهيزات
 """
 
-import pytest
 import os
-from typing import Generator, Dict, Any
-from unittest.mock import Mock, AsyncMock, patch
-from fastapi.testclient import TestClient
+from collections.abc import Generator
+from typing import Any
+from unittest.mock import AsyncMock, Mock, patch
+
+import pytest
 
 
 @pytest.fixture
-def mock_env_vars() -> Generator[Dict[str, str], None, None]:
+def mock_env_vars() -> Generator[dict[str, str], None, None]:
     """
     Mock environment variables for testing
     محاكاة متغيرات البيئة للاختبار
@@ -159,7 +160,7 @@ def mock_satellite_tool():
 
 
 @pytest.fixture
-def sample_question_request() -> Dict[str, Any]:
+def sample_question_request() -> dict[str, Any]:
     """
     Sample question request payload
     نموذج طلب سؤال
@@ -172,7 +173,7 @@ def sample_question_request() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_diagnose_request() -> Dict[str, Any]:
+def sample_diagnose_request() -> dict[str, Any]:
     """
     Sample disease diagnosis request
     نموذج طلب تشخيص مرض
@@ -186,7 +187,7 @@ def sample_diagnose_request() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_recommendation_request() -> Dict[str, Any]:
+def sample_recommendation_request() -> dict[str, Any]:
     """
     Sample recommendation request
     نموذج طلب توصيات
@@ -203,7 +204,7 @@ def sample_recommendation_request() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_field_analysis_request() -> Dict[str, Any]:
+def sample_field_analysis_request() -> dict[str, Any]:
     """
     Sample field analysis request
     نموذج طلب تحليل حقل

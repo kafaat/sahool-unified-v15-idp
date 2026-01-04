@@ -3,11 +3,10 @@ SAHOOL Resilient Client with Circuit Breaker
 Provides fault-tolerant API calls with automatic failover.
 """
 
-import asyncio
 import logging
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 try:
     import aiohttp
@@ -42,7 +41,7 @@ class CircuitBreaker:
         self,
         failure_threshold: int = 5,
         recovery_timeout: int = 60,
-        endpoints: Optional[List[str]] = None,
+        endpoints: list[str] | None = None,
     ):
         """
         Initialize Circuit Breaker.
@@ -55,9 +54,9 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
 
-        self._states: Dict[str, CircuitState] = {}
-        self._failure_counts: Dict[str, int] = {}
-        self._last_failure_time: Dict[str, datetime] = {}
+        self._states: dict[str, CircuitState] = {}
+        self._failure_counts: dict[str, int] = {}
+        self._last_failure_time: dict[str, datetime] = {}
         self._endpoints = endpoints or [
             "http://kong-primary:8000",
             "http://kong-secondary:8000",
@@ -65,7 +64,7 @@ class CircuitBreaker:
         ]
 
         # Fallback cache
-        self._cache: Dict[str, Dict[str, Any]] = {}
+        self._cache: dict[str, dict[str, Any]] = {}
 
     async def call(
         self,
@@ -74,7 +73,7 @@ class CircuitBreaker:
         method: str = "GET",
         timeout: float = 5.0,
         **kwargs: Any,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Call API with Circuit Breaker protection.
 
@@ -132,7 +131,7 @@ class CircuitBreaker:
         method: str,
         timeout: float,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Try a single endpoint."""
         if not aiohttp:
             raise RuntimeError("aiohttp not installed")
@@ -181,7 +180,7 @@ class CircuitBreaker:
         if service in self._last_failure_time:
             del self._last_failure_time[service]
 
-    async def _fallback(self, service: str, path: str) -> Optional[Dict[str, Any]]:
+    async def _fallback(self, service: str, path: str) -> dict[str, Any] | None:
         """
         Provide fallback data when service is unavailable.
 
@@ -197,7 +196,7 @@ class CircuitBreaker:
             return cached
 
         # Service-specific fallbacks
-        fallbacks: Dict[str, Dict[str, Any]] = {
+        fallbacks: dict[str, dict[str, Any]] = {
             "field-ops": {
                 "_fallback": True,
                 "message": "Showing cached data",
@@ -221,7 +220,7 @@ class CircuitBreaker:
             {"_fallback": True, "error": "Service temporarily unavailable"},
         )
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Get current circuit breaker status for all services."""
         return {
             "services": {
@@ -241,7 +240,7 @@ class CircuitBreaker:
             },
         }
 
-    async def health_check(self) -> Dict[str, bool]:
+    async def health_check(self) -> dict[str, bool]:
         """Check health of all endpoints."""
         results = {}
 

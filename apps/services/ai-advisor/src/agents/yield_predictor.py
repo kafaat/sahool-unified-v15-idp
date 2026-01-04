@@ -6,7 +6,8 @@ Specialized agent for yield prediction and production forecasting.
 وكيل متخصص للتنبؤ بالمحصول وتوقع الإنتاج.
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Any
+
 from langchain_core.tools import Tool
 
 from .base_agent import BaseAgent
@@ -34,8 +35,8 @@ class YieldPredictorAgent(BaseAgent):
 
     def __init__(
         self,
-        tools: Optional[List[Tool]] = None,
-        retriever: Optional[Any] = None,
+        tools: list[Tool] | None = None,
+        retriever: Any | None = None,
     ):
         """
         Initialize Yield Predictor Agent
@@ -124,10 +125,10 @@ Communicate clearly in both Arabic and English.
         crop_type: str,
         area: float,
         growth_stage: str,
-        field_data: Dict[str, Any],
-        weather_data: Dict[str, Any],
-        historical_yields: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[str, Any]:
+        field_data: dict[str, Any],
+        weather_data: dict[str, Any],
+        historical_yields: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """
         Predict crop yield
         التنبؤ بالمحصول
@@ -162,9 +163,9 @@ Communicate clearly in both Arabic and English.
     async def assess_quality(
         self,
         crop_type: str,
-        growth_conditions: Dict[str, Any],
-        stress_events: Optional[List[Dict[str, Any]]] = None,
-    ) -> Dict[str, Any]:
+        growth_conditions: dict[str, Any],
+        stress_events: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         """
         Assess expected crop quality
         تقييم الجودة المتوقعة للمحصول
@@ -192,10 +193,10 @@ Communicate clearly in both Arabic and English.
         self,
         crop_type: str,
         current_stage: str,
-        maturity_indicators: Dict[str, Any],
-        weather_forecast: Dict[str, Any],
-        market_conditions: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        maturity_indicators: dict[str, Any],
+        weather_forecast: dict[str, Any],
+        market_conditions: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Recommend optimal harvest timing
         التوصية بالتوقيت الأمثل للحصاد
@@ -226,10 +227,10 @@ Communicate clearly in both Arabic and English.
     async def analyze_yield_gap(
         self,
         crop_type: str,
-        actual_yield: Optional[float],
+        actual_yield: float | None,
         potential_yield: float,
-        management_practices: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        management_practices: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Analyze yield gap and improvement opportunities
         تحليل فجوة المحصول وفرص التحسين
@@ -260,10 +261,10 @@ Communicate clearly in both Arabic and English.
     async def risk_assessment(
         self,
         crop_type: str,
-        current_conditions: Dict[str, Any],
-        threats: List[Dict[str, Any]],
+        current_conditions: dict[str, Any],
+        threats: list[dict[str, Any]],
         remaining_growth_period: int,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Assess risks to final yield
         تقييم المخاطر على المحصول النهائي
@@ -291,10 +292,10 @@ Communicate clearly in both Arabic and English.
 
     async def forecast_production(
         self,
-        farm_data: List[Dict[str, Any]],
+        farm_data: list[dict[str, Any]],
         season: str,
-        regional_factors: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        regional_factors: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Forecast total farm production
         توقع الإنتاج الإجمالي للمزرعة

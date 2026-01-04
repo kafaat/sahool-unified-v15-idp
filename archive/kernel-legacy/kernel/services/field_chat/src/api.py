@@ -4,7 +4,6 @@ REST API for chat thread and message operations
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -37,8 +36,8 @@ class CreateThreadRequest(BaseModel):
     scope_type: str = Field(..., description="Scope type: field|task|incident")
     scope_id: str = Field(..., description="ID of the scope entity")
     created_by: str = Field(..., description="User ID creating the thread")
-    title: Optional[str] = Field(None, description="Optional thread title")
-    correlation_id: Optional[str] = Field(
+    title: str | None = Field(None, description="Optional thread title")
+    correlation_id: str | None = Field(
         None, description="Correlation ID for tracing"
     )
 
@@ -51,10 +50,10 @@ class ThreadResponse(BaseModel):
     scope_type: str
     scope_id: str
     created_by: str
-    title: Optional[str]
+    title: str | None
     is_archived: bool
     message_count: int
-    last_message_at: Optional[str]
+    last_message_at: str | None
     created_at: str
 
 
@@ -63,12 +62,12 @@ class SendMessageRequest(BaseModel):
 
     tenant_id: str = Field(..., description="Tenant identifier")
     sender_id: str = Field(..., description="User ID sending the message")
-    text: Optional[str] = Field(None, description="Message text")
-    attachments: Optional[list[str]] = Field(
+    text: str | None = Field(None, description="Message text")
+    attachments: list[str] | None = Field(
         None, description="List of attachment URLs"
     )
-    reply_to_id: Optional[str] = Field(None, description="Message ID being replied to")
-    correlation_id: Optional[str] = Field(
+    reply_to_id: str | None = Field(None, description="Message ID being replied to")
+    correlation_id: str | None = Field(
         None, description="Correlation ID for tracing"
     )
 
@@ -79,9 +78,9 @@ class MessageResponse(BaseModel):
     message_id: str
     thread_id: str
     sender_id: str
-    text: Optional[str]
+    text: str | None
     attachments: list[str]
-    reply_to_id: Optional[str]
+    reply_to_id: str | None
     message_type: str
     created_at: str
 
@@ -90,7 +89,7 @@ class MarkReadRequest(BaseModel):
     """Request to mark messages as read"""
 
     user_id: str = Field(..., description="User ID marking as read")
-    last_read_message_id: Optional[str] = Field(
+    last_read_message_id: str | None = Field(
         None, description="Last read message ID"
     )
 
@@ -100,8 +99,8 @@ class AddParticipantRequest(BaseModel):
 
     tenant_id: str
     user_id: str = Field(..., description="User ID to add")
-    added_by: Optional[str] = Field(None, description="User ID who added them")
-    correlation_id: Optional[str] = None
+    added_by: str | None = Field(None, description="User ID who added them")
+    correlation_id: str | None = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -237,8 +236,8 @@ async def get_thread_by_scope(
 @router.get("/threads", response_model=list[ThreadResponse])
 async def list_threads(
     tenant_id: str = Query(..., description="Tenant identifier"),
-    user_id: Optional[str] = Query(None, description="Filter by participant user ID"),
-    scope_type: Optional[str] = Query(None, description="Filter by scope type"),
+    user_id: str | None = Query(None, description="Filter by participant user ID"),
+    scope_type: str | None = Query(None, description="Filter by scope type"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     repo: ChatRepository = Depends(get_repository),
@@ -276,7 +275,7 @@ async def archive_thread(
     thread_id: UUID,
     tenant_id: str = Query(..., description="Tenant identifier"),
     archived_by: str = Query(..., description="User ID archiving the thread"),
-    correlation_id: Optional[str] = Query(None),
+    correlation_id: str | None = Query(None),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):
@@ -397,10 +396,10 @@ async def list_messages(
     thread_id: UUID,
     tenant_id: str = Query(..., description="Tenant identifier"),
     limit: int = Query(50, ge=1, le=100),
-    before: Optional[datetime] = Query(
+    before: datetime | None = Query(
         None, description="Get messages before this timestamp"
     ),
-    after: Optional[datetime] = Query(
+    after: datetime | None = Query(
         None, description="Get messages after this timestamp"
     ),
     repo: ChatRepository = Depends(get_repository),
@@ -433,8 +432,8 @@ async def list_messages(
 async def search_messages(
     tenant_id: str = Query(..., description="Tenant identifier"),
     q: str = Query(..., min_length=2, description="Search query"),
-    thread_id: Optional[UUID] = Query(None, description="Limit to specific thread"),
-    sender_id: Optional[str] = Query(None, description="Filter by sender"),
+    thread_id: UUID | None = Query(None, description="Limit to specific thread"),
+    sender_id: str | None = Query(None, description="Filter by sender"),
     limit: int = Query(50, ge=1, le=100),
     repo: ChatRepository = Depends(get_repository),
 ):
@@ -498,7 +497,7 @@ async def remove_participant(
     thread_id: UUID,
     user_id: str,
     tenant_id: str = Query(...),
-    correlation_id: Optional[str] = Query(None),
+    correlation_id: str | None = Query(None),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):
@@ -523,7 +522,7 @@ async def mark_as_read(
     thread_id: UUID,
     req: MarkReadRequest,
     tenant_id: str = Query(...),
-    correlation_id: Optional[str] = Query(None),
+    correlation_id: str | None = Query(None),
     repo: ChatRepository = Depends(get_repository),
     pub: ChatPublisher = Depends(get_publisher),
 ):

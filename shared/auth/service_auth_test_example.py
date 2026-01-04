@@ -5,7 +5,6 @@ Quick tests to verify the service auth system is working correctly
 
 import os
 import sys
-from datetime import datetime
 
 # Set up environment for testing
 os.environ["JWT_SECRET"] = "test-secret-key-minimum-32-characters-long"
@@ -18,9 +17,9 @@ from service_auth import (
     SERVICE_COMMUNICATION_MATRIX,
     ServiceToken,
     create_service_token,
-    verify_service_token,
-    is_service_authorized,
     get_allowed_targets,
+    is_service_authorized,
+    verify_service_token,
 )
 
 
@@ -33,12 +32,12 @@ def test_basic_token_creation():
         token = create_service_token(
             service_name="farm-service", target_service="field-service", ttl=300
         )
-        print(f"✓ Token created successfully")
+        print("✓ Token created successfully")
         print(f"  Token (first 50 chars): {token[:50]}...")
 
         # Verify the token
         payload = verify_service_token(token)
-        print(f"✓ Token verified successfully")
+        print("✓ Token verified successfully")
         print(f"  Service Name: {payload['service_name']}")
         print(f"  Target Service: {payload['target_service']}")
         print(f"  Expires: {payload['exp']}")
@@ -67,11 +66,11 @@ def test_service_class():
             ttl=600,
             extra_claims={"request_id": "test-123"},
         )
-        print(f"✓ Token created with ServiceToken.create()")
+        print("✓ Token created with ServiceToken.create()")
 
         # Verify using class method
         payload = ServiceToken.verify(token)
-        print(f"✓ Token verified with ServiceToken.verify()")
+        print("✓ Token verified with ServiceToken.verify()")
         print(f"  Service: {payload['service_name']} → {payload['target_service']}")
 
         assert payload["service_name"] == "crop-service"
@@ -94,7 +93,7 @@ def test_unauthorized_service():
         token = create_service_token(
             service_name="notification-service", target_service="farm-service", ttl=300
         )
-        print(f"✗ Test failed: Should have raised an exception")
+        print("✗ Test failed: Should have raised an exception")
         return False
 
     except Exception as e:
@@ -111,7 +110,7 @@ def test_invalid_service():
         token = create_service_token(
             service_name="invalid-service", target_service="field-service", ttl=300
         )
-        print(f"✗ Test failed: Should have raised an exception")
+        print("✗ Test failed: Should have raised an exception")
         return False
 
     except Exception as e:
@@ -173,17 +172,17 @@ def test_get_allowed_targets():
             print(f"✗ Missing expected target: {target}")
             return False
 
-    print(f"✓ All expected targets found")
+    print("✓ All expected targets found")
 
     # Test idp-service (should call all services)
     idp_targets = get_allowed_targets("idp-service")
     print(f"idp-service can call {len(idp_targets)} services")
 
     if len(idp_targets) != len(ALLOWED_SERVICES):
-        print(f"✗ IDP should be able to call all services")
+        print("✗ IDP should be able to call all services")
         return False
 
-    print(f"✓ IDP can call all services")
+    print("✓ IDP can call all services")
     return True
 
 
@@ -215,11 +214,11 @@ def test_token_expiration():
         token = create_service_token(
             service_name="farm-service", target_service="field-service", ttl=1
         )
-        print(f"✓ Token created with 1 second TTL")
+        print("✓ Token created with 1 second TTL")
 
         # Verify immediately (should work)
         payload = verify_service_token(token)
-        print(f"✓ Token verified immediately")
+        print("✓ Token verified immediately")
 
         # Wait 2 seconds
         print("  Waiting 2 seconds...")
@@ -228,7 +227,7 @@ def test_token_expiration():
         # Try to verify (should fail)
         try:
             payload = verify_service_token(token)
-            print(f"✗ Expired token should have been rejected")
+            print("✗ Expired token should have been rejected")
             return False
         except Exception as e:
             print(f"✓ Expired token correctly rejected: {e}")

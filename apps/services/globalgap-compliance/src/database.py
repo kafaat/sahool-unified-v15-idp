@@ -15,12 +15,14 @@ This module provides:
 - بناة الاستعلام
 """
 
-import os
 import logging
-from typing import Optional, List, Dict, Any, AsyncGenerator
-from datetime import datetime, date
+import os
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from datetime import date, datetime
+from typing import Any
 from uuid import UUID
+
 import asyncpg
 from asyncpg.pool import Pool
 
@@ -52,7 +54,7 @@ POOL_MAX_INACTIVE_CONNECTION_LIFETIME = float(
 # إدارة مجموعة الاتصال
 # =============================================================================
 
-_pool: Optional[Pool] = None
+_pool: Pool | None = None
 
 
 async def get_pool() -> Pool:
@@ -179,12 +181,12 @@ class BaseRepository:
         async with get_connection() as conn:
             return await conn.execute(query, *args)
 
-    async def _fetch(self, query: str, *args) -> List[asyncpg.Record]:
+    async def _fetch(self, query: str, *args) -> list[asyncpg.Record]:
         """Fetch multiple rows"""
         async with get_connection() as conn:
             return await conn.fetch(query, *args)
 
-    async def _fetchrow(self, query: str, *args) -> Optional[asyncpg.Record]:
+    async def _fetchrow(self, query: str, *args) -> asyncpg.Record | None:
         """Fetch a single row"""
         async with get_connection() as conn:
             return await conn.fetchrow(query, *args)
@@ -213,13 +215,13 @@ class GlobalGAPRegistrationRepository(BaseRepository):
     async def create(
         self,
         farm_id: UUID,
-        ggn: Optional[str] = None,
-        registration_date: Optional[datetime] = None,
+        ggn: str | None = None,
+        registration_date: datetime | None = None,
         certificate_status: str = "PENDING",
-        valid_from: Optional[date] = None,
-        valid_to: Optional[date] = None,
-        scope: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        valid_from: date | None = None,
+        valid_to: date | None = None,
+        scope: str | None = None,
+    ) -> dict[str, Any]:
         """
         Create a new GlobalGAP registration
         إنشاء تسجيل GlobalGAP جديد
@@ -257,7 +259,7 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, registration_id: UUID) -> Optional[Dict[str, Any]]:
+    async def get_by_id(self, registration_id: UUID) -> dict[str, Any] | None:
         """
         Get registration by ID
         الحصول على التسجيل بواسطة المعرف
@@ -266,7 +268,7 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         row = await self._fetchrow(query, registration_id)
         return dict(row) if row else None
 
-    async def get_by_ggn(self, ggn: str) -> Optional[Dict[str, Any]]:
+    async def get_by_ggn(self, ggn: str) -> dict[str, Any] | None:
         """
         Get registration by GlobalGAP Number
         الحصول على التسجيل بواسطة رقم GlobalGAP
@@ -275,7 +277,7 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         row = await self._fetchrow(query, ggn)
         return dict(row) if row else None
 
-    async def get_by_farm_id(self, farm_id: UUID) -> List[Dict[str, Any]]:
+    async def get_by_farm_id(self, farm_id: UUID) -> list[dict[str, Any]]:
         """
         Get all registrations for a farm
         الحصول على جميع التسجيلات لمزرعة
@@ -289,8 +291,8 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         return [dict(row) for row in rows]
 
     async def get_active_registrations(
-        self, farm_id: Optional[UUID] = None
-    ) -> List[Dict[str, Any]]:
+        self, farm_id: UUID | None = None
+    ) -> list[dict[str, Any]]:
         """
         Get active registrations, optionally filtered by farm
         الحصول على التسجيلات النشطة، اختياريًا مصفاة حسب المزرعة
@@ -312,7 +314,7 @@ class GlobalGAPRegistrationRepository(BaseRepository):
 
         return [dict(row) for row in rows]
 
-    async def get_expiring_soon(self, days: int = 30) -> List[Dict[str, Any]]:
+    async def get_expiring_soon(self, days: int = 30) -> list[dict[str, Any]]:
         """
         Get certificates expiring within specified days
         الحصول على الشهادات المنتهية الصلاحية خلال أيام محددة
@@ -331,9 +333,9 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         self,
         registration_id: UUID,
         status: str,
-        valid_from: Optional[date] = None,
-        valid_to: Optional[date] = None,
-    ) -> Optional[Dict[str, Any]]:
+        valid_from: date | None = None,
+        valid_to: date | None = None,
+    ) -> dict[str, Any] | None:
         """
         Update registration certificate status
         تحديث حالة شهادة التسجيل
@@ -379,11 +381,11 @@ class ComplianceRecordRepository(BaseRepository):
         registration_id: UUID,
         checklist_version: str,
         audit_date: date,
-        major_must_score: Optional[float] = None,
-        minor_must_score: Optional[float] = None,
-        overall_compliance: Optional[float] = None,
-        auditor_notes: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        major_must_score: float | None = None,
+        minor_must_score: float | None = None,
+        overall_compliance: float | None = None,
+        auditor_notes: str | None = None,
+    ) -> dict[str, Any]:
         """
         Create a new compliance audit record
         إنشاء سجل تدقيق امتثال جديد
@@ -410,15 +412,15 @@ class ComplianceRecordRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, record_id: UUID) -> Optional[Dict[str, Any]]:
+    async def get_by_id(self, record_id: UUID) -> dict[str, Any] | None:
         """Get compliance record by ID"""
         query = "SELECT * FROM compliance_records WHERE id = $1"
         row = await self._fetchrow(query, record_id)
         return dict(row) if row else None
 
     async def get_by_registration(
-        self, registration_id: UUID, limit: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+        self, registration_id: UUID, limit: int | None = None
+    ) -> list[dict[str, Any]]:
         """
         Get all compliance records for a registration
         الحصول على جميع سجلات الامتثال لتسجيل
@@ -443,7 +445,7 @@ class ComplianceRecordRepository(BaseRepository):
 
     async def get_latest_by_registration(
         self, registration_id: UUID
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Get the most recent compliance record for a registration
         الحصول على أحدث سجل امتثال لتسجيل
@@ -459,7 +461,7 @@ class ComplianceRecordRepository(BaseRepository):
 
     async def get_low_compliance_records(
         self, threshold: float = 80.0
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get records with compliance below threshold
         الحصول على السجلات التي امتثالها أقل من الحد
@@ -477,10 +479,10 @@ class ComplianceRecordRepository(BaseRepository):
     async def update_scores(
         self,
         record_id: UUID,
-        major_must_score: Optional[float] = None,
-        minor_must_score: Optional[float] = None,
-        overall_compliance: Optional[float] = None,
-    ) -> Optional[Dict[str, Any]]:
+        major_must_score: float | None = None,
+        minor_must_score: float | None = None,
+        overall_compliance: float | None = None,
+    ) -> dict[str, Any] | None:
         """
         Update compliance scores
         تحديث درجات الامتثال
@@ -525,9 +527,9 @@ class ChecklistResponseRepository(BaseRepository):
         compliance_record_id: UUID,
         checklist_item_id: str,
         response: str,
-        evidence_path: Optional[str] = None,
-        notes: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        evidence_path: str | None = None,
+        notes: str | None = None,
+    ) -> dict[str, Any]:
         """
         Create a new checklist response
         إنشاء استجابة قائمة التحقق جديدة
@@ -552,8 +554,8 @@ class ChecklistResponseRepository(BaseRepository):
         return dict(row) if row else None
 
     async def create_batch(
-        self, compliance_record_id: UUID, responses: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, compliance_record_id: UUID, responses: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         Create multiple checklist responses in a batch
         إنشاء استجابات قائمة التحقق متعددة دفعة واحدة
@@ -585,7 +587,7 @@ class ChecklistResponseRepository(BaseRepository):
 
     async def get_by_compliance_record(
         self, compliance_record_id: UUID
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get all responses for a compliance record
         الحصول على جميع الاستجابات لسجل الامتثال
@@ -600,7 +602,7 @@ class ChecklistResponseRepository(BaseRepository):
 
     async def get_non_compliant_responses(
         self, compliance_record_id: UUID
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get non-compliant responses for a compliance record
         الحصول على الاستجابات غير الملتزمة لسجل الامتثال
@@ -615,8 +617,8 @@ class ChecklistResponseRepository(BaseRepository):
         return [dict(row) for row in rows]
 
     async def get_responses_by_item(
-        self, checklist_item_id: str, limit: Optional[int] = 100
-    ) -> List[Dict[str, Any]]:
+        self, checklist_item_id: str, limit: int | None = 100
+    ) -> list[dict[str, Any]]:
         """
         Get all responses for a specific checklist item across audits
         الحصول على جميع الاستجابات لعنصر قائمة التحقق عبر التدقيقات
@@ -635,10 +637,10 @@ class ChecklistResponseRepository(BaseRepository):
     async def update(
         self,
         response_id: UUID,
-        response: Optional[str] = None,
-        evidence_path: Optional[str] = None,
-        notes: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+        response: str | None = None,
+        evidence_path: str | None = None,
+        notes: str | None = None,
+    ) -> dict[str, Any] | None:
         """
         Update a checklist response
         تحديث استجابة قائمة التحقق
@@ -676,10 +678,10 @@ class NonConformanceRepository(BaseRepository):
         checklist_item_id: str,
         severity: str,
         description: str,
-        corrective_action: Optional[str] = None,
-        due_date: Optional[date] = None,
+        corrective_action: str | None = None,
+        due_date: date | None = None,
         status: str = "OPEN",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Create a new non-conformance
         إنشاء عدم مطابقة جديدة
@@ -705,7 +707,7 @@ class NonConformanceRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, nc_id: UUID) -> Optional[Dict[str, Any]]:
+    async def get_by_id(self, nc_id: UUID) -> dict[str, Any] | None:
         """Get non-conformance by ID"""
         query = "SELECT * FROM non_conformances WHERE id = $1"
         row = await self._fetchrow(query, nc_id)
@@ -713,7 +715,7 @@ class NonConformanceRepository(BaseRepository):
 
     async def get_by_compliance_record(
         self, compliance_record_id: UUID
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get all non-conformances for a compliance record
         الحصول على جميع عدم المطابقات لسجل الامتثال
@@ -727,8 +729,8 @@ class NonConformanceRepository(BaseRepository):
         return [dict(row) for row in rows]
 
     async def get_open_non_conformances(
-        self, severity: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        self, severity: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         Get all open non-conformances, optionally filtered by severity
         الحصول على جميع عدم المطابقات المفتوحة، اختياريًا مصفاة حسب الخطورة
@@ -755,7 +757,7 @@ class NonConformanceRepository(BaseRepository):
 
         return [dict(row) for row in rows]
 
-    async def get_overdue_non_conformances(self) -> List[Dict[str, Any]]:
+    async def get_overdue_non_conformances(self) -> list[dict[str, Any]]:
         """
         Get overdue non-conformances
         الحصول على عدم المطابقات المتأخرة
@@ -775,9 +777,9 @@ class NonConformanceRepository(BaseRepository):
         self,
         nc_id: UUID,
         status: str,
-        corrective_action: Optional[str] = None,
-        resolved_date: Optional[date] = None,
-    ) -> Optional[Dict[str, Any]]:
+        corrective_action: str | None = None,
+        resolved_date: date | None = None,
+    ) -> dict[str, Any] | None:
         """
         Update non-conformance status
         تحديث حالة عدم المطابقة
@@ -796,8 +798,8 @@ class NonConformanceRepository(BaseRepository):
         return dict(row) if row else None
 
     async def resolve(
-        self, nc_id: UUID, corrective_action: str, resolved_date: Optional[date] = None
-    ) -> Optional[Dict[str, Any]]:
+        self, nc_id: UUID, corrective_action: str, resolved_date: date | None = None
+    ) -> dict[str, Any] | None:
         """
         Mark non-conformance as resolved
         وضع علامة على عدم المطابقة كمحلولة
@@ -810,8 +812,8 @@ class NonConformanceRepository(BaseRepository):
         )
 
     async def get_by_checklist_item(
-        self, checklist_item_id: str, limit: Optional[int] = 100
-    ) -> List[Dict[str, Any]]:
+        self, checklist_item_id: str, limit: int | None = 100
+    ) -> list[dict[str, Any]]:
         """
         Get non-conformances for a specific checklist item
         الحصول على عدم المطابقات لعنصر قائمة التحقق المحدد
@@ -854,7 +856,7 @@ async def init_db() -> None:
         raise
 
 
-async def db_health_check() -> Dict[str, Any]:
+async def db_health_check() -> dict[str, Any]:
     """
     Database health check for monitoring
     فحص صحة قاعدة البيانات للمراقبة

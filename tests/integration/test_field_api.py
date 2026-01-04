@@ -3,9 +3,9 @@ SAHOOL Field API Integration Tests
 Tests for Field Operations API endpoints
 """
 
-import pytest
-
 import sys
+
+import pytest
 
 sys.path.insert(0, "kernel/services/field_ops/src")
 
@@ -17,7 +17,7 @@ class TestFieldCRUD:
     def client(self):
         """Create test client"""
         from fastapi.testclient import TestClient
-        from main import app, _fields
+        from main import _fields, app
 
         # Clear in-memory store before each test
         _fields.clear()
@@ -135,7 +135,7 @@ class TestOperationsCRUD:
     def client(self):
         """Create test client"""
         from fastapi.testclient import TestClient
-        from main import app, _fields, _operations
+        from main import _fields, _operations, app
 
         _fields.clear()
         _operations.clear()
@@ -181,7 +181,7 @@ class TestTenantStats:
     def client(self):
         """Create test client"""
         from fastapi.testclient import TestClient
-        from main import app, _fields, _operations
+        from main import _fields, _operations, app
 
         _fields.clear()
         _operations.clear()

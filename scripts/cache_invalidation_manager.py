@@ -26,15 +26,14 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import os
-import sys
-import json
 import argparse
 import asyncio
-from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional, Set
-from dataclasses import dataclass, asdict
+import json
 import logging
+import os
+import sys
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 
 try:
     import redis.asyncio as aioredis
@@ -91,8 +90,8 @@ class InvalidationEvent:
 class InvalidationReport:
     timestamp: str
     total_keys_deleted: int
-    patterns_processed: List[str]
-    events: List[Dict]
+    patterns_processed: list[str]
+    events: list[dict]
     duration_ms: float
 
     def print_summary(self):
@@ -118,8 +117,8 @@ class CacheInvalidationManager:
 
     def __init__(self, redis_url: str = REDIS_URL):
         self.redis_url = redis_url
-        self.redis: Optional[aioredis.Redis] = None
-        self.events: List[InvalidationEvent] = []
+        self.redis: aioredis.Redis | None = None
+        self.events: list[InvalidationEvent] = []
 
     async def connect(self):
         """Establish Redis connection."""
@@ -187,7 +186,7 @@ class CacheInvalidationManager:
 
         # Log event
         event = InvalidationEvent(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             pattern=pattern,
             reason=reason,
             keys_affected=total_deleted,
@@ -204,7 +203,7 @@ class CacheInvalidationManager:
     async def invalidate_entity(
         self,
         entity_type: str,
-        entity_ids: List[str],
+        entity_ids: list[str],
         reason: str = "entity_update",
     ) -> int:
         """
@@ -242,7 +241,7 @@ class CacheInvalidationManager:
     async def invalidate_after_migration(
         self,
         migration_name: str,
-        affected_tables: List[str],
+        affected_tables: list[str],
     ) -> InvalidationReport:
         """
         Comprehensive cache invalidation after database migration.
@@ -253,7 +252,7 @@ class CacheInvalidationManager:
         patterns_processed = []
 
         logger.info("=" * 70)
-        logger.info(f"  🔄 POST-MIGRATION CACHE INVALIDATION")
+        logger.info("  🔄 POST-MIGRATION CACHE INVALIDATION")
         logger.info(f"  Migration: {migration_name}")
         logger.info("=" * 70)
 
@@ -287,7 +286,7 @@ class CacheInvalidationManager:
         duration = (datetime.now() - start_time).total_seconds() * 1000
 
         report = InvalidationReport(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             total_keys_deleted=total_deleted,
             patterns_processed=patterns_processed,
             events=[asdict(e) for e in self.events],
@@ -359,9 +358,9 @@ class CacheInvalidationManager:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 async def invalidate_after_orphaned_data_cleanup(
-    deleted_field_ids: List[str],
-    deleted_sensor_ids: List[str],
-    deleted_task_ids: List[str],
+    deleted_field_ids: list[str],
+    deleted_sensor_ids: list[str],
+    deleted_task_ids: list[str],
 ) -> InvalidationReport:
     """
     Called after data_integrity_checker.py cleans orphaned records.
@@ -415,7 +414,7 @@ async def invalidate_after_orphaned_data_cleanup(
         logger.info(f"✅ Total cache keys invalidated: {total_deleted}")
 
         return InvalidationReport(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             total_keys_deleted=total_deleted,
             patterns_processed=["fields", "sensor_data", "tasks", "lists"],
             events=[asdict(e) for e in manager.events],

@@ -3,11 +3,11 @@ SAHOOL Alert Service - NATS Events
 أحداث NATS لخدمة التنبيهات
 """
 
-import os
 import json
 import logging
+import os
+from collections.abc import Awaitable, Callable
 from datetime import datetime
-from typing import Optional, Callable, Awaitable
 from uuid import uuid4
 
 import nats
@@ -48,7 +48,7 @@ class AlertEventPublisher:
     """ناشر أحداث التنبيهات"""
 
     def __init__(self):
-        self._nc: Optional[NatsClient] = None
+        self._nc: NatsClient | None = None
         self._connected = False
 
     async def connect(self) -> bool:
@@ -75,7 +75,7 @@ class AlertEventPublisher:
     def is_connected(self) -> bool:
         return self._connected and self._nc is not None
 
-    async def _publish(self, topic: str, data: dict) -> Optional[str]:
+    async def _publish(self, topic: str, data: dict) -> str | None:
         """نشر حدث"""
         if not self.is_connected:
             logger.warning(f"Cannot publish to {topic}: not connected to NATS")
@@ -101,12 +101,12 @@ class AlertEventPublisher:
         self,
         alert_id: str,
         field_id: str,
-        tenant_id: Optional[str],
+        tenant_id: str | None,
         alert_type: str,
         severity: str,
         title: str,
-        correlation_id: Optional[str] = None,
-    ) -> Optional[str]:
+        correlation_id: str | None = None,
+    ) -> str | None:
         """نشر حدث إنشاء تنبيه"""
         return await self._publish(
             AlertTopics.ALERT_CREATED,
@@ -127,8 +127,8 @@ class AlertEventPublisher:
         field_id: str,
         old_status: str,
         new_status: str,
-        updated_by: Optional[str] = None,
-    ) -> Optional[str]:
+        updated_by: str | None = None,
+    ) -> str | None:
         """نشر حدث تحديث تنبيه"""
         return await self._publish(
             AlertTopics.ALERT_UPDATED,
@@ -143,7 +143,7 @@ class AlertEventPublisher:
 
     async def publish_alert_acknowledged(
         self, alert_id: str, field_id: str, acknowledged_by: str
-    ) -> Optional[str]:
+    ) -> str | None:
         """نشر حدث إقرار بتنبيه"""
         return await self._publish(
             AlertTopics.ALERT_ACKNOWLEDGED,
@@ -159,8 +159,8 @@ class AlertEventPublisher:
         alert_id: str,
         field_id: str,
         resolved_by: str,
-        resolution_note: Optional[str] = None,
-    ) -> Optional[str]:
+        resolution_note: str | None = None,
+    ) -> str | None:
         """نشر حدث حل تنبيه"""
         return await self._publish(
             AlertTopics.ALERT_RESOLVED,
@@ -182,7 +182,7 @@ class AlertEventSubscriber:
     """مستقبل أحداث التنبيهات"""
 
     def __init__(self):
-        self._nc: Optional[NatsClient] = None
+        self._nc: NatsClient | None = None
         self._subscriptions = []
         self._handlers: dict[str, Callable[[dict], Awaitable[None]]] = {}
 
@@ -254,8 +254,8 @@ class AlertEventSubscriber:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-_publisher: Optional[AlertEventPublisher] = None
-_subscriber: Optional[AlertEventSubscriber] = None
+_publisher: AlertEventPublisher | None = None
+_subscriber: AlertEventSubscriber | None = None
 
 
 async def get_publisher() -> AlertEventPublisher:

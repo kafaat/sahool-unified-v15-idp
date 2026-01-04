@@ -18,17 +18,16 @@ Usage:
 Author: SAHOOL Team
 """
 
-import os
 import base64
 import hashlib
-from typing import Any, Optional, Callable
-from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-from cryptography.hazmat.primitives import hashes, hmac
-from cryptography.hazmat.backends import default_backend
-import bcrypt
-from sqlalchemy import TypeDecorator, String, event
-from sqlalchemy.orm import Session
+import os
 
+import bcrypt
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, hmac
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+from sqlalchemy import String, TypeDecorator, event
+from sqlalchemy.orm import Session
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Constants
@@ -225,7 +224,7 @@ class EncryptedString(TypeDecorator):
         self.deterministic = deterministic
         super().__init__(length=length, *args, **kwargs)
 
-    def process_bind_param(self, value: Optional[str], dialect) -> Optional[str]:
+    def process_bind_param(self, value: str | None, dialect) -> str | None:
         """
         Encrypt value before storing in database.
 
@@ -252,7 +251,7 @@ class EncryptedString(TypeDecorator):
             print(f"[SQLAlchemy Encryption] Encryption failed: {e}")
             return value
 
-    def process_result_value(self, value: Optional[str], dialect) -> Optional[str]:
+    def process_result_value(self, value: str | None, dialect) -> str | None:
         """
         Decrypt value after reading from database.
 
@@ -347,7 +346,7 @@ def verify_password(password: str, hashed: str) -> bool:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def create_hmac(data: str, secret: Optional[str] = None) -> str:
+def create_hmac(data: str, secret: str | None = None) -> str:
     """
     Create HMAC signature for data integrity verification.
 
@@ -374,7 +373,7 @@ def create_hmac(data: str, secret: Optional[str] = None) -> str:
     return h.finalize().hex()
 
 
-def verify_hmac(data: str, signature: str, secret: Optional[str] = None) -> bool:
+def verify_hmac(data: str, signature: str, secret: str | None = None) -> bool:
     """
     Verify HMAC signature.
 

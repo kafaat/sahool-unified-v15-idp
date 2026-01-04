@@ -16,11 +16,9 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import pytest
-import asyncio
-from typing import Dict, Any, List
 from datetime import datetime, timedelta
 
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test IoT Device Registration - اختبار تسجيل أجهزة IoT
@@ -31,8 +29,8 @@ from datetime import datetime, timedelta
 @pytest.mark.asyncio
 async def test_iot_device_registration_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تسجيل جهاز IoT
@@ -84,8 +82,8 @@ async def test_iot_device_registration_workflow(
 @pytest.mark.asyncio
 async def test_iot_device_listing_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل سرد أجهزة IoT
@@ -116,9 +114,9 @@ async def test_iot_device_listing_workflow(
 @pytest.mark.asyncio
 async def test_soil_moisture_reading_workflow(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     iot_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل قراءة رطوبة التربة
@@ -163,8 +161,8 @@ async def test_soil_moisture_reading_workflow(
 @pytest.mark.asyncio
 async def test_temperature_humidity_reading_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل قراءة درجة الحرارة والرطوبة
@@ -196,8 +194,8 @@ async def test_temperature_humidity_reading_workflow(
 @pytest.mark.asyncio
 async def test_soil_nutrient_reading_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل قراءة مغذيات التربة
@@ -240,8 +238,8 @@ async def test_soil_nutrient_reading_workflow(
 @pytest.mark.asyncio
 async def test_batch_readings_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل القراءات الدفعية
@@ -301,8 +299,8 @@ async def test_batch_readings_workflow(
 @pytest.mark.slow
 async def test_realtime_data_streaming_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل بث البيانات في الوقت الفعلي
@@ -331,8 +329,8 @@ async def test_realtime_data_streaming_workflow(
 @pytest.mark.asyncio
 async def test_sensor_data_aggregation_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تجميع بيانات المستشعرات
@@ -371,8 +369,8 @@ async def test_sensor_data_aggregation_workflow(
 @pytest.mark.asyncio
 async def test_automated_irrigation_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل الري الآلي
@@ -427,8 +425,8 @@ async def test_automated_irrigation_workflow(
 @pytest.mark.asyncio
 async def test_irrigation_valve_control_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل التحكم في صمام الري
@@ -465,8 +463,8 @@ async def test_irrigation_valve_control_workflow(
 @pytest.mark.asyncio
 async def test_sensor_threshold_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تنبيه عتبة المستشعر
@@ -517,8 +515,8 @@ async def test_sensor_threshold_alert_workflow(
 @pytest.mark.asyncio
 async def test_device_health_monitoring_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل مراقبة صحة الجهاز
@@ -552,8 +550,8 @@ async def test_device_health_monitoring_workflow(
 @pytest.mark.asyncio
 async def test_device_offline_detection_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل كشف الجهاز غير المتصل
@@ -584,8 +582,8 @@ async def test_device_offline_detection_workflow(
 @pytest.mark.asyncio
 async def test_sensor_data_export_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تصدير بيانات المستشعرات
@@ -618,8 +616,8 @@ async def test_sensor_data_export_workflow(
 @pytest.mark.asyncio
 async def test_sensor_analytics_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تحليلات المستشعرات

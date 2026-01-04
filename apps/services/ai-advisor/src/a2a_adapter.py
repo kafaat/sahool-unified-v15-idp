@@ -9,9 +9,9 @@ This demonstrates how to integrate existing services with the A2A protocol.
 يوضح كيفية دمج الخدمات الموجودة مع بروتوكول A2A.
 """
 
-import sys
 import os
-from typing import Dict, Any, List
+import sys
+from typing import Any
 
 # Add shared path for imports
 # إضافة المسار المشترك للاستيراد
@@ -19,9 +19,9 @@ sys.path.insert(
     0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "shared")
 )
 
+import structlog
 from a2a.agent import A2AAgent, AgentCapability
 from a2a.protocol import TaskMessage
-import structlog
 
 logger = structlog.get_logger()
 
@@ -35,7 +35,7 @@ class AIAdvisorA2AAgent(A2AAgent):
     يعرض قدرات المستشار الذكي عبر بروتوكول A2A.
     """
 
-    def __init__(self, base_url: str, agents: Dict[str, Any], supervisor: Any):
+    def __init__(self, base_url: str, agents: dict[str, Any], supervisor: Any):
         """
         Initialize AI Advisor A2A agent
         تهيئة وكيل A2A للمستشار الذكي
@@ -72,7 +72,7 @@ class AIAdvisorA2AAgent(A2AAgent):
             capabilities_count=len(self.get_capabilities()),
         )
 
-    def get_capabilities(self) -> List[AgentCapability]:
+    def get_capabilities(self) -> list[AgentCapability]:
         """
         Define AI Advisor capabilities for A2A
         تحديد قدرات المستشار الذكي لـ A2A
@@ -298,7 +298,7 @@ class AIAdvisorA2AAgent(A2AAgent):
             "general-agricultural-query", self._handle_general_query
         )
 
-    async def _handle_disease_diagnosis(self, task: TaskMessage) -> Dict[str, Any]:
+    async def _handle_disease_diagnosis(self, task: TaskMessage) -> dict[str, Any]:
         """
         Handle disease diagnosis task
         معالجة مهمة تشخيص المرض
@@ -324,7 +324,7 @@ class AIAdvisorA2AAgent(A2AAgent):
             "preventive_measures": result.get("prevention", []),
         }
 
-    async def _handle_irrigation(self, task: TaskMessage) -> Dict[str, Any]:
+    async def _handle_irrigation(self, task: TaskMessage) -> dict[str, Any]:
         """
         Handle irrigation optimization task
         معالجة مهمة تحسين الري
@@ -346,7 +346,7 @@ class AIAdvisorA2AAgent(A2AAgent):
 
         return result
 
-    async def _handle_yield_prediction(self, task: TaskMessage) -> Dict[str, Any]:
+    async def _handle_yield_prediction(self, task: TaskMessage) -> dict[str, Any]:
         """
         Handle yield prediction task
         معالجة مهمة التنبؤ بالمحصول
@@ -369,7 +369,7 @@ class AIAdvisorA2AAgent(A2AAgent):
 
         return result
 
-    async def _handle_field_analysis(self, task: TaskMessage) -> Dict[str, Any]:
+    async def _handle_field_analysis(self, task: TaskMessage) -> dict[str, Any]:
         """
         Handle comprehensive field analysis task
         معالجة مهمة تحليل الحقل الشامل
@@ -430,7 +430,7 @@ class AIAdvisorA2AAgent(A2AAgent):
 
         return response
 
-    async def _handle_general_query(self, task: TaskMessage) -> Dict[str, Any]:
+    async def _handle_general_query(self, task: TaskMessage) -> dict[str, Any]:
         """
         Handle general agricultural query
         معالجة استعلام زراعي عام
@@ -456,7 +456,7 @@ class AIAdvisorA2AAgent(A2AAgent):
 
 
 def create_ai_advisor_a2a_agent(
-    base_url: str, agents: Dict[str, Any], supervisor: Any
+    base_url: str, agents: dict[str, Any], supervisor: Any
 ) -> AIAdvisorA2AAgent:
     """
     Factory function to create AI Advisor A2A agent

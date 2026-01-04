@@ -10,12 +10,12 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import pytest
-import httpx
 import asyncio
-from typing import Dict, Any, Optional
 import uuid
+from typing import Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # E2E Test Configuration - تكوين اختبارات E2E
@@ -52,7 +52,7 @@ def unique_user_id() -> str:
 
 
 @pytest.fixture
-def test_field_data(unique_field_name: str) -> Dict[str, Any]:
+def test_field_data(unique_field_name: str) -> dict[str, Any]:
     """
     Complete field data for E2E testing
     بيانات حقل كاملة لاختبار E2E
@@ -81,7 +81,7 @@ def test_field_data(unique_field_name: str) -> Dict[str, Any]:
 
 
 @pytest.fixture
-def test_location_yemen() -> Dict[str, float]:
+def test_location_yemen() -> dict[str, float]:
     """
     Test location in Yemen (Sana'a)
     موقع اختبار في اليمن (صنعاء)
@@ -90,7 +90,7 @@ def test_location_yemen() -> Dict[str, float]:
 
 
 @pytest.fixture
-def test_subscription_data() -> Dict[str, Any]:
+def test_subscription_data() -> dict[str, Any]:
     """
     Test subscription data
     بيانات اشتراك الاختبار
@@ -104,7 +104,7 @@ def test_subscription_data() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def test_payment_data() -> Dict[str, Any]:
+def test_payment_data() -> dict[str, Any]:
     """
     Test payment data for Tharwatt
     بيانات الدفع الاختبارية لثروات
@@ -128,11 +128,11 @@ def test_payment_data() -> Dict[str, Any]:
 async def wait_for_async_operation(
     client: httpx.AsyncClient,
     check_url: str,
-    headers: Dict[str, str],
+    headers: dict[str, str],
     expected_status: str = "completed",
     max_attempts: int = 30,
     delay: float = 2.0,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Wait for an async operation to complete
     انتظار اكتمال عملية غير متزامنة
@@ -179,7 +179,7 @@ async def workflow_client() -> httpx.AsyncClient:
 
 
 @pytest.fixture
-def e2e_headers(test_token: str) -> Dict[str, str]:
+def e2e_headers(test_token: str) -> dict[str, str]:
     """
     Headers for E2E workflow tests
     رؤوس لاختبارات سير العمل E2E

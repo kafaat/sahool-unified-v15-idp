@@ -27,18 +27,17 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import os
-import sys
-import json
-import time
 import argparse
 import asyncio
-import aiohttp
+import json
 import logging
-from datetime import datetime, timezone, timedelta
+import os
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Optional, Dict, Any
-from dataclasses import dataclass, asdict
+from typing import Any, Optional
+
+import aiohttp
 
 logging.basicConfig(
     level=logging.INFO,
@@ -63,8 +62,8 @@ DRAIN_WAIT_SECONDS = 10  # Wait for active requests to complete
 @dataclass
 class MaintenanceState:
     enabled: bool
-    started_at: Optional[str] = None
-    ends_at: Optional[str] = None
+    started_at: str | None = None
+    ends_at: str | None = None
     message: str = "System maintenance in progress"
     message_ar: str = "صيانة النظام جارية"
     initiated_by: str = "system"
@@ -104,7 +103,7 @@ class KongMaintenanceController:
 
     def __init__(self, admin_url: str = KONG_ADMIN_URL):
         self.admin_url = admin_url.rstrip("/")
-        self.plugin_id: Optional[str] = None
+        self.plugin_id: str | None = None
 
     async def enable(self, state: MaintenanceState) -> bool:
         """Enable maintenance mode by adding a request-termination plugin."""
@@ -223,7 +222,7 @@ class KongMaintenanceController:
                 logger.warning(f"⚠️ Kong not available (may be using Nginx): {e}")
                 return True  # Continue anyway
 
-    async def status(self) -> Dict[str, Any]:
+    async def status(self) -> dict[str, Any]:
         """Get current maintenance mode status from Kong."""
         async with aiohttp.ClientSession() as session:
             try:
@@ -313,7 +312,7 @@ location @maintenance {{
             logger.warning(f"⚠️ Could not disable Nginx maintenance: {e}")
             return True
 
-    async def status(self) -> Dict[str, Any]:
+    async def status(self) -> dict[str, Any]:
         """Get Nginx maintenance status."""
         return {
             "enabled": self.MAINTENANCE_FLAG.exists(),
@@ -340,7 +339,7 @@ class MaintenanceModeController:
         initiated_by: str = "operator",
     ) -> bool:
         """Enable maintenance mode."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         ends_at = now + timedelta(seconds=timeout_seconds)
 
         state = MaintenanceState(
@@ -415,7 +414,7 @@ class MaintenanceModeController:
 
         return True
 
-    async def status(self) -> Dict[str, Any]:
+    async def status(self) -> dict[str, Any]:
         """Get current maintenance mode status."""
         state = MaintenanceState.load()
         kong_status = await self.kong.status()

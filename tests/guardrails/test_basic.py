@@ -4,7 +4,6 @@ Basic standalone test for AI Safety Guardrails
 Verifies core functionality without requiring external dependencies
 """
 
-import sys
 import re
 
 print("=" * 60)
@@ -93,9 +92,7 @@ for text, should_allow, should_block in test_cases:
     is_blocked = any(topic.lower() in text_lower for topic in blocked_topics)
 
     status = "✓"
-    if should_block and not is_blocked:
-        status = "✗"
-    elif not should_block and is_blocked:
+    if should_block and not is_blocked or not should_block and is_blocked:
         status = "✗"
 
     print(f"{status} '{text[:40]}...' - Allowed: {is_allowed}, Blocked: {is_blocked}")

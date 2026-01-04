@@ -115,98 +115,93 @@ Usage:
 # Event definitions and subjects
 # ─────────────────────────────────────────────────────────────────────────────
 
-from .events import (
-    # Subject constants
-    GlobalGAPSubjects,
-    # Compliance events
-    ComplianceUpdatedEvent,
-    ComplianceRequirementFailedEvent,
-    # Audit events
-    AuditScheduledEvent,
-    AuditCompletedEvent,
-    # Non-conformance events
-    NonConformanceDetectedEvent,
-    CorrectiveActionCompletedEvent,
-    # Certificate events
-    CertificateExpiringEvent,
-    CertificateIssuedEvent,
-    # Integration-specific events
-    WaterUsageRecordedEvent,
-    IPMActivityRecordedEvent,
-    FertilizerApplicationRecordedEvent,
-    TraceabilityRecordCreatedEvent,
-)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Irrigation Integration
-# ─────────────────────────────────────────────────────────────────────────────
-
-from .irrigation_integration import (
-    # Enums
-    WaterSource,
-    IrrigationMethod,
-    WaterQualityStatus,
-    # Models
-    WaterUsageRecord,
-    WaterUsageReport,
-    SPRINGCompliance,
-    # Integration
-    IrrigationIntegration,
-)
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Crop Health Integration
 # ─────────────────────────────────────────────────────────────────────────────
-
 from .crop_health_integration import (
+    # Integration
+    CropHealthIntegration,
+    DetectionMethod,
+    IPMActivityType,
+    IPMReport,
     # Enums
     PestCategory,
-    IPMActivityType,
-    DetectionMethod,
-    SeverityLevel,
-    PPPType,
     # Models
     PestDetectionRecord,
     PPPApplicationRecord,
-    IPMReport,
-    # Integration
-    CropHealthIntegration,
+    PPPType,
+    SeverityLevel,
+)
+from .events import (
+    AuditCompletedEvent,
+    # Audit events
+    AuditScheduledEvent,
+    # Certificate events
+    CertificateExpiringEvent,
+    CertificateIssuedEvent,
+    ComplianceRequirementFailedEvent,
+    # Compliance events
+    ComplianceUpdatedEvent,
+    CorrectiveActionCompletedEvent,
+    FertilizerApplicationRecordedEvent,
+    # Subject constants
+    GlobalGAPSubjects,
+    IPMActivityRecordedEvent,
+    # Non-conformance events
+    NonConformanceDetectedEvent,
+    TraceabilityRecordCreatedEvent,
+    # Integration-specific events
+    WaterUsageRecordedEvent,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Fertilizer Integration
 # ─────────────────────────────────────────────────────────────────────────────
-
 from .fertilizer_integration import (
-    # Enums
-    FertilizerType,
     ApplicationMethod,
-    NutrientType,
     # Models
     FertilizerApplicationRecord,
-    NutrientRequirement,
-    NutrientManagementPlan,
-    MRLComplianceCheck,
     # Integration
     FertilizerIntegration,
+    # Enums
+    FertilizerType,
+    MRLComplianceCheck,
+    NutrientManagementPlan,
+    NutrientRequirement,
+    NutrientType,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Field Operations Integration
 # ─────────────────────────────────────────────────────────────────────────────
-
 from .field_ops_integration import (
+    ActivityComplianceMapping,
     # Enums
     ActivityType,
-    HarvestMethod,
-    PackagingType,
     # Models
     FieldActivity,
-    HarvestBatch,
-    TraceabilityRecord,
-    ActivityComplianceMapping,
     # Integration
     FieldOpsIntegration,
+    HarvestBatch,
+    HarvestMethod,
+    PackagingType,
+    TraceabilityRecord,
+)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Irrigation Integration
+# ─────────────────────────────────────────────────────────────────────────────
+from .irrigation_integration import (
+    # Integration
+    IrrigationIntegration,
+    IrrigationMethod,
+    SPRINGCompliance,
+    WaterQualityStatus,
+    # Enums
+    WaterSource,
+    # Models
+    WaterUsageRecord,
+    WaterUsageReport,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -12,12 +12,11 @@ Supported Providers:
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, List, Dict, Any
+from typing import Any
 
 import httpx
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Models
@@ -58,8 +57,8 @@ class DailyForecast:
     condition: str
     condition_ar: str
     icon: str
-    sunrise: Optional[str] = None
-    sunset: Optional[str] = None
+    sunrise: str | None = None
+    sunset: str | None = None
 
 
 @dataclass
@@ -83,10 +82,10 @@ class WeatherResult:
 
     data: Any
     provider: str
-    failed_providers: List[str] = field(default_factory=list)
+    failed_providers: list[str] = field(default_factory=list)
     is_cached: bool = False
-    error: Optional[str] = None
-    error_ar: Optional[str] = None
+    error: str | None = None
+    error_ar: str | None = None
 
     @property
     def success(self) -> bool:
@@ -108,10 +107,10 @@ class WeatherProviderType(Enum):
 class WeatherProvider(ABC):
     """Base class for weather providers"""
 
-    def __init__(self, name: str, api_key: Optional[str] = None):
+    def __init__(self, name: str, api_key: str | None = None):
         self.name = name
         self.api_key = api_key
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     @property
     def is_configured(self) -> bool:
@@ -134,13 +133,13 @@ class WeatherProvider(ABC):
     @abstractmethod
     async def get_daily_forecast(
         self, lat: float, lon: float, days: int = 7
-    ) -> List[DailyForecast]:
+    ) -> list[DailyForecast]:
         pass
 
     @abstractmethod
     async def get_hourly_forecast(
         self, lat: float, lon: float, hours: int = 24
-    ) -> List[HourlyForecast]:
+    ) -> list[HourlyForecast]:
         pass
 
     # Helper functions
@@ -232,7 +231,7 @@ class OpenMeteoProvider(WeatherProvider):
 
     async def get_daily_forecast(
         self, lat: float, lon: float, days: int = 7
-    ) -> List[DailyForecast]:
+    ) -> list[DailyForecast]:
         client = await self._get_client()
 
         params = {
@@ -287,7 +286,7 @@ class OpenMeteoProvider(WeatherProvider):
 
     async def get_hourly_forecast(
         self, lat: float, lon: float, hours: int = 24
-    ) -> List[HourlyForecast]:
+    ) -> list[HourlyForecast]:
         client = await self._get_client()
 
         params = {
@@ -410,7 +409,7 @@ class OpenWeatherMapProvider(WeatherProvider):
 
     BASE_URL = "https://api.openweathermap.org/data/2.5"
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         super().__init__(
             "OpenWeatherMap", api_key or os.getenv("OPENWEATHERMAP_API_KEY")
         )
@@ -454,7 +453,7 @@ class OpenWeatherMapProvider(WeatherProvider):
 
     async def get_daily_forecast(
         self, lat: float, lon: float, days: int = 7
-    ) -> List[DailyForecast]:
+    ) -> list[DailyForecast]:
         if not self.is_configured:
             raise ValueError("OpenWeatherMap API key not configured")
 
@@ -474,7 +473,7 @@ class OpenWeatherMapProvider(WeatherProvider):
         data = response.json()
 
         # Group by day
-        daily_data: Dict[str, List[Any]] = {}
+        daily_data: dict[str, list[Any]] = {}
         for item in data.get("list", []):
             day = item["dt_txt"].split(" ")[0]
             daily_data.setdefault(day, []).append(item)
@@ -506,7 +505,7 @@ class OpenWeatherMapProvider(WeatherProvider):
 
     async def get_hourly_forecast(
         self, lat: float, lon: float, hours: int = 24
-    ) -> List[HourlyForecast]:
+    ) -> list[HourlyForecast]:
         if not self.is_configured:
             raise ValueError("OpenWeatherMap API key not configured")
 
@@ -574,7 +573,7 @@ class WeatherAPIProvider(WeatherProvider):
 
     BASE_URL = "https://api.weatherapi.com/v1"
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         super().__init__("WeatherAPI", api_key or os.getenv("WEATHERAPI_KEY"))
 
     @property
@@ -614,7 +613,7 @@ class WeatherAPIProvider(WeatherProvider):
 
     async def get_daily_forecast(
         self, lat: float, lon: float, days: int = 7
-    ) -> List[DailyForecast]:
+    ) -> list[DailyForecast]:
         if not self.is_configured:
             raise ValueError("WeatherAPI key not configured")
 
@@ -658,7 +657,7 @@ class WeatherAPIProvider(WeatherProvider):
 
     async def get_hourly_forecast(
         self, lat: float, lon: float, hours: int = 24
-    ) -> List[HourlyForecast]:
+    ) -> list[HourlyForecast]:
         if not self.is_configured:
             raise ValueError("WeatherAPI key not configured")
 
@@ -710,7 +709,7 @@ class MultiWeatherService:
     """
 
     def __init__(self):
-        self.providers: List[WeatherProvider] = [
+        self.providers: list[WeatherProvider] = [
             OpenMeteoProvider(),  # Free - always first
         ]
 
@@ -722,7 +721,7 @@ class MultiWeatherService:
             self.providers.append(WeatherAPIProvider())
 
         # Simple in-memory cache
-        self._cache: Dict[str, tuple] = {}
+        self._cache: dict[str, tuple] = {}
         self._cache_duration = timedelta(minutes=10)
 
     async def close(self):
@@ -847,7 +846,7 @@ class MultiWeatherService:
             error_ar="فشل جميع مزودي التوقعات الساعية",
         )
 
-    def get_available_providers(self) -> List[Dict[str, Any]]:
+    def get_available_providers(self) -> list[dict[str, Any]]:
         """Get list of available providers"""
         return [
             {

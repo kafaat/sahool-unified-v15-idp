@@ -18,11 +18,9 @@ Usage:
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Base Event Model
@@ -50,11 +48,11 @@ class FieldCreatedEvent(BaseEvent):
     field_id: UUID
     farm_id: UUID
     name: str = Field(..., min_length=1, max_length=120)
-    name_ar: Optional[str] = Field(None, max_length=120)
+    name_ar: str | None = Field(None, max_length=120)
     geometry_wkt: str = Field(..., min_length=10)
-    area_hectares: Optional[float] = Field(None, ge=0)
-    soil_type: Optional[str] = None
-    irrigation_type: Optional[str] = None
+    area_hectares: float | None = Field(None, ge=0)
+    soil_type: str | None = None
+    irrigation_type: str | None = None
     created_at: datetime
 
 
@@ -62,13 +60,13 @@ class FieldUpdatedEvent(BaseEvent):
     """Event emitted when a field is updated."""
 
     field_id: UUID
-    name: Optional[str] = Field(None, max_length=120)
-    name_ar: Optional[str] = Field(None, max_length=120)
-    geometry_wkt: Optional[str] = None
-    area_hectares: Optional[float] = Field(None, ge=0)
-    soil_type: Optional[str] = None
-    irrigation_type: Optional[str] = None
-    ndvi_value: Optional[float] = Field(None, ge=-1, le=1)
+    name: str | None = Field(None, max_length=120)
+    name_ar: str | None = Field(None, max_length=120)
+    geometry_wkt: str | None = None
+    area_hectares: float | None = Field(None, ge=0)
+    soil_type: str | None = None
+    irrigation_type: str | None = None
+    ndvi_value: float | None = Field(None, ge=-1, le=1)
     updated_at: datetime
 
 
@@ -83,10 +81,10 @@ class FarmCreatedEvent(BaseEvent):
     farm_id: UUID
     tenant_id: UUID
     name: str = Field(..., min_length=1, max_length=120)
-    name_ar: Optional[str] = Field(None, max_length=120)
+    name_ar: str | None = Field(None, max_length=120)
     location_lat: float = Field(..., ge=-90, le=90)
     location_lon: float = Field(..., ge=-180, le=180)
-    total_area_hectares: Optional[float] = Field(None, ge=0)
+    total_area_hectares: float | None = Field(None, ge=0)
     created_at: datetime
 
 
@@ -100,10 +98,10 @@ class CropPlantedEvent(BaseEvent):
 
     field_id: UUID
     crop_type: str = Field(..., min_length=1, max_length=100)
-    variety: Optional[str] = Field(None, max_length=100)
+    variety: str | None = Field(None, max_length=100)
     planting_date: datetime
-    expected_harvest_date: Optional[datetime] = None
-    area_hectares: Optional[float] = Field(None, ge=0)
+    expected_harvest_date: datetime | None = None
+    area_hectares: float | None = Field(None, ge=0)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -115,13 +113,13 @@ class TaskCreatedEvent(BaseEvent):
     """Event emitted when a new task is created."""
 
     task_id: UUID
-    field_id: Optional[UUID] = None
+    field_id: UUID | None = None
     tenant_id: UUID
     title: str = Field(..., min_length=1, max_length=200)
-    description: Optional[str] = None
+    description: str | None = None
     priority: str = Field(..., pattern="^(low|medium|high|urgent)$")
-    due_date: Optional[datetime] = None
-    assigned_to: Optional[UUID] = None
+    due_date: datetime | None = None
+    assigned_to: UUID | None = None
     created_at: datetime
 
 
@@ -131,7 +129,7 @@ class TaskCompletedEvent(BaseEvent):
     task_id: UUID
     completed_by: UUID
     completed_at: datetime
-    evidence_notes: Optional[str] = None
+    evidence_notes: str | None = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -149,9 +147,9 @@ class AdvisorRecommendationEvent(BaseEvent):
         ..., pattern="^(irrigation|fertilizer|pest|harvest)$"
     )
     title: str
-    title_ar: Optional[str] = None
+    title_ar: str | None = None
     description: str
-    description_ar: Optional[str] = None
+    description_ar: str | None = None
     priority: str = Field(..., pattern="^(low|medium|high|critical)$")
     confidence_score: float = Field(..., ge=0, le=1)
     created_at: datetime
@@ -167,11 +165,11 @@ class AlertCreatedEvent(BaseEvent):
 
     alert_id: UUID
     tenant_id: UUID
-    field_id: Optional[UUID] = None
+    field_id: UUID | None = None
     alert_type: str = Field(..., pattern="^(weather|pest|disease|irrigation|system)$")
     severity: str = Field(..., pattern="^(info|warning|critical)$")
     title: str
-    title_ar: Optional[str] = None
+    title_ar: str | None = None
     message: str
-    message_ar: Optional[str] = None
+    message_ar: str | None = None
     created_at: datetime

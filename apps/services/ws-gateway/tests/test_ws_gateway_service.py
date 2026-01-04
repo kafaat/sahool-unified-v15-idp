@@ -3,11 +3,11 @@ Comprehensive Tests for WebSocket Gateway Service
 اختبارات شاملة لخدمة بوابة WebSocket
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch
 from src.main import app
-import json
 
 
 @pytest.fixture

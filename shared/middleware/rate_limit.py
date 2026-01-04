@@ -9,12 +9,12 @@ Security Features:
 - Audit logging for security monitoring
 """
 
-import time
-import logging
 import asyncio
+import logging
+import time
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Callable, Optional
 from functools import wraps
 
 from fastapi import HTTPException, Request, Response
@@ -86,7 +86,7 @@ class TokenBucket:
 class RateLimiter:
     """Rate limiter with sliding window and token bucket"""
 
-    def __init__(self, tier_config: Optional[TierConfig] = None):
+    def __init__(self, tier_config: TierConfig | None = None):
         self.tier_config = tier_config or TierConfig()
         self._buckets: dict[str, TokenBucket] = {}
         self._request_counts: dict[str, list[float]] = defaultdict(list)
@@ -206,7 +206,7 @@ async def _log_rate_limit_exceeded(request: Request, tier: str):
 
     # Try to log to audit system (non-blocking)
     try:
-        from shared.security.audit import audit_log, AuditAction
+        from shared.security.audit import AuditAction, audit_log
         from shared.security.audit_models import AuditCategory, AuditSeverity
 
         asyncio.create_task(
@@ -272,7 +272,7 @@ def rate_limit(
     requests_per_minute: int = 60,
     requests_per_hour: int = 1000,
     burst_limit: int = 10,
-    key_func: Optional[Callable[[Request], str]] = None,
+    key_func: Callable[[Request], str] | None = None,
 ):
     """
     Decorator for endpoint-specific rate limiting

@@ -3,9 +3,9 @@ Extended Tests for Notification Service
 اختبارات موسعة لخدمة الإشعارات
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime, timedelta
 
 
 class TestNotificationTypes:

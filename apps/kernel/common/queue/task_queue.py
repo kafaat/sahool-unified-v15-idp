@@ -14,12 +14,11 @@ License: MIT
 
 import json
 import logging
-import time
 import uuid
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Callable
-from dataclasses import dataclass, asdict
+from typing import Any
 
 from redis import Redis
 from redis.exceptions import RedisError
@@ -90,22 +89,22 @@ class Task:
     """
     task_id: str
     task_type: TaskType
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     priority: int
     status: TaskStatus
     created_at: datetime
     updated_at: datetime
-    scheduled_at: Optional[datetime] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    scheduled_at: datetime | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     retry_count: int = 0
     max_retries: int = 3
     timeout_seconds: int = 300  # 5 minutes default
-    worker_id: Optional[str] = None
-    error_message: Optional[str] = None
-    result: Optional[Dict[str, Any]] = None
+    worker_id: str | None = None
+    error_message: str | None = None
+    result: dict[str, Any] | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """تحويل إلى قاموس / Convert to dictionary"""
         data = asdict(self)
         # تحويل datetime إلى ISO format
@@ -118,7 +117,7 @@ class Task:
         return data
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Task':
+    def from_dict(cls, data: dict[str, Any]) -> 'Task':
         """إنشاء من قاموس / Create from dictionary"""
         # تحويل strings إلى datetime
         for key in ['created_at', 'updated_at', 'scheduled_at', 'started_at', 'completed_at']:
@@ -186,11 +185,11 @@ class TaskQueue:
     def enqueue(
         self,
         task_type: TaskType,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         priority: int = TaskPriority.NORMAL.value,
         max_retries: int = 3,
         timeout_seconds: int = 300,
-        scheduled_at: Optional[datetime] = None
+        scheduled_at: datetime | None = None
     ) -> str:
         """
         إضافة مهمة إلى قائمة الانتظار
@@ -257,8 +256,8 @@ class TaskQueue:
     def process_next(
         self,
         worker_id: str,
-        task_types: Optional[List[TaskType]] = None
-    ) -> Optional[Task]:
+        task_types: list[TaskType] | None = None
+    ) -> Task | None:
         """
         معالجة المهمة التالية في قائمة الانتظار
         Process next task in queue
@@ -337,8 +336,8 @@ class TaskQueue:
     def complete_task(
         self,
         task_id: str,
-        result: Optional[Dict[str, Any]] = None,
-        worker_id: Optional[str] = None
+        result: dict[str, Any] | None = None,
+        worker_id: str | None = None
     ) -> bool:
         """
         تمييز المهمة كمكتملة
@@ -401,7 +400,7 @@ class TaskQueue:
         self,
         task_id: str,
         error_message: str,
-        worker_id: Optional[str] = None,
+        worker_id: str | None = None,
         retry: bool = True
     ) -> bool:
         """
@@ -499,7 +498,7 @@ class TaskQueue:
     # إدارة المهام
     # ───────────────────────────────────────────────────────────────────────────
 
-    def get_task(self, task_id: str) -> Optional[Task]:
+    def get_task(self, task_id: str) -> Task | None:
         """
         الحصول على معلومات المهمة
         Get task information
@@ -638,7 +637,7 @@ class TaskQueue:
             logger.error(f"Failed to retry task {task_id}: {e}")
             return False
 
-    def get_queue_status(self) -> Dict[str, Any]:
+    def get_queue_status(self) -> dict[str, Any]:
         """
         الحصول على حالة قائمة الانتظار
         Get queue status
@@ -706,7 +705,7 @@ class TaskQueue:
     # معالجة انتهاء المهلة
     # ───────────────────────────────────────────────────────────────────────────
 
-    def check_timeouts(self) -> List[str]:
+    def check_timeouts(self) -> list[str]:
         """
         التحقق من المهام التي انتهت مهلتها
         Check for timed out tasks
@@ -772,12 +771,12 @@ class TaskQueue:
     # الطرق المساعدة
     # ───────────────────────────────────────────────────────────────────────────
 
-    def _serialize_task(self, task_dict: Dict[str, Any]) -> Dict[str, str]:
+    def _serialize_task(self, task_dict: dict[str, Any]) -> dict[str, str]:
         """تحويل قاموس المهمة إلى سلاسل نصية / Serialize task dict to strings"""
         return {k: json.dumps(v) if not isinstance(v, str) else v
                 for k, v in task_dict.items()}
 
-    def _deserialize_task(self, task_data: Dict) -> Dict[str, Any]:
+    def _deserialize_task(self, task_data: dict) -> dict[str, Any]:
         """تحويل البيانات من Redis إلى قاموس / Deserialize Redis data to dict"""
         result = {}
         for k, v in task_data.items():

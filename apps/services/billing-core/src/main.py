@@ -16,6 +16,7 @@ import os
 import uuid
 import hmac
 import hashlib
+import json
 import logging
 import asyncio
 from datetime import datetime, date, timedelta
@@ -44,6 +45,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .database import get_db, init_db, close_db, check_db_connection, db_health_check
 from .repository import BillingRepository
 from . import models as db_models
+
+# Configure logging early - needed for import error handling
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("sahool-billing")
 
 # Authentication imports
 import sys
@@ -97,10 +102,6 @@ except ImportError:
             )
         return None
 
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sahool-billing")
 
 # =============================================================================
 # NATS Configuration - تكوين الرسائل
@@ -545,6 +546,15 @@ class CreatePaymentRequest(BaseModel):
 # INVOICE_COUNTER: Global counter for invoice numbers
 # Will be replaced with database sequence in production
 INVOICE_COUNTER: int = 0
+
+# In-memory caches for webhook handlers (legacy support)
+# These are used by webhook handlers that haven't been migrated to database
+# TODO: Migrate webhook handlers to use database repository
+PLANS: Dict[str, Any] = {}
+TENANTS: Dict[str, Any] = {}
+SUBSCRIPTIONS: Dict[str, Any] = {}
+INVOICES: Dict[str, Any] = {}
+PAYMENTS: Dict[str, Any] = {}
 
 
 async def init_default_plans_in_db():

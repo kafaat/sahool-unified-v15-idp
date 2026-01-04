@@ -189,7 +189,7 @@ class IoTAgent(BaseAgent):
             ),
             action=AgentAction(
                 action_type="salinity_alert",
-                parameters={"ec_value": ctx.sensor_data.get("soil_ec", 0) if ctx else 0},
+                parameters={"ec_threshold": self.THRESHOLDS["soil_ec"]["high"]},
                 confidence=0.95,
                 priority=2,
                 reasoning="ملوحة التربة مرتفعة - قد تؤثر على المحصول"

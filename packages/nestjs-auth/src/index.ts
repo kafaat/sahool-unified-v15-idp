@@ -6,7 +6,8 @@
  */
 
 // Export main module
-export { AuthModule, AuthModuleOptions } from './auth.module';
+export { AuthModule } from './auth.module';
+export type { AuthModuleOptions } from './auth.module';
 
 // Export guards
 export {
@@ -26,17 +27,18 @@ export {
 } from './guards/token-revocation.guard';
 
 // Export strategy
-export { JwtStrategy, JwtPayload, AuthenticatedUser } from './strategies/jwt.strategy';
+export { JwtStrategy } from './strategies/jwt.strategy';
+export type { JwtPayload, AuthenticatedUser } from './strategies/jwt.strategy';
 
 // Export services
-export {
-  UserValidationService,
+export { UserValidationService } from './services/user-validation.service';
+export type {
   IUserRepository,
   UserValidationData,
 } from './services/user-validation.service';
 
-export {
-  RedisTokenRevocationStore,
+export { RedisTokenRevocationStore } from './services/token-revocation';
+export type {
   RevocationInfo,
   RevocationCheckResult,
   RevocationStats,

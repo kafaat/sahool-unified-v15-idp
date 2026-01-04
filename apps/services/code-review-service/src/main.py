@@ -411,101 +411,141 @@ Format your response as JSON:
             self.observer.join()
 
 
-async def main():
-    """Main entry point"""
-    service = CodeReviewService()
+# ═══════════════════════════════════════════════════════════════════════════
+# FastAPI Application
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Global service instance
+_service_instance = None
+
+def get_service() -> CodeReviewService:
+    """Get or create the service instance"""
+    global _service_instance
+    if _service_instance is None:
+        _service_instance = CodeReviewService()
+    return _service_instance
+
+
+# Create FastAPI app
+app = FastAPI(
+    title="Code Review Service",
+    description="Real-time code review service using Ollama + DeepSeek",
+    version="1.0.0"
+)
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize service on startup"""
+    service = get_service()
     await service.initialize()
     
-    # Create FastAPI app
-    app = FastAPI(
-        title="Code Review Service",
-        description="Real-time code review service using Ollama + DeepSeek",
-        version="1.0.0"
+    # Start file watcher in background if enabled
+    if service.settings.review_on_change:
+        import threading
+        watch_thread = threading.Thread(target=service.start_watching, daemon=True)
+        watch_thread.start()
+        logger.info("File watcher started")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    service = get_service()
+    await service.close()
+
+
+@app.get("/health", response_model=HealthResponse)
+async def health_check():
+    """Health check endpoint"""
+    service = get_service()
+    ollama_ok = await service.check_ollama_health()
+    return HealthResponse(
+        status="healthy" if ollama_ok else "degraded",
+        service="code-review-service",
+        ollama_connected=ollama_ok
     )
+
+
+@app.post("/review", response_model=ReviewResponse)
+async def review_code_endpoint(request: CodeReviewRequest):
+    """
+    Review code content
     
-    # ═══════════════════════════════════════════════════════════════════════════
-    # API Endpoints
-    # ═══════════════════════════════════════════════════════════════════════════
+    - **code**: Code content to review
+    - **language**: Optional programming language hint
+    - **filename**: Optional filename for context
+    """
+    service = get_service()
+    review = await service.review_code(
+        code=request.code,
+        language=request.language,
+        filename=request.filename
+    )
+    return ReviewResponse(**review)
+
+
+@app.post("/review/file", response_model=ReviewResponse)
+async def review_file_endpoint(request: FileReviewRequest):
+    """
+    Review a file from the codebase
     
-    @app.get("/health", response_model=HealthResponse)
-    async def health_check():
-        """Health check endpoint"""
-        ollama_ok = await service.check_ollama_health()
-        return HealthResponse(
-            status="healthy" if ollama_ok else "degraded",
-            service="code-review-service",
-            ollama_connected=ollama_ok
+    - **file_path**: Relative or absolute path to file in codebase
+    """
+    service = get_service()
+    
+    # Resolve file path
+    base_path = Path('/app/codebase')
+    file_path = Path(request.file_path)
+    
+    # Handle relative paths
+    if not file_path.is_absolute():
+        file_path = base_path / file_path
+    
+    # Verify file exists
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"File not found: {request.file_path}"
         )
     
-    @app.post("/review", response_model=ReviewResponse)
-    async def review_code(request: CodeReviewRequest):
-        """
-        Review code content
-        
-        - **code**: Code content to review
-        - **language**: Optional programming language hint
-        - **filename**: Optional filename for context
-        """
-        review = await service.review_code(
-            code=request.code,
-            language=request.language,
-            filename=request.filename
+    # Verify file is within codebase
+    try:
+        file_path.relative_to(base_path)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="File must be within the codebase directory"
         )
-        return ReviewResponse(**review)
     
-    @app.post("/review/file", response_model=ReviewResponse)
-    async def review_file_endpoint(request: FileReviewRequest):
-        """
-        Review a file from the codebase
-        
-        - **file_path**: Relative or absolute path to file in codebase
-        """
-        # Resolve file path
-        base_path = Path('/app/codebase')
-        file_path = Path(request.file_path)
-        
-        # Handle relative paths
-        if not file_path.is_absolute():
-            file_path = base_path / file_path
-        
-        # Verify file exists
-        if not file_path.exists():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"File not found: {request.file_path}"
-            )
-        
-        # Verify file is within codebase
-        try:
-            file_path.relative_to(base_path)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="File must be within the codebase directory"
-            )
-        
-        # Check file size
-        if file_path.stat().st_size > service.settings.max_file_size:
-            raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File too large. Maximum size: {service.settings.max_file_size} bytes"
-            )
-        
-        # Read and review file
-        try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-        except Exception as e:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Failed to read file: {str(e)}"
-            )
-        
-        review = await service.review_code(
-            code=content,
-            filename=str(file_path.name)
+    # Check file size
+    if file_path.stat().st_size > service.settings.max_file_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File too large. Maximum size: {service.settings.max_file_size} bytes"
         )
-        return ReviewResponse(**review)
+    
+    # Read and review file
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to read file: {str(e)}"
+        )
+    
+    review = await service.review_code(
+        code=content,
+        filename=str(file_path.name)
+    )
+    return ReviewResponse(**review)
+
+
+async def main():
+    """Main entry point"""
+    service = get_service()
+    await service.initialize()
     
     try:
         # Start file watcher in background if enabled
@@ -533,4 +573,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 

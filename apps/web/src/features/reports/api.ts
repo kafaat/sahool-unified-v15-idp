@@ -5,8 +5,15 @@
 
 import axios from 'axios';
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
+// Only warn during development, don't throw during build
+if (!API_BASE_URL && typeof window !== 'undefined') {
+  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+}
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

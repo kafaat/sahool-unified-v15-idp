@@ -302,30 +302,78 @@ def validate_origin(origin: str) -> bool:
 # Legacy CORS_SETTINGS for backward compatibility
 # ═══════════════════════════════════════════════════════════════════════════════
 
-CORS_SETTINGS = {
-    "allow_origins": get_allowed_origins(),
-    "allow_credentials": True,
-    "allow_methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
-    "allow_headers": [
-        "Accept",
-        "Accept-Language",
-        "Authorization",
-        "Content-Type",
-        "Content-Language",
-        "X-Request-ID",
-        "X-Correlation-ID",
-        "X-Tenant-ID",
-        "X-API-Key",
-        "X-User-ID",
-    ],
-    "expose_headers": [
-        "X-Request-ID",
-        "X-Correlation-ID",
-        "X-Total-Count",
-        "X-Page-Count",
-        "X-RateLimit-Limit",
-        "X-RateLimit-Remaining",
-        "X-RateLimit-Reset",
-    ],
-    "max_age": 3600,
-}
+
+def _get_cors_settings() -> dict:
+    """
+    Get CORS settings dictionary for backward compatibility.
+    
+    Returns:
+        dict: CORS middleware settings
+    """
+    return {
+        "allow_origins": get_allowed_origins(),
+        "allow_credentials": True,
+        "allow_methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+        "allow_headers": [
+            "Accept",
+            "Accept-Language",
+            "Authorization",
+            "Content-Type",
+            "Content-Language",
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Tenant-ID",
+            "X-API-Key",
+            "X-User-ID",
+        ],
+        "expose_headers": [
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Total-Count",
+            "X-Page-Count",
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining",
+            "X-RateLimit-Reset",
+        ],
+        "max_age": 3600,
+    }
+
+
+# Lazy-loaded CORS_SETTINGS - only evaluated when accessed
+class _CORSSettings:
+    """Lazy loader for CORS settings to avoid expensive operations at import time."""
+    
+    _settings = None
+    
+    def __getitem__(self, key):
+        if self._settings is None:
+            self._settings = _get_cors_settings()
+        return self._settings[key]
+    
+    def __iter__(self):
+        if self._settings is None:
+            self._settings = _get_cors_settings()
+        return iter(self._settings)
+    
+    def keys(self):
+        if self._settings is None:
+            self._settings = _get_cors_settings()
+        return self._settings.keys()
+    
+    def values(self):
+        if self._settings is None:
+            self._settings = _get_cors_settings()
+        return self._settings.values()
+    
+    def items(self):
+        if self._settings is None:
+            self._settings = _get_cors_settings()
+        return self._settings.items()
+    
+    def get(self, key, default=None):
+        if self._settings is None:
+            self._settings = _get_cors_settings()
+        return self._settings.get(key, default)
+
+
+CORS_SETTINGS = _CORSSettings()

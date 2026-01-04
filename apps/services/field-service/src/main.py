@@ -171,11 +171,14 @@ def health():
 
 @app.get("/healthz")
 def healthz():
-    """فحص الصحة - Kubernetes liveness probe"""
+    """فحص الصحة - Kubernetes liveness probe with dependency check"""
+    nats_connected = hasattr(app.state, "publisher") and app.state.publisher is not None
+
     return {
-        "status": "healthy",
+        "status": "healthy" if nats_connected else "degraded",
         "service": "field-service",
         "version": "16.0.0",
+        "nats_connected": nats_connected,
         "timestamp": datetime.now(UTC).isoformat(),
     }
 

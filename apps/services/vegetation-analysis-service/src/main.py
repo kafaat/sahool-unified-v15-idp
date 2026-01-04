@@ -707,6 +707,7 @@ def generate_recommendations(
 
 @app.get("/healthz")
 async def health():
+    """Health check endpoint with comprehensive dependency status"""
     providers_info = None
     if _multi_provider:
         providers = _multi_provider.get_available_providers()
@@ -719,10 +720,13 @@ async def health():
 
     cache_status = _cache_available and await is_cache_available()
 
+    # Determine overall health status
+    is_healthy = _nats_available or (providers_info and providers_info["configured"] > 0)
+
     return {
-        "status": "ok",
-        "service": "satellite-service",
-        "version": "15.7.0",
+        "status": "healthy" if is_healthy else "degraded",
+        "service": "vegetation-analysis-service",
+        "version": "16.0.0",
         "satellites": list(SATELLITE_CONFIGS.keys()),
         "multi_provider": providers_info,
         "eo_learn": get_data_source_status(),

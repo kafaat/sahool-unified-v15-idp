@@ -1568,7 +1568,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8103/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8103/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1599,7 +1599,7 @@ services:
     ports:
       - "8104:8104"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8104/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8104/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

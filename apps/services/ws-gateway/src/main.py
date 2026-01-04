@@ -123,12 +123,20 @@ app = FastAPI(
 
 @app.get("/healthz")
 def health():
-    return {
-        "status": "healthy",
+    """Health check endpoint with dependency validation"""
+    nats_connected = nats_bridge.is_connected if nats_bridge else False
+
+    response = {
+        "status": "healthy" if nats_connected else "degraded",
         "service": "ws-gateway",
         "version": "16.0.0",
+        "nats_connected": nats_connected,
+        "connections": room_manager.get_stats() if room_manager else {},
         "timestamp": datetime.utcnow().isoformat(),
     }
+
+    # Allow degraded mode - NATS is optional for basic WebSocket functionality
+    return response
 
 
 @app.get("/readyz")

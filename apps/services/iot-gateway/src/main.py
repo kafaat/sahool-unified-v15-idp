@@ -237,21 +237,31 @@ app = FastAPI(
 
 @app.get("/healthz")
 def health():
+    """Health check endpoint with dependency validation"""
     stats = publisher.get_stats() if publisher else {}
     registry_stats = registry.get_stats() if registry else {}
+    mqtt_connected = mqtt_client._running if mqtt_client else False
 
-    return {
-        "status": "healthy",
+    # Check critical dependencies
+    is_healthy = mqtt_connected or publisher is not None
+
+    response = {
+        "status": "healthy" if is_healthy else "unhealthy",
         "service": "iot-gateway",
-        "version": "15.3.3",
+        "version": "16.0.0",
         "mqtt": {
             "broker": MQTT_BROKER,
             "topic": MQTT_TOPIC,
-            "connected": mqtt_client._running if mqtt_client else False,
+            "connected": mqtt_connected,
         },
         "nats": stats,
         "devices": registry_stats,
     }
+
+    if not is_healthy:
+        raise HTTPException(status_code=503, detail=response)
+
+    return response
 
 
 # ============== Request/Response Models ==============

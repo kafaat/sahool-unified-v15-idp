@@ -223,7 +223,7 @@ class AuthService {
     }
 
     // Refresh token to get new access token
-    await refreshToken;
+    await refreshToken();
 
     // Get current user
     return getCurrentUser();

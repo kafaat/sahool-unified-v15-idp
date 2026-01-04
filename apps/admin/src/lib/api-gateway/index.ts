@@ -322,7 +322,7 @@ function getServiceClient(service: ServiceName): AxiosInstance {
 
 function getAuthToken(): string | null {
   if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|; )auth_token=([^;]*)/);
+  const match = document.cookie.match(/(?:^|; )sahool_admin_token=([^;]*)/);
   return match ? decodeURIComponent(match[1]) : null;
 }
 

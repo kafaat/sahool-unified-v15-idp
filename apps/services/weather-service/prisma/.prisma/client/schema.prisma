@@ -1,0 +1,185 @@
+// SAHOOL Weather Service Schema
+// مخطط قاعدة بيانات خدمة الطقس الموحدة
+
+datasource db {
+  url      = env("DATABASE_URL")
+  provider = "postgresql"
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = ".prisma/client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1. الأرصاد الجوية - Weather Observations
+// البيانات الفعلية المرصودة للطقس
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model WeatherObservation {
+  id String @id @default(uuid())
+
+  // الموقع
+  locationId String  @map("location_id")
+  tenantId   String? @map("tenant_id")
+  latitude   Float
+  longitude  Float
+
+  // التوقيت
+  timestamp DateTime
+
+  // بيانات الطقس الأساسية
+  temperature Float // درجة الحرارة (Celsius)
+  humidity    Float // الرطوبة النسبية (%)
+  pressure    Float // الضغط الجوي (hPa)
+
+  // الرياح
+  windSpeed     Float // سرعة الرياح (m/s)
+  windDirection Float // اتجاه الرياح (degrees)
+
+  // الهطول
+  rainfall Float? // كمية الأمطار (mm)
+
+  // بيانات إضافية
+  uvIndex    Float? // مؤشر الأشعة فوق البنفسجية
+  cloudCover Float? // الغطاء السحابي (%)
+  visibility Float? // مدى الرؤية (meters)
+
+  // المصدر
+  source  String // المصدر (open-meteo, openweathermap, weatherapi)
+  rawData Json?  @map("raw_data") // البيانات الخام من المزود
+
+  // التوقيت
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([locationId, timestamp(sort: Desc)]) // للاستعلام عن آخر الأرصاد لموقع معين
+  @@index([tenantId, timestamp(sort: Desc)]) // للاستعلام عن بيانات مستأجر معين
+  @@index([timestamp(sort: Desc)]) // للاستعلامات الزمنية
+  @@index([latitude, longitude, timestamp]) // للاستعلام المكاني
+  @@map("weather_observations")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2. التنبؤات الجوية - Weather Forecasts
+// التنبؤات المستقبلية للطقس
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model WeatherForecast {
+  id String @id @default(uuid())
+
+  // الموقع
+  locationId String  @map("location_id")
+  tenantId   String? @map("tenant_id")
+
+  // التوقيت
+  forecastFor DateTime @map("forecast_for") // التاريخ المتنبأ له
+  fetchedAt   DateTime @map("fetched_at") // وقت جلب التنبؤ
+
+  // المزود
+  provider String // المزود (open-meteo, openweathermap, weatherapi)
+
+  // البيانات
+  hourlyData Json @map("hourly_data") // بيانات التنبؤ الساعي (48 ساعة)
+  dailyData  Json @map("daily_data") // بيانات التنبؤ اليومي (7-14 يوم)
+
+  // التوقيت
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([locationId, forecastFor, provider]) // تنبؤ واحد لكل موقع وتاريخ ومزود
+  @@index([locationId, forecastFor(sort: Desc)]) // للاستعلام عن التنبؤات لموقع معين
+  @@index([tenantId, forecastFor(sort: Desc)]) // للاستعلام عن تنبؤات مستأجر معين
+  @@index([forecastFor(sort: Desc)]) // للاستعلامات الزمنية
+  @@index([fetchedAt(sort: Desc)]) // لحذف التنبؤات القديمة
+  @@map("weather_forecasts")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3. التنبيهات الجوية - Weather Alerts
+// التنبيهات والتحذيرات الجوية
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model WeatherAlert {
+  id String @id @default(uuid())
+
+  // الموقع
+  locationId String  @map("location_id")
+  tenantId   String? @map("tenant_id")
+
+  // نوع التنبيه
+  alertType AlertType     @map("alert_type")
+  severity  AlertSeverity
+
+  // المحتوى
+  headline    String
+  description String @db.Text
+
+  // التوقيت
+  startTime DateTime @map("start_time")
+  endTime   DateTime @map("end_time")
+
+  // المصدر
+  source String
+
+  // التوقيت
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([locationId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات موقع معين
+  @@index([tenantId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات مستأجر معين
+  @@index([alertType, severity]) // للتصفية حسب النوع والخطورة
+  @@index([startTime, endTime]) // للتنبيهات النشطة
+  @@index([endTime(sort: Desc)]) // لحذف التنبيهات المنتهية
+  @@map("weather_alerts")
+}
+
+enum AlertType {
+  HEAT_STRESS // إجهاد حراري
+  FROST // صقيع
+  HEAVY_RAIN // أمطار غزيرة
+  DROUGHT // جفاف
+  STRONG_WIND // رياح قوية
+  STORM // عاصفة
+  DISEASE_RISK // خطر الأمراض
+  OTHER // أخرى
+}
+
+enum AlertSeverity {
+  INFO // معلومة
+  MINOR // طفيف
+  MODERATE // متوسط
+  SEVERE // شديد
+  EXTREME // خطير جداً
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 4. إعدادات المواقع - Location Configuration
+// إعدادات المواقع المراقبة
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model LocationConfig {
+  id String @id @default(uuid())
+
+  // المستأجر
+  tenantId String @map("tenant_id")
+
+  // المعلومات الأساسية
+  name      String
+  latitude  Float
+  longitude Float
+  timezone  String @default("Asia/Aden")
+
+  // الإعدادات
+  isActive      Boolean @default(true) @map("is_active")
+  fetchInterval Int     @default(3600) @map("fetch_interval") // بالثواني (الافتراضي: ساعة واحدة)
+
+  // التوقيت
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([tenantId, latitude, longitude]) // موقع واحد لكل مستأجر وإحداثيات
+  @@index([tenantId, isActive]) // للاستعلام عن المواقع النشطة لمستأجر
+  @@index([isActive]) // للمواقع النشطة
+  @@map("location_configs")
+}

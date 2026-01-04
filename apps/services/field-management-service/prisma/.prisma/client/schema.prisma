@@ -1,0 +1,302 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// SAHOOL Field Core - Prisma Schema
+// Database: PostgreSQL with PostGIS Extension
+// ═══════════════════════════════════════════════════════════════════════════
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = ".prisma/client"
+  previewFeatures = ["postgresqlExtensions"]
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  url        = env("DATABASE_URL")
+  provider   = "postgresql"
+  extensions = [postgis]
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Entity - الحقول الزراعية
+// Core geospatial entity with sync support
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Field {
+  id      String @id @default(uuid()) @db.Uuid
+  version Int    @default(1) // Optimistic locking
+
+  // Basic Info
+  name     String  @db.VarChar(255)
+  tenantId String  @map("tenant_id") @db.VarChar(100)
+  cropType String  @map("crop_type") @db.VarChar(100)
+  ownerId  String? @map("owner_id") @db.Uuid
+
+  // Geospatial (PostGIS) - handled via raw SQL
+  // boundary: geometry(Polygon, 4326)
+  // centroid: geometry(Point, 4326)
+  boundary Unsupported("geometry(Polygon, 4326)")?
+  centroid Unsupported("geometry(Point, 4326)")?
+
+  // Calculated Fields
+  areaHectares Decimal? @map("area_hectares") @db.Decimal(10, 4)
+
+  // Health & Analysis
+  healthScore Decimal? @map("health_score") @db.Decimal(3, 2)
+  ndviValue   Decimal? @map("ndvi_value") @db.Decimal(4, 3)
+
+  // Status & Dates
+  status          FieldStatus @default(active)
+  plantingDate    DateTime?   @map("planting_date") @db.Date
+  expectedHarvest DateTime?   @map("expected_harvest") @db.Date
+
+  // Agricultural Info
+  irrigationType String? @map("irrigation_type") @db.VarChar(50)
+  soilType       String? @map("soil_type") @db.VarChar(100)
+
+  // Flexible Metadata (JSONB)
+  metadata Json? @db.JsonB
+
+  // Sync Metadata
+  isDeleted       Boolean  @default(false) @map("is_deleted")
+  serverUpdatedAt DateTime @default(now()) @map("server_updated_at") @db.Timestamptz
+  etag            String?  @default(uuid()) @db.VarChar(64)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  boundaryHistory FieldBoundaryHistory[]
+  tasks           Task[]
+  ndviReadings    NdviReading[]
+
+  // Indexes
+  @@index([tenantId], name: "idx_field_tenant")
+  @@index([serverUpdatedAt], name: "idx_field_sync")
+  @@index([status], name: "idx_field_status")
+  @@index([cropType], name: "idx_field_crop")
+  @@map("fields")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Boundary History - سجل تغييرات الحدود
+// Audit trail for boundary changes (for rollback support)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldBoundaryHistory {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Field Reference
+  fieldId         String @map("field_id") @db.Uuid
+  versionAtChange Int    @map("version_at_change")
+
+  // Boundary Snapshots (PostGIS)
+  previousBoundary Unsupported("geometry(Polygon, 4326)")? @map("previous_boundary")
+  newBoundary      Unsupported("geometry(Polygon, 4326)")? @map("new_boundary")
+
+  // Change Metrics
+  areaChangeHectares Decimal? @map("area_change_hectares") @db.Decimal(10, 4)
+
+  // Change Metadata
+  changedBy    String?      @map("changed_by") @db.VarChar(255)
+  changeReason String?      @map("change_reason") @db.VarChar(500)
+  changeSource ChangeSource @default(api) @map("change_source")
+  deviceId     String?      @map("device_id") @db.VarChar(100)
+
+  // Timestamp
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([fieldId], name: "idx_history_field")
+  @@index([createdAt], name: "idx_history_date")
+  @@map("field_boundary_history")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sync Status - حالة المزامنة للأجهزة
+// Tracks mobile device sync status
+// ─────────────────────────────────────────────────────────────────────────────
+
+model SyncStatus {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Device Identification
+  deviceId String @map("device_id") @db.VarChar(100)
+  userId   String @map("user_id") @db.VarChar(100)
+  tenantId String @map("tenant_id") @db.VarChar(100)
+
+  // Sync State
+  lastSyncAt      DateTime? @map("last_sync_at") @db.Timestamptz
+  lastSyncVersion BigInt    @default(0) @map("last_sync_version")
+  status          SyncState @default(idle)
+
+  // Pending Operations
+  pendingUploads   Int @default(0) @map("pending_uploads")
+  pendingDownloads Int @default(0) @map("pending_downloads")
+  conflictsCount   Int @default(0) @map("conflicts_count")
+
+  // Error Tracking
+  lastError String? @map("last_error") @db.Text
+
+  // Device Info (JSONB)
+  deviceInfo Json? @map("device_info") @db.JsonB
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Indexes
+  @@unique([deviceId, userId], name: "idx_sync_device_user")
+  @@index([tenantId], name: "idx_sync_tenant")
+  @@map("sync_status")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Task - المهام الزراعية
+// Tasks linked to fields
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Task {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Task Info
+  title       String    @db.VarChar(255)
+  titleAr     String?   @map("title_ar") @db.VarChar(255)
+  description String?   @db.Text
+  taskType    TaskType  @default(other) @map("task_type")
+  priority    Priority  @default(medium)
+  status      TaskState @default(pending)
+
+  // Scheduling
+  dueDate       DateTime? @map("due_date") @db.Timestamptz
+  scheduledTime String?   @map("scheduled_time") @db.VarChar(10) // HH:MM
+  completedAt   DateTime? @map("completed_at") @db.Timestamptz
+
+  // Assignment
+  assignedTo String? @map("assigned_to") @db.VarChar(100)
+  createdBy  String  @map("created_by") @db.VarChar(100)
+
+  // Field Reference
+  fieldId String? @map("field_id") @db.Uuid
+  field   Field?  @relation(fields: [fieldId], references: [id], onDelete: SetNull)
+
+  // Duration
+  estimatedMinutes Int? @map("estimated_minutes")
+  actualMinutes    Int? @map("actual_minutes")
+
+  // Completion Evidence
+  completionNotes String? @map("completion_notes") @db.Text
+  evidence        Json?   @db.JsonB // Array of {type, url, capturedAt}
+
+  // Sync
+  serverUpdatedAt DateTime @default(now()) @map("server_updated_at") @db.Timestamptz
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Indexes
+  @@index([fieldId], name: "idx_task_field")
+  @@index([status], name: "idx_task_status")
+  @@index([dueDate], name: "idx_task_due")
+  @@map("tasks")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NDVI Reading - قراءات NDVI
+// Historical NDVI values for fields
+// ─────────────────────────────────────────────────────────────────────────────
+
+model NdviReading {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Field Reference
+  fieldId String @map("field_id") @db.Uuid
+  field   Field  @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  // NDVI Data
+  value      Decimal  @db.Decimal(4, 3) // -1.000 to 1.000
+  capturedAt DateTime @map("captured_at") @db.Timestamptz
+  source     String   @default("satellite") @db.VarChar(50) // satellite, drone, manual
+  cloudCover Decimal? @map("cloud_cover") @db.Decimal(5, 2) // 0-100%
+  quality    String?  @db.VarChar(20) // good, moderate, poor
+
+  // Satellite Info
+  satelliteName String? @map("satellite_name") @db.VarChar(50)
+  bandInfo      Json?   @map("band_info") @db.JsonB
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Indexes
+  @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
+  @@map("ndvi_readings")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum FieldStatus {
+  active
+  fallow
+  harvested
+  preparing
+  inactive
+
+  @@map("field_status")
+}
+
+enum ChangeSource {
+  mobile
+  web
+  api
+  system
+
+  @@map("change_source")
+}
+
+enum SyncState {
+  idle
+  syncing
+  error
+  conflict
+
+  @@map("sync_state")
+}
+
+enum TaskType {
+  irrigation
+  fertilization
+  spraying
+  scouting
+  maintenance
+  sampling
+  harvest
+  planting
+  other
+
+  @@map("task_type")
+}
+
+enum Priority {
+  low
+  medium
+  high
+  urgent
+
+  @@map("priority")
+}
+
+enum TaskState {
+  pending
+  in_progress
+  completed
+  cancelled
+  overdue
+
+  @@map("task_state")
+}

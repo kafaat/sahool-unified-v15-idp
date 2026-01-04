@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     review_on_change: bool = True
     max_file_size: int = 1000000  # 1MB
     
+    # API Server Configuration
+    api_host: str = "0.0.0.0"
+    api_port: int = 8096
+    
     # Logging
     log_level: str = "INFO"
     

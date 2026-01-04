@@ -6,10 +6,57 @@ Real-time code review service using Ollama + DeepSeek model to review codebase c
 
 - 🔍 **Real-time Monitoring**: Watches for file changes in the codebase
 - 🤖 **AI-Powered Reviews**: Uses DeepSeek model via Ollama for intelligent code review
+- 🌐 **HTTP API**: REST API endpoints for on-demand code reviews
 - 📊 **Structured Reviews**: Provides JSON-formatted reviews with scores and recommendations
 - 🔒 **Security Focus**: Identifies security vulnerabilities and concerns
 - 🐳 **Container-Aware**: Special focus on Docker and containerization best practices
 - 📝 **Comprehensive Logging**: Logs all reviews to JSONL format for analysis
+
+## API Endpoints
+
+### Health Check
+```bash
+GET http://localhost:8096/health
+```
+
+Returns service health status and Ollama connectivity.
+
+### Review Code Content
+```bash
+POST http://localhost:8096/review
+Content-Type: application/json
+
+{
+  "code": "def hello():\n    print('world')",
+  "language": "python",
+  "filename": "example.py"
+}
+```
+
+Reviews the provided code and returns a structured review.
+
+**Response:**
+```json
+{
+  "summary": "Code looks good with proper Python syntax...",
+  "critical_issues": [],
+  "suggestions": ["Consider adding docstring"],
+  "security_concerns": [],
+  "score": 85
+}
+```
+
+### Review File from Codebase
+```bash
+POST http://localhost:8096/review/file
+Content-Type: application/json
+
+{
+  "file_path": "infrastructure/core/pgbouncer/pgbouncer.ini"
+}
+```
+
+Reviews a file from the mounted codebase.
 
 ## Configuration
 
@@ -21,6 +68,8 @@ Real-time code review service using Ollama + DeepSeek model to review codebase c
 - `LOG_LEVEL`: Logging level (default: `INFO`)
 - `REVIEW_ON_CHANGE`: Enable/disable reviews on file changes (default: `true`)
 - `MAX_FILE_SIZE`: Maximum file size to review in bytes (default: `1000000`)
+- `API_HOST`: API server host (default: `0.0.0.0`)
+- `API_PORT`: API server port (default: `8096`)
 
 ### Watched Paths
 
@@ -36,6 +85,36 @@ By default, the service monitors:
 ```bash
 docker compose up -d code-review-service
 ```
+
+The service will:
+1. Start the HTTP API server on port 8096
+2. Start watching configured paths for file changes (if `REVIEW_ON_CHANGE=true`)
+
+### Access the API
+
+```bash
+# Check service health
+curl http://localhost:8096/health
+
+# Review code snippet
+curl -X POST http://localhost:8096/review \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "console.log(\"hello\")",
+    "language": "javascript"
+  }'
+
+# Review a file
+curl -X POST http://localhost:8096/review/file \
+  -H "Content-Type: application/json" \
+  -d '{"file_path": "docker-compose.yml"}'
+```
+
+### API Documentation
+
+Once running, visit:
+- Swagger UI: `http://localhost:8096/docs`
+- ReDoc: `http://localhost:8096/redoc`
 
 ### View Logs
 

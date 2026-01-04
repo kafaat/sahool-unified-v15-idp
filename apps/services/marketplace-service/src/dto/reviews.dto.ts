@@ -13,6 +13,7 @@ import {
   Min,
   Max,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -134,4 +135,95 @@ export class UpdateReviewResponseDto {
   @IsString()
   @IsNotEmpty()
   response: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Query Parameter DTOs
+// ═══════════════════════════════════════════════════════════════════════════
+
+export class GetProductReviewsQueryDto {
+  @ApiPropertyOptional({
+    description: 'Filter by minimum rating',
+    minimum: 1,
+    maximum: 5,
+    example: 3,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(5)
+  @IsOptional()
+  minRating?: number;
+
+  @ApiPropertyOptional({
+    description: 'Filter by maximum rating',
+    minimum: 1,
+    maximum: 5,
+    example: 5,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(5)
+  @IsOptional()
+  maxRating?: number;
+
+  @ApiPropertyOptional({
+    description: 'Filter by verified purchases',
+    example: true,
+  })
+  @Type(() => Boolean)
+  @IsBoolean()
+  @IsOptional()
+  verified?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Number of reviews to return',
+    minimum: 1,
+    maximum: 100,
+    example: 20,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(100)
+  @IsOptional()
+  limit?: number;
+
+  @ApiPropertyOptional({
+    description: 'Number of reviews to skip',
+    minimum: 0,
+    example: 0,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  offset?: number;
+}
+
+export class PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: 'Number of items to return',
+    minimum: 1,
+    maximum: 100,
+    example: 20,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
+  @Max(100)
+  @IsOptional()
+  limit?: number;
+
+  @ApiPropertyOptional({
+    description: 'Number of items to skip',
+    minimum: 0,
+    example: 0,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  offset?: number;
 }

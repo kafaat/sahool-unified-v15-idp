@@ -35,6 +35,8 @@ import {
   ReportReviewDto,
   CreateReviewResponseDto,
   UpdateReviewResponseDto,
+  GetProductReviewsQueryDto,
+  PaginationQueryDto,
 } from '../dto/reviews.dto';
 
 @ApiTags('Product Reviews')
@@ -63,6 +65,33 @@ export class ReviewsController {
   }
 
   /**
+   * جلب إحصائيات تقييمات المنتج
+   * GET /api/v1/reviews/product/:productId/stats
+   */
+  @Get('product/:productId/stats')
+  @ApiOperation({ summary: 'Get review statistics for a product' })
+  @ApiParam({ name: 'productId', description: 'Product ID' })
+  @ApiResponse({ status: 200, description: 'Review statistics' })
+  async getProductReviewStats(@Param('productId') productId: string) {
+    return this.reviewsService.getProductReviewStats(productId);
+  }
+
+  /**
+   * جلب تقييمات منتج
+   * GET /api/v1/reviews/product/:productId
+   */
+  @Get('product/:productId')
+  @ApiOperation({ summary: 'Get all reviews for a product' })
+  @ApiParam({ name: 'productId', description: 'Product ID' })
+  @ApiResponse({ status: 200, description: 'List of reviews' })
+  async getProductReviews(
+    @Param('productId') productId: string,
+    @Query() query: GetProductReviewsQueryDto,
+  ) {
+    return this.reviewsService.getProductReviews(productId, query);
+  }
+
+  /**
    * جلب تقييم بالمعرف
    * GET /api/v1/reviews/:id
    */
@@ -76,102 +105,18 @@ export class ReviewsController {
   }
 
   /**
-   * جلب تقييمات منتج
-   * GET /api/v1/reviews/product/:productId
-   */
-  @Get('product/:productId')
-  @ApiOperation({ summary: 'Get all reviews for a product' })
-  @ApiParam({ name: 'productId', description: 'Product ID' })
-  @ApiQuery({
-    name: 'minRating',
-    required: false,
-    type: Number,
-    description: 'Filter by minimum rating',
-  })
-  @ApiQuery({
-    name: 'maxRating',
-    required: false,
-    type: Number,
-    description: 'Filter by maximum rating',
-  })
-  @ApiQuery({
-    name: 'verified',
-    required: false,
-    type: Boolean,
-    description: 'Filter by verified purchases',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of reviews to return',
-  })
-  @ApiQuery({
-    name: 'offset',
-    required: false,
-    type: Number,
-    description: 'Number of reviews to skip',
-  })
-  @ApiResponse({ status: 200, description: 'List of reviews' })
-  async getProductReviews(
-    @Param('productId') productId: string,
-    @Query('minRating') minRating?: string,
-    @Query('maxRating') maxRating?: string,
-    @Query('verified') verified?: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
-  ) {
-    return this.reviewsService.getProductReviews(productId, {
-      minRating: minRating ? parseInt(minRating) : undefined,
-      maxRating: maxRating ? parseInt(maxRating) : undefined,
-      verified: verified === 'true' ? true : verified === 'false' ? false : undefined,
-      limit: limit ? parseInt(limit) : undefined,
-      offset: offset ? parseInt(offset) : undefined,
-    });
-  }
-
-  /**
-   * جلب إحصائيات تقييمات المنتج
-   * GET /api/v1/reviews/product/:productId/stats
-   */
-  @Get('product/:productId/stats')
-  @ApiOperation({ summary: 'Get review statistics for a product' })
-  @ApiParam({ name: 'productId', description: 'Product ID' })
-  @ApiResponse({ status: 200, description: 'Review statistics' })
-  async getProductReviewStats(@Param('productId') productId: string) {
-    return this.reviewsService.getProductReviewStats(productId);
-  }
-
-  /**
    * جلب تقييمات المشتري
    * GET /api/v1/reviews/buyer/:buyerId
    */
   @Get('buyer/:buyerId')
   @ApiOperation({ summary: 'Get all reviews by a buyer' })
   @ApiParam({ name: 'buyerId', description: 'Buyer profile ID' })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of reviews to return',
-  })
-  @ApiQuery({
-    name: 'offset',
-    required: false,
-    type: Number,
-    description: 'Number of reviews to skip',
-  })
   @ApiResponse({ status: 200, description: 'List of buyer reviews' })
   async getBuyerReviews(
     @Param('buyerId') buyerId: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
+    @Query() query: PaginationQueryDto,
   ) {
-    return this.reviewsService.getBuyerReviews(
-      buyerId,
-      limit ? parseInt(limit) : undefined,
-      offset ? parseInt(offset) : undefined,
-    );
+    return this.reviewsService.getBuyerReviews(buyerId, query.limit, query.offset);
   }
 
   /**
@@ -220,6 +165,8 @@ export class ReviewsController {
    * PATCH /api/v1/reviews/:id/helpful
    */
   @Patch(':id/helpful')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Mark a review as helpful or not helpful' })
   @ApiParam({ name: 'id', description: 'Review ID' })
   @ApiResponse({ status: 200, description: 'Review helpfulness updated' })
@@ -276,29 +223,12 @@ export class ReviewsController {
   @Get('responses/seller/:sellerId')
   @ApiOperation({ summary: 'Get all responses by a seller' })
   @ApiParam({ name: 'sellerId', description: 'Seller profile ID' })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of responses to return',
-  })
-  @ApiQuery({
-    name: 'offset',
-    required: false,
-    type: Number,
-    description: 'Number of responses to skip',
-  })
   @ApiResponse({ status: 200, description: 'List of seller responses' })
   async getSellerResponses(
     @Param('sellerId') sellerId: string,
-    @Query('limit') limit?: string,
-    @Query('offset') offset?: string,
+    @Query() query: PaginationQueryDto,
   ) {
-    return this.reviewsService.getSellerResponses(
-      sellerId,
-      limit ? parseInt(limit) : undefined,
-      offset ? parseInt(offset) : undefined,
-    );
+    return this.reviewsService.getSellerResponses(sellerId, query.limit, query.offset);
   }
 
   /**

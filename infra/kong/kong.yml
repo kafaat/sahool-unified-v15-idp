@@ -117,6 +117,36 @@ upstreams:
       active:
         type: http
         http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          interval: 10
+          http_failures: 3
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
 
   - name: billing-core-upstream
     algorithm: round-robin
@@ -127,6 +157,36 @@ upstreams:
       active:
         type: http
         http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          interval: 10
+          http_failures: 3
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
 
   - name: notification-service-upstream
     algorithm: round-robin
@@ -147,6 +207,36 @@ upstreams:
       active:
         type: http
         http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          interval: 10
+          http_failures: 3
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
 
   - name: disaster-assessment-upstream
     algorithm: round-robin

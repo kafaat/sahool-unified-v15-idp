@@ -32,6 +32,19 @@ from .security import PromptGuard
 from .utils import pii_masking_processor
 from .monitoring import cost_tracker
 
+# Configure structured logging | تكوين السجلات المنظمة
+structlog.configure(
+    processors=[
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.JSONRenderer(),
+    ]
+)
+
+logger = structlog.get_logger()
+
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
 import sys
 import os

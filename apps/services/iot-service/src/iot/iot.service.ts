@@ -101,13 +101,25 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
 
   private async connectToMqtt(): Promise<void> {
     const brokerUrl = process.env.MQTT_BROKER_URL || 'mqtt://mqtt:1883';
+    const username = process.env.MQTT_USER;
+    const password = process.env.MQTT_PASSWORD;
 
-    this.client = mqtt.connect(brokerUrl, {
+    const connectOptions: mqtt.IClientOptions = {
       clientId: `sahool-iot-service-${Date.now()}`,
       clean: true,
       connectTimeout: 4000,
       reconnectPeriod: 1000,
-    });
+    };
+
+    // Add authentication if credentials are provided
+    if (username) {
+      connectOptions.username = username;
+    }
+    if (password) {
+      connectOptions.password = password;
+    }
+
+    this.client = mqtt.connect(brokerUrl, connectOptions);
 
     this.client.on('connect', () => {
       this.logger.log('📡 Connected to MQTT Broker');

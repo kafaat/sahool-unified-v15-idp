@@ -17,6 +17,23 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 seconds timeout
+});
+
+// Add auth token interceptor
+// SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
+import Cookies from 'js-cookie';
+
+api.interceptors.request.use((config) => {
+  // Get token from cookie using secure cookie parser
+  if (typeof window !== 'undefined') {
+    const token = Cookies.get('access_token');
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
 });
 
 // GeoJSON Types (simplified for field boundaries)

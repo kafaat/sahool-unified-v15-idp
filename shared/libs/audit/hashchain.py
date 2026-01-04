@@ -6,7 +6,7 @@ Tamper-evident hash chain for audit log integrity
 from __future__ import annotations
 
 import hashlib
-from typing import Iterator
+from collections.abc import Iterator
 
 
 def sha256_hex(data: str) -> str:

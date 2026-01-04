@@ -14,9 +14,8 @@ Provides:
 import json
 import logging
 import time
-from typing import Optional, Dict, Any
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from typing import Any
 
 try:
     import redis.asyncio as aioredis
@@ -36,8 +35,8 @@ class RevocationInfo:
 
     revoked_at: float
     reason: str
-    user_id: Optional[str] = None
-    tenant_id: Optional[str] = None
+    user_id: str | None = None
+    tenant_id: str | None = None
 
 
 class RedisTokenRevocationStore:
@@ -63,7 +62,7 @@ class RedisTokenRevocationStore:
     USER_PREFIX = "revoked:user:"  # User-level revocation
     TENANT_PREFIX = "revoked:tenant:"  # Tenant-level revocation
 
-    def __init__(self, redis_url: Optional[str] = None):
+    def __init__(self, redis_url: str | None = None):
         """
         Initialize the Redis token revocation store.
 
@@ -76,7 +75,7 @@ class RedisTokenRevocationStore:
                 "Install with: pip install redis[asyncio]"
             )
 
-        self._redis: Optional[aioredis.Redis] = None
+        self._redis: aioredis.Redis | None = None
         self._redis_url = redis_url or config.REDIS_URL or self._build_redis_url()
         self._initialized = False
 
@@ -128,10 +127,10 @@ class RedisTokenRevocationStore:
     async def revoke_token(
         self,
         jti: str,
-        expires_in: Optional[int] = None,
+        expires_in: int | None = None,
         reason: str = "manual",
-        user_id: Optional[str] = None,
-        tenant_id: Optional[str] = None,
+        user_id: str | None = None,
+        tenant_id: str | None = None,
     ) -> bool:
         """
         Revoke a single token by JTI.
@@ -218,7 +217,7 @@ class RedisTokenRevocationStore:
             # Fail open: don't block access on Redis errors
             return False
 
-    async def get_revocation_info(self, jti: str) -> Optional[Dict[str, Any]]:
+    async def get_revocation_info(self, jti: str) -> dict[str, Any] | None:
         """
         Get detailed revocation information for a token.
         الحصول على معلومات إلغاء مفصلة للرمز.
@@ -469,11 +468,11 @@ class RedisTokenRevocationStore:
 
     async def is_revoked(
         self,
-        jti: Optional[str] = None,
-        user_id: Optional[str] = None,
-        tenant_id: Optional[str] = None,
-        issued_at: Optional[float] = None,
-    ) -> tuple[bool, Optional[str]]:
+        jti: str | None = None,
+        user_id: str | None = None,
+        tenant_id: str | None = None,
+        issued_at: float | None = None,
+    ) -> tuple[bool, str | None]:
         """
         Check if a token is revoked by any method.
         التحقق من إلغاء الرمز بأي طريقة.
@@ -504,9 +503,8 @@ class RedisTokenRevocationStore:
             return True, "token_revoked"
 
         # Check user revocation
-        if user_id and issued_at:
-            if await self.is_user_token_revoked(user_id, issued_at):
-                return True, "user_tokens_revoked"
+        if user_id and issued_at and await self.is_user_token_revoked(user_id, issued_at):
+            return True, "user_tokens_revoked"
 
         # Check tenant revocation
         if tenant_id and issued_at:
@@ -519,7 +517,7 @@ class RedisTokenRevocationStore:
     # Statistics and Health
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def get_stats(self) -> Dict[str, Any]:
+    async def get_stats(self) -> dict[str, Any]:
         """
         Get revocation statistics.
         الحصول على إحصائيات الإلغاء.
@@ -575,7 +573,7 @@ class RedisTokenRevocationStore:
 # Global Instance and Convenience Functions
 # ─────────────────────────────────────────────────────────────────────────────
 
-_store: Optional[RedisTokenRevocationStore] = None
+_store: RedisTokenRevocationStore | None = None
 
 
 async def get_revocation_store() -> RedisTokenRevocationStore:
@@ -597,9 +595,9 @@ async def get_revocation_store() -> RedisTokenRevocationStore:
 
 async def revoke_token(
     jti: str,
-    expires_in: Optional[int] = None,
+    expires_in: int | None = None,
     reason: str = "manual",
-    user_id: Optional[str] = None,
+    user_id: str | None = None,
 ) -> bool:
     """
     Revoke a single token.
@@ -640,11 +638,11 @@ async def revoke_all_user_tokens(user_id: str, reason: str = "logout") -> bool:
 
 
 async def is_token_revoked(
-    jti: Optional[str] = None,
-    user_id: Optional[str] = None,
-    tenant_id: Optional[str] = None,
-    issued_at: Optional[float] = None,
-) -> tuple[bool, Optional[str]]:
+    jti: str | None = None,
+    user_id: str | None = None,
+    tenant_id: str | None = None,
+    issued_at: float | None = None,
+) -> tuple[bool, str | None]:
     """
     Check if a token is revoked.
     التحقق من إلغاء الرمز.

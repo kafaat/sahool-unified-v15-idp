@@ -19,14 +19,13 @@ Usage:
 """
 
 import logging
-from typing import Dict, Optional
 from dataclasses import dataclass
 
-from fastapi import Request, HTTPException, status
+from fastapi import HTTPException, Request, status
+
 from ..middleware.rate_limiter import (
     RateLimitConfig,
     RateLimiter,
-    RateLimitTier,
     get_rate_limit_headers,
 )
 
@@ -113,10 +112,10 @@ class AuthRateLimiter:
     Uses IP address + username/email combination for more accurate tracking.
     """
 
-    def __init__(self, base_limiter: Optional[RateLimiter] = None):
+    def __init__(self, base_limiter: RateLimiter | None = None):
         self._limiter = base_limiter or RateLimiter()
 
-    def _get_auth_key(self, request: Request, identifier: Optional[str] = None) -> str:
+    def _get_auth_key(self, request: Request, identifier: str | None = None) -> str:
         """Generate rate limit key combining IP and user identifier.
 
         Args:
@@ -224,7 +223,7 @@ class AuthRateLimiter:
     async def check_registration_limit(
         self,
         request: Request,
-        email: Optional[str] = None,
+        email: str | None = None,
     ) -> tuple[bool, int, int, int]:
         """Check rate limit for registration requests.
 
@@ -307,7 +306,7 @@ class AuthRateLimiter:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Global instance
-_auth_rate_limiter: Optional[AuthRateLimiter] = None
+_auth_rate_limiter: AuthRateLimiter | None = None
 
 
 def get_auth_rate_limiter() -> AuthRateLimiter:

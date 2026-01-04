@@ -3,11 +3,11 @@ SAHOOL Notification Service - Database Models
 نماذج قاعدة البيانات - Tortoise ORM
 """
 
+from datetime import datetime
+from enum import Enum
+
 from tortoise import fields
 from tortoise.models import Model
-from datetime import datetime
-from typing import Optional
-from enum import Enum
 
 
 class ChannelType(str, Enum):
@@ -290,15 +290,12 @@ class NotificationPreference(Model):
     def __str__(self):
         return f"NotificationPreference({self.user_id}, {self.event_type})"
 
-    def is_in_quiet_hours(self, check_time: Optional[datetime] = None) -> bool:
+    def is_in_quiet_hours(self, check_time: datetime | None = None) -> bool:
         """Check if current time is in quiet hours"""
         if not self.quiet_hours_start or not self.quiet_hours_end:
             return False
 
-        if check_time is None:
-            check_time = datetime.utcnow().time()
-        else:
-            check_time = check_time.time()
+        check_time = datetime.utcnow().time() if check_time is None else check_time.time()
 
         # Handle overnight quiet hours (e.g., 22:00 to 06:00)
         if self.quiet_hours_start > self.quiet_hours_end:

@@ -9,16 +9,12 @@ Handles model updates and retraining:
 - Performance monitoring
 """
 
-from typing import Any, Dict, List, Optional
-from datetime import datetime
-from dataclasses import dataclass
-import asyncio
 import logging
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentLayer, AgentPercept, AgentType, BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -49,13 +45,13 @@ class ModelUpdaterAgent(BaseAgent):
         )
 
         # Model versions
-        self.model_versions: Dict[str, List[ModelVersion]] = {}
+        self.model_versions: dict[str, list[ModelVersion]] = {}
 
         # Update queue
-        self.update_queue: List[Dict[str, Any]] = []
+        self.update_queue: list[dict[str, Any]] = []
 
         # Performance baselines
-        self.baselines: Dict[str, float] = {}
+        self.baselines: dict[str, float] = {}
 
     async def perceive(self, percept: AgentPercept) -> None:
         """استقبال طلبات التحديث"""
@@ -67,7 +63,7 @@ class ModelUpdaterAgent(BaseAgent):
             score = percept.data.get("score", 0)
             self.baselines[model_type] = score
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """معالجة طلبات التحديث"""
         if not self.update_queue:
             return None
@@ -96,7 +92,7 @@ class ModelUpdaterAgent(BaseAgent):
 
         return None
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ التحديث"""
         if action.action_type == "execute_model_update":
             model_type = action.parameters.get("model_type")
@@ -128,7 +124,7 @@ class ModelUpdaterAgent(BaseAgent):
 
         return {"success": False}
 
-    def get_active_version(self, model_type: str) -> Optional[ModelVersion]:
+    def get_active_version(self, model_type: str) -> ModelVersion | None:
         """الحصول على الإصدار النشط"""
         versions = self.model_versions.get(model_type, [])
         for v in reversed(versions):

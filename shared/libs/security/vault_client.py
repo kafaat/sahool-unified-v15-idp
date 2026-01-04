@@ -5,10 +5,10 @@ Unified HashiCorp Vault client for secrets management
 
 from __future__ import annotations
 
-import os
 import logging
+import os
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +31,11 @@ class VaultConfig:
     """
 
     addr: str
-    token: Optional[str] = None
-    namespace: Optional[str] = None
+    token: str | None = None
+    namespace: str | None = None
     # For AppRole auth
-    role_id: Optional[str] = None
-    secret_id: Optional[str] = None
+    role_id: str | None = None
+    secret_id: str | None = None
 
 
 class VaultClient:
@@ -231,7 +231,7 @@ class MockVaultClient:
     Use this in tests to avoid requiring a real Vault server.
     """
 
-    def __init__(self, secrets: Optional[dict[str, dict[str, Any]]] = None):
+    def __init__(self, secrets: dict[str, dict[str, Any]] | None = None):
         self._secrets = secrets or {}
 
     @property

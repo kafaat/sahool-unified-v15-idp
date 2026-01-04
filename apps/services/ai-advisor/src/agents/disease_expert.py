@@ -6,7 +6,8 @@ Specialized agent for crop disease diagnosis and treatment recommendations.
 وكيل متخصص لتشخيص أمراض المحاصيل والتوصية بالعلاج.
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Any
+
 from langchain_core.tools import Tool
 
 from .base_agent import BaseAgent
@@ -34,8 +35,8 @@ class DiseaseExpertAgent(BaseAgent):
 
     def __init__(
         self,
-        tools: Optional[List[Tool]] = None,
-        retriever: Optional[Any] = None,
+        tools: list[Tool] | None = None,
+        retriever: Any | None = None,
     ):
         """
         Initialize Disease Expert Agent
@@ -106,11 +107,11 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
 
     async def diagnose(
         self,
-        symptoms: Dict[str, Any],
+        symptoms: dict[str, Any],
         crop_type: str,
-        image_analysis: Optional[Dict[str, Any]] = None,
-        environmental_data: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        image_analysis: dict[str, Any] | None = None,
+        environmental_data: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Diagnose crop disease based on symptoms
         تشخيص مرض المحصول بناءً على الأعراض
@@ -141,8 +142,8 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
         disease: str,
         crop_type: str,
         severity: str,
-        constraints: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        constraints: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Recommend treatment for identified disease
         التوصية بعلاج للمرض المحدد
@@ -173,8 +174,8 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
         crop_type: str,
         location: str,
         season: str,
-        environmental_conditions: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        environmental_conditions: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Assess disease risk for a crop
         تقييم مخاطر الأمراض للمحصول
@@ -203,9 +204,9 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
     async def prevention_strategy(
         self,
         crop_type: str,
-        common_diseases: List[str],
-        farming_practices: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        common_diseases: list[str],
+        farming_practices: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Develop disease prevention strategy
         تطوير استراتيجية الوقاية من الأمراض
@@ -232,8 +233,8 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
     async def analyze_progression(
         self,
         disease: str,
-        timeline_data: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        timeline_data: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """
         Analyze disease progression over time
         تحليل تطور المرض مع مرور الوقت

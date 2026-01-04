@@ -6,13 +6,13 @@
 Comprehensive examples of using the field boundary validation service
 """
 
-import json
 from pathlib import Path
+
 from services.boundary_validator import (
-    BoundaryValidator,
-    YEMEN_BOUNDS,
     AREA_LIMITS,
+    YEMEN_BOUNDS,
     YEMEN_GOVERNORATES,
+    BoundaryValidator,
 )
 
 
@@ -193,7 +193,7 @@ def test_yemen_bounds():
 
     result = validator.validate_geometry(outside_field)
 
-    print(f"\nحدود اليمن - Yemen bounds:")
+    print("\nحدود اليمن - Yemen bounds:")
     print(f"  خط العرض: {YEMEN_BOUNDS['latitude']['min']} - {YEMEN_BOUNDS['latitude']['max']}")
     print(f"  Latitude: {YEMEN_BOUNDS['latitude']['min']} - {YEMEN_BOUNDS['latitude']['max']}")
     print(f"  خط الطول: {YEMEN_BOUNDS['longitude']['min']} - {YEMEN_BOUNDS['longitude']['max']}")
@@ -400,7 +400,7 @@ def test_with_yemen_boundaries():
 
         # التحقق من المحافظة - Check governorate
         from shapely.geometry import shape
-        polygon = shape(field_in_sanaa)
+        shape(field_in_sanaa)
 
         print("\nالمحافظات المتاحة للتحقق:")
         print("Available governorates for validation:")

@@ -12,10 +12,9 @@ Tests for starter package services:
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
-from typing import Dict, Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Field Core CRUD Operations - عمليات الحقول
@@ -30,9 +29,9 @@ class TestFieldOperations:
     async def test_create_field(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         field_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test creating a new field
@@ -58,9 +57,9 @@ class TestFieldOperations:
     async def test_get_field_by_id(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         field_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test retrieving a field by ID
@@ -91,9 +90,9 @@ class TestFieldOperations:
     async def test_update_field(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         field_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test updating a field
@@ -128,8 +127,8 @@ class TestFieldOperations:
     async def test_list_fields(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test listing all fields
@@ -142,7 +141,7 @@ class TestFieldOperations:
         # Assert
         assert response.status_code == 200, f"Failed to list fields: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))  # Could be list or paginated response
+        assert isinstance(data, list | dict)  # Could be list or paginated response
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -158,9 +157,9 @@ class TestWeatherForecast:
     async def test_get_current_weather(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         weather_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting current weather for location
@@ -184,9 +183,9 @@ class TestWeatherForecast:
     async def test_get_weather_forecast(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         weather_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting weather forecast for multiple days
@@ -218,8 +217,8 @@ class TestAstronomicalCalendar:
     async def test_get_lunar_phase(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting lunar phase information
@@ -241,8 +240,8 @@ class TestAstronomicalCalendar:
     async def test_get_planting_calendar(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting agricultural planting calendar
@@ -260,7 +259,7 @@ class TestAstronomicalCalendar:
             response.status_code == 200
         ), f"Failed to get planting calendar: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -276,8 +275,8 @@ class TestAgroAdvisor:
     async def test_get_crop_recommendation(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting crop recommendations
@@ -296,13 +295,13 @@ class TestAgroAdvisor:
             201,
         ), f"Failed to get crop recommendations: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
     async def test_get_fertilizer_recommendation(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting fertilizer recommendations
@@ -342,9 +341,9 @@ class TestNotifications:
     async def test_send_notification(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         notification_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test sending a notification
@@ -373,8 +372,8 @@ class TestNotifications:
     async def test_get_user_notifications(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test retrieving user notifications
@@ -392,7 +391,7 @@ class TestNotifications:
             response.status_code == 200
         ), f"Failed to get notifications: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -418,7 +417,7 @@ class TestStarterPackageHealth:
     async def test_service_health(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         service_name: str,
     ):
         """

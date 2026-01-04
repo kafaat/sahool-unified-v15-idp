@@ -18,12 +18,10 @@ References:
 - "Cloud Detection for Satellite Imagery" (2023)
 """
 
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Optional, Tuple
+import logging
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-import logging
-import math
 
 logger = logging.getLogger(__name__)
 
@@ -72,10 +70,10 @@ class CloudMaskResult:
     clear_cover_percent: float
     usable: bool  # True if enough clear pixels
     quality_score: float  # 0-1
-    scl_distribution: Dict[str, float]
+    scl_distribution: dict[str, float]
     recommendation: str
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary with datetime serialization"""
         result = asdict(self)
         result["timestamp"] = self.timestamp.isoformat()
@@ -96,7 +94,7 @@ class ClearObservation:
     shadow_cover: float = 0.0
     clear_pixels: float = 0.0
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary with datetime serialization"""
         result = asdict(self)
         result["date"] = self.date.isoformat()
@@ -140,8 +138,8 @@ class CloudMasker:
         field_id: str,
         latitude: float,
         longitude: float,
-        date: Optional[datetime] = None,
-        scl_data: Optional[List[int]] = None,
+        date: datetime | None = None,
+        scl_data: list[int] | None = None,
     ) -> CloudMaskResult:
         """
         Analyze cloud cover for a field location.
@@ -209,7 +207,7 @@ class CloudMasker:
         start_date: datetime,
         end_date: datetime,
         max_cloud_cover: float = 20.0,
-    ) -> List[ClearObservation]:
+    ) -> list[ClearObservation]:
         """
         Find all clear (low cloud) observations in date range.
         Useful for selecting best images for analysis.
@@ -267,7 +265,7 @@ class CloudMasker:
         longitude: float,
         target_date: datetime,
         days_tolerance: int = 15,
-    ) -> Optional[ClearObservation]:
+    ) -> ClearObservation | None:
         """
         Find the best (lowest cloud) observation near target date.
 
@@ -354,7 +352,7 @@ class CloudMasker:
 
     async def apply_cloud_mask(
         self, ndvi_value: float, scl_class: SCLClass
-    ) -> Optional[float]:
+    ) -> float | None:
         """
         Apply cloud mask to NDVI value.
         Returns None if masked, original value if clear.
@@ -386,8 +384,8 @@ class CloudMasker:
         return None
 
     async def interpolate_cloudy_pixels(
-        self, field_id: str, ndvi_series: List[Dict], method: str = "linear"
-    ) -> List[Dict]:
+        self, field_id: str, ndvi_series: list[dict], method: str = "linear"
+    ) -> list[dict]:
         """
         Interpolate cloudy observations using temporal neighbors.
 
@@ -460,7 +458,7 @@ class CloudMasker:
 
     async def _fetch_scl_data(
         self, latitude: float, longitude: float, date: datetime
-    ) -> List[int]:
+    ) -> list[int]:
         """
         Fetch SCL data from satellite provider.
         Currently simulated - would connect to real API in production.
@@ -504,7 +502,7 @@ class CloudMasker:
 
         return scl_pixels
 
-    def _calculate_scl_distribution(self, scl_data: List[int]) -> Dict[str, float]:
+    def _calculate_scl_distribution(self, scl_data: list[int]) -> dict[str, float]:
         """Calculate percentage distribution of SCL classes"""
         total_pixels = len(scl_data)
         if total_pixels == 0:
@@ -528,21 +526,21 @@ class CloudMasker:
 
         return distribution
 
-    def _calculate_cloud_cover(self, scl_distribution: Dict[str, float]) -> float:
+    def _calculate_cloud_cover(self, scl_distribution: dict[str, float]) -> float:
         """Calculate total cloud coverage percentage"""
         cloud_percent = 0.0
         for scl_class in self.CLOUD_CLASSES:
             cloud_percent += scl_distribution.get(scl_class.name, 0.0)
         return cloud_percent
 
-    def _calculate_shadow_cover(self, scl_distribution: Dict[str, float]) -> float:
+    def _calculate_shadow_cover(self, scl_distribution: dict[str, float]) -> float:
         """Calculate total shadow coverage percentage"""
         shadow_percent = 0.0
         for scl_class in self.SHADOW_CLASSES:
             shadow_percent += scl_distribution.get(scl_class.name, 0.0)
         return shadow_percent
 
-    def _calculate_clear_cover(self, scl_distribution: Dict[str, float]) -> float:
+    def _calculate_clear_cover(self, scl_distribution: dict[str, float]) -> float:
         """Calculate clear (valid) pixel percentage"""
         clear_percent = 0.0
         for scl_class in self.VALID_CLASSES:
@@ -576,8 +574,8 @@ class CloudMasker:
         return "Sentinel-2A" if day_of_year % 10 < 5 else "Sentinel-2B"
 
     def _linear_interpolate(
-        self, target_date: datetime, valid_obs: List[Dict]
-    ) -> Optional[float]:
+        self, target_date: datetime, valid_obs: list[dict]
+    ) -> float | None:
         """Linear interpolation between two valid neighbors"""
         # Find neighbors before and after target date
         before = None
@@ -611,8 +609,8 @@ class CloudMasker:
         return round(value, 4)
 
     def _spline_interpolate(
-        self, target_date: datetime, valid_obs: List[Dict]
-    ) -> Optional[float]:
+        self, target_date: datetime, valid_obs: list[dict]
+    ) -> float | None:
         """
         Spline interpolation using multiple neighbors.
         Falls back to linear if not enough points.
@@ -629,7 +627,7 @@ class CloudMasker:
 
         # Find 4 nearest neighbors (2 before, 2 after if possible)
         neighbors = []
-        for i, obs in enumerate(sorted_obs):
+        for _i, obs in enumerate(sorted_obs):
             obs_date = datetime.fromisoformat(obs["date"])
             distance = abs((obs_date - target_date).days)
             neighbors.append((distance, obs))
@@ -642,8 +640,8 @@ class CloudMasker:
         return self._linear_interpolate(target_date, nearest_4)
 
     def _previous_interpolate(
-        self, target_date: datetime, valid_obs: List[Dict]
-    ) -> Optional[float]:
+        self, target_date: datetime, valid_obs: list[dict]
+    ) -> float | None:
         """Use previous valid value (forward fill)"""
         # Find most recent observation before target date
         previous = None
@@ -666,7 +664,7 @@ class CloudMasker:
 # Singleton Instance
 # =============================================================================
 
-_cloud_masker_instance: Optional[CloudMasker] = None
+_cloud_masker_instance: CloudMasker | None = None
 
 
 def get_cloud_masker() -> CloudMasker:

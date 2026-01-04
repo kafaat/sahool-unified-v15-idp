@@ -12,13 +12,12 @@ Recommend optimal spray times based on weather conditions:
 Based on Open-Meteo weather API.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional, Tuple
-from datetime import datetime, date, timedelta
-from enum import Enum
-import httpx
 import logging
-import math
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta
+from enum import Enum
+
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -56,11 +55,11 @@ class SprayWindow:
     precipitation_prob: float
 
     # Risks
-    risks: List[str]
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    risks: list[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "start_time": self.start_time.isoformat(),
             "end_time": self.end_time.isoformat(),
@@ -85,8 +84,8 @@ class DailySprayForecast:
 
     date: date
     overall_condition: SprayCondition
-    best_window: Optional[SprayWindow]
-    all_windows: List[SprayWindow]
+    best_window: SprayWindow | None
+    all_windows: list[SprayWindow]
     hours_suitable: float
 
     # Daily summary
@@ -97,7 +96,7 @@ class DailySprayForecast:
     rain_prob: float
     wind_max: float
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "date": self.date.isoformat(),
             "overall_condition": self.overall_condition.value,
@@ -181,8 +180,8 @@ class SprayAdvisor:
         latitude: float,
         longitude: float,
         days: int = 7,
-        product_type: Optional[SprayProduct] = None,
-    ) -> List[DailySprayForecast]:
+        product_type: SprayProduct | None = None,
+    ) -> list[DailySprayForecast]:
         """
         Get spray time recommendations for next N days.
         Uses weather forecast to identify optimal windows.
@@ -211,7 +210,7 @@ class SprayAdvisor:
 
             # Calculate daily summary
             temps = [h["temp"] for h in hours]
-            humidities = [h["humidity"] for h in hours]
+            [h["humidity"] for h in hours]
             winds = [h["wind_speed"] for h in hours]
             rain_probs = [h["precipitation_prob"] for h in hours]
 
@@ -249,7 +248,7 @@ class SprayAdvisor:
         longitude: float,
         product_type: SprayProduct,
         within_days: int = 3,
-    ) -> Optional[SprayWindow]:
+    ) -> SprayWindow | None:
         """
         Find the single best spray window in the next N days.
 
@@ -282,7 +281,7 @@ class SprayAdvisor:
         latitude: float,
         longitude: float,
         target_datetime: datetime,
-        product_type: Optional[SprayProduct] = None,
+        product_type: SprayProduct | None = None,
     ) -> SprayWindow:
         """
         Evaluate if a specific time is suitable for spraying.
@@ -347,8 +346,8 @@ class SprayAdvisor:
         humidity: float,
         wind_speed: float,
         rain_prob: float,
-        product_type: Optional[SprayProduct] = None,
-    ) -> Tuple[float, SprayCondition, List[str]]:
+        product_type: SprayProduct | None = None,
+    ) -> tuple[float, SprayCondition, list[str]]:
         """
         Calculate spray suitability score (0-100).
 
@@ -436,8 +435,8 @@ class SprayAdvisor:
         humidity: float,
         wind_speed: float,
         rain_prob: float,
-        delta_t: Optional[float] = None,
-    ) -> List[str]:
+        delta_t: float | None = None,
+    ) -> list[str]:
         """
         Identify specific risks for current conditions.
 
@@ -489,9 +488,9 @@ class SprayAdvisor:
     def get_recommendations(
         self,
         condition: SprayCondition,
-        risks: List[str],
-        product_type: Optional[SprayProduct] = None,
-    ) -> Dict[str, List[str]]:
+        risks: list[str],
+        product_type: SprayProduct | None = None,
+    ) -> dict[str, list[str]]:
         """
         Get bilingual recommendations based on conditions.
 
@@ -606,14 +605,13 @@ class SprayAdvisor:
                 recommendations_en.append(
                     "Fungicides: High humidity may increase spore spread"
                 )
-        elif product_type == SprayProduct.INSECTICIDE:
-            if "high_temperature" in risks:
-                recommendations_ar.append(
-                    "مبيدات الحشرات: ارش عند غروب الشمس للحصول على أفضل نتيجة"
-                )
-                recommendations_en.append(
-                    "Insecticides: Spray at dusk for best contact with insects"
-                )
+        elif product_type == SprayProduct.INSECTICIDE and "high_temperature" in risks:
+            recommendations_ar.append(
+                "مبيدات الحشرات: ارش عند غروب الشمس للحصول على أفضل نتيجة"
+            )
+            recommendations_en.append(
+                "Insecticides: Spray at dusk for best contact with insects"
+            )
 
         # Safety reminders
         if condition in [
@@ -628,7 +626,7 @@ class SprayAdvisor:
 
     async def _fetch_hourly_forecast(
         self, latitude: float, longitude: float, days: int
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Fetch hourly weather forecast from Open-Meteo.
 
@@ -692,7 +690,7 @@ class SprayAdvisor:
             logger.error(f"Failed to fetch hourly forecast: {e}")
             raise Exception(f"Weather API error: {str(e)}")
 
-    def _group_by_day(self, hourly_data: List[Dict]) -> Dict[date, List[Dict]]:
+    def _group_by_day(self, hourly_data: list[dict]) -> dict[date, list[dict]]:
         """Group hourly data by day"""
         grouped = {}
         for hour in hourly_data:
@@ -703,8 +701,8 @@ class SprayAdvisor:
         return grouped
 
     def _identify_spray_windows(
-        self, hours: List[Dict], product_type: Optional[SprayProduct]
-    ) -> List[SprayWindow]:
+        self, hours: list[dict], product_type: SprayProduct | None
+    ) -> list[SprayWindow]:
         """
         Identify spray windows from hourly data for a single day.
 
@@ -754,7 +752,7 @@ class SprayAdvisor:
         return windows
 
     def _create_window(
-        self, window_hours: List[Dict], product_type: Optional[SprayProduct]
+        self, window_hours: list[dict], product_type: SprayProduct | None
     ) -> SprayWindow:
         """Create SprayWindow from continuous suitable hours"""
         start_time = window_hours[0]["hour"]["time"]
@@ -802,7 +800,7 @@ class SprayAdvisor:
             recommendations_en=recommendations["en"],
         )
 
-    def _calculate_delta_t(self, temp: float, humidity: float) -> Optional[float]:
+    def _calculate_delta_t(self, temp: float, humidity: float) -> float | None:
         """
         Calculate Delta-T (wet bulb depression).
 

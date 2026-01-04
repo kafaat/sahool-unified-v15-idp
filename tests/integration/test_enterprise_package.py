@@ -12,10 +12,9 @@ Tests for enterprise package services:
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
-from typing import Dict, Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # AI Advisor Tests - اختبارات المستشار الذكي متعدد الوكلاء
@@ -30,9 +29,9 @@ class TestAIAdvisor:
     async def test_ask_ai_advisor(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         ai_query_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test asking AI advisor a question
@@ -58,8 +57,8 @@ class TestAIAdvisor:
     async def test_get_rag_answer(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting RAG-enhanced answer
@@ -89,8 +88,8 @@ class TestAIAdvisor:
     async def test_multi_agent_consultation(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test multi-agent consultation
@@ -130,8 +129,8 @@ class TestIoTGateway:
     async def test_register_device(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test registering an IoT device
@@ -160,9 +159,9 @@ class TestIoTGateway:
     async def test_send_iot_reading(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         iot_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test sending IoT sensor reading
@@ -185,8 +184,8 @@ class TestIoTGateway:
     async def test_get_device_readings(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test retrieving device readings
@@ -203,7 +202,7 @@ class TestIoTGateway:
         # Assert
         assert response.status_code == 200, f"Failed to get readings: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -219,8 +218,8 @@ class TestMarketplace:
     async def test_create_listing(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test creating a marketplace listing
@@ -255,8 +254,8 @@ class TestMarketplace:
     async def test_search_listings(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test searching marketplace listings
@@ -279,13 +278,13 @@ class TestMarketplace:
             response.status_code == 200
         ), f"Failed to search listings: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
     async def test_create_order(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test creating an order
@@ -324,8 +323,8 @@ class TestBilling:
     async def test_create_subscription(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test creating a subscription
@@ -357,9 +356,9 @@ class TestBilling:
     async def test_process_payment(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         payment_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test processing a payment
@@ -384,8 +383,8 @@ class TestBilling:
     async def test_get_billing_history(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test retrieving billing history
@@ -403,7 +402,7 @@ class TestBilling:
             response.status_code == 200
         ), f"Failed to get billing history: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -419,9 +418,9 @@ class TestResearchCore:
     async def test_create_experiment(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         experiment_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test creating a research experiment
@@ -447,8 +446,8 @@ class TestResearchCore:
     async def test_add_experiment_observation(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test adding an observation to an experiment
@@ -481,8 +480,8 @@ class TestResearchCore:
     async def test_get_experiment_results(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test retrieving experiment results
@@ -498,7 +497,7 @@ class TestResearchCore:
         # Assert
         assert response.status_code == 200, f"Failed to get results: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -524,7 +523,7 @@ class TestEnterprisePackageHealth:
     async def test_service_health(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         service_name: str,
     ):
         """

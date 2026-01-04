@@ -19,13 +19,8 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from datetime import datetime
-from models.crop_parameters import Region, get_crop_parameters, get_all_crop_ids
-from models.yield_ensemble import (
-    YieldEnsembleModel,
-    FieldData,
-    GrowthStage
-)
+from models.crop_parameters import Region, get_all_crop_ids, get_crop_parameters
+from models.yield_ensemble import FieldData, YieldEnsembleModel
 
 
 def example_basic_prediction():
@@ -114,7 +109,7 @@ def example_with_historical_data():
     print(f"Confidence: {prediction.confidence:.1%}")
 
     # Show confidence metrics - عرض مقاييس الثقة
-    print(f"\nConfidence Breakdown:")
+    print("\nConfidence Breakdown:")
     print(f"  Data Completeness: {prediction.confidence_metrics.data_completeness:.1%}")
     print(f"  Model Agreement: {prediction.confidence_metrics.model_agreement:.1%}")
     print(f"  Historical Accuracy: {prediction.confidence_metrics.historical_accuracy:.1%}")
@@ -218,14 +213,14 @@ def example_model_explanation():
     print("\nDetailed Prediction Explanation:")
     explanation = model.explain_prediction(prediction)
 
-    print(f"\nSub-Model Predictions:")
+    print("\nSub-Model Predictions:")
     for model_name, pred_value in explanation['sub_models']['predictions'].items():
         contrib = explanation['sub_models']['contributions'][model_name]
         print(f"  {model_name:12s}: {pred_value:7.1f} kg/ha "
               f"(weight: {contrib['weight']:.1%}, "
               f"confidence: {contrib['confidence']:.1%})")
 
-    print(f"\nConfidence Interval:")
+    print("\nConfidence Interval:")
     for level, value in explanation['summary'].items():
         if 'confidence' not in level.lower():
             continue

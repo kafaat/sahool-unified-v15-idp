@@ -6,8 +6,7 @@ Sensor Aggregator Usage Examples
 Demonstrates how to use the sensor data aggregation service
 """
 
-import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from apps.services.iot_gateway.src.models.sensor_data import (
     SensorReading,
@@ -42,7 +41,7 @@ def example_basic_statistics():
     print(f"الحد الأدنى - Min: {stats['min']}°C")
     print(f"الحد الأقصى - Max: {stats['max']}°C")
     print(f"الانحراف المعياري - Std Dev: {stats['std']}°C")
-    print(f"\nالمئينات - Percentiles:")
+    print("\nالمئينات - Percentiles:")
     print(f"  P10: {stats['p10']}°C")
     print(f"  P25: {stats['p25']}°C")
     print(f"  P75: {stats['p75']}°C")
@@ -79,7 +78,7 @@ def example_outlier_detection():
             sensor_type="air_temperature",
             value=55.0,  # قيمة شاذة - outlier
             unit="°C",
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
     )
 
@@ -158,8 +157,8 @@ def example_field_aggregation():
 
     # تحديد الفترة الزمنية - Define time range
     time_range = (
-        datetime.now(timezone.utc) - timedelta(hours=24),
-        datetime.now(timezone.utc),
+        datetime.now(UTC) - timedelta(hours=24),
+        datetime.now(UTC),
     )
 
     # التجميع - Aggregate
@@ -171,7 +170,7 @@ def example_field_aggregation():
     )
 
     print(f"\nالحقل - Field: {field_id}")
-    print(f"الفترة الزمنية - Time range: آخر 24 ساعة - Last 24 hours")
+    print("الفترة الزمنية - Time range: آخر 24 ساعة - Last 24 hours")
     print(f"أنواع المستشعرات - Sensor types: {len(aggregated_data)}")
 
     for agg in aggregated_data:
@@ -298,7 +297,7 @@ def example_drift_detection():
     # إنشاء قراءات مع انحراف تدريجي
     # Create readings with gradual drift
     readings = []
-    start_time = datetime.now(timezone.utc) - timedelta(hours=48)
+    start_time = datetime.now(UTC) - timedelta(hours=48)
 
     print("\nإنشاء قراءات مع انحراف من 20°C إلى 30°C")
     print("Creating readings with drift from 20°C to 30°C")
@@ -386,7 +385,7 @@ def example_rainfall_cumulative():
         granularity=TimeGranularity.WEEKLY,
     )
 
-    print(f"\nالفترة - Period: أسبوع - Week")
+    print("\nالفترة - Period: أسبوع - Week")
     print(f"القراءات - Readings: {agg.count}")
     print(f"\nالمجموع التراكمي - Cumulative Sum: {agg.cumulative_sum} mm")
     print(f"المتوسط اليومي - Daily Average: {agg.mean} mm")
@@ -445,9 +444,9 @@ def example_complete_workflow():
     print("\n" + "=" * 60)
     print("التقرير النهائي - Final Report")
     print("=" * 60)
-    print(f"المستشعر - Sensor: multi_sensor_001")
-    print(f"النوع - Type: soil_moisture")
-    print(f"الفترة - Period: 24 hours")
+    print("المستشعر - Sensor: multi_sensor_001")
+    print("النوع - Type: soil_moisture")
+    print("الفترة - Period: 24 hours")
     print(f"القراءات - Readings: {len(readings)}")
     print(f"المتوسط - Average: {stats['mean']}%")
     print(f"جودة البيانات - Quality: {health.data_quality_score:.1f}%")

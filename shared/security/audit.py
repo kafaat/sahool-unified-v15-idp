@@ -4,9 +4,8 @@ Database + Event logging for security audit trail
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 from .audit_models import AuditCategory, AuditLog, AuditSeverity
@@ -78,22 +77,22 @@ async def audit_log(
     tenant_id: str,
     user_id: str,
     action: str,
-    resource_type: Optional[str] = None,
-    resource_id: Optional[str] = None,
+    resource_type: str | None = None,
+    resource_id: str | None = None,
     category: str = AuditCategory.ACCESS,
     severity: str = AuditSeverity.INFO,
-    correlation_id: Optional[str] = None,
-    session_id: Optional[str] = None,
-    ip_address: Optional[str] = None,
-    user_agent: Optional[str] = None,
-    request_method: Optional[str] = None,
-    request_path: Optional[str] = None,
-    details: Optional[dict] = None,
-    old_value: Optional[dict] = None,
-    new_value: Optional[dict] = None,
+    correlation_id: str | None = None,
+    session_id: str | None = None,
+    ip_address: str | None = None,
+    user_agent: str | None = None,
+    request_method: str | None = None,
+    request_path: str | None = None,
+    details: dict | None = None,
+    old_value: dict | None = None,
+    new_value: dict | None = None,
     success: bool = True,
-    error_code: Optional[str] = None,
-    error_message: Optional[str] = None,
+    error_code: str | None = None,
+    error_message: str | None = None,
 ) -> AuditLog:
     """
     Create an audit log entry.
@@ -152,10 +151,10 @@ async def audit_auth(
     user_id: str,
     action: str,
     success: bool = True,
-    ip_address: Optional[str] = None,
-    user_agent: Optional[str] = None,
-    details: Optional[dict] = None,
-    error_message: Optional[str] = None,
+    ip_address: str | None = None,
+    user_agent: str | None = None,
+    details: dict | None = None,
+    error_message: str | None = None,
 ) -> AuditLog:
     """Log authentication events"""
     return await audit_log(
@@ -178,9 +177,9 @@ async def audit_data_change(
     action: str,
     resource_type: str,
     resource_id: str,
-    old_value: Optional[dict] = None,
-    new_value: Optional[dict] = None,
-    correlation_id: Optional[str] = None,
+    old_value: dict | None = None,
+    new_value: dict | None = None,
+    correlation_id: str | None = None,
 ) -> AuditLog:
     """Log data change events with before/after values"""
     return await audit_log(
@@ -200,9 +199,9 @@ async def audit_admin_action(
     tenant_id: str,
     user_id: str,
     action: str,
-    target_user_id: Optional[str] = None,
-    details: Optional[dict] = None,
-    correlation_id: Optional[str] = None,
+    target_user_id: str | None = None,
+    details: dict | None = None,
+    correlation_id: str | None = None,
 ) -> AuditLog:
     """Log administrative actions"""
     return await audit_log(
@@ -222,8 +221,8 @@ async def audit_security_event(
     tenant_id: str,
     user_id: str,
     action: str,
-    ip_address: Optional[str] = None,
-    details: Optional[dict] = None,
+    ip_address: str | None = None,
+    details: dict | None = None,
 ) -> AuditLog:
     """Log security-related events"""
     return await audit_log(
@@ -242,9 +241,9 @@ async def audit_permission_denied(
     tenant_id: str,
     user_id: str,
     permission: str,
-    resource_type: Optional[str] = None,
-    resource_id: Optional[str] = None,
-    ip_address: Optional[str] = None,
+    resource_type: str | None = None,
+    resource_id: str | None = None,
+    ip_address: str | None = None,
 ) -> AuditLog:
     """Log permission denial events"""
     return await audit_log(
@@ -271,7 +270,7 @@ async def get_user_audit_trail(
     tenant_id: str,
     user_id: str,
     limit: int = 100,
-    category: Optional[str] = None,
+    category: str | None = None,
 ) -> list[AuditLog]:
     """Get audit logs for a specific user"""
     query = AuditLog.filter(tenant_id=tenant_id, user_id=user_id)
@@ -321,7 +320,7 @@ async def get_failed_logins(
     """Get failed login attempts"""
     from datetime import timedelta
 
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+    cutoff = datetime.now(UTC) - timedelta(hours=hours)
 
     return (
         await AuditLog.filter(

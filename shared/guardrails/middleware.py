@@ -12,17 +12,15 @@ Updated: December 2025
 import json
 import logging
 import time
-from typing import Callable, Optional
+from collections.abc import Callable
 
-from fastapi import FastAPI, Request, Response, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from .input_filter import InputFilter, sanitize_input, compute_input_hash
+from .input_filter import InputFilter, sanitize_input
 from .output_filter import OutputFilter, sanitize_output
 from .policies import (
-    ContentSafetyLevel,
     PolicyManager,
     TrustLevel,
 )
@@ -47,9 +45,9 @@ class GuardrailsConfig:
         add_disclaimers: bool = True,
         strict_topic_check: bool = False,
         # Paths to exclude from guardrails
-        exclude_paths: Optional[list[str]] = None,
+        exclude_paths: list[str] | None = None,
         # Paths that require strict checking
-        strict_paths: Optional[list[str]] = None,
+        strict_paths: list[str] | None = None,
     ):
         self.enabled = enabled
         self.log_violations = log_violations
@@ -91,7 +89,7 @@ class ViolationLogger:
     def log_input_violation(
         self,
         request_id: str,
-        user_id: Optional[str],
+        user_id: str | None,
         trust_level: TrustLevel,
         violations: list[str],
         metadata: dict,
@@ -120,7 +118,7 @@ class ViolationLogger:
     def log_output_violation(
         self,
         request_id: str,
-        user_id: Optional[str],
+        user_id: str | None,
         warnings: list[str],
         metadata: dict,
     ):
@@ -177,8 +175,8 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app: ASGIApp,
-        config: Optional[GuardrailsConfig] = None,
-        policy_manager: Optional[PolicyManager] = None,
+        config: GuardrailsConfig | None = None,
+        policy_manager: PolicyManager | None = None,
     ):
         super().__init__(app)
         self.config = config or GuardrailsConfig()
@@ -234,7 +232,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
 
             return response
 
-        except HTTPException as e:
+        except HTTPException:
             # Pass through HTTP exceptions
             raise
 
@@ -247,7 +245,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
         self,
         request: Request,
         request_id: str,
-        user_id: Optional[str],
+        user_id: str | None,
         trust_level: TrustLevel,
         strict_check: bool,
     ) -> Request:
@@ -336,7 +334,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
         self,
         response: Response,
         request_id: str,
-        user_id: Optional[str],
+        user_id: str | None,
         trust_level: TrustLevel,
     ) -> Response:
         """Filter response output"""
@@ -434,14 +432,14 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
                     if len(value) > 10:  # Only filter substantial text
                         text_fields.append((field_path, value))
 
-                elif isinstance(value, (dict, list)):
+                elif isinstance(value, dict | list):
                     # Recurse into nested structures
                     text_fields.extend(self._extract_text_fields(value, field_path))
 
         elif isinstance(data, list):
             for i, item in enumerate(data):
                 field_path = f"{path}[{i}]"
-                if isinstance(item, (dict, list)):
+                if isinstance(item, dict | list):
                     text_fields.extend(self._extract_text_fields(item, field_path))
 
         return text_fields
@@ -451,7 +449,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
         parts = field_path.split(".")
         current = data
 
-        for i, part in enumerate(parts[:-1]):
+        for _i, part in enumerate(parts[:-1]):
             # Handle array indices
             if "[" in part:
                 key, idx = part.split("[")
@@ -469,7 +467,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
         else:
             current[last_part] = value
 
-    def _extract_user_id(self, request: Request) -> Optional[str]:
+    def _extract_user_id(self, request: Request) -> str | None:
         """Extract user ID from request"""
         # Try to get from state (set by auth middleware)
         if hasattr(request.state, "user_id"):
@@ -516,8 +514,8 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
 
 def setup_guardrails(
     app: FastAPI,
-    config: Optional[GuardrailsConfig] = None,
-    policy_manager: Optional[PolicyManager] = None,
+    config: GuardrailsConfig | None = None,
+    policy_manager: PolicyManager | None = None,
 ):
     """
     Setup guardrails middleware on FastAPI app.

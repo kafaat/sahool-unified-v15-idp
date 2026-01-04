@@ -3,7 +3,6 @@ Disease Rules Engine - SAHOOL Agro Advisor
 Rule-based disease assessment and recommendation generation
 """
 
-from typing import Optional
 
 from ..kb.diseases import DISEASES, get_disease
 
@@ -52,7 +51,7 @@ def assess_from_image_event(
     confidence: float,
     crop: str = None,
     weather_context: dict = None,
-) -> Optional[DiseaseAssessment]:
+) -> DiseaseAssessment | None:
     """
     Assess disease from image classification event
 

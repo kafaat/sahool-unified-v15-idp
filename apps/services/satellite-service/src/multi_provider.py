@@ -9,13 +9,13 @@ Supported Providers:
 4. Copernicus STAC (Direct) - Free, no auth for some datasets
 """
 
-import os
 import logging
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any, Tuple
+from datetime import date, datetime, timedelta
 from enum import Enum
+from typing import Any
 
 import httpx
 
@@ -57,9 +57,9 @@ class SatelliteScene:
     acquisition_date: datetime
     cloud_cover_pct: float
     sun_elevation: float
-    bbox: Tuple[float, float, float, float]  # (min_lon, min_lat, max_lon, max_lat)
-    thumbnail_url: Optional[str] = None
-    download_url: Optional[str] = None
+    bbox: tuple[float, float, float, float]  # (min_lon, min_lat, max_lon, max_lat)
+    thumbnail_url: str | None = None
+    download_url: str | None = None
     provider: str = ""
 
 
@@ -74,10 +74,10 @@ class SatelliteAnalysis:
     health_score: float
     health_status: str
     health_status_ar: str
-    anomalies: List[str]
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
-    scene: Optional[SatelliteScene] = None
+    anomalies: list[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
+    scene: SatelliteScene | None = None
     provider: str = ""
     is_simulated: bool = False
 
@@ -88,11 +88,11 @@ class SatelliteResult:
 
     data: Any
     provider: str
-    failed_providers: List[str] = field(default_factory=list)
+    failed_providers: list[str] = field(default_factory=list)
     is_cached: bool = False
     is_simulated: bool = False
-    error: Optional[str] = None
-    error_ar: Optional[str] = None
+    error: str | None = None
+    error_ar: str | None = None
 
     @property
     def success(self) -> bool:
@@ -110,7 +110,7 @@ class SatelliteProvider(ABC):
     def __init__(self, name: str, name_ar: str):
         self.name = name
         self.name_ar = name_ar
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     @property
     @abstractmethod
@@ -120,7 +120,7 @@ class SatelliteProvider(ABC):
 
     @property
     @abstractmethod
-    def supported_satellites(self) -> List[SatelliteType]:
+    def supported_satellites(self) -> list[SatelliteType]:
         """List of supported satellite types"""
         pass
 
@@ -142,8 +142,8 @@ class SatelliteProvider(ABC):
         start_date: date,
         end_date: date,
         max_cloud_cover: float = 30.0,
-        satellite: Optional[SatelliteType] = None,
-    ) -> List[SatelliteScene]:
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
         """Search for available satellite scenes"""
         pass
 
@@ -154,7 +154,7 @@ class SatelliteProvider(ABC):
         lon: float,
         acquisition_date: date,
         satellite: SatelliteType = SatelliteType.SENTINEL2,
-    ) -> Optional[VegetationIndices]:
+    ) -> VegetationIndices | None:
         """Get vegetation indices for a location"""
         pass
 
@@ -179,18 +179,18 @@ class SentinelHubProvider(SatelliteProvider):
         super().__init__("Sentinel Hub", "سنتينل هب")
         self.client_id = os.getenv("SENTINEL_HUB_CLIENT_ID")
         self.client_secret = os.getenv("SENTINEL_HUB_CLIENT_SECRET")
-        self._token: Optional[str] = None
-        self._token_expires: Optional[datetime] = None
+        self._token: str | None = None
+        self._token_expires: datetime | None = None
 
     @property
     def is_configured(self) -> bool:
         return bool(self.client_id and self.client_secret)
 
     @property
-    def supported_satellites(self) -> List[SatelliteType]:
+    def supported_satellites(self) -> list[SatelliteType]:
         return [SatelliteType.SENTINEL2, SatelliteType.LANDSAT8, SatelliteType.LANDSAT9]
 
-    async def _get_token(self) -> Optional[str]:
+    async def _get_token(self) -> str | None:
         """Get OAuth2 token"""
         if (
             self._token
@@ -230,8 +230,8 @@ class SentinelHubProvider(SatelliteProvider):
         start_date: date,
         end_date: date,
         max_cloud_cover: float = 30.0,
-        satellite: Optional[SatelliteType] = None,
-    ) -> List[SatelliteScene]:
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
         token = await self._get_token()
         if not token:
             return []
@@ -287,7 +287,7 @@ class SentinelHubProvider(SatelliteProvider):
         lon: float,
         acquisition_date: date,
         satellite: SatelliteType = SatelliteType.SENTINEL2,
-    ) -> Optional[VegetationIndices]:
+    ) -> VegetationIndices | None:
         token = await self._get_token()
         if not token:
             return None
@@ -396,7 +396,7 @@ class NASAEarthdataProvider(SatelliteProvider):
         return bool(self.username and self.password)
 
     @property
-    def supported_satellites(self) -> List[SatelliteType]:
+    def supported_satellites(self) -> list[SatelliteType]:
         return [SatelliteType.MODIS, SatelliteType.VIIRS]
 
     async def search_scenes(
@@ -406,8 +406,8 @@ class NASAEarthdataProvider(SatelliteProvider):
         start_date: date,
         end_date: date,
         max_cloud_cover: float = 30.0,
-        satellite: Optional[SatelliteType] = None,
-    ) -> List[SatelliteScene]:
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
         client = await self._get_client()
 
         # MODIS collection for vegetation indices
@@ -455,7 +455,7 @@ class NASAEarthdataProvider(SatelliteProvider):
         lon: float,
         acquisition_date: date,
         satellite: SatelliteType = SatelliteType.MODIS,
-    ) -> Optional[VegetationIndices]:
+    ) -> VegetationIndices | None:
         # NASA AppEEARS API requires authentication
         if not self.is_configured:
             return None
@@ -489,7 +489,7 @@ class CopernicusSTACProvider(SatelliteProvider):
         return True  # No auth required for search
 
     @property
-    def supported_satellites(self) -> List[SatelliteType]:
+    def supported_satellites(self) -> list[SatelliteType]:
         return [SatelliteType.SENTINEL2]
 
     async def search_scenes(
@@ -499,8 +499,8 @@ class CopernicusSTACProvider(SatelliteProvider):
         start_date: date,
         end_date: date,
         max_cloud_cover: float = 30.0,
-        satellite: Optional[SatelliteType] = None,
-    ) -> List[SatelliteScene]:
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
         client = await self._get_client()
         buffer = 0.01
 
@@ -550,7 +550,7 @@ class CopernicusSTACProvider(SatelliteProvider):
         lon: float,
         acquisition_date: date,
         satellite: SatelliteType = SatelliteType.SENTINEL2,
-    ) -> Optional[VegetationIndices]:
+    ) -> VegetationIndices | None:
         # STAC provides metadata, not processing
         # Would need to download and process locally
         return None
@@ -575,7 +575,7 @@ class SimulatedProvider(SatelliteProvider):
         return True
 
     @property
-    def supported_satellites(self) -> List[SatelliteType]:
+    def supported_satellites(self) -> list[SatelliteType]:
         return list(SatelliteType)
 
     async def search_scenes(
@@ -585,8 +585,8 @@ class SimulatedProvider(SatelliteProvider):
         start_date: date,
         end_date: date,
         max_cloud_cover: float = 30.0,
-        satellite: Optional[SatelliteType] = None,
-    ) -> List[SatelliteScene]:
+        satellite: SatelliteType | None = None,
+    ) -> list[SatelliteScene]:
         import random
 
         scenes = []
@@ -613,9 +613,9 @@ class SimulatedProvider(SatelliteProvider):
         lon: float,
         acquisition_date: date,
         satellite: SatelliteType = SatelliteType.SENTINEL2,
-    ) -> Optional[VegetationIndices]:
-        import random
+    ) -> VegetationIndices | None:
         import math
+        import random
 
         # Generate realistic seasonal variation
         day_of_year = acquisition_date.timetuple().tm_yday
@@ -653,7 +653,7 @@ class MultiSatelliteService:
     """
 
     def __init__(self):
-        self.providers: List[SatelliteProvider] = []
+        self.providers: list[SatelliteProvider] = []
 
         # Add providers in priority order
         sentinel_hub = SentinelHubProvider()
@@ -675,7 +675,7 @@ class MultiSatelliteService:
         logger.info("Simulated provider added as fallback")
 
         # Simple cache
-        self._cache: Dict[str, Tuple[Any, datetime]] = {}
+        self._cache: dict[str, tuple[Any, datetime]] = {}
         self._cache_duration = timedelta(hours=1)
 
     async def close(self):
@@ -700,7 +700,7 @@ class MultiSatelliteService:
         start_date: date,
         end_date: date,
         max_cloud_cover: float = 30.0,
-        satellite: Optional[SatelliteType] = None,
+        satellite: SatelliteType | None = None,
     ) -> SatelliteResult:
         """Search for satellite scenes with automatic fallback"""
         cache_key = (
@@ -744,7 +744,7 @@ class MultiSatelliteService:
         self,
         lat: float,
         lon: float,
-        acquisition_date: Optional[date] = None,
+        acquisition_date: date | None = None,
         satellite: SatelliteType = SatelliteType.SENTINEL2,
     ) -> SatelliteResult:
         """Get vegetation indices with automatic fallback"""
@@ -787,7 +787,7 @@ class MultiSatelliteService:
         field_id: str,
         lat: float,
         lon: float,
-        acquisition_date: Optional[date] = None,
+        acquisition_date: date | None = None,
         satellite: SatelliteType = SatelliteType.SENTINEL2,
     ) -> SatelliteResult:
         """Complete field analysis with fallback"""
@@ -834,7 +834,7 @@ class MultiSatelliteService:
 
     def _assess_health(
         self, indices: VegetationIndices
-    ) -> Tuple[float, str, str, List[str]]:
+    ) -> tuple[float, str, str, list[str]]:
         """Assess vegetation health from indices"""
         anomalies = []
         score = 50.0
@@ -892,8 +892,8 @@ class MultiSatelliteService:
         return score, status, status_ar, anomalies
 
     def _generate_recommendations(
-        self, anomalies: List[str]
-    ) -> Tuple[List[str], List[str]]:
+        self, anomalies: list[str]
+    ) -> tuple[list[str], list[str]]:
         """Generate bilingual recommendations"""
         ar, en = [], []
 
@@ -923,7 +923,7 @@ class MultiSatelliteService:
 
         return ar, en
 
-    def get_available_providers(self) -> List[Dict[str, Any]]:
+    def get_available_providers(self) -> list[dict[str, Any]]:
         """Get list of available providers"""
         return [
             {

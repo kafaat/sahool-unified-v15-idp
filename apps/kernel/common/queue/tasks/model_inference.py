@@ -10,12 +10,12 @@ License: MIT
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def handle_model_inference(payload: Dict[str, Any]) -> Dict[str, Any]:
+def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
     """
     تشغيل استنتاج النموذج
     Run model inference
@@ -47,9 +47,9 @@ def handle_model_inference(payload: Dict[str, Any]) -> Dict[str, Any]:
         # Extract data from payload
         model_name = payload.get("model_name")
         model_version = payload.get("model_version", "latest")
-        input_data = payload.get("input_data", {})
+        payload.get("input_data", {})
         input_urls = payload.get("input_urls", [])
-        confidence_threshold = payload.get("confidence_threshold", 0.7)
+        payload.get("confidence_threshold", 0.7)
 
         if not model_name:
             raise ValueError("model_name is required")

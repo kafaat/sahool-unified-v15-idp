@@ -7,14 +7,16 @@ This example demonstrates how to use the irrigation scheduling system for Yemen 
 """
 
 from datetime import date, timedelta
+
 from services.irrigation_scheduler import IrrigationScheduler
+
 from models.irrigation import (
     CropType,
     GrowthStage,
-    SoilType,
     IrrigationType,
-    WeatherData,
     SoilProperties,
+    SoilType,
+    WeatherData,
 )
 
 
@@ -66,10 +68,10 @@ def main():
         irrigation_type=IrrigationType.DRIP
     )
 
-    print(f"المحصول: قمح (Wheat)")
-    print(f"مرحلة النمو: منتصف الموسم (Mid-season)")
-    print(f"نوع التربة: طينية (Loamy)")
-    print(f"نظام الري: تنقيط (Drip)")
+    print("المحصول: قمح (Wheat)")
+    print("مرحلة النمو: منتصف الموسم (Mid-season)")
+    print("نوع التربة: طينية (Loamy)")
+    print("نظام الري: تنقيط (Drip)")
     print(f"احتياج المياه: {water_req_wheat:.2f} مم/يوم")
     print()
 
@@ -148,7 +150,7 @@ def main():
         electricity_night_discount=0.3
     )
 
-    print(f"\n📋 معلومات الجدول - Schedule Information:")
+    print("\n📋 معلومات الجدول - Schedule Information:")
     print(f"   الفترة: {schedule.start_date} إلى {schedule.end_date}")
     print(f"   عدد الريات: {len(schedule.events)}")
     print(f"   إجمالي المياه: {schedule.total_water_mm:.1f} مم ({schedule.total_water_m3:.1f} م³)")
@@ -157,7 +159,7 @@ def main():
     print(f"   نقاط التحسين: {schedule.optimization_score:.0f}/100")
     print(f"   كفاءة المياه: {schedule.water_efficiency_score:.0f}/100")
 
-    print(f"\n📆 أحداث الري - Irrigation Events:")
+    print("\n📆 أحداث الري - Irrigation Events:")
     print(f"{'التاريخ':<12} {'الوقت':<8} {'الكمية (مم)':<12} {'الكمية (م³)':<12} {'المدة (دقيقة)':<15} {'ليلي':<6} {'الأولوية':<8}")
     print("-" * 100)
 
@@ -188,7 +190,7 @@ def main():
         bulk_density=1.4
     )
 
-    print(f"خصائص التربة الطينية:")
+    print("خصائص التربة الطينية:")
     print(f"  السعة الحقلية: {soil_props.field_capacity:.2f} م³/م³")
     print(f"  نقطة الذبول: {soil_props.wilting_point:.2f} م³/م³")
     print(f"  عمق الجذور: {soil_props.root_depth:.2f} م")
@@ -244,7 +246,7 @@ def main():
             print(f"   ملاحظات: {recommendation.notes}")
     else:
         print("✅ توصية: لا حاجة للري حالياً")
-        print(f"   المحتوى المائي كافٍ")
+        print("   المحتوى المائي كافٍ")
 
     print()
 

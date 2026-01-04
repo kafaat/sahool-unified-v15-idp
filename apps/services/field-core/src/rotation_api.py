@@ -6,21 +6,17 @@ FastAPI endpoints for crop rotation planning
 """
 
 import os
-from typing import List, Optional, Dict
 from datetime import date
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from .crop_rotation import (
-    CropRotationPlanner,
     CropFamily,
+    CropRotationPlanner,
     SeasonPlan,
-    RotationPlan,
-    CropSuggestion,
     to_dict,
 )
-
 
 # ============== Request/Response Models ==============
 
@@ -35,10 +31,10 @@ class SeasonPlanRequest(BaseModel):
     crop_name_ar: str
     crop_name_en: str
     crop_family: str
-    planting_date: Optional[str] = None
-    harvest_date: Optional[str] = None
-    expected_yield: Optional[float] = None
-    notes: Optional[str] = None
+    planting_date: str | None = None
+    harvest_date: str | None = None
+    expected_yield: float | None = None
+    notes: str | None = None
 
 
 class CreateRotationPlanRequest(BaseModel):
@@ -48,14 +44,14 @@ class CreateRotationPlanRequest(BaseModel):
     field_name: str
     start_year: int
     num_years: int = Field(default=5, ge=1, le=10)
-    history: Optional[List[SeasonPlanRequest]] = None
-    preferences: Optional[List[str]] = None
+    history: list[SeasonPlanRequest] | None = None
+    preferences: list[str] | None = None
 
 
 class EvaluateRotationRequest(BaseModel):
     """Request to evaluate rotation"""
 
-    seasons: List[SeasonPlanRequest]
+    seasons: list[SeasonPlanRequest]
 
 
 class RotationRuleResponse(BaseModel):
@@ -63,10 +59,10 @@ class RotationRuleResponse(BaseModel):
 
     crop_family: str
     min_years_between: int
-    good_predecessors: List[str]
-    bad_predecessors: List[str]
+    good_predecessors: list[str]
+    bad_predecessors: list[str]
     nitrogen_effect: str
-    disease_risk: Dict[str, float]
+    disease_risk: dict[str, float]
     root_depth: str
     nutrient_demand: str
 
@@ -84,8 +80,8 @@ async def create_rotation_plan_endpoint(
     field_name: str = Query(..., description="Field name"),
     start_year: int = Query(..., description="Starting year"),
     num_years: int = Query(5, ge=1, le=10, description="Number of years to plan"),
-    preferences: Optional[List[str]] = Query(None, description="Crop preferences"),
-) -> Dict:
+    preferences: list[str] | None = Query(None, description="Crop preferences"),
+) -> dict:
     """
     Create optimal crop rotation plan
     إنشاء خطة تدوير محاصيل مثلى
@@ -116,7 +112,7 @@ async def create_rotation_plan_endpoint(
     return to_dict(plan)
 
 
-async def create_rotation_plan_with_history(req: CreateRotationPlanRequest) -> Dict:
+async def create_rotation_plan_with_history(req: CreateRotationPlanRequest) -> dict:
     """
     Create rotation plan with custom history
     إنشاء خطة تدوير مع سجل مخصص
@@ -161,8 +157,8 @@ async def create_rotation_plan_with_history(req: CreateRotationPlanRequest) -> D
 
 
 async def suggest_next_crop_endpoint(
-    field_id: str, season: str = "winter", history_json: Optional[str] = None
-) -> Dict:
+    field_id: str, season: str = "winter", history_json: str | None = None
+) -> dict:
     """
     Suggest best crops for next season
     اقتراح أفضل المحاصيل للموسم القادم
@@ -191,7 +187,7 @@ async def suggest_next_crop_endpoint(
     }
 
 
-async def evaluate_rotation_endpoint(req: EvaluateRotationRequest) -> Dict:
+async def evaluate_rotation_endpoint(req: EvaluateRotationRequest) -> dict:
     """
     Evaluate a rotation plan
     تقييم خطة تدوير
@@ -234,7 +230,7 @@ async def evaluate_rotation_endpoint(req: EvaluateRotationRequest) -> Dict:
 async def get_rotation_history_endpoint(
     field_id: str,
     years: int = Query(5, ge=1, le=10, description="Number of years of history"),
-) -> Dict:
+) -> dict:
     """
     Get crop rotation history for a field
     الحصول على سجل تدوير المحاصيل للحقل
@@ -256,7 +252,7 @@ async def get_rotation_history_endpoint(
     }
 
 
-async def get_rotation_rules_endpoint() -> Dict:
+async def get_rotation_rules_endpoint() -> dict:
     """
     Get all crop rotation rules
     الحصول على جميع قواعد تدوير المحاصيل
@@ -281,7 +277,7 @@ async def get_rotation_rules_endpoint() -> Dict:
     return {"rules": rules, "families_count": len(rules)}
 
 
-async def get_crop_families_endpoint() -> Dict:
+async def get_crop_families_endpoint() -> dict:
     """
     Get all crop families with their crop mappings
     الحصول على جميع العائلات النباتية مع محاصيلها
@@ -305,8 +301,8 @@ async def get_crop_families_endpoint() -> Dict:
 
 async def check_rotation_compatibility_endpoint(
     crop_family: str,
-    previous_crops: List[str] = Query(..., description="List of previous crop codes"),
-) -> Dict:
+    previous_crops: list[str] = Query(..., description="List of previous crop codes"),
+) -> dict:
     """
     Check if a crop is compatible with previous crops
     التحقق من توافق محصول مع المحاصيل السابقة

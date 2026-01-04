@@ -9,10 +9,11 @@ Tests the base agent functionality including:
 - Tool usage
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
 from agents.base_agent import BaseAgent
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import AIMessage
 
 
 class ConcreteAgent(BaseAgent):

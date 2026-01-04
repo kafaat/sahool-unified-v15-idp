@@ -6,8 +6,7 @@ Generates consistent test field data
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import uuid4
 
 
@@ -18,10 +17,10 @@ class TestField:
     id: str
     tenant_id: str
     name: str
-    name_ar: Optional[str]
+    name_ar: str | None
     area_hectares: float
-    crop_type: Optional[str]
-    geometry: Optional[dict]
+    crop_type: str | None
+    geometry: dict | None
     metadata: dict
     created_at: datetime
     updated_at: datetime
@@ -62,7 +61,7 @@ def make_field(**overrides) -> TestField:
     Example:
         field = make_field(name="Custom Field", area_hectares=100.0)
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     defaults = {
         "id": str(uuid4()),

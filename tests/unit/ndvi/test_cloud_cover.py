@@ -3,19 +3,17 @@ SAHOOL NDVI Cloud Cover Tests
 Sprint 8: Unit tests for cloud coverage estimation
 """
 
-import pytest
 import sys
 
 sys.path.insert(0, "archive/kernel-legacy/kernel/services/ndvi_engine/src")
 
 from cloud_cover import (
-    estimate_cloud_coverage_from_mask,
-    estimate_cloud_coverage_from_scl,
-    estimate_cloud_coverage_from_qa,
-    is_scene_usable,
-    cloud_coverage_grade,
     SCLClass,
-    CLOUD_CLASSES,
+    cloud_coverage_grade,
+    estimate_cloud_coverage_from_mask,
+    estimate_cloud_coverage_from_qa,
+    estimate_cloud_coverage_from_scl,
+    is_scene_usable,
 )
 
 

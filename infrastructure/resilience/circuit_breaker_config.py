@@ -26,14 +26,15 @@ Usage:
 """
 
 import asyncio
+import json
+import logging
 import time
-from datetime import datetime, timezone
-from typing import Callable, Any, Optional, Dict
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from enum import Enum
 from functools import wraps
-import logging
-import json
+from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("circuit-breaker")
@@ -132,11 +133,11 @@ class CircuitBreakerMetrics:
     failed_calls: int = 0
     rejected_calls: int = 0  # Calls rejected due to open circuit
     circuit_opened_count: int = 0
-    last_failure_time: Optional[float] = None
-    last_success_time: Optional[float] = None
+    last_failure_time: float | None = None
+    last_success_time: float | None = None
     state_changes: list = field(default_factory=list)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "total_calls": self.total_calls,
             "successful_calls": self.successful_calls,
@@ -164,8 +165,8 @@ class CircuitBreaker:
         self.state = CircuitState.CLOSED
         self.failures: list = []  # Timestamps of recent failures
         self.successes_in_half_open = 0
-        self.last_failure_time: Optional[float] = None
-        self.opened_at: Optional[float] = None
+        self.last_failure_time: float | None = None
+        self.opened_at: float | None = None
         self.metrics = CircuitBreakerMetrics()
         self._lock = asyncio.Lock()
 
@@ -229,7 +230,7 @@ class CircuitBreaker:
             self.opened_at = time.time()
             self.metrics.circuit_opened_count += 1
             self.metrics.state_changes.append({
-                "time": datetime.now(timezone.utc).isoformat(),
+                "time": datetime.now(UTC).isoformat(),
                 "from": "closed/half_open",
                 "to": "open",
             })
@@ -242,7 +243,7 @@ class CircuitBreaker:
         self.successes_in_half_open = 0
         self.opened_at = None
         self.metrics.state_changes.append({
-            "time": datetime.now(timezone.utc).isoformat(),
+            "time": datetime.now(UTC).isoformat(),
             "from": "half_open",
             "to": "closed",
         })
@@ -253,7 +254,7 @@ class CircuitBreaker:
         self.state = CircuitState.HALF_OPEN
         self.successes_in_half_open = 0
         self.metrics.state_changes.append({
-            "time": datetime.now(timezone.utc).isoformat(),
+            "time": datetime.now(UTC).isoformat(),
             "from": "open",
             "to": "half_open",
         })
@@ -280,7 +281,7 @@ class CircuitBreaker:
             self._record_success()
             return result
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(f"⏰ Circuit '{self.config.name}': call timed out")
             self._record_failure()
             return self._get_fallback_response()
@@ -290,7 +291,7 @@ class CircuitBreaker:
             self._record_failure()
             raise
 
-    def _get_fallback_response(self) -> Dict:
+    def _get_fallback_response(self) -> dict:
         """Return fallback response when circuit is open."""
         if self.config.fallback_response is not None:
             return self.config.fallback_response
@@ -303,7 +304,7 @@ class CircuitBreaker:
             "retry_after": int(self.config.recovery_timeout),
         }
 
-    def get_status(self) -> Dict:
+    def get_status(self) -> dict:
         """Get current circuit breaker status."""
         return {
             "name": self.config.name,
@@ -320,10 +321,10 @@ class CircuitBreaker:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Global circuit breaker instances
-_circuit_breakers: Dict[str, CircuitBreaker] = {}
+_circuit_breakers: dict[str, CircuitBreaker] = {}
 
 
-def get_circuit_breaker(name: str, config: Optional[CircuitBreakerConfig] = None) -> CircuitBreaker:
+def get_circuit_breaker(name: str, config: CircuitBreakerConfig | None = None) -> CircuitBreaker:
     """Get or create a circuit breaker instance."""
     if name not in _circuit_breakers:
         if config is None:
@@ -375,7 +376,7 @@ def external_api_circuit_breaker(func: Callable):
 # MONITORING ENDPOINT
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def get_all_circuit_breaker_status() -> Dict:
+def get_all_circuit_breaker_status() -> dict:
     """Get status of all circuit breakers for monitoring."""
     return {
         name: cb.get_status()

@@ -17,11 +17,9 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import pytest
-import asyncio
-from typing import Dict, Any, List
 from datetime import datetime, timedelta
 
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Weather Alert Workflow - اختبار سير عمل تنبيهات الطقس
@@ -32,8 +30,8 @@ from datetime import datetime, timedelta
 @pytest.mark.asyncio
 async def test_weather_alert_creation_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إنشاء تنبيه طقس
@@ -88,8 +86,8 @@ async def test_weather_alert_creation_workflow(
 @pytest.mark.asyncio
 async def test_frost_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تنبيه الصقيع
@@ -151,8 +149,8 @@ async def test_frost_alert_workflow(
 @pytest.mark.asyncio
 async def test_pest_outbreak_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تنبيه تفشي الآفات
@@ -212,8 +210,8 @@ async def test_pest_outbreak_alert_workflow(
 @pytest.mark.asyncio
 async def test_disease_detection_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تنبيه اكتشاف الأمراض
@@ -279,8 +277,8 @@ async def test_disease_detection_alert_workflow(
 @pytest.mark.asyncio
 async def test_soil_moisture_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تنبيه رطوبة التربة
@@ -331,8 +329,8 @@ async def test_soil_moisture_alert_workflow(
 @pytest.mark.asyncio
 async def test_temperature_threshold_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تنبيه عتبة الحرارة
@@ -392,8 +390,8 @@ async def test_temperature_threshold_alert_workflow(
 @pytest.mark.asyncio
 async def test_get_active_alerts_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل الحصول على التنبيهات النشطة
@@ -412,7 +410,7 @@ async def test_get_active_alerts_workflow(
 
     if response.status_code == 200:
         alerts = response.json()
-        assert isinstance(alerts, (list, dict))
+        assert isinstance(alerts, list | dict)
 
         if isinstance(alerts, list):
             for alert in alerts:
@@ -425,8 +423,8 @@ async def test_get_active_alerts_workflow(
 @pytest.mark.asyncio
 async def test_acknowledge_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل الإقرار بالتنبيه
@@ -471,8 +469,8 @@ async def test_acknowledge_alert_workflow(
 @pytest.mark.asyncio
 async def test_dismiss_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل رفض التنبيه
@@ -520,8 +518,8 @@ async def test_dismiss_alert_workflow(
 @pytest.mark.asyncio
 async def test_alert_priority_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل أولوية التنبيه
@@ -561,8 +559,8 @@ async def test_alert_priority_workflow(
 @pytest.mark.asyncio
 async def test_multi_channel_alert_delivery(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار توصيل التنبيه عبر قنوات متعددة
@@ -603,8 +601,8 @@ async def test_multi_channel_alert_delivery(
 @pytest.mark.asyncio
 async def test_alert_statistics_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إحصائيات التنبيهات

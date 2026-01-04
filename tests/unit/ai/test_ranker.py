@@ -3,7 +3,6 @@ SAHOOL AI Ranker Tests
 Sprint 9: Unit tests for deterministic ranking
 """
 
-import pytest
 import sys
 
 sys.path.insert(0, "packages")

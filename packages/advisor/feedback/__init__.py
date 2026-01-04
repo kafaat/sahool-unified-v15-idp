@@ -3,7 +3,7 @@ SAHOOL Feedback Module
 User feedback on AI recommendations
 """
 
-from .models import AdvisorFeedback, FeedbackType, FeedbackRating
+from .models import AdvisorFeedback, FeedbackRating, FeedbackType
 from .service import FeedbackService
 
 __all__ = [

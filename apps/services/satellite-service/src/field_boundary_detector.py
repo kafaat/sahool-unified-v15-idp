@@ -19,12 +19,12 @@ References:
 - Watkins et al. (2019) - Field boundary detection from NDVI time series
 """
 
-from dataclasses import dataclass, asdict
-from typing import List, Tuple, Optional, Dict, Any
-from datetime import datetime, date, timedelta
-from enum import Enum
-import math
 import logging
+import math
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -39,20 +39,20 @@ class FieldBoundary:
     """Detected field boundary with geometric properties"""
 
     field_id: str
-    coordinates: List[Tuple[float, float]]  # [(lon, lat), ...]
+    coordinates: list[tuple[float, float]]  # [(lon, lat), ...]
     area_hectares: float
     perimeter_meters: float
-    centroid: Tuple[float, float]
+    centroid: tuple[float, float]
     detection_confidence: float  # 0.0 to 1.0
     detection_date: datetime
     method: str  # "ndvi_edge", "segmentation", "manual"
 
     # Optional metadata
-    mean_ndvi: Optional[float] = None
-    crop_type: Optional[str] = None
-    quality_score: Optional[float] = None  # Shape regularity, edge clarity
+    mean_ndvi: float | None = None
+    crop_type: str | None = None
+    quality_score: float | None = None  # Shape regularity, edge clarity
 
-    def to_geojson(self) -> Dict[str, Any]:
+    def to_geojson(self) -> dict[str, Any]:
         """Convert to GeoJSON Feature"""
         return {
             "type": "Feature",
@@ -84,13 +84,13 @@ class BoundaryChange:
     current_area: float
     change_percent: float
     change_type: str  # "expansion", "contraction", "stable"
-    affected_coordinates: List[Tuple[float, float]]
+    affected_coordinates: list[tuple[float, float]]
     detection_date: datetime
 
     # Additional metrics
-    area_change_hectares: Optional[float] = None
-    boundary_shift_meters: Optional[float] = None  # Average shift distance
-    change_confidence: Optional[float] = None
+    area_change_hectares: float | None = None
+    boundary_shift_meters: float | None = None  # Average shift distance
+    change_confidence: float | None = None
 
 
 class DetectionMethod(Enum):
@@ -146,8 +146,8 @@ class FieldBoundaryDetector:
         latitude: float,
         longitude: float,
         radius_meters: float = 500,
-        date: Optional[datetime] = None,
-    ) -> List[FieldBoundary]:
+        date: datetime | None = None,
+    ) -> list[FieldBoundary]:
         """
         Detect field boundaries around a point.
 
@@ -239,7 +239,7 @@ class FieldBoundaryDetector:
             return [self._create_simulated_boundary(latitude, longitude, date)]
 
     async def refine_boundary(
-        self, initial_coords: List[Tuple[float, float]], buffer_meters: float = 50
+        self, initial_coords: list[tuple[float, float]], buffer_meters: float = 50
     ) -> FieldBoundary:
         """
         Refine a rough boundary using high-resolution NDVI edges.
@@ -322,7 +322,7 @@ class FieldBoundaryDetector:
     async def detect_boundary_change(
         self,
         field_id: str,
-        previous_coords: List[Tuple[float, float]],
+        previous_coords: list[tuple[float, float]],
         current_date: datetime,
     ) -> BoundaryChange:
         """
@@ -427,7 +427,7 @@ class FieldBoundaryDetector:
     # Geometric Calculations
     # =========================================================================
 
-    def calculate_area(self, coords: List[Tuple[float, float]]) -> float:
+    def calculate_area(self, coords: list[tuple[float, float]]) -> float:
         """
         Calculate area in hectares using Shoelace formula with Haversine correction.
 
@@ -470,7 +470,7 @@ class FieldBoundaryDetector:
 
         return round(area_hectares, 4)
 
-    def calculate_perimeter(self, coords: List[Tuple[float, float]]) -> float:
+    def calculate_perimeter(self, coords: list[tuple[float, float]]) -> float:
         """
         Calculate perimeter in meters using Haversine formula.
 
@@ -495,8 +495,8 @@ class FieldBoundaryDetector:
         return round(perimeter, 2)
 
     def simplify_boundary(
-        self, coords: List[Tuple[float, float]], tolerance: float = 0.0001
-    ) -> List[Tuple[float, float]]:
+        self, coords: list[tuple[float, float]], tolerance: float = 0.0001
+    ) -> list[tuple[float, float]]:
         """
         Simplify boundary using Douglas-Peucker algorithm.
 
@@ -579,7 +579,7 @@ class FieldBoundaryDetector:
 
     async def _fetch_ndvi_data(
         self, lat: float, lon: float, radius: float, date: datetime
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Fetch NDVI data for the specified area"""
         # In production, this would fetch real satellite data
         # For now, return simulated data structure
@@ -595,16 +595,16 @@ class FieldBoundaryDetector:
         }
 
     def _detect_edges(
-        self, ndvi_data: Dict[str, Any], high_sensitivity: bool = False
-    ) -> List[List[Tuple[int, int]]]:
+        self, ndvi_data: dict[str, Any], high_sensitivity: bool = False
+    ) -> list[list[tuple[int, int]]]:
         """Detect edges in NDVI image using gradient analysis"""
         # Simplified edge detection - in production would use Sobel/Canny
         # Returns list of edge pixel coordinates
         return [[(0, 0), (0, 100), (100, 100), (100, 0)]]
 
     def _extract_contours(
-        self, edges: List[List[Tuple[int, int]]], lat: float, lon: float, radius: float
-    ) -> List[List[Tuple[float, float]]]:
+        self, edges: list[list[tuple[int, int]]], lat: float, lon: float, radius: float
+    ) -> list[list[tuple[float, float]]]:
         """Extract contours from edges and convert to geographic coordinates"""
         # Convert pixel coordinates to lat/lon
         meters_per_pixel = 10  # Assume 10m resolution
@@ -624,8 +624,8 @@ class FieldBoundaryDetector:
         return contours
 
     def _calculate_centroid(
-        self, coords: List[Tuple[float, float]]
-    ) -> Tuple[float, float]:
+        self, coords: list[tuple[float, float]]
+    ) -> tuple[float, float]:
         """Calculate centroid of a polygon"""
         if not coords:
             return (0.0, 0.0)
@@ -637,7 +637,7 @@ class FieldBoundaryDetector:
         return (round(lon_sum / n, 6), round(lat_sum / n, 6))
 
     def _calculate_confidence(
-        self, coords: List[Tuple[float, float]], area: float, perimeter: float
+        self, coords: list[tuple[float, float]], area: float, perimeter: float
     ) -> float:
         """Calculate detection confidence based on shape regularity"""
         # Use isoperimetric quotient as a measure of shape regularity
@@ -663,14 +663,14 @@ class FieldBoundaryDetector:
         return round(confidence, 2)
 
     def _calculate_mean_ndvi(
-        self, coords: List[Tuple[float, float]], ndvi_data: Dict[str, Any]
+        self, coords: list[tuple[float, float]], ndvi_data: dict[str, Any]
     ) -> float:
         """Calculate mean NDVI within boundary"""
         # Simplified - would sample NDVI values within polygon
         return 0.65
 
     def _calculate_quality_score(
-        self, coords: List[Tuple[float, float]], area: float, perimeter: float
+        self, coords: list[tuple[float, float]], area: float, perimeter: float
     ) -> float:
         """Calculate quality score based on shape characteristics"""
         # Combine multiple factors:
@@ -723,7 +723,7 @@ class FieldBoundaryDetector:
         return R * c
 
     def _calculate_average_radius(
-        self, coords: List[Tuple[float, float]], centroid: Tuple[float, float]
+        self, coords: list[tuple[float, float]], centroid: tuple[float, float]
     ) -> float:
         """Calculate average distance from centroid to boundary"""
         if not coords:
@@ -738,18 +738,18 @@ class FieldBoundaryDetector:
 
     def _snap_to_edges(
         self,
-        coords: List[Tuple[float, float]],
-        edges: List[List[Tuple[int, int]]],
+        coords: list[tuple[float, float]],
+        edges: list[list[tuple[int, int]]],
         buffer: float,
-    ) -> List[Tuple[float, float]]:
+    ) -> list[tuple[float, float]]:
         """Snap boundary coordinates to nearest edges"""
         # Simplified - in production would find nearest edge pixels
         # For now, just return the input coordinates
         return coords
 
     def _find_matching_boundary(
-        self, reference: List[Tuple[float, float]], candidates: List[FieldBoundary]
-    ) -> Optional[FieldBoundary]:
+        self, reference: list[tuple[float, float]], candidates: list[FieldBoundary]
+    ) -> FieldBoundary | None:
         """Find the boundary that best matches the reference"""
         if not candidates:
             return None
@@ -778,15 +778,15 @@ class FieldBoundaryDetector:
         return None
 
     def _calculate_boundary_difference(
-        self, coords1: List[Tuple[float, float]], coords2: List[Tuple[float, float]]
-    ) -> List[Tuple[float, float]]:
+        self, coords1: list[tuple[float, float]], coords2: list[tuple[float, float]]
+    ) -> list[tuple[float, float]]:
         """Calculate symmetric difference between two boundaries"""
         # Simplified - would use polygon operations
         # Return points that differ significantly
         return []
 
     def _calculate_boundary_shift(
-        self, coords1: List[Tuple[float, float]], coords2: List[Tuple[float, float]]
+        self, coords1: list[tuple[float, float]], coords2: list[tuple[float, float]]
     ) -> float:
         """Calculate average shift distance between boundaries"""
         if not coords1 or not coords2:

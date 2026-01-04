@@ -3,9 +3,9 @@ SAHOOL Notification Service - Database Configuration
 إعدادات قاعدة البيانات - Tortoise ORM
 """
 
-import os
 import logging
-from typing import Optional
+import os
+
 from tortoise import Tortoise, connections
 from tortoise.exceptions import DBConnectionError
 
@@ -15,7 +15,7 @@ logger = logging.getLogger("sahool-notifications.database")
 # Set DATABASE_URL in .env file (see .env.example for format)
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    raise EnvironmentError(
+    raise OSError(
         "DATABASE_URL environment variable is required. " "See .env.example for format"
     )
 
@@ -156,7 +156,7 @@ async def get_db_stats() -> dict:
     Get database statistics
     """
     try:
-        from .models import Notification, NotificationTemplate, NotificationPreference
+        from .models import Notification, NotificationPreference, NotificationTemplate
 
         total_notifications = await Notification.all().count()
         pending_notifications = await Notification.filter(status="pending").count()

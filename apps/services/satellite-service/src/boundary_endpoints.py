@@ -5,11 +5,11 @@ SAHOOL Field Boundary Detection Endpoints
 API endpoints for automatic field boundary detection, refinement, and change detection.
 """
 
-from fastapi import Query, HTTPException
-from typing import List, Optional
-from datetime import datetime
 import json
 import logging
+from datetime import datetime
+
+from fastapi import HTTPException, Query
 
 from .field_boundary_detector import BoundaryChange
 
@@ -30,7 +30,7 @@ def register_boundary_endpoints(app, boundary_detector):
         lat: float = Query(..., description="Latitude of center point"),
         lon: float = Query(..., description="Longitude of center point"),
         radius_m: float = Query(500, description="Search radius in meters"),
-        date: Optional[str] = Query(None, description="Date for imagery (ISO format)"),
+        date: str | None = Query(None, description="Date for imagery (ISO format)"),
     ):
         """
         Detect field boundaries around a point using NDVI edge detection.
@@ -104,7 +104,7 @@ def register_boundary_endpoints(app, boundary_detector):
 
     @app.post("/v1/boundaries/refine", response_model=dict)
     async def refine_boundary(
-        coords: List[List[float]] = Query(
+        coords: list[list[float]] = Query(
             ..., description="Initial boundary coordinates [[lon, lat], ...]"
         ),
         buffer_m: float = Query(50, description="Refinement buffer in meters"),
@@ -141,7 +141,7 @@ def register_boundary_endpoints(app, boundary_detector):
 
         try:
             # Convert to tuple format
-            coord_tuples = [(lon, lat) for lon, lat in coords]
+            coord_tuples = list(coords)
 
             if len(coord_tuples) < 3:
                 raise HTTPException(
@@ -212,7 +212,7 @@ def register_boundary_endpoints(app, boundary_detector):
             # Parse previous coordinates
             try:
                 coord_list = json.loads(previous_coords)
-                coord_tuples = [(lon, lat) for lon, lat in coord_list]
+                coord_tuples = list(coord_list)
             except (json.JSONDecodeError, ValueError):
                 raise HTTPException(
                     status_code=400,

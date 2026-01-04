@@ -9,10 +9,9 @@ FastAPI routes for authentication:
 """
 
 import logging
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
 
 from .jwt_handler import create_token
@@ -38,7 +37,7 @@ class LoginRequest(BaseModel):
 
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., description="User password", min_length=6)
-    totp_code: Optional[str] = Field(
+    totp_code: str | None = Field(
         None, description="6-digit TOTP code if 2FA is enabled"
     )
 
@@ -59,7 +58,7 @@ class LoginResponse(BaseModel):
     token_type: str = Field(default="bearer", description="Token type")
     user: dict = Field(..., description="User information")
     requires_2fa: bool = Field(default=False, description="Whether 2FA is required")
-    temp_token: Optional[str] = Field(
+    temp_token: str | None = Field(
         None, description="Temporary token for 2FA verification"
     )
 
@@ -135,26 +134,26 @@ def create_temp_token(user_id: str, email: str) -> str:
         "user_id": user_id,
         "email": email,
         "temp": True,
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=5),
+        "exp": datetime.now(UTC) + timedelta(minutes=5),
     }
     # Use a simple encoding for temp token (or use JWT)
-    import json
     import base64
+    import json
 
     return base64.b64encode(json.dumps(payload).encode()).decode()
 
 
-def verify_temp_token(temp_token: str) -> Optional[dict]:
+def verify_temp_token(temp_token: str) -> dict | None:
     """Verify and decode temporary token"""
     try:
-        import json
         import base64
+        import json
 
         payload = json.loads(base64.b64decode(temp_token))
 
         # Check expiration
         exp_time = datetime.fromisoformat(payload["exp"].replace("Z", "+00:00"))
-        if datetime.now(timezone.utc) > exp_time:
+        if datetime.now(UTC) > exp_time:
             return None
 
         if not payload.get("temp"):

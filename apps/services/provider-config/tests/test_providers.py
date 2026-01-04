@@ -3,15 +3,15 @@ SAHOOL Provider Configuration Service - Unit Tests
 اختبارات خدمة إدارة المزودين
 """
 
+import os
+import sys
+
 import pytest
 from fastapi.testclient import TestClient
 
-import sys
-import os
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.main import app, MAP_PROVIDERS, WEATHER_PROVIDERS, SATELLITE_PROVIDERS
+from src.main import MAP_PROVIDERS, SATELLITE_PROVIDERS, WEATHER_PROVIDERS, app
 
 
 @pytest.fixture

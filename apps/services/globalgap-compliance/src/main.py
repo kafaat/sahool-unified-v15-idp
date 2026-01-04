@@ -7,12 +7,11 @@ Port: 8120
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from typing import Optional, List
+from datetime import UTC, datetime
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query, Depends, Header
 import structlog
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
@@ -23,6 +22,7 @@ except ImportError:
     # Fallback if shared config not available | احتياطي إذا لم يكن التكوين المشترك متاحًا
     def setup_cors_middleware(app):
         import os
+
         from fastapi.middleware.cors import CORSMiddleware
 
         # Get allowed origins from environment or use safe defaults
@@ -39,29 +39,24 @@ except ImportError:
 
 
 from .config import settings
+from .models.certificate import (
+    CertificateStatus,
+    GGNCertificate,
+)
+from .models.checklist import (
+    ChecklistAssessment,
+    ChecklistCategory,
+    ComplianceLevel,
+    ControlPointStatus,
+)
 from .models.compliance import (
     ComplianceRecord,
     ComplianceStatus,
     NonConformity,
     SeverityLevel,
-    AuditResult,
 )
-from .models.checklist import (
-    ChecklistItem,
-    ChecklistCategory,
-    ComplianceLevel,
-    Checklist,
-    ChecklistAssessment,
-    ControlPointStatus,
-)
-from .models.certificate import (
-    GGNCertificate,
-    CertificateStatus,
-    CertificationScope,
-    CertificateRenewal,
-)
-from .services.compliance_service import ComplianceService
 from .services.audit_service import AuditService
+from .services.compliance_service import ComplianceService
 
 # Initialize structured logging | تهيئة السجلات المنظمة
 structlog.configure(
@@ -77,7 +72,7 @@ logger = structlog.get_logger(__name__)
 
 
 def get_tenant_id(
-    x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
 ) -> str:
     """
     Extract and validate tenant ID from X-Tenant-Id header
@@ -171,7 +166,7 @@ def health():
         "status": "healthy",
         "service": settings.service_name,
         "version": settings.service_version,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
             "database": "disconnected",  # TODO: Implement database health check
             "nats": "disconnected",  # TODO: Implement NATS health check
@@ -188,7 +183,7 @@ def liveness():
     return {
         "status": "alive",
         "service": settings.service_name,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -295,7 +290,7 @@ async def get_compliance_trends(
 @app.get("/checklists")
 async def get_checklists(
     ifa_version: str = Query("6.0", description="IFA version | إصدار معايير IFA"),
-    checklist_type: Optional[str] = Query(None, description="full, partial, follow_up"),
+    checklist_type: str | None = Query(None, description="full, partial, follow_up"),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -318,8 +313,8 @@ async def get_checklists(
 @app.get("/checklists/{checklist_id}/items")
 async def get_checklist_items(
     checklist_id: str,
-    category: Optional[ChecklistCategory] = Query(None),
-    compliance_level: Optional[ComplianceLevel] = Query(None),
+    category: ChecklistCategory | None = Query(None),
+    compliance_level: ComplianceLevel | None = Query(None),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -377,7 +372,7 @@ async def create_assessment(
 @app.get("/farms/{farm_id}/assessments")
 async def get_farm_assessments(
     farm_id: str,
-    status: Optional[ControlPointStatus] = Query(None),
+    status: ControlPointStatus | None = Query(None),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -493,8 +488,8 @@ async def get_farm_audits(
 @app.get("/farms/{farm_id}/non-conformities")
 async def get_farm_non_conformities(
     farm_id: str,
-    severity: Optional[SeverityLevel] = Query(None),
-    resolved: Optional[bool] = Query(None),
+    severity: SeverityLevel | None = Query(None),
+    resolved: bool | None = Query(None),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -543,7 +538,7 @@ async def create_non_conformity(
 @app.get("/farms/{farm_id}/certificates")
 async def get_farm_certificates(
     farm_id: str,
-    status: Optional[CertificateStatus] = Query(None),
+    status: CertificateStatus | None = Query(None),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """

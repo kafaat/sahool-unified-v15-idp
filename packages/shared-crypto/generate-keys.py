@@ -14,9 +14,9 @@ Usage:
 Author: SAHOOL Team
 """
 
+import json
 import os
 import sys
-import json
 from datetime import datetime
 
 

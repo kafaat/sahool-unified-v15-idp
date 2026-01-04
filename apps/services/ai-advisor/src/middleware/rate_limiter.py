@@ -3,13 +3,13 @@ Rate Limiter for AI Advisor
 محدد معدل الطلبات
 """
 
-from fastapi import Request, HTTPException
-from starlette.middleware.base import BaseHTTPMiddleware
-from collections import defaultdict
-from datetime import datetime, timedelta
-from typing import Dict, Tuple
 import asyncio
 import logging
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+from fastapi import HTTPException, Request
+from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +27,8 @@ class RateLimiter:
         self.burst_size = burst_size
 
         # Track requests per client
-        self._minute_requests: Dict[str, list] = defaultdict(list)
-        self._hour_requests: Dict[str, list] = defaultdict(list)
+        self._minute_requests: dict[str, list] = defaultdict(list)
+        self._hour_requests: dict[str, list] = defaultdict(list)
         self._lock = asyncio.Lock()
 
     def _get_client_id(self, request: Request) -> str:
@@ -50,7 +50,7 @@ class RateLimiter:
         cutoff = datetime.now() - window
         return [r for r in requests if r > cutoff]
 
-    async def check_rate_limit(self, request: Request) -> Tuple[bool, str]:
+    async def check_rate_limit(self, request: Request) -> tuple[bool, str]:
         """
         Check if request is within rate limits
         Returns: (is_allowed, reason)
@@ -83,7 +83,7 @@ class RateLimiter:
 
             return True, ""
 
-    def get_remaining(self, client_id: str) -> Dict[str, int]:
+    def get_remaining(self, client_id: str) -> dict[str, int]:
         """Get remaining requests for client"""
         minute_used = len(self._minute_requests.get(client_id, []))
         hour_used = len(self._hour_requests.get(client_id, []))

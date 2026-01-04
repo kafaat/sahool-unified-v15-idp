@@ -13,14 +13,14 @@ Features:
 - Correlation IDs
 """
 
-import logging
-import sys
 import json
+import logging
 import re
-from datetime import datetime
-from typing import Any, Optional, Dict, Union
-from contextvars import ContextVar
+import sys
 import traceback
+from contextvars import ContextVar
+from datetime import datetime
+from typing import Any
 
 # Context variables for request tracing
 request_id_var: ContextVar[str] = ContextVar("request_id", default="")
@@ -124,17 +124,11 @@ class SensitiveDataMasker:
 
         # Apply all patterns
         for pattern_name, pattern in cls.PATTERNS.items():
-            if pattern_name == "password":
-                result = pattern.sub(r"\1***REDACTED***\3", result)
-            elif pattern_name == "api_key":
+            if pattern_name == "password" or pattern_name == "api_key":
                 result = pattern.sub(r"\1***REDACTED***\3", result)
             elif pattern_name == "bearer_token":
                 result = pattern.sub(r"\1***REDACTED***", result)
-            elif pattern_name == "access_token":
-                result = pattern.sub(r"\1***REDACTED***\3", result)
-            elif pattern_name == "auth_header":
-                result = pattern.sub(r"\1***REDACTED***\3", result)
-            elif pattern_name == "database_url":
+            elif pattern_name == "access_token" or pattern_name == "auth_header" or pattern_name == "database_url":
                 result = pattern.sub(r"\1***REDACTED***\3", result)
             elif pattern_name == "aws_access_key":
                 result = pattern.sub(r"***AWS_KEY_REDACTED***", result)
@@ -158,7 +152,7 @@ class SensitiveDataMasker:
         return result
 
     @classmethod
-    def mask_dict(cls, data: Dict[str, Any], deep: bool = True) -> Dict[str, Any]:
+    def mask_dict(cls, data: dict[str, Any], deep: bool = True) -> dict[str, Any]:
         """
         Mask sensitive data in a dictionary.
         إخفاء البيانات الحساسة في قاموس.
@@ -183,7 +177,7 @@ class SensitiveDataMasker:
                 result[key] = cls.mask_string(value)
             elif isinstance(value, dict) and deep:
                 result[key] = cls.mask_dict(value, deep=True)
-            elif isinstance(value, (list, tuple)) and deep:
+            elif isinstance(value, list | tuple) and deep:
                 result[key] = [
                     (
                         cls.mask_dict(item, deep=True)
@@ -207,7 +201,7 @@ class SensitiveDataMasker:
             return cls.mask_string(value)
         elif isinstance(value, dict):
             return cls.mask_dict(value)
-        elif isinstance(value, (list, tuple)):
+        elif isinstance(value, list | tuple):
             return [cls.mask_value(item) for item in value]
         else:
             return value
@@ -337,7 +331,7 @@ class ServiceLogger:
         self,
         level: int,
         message: str,
-        extra: Optional[dict[str, Any]] = None,
+        extra: dict[str, Any] | None = None,
         exc_info: bool = False,
     ) -> None:
         """Internal log method with extra fields support."""
@@ -421,9 +415,9 @@ def setup_logging(
 
 
 def set_request_context(
-    request_id: Optional[str] = None,
-    tenant_id: Optional[str] = None,
-    user_id: Optional[str] = None,
+    request_id: str | None = None,
+    tenant_id: str | None = None,
+    user_id: str | None = None,
 ) -> None:
     """
     Set request context for logging.

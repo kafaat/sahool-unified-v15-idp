@@ -4,35 +4,25 @@ Agricultural inventory management and analytics
 Port: 8116
 """
 
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
-from typing import Optional, List
-from datetime import date, datetime
-from decimal import Decimal
+from datetime import date
 
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
 # Create local Base for models (standalone service doesn't need shared module)
 Base = declarative_base()
 
-from .models.inventory import (
-    InventoryItem,
-    InventoryMovement,
-    InventoryTransaction,
-    Warehouse,
-    ItemCategory,
-    Supplier,
-    MovementType,
-    TransactionType,
-)
 from .inventory_analytics import InventoryAnalytics
+from .models.inventory import (
+    ItemCategory,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -174,7 +164,7 @@ class ItemCategoryCreate(BaseModel):
     name_en: str
     name_ar: str
     code: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class ItemCategoryResponse(BaseModel):
@@ -223,7 +213,7 @@ async def get_forecast(
 @app.get("/v1/analytics/forecasts")
 async def get_all_forecasts(
     tenant_id: str = Query(...),
-    category: Optional[str] = None,
+    category: str | None = None,
     low_stock_only: bool = False,
     db: AsyncSession = Depends(get_db),
 ):
@@ -248,7 +238,7 @@ async def get_reorder_recommendations(
 @app.get("/v1/analytics/valuation")
 async def get_valuation(
     tenant_id: str = Query(...),
-    warehouse_id: Optional[str] = None,
+    warehouse_id: str | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     analytics = InventoryAnalytics(db, tenant_id)
@@ -330,10 +320,10 @@ async def get_seasonal_patterns(
 @app.get("/v1/analytics/cost-analysis")
 async def get_cost_analysis(
     tenant_id: str = Query(...),
-    field_id: Optional[str] = None,
-    crop_season_id: Optional[str] = None,
-    start_date: Optional[date] = None,
-    end_date: Optional[date] = None,
+    field_id: str | None = None,
+    crop_season_id: str | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
     db: AsyncSession = Depends(get_db),
 ):
     analytics = InventoryAnalytics(db, tenant_id)

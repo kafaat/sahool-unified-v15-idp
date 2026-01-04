@@ -7,9 +7,11 @@ Error Response Models
 """
 
 from datetime import datetime
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Generic, TypeVar
+
 from pydantic import BaseModel, Field
-from .error_codes import ErrorCode, ErrorCategory
+
+from .error_codes import ErrorCategory
 
 
 class FieldErrorModel(BaseModel):
@@ -20,13 +22,13 @@ class FieldErrorModel(BaseModel):
 
     field: str = Field(..., description="Field name that failed validation")
     message: str = Field(..., description="Error message in English")
-    message_ar: Optional[str] = Field(
+    message_ar: str | None = Field(
         None, description="Error message in Arabic - الرسالة بالعربية"
     )
-    constraint: Optional[str] = Field(
+    constraint: str | None = Field(
         None, description="Validation constraint that failed"
     )
-    value: Optional[Any] = Field(None, description="Invalid value that was provided")
+    value: Any | None = Field(None, description="Invalid value that was provided")
 
     class Config:
         json_schema_extra = {
@@ -51,15 +53,15 @@ class ErrorDetailsModel(BaseModel):
     messageAr: str = Field(
         ..., description="Error message in Arabic - الرسالة بالعربية"
     )
-    category: Optional[ErrorCategory] = Field(None, description="Error category")
+    category: ErrorCategory | None = Field(None, description="Error category")
     retryable: bool = Field(..., description="Whether the operation can be retried")
     timestamp: str = Field(..., description="Timestamp when error occurred")
-    path: Optional[str] = Field(None, description="Request path where error occurred")
-    details: Optional[Dict[str, Any]] = Field(
+    path: str | None = Field(None, description="Request path where error occurred")
+    details: dict[str, Any] | None = Field(
         None, description="Additional error details"
     )
-    requestId: Optional[str] = Field(None, description="Request ID for tracking")
-    stack: Optional[str] = Field(None, description="Stack trace (only in development)")
+    requestId: str | None = Field(None, description="Request ID for tracking")
+    stack: str | None = Field(None, description="Stack trace (only in development)")
 
     class Config:
         json_schema_extra = {
@@ -116,8 +118,8 @@ class SuccessResponseModel(BaseModel, Generic[T]):
 
     success: bool = Field(True, description="Success indicator")
     data: T = Field(..., description="Response data")
-    message: Optional[str] = Field(None, description="Response message in English")
-    messageAr: Optional[str] = Field(
+    message: str | None = Field(None, description="Response message in English")
+    messageAr: str | None = Field(
         None, description="Response message in Arabic - الرسالة بالعربية"
     )
     timestamp: str = Field(
@@ -167,10 +169,10 @@ class PaginatedResponseModel(BaseModel, Generic[T]):
     """
 
     success: bool = Field(True, description="Success indicator")
-    data: List[T] = Field(..., description="Response data")
+    data: list[T] = Field(..., description="Response data")
     meta: PaginationMetaModel = Field(..., description="Pagination metadata")
-    message: Optional[str] = Field(None, description="Response message in English")
-    messageAr: Optional[str] = Field(
+    message: str | None = Field(None, description="Response message in English")
+    messageAr: str | None = Field(
         None, description="Response message in Arabic - الرسالة بالعربية"
     )
     timestamp: str = Field(
@@ -198,9 +200,9 @@ class PaginatedResponseModel(BaseModel, Generic[T]):
 
 def create_success_response(
     data: Any,
-    message: Optional[str] = None,
-    message_ar: Optional[str] = None,
-) -> Dict[str, Any]:
+    message: str | None = None,
+    message_ar: str | None = None,
+) -> dict[str, Any]:
     """
     Helper function to create success response
     دالة مساعدة لإنشاء استجابة ناجحة
@@ -215,13 +217,13 @@ def create_success_response(
 
 
 def create_paginated_response(
-    data: List[Any],
+    data: list[Any],
     page: int,
     limit: int,
     total: int,
-    message: Optional[str] = None,
-    message_ar: Optional[str] = None,
-) -> Dict[str, Any]:
+    message: str | None = None,
+    message_ar: str | None = None,
+) -> dict[str, Any]:
     """
     Helper function to create paginated response
     دالة مساعدة لإنشاء استجابة مقسمة إلى صفحات

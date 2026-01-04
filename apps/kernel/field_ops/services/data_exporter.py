@@ -6,13 +6,13 @@
 Comprehensive data export service for field data and reports in multiple formats
 """
 
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any, Union, Tuple, TYPE_CHECKING
-from enum import Enum
-import json
 import csv
 import io
+import json
+from datetime import date, datetime, timedelta
+from enum import Enum
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 try:
     import pandas as pd
@@ -22,13 +22,21 @@ except ImportError:
 
 try:
     from reportlab.lib import colors
-    from reportlab.lib.pagesizes import letter, A4
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+    from reportlab.lib.pagesizes import A4, letter
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
     from reportlab.lib.units import inch
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.lib.enums import TA_RIGHT, TA_CENTER, TA_LEFT
+    from reportlab.platypus import (
+        Image,
+        PageBreak,
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
+        Table,
+        TableStyle,
+    )
     REPORTLAB_AVAILABLE = True
 except ImportError:
     REPORTLAB_AVAILABLE = False
@@ -41,8 +49,8 @@ except ImportError:
 
 try:
     from openpyxl import Workbook
-    from openpyxl.styles import Font, Alignment, PatternFill
     from openpyxl.chart import LineChart, Reference
+    from openpyxl.styles import Alignment, Font, PatternFill
     OPENPYXL_AVAILABLE = True
 except ImportError:
     OPENPYXL_AVAILABLE = False
@@ -86,10 +94,10 @@ class ExportResult:
         format: ExportFormat,
         filename: str,
         content_type: str,
-        data: Union[str, bytes],
+        data: str | bytes,
         size_bytes: int,
         generated_at: datetime,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: dict[str, Any] | None = None
     ):
         self.format = format
         self.filename = filename
@@ -143,7 +151,7 @@ class DataExporter:
         "notes": "ملاحظات",
     }
 
-    def __init__(self, arabic_font_path: Optional[str] = None):
+    def __init__(self, arabic_font_path: str | None = None):
         """
         Initialize data exporter
 
@@ -170,7 +178,7 @@ class DataExporter:
         self,
         field_id: str,
         format: ExportFormat,
-        date_range: Optional[Tuple[date, date]] = None,
+        date_range: tuple[date, date] | None = None,
         include_metadata: bool = True,
         include_ndvi: bool = True,
         include_sensors: bool = True,
@@ -254,7 +262,7 @@ class DataExporter:
         self,
         field_id: str,
         format: ExportFormat,
-        date_range: Optional[Tuple[date, date]] = None,
+        date_range: tuple[date, date] | None = None,
     ) -> ExportResult:
         """
         تصدير قراءات المستشعرات
@@ -295,7 +303,7 @@ class DataExporter:
         self,
         field_id: str,
         format: ExportFormat,
-        date_range: Optional[Tuple[date, date]] = None,
+        date_range: tuple[date, date] | None = None,
     ) -> ExportResult:
         """
         تصدير التوصيات
@@ -339,7 +347,7 @@ class DataExporter:
     def generate_report(
         self,
         report_type: ReportType,
-        params: Dict[str, Any],
+        params: dict[str, Any],
     ) -> ExportResult:
         """
         إنشاء تقرير
@@ -367,7 +375,7 @@ class DataExporter:
 
     # ============== Data Collection Methods ==============
 
-    def _get_field_metadata(self, field_id: str) -> Dict[str, Any]:
+    def _get_field_metadata(self, field_id: str) -> dict[str, Any]:
         """Get field metadata - placeholder for actual implementation"""
         return {
             "field_id": field_id,
@@ -387,8 +395,8 @@ class DataExporter:
     def _get_ndvi_history(
         self,
         field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
-    ) -> List[Dict[str, Any]]:
+        date_range: tuple[date, date] | None = None
+    ) -> list[dict[str, Any]]:
         """Get NDVI history - placeholder"""
         # In real implementation, fetch from database
         history = []
@@ -412,8 +420,8 @@ class DataExporter:
     def _get_sensor_readings(
         self,
         field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
-    ) -> List[Dict[str, Any]]:
+        date_range: tuple[date, date] | None = None
+    ) -> list[dict[str, Any]]:
         """Get sensor readings - placeholder"""
         return [
             {
@@ -429,8 +437,8 @@ class DataExporter:
     def _get_weather_data(
         self,
         field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
-    ) -> List[Dict[str, Any]]:
+        date_range: tuple[date, date] | None = None
+    ) -> list[dict[str, Any]]:
         """Get weather data - placeholder"""
         return [
             {
@@ -446,8 +454,8 @@ class DataExporter:
     def _get_recommendations(
         self,
         field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
-    ) -> List[Dict[str, Any]]:
+        date_range: tuple[date, date] | None = None
+    ) -> list[dict[str, Any]]:
         """Get recommendations - placeholder"""
         return [
             {
@@ -464,8 +472,8 @@ class DataExporter:
     def _get_actions_taken(
         self,
         field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
-    ) -> List[Dict[str, Any]]:
+        date_range: tuple[date, date] | None = None
+    ) -> list[dict[str, Any]]:
         """Get actions taken - placeholder"""
         return [
             {
@@ -480,7 +488,7 @@ class DataExporter:
 
     # ============== CSV Export Methods ==============
 
-    def _to_csv(self, data: Dict[str, Any]) -> str:
+    def _to_csv(self, data: dict[str, Any]) -> str:
         """Convert data to CSV with Arabic headers"""
         output = io.StringIO()
 
@@ -504,14 +512,14 @@ class DataExporter:
         writer = csv.DictWriter(output, fieldnames=fieldnames)
 
         # Write Arabic headers
-        writer.writerow(dict(zip(fieldnames, translated_fieldnames)))
+        writer.writerow(dict(zip(fieldnames, translated_fieldnames, strict=False)))
 
         # Write data rows
         writer.writerows(rows)
 
         return output.getvalue()
 
-    def _sensors_to_csv(self, sensors: List[Dict]) -> str:
+    def _sensors_to_csv(self, sensors: list[dict]) -> str:
         """Export sensors to CSV"""
         if not sensors:
             return ""
@@ -523,18 +531,18 @@ class DataExporter:
         translated = [self.ARABIC_HEADERS.get(f, f) for f in fieldnames]
 
         writer = csv.DictWriter(output, fieldnames=fieldnames)
-        writer.writerow(dict(zip(fieldnames, translated)))
+        writer.writerow(dict(zip(fieldnames, translated, strict=False)))
         writer.writerows(sensors)
 
         return output.getvalue()
 
-    def _recommendations_to_csv(self, recommendations: List[Dict]) -> str:
+    def _recommendations_to_csv(self, recommendations: list[dict]) -> str:
         """Export recommendations to CSV"""
         return self._sensors_to_csv(recommendations)
 
     # ============== Excel Export Methods ==============
 
-    def _to_excel_multi_sheet(self, data: Dict[str, Any]) -> bytes:
+    def _to_excel_multi_sheet(self, data: dict[str, Any]) -> bytes:
         """
         Export to Excel with multiple sheets
 
@@ -589,7 +597,7 @@ class DataExporter:
         wb.save(output)
         return output.getvalue()
 
-    def _add_metadata_sheet(self, ws, metadata: Dict):
+    def _add_metadata_sheet(self, ws, metadata: dict):
         """Add metadata to Excel sheet"""
         # Header styling
         header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
@@ -612,7 +620,7 @@ class DataExporter:
         ws.column_dimensions['A'].width = 25
         ws.column_dimensions['B'].width = 40
 
-    def _add_data_sheet(self, ws, data: List[Dict]):
+    def _add_data_sheet(self, ws, data: list[dict]):
         """Add data list to Excel sheet"""
         if not data:
             return
@@ -649,7 +657,7 @@ class DataExporter:
             adjusted_width = min(max_length + 2, 50)
             ws.column_dimensions[column].width = adjusted_width
 
-    def _sensors_to_excel(self, sensors: List[Dict]) -> bytes:
+    def _sensors_to_excel(self, sensors: list[dict]) -> bytes:
         """Export sensors to Excel"""
         if not OPENPYXL_AVAILABLE:
             raise RuntimeError("openpyxl is required for Excel export")
@@ -664,7 +672,7 @@ class DataExporter:
         wb.save(output)
         return output.getvalue()
 
-    def _recommendations_to_excel(self, recommendations: List[Dict]) -> bytes:
+    def _recommendations_to_excel(self, recommendations: list[dict]) -> bytes:
         """Export recommendations to Excel"""
         if not OPENPYXL_AVAILABLE:
             raise RuntimeError("openpyxl is required for Excel export")
@@ -681,11 +689,11 @@ class DataExporter:
 
     # ============== JSON Export Methods ==============
 
-    def _to_json(self, data: Dict[str, Any]) -> str:
+    def _to_json(self, data: dict[str, Any]) -> str:
         """Convert to JSON"""
         return json.dumps(data, indent=2, ensure_ascii=False, default=str)
 
-    def _to_geojson(self, data: Dict[str, Any]) -> str:
+    def _to_geojson(self, data: dict[str, Any]) -> str:
         """
         Convert to GeoJSON format
 
@@ -703,7 +711,7 @@ class DataExporter:
             },
             "properties": {
                 k: v for k, v in data.items()
-                if k not in ["metadata"] and not isinstance(v, (list, dict))
+                if k not in ["metadata"] and not isinstance(v, list | dict)
             }
         }
 
@@ -716,7 +724,7 @@ class DataExporter:
 
     # ============== PDF Export Methods ==============
 
-    def _to_pdf_field_report(self, data: Dict[str, Any]) -> bytes:
+    def _to_pdf_field_report(self, data: dict[str, Any]) -> bytes:
         """Generate PDF field report"""
         if not REPORTLAB_AVAILABLE:
             raise RuntimeError("reportlab is required for PDF export")
@@ -764,7 +772,7 @@ class DataExporter:
         doc.build(story)
         return buffer.getvalue()
 
-    def _recommendations_to_pdf(self, field_id: str, recommendations: List[Dict]) -> bytes:
+    def _recommendations_to_pdf(self, field_id: str, recommendations: list[dict]) -> bytes:
         """Generate PDF for recommendations"""
         if not REPORTLAB_AVAILABLE:
             raise RuntimeError("reportlab is required for PDF export")
@@ -790,7 +798,7 @@ class DataExporter:
         doc.build(story)
         return buffer.getvalue()
 
-    def _create_metadata_table(self, metadata: Dict):
+    def _create_metadata_table(self, metadata: dict):
         """Create metadata table for PDF"""
         data = [["Field", "Value"]]
 
@@ -813,7 +821,7 @@ class DataExporter:
 
         return table
 
-    def _create_ndvi_summary_table(self, ndvi_history: List[Dict]):
+    def _create_ndvi_summary_table(self, ndvi_history: list[dict]):
         """Create NDVI summary table"""
         data = [["Date", "Mean", "Min", "Max", "Cloud %"]]
 
@@ -840,7 +848,7 @@ class DataExporter:
 
         return table
 
-    def _create_recommendations_table(self, recommendations: List[Dict]):
+    def _create_recommendations_table(self, recommendations: list[dict]):
         """Create recommendations table"""
         data = [["Date", "Type", "Recommendation", "Priority"]]
 
@@ -868,7 +876,7 @@ class DataExporter:
 
     # ============== Report Generation Methods ==============
 
-    def _generate_daily_summary(self, params: Dict[str, Any]) -> ExportResult:
+    def _generate_daily_summary(self, params: dict[str, Any]) -> ExportResult:
         """
         Generate daily summary report
 
@@ -886,7 +894,7 @@ class DataExporter:
         report = DailySummaryReport(self)
         return report.generate(field_id, report_date)
 
-    def _generate_weekly_analysis(self, params: Dict[str, Any]) -> ExportResult:
+    def _generate_weekly_analysis(self, params: dict[str, Any]) -> ExportResult:
         """Generate weekly analysis report"""
         field_id = params.get("field_id")
         end_date = params.get("end_date", date.today())
@@ -915,7 +923,7 @@ class DataExporter:
             metadata={"field_id": field_id, "report_type": "weekly_analysis"}
         )
 
-    def _generate_monthly_report(self, params: Dict[str, Any]) -> ExportResult:
+    def _generate_monthly_report(self, params: dict[str, Any]) -> ExportResult:
         """Generate monthly report"""
         field_id = params.get("field_id")
         month = params.get("month", date.today().month)
@@ -936,7 +944,7 @@ class DataExporter:
 
         return data
 
-    def _generate_seasonal_comparison(self, params: Dict[str, Any]) -> ExportResult:
+    def _generate_seasonal_comparison(self, params: dict[str, Any]) -> ExportResult:
         """Generate seasonal comparison report"""
         field_id = params.get("field_id")
         seasons = params.get("seasons", [])
@@ -969,7 +977,7 @@ class DataExporter:
             metadata={"field_id": field_id, "report_type": "seasonal_comparison"}
         )
 
-    def _generate_yield_forecast(self, params: Dict[str, Any]) -> ExportResult:
+    def _generate_yield_forecast(self, params: dict[str, Any]) -> ExportResult:
         """Generate yield forecast report"""
         field_id = params.get("field_id")
 
@@ -1004,7 +1012,7 @@ class DataExporter:
 
     # ============== Helper Methods ==============
 
-    def _flatten_for_csv(self, data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def _flatten_for_csv(self, data: dict[str, Any]) -> list[dict[str, Any]]:
         """Flatten nested data structure for CSV export"""
         rows = []
 
@@ -1020,7 +1028,7 @@ class DataExporter:
             # Flatten single record
             row = {}
             for key, value in data.items():
-                if isinstance(value, (dict, list)):
+                if isinstance(value, dict | list):
                     row[key] = str(value)
                 else:
                     row[key] = value
@@ -1044,19 +1052,19 @@ class DataExporter:
 
 # ============== Convenience Functions ==============
 
-def export_field_csv(field_id: str, date_range: Optional[Tuple[date, date]] = None) -> ExportResult:
+def export_field_csv(field_id: str, date_range: tuple[date, date] | None = None) -> ExportResult:
     """Quick export field data to CSV"""
     exporter = DataExporter()
     return exporter.export_field_data(field_id, ExportFormat.CSV, date_range)
 
 
-def export_field_excel(field_id: str, date_range: Optional[Tuple[date, date]] = None) -> ExportResult:
+def export_field_excel(field_id: str, date_range: tuple[date, date] | None = None) -> ExportResult:
     """Quick export field data to Excel"""
     exporter = DataExporter()
     return exporter.export_field_data(field_id, ExportFormat.EXCEL, date_range)
 
 
-def generate_daily_report(field_id: str, report_date: Optional[date] = None) -> ExportResult:
+def generate_daily_report(field_id: str, report_date: date | None = None) -> ExportResult:
     """Quick generate daily report"""
     exporter = DataExporter()
     return exporter.generate_report(

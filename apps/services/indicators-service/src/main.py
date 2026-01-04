@@ -3,12 +3,13 @@
 خدمة المؤشرات الزراعية - Dashboard & Analytics
 """
 
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
-from enum import Enum
 import uuid
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
+
+from fastapi import FastAPI, HTTPException, Query
+from pydantic import BaseModel
 
 app = FastAPI(
     title="SAHOOL Agricultural Indicators | خدمة المؤشرات الزراعية",
@@ -66,9 +67,9 @@ class FieldIndicators(BaseModel):
     field_name: str
     area_hectares: float
     crop_type: str
-    indicators: List[Indicator]
+    indicators: list[Indicator]
     overall_score: float
-    alerts: List[Dict[str, Any]]
+    alerts: list[dict[str, Any]]
 
 
 class DashboardSummary(BaseModel):
@@ -76,11 +77,11 @@ class DashboardSummary(BaseModel):
     total_fields: int
     total_area_hectares: float
     average_health_score: float
-    indicators_summary: Dict[str, Any]
+    indicators_summary: dict[str, Any]
     active_alerts: int
     critical_alerts: int
-    top_performing_fields: List[Dict[str, Any]]
-    attention_needed_fields: List[Dict[str, Any]]
+    top_performing_fields: list[dict[str, Any]]
+    attention_needed_fields: list[dict[str, Any]]
     generated_at: datetime
 
 
@@ -386,7 +387,7 @@ def generate_indicator_value(
 
 def create_alert_if_needed(
     indicator: Indicator, field_id: str
-) -> Optional[IndicatorAlert]:
+) -> IndicatorAlert | None:
     """Create alert if indicator is in warning or critical state"""
     if indicator.status == "optimal":
         return None
@@ -498,7 +499,7 @@ def get_indicator_definitions():
 
 
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
-def get_field_indicators(field_id: str, category: Optional[IndicatorCategory] = None):
+def get_field_indicators(field_id: str, category: IndicatorCategory | None = None):
     """الحصول على مؤشرات حقل معين"""
     import random
 
@@ -564,7 +565,6 @@ def get_dashboard_summary(
     tenant_id: str, num_fields: int = Query(default=10, ge=1, le=100)
 ):
     """لوحة المعلومات الرئيسية للمستأجر"""
-    import random
 
     # Generate mock data for multiple fields
     fields_data = []
@@ -572,7 +572,7 @@ def get_dashboard_summary(
     total_health_score = 0
     all_alerts = []
 
-    for i in range(num_fields):
+    for _i in range(num_fields):
         field_id = f"field_{uuid.uuid4().hex[:8]}"
         field_indicators = get_field_indicators(field_id)
         fields_data.append(field_indicators)
@@ -642,7 +642,7 @@ def get_dashboard_summary(
 @app.get("/v1/alerts/{tenant_id}")
 def get_tenant_alerts(
     tenant_id: str,
-    severity: Optional[AlertSeverity] = None,
+    severity: AlertSeverity | None = None,
     limit: int = Query(default=50, ge=1, le=200),
 ):
     """الحصول على تنبيهات المستأجر"""

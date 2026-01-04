@@ -7,13 +7,11 @@ and comprehensive template categories for Yemen's agricultural context.
 """
 
 import json
-import os
+import logging
 import re
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-from datetime import datetime
-import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -46,12 +44,12 @@ class NotificationTemplate:
         self,
         template_id: str,
         category: TemplateCategory,
-        title: Dict[str, str],
-        body: Dict[str, str],
-        action_url: Optional[str] = None,
-        icon: Optional[str] = None,
+        title: dict[str, str],
+        body: dict[str, str],
+        action_url: str | None = None,
+        icon: str | None = None,
         priority: str = "medium",
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: dict[str, Any] | None = None
     ):
         self.template_id = template_id
         self.category = category
@@ -62,7 +60,7 @@ class NotificationTemplate:
         self.priority = priority
         self.metadata = metadata or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """تحويل القالب إلى قاموس"""
         return {
             "template_id": self.template_id,
@@ -76,7 +74,7 @@ class NotificationTemplate:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "NotificationTemplate":
+    def from_dict(cls, data: dict[str, Any]) -> "NotificationTemplate":
         """إنشاء قالب من قاموس"""
         return cls(
             template_id=data["template_id"],
@@ -102,7 +100,7 @@ class NotificationTemplateManager:
     - Template categories (Alert, Reminder, Report, Recommendation)
     """
 
-    def __init__(self, templates_dir: Optional[str] = None):
+    def __init__(self, templates_dir: str | None = None):
         """
         Initialize the template manager
 
@@ -115,7 +113,7 @@ class NotificationTemplateManager:
             # Default to templates directory relative to this file
             self.templates_dir = Path(__file__).parent
 
-        self.templates: Dict[str, NotificationTemplate] = {}
+        self.templates: dict[str, NotificationTemplate] = {}
         self._load_templates()
 
     def _load_templates(self):
@@ -126,14 +124,14 @@ class NotificationTemplateManager:
             if ar_dir.exists():
                 for template_file in ar_dir.glob("*.json"):
                     try:
-                        with open(template_file, 'r', encoding='utf-8') as f:
+                        with open(template_file, encoding='utf-8') as f:
                             data = json.load(f)
 
                             # Load corresponding English template if exists
                             en_file = self.templates_dir / "en" / template_file.name
                             en_data = {}
                             if en_file.exists():
-                                with open(en_file, 'r', encoding='utf-8') as ef:
+                                with open(en_file, encoding='utf-8') as ef:
                                     en_data = json.load(ef)
 
                             # Register template
@@ -145,7 +143,7 @@ class NotificationTemplateManager:
         except Exception as e:
             logger.error(f"Error loading templates: {e}")
 
-    def _register_from_json(self, ar_data: Dict, en_data: Dict):
+    def _register_from_json(self, ar_data: dict, en_data: dict):
         """تسجيل قالب من بيانات JSON"""
         template_id = ar_data.get("template_id")
         if not template_id:
@@ -174,7 +172,7 @@ class NotificationTemplateManager:
         self,
         template_id: str,
         language: str = 'ar'
-    ) -> Optional[NotificationTemplate]:
+    ) -> NotificationTemplate | None:
         """
         الحصول على قالب
 
@@ -190,9 +188,9 @@ class NotificationTemplateManager:
     def render_template(
         self,
         template_id: str,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         language: str = 'ar'
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """
         عرض قالب مع السياق
 
@@ -245,7 +243,7 @@ class NotificationTemplateManager:
                 "body": template.body.get(language, "")
             }
 
-    def _render_string(self, template_str: str, context: Dict[str, Any]) -> str:
+    def _render_string(self, template_str: str, context: dict[str, Any]) -> str:
         """
         عرض نص مع السياق
 
@@ -285,8 +283,8 @@ class NotificationTemplateManager:
 
     def list_templates(
         self,
-        category: Optional[TemplateCategory] = None
-    ) -> List[str]:
+        category: TemplateCategory | None = None
+    ) -> list[str]:
         """
         قائمة القوالب
 
@@ -310,9 +308,9 @@ class NotificationTemplateManager:
     def format_for_push(
         self,
         template_id: str,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         language: str = 'ar'
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         تنسيق للإشعارات الدفعية
 
@@ -325,7 +323,7 @@ class NotificationTemplateManager:
             Dict formatted for push notifications
         """
         rendered = self.render_template(template_id, context, language)
-        template = self.get_template(template_id, language)
+        self.get_template(template_id, language)
 
         return {
             "title": rendered["title"],
@@ -348,7 +346,7 @@ class NotificationTemplateManager:
     def format_for_sms(
         self,
         template_id: str,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         language: str = 'ar',
         max_length: int = 160
     ) -> str:
@@ -382,9 +380,9 @@ class NotificationTemplateManager:
     def format_for_email(
         self,
         template_id: str,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         language: str = 'ar'
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """
         تنسيق للبريد الإلكتروني (HTML)
 
@@ -397,7 +395,7 @@ class NotificationTemplateManager:
             Dict with subject, html_body, and text_body
         """
         rendered = self.render_template(template_id, context, language)
-        template = self.get_template(template_id, language)
+        self.get_template(template_id, language)
 
         # Create HTML email
         html_body = self._create_html_email(
@@ -422,7 +420,7 @@ class NotificationTemplateManager:
     def format_for_whatsapp(
         self,
         template_id: str,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         language: str = 'ar'
     ) -> str:
         """
@@ -459,17 +457,17 @@ class NotificationTemplateManager:
         # Remove emojis using comprehensive regex
         emoji_pattern = re.compile(
             "["
-            u"\U0001F600-\U0001F64F"  # emoticons
-            u"\U0001F300-\U0001F5FF"  # symbols & pictographs
-            u"\U0001F680-\U0001F6FF"  # transport & map symbols
-            u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
-            u"\U0001F900-\U0001F9FF"  # supplemental symbols (includes 🦠)
-            u"\U0001FA00-\U0001FA6F"  # chess symbols
-            u"\U0001FA70-\U0001FAFF"  # symbols and pictographs extended-A
-            u"\U00002702-\U000027B0"  # dingbats
-            u"\U000024C2-\U0001F251"
-            u"\U0001F780-\U0001F7FF"  # geometric shapes
-            u"\U0001F800-\U0001F8FF"  # supplemental arrows-C
+            "\U0001F600-\U0001F64F"  # emoticons
+            "\U0001F300-\U0001F5FF"  # symbols & pictographs
+            "\U0001F680-\U0001F6FF"  # transport & map symbols
+            "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+            "\U0001F900-\U0001F9FF"  # supplemental symbols (includes 🦠)
+            "\U0001FA00-\U0001FA6F"  # chess symbols
+            "\U0001FA70-\U0001FAFF"  # symbols and pictographs extended-A
+            "\U00002702-\U000027B0"  # dingbats
+            "\U000024C2-\U0001F251"
+            "\U0001F780-\U0001F7FF"  # geometric shapes
+            "\U0001F800-\U0001F8FF"  # supplemental arrows-C
             "]+",
             flags=re.UNICODE
         )
@@ -479,8 +477,8 @@ class NotificationTemplateManager:
         self,
         title: str,
         body: str,
-        action_url: Optional[str] = None,
-        icon: Optional[str] = None,
+        action_url: str | None = None,
+        icon: str | None = None,
         language: str = 'ar'
     ) -> str:
         """إنشاء بريد إلكتروني HTML"""
@@ -582,7 +580,7 @@ class NotificationTemplateManager:
 # =============================================================================
 
 # Create a global instance for easy access
-_template_manager: Optional[NotificationTemplateManager] = None
+_template_manager: NotificationTemplateManager | None = None
 
 
 def get_template_manager() -> NotificationTemplateManager:
@@ -599,7 +597,7 @@ def get_template_manager() -> NotificationTemplateManager:
 
 def render_notification(
     template_id: str,
-    context: Dict[str, Any],
+    context: dict[str, Any],
     language: str = 'ar',
     channel: NotificationChannel = NotificationChannel.PUSH
 ) -> Any:

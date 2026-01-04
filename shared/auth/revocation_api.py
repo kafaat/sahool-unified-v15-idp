@@ -6,7 +6,6 @@ Provides REST API endpoints for token revocation operations.
 """
 
 import logging
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
@@ -28,7 +27,7 @@ class RevokeTokenRequest(BaseModel):
     """Request to revoke a single token"""
 
     jti: str = Field(..., description="JWT ID to revoke")
-    reason: Optional[str] = Field("manual", description="Reason for revocation")
+    reason: str | None = Field("manual", description="Reason for revocation")
 
     class Config:
         json_schema_extra = {
@@ -43,7 +42,7 @@ class RevokeUserTokensRequest(BaseModel):
     """Request to revoke all tokens for a user"""
 
     user_id: str = Field(..., description="User ID")
-    reason: Optional[str] = Field("manual", description="Reason for revocation")
+    reason: str | None = Field("manual", description="Reason for revocation")
 
     class Config:
         json_schema_extra = {
@@ -55,7 +54,7 @@ class RevokeTenantTokensRequest(BaseModel):
     """Request to revoke all tokens for a tenant"""
 
     tenant_id: str = Field(..., description="Tenant ID")
-    reason: Optional[str] = Field("security", description="Reason for revocation")
+    reason: str | None = Field("security", description="Reason for revocation")
 
     class Config:
         json_schema_extra = {
@@ -68,7 +67,7 @@ class RevocationResponse(BaseModel):
 
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(..., description="Response message")
-    revoked_count: Optional[int] = Field(None, description="Number of tokens revoked")
+    revoked_count: int | None = Field(None, description="Number of tokens revoked")
 
     class Config:
         json_schema_extra = {
@@ -84,8 +83,8 @@ class TokenStatusResponse(BaseModel):
     """Response for token status check"""
 
     is_revoked: bool = Field(..., description="Whether token is revoked")
-    reason: Optional[str] = Field(None, description="Revocation reason")
-    revoked_at: Optional[float] = Field(None, description="When token was revoked")
+    reason: str | None = Field(None, description="Revocation reason")
+    revoked_at: float | None = Field(None, description="When token was revoked")
 
     class Config:
         json_schema_extra = {
@@ -106,7 +105,7 @@ class RevocationStatsResponse(BaseModel):
     revoked_tenants: int = Field(
         ..., description="Number of tenants with revoked tokens"
     )
-    redis_url: Optional[str] = Field(None, description="Redis connection URL (masked)")
+    redis_url: str | None = Field(None, description="Redis connection URL (masked)")
 
     class Config:
         json_schema_extra = {

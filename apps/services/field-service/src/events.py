@@ -5,8 +5,7 @@ SAHOOL Field Service - Event Publishing
 
 import json
 import os
-from datetime import datetime, timezone
-from typing import Optional, Any
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import nats
@@ -54,13 +53,13 @@ class FieldEventPublisher:
         event_type: str,
         tenant_id: str,
         data: dict,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> dict:
         """إنشاء حدث موحد"""
         return {
             "event_id": str(uuid4()),
             "event_type": event_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "source": "field-service",
             "version": "16.0.0",
             "tenant_id": tenant_id,
@@ -83,7 +82,7 @@ class FieldEventPublisher:
         field_name: str,
         area_hectares: float,
         location: dict,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """نشر حدث إنشاء حقل"""
         event = self._create_event(
@@ -105,7 +104,7 @@ class FieldEventPublisher:
         tenant_id: str,
         field_id: str,
         updated_fields: list,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """نشر حدث تحديث حقل"""
         event = self._create_event(
@@ -124,7 +123,7 @@ class FieldEventPublisher:
         tenant_id: str,
         field_id: str,
         user_id: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """نشر حدث حذف حقل"""
         event = self._create_event(
@@ -144,7 +143,7 @@ class FieldEventPublisher:
         field_id: str,
         new_area_hectares: float,
         centroid: dict,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """نشر حدث تحديث الحدود"""
         event = self._create_event(
@@ -168,7 +167,7 @@ class FieldEventPublisher:
         season_id: str,
         crop_type: str,
         planting_date: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """نشر حدث بدء موسم"""
         event = self._create_event(
@@ -191,8 +190,8 @@ class FieldEventPublisher:
         season_id: str,
         crop_type: str,
         harvest_date: str,
-        actual_yield_kg: Optional[float],
-        correlation_id: Optional[str] = None,
+        actual_yield_kg: float | None,
+        correlation_id: str | None = None,
     ) -> str:
         """نشر حدث إنهاء موسم"""
         event = self._create_event(
@@ -218,7 +217,7 @@ class FieldEventPublisher:
         zone_id: str,
         zone_name: str,
         area_hectares: float,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """نشر حدث إنشاء منطقة"""
         event = self._create_event(
@@ -239,7 +238,7 @@ class FieldEventPublisher:
         tenant_id: str,
         field_id: str,
         zone_id: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ) -> str:
         """نشر حدث حذف منطقة"""
         event = self._create_event(
@@ -254,7 +253,7 @@ class FieldEventPublisher:
         return await self._publish(FieldTopics.ZONE_DELETED, event)
 
 
-async def get_publisher() -> Optional[FieldEventPublisher]:
+async def get_publisher() -> FieldEventPublisher | None:
     """الحصول على ناشر الأحداث"""
     nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
 

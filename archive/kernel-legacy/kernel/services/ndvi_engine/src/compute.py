@@ -6,7 +6,6 @@ Remote sensing NDVI calculation and analysis
 import random
 from dataclasses import asdict, dataclass
 from datetime import date
-from typing import Optional
 
 
 @dataclass
@@ -231,7 +230,7 @@ def detect_anomalies(
     historical_mean: float,
     historical_std: float,
     threshold_sigma: float = 2.0,
-) -> Optional[dict]:
+) -> dict | None:
     """
     Detect NDVI anomalies compared to historical data
 

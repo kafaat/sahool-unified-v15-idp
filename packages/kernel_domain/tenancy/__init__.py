@@ -3,7 +3,7 @@ SAHOOL Multi-Tenancy Module
 Tenant management and isolation
 """
 
-from .models import Tenant, TenantSettings, TenantPlan, TenantStatus
+from .models import Tenant, TenantPlan, TenantSettings, TenantStatus
 from .service import TenantService
 
 __all__ = [

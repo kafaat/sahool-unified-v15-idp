@@ -11,14 +11,17 @@ Fast on-device processing for:
 Target response time: < 100ms
 """
 
-from typing import Any, Dict, List, Optional
-from datetime import datetime
-import asyncio
 import logging
+from datetime import datetime
+from typing import Any
 
 from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer, AgentStatus,
-    AgentContext, AgentAction, AgentPercept, AgentState
+    AgentAction,
+    AgentContext,
+    AgentLayer,
+    AgentPercept,
+    AgentType,
+    BaseAgent,
 )
 
 logger = logging.getLogger(__name__)
@@ -76,11 +79,11 @@ class MobileAgent(BaseAgent):
         )
 
         # Local cache for offline operation
-        self.local_cache: Dict[str, Any] = {}
-        self.offline_queue: List[Dict[str, Any]] = []
+        self.local_cache: dict[str, Any] = {}
+        self.offline_queue: list[dict[str, Any]] = []
 
         # Image processing state
-        self.last_image_analysis: Optional[Dict[str, Any]] = None
+        self.last_image_analysis: dict[str, Any] | None = None
 
         # Initialize rules
         self._init_rules()
@@ -158,7 +161,7 @@ class MobileAgent(BaseAgent):
         if len(self.state.memory) > 100:
             self.state.memory = self.state.memory[-100:]
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """
         التفكير السريع - Simple Reflex
         Quick thinking using predefined rules
@@ -190,7 +193,7 @@ class MobileAgent(BaseAgent):
 
         return None
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ الإجراء"""
         result = {
             "action_type": action.action_type,
@@ -242,7 +245,7 @@ class MobileAgent(BaseAgent):
 
         return result
 
-    async def _quick_image_analysis(self, image_data: Any) -> Dict[str, Any]:
+    async def _quick_image_analysis(self, image_data: Any) -> dict[str, Any]:
         """
         تحليل سريع للصورة
         Quick on-device image analysis using TFLite
@@ -261,7 +264,7 @@ class MobileAgent(BaseAgent):
         # Simulated voice parsing
         return "check_field_status"
 
-    async def _process_image_result(self, analysis: Dict[str, Any]) -> Optional[AgentAction]:
+    async def _process_image_result(self, analysis: dict[str, Any]) -> AgentAction | None:
         """معالجة نتيجة تحليل الصورة"""
         if analysis.get("quick_classification") == "disease":
             return AgentAction(
@@ -307,7 +310,7 @@ class MobileAgent(BaseAgent):
             source_agent=self.agent_id
         ))
 
-    async def _proactive_check(self) -> Optional[AgentAction]:
+    async def _proactive_check(self) -> AgentAction | None:
         """فحص استباقي"""
         if not self.context:
             return None
@@ -317,7 +320,7 @@ class MobileAgent(BaseAgent):
         # etc.
         return None
 
-    def get_offline_queue(self) -> List[Dict[str, Any]]:
+    def get_offline_queue(self) -> list[dict[str, Any]]:
         """الحصول على قائمة المهام المؤجلة"""
         return self.offline_queue
 
@@ -325,7 +328,7 @@ class MobileAgent(BaseAgent):
         """مسح قائمة المهام المؤجلة"""
         self.offline_queue = []
 
-    def sync_with_cloud(self, cloud_data: Dict[str, Any]) -> None:
+    def sync_with_cloud(self, cloud_data: dict[str, Any]) -> None:
         """مزامنة مع السحابة"""
         # Update local cache with cloud data
         self.local_cache.update(cloud_data.get("cache_updates", {}))

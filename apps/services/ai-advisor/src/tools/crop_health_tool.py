@@ -6,8 +6,9 @@ Tool for calling the crop-health-ai service.
 أداة لاستدعاء خدمة الذكاء الاصطناعي لصحة المحاصيل.
 """
 
+from typing import Any
+
 import httpx
-from typing import Dict, Any, Optional
 import structlog
 
 from ..config import settings
@@ -28,8 +29,8 @@ class CropHealthTool:
     async def analyze_image(
         self,
         image_path: str,
-        crop_type: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        crop_type: str | None = None,
+    ) -> dict[str, Any]:
         """
         Analyze crop image for disease detection
         تحليل صورة المحصول لكشف الأمراض
@@ -73,7 +74,7 @@ class CropHealthTool:
         self,
         disease_name: str,
         language: str = "en",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get information about a specific disease
         الحصول على معلومات عن مرض معين
@@ -109,8 +110,8 @@ class CropHealthTool:
         self,
         disease_name: str,
         crop_type: str,
-        severity: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        severity: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get treatment options for a disease
         الحصول على خيارات العلاج لمرض

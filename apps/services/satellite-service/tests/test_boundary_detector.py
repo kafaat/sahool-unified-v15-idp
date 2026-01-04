@@ -2,13 +2,14 @@
 Unit tests for Field Boundary Detector
 """
 
-import pytest
 from datetime import datetime
+
+import pytest
 from src.field_boundary_detector import (
-    FieldBoundaryDetector,
-    FieldBoundary,
     BoundaryChange,
     DetectionMethod,
+    FieldBoundary,
+    FieldBoundaryDetector,
 )
 
 

@@ -5,11 +5,11 @@ Base Event Classes
 Provides the foundational event structure for all SAHOOL domain events.
 """
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID, uuid4
-import json
 
 
 @dataclass
@@ -17,12 +17,12 @@ class EventMetadata:
     """Metadata attached to every event"""
 
     correlation_id: UUID
-    causation_id: Optional[UUID] = None
-    user_id: Optional[UUID] = None
-    trace_id: Optional[str] = None
-    span_id: Optional[str] = None
+    causation_id: UUID | None = None
+    user_id: UUID | None = None
+    trace_id: str | None = None
+    span_id: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "correlation_id": str(self.correlation_id),
             "causation_id": str(self.causation_id) if self.causation_id else None,
@@ -38,9 +38,9 @@ class EventSource:
 
     service: str
     version: str
-    instance_id: Optional[str] = None
+    instance_id: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "service": self.service,
             "version": self.version,
@@ -71,8 +71,8 @@ class BaseEvent:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Optional metadata
-    metadata: Optional[EventMetadata] = None
-    source: Optional[EventSource] = None
+    metadata: EventMetadata | None = None
+    source: EventSource | None = None
 
     def __post_init__(self):
         if not self.metadata:
@@ -86,7 +86,7 @@ class BaseEvent:
     def event_version(self) -> str:
         return self.EVENT_VERSION
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert event to dictionary for serialization"""
         return {
             "event_id": str(self.event_id),
@@ -102,7 +102,7 @@ class BaseEvent:
             "payload": self._payload_to_dict(),
         }
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         """Override in subclasses to define payload serialization"""
         raise NotImplementedError("Subclasses must implement _payload_to_dict")
 
@@ -111,7 +111,7 @@ class BaseEvent:
         return json.dumps(self.to_dict(), default=str)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "BaseEvent":
+    def from_dict(cls, data: dict[str, Any]) -> "BaseEvent":
         """Deserialize event from dictionary"""
         raise NotImplementedError("Subclasses must implement from_dict")
 

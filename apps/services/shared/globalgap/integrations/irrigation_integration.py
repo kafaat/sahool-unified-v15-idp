@@ -9,10 +9,10 @@ Links with irrigation-smart service to:
 """
 
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from enum import Enum
+from typing import Any
 
 from .events import GlobalGAPEventPublisher
 
@@ -50,10 +50,10 @@ class IrrigationRecord:
     irrigation_method: str
     duration_minutes: int
     water_quality_status: WaterQualityStatus
-    ph_level: Optional[float] = None
-    ec_level: Optional[float] = None  # Electrical Conductivity
-    test_date: Optional[datetime] = None
-    notes: Optional[str] = None
+    ph_level: float | None = None
+    ec_level: float | None = None  # Electrical Conductivity
+    test_date: datetime | None = None
+    notes: str | None = None
 
 
 @dataclass
@@ -66,10 +66,10 @@ class WaterUsageReport:
     period_end: datetime
     total_volume_m3: float
     average_daily_volume_m3: float
-    source_breakdown: Dict[str, float]
+    source_breakdown: dict[str, float]
     compliance_status: str
-    non_compliant_records: List[str]
-    recommendations: List[str]
+    non_compliant_records: list[str]
+    recommendations: list[str]
 
 
 class IrrigationIntegration:
@@ -87,7 +87,7 @@ class IrrigationIntegration:
 
     async def map_irrigation_to_spring(
         self, irrigation_data: dict, field_id: str, tenant_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         تعيين بيانات الري إلى متطلبات إدارة المياه SPRING
         Map irrigation data to SPRING water management requirements
@@ -117,7 +117,7 @@ class IrrigationIntegration:
                 "field_id": field_id,
                 "irrigation_event_id": irrigation_data.get("id"),
                 "date": irrigation_data.get(
-                    "timestamp", datetime.now(timezone.utc).isoformat()
+                    "timestamp", datetime.now(UTC).isoformat()
                 ),
                 # Water quantity
                 "water_volume_m3": water_volume,
@@ -185,7 +185,7 @@ class IrrigationIntegration:
         tenant_id: str,
         start_date: datetime,
         end_date: datetime,
-        irrigation_records: List[IrrigationRecord],
+        irrigation_records: list[IrrigationRecord],
     ) -> WaterUsageReport:
         """
         إنشاء تقرير استخدام المياه لتدقيق GlobalGAP
@@ -269,8 +269,8 @@ class IrrigationIntegration:
             raise
 
     async def track_water_source_compliance(
-        self, farm_id: str, tenant_id: str, water_sources: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, farm_id: str, tenant_id: str, water_sources: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """
         تتبع امتثال مصادر المياه
         Track water source compliance
@@ -400,7 +400,7 @@ class IrrigationIntegration:
 
         try:
             expiry = datetime.fromisoformat(expiry_date.replace("Z", "+00:00"))
-            return expiry > datetime.now(timezone.utc)
+            return expiry > datetime.now(UTC)
         except (ValueError, AttributeError):
             return False
 
@@ -413,7 +413,7 @@ class IrrigationIntegration:
         try:
             last_test = datetime.fromisoformat(test_date.replace("Z", "+00:00"))
             # GlobalGAP requires annual testing
-            one_year_ago = datetime.now(timezone.utc) - timedelta(days=365)
+            one_year_ago = datetime.now(UTC) - timedelta(days=365)
             return last_test > one_year_ago
         except (ValueError, AttributeError):
             return False
@@ -421,9 +421,9 @@ class IrrigationIntegration:
     def _generate_water_recommendations(
         self,
         total_volume: float,
-        source_breakdown: Dict[str, float],
-        records: List[IrrigationRecord],
-    ) -> List[str]:
+        source_breakdown: dict[str, float],
+        records: list[IrrigationRecord],
+    ) -> list[str]:
         """إنشاء توصيات إدارة المياه - Generate water management recommendations"""
         recommendations = []
 

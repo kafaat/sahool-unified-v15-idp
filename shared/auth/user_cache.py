@@ -8,7 +8,6 @@ Provides caching for user validation to improve performance.
 import json
 import logging
 from datetime import timedelta
-from typing import Optional
 
 try:
     import redis.asyncio as redis
@@ -30,7 +29,7 @@ class UserCache:
 
     def __init__(
         self,
-        redis_client: Optional[redis.Redis] = None,
+        redis_client: redis.Redis | None = None,
         ttl_seconds: int = 300,  # 5 minutes default
         key_prefix: str = "user_auth:",
     ):
@@ -47,7 +46,7 @@ class UserCache:
         self.key_prefix = key_prefix
         self._enabled = REDIS_AVAILABLE and redis_client is not None
 
-    async def get_user_status(self, user_id: str) -> Optional[dict]:
+    async def get_user_status(self, user_id: str) -> dict | None:
         """
         Get cached user status.
 
@@ -81,8 +80,8 @@ class UserCache:
         is_active: bool,
         is_verified: bool,
         roles: list[str],
-        email: Optional[str] = None,
-        tenant_id: Optional[str] = None,
+        email: str | None = None,
+        tenant_id: str | None = None,
     ) -> bool:
         """
         Cache user status.
@@ -178,10 +177,10 @@ class UserCache:
 
 
 # Global cache instance
-_user_cache: Optional[UserCache] = None
+_user_cache: UserCache | None = None
 
 
-def get_user_cache() -> Optional[UserCache]:
+def get_user_cache() -> UserCache | None:
     """
     Get the global user cache instance.
 
@@ -193,9 +192,9 @@ def get_user_cache() -> Optional[UserCache]:
 
 
 async def init_user_cache(
-    redis_url: Optional[str] = None,
+    redis_url: str | None = None,
     ttl_seconds: int = 300,
-) -> Optional[UserCache]:
+) -> UserCache | None:
     """
     Initialize the global user cache.
 

@@ -3,11 +3,9 @@ Tests for Circuit Breaker (Resilient Client)
 """
 
 import asyncio
-from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-
 from sahool_core.resilient_client import (
     CircuitBreaker,
     CircuitState,

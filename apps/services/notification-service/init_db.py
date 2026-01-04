@@ -9,20 +9,20 @@ Usage:
     python init_db.py --check           # Check database health
 """
 
-import asyncio
-import sys
-import os
 import argparse
+import asyncio
 import logging
+import os
+import sys
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from src.database import (
-    init_db,
-    close_db,
     check_db_health,
+    close_db,
     get_db_stats,
+    init_db,
     wait_for_db,
 )
 

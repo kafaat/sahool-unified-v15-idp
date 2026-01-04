@@ -6,7 +6,6 @@ Authentication Configuration
 import os
 import secrets
 from dataclasses import dataclass, field
-from typing import List, Optional
 
 
 @dataclass
@@ -27,7 +26,7 @@ class AuthConfig:
 
     # API Key Settings
     api_key_header: str = "X-API-Key"
-    api_keys: List[str] = field(default_factory=list)
+    api_keys: list[str] = field(default_factory=list)
 
     # Password Settings
     password_min_length: int = 8
@@ -41,8 +40,8 @@ class AuthConfig:
 
     # OAuth2 Settings (for external providers)
     oauth2_enabled: bool = False
-    google_client_id: Optional[str] = None
-    google_client_secret: Optional[str] = None
+    google_client_id: str | None = None
+    google_client_secret: str | None = None
 
     @classmethod
     def from_env(cls, prefix: str = "AUTH") -> "AuthConfig":
@@ -89,7 +88,7 @@ class AuthConfig:
 
 
 # Global config instance
-_config: Optional[AuthConfig] = None
+_config: AuthConfig | None = None
 
 
 def get_auth_config() -> AuthConfig:

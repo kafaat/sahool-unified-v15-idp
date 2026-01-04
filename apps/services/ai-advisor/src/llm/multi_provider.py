@@ -8,20 +8,21 @@ Supported Providers:
 3. Google Gemini (Optional)
 """
 
-import os
-import logging
 import asyncio
+import logging
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any, Union
+from datetime import datetime
 from enum import Enum
+from typing import Any
+
 from tenacity import (
+    before_sleep_log,
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
-    before_sleep_log,
 )
 
 from ..monitoring.cost_tracker import cost_tracker
@@ -63,7 +64,7 @@ class CircuitBreaker:
         self.recovery_timeout = recovery_timeout
         self.expected_exception = expected_exception
         self.failure_count = 0
-        self.last_failure_time: Optional[datetime] = None
+        self.last_failure_time: datetime | None = None
         self.state = "CLOSED"
 
     def call(self, func, *args, **kwargs):
@@ -166,11 +167,11 @@ class LLMResponse:
 class LLMResult:
     """Result wrapper with fallback info"""
 
-    data: Optional[LLMResponse]
+    data: LLMResponse | None
     provider: str
-    failed_providers: List[str] = field(default_factory=list)
-    error: Optional[str] = None
-    error_ar: Optional[str] = None
+    failed_providers: list[str] = field(default_factory=list)
+    error: str | None = None
+    error_ar: str | None = None
 
     @property
     def success(self) -> bool:
@@ -202,8 +203,8 @@ class LLMProvider(ABC):
     @abstractmethod
     async def chat(
         self,
-        messages: List[LLMMessage],
-        model: Optional[str] = None,
+        messages: list[LLMMessage],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -213,7 +214,7 @@ class LLMProvider(ABC):
     async def complete(
         self,
         prompt: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -261,8 +262,8 @@ class AnthropicProvider(LLMProvider):
     @retry(**RETRY_CONFIG)
     async def chat(
         self,
-        messages: List[LLMMessage],
-        model: Optional[str] = None,
+        messages: list[LLMMessage],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -272,8 +273,8 @@ class AnthropicProvider(LLMProvider):
 
     async def _chat_impl(
         self,
-        messages: List[LLMMessage],
-        model: Optional[str] = None,
+        messages: list[LLMMessage],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -335,7 +336,7 @@ class AnthropicProvider(LLMProvider):
     async def complete(
         self,
         prompt: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -384,8 +385,8 @@ class OpenAIProvider(LLMProvider):
     @retry(**RETRY_CONFIG)
     async def chat(
         self,
-        messages: List[LLMMessage],
-        model: Optional[str] = None,
+        messages: list[LLMMessage],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -395,8 +396,8 @@ class OpenAIProvider(LLMProvider):
 
     async def _chat_impl(
         self,
-        messages: List[LLMMessage],
-        model: Optional[str] = None,
+        messages: list[LLMMessage],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -450,7 +451,7 @@ class OpenAIProvider(LLMProvider):
     async def complete(
         self,
         prompt: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -500,8 +501,8 @@ class GoogleGeminiProvider(LLMProvider):
     @retry(**RETRY_CONFIG)
     async def chat(
         self,
-        messages: List[LLMMessage],
-        model: Optional[str] = None,
+        messages: list[LLMMessage],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -511,8 +512,8 @@ class GoogleGeminiProvider(LLMProvider):
 
     async def _chat_impl(
         self,
-        messages: List[LLMMessage],
-        model: Optional[str] = None,
+        messages: list[LLMMessage],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -590,7 +591,7 @@ class GoogleGeminiProvider(LLMProvider):
     async def complete(
         self,
         prompt: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
@@ -614,14 +615,14 @@ class MultiLLMService:
     3. Google Gemini (if GOOGLE_API_KEY or GEMINI_API_KEY set)
     """
 
-    def __init__(self, primary_provider: Optional[str] = None):
+    def __init__(self, primary_provider: str | None = None):
         """
         Initialize multi-provider service
 
         Args:
             primary_provider: Override primary provider (anthropic, openai, google)
         """
-        self.providers: List[LLMProvider] = []
+        self.providers: list[LLMProvider] = []
 
         # Determine provider order
         if primary_provider == "openai":
@@ -677,11 +678,11 @@ class MultiLLMService:
 
     async def chat(
         self,
-        messages: List[LLMMessage],
-        model: Optional[str] = None,
+        messages: list[LLMMessage],
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        specific_provider: Optional[str] = None,
+        specific_provider: str | None = None,
     ) -> LLMResult:
         """
         Send chat messages with automatic fallback
@@ -736,10 +737,10 @@ class MultiLLMService:
     async def complete(
         self,
         prompt: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         max_tokens: int = 4096,
         temperature: float = 0.7,
-        specific_provider: Optional[str] = None,
+        specific_provider: str | None = None,
     ) -> LLMResult:
         """Simple completion with fallback"""
         messages = [LLMMessage(role="user", content=prompt)]
@@ -747,7 +748,7 @@ class MultiLLMService:
             messages, model, max_tokens, temperature, specific_provider
         )
 
-    def get_available_providers(self) -> List[Dict[str, Any]]:
+    def get_available_providers(self) -> list[dict[str, Any]]:
         """Get list of available providers"""
         all_providers = [
             AnthropicProvider(),
@@ -765,7 +766,7 @@ class MultiLLMService:
             for p in all_providers
         ]
 
-    def get_primary_provider(self) -> Optional[str]:
+    def get_primary_provider(self) -> str | None:
         """Get the primary (first configured) provider name"""
         for p in self.providers:
             if p.is_configured:

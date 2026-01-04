@@ -1,9 +1,10 @@
 """Weather Domain Events"""
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
-from typing import Any, Dict, List, Optional
+from datetime import date, datetime
+from typing import Any
 from uuid import UUID
+
 from .base import BaseEvent
 
 
@@ -18,11 +19,11 @@ class WeatherForecastUpdatedEvent(BaseEvent):
     temperature_max: float = 0.0
     precipitation_mm: float = 0.0
     humidity_percent: float = 0.0
-    wind_speed_kmh: Optional[float] = None
-    uv_index: Optional[int] = None
-    conditions: Optional[str] = None
+    wind_speed_kmh: float | None = None
+    uv_index: int | None = None
+    conditions: str | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         return {
             "location_id": self.location_id,
             "forecast_date": (
@@ -47,13 +48,13 @@ class WeatherAlertIssuedEvent(BaseEvent):
     alert_id: UUID = None
     alert_type: str = ""
     severity: str = ""
-    affected_regions: List[str] = field(default_factory=list)
+    affected_regions: list[str] = field(default_factory=list)
     valid_from: datetime = None
     valid_until: datetime = None
-    description: Optional[str] = None
-    recommended_actions: Optional[List[str]] = None
+    description: str | None = None
+    recommended_actions: list[str] | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         return {
             "alert_id": str(self.alert_id),
             "alert_type": self.alert_type,

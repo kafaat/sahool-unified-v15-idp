@@ -8,10 +8,11 @@ Implements the Agent-to-Agent (A2A) protocol AgentCard specification.
 Reference: https://github.com/a2a-protocol/spec
 """
 
-from typing import List, Dict, Any, Optional, Literal
-from pydantic import BaseModel, Field, HttpUrl, validator
 from datetime import datetime
 from enum import Enum
+from typing import Any, Literal
+
+from pydantic import BaseModel, Field, HttpUrl, validator
 
 
 class SecurityScheme(str, Enum):
@@ -53,14 +54,14 @@ class AgentCapability(BaseModel):
 
     name: str = Field(..., description="Capability name")
     description: str = Field(..., description="Capability description")
-    description_ar: Optional[str] = Field(None, description="Arabic description")
-    input_schema: Optional[Dict[str, Any]] = Field(
+    description_ar: str | None = Field(None, description="Arabic description")
+    input_schema: dict[str, Any] | None = Field(
         None, description="JSON Schema for input"
     )
-    output_schema: Optional[Dict[str, Any]] = Field(
+    output_schema: dict[str, Any] | None = Field(
         None, description="JSON Schema for output"
     )
-    examples: Optional[List[Dict[str, Any]]] = Field(
+    examples: list[dict[str, Any]] | None = Field(
         default_factory=list, description="Usage examples"
     )
 
@@ -99,11 +100,11 @@ class AgentSkill(BaseModel):
 
     skill_id: str = Field(..., description="Unique skill identifier")
     name: str = Field(..., description="Skill name")
-    name_ar: Optional[str] = Field(None, description="Arabic name")
+    name_ar: str | None = Field(None, description="Arabic name")
     level: Literal["beginner", "intermediate", "advanced", "expert"] = Field(
         ..., description="Proficiency level"
     )
-    keywords: List[str] = Field(default_factory=list, description="Search keywords")
+    keywords: list[str] = Field(default_factory=list, description="Search keywords")
 
     class Config:
         json_schema_extra = {
@@ -127,7 +128,7 @@ class AgentEndpoint(BaseModel):
     method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"] = Field(
         default="POST", description="HTTP method"
     )
-    headers: Optional[Dict[str, str]] = Field(
+    headers: dict[str, str] | None = Field(
         default_factory=dict, description="Required headers"
     )
     timeout_seconds: int = Field(default=30, description="Request timeout")
@@ -149,13 +150,13 @@ class AgentMetadata(BaseModel):
     البيانات الوصفية للوكيل ومعلومات الاكتشاف
     """
 
-    tags: List[str] = Field(default_factory=list, description="Searchable tags")
-    category: Optional[str] = Field(None, description="Agent category")
-    organization: Optional[str] = Field(None, description="Organization/owner")
-    license: Optional[str] = Field(None, description="License type")
-    homepage: Optional[HttpUrl] = Field(None, description="Agent homepage")
-    documentation: Optional[HttpUrl] = Field(None, description="Documentation URL")
-    source_code: Optional[HttpUrl] = Field(None, description="Source code repository")
+    tags: list[str] = Field(default_factory=list, description="Searchable tags")
+    category: str | None = Field(None, description="Agent category")
+    organization: str | None = Field(None, description="Organization/owner")
+    license: str | None = Field(None, description="License type")
+    homepage: HttpUrl | None = Field(None, description="Agent homepage")
+    documentation: HttpUrl | None = Field(None, description="Documentation URL")
+    source_code: HttpUrl | None = Field(None, description="Source code repository")
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="Creation timestamp"
     )
@@ -191,36 +192,36 @@ class AgentCard(BaseModel):
     # Core Identity / الهوية الأساسية
     agent_id: str = Field(..., description="Unique agent identifier", min_length=1)
     name: str = Field(..., description="Agent name", min_length=1)
-    name_ar: Optional[str] = Field(None, description="Arabic name")
+    name_ar: str | None = Field(None, description="Arabic name")
     version: str = Field(
         ..., description="Agent version (semver)", pattern=r"^\d+\.\d+\.\d+$"
     )
 
     # Description / الوصف
     description: str = Field(..., description="Agent description", min_length=1)
-    description_ar: Optional[str] = Field(None, description="Arabic description")
+    description_ar: str | None = Field(None, description="Arabic description")
 
     # Capabilities / القدرات
-    capabilities: List[AgentCapability] = Field(
+    capabilities: list[AgentCapability] = Field(
         default_factory=list, description="Agent capabilities"
     )
-    skills: List[AgentSkill] = Field(
+    skills: list[AgentSkill] = Field(
         default_factory=list, description="Agent skills/expertise"
     )
 
     # Communication / التواصل
-    input_modes: List[InputMode] = Field(
+    input_modes: list[InputMode] = Field(
         default_factory=lambda: [InputMode.TEXT, InputMode.STRUCTURED],
         description="Supported input modes",
     )
-    output_modes: List[OutputMode] = Field(
+    output_modes: list[OutputMode] = Field(
         default_factory=lambda: [OutputMode.TEXT, OutputMode.STRUCTURED],
         description="Supported output modes",
     )
 
     # Endpoints / نقاط النهاية
     endpoint: AgentEndpoint = Field(..., description="Primary agent endpoint")
-    health_endpoint: Optional[HttpUrl] = Field(
+    health_endpoint: HttpUrl | None = Field(
         None, description="Health check endpoint"
     )
 
@@ -233,7 +234,7 @@ class AgentCard(BaseModel):
     )
 
     # Dependencies / التبعيات
-    dependencies: List[str] = Field(
+    dependencies: list[str] = Field(
         default_factory=list, description="Other agents this agent depends on"
     )
 
@@ -248,7 +249,7 @@ class AgentCard(BaseModel):
     )
 
     @validator("version")
-    def validate_version(cls, v):
+    def validate_version(self, v):
         """Validate semantic versioning format"""
         parts = v.split(".")
         if len(parts) != 3:
@@ -260,7 +261,7 @@ class AgentCard(BaseModel):
         return v
 
     @validator("agent_id")
-    def validate_agent_id(cls, v):
+    def validate_agent_id(self, v):
         """Validate agent ID format"""
         if not v.replace("-", "").replace("_", "").isalnum():
             raise ValueError(
@@ -268,7 +269,7 @@ class AgentCard(BaseModel):
             )
         return v
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Convert to dictionary
         تحويل إلى قاموس
@@ -283,7 +284,7 @@ class AgentCard(BaseModel):
         return self.model_dump_json(exclude_none=True, indent=2)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "AgentCard":
+    def from_dict(cls, data: dict[str, Any]) -> "AgentCard":
         """
         Create from dictionary
         إنشاء من قاموس

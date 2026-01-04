@@ -6,14 +6,13 @@ This module provides unit tests for the DiseaseCNNModel class.
 توفر هذه الوحدة اختبارات الوحدة لفئة DiseaseCNNModel.
 """
 
-import unittest
-import numpy as np
-from PIL import Image
-import tempfile
 import os
-from pathlib import Path
+import tempfile
+import unittest
 
+import numpy as np
 from disease_cnn import DiseaseCNNModel, DiseaseConfig
+from PIL import Image
 
 
 class TestDiseaseCNNModel(unittest.TestCase):

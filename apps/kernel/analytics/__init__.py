@@ -7,26 +7,23 @@ User and farmer activity analytics system
 """
 
 from .models import (
-    # Enums
-    EventType,
-    UserRole,
-    Governorate,
-    TimePeriod,
-
     # Models
     AnalyticsEvent,
-    UserMetrics,
     CohortAnalysis,
-    FeatureUsage,
-    RegionalMetrics,
+    # Enums
+    EventType,
     FarmerAnalytics,
+    FeatureUsage,
+    Governorate,
+    RegionalMetrics,
+    TimePeriod,
+    UserMetrics,
+    UserRole,
 )
-
 from .user_analytics import (
-    UserAnalyticsService,
     InMemoryStorage,
+    UserAnalyticsService,
 )
-
 
 __all__ = [
     # Enums

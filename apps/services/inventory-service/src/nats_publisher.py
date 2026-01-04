@@ -5,8 +5,8 @@ Publishes alert notifications to NATS for the notification service to consume
 
 import json
 import logging
-from typing import Optional, Dict, Any
 from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class NATSPublisher:
             servers: List of NATS server URLs
         """
         self.servers = servers or ["nats://localhost:4222"]
-        self._nc: Optional[NATSClient] = None
+        self._nc: NATSClient | None = None
         self._connected = False
 
     @property
@@ -91,7 +91,7 @@ class NATSPublisher:
         self._connected = True
 
     async def publish_alert(
-        self, alert: Dict[str, Any], recipients: list[str] = None
+        self, alert: dict[str, Any], recipients: list[str] = None
     ) -> bool:
         """
         Publish an alert notification to NATS
@@ -143,8 +143,8 @@ class NATSPublisher:
             return False
 
     async def publish_batch(
-        self, alerts: list[Dict[str, Any]], recipients: list[str] = None
-    ) -> Dict[str, int]:
+        self, alerts: list[dict[str, Any]], recipients: list[str] = None
+    ) -> dict[str, int]:
         """
         Publish multiple alerts in batch
 
@@ -180,16 +180,14 @@ class NATSPublisher:
         """
         if priority == "critical":
             return ["in_app", "push", "sms"]
-        elif priority == "high":
-            return ["in_app", "push"]
-        elif priority == "medium":
+        elif priority == "high" or priority == "medium":
             return ["in_app", "push"]
         else:  # low
             return ["in_app"]
 
 
 # Singleton instance
-_publisher_instance: Optional[NATSPublisher] = None
+_publisher_instance: NATSPublisher | None = None
 
 
 async def get_publisher(servers: list[str] = None) -> NATSPublisher:

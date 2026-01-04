@@ -5,18 +5,19 @@ Metrics Collection for Python Services
 Provides Prometheus-compatible metrics for monitoring.
 """
 
-from typing import Optional, Callable, Any
-from functools import wraps
 import time
+from collections.abc import Callable
 from contextlib import contextmanager
+from functools import wraps
+from typing import Any, Optional
 
 try:
     from prometheus_client import (
-        Counter,
-        Histogram,
-        Gauge,
-        Info,
         CollectorRegistry,
+        Counter,
+        Gauge,
+        Histogram,
+        Info,
         generate_latest,
     )
 
@@ -166,7 +167,7 @@ class MetricsCollector:
         self,
         name: str,
         description: str,
-        labels: Optional[list[str]] = None,
+        labels: list[str] | None = None,
     ) -> Optional["Counter"]:
         """
         Create a custom counter.
@@ -189,8 +190,8 @@ class MetricsCollector:
         self,
         name: str,
         description: str,
-        labels: Optional[list[str]] = None,
-        buckets: Optional[list[float]] = None,
+        labels: list[str] | None = None,
+        buckets: list[float] | None = None,
     ) -> Optional["Histogram"]:
         """
         Create a custom histogram.
@@ -214,7 +215,7 @@ class MetricsCollector:
         self,
         name: str,
         description: str,
-        labels: Optional[list[str]] = None,
+        labels: list[str] | None = None,
     ) -> Optional["Gauge"]:
         """
         Create a custom gauge.
@@ -234,7 +235,7 @@ class MetricsCollector:
         return gauge
 
     @contextmanager
-    def measure_time(self, metric_name: str, labels: Optional[dict[str, str]] = None):
+    def measure_time(self, metric_name: str, labels: dict[str, str] | None = None):
         """
         Context manager to measure execution time.
         مدير سياق لقياس وقت التنفيذ.
@@ -263,7 +264,7 @@ class MetricsCollector:
 
 
 def timed(
-    metric_name: str, labels_func: Optional[Callable[..., dict[str, str]]] = None
+    metric_name: str, labels_func: Callable[..., dict[str, str]] | None = None
 ):
     """
     Decorator to measure function execution time.
@@ -492,13 +493,13 @@ class AgentMetrics(MetricsCollector):
         agent_name: str,
         model: str,
         duration: float,
-        prompt_tokens: Optional[int] = None,
-        completion_tokens: Optional[int] = None,
-        total_tokens: Optional[int] = None,
-        cost: Optional[float] = None,
+        prompt_tokens: int | None = None,
+        completion_tokens: int | None = None,
+        total_tokens: int | None = None,
+        cost: float | None = None,
         success: bool = True,
-        error_type: Optional[str] = None,
-        response_length: Optional[int] = None,
+        error_type: str | None = None,
+        response_length: int | None = None,
     ) -> None:
         """
         Record an agent call with all relevant metrics.

@@ -4,7 +4,6 @@ Health Check Tests - Agro Advisor
 
 import pytest
 from fastapi.testclient import TestClient
-
 from kernel.services.agro_advisor.src.main import app
 
 

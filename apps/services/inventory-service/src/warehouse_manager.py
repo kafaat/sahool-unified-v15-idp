@@ -4,7 +4,6 @@ Handles warehouses, zones, locations, and stock transfers
 """
 
 from dataclasses import dataclass
-from typing import List, Optional, Dict
 from datetime import datetime, timedelta
 from enum import Enum
 
@@ -47,19 +46,19 @@ class Warehouse:
     name: str
     name_ar: str
     warehouse_type: WarehouseType
-    location: Dict  # {lat, lon, address, governorate}
+    location: dict  # {lat, lon, address, governorate}
     capacity: float
     capacity_unit: str  # "cubic_meter", "ton", "pallet"
     current_utilization: float
     storage_condition: StorageCondition
-    temperature_range: Optional[Dict]  # {min, max}
-    humidity_range: Optional[Dict]
-    zones: List[Dict]  # [{zone_id, name, capacity}]
+    temperature_range: dict | None  # {min, max}
+    humidity_range: dict | None
+    zones: list[dict]  # [{zone_id, name, capacity}]
     is_active: bool
-    manager_id: Optional[str] = None
-    manager_name: Optional[str] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    manager_id: str | None = None
+    manager_name: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 @dataclass
@@ -72,7 +71,7 @@ class StorageLocation:
     bin: str
     location_code: str  # e.g., "A-01-03-B"
     capacity: float
-    current_items: List[str]  # Item IDs
+    current_items: list[str]  # Item IDs
     storage_condition: StorageCondition
     is_occupied: bool = False
     current_qty: float = 0
@@ -124,8 +123,8 @@ class WarehouseManager:
         return self._warehouse_to_dataclass(warehouse)
 
     async def get_warehouses(
-        self, warehouse_type: Optional[str] = None, is_active: bool = True
-    ) -> List[Warehouse]:
+        self, warehouse_type: str | None = None, is_active: bool = True
+    ) -> list[Warehouse]:
         """
         Get all warehouses, optionally filtered
 
@@ -146,7 +145,7 @@ class WarehouseManager:
 
         return [self._warehouse_to_dataclass(w) for w in warehouses]
 
-    async def get_warehouse(self, warehouse_id: str) -> Optional[Warehouse]:
+    async def get_warehouse(self, warehouse_id: str) -> Warehouse | None:
         """
         Get a specific warehouse by ID
 
@@ -165,7 +164,7 @@ class WarehouseManager:
 
         return self._warehouse_to_dataclass(warehouse)
 
-    async def get_warehouse_utilization(self, warehouse_id: str) -> Dict:
+    async def get_warehouse_utilization(self, warehouse_id: str) -> dict:
         """
         Get current capacity usage by zone
 
@@ -218,7 +217,7 @@ class WarehouseManager:
 
     async def find_storage_location(
         self, item_category: str, required_condition: str, quantity: float
-    ) -> Optional[StorageLocation]:
+    ) -> StorageLocation | None:
         """
         Find suitable storage location for item
 
@@ -280,13 +279,13 @@ class WarehouseManager:
     async def transfer_stock(
         self,
         item_id: str,
-        from_warehouse: Optional[str],
+        from_warehouse: str | None,
         to_warehouse: str,
         quantity: float,
         requested_by: str,
         transfer_type: str = "INTER_WAREHOUSE",
-        notes: Optional[str] = None,
-    ) -> Dict:
+        notes: str | None = None,
+    ) -> dict:
         """
         Transfer stock between warehouses
 
@@ -327,7 +326,7 @@ class WarehouseManager:
             "requested_by": requested_by,
         }
 
-    async def approve_transfer(self, transfer_id: str, approved_by: str) -> Dict:
+    async def approve_transfer(self, transfer_id: str, approved_by: str) -> dict:
         """
         Approve a pending transfer
 
@@ -356,7 +355,7 @@ class WarehouseManager:
             ),
         }
 
-    async def complete_transfer(self, transfer_id: str, performed_by: str) -> Dict:
+    async def complete_transfer(self, transfer_id: str, performed_by: str) -> dict:
         """
         Mark transfer as completed
 
@@ -386,8 +385,8 @@ class WarehouseManager:
         }
 
     async def get_warehouse_inventory(
-        self, warehouse_id: str, category: Optional[str] = None
-    ) -> List[Dict]:
+        self, warehouse_id: str, category: str | None = None
+    ) -> list[dict]:
         """
         Get all inventory in a warehouse
 
@@ -428,7 +427,7 @@ class WarehouseManager:
 
         return result
 
-    async def check_storage_conditions(self, warehouse_id: str) -> Dict:
+    async def check_storage_conditions(self, warehouse_id: str) -> dict:
         """
         Check if current conditions match required conditions
 
@@ -463,7 +462,7 @@ class WarehouseManager:
             "alerts": [],
         }
 
-    async def get_expiring_items(self, warehouse_id: str, days: int = 30) -> List[Dict]:
+    async def get_expiring_items(self, warehouse_id: str, days: int = 30) -> list[dict]:
         """
         Get items expiring within N days in warehouse
 
@@ -514,8 +513,8 @@ class WarehouseManager:
         name: str,
         name_ar: str,
         capacity: float,
-        condition: Optional[str] = None,
-    ) -> Dict:
+        condition: str | None = None,
+    ) -> dict:
         """
         Create a zone within a warehouse
 
@@ -551,7 +550,7 @@ class WarehouseManager:
 
     async def create_storage_location(
         self, zone_id: str, aisle: str, shelf: str, bin: str, capacity: float
-    ) -> Dict:
+    ) -> dict:
         """
         Create a storage location within a zone
 
@@ -591,10 +590,10 @@ class WarehouseManager:
 
     async def get_transfers(
         self,
-        warehouse_id: Optional[str] = None,
-        status: Optional[str] = None,
+        warehouse_id: str | None = None,
+        status: str | None = None,
         limit: int = 50,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         Get stock transfers
 

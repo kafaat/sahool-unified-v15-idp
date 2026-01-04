@@ -37,16 +37,15 @@ Usage:
     )
 """
 
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
-from uuid import UUID, uuid4
+from datetime import date, datetime
 from enum import Enum
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 from shared.events.publisher import EventPublisher
-from .events import WaterUsageRecordedEvent, GlobalGAPSubjects, ComplianceUpdatedEvent
 
+from .events import GlobalGAPSubjects, WaterUsageRecordedEvent
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enums and Constants
@@ -109,7 +108,7 @@ class WaterUsageRecord(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()), description="Record ID")
     farm_id: UUID = Field(..., description="Farm ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
 
     # Water usage
@@ -117,7 +116,7 @@ class WaterUsageRecord(BaseModel):
         ..., ge=0, description="Water volume in cubic meters"
     )
     water_source: WaterSource = Field(..., description="Water source")
-    water_source_name: Optional[str] = Field(
+    water_source_name: str | None = Field(
         None, description="Specific water source name"
     )
 
@@ -125,26 +124,26 @@ class WaterUsageRecord(BaseModel):
     water_quality_status: WaterQualityStatus = Field(
         ..., description="Water quality test status"
     )
-    water_quality_test_date: Optional[date] = Field(
+    water_quality_test_date: date | None = Field(
         None, description="Last water quality test date"
     )
-    water_quality_certificate_url: Optional[str] = Field(
+    water_quality_certificate_url: str | None = Field(
         None, description="Water quality certificate URL"
     )
 
     # Period
     recording_date: date = Field(..., description="Recording date")
-    usage_period_start: Optional[date] = Field(None, description="Usage period start")
-    usage_period_end: Optional[date] = Field(None, description="Usage period end")
+    usage_period_start: date | None = Field(None, description="Usage period start")
+    usage_period_end: date | None = Field(None, description="Usage period end")
 
     # Irrigation details
-    irrigation_method: Optional[IrrigationMethod] = Field(
+    irrigation_method: IrrigationMethod | None = Field(
         None, description="Irrigation method used"
     )
-    irrigation_duration_hours: Optional[float] = Field(
+    irrigation_duration_hours: float | None = Field(
         None, ge=0, description="Irrigation duration"
     )
-    irrigation_efficiency: Optional[float] = Field(
+    irrigation_efficiency: float | None = Field(
         None, ge=0, le=100, description="Irrigation efficiency %"
     )
 
@@ -152,7 +151,7 @@ class WaterUsageRecord(BaseModel):
     water_rights_documented: bool = Field(
         default=False, description="Water rights documented"
     )
-    water_rights_document_url: Optional[str] = Field(
+    water_rights_document_url: str | None = Field(
         None, description="Water rights document URL"
     )
     spring_compliant: bool = Field(
@@ -160,7 +159,7 @@ class WaterUsageRecord(BaseModel):
     )
 
     # Metadata
-    recorded_by: Optional[UUID] = Field(None, description="User who recorded")
+    recorded_by: UUID | None = Field(None, description="User who recorded")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -184,7 +183,7 @@ class WaterUsageReport(BaseModel):
     )
     farm_id: UUID = Field(..., description="Farm ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
-    ggn: Optional[str] = Field(None, description="GlobalGAP Number")
+    ggn: str | None = Field(None, description="GlobalGAP Number")
 
     # Reporting period
     report_start_date: date = Field(..., description="Report period start")
@@ -202,13 +201,13 @@ class WaterUsageReport(BaseModel):
     )
 
     # Water sources breakdown
-    water_by_source: Dict[str, float] = Field(
+    water_by_source: dict[str, float] = Field(
         default_factory=dict,
         description="Water volume by source (e.g., {'WELL': 1000.0, 'MUNICIPAL': 500.0})",
     )
 
     # Irrigation methods breakdown
-    water_by_irrigation_method: Dict[str, float] = Field(
+    water_by_irrigation_method: dict[str, float] = Field(
         default_factory=dict, description="Water volume by irrigation method"
     )
 
@@ -244,23 +243,23 @@ class WaterUsageReport(BaseModel):
     )
 
     # Issues and recommendations
-    non_compliant_sources: List[str] = Field(
+    non_compliant_sources: list[str] = Field(
         default_factory=list, description="Water sources without quality tests"
     )
-    missing_water_rights: List[str] = Field(
+    missing_water_rights: list[str] = Field(
         default_factory=list, description="Sources missing water rights documentation"
     )
 
-    recommendations_en: List[str] = Field(
+    recommendations_en: list[str] = Field(
         default_factory=list, description="Recommendations in English"
     )
-    recommendations_ar: List[str] = Field(
+    recommendations_ar: list[str] = Field(
         default_factory=list, description="Recommendations in Arabic"
     )
 
     # Report metadata
     generated_at: datetime = Field(default_factory=datetime.utcnow)
-    generated_by: Optional[UUID] = Field(None, description="User who generated report")
+    generated_by: UUID | None = Field(None, description="User who generated report")
 
     class Config:
         json_encoders = {
@@ -284,11 +283,11 @@ class SPRINGCompliance(BaseModel):
     water_management_plan_exists: bool = Field(
         ..., description="Water management plan documented"
     )
-    water_management_plan_url: Optional[str] = Field(
+    water_management_plan_url: str | None = Field(
         None, description="Water management plan URL"
     )
 
-    irrigation_system_efficiency: Optional[float] = Field(
+    irrigation_system_efficiency: float | None = Field(
         None, ge=0, le=100, description="Irrigation system efficiency %"
     )
     target_efficiency: float = Field(
@@ -299,7 +298,7 @@ class SPRINGCompliance(BaseModel):
     water_usage_monitored: bool = Field(
         ..., description="Water usage systematically monitored"
     )
-    monitoring_frequency_days: Optional[int] = Field(
+    monitoring_frequency_days: int | None = Field(
         None, ge=1, description="Monitoring frequency in days"
     )
 
@@ -307,10 +306,10 @@ class SPRINGCompliance(BaseModel):
     water_quality_tested_annually: bool = Field(
         ..., description="Water quality tested at least annually"
     )
-    last_quality_test_date: Optional[date] = Field(
+    last_quality_test_date: date | None = Field(
         None, description="Last quality test date"
     )
-    days_since_last_test: Optional[int] = Field(
+    days_since_last_test: int | None = Field(
         None, description="Days since last quality test"
     )
 
@@ -329,10 +328,10 @@ class SPRINGCompliance(BaseModel):
     )
 
     # Issues
-    non_compliance_issues_en: List[str] = Field(
+    non_compliance_issues_en: list[str] = Field(
         default_factory=list, description="Non-compliance issues (English)"
     )
-    non_compliance_issues_ar: List[str] = Field(
+    non_compliance_issues_ar: list[str] = Field(
         default_factory=list, description="Non-compliance issues (Arabic)"
     )
 
@@ -364,7 +363,7 @@ class IrrigationIntegration:
     - Emit NATS events for water usage tracking
     """
 
-    def __init__(self, publisher: Optional[EventPublisher] = None):
+    def __init__(self, publisher: EventPublisher | None = None):
         """
         Initialize irrigation integration
 
@@ -410,15 +409,15 @@ class IrrigationIntegration:
         tenant_id: UUID,
         water_volume_m3: float,
         water_source: WaterSource,
-        field_id: Optional[UUID] = None,
-        irrigation_method: Optional[IrrigationMethod] = None,
+        field_id: UUID | None = None,
+        irrigation_method: IrrigationMethod | None = None,
         water_quality_status: WaterQualityStatus = WaterQualityStatus.NOT_TESTED,
-        water_quality_test_date: Optional[date] = None,
+        water_quality_test_date: date | None = None,
         water_rights_documented: bool = False,
-        irrigation_duration_hours: Optional[float] = None,
-        irrigation_efficiency: Optional[float] = None,
-        recording_date: Optional[date] = None,
-        recorded_by: Optional[UUID] = None,
+        irrigation_duration_hours: float | None = None,
+        irrigation_efficiency: float | None = None,
+        recording_date: date | None = None,
+        recorded_by: UUID | None = None,
     ) -> WaterUsageRecord:
         """
         Record irrigation event for GlobalGAP compliance tracking
@@ -497,7 +496,7 @@ class IrrigationIntegration:
     def _check_spring_compliance(
         self,
         water_quality_status: WaterQualityStatus,
-        water_quality_test_date: Optional[date],
+        water_quality_test_date: date | None,
         water_rights_documented: bool,
     ) -> bool:
         """
@@ -525,10 +524,7 @@ class IrrigationIntegration:
             return False
 
         # Water rights must be documented
-        if not water_rights_documented:
-            return False
-
-        return True
+        return water_rights_documented
 
     # ─────────────────────────────────────────────────────────────────────────
     # Generate Reports
@@ -540,10 +536,10 @@ class IrrigationIntegration:
         tenant_id: UUID,
         start_date: date,
         end_date: date,
-        records: List[WaterUsageRecord],
-        ggn: Optional[str] = None,
+        records: list[WaterUsageRecord],
+        ggn: str | None = None,
         total_irrigated_area_ha: float = 0.0,
-        generated_by: Optional[UUID] = None,
+        generated_by: UUID | None = None,
     ) -> WaterUsageReport:
         """
         Generate water usage report for GlobalGAP audit
@@ -571,7 +567,7 @@ class IrrigationIntegration:
         )
 
         # Water by source
-        water_by_source: Dict[str, float] = {}
+        water_by_source: dict[str, float] = {}
         for record in records:
             source = (
                 record.water_source.value
@@ -583,7 +579,7 @@ class IrrigationIntegration:
             )
 
         # Water by irrigation method
-        water_by_method: Dict[str, float] = {}
+        water_by_method: dict[str, float] = {}
         for record in records:
             if record.irrigation_method:
                 method = (
@@ -715,11 +711,11 @@ class IrrigationIntegration:
         self,
         farm_id: UUID,
         water_management_plan_exists: bool,
-        irrigation_system_efficiency: Optional[float],
+        irrigation_system_efficiency: float | None,
         water_usage_monitored: bool,
-        monitoring_frequency_days: Optional[int],
+        monitoring_frequency_days: int | None,
         water_quality_tested_annually: bool,
-        last_quality_test_date: Optional[date],
+        last_quality_test_date: date | None,
         water_rights_authorized: bool,
         water_usage_within_limits: bool,
         compliance_period_start: date,

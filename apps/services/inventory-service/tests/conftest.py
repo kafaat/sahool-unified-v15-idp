@@ -3,17 +3,18 @@ Pytest Configuration and Fixtures for Inventory Service
 تكوين pytest والتجهيزات لخدمة المخزون
 """
 
-import pytest
 import os
-from typing import AsyncGenerator
-from datetime import datetime, date, timedelta
-from decimal import Decimal
-from unittest.mock import Mock, AsyncMock, patch
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.pool import StaticPool
 
 # Import models
 import sys
+from collections.abc import AsyncGenerator
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+from unittest.mock import AsyncMock, patch
+
+import pytest
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.pool import StaticPool
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
 from database.base import Base

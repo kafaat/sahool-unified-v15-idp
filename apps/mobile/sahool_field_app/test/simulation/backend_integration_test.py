@@ -7,12 +7,10 @@ Tests the API endpoints that the mobile app connects to.
 """
 
 import asyncio
-import json
-from datetime import datetime
 from dataclasses import dataclass
-from typing import Dict, Any, List, Optional
+from datetime import datetime
 from enum import Enum
-
+from typing import Any
 
 # =============================================================================
 # Service Configuration - تكوين الخدمات
@@ -73,8 +71,8 @@ class TestResult:
     name: str
     status: TestStatus
     duration_ms: float
-    message: Optional[str] = None
-    details: Optional[Dict[str, Any]] = None
+    message: str | None = None
+    details: dict[str, Any] | None = None
 
 
 class TestSuite:
@@ -82,7 +80,7 @@ class TestSuite:
 
     def __init__(self, name: str):
         self.name = name
-        self.results: List[TestResult] = []
+        self.results: list[TestResult] = []
         self.start_time = None
         self.end_time = None
 
@@ -128,7 +126,7 @@ class MockBackendService:
         self.is_healthy = True
         self.request_count = 0
 
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """Simulate health check response"""
         self.request_count += 1
         return {
@@ -147,7 +145,7 @@ class MockBillingService(MockBackendService):
         self.tenants = {}
         self.plans = self._init_plans()
 
-    def _init_plans(self) -> Dict[str, Dict[str, Any]]:
+    def _init_plans(self) -> dict[str, dict[str, Any]]:
         return {
             "free": {
                 "id": "free",
@@ -175,12 +173,12 @@ class MockBillingService(MockBackendService):
             },
         }
 
-    def get_plans(self) -> List[Dict[str, Any]]:
+    def get_plans(self) -> list[dict[str, Any]]:
         """Get available plans"""
         self.request_count += 1
         return list(self.plans.values())
 
-    def get_subscription(self, tenant_id: str) -> Dict[str, Any]:
+    def get_subscription(self, tenant_id: str) -> dict[str, Any]:
         """Get tenant subscription"""
         self.request_count += 1
         if tenant_id not in self.tenants:
@@ -192,7 +190,7 @@ class MockBillingService(MockBackendService):
             }
         return self.tenants[tenant_id]
 
-    def check_quota(self, tenant_id: str, resource: str) -> Dict[str, Any]:
+    def check_quota(self, tenant_id: str, resource: str) -> dict[str, Any]:
         """Check quota for resource"""
         self.request_count += 1
         sub = self.get_subscription(tenant_id)
@@ -215,7 +213,7 @@ class MockWeatherService(MockBackendService):
     def __init__(self):
         super().__init__(SERVICES["weather"])
 
-    def get_current_weather(self, lat: float, lng: float) -> Dict[str, Any]:
+    def get_current_weather(self, lat: float, lng: float) -> dict[str, Any]:
         """Get current weather"""
         self.request_count += 1
         import random
@@ -231,7 +229,7 @@ class MockWeatherService(MockBackendService):
 
     def get_forecast(
         self, lat: float, lng: float, days: int = 7
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get weather forecast"""
         self.request_count += 1
         import random
@@ -262,7 +260,7 @@ class MockNotificationService(MockBackendService):
 
     def send_notification(
         self, tenant_id: str, user_id: str, message: str, title: str = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Send notification"""
         self.request_count += 1
         notification = {
@@ -277,7 +275,7 @@ class MockNotificationService(MockBackendService):
         self.notifications.append(notification)
         return notification
 
-    def get_notifications(self, user_id: str) -> List[Dict[str, Any]]:
+    def get_notifications(self, user_id: str) -> list[dict[str, Any]]:
         """Get user notifications"""
         self.request_count += 1
         return [n for n in self.notifications if n["user_id"] == user_id]
@@ -289,7 +287,7 @@ class MockAstronomicalService(MockBackendService):
     def __init__(self):
         super().__init__(SERVICES["astronomical"])
 
-    def get_today_info(self) -> Dict[str, Any]:
+    def get_today_info(self) -> dict[str, Any]:
         """Get today's astronomical information"""
         self.request_count += 1
         return {
@@ -309,7 +307,7 @@ class MockAstronomicalService(MockBackendService):
             },
         }
 
-    def get_planting_calendar(self, crop: str) -> Dict[str, Any]:
+    def get_planting_calendar(self, crop: str) -> dict[str, Any]:
         """Get planting calendar for crop"""
         self.request_count += 1
         return {
@@ -631,7 +629,7 @@ async def test_service_health_checks(suite: TestSuite):
     print("\n🧪 اختبار صحة الخدمات")
     print("-" * 40)
 
-    for service_key, config in SERVICES.items():
+    for _service_key, config in SERVICES.items():
         start = datetime.now()
         try:
             mock = MockBackendService(config)

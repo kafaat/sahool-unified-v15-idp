@@ -4,7 +4,6 @@ Rule-based automation from sensor readings
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -70,7 +69,7 @@ def rule_from_sensor(
     value: float,
     crop: str = "default",
     context: dict = None,
-) -> Optional[TaskRecommendation]:
+) -> TaskRecommendation | None:
     """
     Evaluate sensor reading and return task recommendation if triggered
 

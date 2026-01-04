@@ -1,26 +1,26 @@
 """SAHOOL-EO Tasks Module - EOTask implementations for SAHOOL"""
 
-from .fetch import (
-    SahoolSentinelFetchTask,
-    SahoolLandsatFetchTask,
-    SahoolMODISFetchTask,
-)
 from .cloud_mask import (
-    SahoolCloudMaskTask,
     S2CloudlessTask,
-)
-from .indices import (
-    SahoolNDVITask,
-    SahoolEVITask,
-    SahoolLAITask,
-    SahoolNDWITask,
-    SahoolSAVITask,
-    SahoolNDMITask,
-    AllIndicesTask,
+    SahoolCloudMaskTask,
 )
 from .export import (
-    SahoolExportTask,
     EOPatchToSahoolTask,
+    SahoolExportTask,
+)
+from .fetch import (
+    SahoolLandsatFetchTask,
+    SahoolMODISFetchTask,
+    SahoolSentinelFetchTask,
+)
+from .indices import (
+    AllIndicesTask,
+    SahoolEVITask,
+    SahoolLAITask,
+    SahoolNDMITask,
+    SahoolNDVITask,
+    SahoolNDWITask,
+    SahoolSAVITask,
 )
 
 __all__ = [

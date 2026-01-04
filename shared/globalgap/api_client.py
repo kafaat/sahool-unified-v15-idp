@@ -12,20 +12,20 @@ Author: SAHOOL Platform Team
 Version: 1.0.0
 """
 
+import asyncio
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Dict, Any
-import asyncio
-from contextlib import asynccontextmanager
+from typing import Any
 
 import httpx
 import structlog
 from tenacity import (
     retry,
+    retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
 )
 
 logger = structlog.get_logger()
@@ -79,11 +79,11 @@ class CertificateInfo:
     valid_to: datetime
     scope: str
     cb_name: str
-    product_categories: List[str] = field(default_factory=list)
-    producer_name: Optional[str] = None
-    country: Optional[str] = None
-    sub_scopes: List[str] = field(default_factory=list)
-    raw_data: Dict[str, Any] = field(default_factory=dict)
+    product_categories: list[str] = field(default_factory=list)
+    producer_name: str | None = None
+    country: str | None = None
+    sub_scopes: list[str] = field(default_factory=list)
+    raw_data: dict[str, Any] = field(default_factory=dict)
 
     def is_valid(self) -> bool:
         """
@@ -129,12 +129,12 @@ class Producer:
 
     name: str
     country: str
-    products: List[str]
+    products: list[str]
     certification_status: CertificateStatus
-    ggn: Optional[str] = None
-    location: Optional[str] = None
-    certification_date: Optional[datetime] = None
-    raw_data: Dict[str, Any] = field(default_factory=dict)
+    ggn: str | None = None
+    location: str | None = None
+    certification_date: datetime | None = None
+    raw_data: dict[str, Any] = field(default_factory=dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -158,8 +158,8 @@ class GlobalGAPAPIError(Exception):
         self,
         message: str,
         message_ar: str,
-        status_code: Optional[int] = None,
-        details: Optional[Dict[str, Any]] = None,
+        status_code: int | None = None,
+        details: dict[str, Any] | None = None,
     ):
         self.message = message
         self.message_ar = message_ar
@@ -167,7 +167,7 @@ class GlobalGAPAPIError(Exception):
         self.details = details or {}
         super().__init__(message)
 
-    def to_dict(self, lang: str = "en") -> Dict[str, Any]:
+    def to_dict(self, lang: str = "en") -> dict[str, Any]:
         """
         Convert exception to dictionary for API response
         تحويل الاستثناء إلى قاموس لاستجابة واجهة البرمجة
@@ -223,7 +223,7 @@ class RateLimitExceeded(GlobalGAPAPIError):
     استثناء يُثار عند تجاوز حد المعدل
     """
 
-    def __init__(self, retry_after: Optional[int] = None):
+    def __init__(self, retry_after: int | None = None):
         super().__init__(
             message="Rate limit exceeded. Please try again later.",
             message_ar="تم تجاوز حد المعدل. يرجى المحاولة مرة أخرى لاحقاً.",
@@ -330,7 +330,7 @@ class GlobalGAPClient:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         base_url: str = "https://www.globalgap.org/api/v1",
         timeout: int = 30,
         max_retries: int = 3,
@@ -363,7 +363,7 @@ class GlobalGAPClient:
 
         # HTTP client will be created in context manager
         # سيتم إنشاء عميل HTTP في مدير السياق
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
         logger.info(
             "globalgap_client_initialized",
@@ -456,7 +456,7 @@ class GlobalGAPClient:
     )
     async def _make_request(
         self, method: str, endpoint: str, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Make HTTP request with retry logic
         إجراء طلب HTTP مع منطق إعادة المحاولة
@@ -552,7 +552,7 @@ class GlobalGAPClient:
             raw_data={"mock": True},
         )
 
-    def _get_mock_producers(self, query: str) -> List[Producer]:
+    def _get_mock_producers(self, query: str) -> list[Producer]:
         """
         Generate mock producer data for testing
         إنشاء بيانات منتج وهمية للاختبار
@@ -724,10 +724,10 @@ class GlobalGAPClient:
     async def search_producers(
         self,
         query: str,
-        country: Optional[str] = None,
-        product_category: Optional[str] = None,
+        country: str | None = None,
+        product_category: str | None = None,
         limit: int = 20,
-    ) -> List[Producer]:
+    ) -> list[Producer]:
         """
         Search for certified producers
         البحث عن المنتجين المعتمدين
@@ -824,8 +824,8 @@ class GlobalGAPClient:
             )
 
     async def batch_verify_certificates(
-        self, ggns: List[str]
-    ) -> Dict[str, CertificateInfo]:
+        self, ggns: list[str]
+    ) -> dict[str, CertificateInfo]:
         """
         Verify multiple certificates concurrently
         التحقق من شهادات متعددة بشكل متزامن

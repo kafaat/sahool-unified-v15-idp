@@ -8,10 +8,10 @@ Tests agent responses against golden dataset for quality assurance.
 
 import json
 import os
-import pytest
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
+import pytest
 
 # Locate golden datasets
 # Path: apps/services/ai-advisor/tests/evaluation/test_golden_dataset.py
@@ -21,7 +21,7 @@ GOLDEN_DATASETS_DIR = REPO_ROOT / "tests" / "golden-datasets"
 EVALUATION_DATASETS_DIR = REPO_ROOT / "tests" / "evaluation" / "datasets"
 
 
-def load_golden_datasets() -> List[Dict[str, Any]]:
+def load_golden_datasets() -> list[dict[str, Any]]:
     """Load all golden datasets for testing"""
     test_cases = []
 
@@ -31,7 +31,7 @@ def load_golden_datasets() -> List[Dict[str, Any]]:
             if json_file.name == "README.md":
                 continue
             try:
-                with open(json_file, "r", encoding="utf-8") as f:
+                with open(json_file, encoding="utf-8") as f:
                     data = json.load(f)
                     # Handle both formats: direct array or with test_cases key
                     if isinstance(data, list):
@@ -45,7 +45,7 @@ def load_golden_datasets() -> List[Dict[str, Any]]:
     if not test_cases and EVALUATION_DATASETS_DIR.exists():
         golden_file = EVALUATION_DATASETS_DIR / "golden_dataset.json"
         if golden_file.exists():
-            with open(golden_file, "r", encoding="utf-8") as f:
+            with open(golden_file, encoding="utf-8") as f:
                 data = json.load(f)
                 if isinstance(data, list):
                     test_cases.extend(data)
@@ -95,7 +95,7 @@ async def test_agent_response_quality(test_case):
         pytest.skip("Evaluation mode not enabled")
 
     # Placeholder test - in production, call actual agent
-    test_id = test_case.get("id", "unknown")
+    test_case.get("id", "unknown")
 
     # For now, just verify the structure
     assert "id" in test_case

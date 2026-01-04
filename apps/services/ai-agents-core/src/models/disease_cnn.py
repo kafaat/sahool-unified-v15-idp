@@ -6,18 +6,17 @@ This module provides a comprehensive wrapper for disease detection in Yemen crop
 يوفر هذا الوحدة غلاف شامل لاكتشاف الأمراض في المحاصيل اليمنية.
 """
 
-import os
-import logging
-from typing import List, Dict, Tuple, Optional, Union, Any
-from pathlib import Path
-from datetime import datetime
 import json
-import asyncio
+import logging
+import os
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from pathlib import Path
+from typing import Any
 
+import cv2
 import numpy as np
 from PIL import Image
-import cv2
 
 # ML Framework imports (support both TensorFlow and PyTorch)
 try:
@@ -123,7 +122,7 @@ class DiseaseCNNModel:
 
     def __init__(
         self,
-        model_path: Optional[str] = None,
+        model_path: str | None = None,
         framework: str = "auto",
         device: str = "auto",
         enable_gpu: bool = True
@@ -284,7 +283,7 @@ class DiseaseCNNModel:
         metadata_path = Path(model_path).parent / "metadata.json"
         if metadata_path.exists():
             try:
-                with open(metadata_path, 'r') as f:
+                with open(metadata_path) as f:
                     metadata = json.load(f)
                     return metadata.get("version", self.config.DEFAULT_MODEL_VERSION)
             except Exception:
@@ -295,8 +294,8 @@ class DiseaseCNNModel:
 
     def preprocess_image(
         self,
-        image_data: Union[str, np.ndarray, Image.Image],
-        target_size: Optional[int] = None
+        image_data: str | np.ndarray | Image.Image,
+        target_size: int | None = None
     ) -> np.ndarray:
         """
         Preprocess image for model input
@@ -338,7 +337,7 @@ class DiseaseCNNModel:
 
     def resize_to_input_size(
         self,
-        image: Union[Image.Image, np.ndarray],
+        image: Image.Image | np.ndarray,
         size: int = 224
     ) -> Image.Image:
         """
@@ -384,7 +383,7 @@ class DiseaseCNNModel:
         self,
         image: np.ndarray,
         n_augmentations: int = 5
-    ) -> List[np.ndarray]:
+    ) -> list[np.ndarray]:
         """
         Apply Test Time Augmentation (TTA) for robust predictions
         تطبيق التعزيز في وقت الاختبار للتنبؤات القوية
@@ -419,9 +418,9 @@ class DiseaseCNNModel:
 
     def predict(
         self,
-        image: Union[str, np.ndarray, Image.Image],
+        image: str | np.ndarray | Image.Image,
         return_bbox: bool = True
-    ) -> Tuple[str, float, Optional[Dict]]:
+    ) -> tuple[str, float, dict | None]:
         """
         Predict disease from image
         التنبؤ بالمرض من الصورة
@@ -479,8 +478,8 @@ class DiseaseCNNModel:
 
     def _estimate_disease_region(
         self,
-        image: Union[str, np.ndarray, Image.Image]
-    ) -> Optional[Dict]:
+        image: str | np.ndarray | Image.Image
+    ) -> dict | None:
         """
         Estimate disease-affected region using simple image processing
         تقدير المنطقة المصابة باستخدام معالجة الصور البسيطة
@@ -531,9 +530,9 @@ class DiseaseCNNModel:
 
     def get_top_k_predictions(
         self,
-        image: Union[str, np.ndarray, Image.Image],
+        image: str | np.ndarray | Image.Image,
         k: int = 3
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get top K disease predictions
         الحصول على أعلى K تنبؤات للأمراض
@@ -590,9 +589,9 @@ class DiseaseCNNModel:
 
     def visualize_predictions(
         self,
-        image: Union[str, np.ndarray, Image.Image],
-        predictions: List[Dict[str, Any]],
-        output_path: Optional[str] = None
+        image: str | np.ndarray | Image.Image,
+        predictions: list[dict[str, Any]],
+        output_path: str | None = None
     ) -> np.ndarray:
         """
         Visualize predictions on image
@@ -734,7 +733,7 @@ class DiseaseCNNModel:
             ).astype(np.float32)
 
             # Run predictions - تشغيل التنبؤات
-            for i in range(num_iterations):
+            for _i in range(num_iterations):
                 if self.framework == "tensorflow":
                     img_batch = np.expand_dims(dummy_image, axis=0)
                     _ = self.model.predict(img_batch, verbose=0)
@@ -754,9 +753,9 @@ class DiseaseCNNModel:
 
     def predict_batch(
         self,
-        images: List[Union[str, np.ndarray, Image.Image]],
+        images: list[str | np.ndarray | Image.Image],
         batch_size: int = 8
-    ) -> List[Tuple[str, float, Optional[Dict]]]:
+    ) -> list[tuple[str, float, dict | None]]:
         """
         Predict diseases for a batch of images
         التنبؤ بالأمراض لدفعة من الصور
@@ -814,9 +813,9 @@ class DiseaseCNNModel:
     async def process_field_images(
         self,
         field_id: str,
-        images: List[Union[str, np.ndarray, Image.Image]],
+        images: list[str | np.ndarray | Image.Image],
         min_confidence: float = 0.5
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Process all images from a field and generate comprehensive report
         معالجة جميع الصور من حقل وإنشاء تقرير شامل
@@ -899,8 +898,8 @@ class DiseaseCNNModel:
 
     def _generate_recommendations(
         self,
-        disease_counts: Dict[str, int]
-    ) -> List[Dict[str, str]]:
+        disease_counts: dict[str, int]
+    ) -> list[dict[str, str]]:
         """
         Generate treatment recommendations based on detected diseases
         إنشاء توصيات العلاج بناءً على الأمراض المكتشفة
@@ -950,7 +949,7 @@ class DiseaseCNNModel:
         old_avg = self.metrics["avg_inference_time_ms"]
         self.metrics["avg_inference_time_ms"] = (old_avg * (n - 1) + inference_time_ms) / n
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """
         Get model performance metrics
         الحصول على مقاييس أداء النموذج

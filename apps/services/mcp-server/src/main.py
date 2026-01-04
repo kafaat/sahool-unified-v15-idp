@@ -27,13 +27,11 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Any, Dict
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from prometheus_client import Counter, Histogram, generate_latest
-from pydantic import BaseModel
 
 # Add parent directories to path for imports
 sys.path.insert(

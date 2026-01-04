@@ -5,32 +5,30 @@ SAHOOL NDVI Processor - Processing Logic
 
 import os
 import random
-from datetime import datetime, timezone, timedelta
-from typing import Optional, List, Dict, Any, Tuple
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from .models import (
-    JobStatus,
-    SatelliteSource,
     CompositeMethod,
-    TrendDirection,
-    NDVIStatistics,
-    QualityMetrics,
-    SourceInfo,
-    ProcessingInfo,
     FileUrls,
+    JobStatus,
     NDVIResult,
-    TimeseriesPoint,
-    ZoneChange,
+    NDVIStatistics,
+    ProcessingInfo,
+    QualityMetrics,
+    SatelliteSource,
     SeasonalStats,
+    SourceInfo,
+    TimeseriesPoint,
+    TrendDirection,
+    ZoneChange,
 )
-
 
 # ============== Mock Data Store ==============
 
-_jobs: Dict[str, dict] = {}
-_results: Dict[str, List[dict]] = {}  # field_id -> [NDVIResult]
-_composites: Dict[str, dict] = {}
+_jobs: dict[str, dict] = {}
+_results: dict[str, list[dict]] = {}  # field_id -> [NDVIResult]
+_composites: dict[str, dict] = {}
 
 
 # ============== Job Management ==============
@@ -41,12 +39,12 @@ def create_job(
 ) -> str:
     """إنشاء مهمة معالجة"""
     job_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # تقدير وقت الإنجاز
     estimated_minutes = random.randint(2, 10)
     estimated = (
-        datetime.now(timezone.utc) + timedelta(minutes=estimated_minutes)
+        datetime.now(UTC) + timedelta(minutes=estimated_minutes)
     ).isoformat()
 
     job = {
@@ -70,7 +68,7 @@ def create_job(
     return job_id
 
 
-def get_job(job_id: str) -> Optional[dict]:
+def get_job(job_id: str) -> dict | None:
     """جلب مهمة"""
     return _jobs.get(job_id)
 
@@ -81,7 +79,7 @@ def update_job_status(
     progress: int = None,
     result: dict = None,
     error: str = None,
-) -> Optional[dict]:
+) -> dict | None:
     """تحديث حالة المهمة"""
     if job_id not in _jobs:
         return None
@@ -93,10 +91,10 @@ def update_job_status(
         job["progress_percent"] = progress
 
     if status == JobStatus.PROCESSING and not job["started_at"]:
-        job["started_at"] = datetime.now(timezone.utc).isoformat()
+        job["started_at"] = datetime.now(UTC).isoformat()
 
     if status in [JobStatus.COMPLETED, JobStatus.FAILED]:
-        job["completed_at"] = datetime.now(timezone.utc).isoformat()
+        job["completed_at"] = datetime.now(UTC).isoformat()
         job["progress_percent"] = (
             100 if status == JobStatus.COMPLETED else job["progress_percent"]
         )
@@ -121,14 +119,14 @@ def cancel_job(job_id: str) -> bool:
         return False
 
     job["status"] = JobStatus.CANCELLED.value
-    job["completed_at"] = datetime.now(timezone.utc).isoformat()
+    job["completed_at"] = datetime.now(UTC).isoformat()
     _jobs[job_id] = job
     return True
 
 
 def list_jobs(
     tenant_id: str = None, field_id: str = None, status: str = None
-) -> List[dict]:
+) -> list[dict]:
     """قائمة المهام"""
     jobs = list(_jobs.values())
 
@@ -148,13 +146,13 @@ def list_jobs(
 def process_ndvi_mock(
     field_id: str,
     source: SatelliteSource,
-    date_range: Tuple[str, str],
+    date_range: tuple[str, str],
     options: dict = None,
 ) -> NDVIResult:
     """معالجة NDVI (محاكاة)"""
     options = options or {}
     result_id = str(uuid4())
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     # محاكاة قيم NDVI
     base_ndvi = random.uniform(0.4, 0.8)
@@ -240,7 +238,7 @@ def process_ndvi_mock(
     return result
 
 
-def get_field_ndvi(field_id: str, date: str = None) -> Optional[dict]:
+def get_field_ndvi(field_id: str, date: str = None) -> dict | None:
     """جلب NDVI لحقل"""
     if field_id not in _results:
         return None
@@ -261,7 +259,7 @@ def get_field_ndvi(field_id: str, date: str = None) -> Optional[dict]:
 
 def get_ndvi_timeseries(
     field_id: str, start_date: str, end_date: str
-) -> List[TimeseriesPoint]:
+) -> list[TimeseriesPoint]:
     """جلب السلسلة الزمنية"""
     if field_id not in _results:
         # توليد بيانات محاكاة
@@ -288,7 +286,7 @@ def get_ndvi_timeseries(
 
 def _generate_mock_timeseries(
     field_id: str, start_date: str, end_date: str
-) -> List[TimeseriesPoint]:
+) -> list[TimeseriesPoint]:
     """توليد سلسلة زمنية محاكاة"""
     from datetime import datetime
 
@@ -521,7 +519,7 @@ def create_composite(
 ) -> dict:
     """إنشاء مركب شهري"""
     composite_id = str(uuid4())
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     # محاكاة الإحصائيات
     base_ndvi = random.uniform(0.5, 0.75)
@@ -561,7 +559,7 @@ def create_composite(
     return composite
 
 
-def get_composites(field_id: str, year: int = None) -> List[dict]:
+def get_composites(field_id: str, year: int = None) -> list[dict]:
     """جلب المركبات"""
     composites = [c for c in _composites.values() if c["field_id"] == field_id]
 

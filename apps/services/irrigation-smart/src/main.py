@@ -7,22 +7,25 @@ Field-First Architecture:
 - التحليل يخدم الميدان، لا العكس
 """
 
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta, time
-from typing import Optional, List, Dict, Any
-from enum import Enum
-import uuid
 import math
 
 # Field-First: Action Template Support
 import sys
+import uuid
+from datetime import date, datetime, time, timedelta
+from enum import Enum
+from typing import Any
+
+from fastapi import FastAPI, Query
+from pydantic import BaseModel, Field
 
 sys.path.insert(0, "/app")
 try:
     from shared.contracts.actions import (
         ActionTemplate,
         ActionTemplateFactory,
+    )
+    from shared.contracts.actions import (
         UrgencyLevel as ActionUrgency,
     )
 
@@ -98,9 +101,9 @@ class IrrigationRequest(BaseModel):
     area_hectares: float = Field(..., gt=0)
     soil_type: SoilType = SoilType.LOAMY
     irrigation_method: IrrigationMethod = IrrigationMethod.DRIP
-    current_soil_moisture: Optional[float] = Field(default=None, ge=0, le=100)
-    last_irrigation_date: Optional[date] = None
-    weather_forecast: Optional[Dict[str, Any]] = None
+    current_soil_moisture: float | None = Field(default=None, ge=0, le=100)
+    last_irrigation_date: date | None = None
+    weather_forecast: dict[str, Any] | None = None
 
 
 class IrrigationSchedule(BaseModel):
@@ -134,13 +137,13 @@ class IrrigationPlan(BaseModel):
     soil_type: SoilType
     current_water_need_mm: float
     daily_et_mm: float
-    schedules: List[IrrigationSchedule]
+    schedules: list[IrrigationSchedule]
     total_water_m3: float
     estimated_cost_yer: float
     water_savings_m3: float
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
-    alerts_ar: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
+    alerts_ar: list[str]
     created_at: datetime
 
 
@@ -331,12 +334,12 @@ def calculate_water_need(
     area_ha: float,
     soil_type: SoilType,
     method: IrrigationMethod,
-    current_moisture: Optional[float],
+    current_moisture: float | None,
     days_since_irrigation: int,
     temperature: float = 30,
     humidity: float = 50,
     rainfall_forecast: float = 0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Calculate irrigation water requirements"""
 
     # Base water requirement from crop data
@@ -426,7 +429,7 @@ def generate_reasoning(
     crop: CropType,
     stage: GrowthStage,
     urgency: UrgencyLevel,
-    water_need: Dict[str, Any],
+    water_need: dict[str, Any],
     days_since_irrigation: int,
 ) -> tuple[str, str]:
     """Generate bilingual reasoning for irrigation recommendation"""

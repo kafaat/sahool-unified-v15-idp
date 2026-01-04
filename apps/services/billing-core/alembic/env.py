@@ -7,23 +7,22 @@ This file configures Alembic to work with async SQLAlchemy
 
 import asyncio
 import os
-from logging.config import fileConfig
 
+# Import the Base and models
+import sys
+from logging.config import fileConfig
+from pathlib import Path
+
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
-
-# Import the Base and models
-import sys
-from pathlib import Path
-
 # Add src directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from database import Base
 import models  # noqa: F401 - Import to register models with Base
+from database import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

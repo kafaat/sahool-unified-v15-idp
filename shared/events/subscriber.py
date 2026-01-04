@@ -33,19 +33,16 @@ import asyncio
 import json
 import logging
 import os
-import traceback
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError
 
 from .contracts import BaseEvent
 from .dlq_config import (
     DLQConfig,
-    DLQMessageMetadata,
     create_dlq_streams,
-    is_retriable_error,
-    should_retry,
 )
 
 logger = logging.getLogger(__name__)
@@ -78,7 +75,7 @@ class SubscriberConfig(BaseModel):
     إعدادات مشترك NATS
     """
 
-    servers: List[str] = Field(
+    servers: list[str] = Field(
         default_factory=lambda: [os.getenv("NATS_URL", "nats://localhost:4222")],
         description="NATS server URLs",
     )
@@ -98,7 +95,7 @@ class SubscriberConfig(BaseModel):
 
     # JetStream
     enable_jetstream: bool = Field(default=True, description="Use JetStream consumers")
-    jetstream_domain: Optional[str] = Field(None, description="JetStream domain")
+    jetstream_domain: str | None = Field(None, description="JetStream domain")
 
     # Error handling (DEPRECATED - use dlq_config instead)
     enable_error_retry: bool = Field(default=True, description="Retry failed messages")
@@ -121,7 +118,7 @@ class SubscriberConfig(BaseModel):
     enable_dlq: bool = Field(
         default=True, description="Enable Dead Letter Queue for failed messages"
     )
-    dlq_config: Optional[DLQConfig] = Field(
+    dlq_config: DLQConfig | None = Field(
         None, description="DLQ configuration (uses defaults if None)"
     )
 
@@ -134,13 +131,13 @@ class Subscription(BaseModel):
 
     subject: str = Field(..., description="NATS subject")
     handler: Any = Field(..., description="Message handler function")
-    event_class: Optional[Type[BaseEvent]] = Field(
+    event_class: type[BaseEvent] | None = Field(
         None, description="Expected event class"
     )
-    queue_group: Optional[str] = Field(
+    queue_group: str | None = Field(
         None, description="Queue group for load balancing"
     )
-    durable_name: Optional[str] = Field(
+    durable_name: str | None = Field(
         None, description="Durable consumer name (JetStream)"
     )
     auto_ack: bool = Field(
@@ -173,9 +170,9 @@ class EventSubscriber:
 
     def __init__(
         self,
-        config: Optional[SubscriberConfig] = None,
-        service_name: Optional[str] = None,
-        service_version: Optional[str] = None,
+        config: SubscriberConfig | None = None,
+        service_name: str | None = None,
+        service_version: str | None = None,
     ):
         """
         Initialize the event subscriber.
@@ -189,12 +186,12 @@ class EventSubscriber:
         self.service_name = service_name or os.getenv("SERVICE_NAME", "unknown")
         self.service_version = service_version or os.getenv("SERVICE_VERSION", "0.0.0")
 
-        self._nc: Optional[NATSClient] = None
-        self._js: Optional[JetStreamContext] = None
+        self._nc: NATSClient | None = None
+        self._js: JetStreamContext | None = None
         self._connected = False
 
-        self._subscriptions: List[Any] = []
-        self._handlers: Dict[str, Subscription] = {}
+        self._subscriptions: list[Any] = []
+        self._handlers: dict[str, Subscription] = {}
 
         # Statistics
         self._message_count = 0
@@ -215,7 +212,7 @@ class EventSubscriber:
         return self._connected and self._nc is not None
 
     @property
-    def stats(self) -> Dict[str, Any]:
+    def stats(self) -> dict[str, Any]:
         """Get subscriber statistics."""
         return {
             "connected": self._connected,
@@ -325,9 +322,9 @@ class EventSubscriber:
         self,
         subject: str,
         handler: Callable,
-        event_class: Optional[Type[BaseEvent]] = None,
-        queue_group: Optional[str] = None,
-        durable_name: Optional[str] = None,
+        event_class: type[BaseEvent] | None = None,
+        queue_group: str | None = None,
+        durable_name: str | None = None,
         auto_ack: bool = True,
     ) -> bool:
         """
@@ -380,7 +377,7 @@ class EventSubscriber:
 
     async def subscribe_multiple(
         self,
-        subscriptions: List[Dict[str, Any]],
+        subscriptions: list[dict[str, Any]],
     ) -> int:
         """
         Subscribe to multiple subjects at once.
@@ -538,8 +535,8 @@ class EventSubscriber:
     async def _deserialize_message(
         self,
         data: str,
-        event_class: Optional[Type[BaseEvent]],
-    ) -> Union[BaseEvent, Dict[str, Any]]:
+        event_class: type[BaseEvent] | None,
+    ) -> BaseEvent | dict[str, Any]:
         """
         Deserialize message data to event object or dictionary.
         تحويل البيانات إلى كائن حدث أو قاموس
@@ -675,12 +672,12 @@ class EventSubscriber:
 # Singleton Instance (optional convenience)
 # ─────────────────────────────────────────────────────────────────────────────
 
-_subscriber_instance: Optional[EventSubscriber] = None
+_subscriber_instance: EventSubscriber | None = None
 
 
 async def get_subscriber(
-    service_name: Optional[str] = None,
-    service_version: Optional[str] = None,
+    service_name: str | None = None,
+    service_version: str | None = None,
 ) -> EventSubscriber:
     """
     Get or create the singleton subscriber instance.

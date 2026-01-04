@@ -6,7 +6,6 @@ Constants and configuration values for IFA v6 compliance.
 الثوابت وقيم التكوين للامتثال لـ IFA v6.
 """
 
-from typing import Dict, List
 from enum import Enum
 
 # IFA Version

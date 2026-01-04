@@ -6,10 +6,10 @@ This module provides tasks for exporting EOPatch data to
 SAHOOL platform formats and storage systems.
 """
 
-from typing import Optional, Dict, Any, List
-from datetime import datetime
 import logging
-import json
+from datetime import datetime
+from typing import Any
+
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ class SahoolExportTask:
         self.aggregate_method = aggregate_method
         self.percentile = percentile
 
-    def execute(self, eopatch) -> Dict[str, Any]:
+    def execute(self, eopatch) -> dict[str, Any]:
         """
         Export EOPatch to SAHOOL format
 
@@ -138,7 +138,7 @@ class SahoolExportTask:
             logger.error(f"Export failed: {e}")
             raise
 
-    def _calculate_statistics(self, data: np.ndarray) -> Dict[str, float]:
+    def _calculate_statistics(self, data: np.ndarray) -> dict[str, float]:
         """Calculate statistics for an index"""
         valid_data = data[np.isfinite(data)]
 
@@ -163,7 +163,7 @@ class SahoolExportTask:
             "total_pixels": int(data.size),
         }
 
-    def _calculate_band_statistics(self, bands: np.ndarray) -> List[Dict[str, float]]:
+    def _calculate_band_statistics(self, bands: np.ndarray) -> list[dict[str, float]]:
         """Calculate statistics for each band"""
         band_names = [
             "B02",
@@ -194,7 +194,7 @@ class SahoolExportTask:
 
         return stats
 
-    def _assess_crop_health(self, indices: Dict[str, Any]) -> Dict[str, Any]:
+    def _assess_crop_health(self, indices: dict[str, Any]) -> dict[str, Any]:
         """
         Assess crop health based on vegetation indices
 
@@ -240,14 +240,13 @@ class SahoolExportTask:
                 score += 10
 
         # Moisture stress (NDMI)
-        if ndmi is not None:
-            if ndmi < 0:
-                score -= 10
-                anomalies.append("moisture_deficit")
-                recommendations_ar.append("🌡️ نقص الرطوبة - ري تكميلي مطلوب")
-                recommendations_en.append(
-                    "🌡️ Moisture deficit - supplemental irrigation needed"
-                )
+        if ndmi is not None and ndmi < 0:
+            score -= 10
+            anomalies.append("moisture_deficit")
+            recommendations_ar.append("🌡️ نقص الرطوبة - ري تكميلي مطلوب")
+            recommendations_en.append(
+                "🌡️ Moisture deficit - supplemental irrigation needed"
+            )
 
         # EVI assessment
         if evi is not None:
@@ -339,7 +338,7 @@ class EOPatchToSahoolTask:
         self.tenant_id = tenant_id
         self.source_service = source_service
 
-    def create_scene_ingested_event(self, eopatch) -> Dict[str, Any]:
+    def create_scene_ingested_event(self, eopatch) -> dict[str, Any]:
         """
         Create SatelliteSceneIngested.v1 event
 
@@ -390,8 +389,8 @@ class EOPatchToSahoolTask:
             raise
 
     def create_indicators_computed_event(
-        self, eopatch, indices_summary: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, eopatch, indices_summary: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Create FieldIndicatorsComputed.v1 event
 
@@ -423,8 +422,8 @@ class EOPatchToSahoolTask:
         }
 
     def create_health_assessed_event(
-        self, health_assessment: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, health_assessment: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Create CropHealthAssessed.v1 event
 
@@ -450,7 +449,7 @@ class EOPatchToSahoolTask:
             },
         }
 
-    def execute(self, eopatch, indices_summary: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def execute(self, eopatch, indices_summary: dict[str, Any]) -> list[dict[str, Any]]:
         """
         Generate all SAHOOL events from EOPatch
 

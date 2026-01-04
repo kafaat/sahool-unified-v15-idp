@@ -9,29 +9,24 @@ This module provides fixtures for comprehensive agent evaluation including:
 - Safety checking
 """
 
-import pytest
 import json
-import os
-import time
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Generator
-from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime
 
 # Import from main test conftest
 import sys
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+from unittest.mock import AsyncMock, Mock
+
+import pytest
 
 sys.path.insert(
     0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor")
 )
 
 from src.agents.base_agent import BaseAgent
-from src.agents.field_analyst import FieldAnalystAgent
-from src.agents.disease_expert import DiseaseExpertAgent
-from src.agents.irrigation_advisor import IrrigationAdvisorAgent
-from src.agents.yield_predictor import YieldPredictorAgent
 from src.orchestration.supervisor import Supervisor
-
 
 # ============================================================================
 # CONFIGURATION
@@ -39,7 +34,7 @@ from src.orchestration.supervisor import Supervisor
 
 
 @pytest.fixture(scope="session")
-def evaluation_config() -> Dict[str, Any]:
+def evaluation_config() -> dict[str, Any]:
     """
     Load evaluation configuration
     تحميل تكوين التقييم
@@ -67,7 +62,7 @@ def evaluation_dataset_path() -> Path:
 
 
 @pytest.fixture(scope="session")
-def golden_dataset(evaluation_dataset_path: Path) -> List[Dict[str, Any]]:
+def golden_dataset(evaluation_dataset_path: Path) -> list[dict[str, Any]]:
     """
     Load golden dataset for evaluation
     تحميل مجموعة البيانات الذهبية للتقييم
@@ -103,7 +98,7 @@ def golden_dataset(evaluation_dataset_path: Path) -> List[Dict[str, Any]]:
         with open(golden_file, "w", encoding="utf-8") as f:
             json.dump(default_dataset, f, ensure_ascii=False, indent=2)
 
-    with open(golden_file, "r", encoding="utf-8") as f:
+    with open(golden_file, encoding="utf-8") as f:
         dataset = json.load(f)
 
     return dataset
@@ -118,15 +113,15 @@ def evaluation_metrics_tracker():
 
     class MetricsTracker:
         def __init__(self):
-            self.results: List[Dict[str, Any]] = []
+            self.results: list[dict[str, Any]] = []
             self.start_time = time.time()
 
-        def add_result(self, result: Dict[str, Any]):
+        def add_result(self, result: dict[str, Any]):
             """Add evaluation result"""
             result["timestamp"] = datetime.utcnow().isoformat()
             self.results.append(result)
 
-        def get_summary(self) -> Dict[str, Any]:
+        def get_summary(self) -> dict[str, Any]:
             """Calculate summary statistics"""
             if not self.results:
                 return {
@@ -342,7 +337,7 @@ def safety_checker():
 # ============================================================================
 
 
-def _create_default_golden_dataset() -> List[Dict[str, Any]]:
+def _create_default_golden_dataset() -> list[dict[str, Any]]:
     """
     Create default golden dataset
     إنشاء مجموعة البيانات الذهبية الافتراضية

@@ -7,8 +7,8 @@ Error Codes and HTTP Status Mapping
 """
 
 from enum import Enum
-from typing import Dict, List, NamedTuple
 from http import HTTPStatus
+from typing import NamedTuple
 
 
 class ErrorCategory(str, Enum):
@@ -142,7 +142,7 @@ class ErrorCodeMetadata(NamedTuple):
 
 
 # Error Code Registry - سجل أكواد الأخطاء
-ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
+ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
     # Validation Errors
     ErrorCode.VALIDATION_ERROR: ErrorCodeMetadata(
         code=ErrorCode.VALIDATION_ERROR,
@@ -775,7 +775,7 @@ def get_error_metadata(code: ErrorCode) -> ErrorCodeMetadata:
     return ERROR_REGISTRY[code]
 
 
-def get_error_codes_by_category(category: ErrorCategory) -> List[ErrorCode]:
+def get_error_codes_by_category(category: ErrorCategory) -> list[ErrorCode]:
     """
     Get all error codes by category
     الحصول على جميع أكواد الأخطاء حسب الفئة

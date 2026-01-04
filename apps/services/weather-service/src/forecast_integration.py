@@ -12,23 +12,20 @@ Features:
 - Yemen-specific meteorological data (بيانات الأرصاد الجوية الخاصة باليمن)
 """
 
-import math
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any, Tuple
 from enum import Enum
+from typing import Any
 
-from .config import get_config, AlertThresholds, AgriculturalIndicesConfig
+from .config import AlertThresholds, get_config
 from .providers import (
-    WeatherProvider,
-    OpenWeatherMapProvider,
-    WeatherAPIProvider,
     DailyForecast,
     HourlyForecast,
+    OpenMeteoProvider,
+    OpenWeatherMapProvider,
+    WeatherAPIProvider,
     WeatherData,
+    WeatherProvider,
 )
-from .providers import OpenMeteoProvider
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Models - نماذج البيانات
@@ -76,14 +73,14 @@ class AgriculturalAlert:
     description_en: str
     description_ar: str
     start_date: str
-    end_date: Optional[str] = None
+    end_date: str | None = None
     affected_days: int = 1
-    recommendations_en: List[str] = field(default_factory=list)
-    recommendations_ar: List[str] = field(default_factory=list)
+    recommendations_en: list[str] = field(default_factory=list)
+    recommendations_ar: list[str] = field(default_factory=list)
     impact_score: float = 0.0  # 0-10 scale
     confidence: float = 1.0  # 0-1 scale
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         return {
             "alert_id": self.alert_id,
@@ -118,7 +115,7 @@ class AgriculturalIndices:
     heat_stress_hours: float = 0.0  # ساعات الإجهاد الحراري
     moisture_deficit_mm: float = 0.0  # عجز الرطوبة
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         return {
             "date": self.date,
@@ -137,13 +134,13 @@ class ForecastSummary:
     ملخص التوقعات لموقع
     """
 
-    location: Dict[str, float]
-    forecast_days: List[DailyForecast]
-    hourly_forecast: List[HourlyForecast]
-    alerts: List[AgriculturalAlert]
-    indices: List[AgriculturalIndices]
+    location: dict[str, float]
+    forecast_days: list[DailyForecast]
+    hourly_forecast: list[HourlyForecast]
+    alerts: list[AgriculturalAlert]
+    indices: list[AgriculturalIndices]
     provider: str
-    providers_used: List[str]
+    providers_used: list[str]
     generated_at: str
 
 
@@ -161,7 +158,7 @@ class YemenMetAdapter(WeatherProvider):
     هذا عنصر نائب للتكامل مع خدمة الطقس الوطنية في اليمن.
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         super().__init__("Yemen Met Service", api_key)
         self.is_mock = True  # Flag to indicate this is a mock implementation
 
@@ -182,7 +179,7 @@ class YemenMetAdapter(WeatherProvider):
 
     async def get_daily_forecast(
         self, lat: float, lon: float, days: int = 7
-    ) -> List[DailyForecast]:
+    ) -> list[DailyForecast]:
         """
         Get daily forecast (mock implementation)
         الحصول على التوقعات اليومية (تطبيق نموذجي)
@@ -194,7 +191,7 @@ class YemenMetAdapter(WeatherProvider):
 
     async def get_hourly_forecast(
         self, lat: float, lon: float, hours: int = 24
-    ) -> List[HourlyForecast]:
+    ) -> list[HourlyForecast]:
         """
         Get hourly forecast (mock implementation)
         الحصول على التوقعات الساعية (تطبيق نموذجي)
@@ -221,7 +218,7 @@ class WeatherForecastService:
 
     def __init__(self):
         self.config = get_config()
-        self.providers: Dict[str, WeatherProvider] = {}
+        self.providers: dict[str, WeatherProvider] = {}
         self._initialize_providers()
 
     def _initialize_providers(self):
@@ -252,7 +249,7 @@ class WeatherForecastService:
 
     async def fetch_forecast(
         self, lat: float, lon: float, days: int = 7
-    ) -> Tuple[Optional[List[DailyForecast]], Optional[List[HourlyForecast]], str]:
+    ) -> tuple[list[DailyForecast] | None, list[HourlyForecast] | None, str]:
         """
         Fetch weather forecast from providers with automatic fallback
         جلب توقعات الطقس من المزودين مع التبديل التلقائي
@@ -290,7 +287,7 @@ class WeatherForecastService:
 
         return None, None, "none"
 
-    def parse_openweather_response(self, response: Dict[str, Any]) -> List[DailyForecast]:
+    def parse_openweather_response(self, response: dict[str, Any]) -> list[DailyForecast]:
         """
         Parse OpenWeatherMap API response
         تحليل استجابة OpenWeatherMap API
@@ -304,7 +301,7 @@ class WeatherForecastService:
         forecasts = []
 
         # Group by day
-        daily_data: Dict[str, List[Any]] = {}
+        daily_data: dict[str, list[Any]] = {}
         for item in response.get("list", []):
             day = item["dt_txt"].split(" ")[0]
             daily_data.setdefault(day, []).append(item)
@@ -333,7 +330,7 @@ class WeatherForecastService:
 
         return forecasts
 
-    def parse_weatherapi_response(self, response: Dict[str, Any]) -> List[DailyForecast]:
+    def parse_weatherapi_response(self, response: dict[str, Any]) -> list[DailyForecast]:
         """
         Parse WeatherAPI.com response
         تحليل استجابة WeatherAPI.com
@@ -367,7 +364,7 @@ class WeatherForecastService:
 
         return forecasts
 
-    def aggregate_forecasts(self, sources: List[Tuple[str, List[DailyForecast]]]) -> List[DailyForecast]:
+    def aggregate_forecasts(self, sources: list[tuple[str, list[DailyForecast]]]) -> list[DailyForecast]:
         """
         Aggregate forecasts from multiple sources
         تجميع التوقعات من مصادر متعددة
@@ -389,9 +386,9 @@ class WeatherForecastService:
 
         # Group forecasts by date
         # تجميع التوقعات حسب التاريخ
-        forecast_by_date: Dict[str, List[DailyForecast]] = {}
+        forecast_by_date: dict[str, list[DailyForecast]] = {}
 
-        for provider_name, forecasts in sources:
+        for _provider_name, forecasts in sources:
             for forecast in forecasts:
                 forecast_by_date.setdefault(forecast.date, []).append(forecast)
 
@@ -459,8 +456,8 @@ class WeatherForecastService:
 
 
 def detect_frost_risk(
-    forecast: List[DailyForecast], thresholds: Optional[AlertThresholds] = None
-) -> List[AgriculturalAlert]:
+    forecast: list[DailyForecast], thresholds: AlertThresholds | None = None
+) -> list[AgriculturalAlert]:
     """
     Detect frost risk in forecast
     كشف خطر الصقيع في التوقعات
@@ -527,8 +524,8 @@ def detect_frost_risk(
 
 
 def detect_heat_wave(
-    forecast: List[DailyForecast], thresholds: Optional[AlertThresholds] = None
-) -> List[AgriculturalAlert]:
+    forecast: list[DailyForecast], thresholds: AlertThresholds | None = None
+) -> list[AgriculturalAlert]:
     """
     Detect heat wave conditions
     كشف موجات الحر
@@ -551,7 +548,7 @@ def detect_heat_wave(
     hot_days_start = None
     max_temp_in_wave = 0.0
 
-    for i, day_forecast in enumerate(forecast):
+    for _i, day_forecast in enumerate(forecast):
         temp = day_forecast.temp_max_c
 
         if temp >= thresholds.heat_wave_medium_c:
@@ -622,8 +619,8 @@ def detect_heat_wave(
 
 
 def detect_heavy_rain(
-    forecast: List[DailyForecast], thresholds: Optional[AlertThresholds] = None
-) -> List[AgriculturalAlert]:
+    forecast: list[DailyForecast], thresholds: AlertThresholds | None = None
+) -> list[AgriculturalAlert]:
     """
     Detect heavy rain and flooding risk
     كشف الأمطار الغزيرة وخطر الفيضانات
@@ -692,10 +689,10 @@ def detect_heavy_rain(
 
 
 def detect_drought_conditions(
-    forecast: List[DailyForecast],
-    history: Optional[List[DailyForecast]] = None,
-    thresholds: Optional[AlertThresholds] = None,
-) -> List[AgriculturalAlert]:
+    forecast: list[DailyForecast],
+    history: list[DailyForecast] | None = None,
+    thresholds: AlertThresholds | None = None,
+) -> list[AgriculturalAlert]:
     """
     Detect drought conditions
     كشف ظروف الجفاف
@@ -788,8 +785,8 @@ def detect_drought_conditions(
 def calculate_gdd(
     tmin: float,
     tmax: float,
-    base_temp: Optional[float] = None,
-    upper_limit: Optional[float] = None,
+    base_temp: float | None = None,
+    upper_limit: float | None = None,
 ) -> float:
     """
     Calculate Growing Degree Days (GDD)
@@ -826,7 +823,7 @@ def calculate_gdd(
 
 
 def calculate_chill_hours(
-    hourly_temps: List[float], threshold: Optional[float] = None
+    hourly_temps: list[float], threshold: float | None = None
 ) -> float:
     """
     Calculate chill hours
@@ -895,7 +892,7 @@ def calculate_evapotranspiration(
 
 def calculate_agricultural_indices(
     daily_forecast: DailyForecast,
-    hourly_forecast: Optional[List[HourlyForecast]] = None,
+    hourly_forecast: list[HourlyForecast] | None = None,
 ) -> AgriculturalIndices:
     """
     Calculate agricultural weather indices for a day

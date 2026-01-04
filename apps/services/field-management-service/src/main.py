@@ -7,9 +7,7 @@ Port: 8090
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from typing import Optional, List
-from uuid import uuid4
+from datetime import UTC, datetime
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -20,14 +18,12 @@ shared_path = os.path.abspath(
 )
 sys.path.insert(0, shared_path)
 
-from profitability_analyzer import (
-    ProfitabilityAnalyzer,
-    CropProfitability,
-    SeasonSummary,
-    CostCategory,
-)
-
 import logging
+
+from profitability_analyzer import (
+    CostCategory,
+    ProfitabilityAnalyzer,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -119,7 +115,7 @@ def health():
         "status": "ok",
         "service": "field_core",
         "version": "15.3.3",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -141,7 +137,7 @@ class CostItemRequest(BaseModel):
     amount: float
     unit: str = "YER"
     quantity: float = 1.0
-    unit_cost: Optional[float] = None
+    unit_cost: float | None = None
 
 
 class RevenueItemRequest(BaseModel):
@@ -149,7 +145,7 @@ class RevenueItemRequest(BaseModel):
     quantity: float
     unit: str = "kg"
     unit_price: float
-    grade: Optional[str] = None
+    grade: str | None = None
 
 
 class AnalyzeCropRequest(BaseModel):
@@ -157,23 +153,23 @@ class AnalyzeCropRequest(BaseModel):
     crop_season_id: str
     crop_code: str
     area_ha: float = Field(gt=0)
-    costs: Optional[List[CostItemRequest]] = None
-    revenues: Optional[List[RevenueItemRequest]] = None
+    costs: list[CostItemRequest] | None = None
+    revenues: list[RevenueItemRequest] | None = None
 
 
 class CropDataRequest(BaseModel):
     field_id: str
-    crop_season_id: Optional[str] = None
+    crop_season_id: str | None = None
     crop_code: str
     area_ha: float = Field(gt=0)
-    costs: Optional[List[dict]] = None
-    revenues: Optional[List[dict]] = None
+    costs: list[dict] | None = None
+    revenues: list[dict] | None = None
 
 
 class AnalyzeSeasonRequest(BaseModel):
     farmer_id: str
     season_year: str
-    crops: List[CropDataRequest]
+    crops: list[CropDataRequest]
 
 
 # ============== Profitability Endpoints ==============
@@ -456,7 +452,7 @@ async def list_available_crops():
     analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
     crops = []
-    for crop_code in analyzer.CROP_NAMES_EN.keys():
+    for crop_code in analyzer.CROP_NAMES_EN:
         crops.append(
             {
                 "crop_code": crop_code,

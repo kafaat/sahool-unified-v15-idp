@@ -24,32 +24,32 @@ Usage:
 __version__ = "1.0.0"
 __author__ = "SAHOOL Platform"
 
-from .config.sentinel_hub import SentinelHubConfig, SahoolEOClient
-from .tasks.fetch import (
-    SahoolSentinelFetchTask,
-    SahoolLandsatFetchTask,
-    SahoolMODISFetchTask,
-)
+from .config.sentinel_hub import SahoolEOClient, SentinelHubConfig
 from .tasks.cloud_mask import (
-    SahoolCloudMaskTask,
     S2CloudlessTask,
-)
-from .tasks.indices import (
-    SahoolNDVITask,
-    SahoolEVITask,
-    SahoolLAITask,
-    SahoolNDWITask,
-    SahoolSAVITask,
-    SahoolNDMITask,
-    AllIndicesTask,
+    SahoolCloudMaskTask,
 )
 from .tasks.export import (
-    SahoolExportTask,
     EOPatchToSahoolTask,
+    SahoolExportTask,
+)
+from .tasks.fetch import (
+    SahoolLandsatFetchTask,
+    SahoolMODISFetchTask,
+    SahoolSentinelFetchTask,
+)
+from .tasks.indices import (
+    AllIndicesTask,
+    SahoolEVITask,
+    SahoolLAITask,
+    SahoolNDMITask,
+    SahoolNDVITask,
+    SahoolNDWITask,
+    SahoolSAVITask,
 )
 from .workflows.field_monitoring import FieldMonitoringWorkflow
-from .workflows.yield_prediction import YieldPredictionWorkflow
 from .workflows.time_series import TimeSeriesWorkflow
+from .workflows.yield_prediction import YieldPredictionWorkflow
 
 __all__ = [
     # Config

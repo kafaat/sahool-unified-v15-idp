@@ -3,8 +3,8 @@ Agent Registry Service Configuration
 تكوين خدمة سجل الوكلاء
 """
 
+
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     redis_host: str = "localhost"
     redis_port: int = 6379
     redis_db: int = 0
-    redis_password: Optional[str] = None
+    redis_password: str | None = None
     redis_prefix: str = "sahool:registry:"
 
     # Registry
@@ -31,7 +31,7 @@ class Settings(BaseSettings):
 
     # Security
     require_api_key: bool = True
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
     # CORS
     cors_origins: str = (

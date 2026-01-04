@@ -9,10 +9,9 @@ Security Best Practices:
 """
 
 import os
-from typing import List, Optional
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 
 # Default allowed origins for different environments
 DEFAULT_ORIGINS = {
@@ -37,7 +36,7 @@ DEFAULT_ORIGINS = {
 }
 
 
-def get_cors_origins() -> List[str]:
+def get_cors_origins() -> list[str]:
     """
     Get allowed CORS origins based on environment.
 
@@ -66,11 +65,11 @@ def get_cors_origins() -> List[str]:
 
 def setup_cors(
     app: FastAPI,
-    allowed_origins: Optional[List[str]] = None,
+    allowed_origins: list[str] | None = None,
     allow_credentials: bool = True,
-    allowed_methods: Optional[List[str]] = None,
-    allowed_headers: Optional[List[str]] = None,
-    expose_headers: Optional[List[str]] = None,
+    allowed_methods: list[str] | None = None,
+    allowed_headers: list[str] | None = None,
+    expose_headers: list[str] | None = None,
     max_age: int = 3600,
 ) -> None:
     """

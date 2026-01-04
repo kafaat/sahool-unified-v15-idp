@@ -54,7 +54,7 @@ class TenantContext:
     """
 
     id: str
-    user_id: Optional[str] = None
+    user_id: str | None = None
     roles: list[str] | None = None
 
     def has_role(self, role: str) -> bool:
@@ -91,7 +91,7 @@ def get_current_tenant_id() -> str:
     return get_current_tenant().id
 
 
-def get_optional_tenant() -> Optional[TenantContext]:
+def get_optional_tenant() -> TenantContext | None:
     """
     Get the current tenant context if available, otherwise None.
 

@@ -35,42 +35,42 @@ Date: 2025-12-26
 
 import logging
 import os
-from typing import Optional, Dict, Any, Callable
+from collections.abc import Callable
 from functools import wraps
+from typing import Any
 
-from opentelemetry import trace, baggage
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
-from opentelemetry.sdk.resources import (
-    Resource,
-    SERVICE_NAME,
-    SERVICE_VERSION,
-    DEPLOYMENT_ENVIRONMENT,
-)
+from opentelemetry import baggage, trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
-from opentelemetry.instrumentation.redis import RedisInstrumentor
 from opentelemetry.instrumentation.psycopg2 import Psycopg2Instrumentor
-from opentelemetry.trace import Status, StatusCode, Span
-from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
-from opentelemetry.baggage.propagation import W3CBaggagePropagator
+from opentelemetry.instrumentation.redis import RedisInstrumentor
+from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.propagate import set_global_textmap
-from opentelemetry.sdk.trace.sampling import TraceIdRatioBased, ParentBased
+from opentelemetry.sdk.resources import (
+    DEPLOYMENT_ENVIRONMENT,
+    SERVICE_NAME,
+    SERVICE_VERSION,
+    Resource,
+)
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.trace.sampling import ParentBased, TraceIdRatioBased
+from opentelemetry.trace import Span, Status, StatusCode
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
 logger = logging.getLogger(__name__)
 
 # Global tracer instance
-_tracer: Optional[trace.Tracer] = None
-_tracer_provider: Optional[TracerProvider] = None
+_tracer: trace.Tracer | None = None
+_tracer_provider: TracerProvider | None = None
 
 
 def init_tracer(
-    service_name: Optional[str] = None,
-    service_version: Optional[str] = None,
-    environment: Optional[str] = None,
-    otlp_endpoint: Optional[str] = None,
+    service_name: str | None = None,
+    service_version: str | None = None,
+    environment: str | None = None,
+    otlp_endpoint: str | None = None,
     console_export: bool = False,
     sampling_ratio: float = 0.1,
 ) -> TracerProvider:
@@ -158,7 +158,7 @@ def init_tracer(
     return _tracer_provider
 
 
-def get_tracer(name: Optional[str] = None) -> trace.Tracer:
+def get_tracer(name: str | None = None) -> trace.Tracer:
     """
     Get a tracer instance.
 
@@ -262,8 +262,8 @@ def instrument_all(app=None, db_engine=None) -> None:
 
 
 def trace_method(
-    name: Optional[str] = None,
-    attributes: Optional[Dict[str, Any]] = None,
+    name: str | None = None,
+    attributes: dict[str, Any] | None = None,
 ) -> Callable:
     """
     Decorator to trace a method/function.
@@ -309,8 +309,8 @@ def trace_method(
 
 
 async def trace_async_method(
-    name: Optional[str] = None,
-    attributes: Optional[Dict[str, Any]] = None,
+    name: str | None = None,
+    attributes: dict[str, Any] | None = None,
 ) -> Callable:
     """
     Decorator to trace an async method/function.
@@ -350,7 +350,7 @@ async def trace_async_method(
     return decorator
 
 
-def add_span_attributes(span: Span, attributes: Dict[str, Any]) -> None:
+def add_span_attributes(span: Span, attributes: dict[str, Any]) -> None:
     """
     Add multiple attributes to a span.
 
@@ -374,7 +374,7 @@ def add_baggage_item(key: str, value: str) -> None:
     baggage.set_baggage(key, value)
 
 
-def get_baggage_item(key: str) -> Optional[str]:
+def get_baggage_item(key: str) -> str | None:
     """
     Get item from baggage.
 
@@ -387,7 +387,7 @@ def get_baggage_item(key: str) -> Optional[str]:
     return baggage.get_baggage(key)
 
 
-def get_current_trace_id() -> Optional[str]:
+def get_current_trace_id() -> str | None:
     """
     Get current trace ID for logging correlation.
 
@@ -400,7 +400,7 @@ def get_current_trace_id() -> Optional[str]:
     return None
 
 
-def get_current_span_id() -> Optional[str]:
+def get_current_span_id() -> str | None:
     """
     Get current span ID for logging correlation.
 

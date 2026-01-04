@@ -11,14 +11,13 @@ Tests for the advanced cloud masking functionality including:
 
 import asyncio
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from cloud_masking import (
-    CloudMasker,
     SCLClass,
     get_cloud_masker,
 )
@@ -51,7 +50,7 @@ async def test_cloud_cover_analysis():
     print(f"✓  Usable: {result.usable}")
     print(f"💡 Recommendation: {result.recommendation}")
 
-    print(f"\n📊 SCL Distribution:")
+    print("\n📊 SCL Distribution:")
     for class_name, percent in sorted(
         result.scl_distribution.items(), key=lambda x: x[1], reverse=True
     ):
@@ -93,7 +92,7 @@ async def test_find_clear_observations():
     print(f"🔍 Found {len(observations)} clear observations")
 
     if observations:
-        print(f"\n🏆 Top 5 Observations (by quality):")
+        print("\n🏆 Top 5 Observations (by quality):")
         for i, obs in enumerate(observations[:5], 1):
             print(f"\n   {i}. {obs.date.strftime('%Y-%m-%d')} ({obs.satellite})")
             print(f"      Cloud: {obs.cloud_cover}%")
@@ -135,7 +134,7 @@ async def test_best_observation():
 
     if best:
         days_diff = abs((best.date - target_date).days)
-        print(f"\n🏆 Best Observation:")
+        print("\n🏆 Best Observation:")
         print(f"   Date: {best.date.strftime('%Y-%m-%d')} ({best.satellite})")
         print(f"   Days from target: {days_diff}")
         print(f"   Cloud Cover: {best.cloud_cover}%")
@@ -262,7 +261,7 @@ async def test_interpolation():
             print(f"   {obs['date']}: {obs['ndvi']:.3f} {status}")
 
     # Verify interpolated values are reasonable
-    for i, obs in enumerate(interpolated):
+    for _i, obs in enumerate(interpolated):
         if obs.get("interpolated", False):
             # Check that interpolated value is within range of neighbors
             assert 0 <= obs["ndvi"] <= 1
@@ -304,13 +303,13 @@ async def test_scl_distribution():
         field_id="test_field_005", latitude=15.5, longitude=44.2, scl_data=scl_data
     )
 
-    print(f"\n📈 Distribution Results:")
+    print("\n📈 Distribution Results:")
     for class_name, percent in sorted(
         result.scl_distribution.items(), key=lambda x: x[1], reverse=True
     ):
         print(f"   {class_name}: {percent}%")
 
-    print(f"\n📊 Coverage Summary:")
+    print("\n📊 Coverage Summary:")
     print(f"   Cloud Cover: {result.cloud_cover_percent}%")
     print(f"   Shadow Cover: {result.shadow_cover_percent}%")
     print(f"   Clear Cover: {result.clear_cover_percent}%")

@@ -6,10 +6,10 @@ Manages text embeddings using sentence-transformers.
 يدير تضمينات النصوص باستخدام sentence-transformers.
 """
 
-from typing import List, Union
-from sentence_transformers import SentenceTransformer
+
 import numpy as np
 import structlog
+from sentence_transformers import SentenceTransformer
 
 from ..config import settings
 
@@ -59,7 +59,7 @@ class EmbeddingsManager:
 
     def encode(
         self,
-        texts: Union[str, List[str]],
+        texts: str | list[str],
         batch_size: int = 32,
         show_progress: bool = False,
     ) -> np.ndarray:
@@ -117,7 +117,7 @@ class EmbeddingsManager:
 
     def encode_documents(
         self,
-        documents: List[str],
+        documents: list[str],
         batch_size: int = 32,
     ) -> np.ndarray:
         """

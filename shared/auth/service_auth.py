@@ -4,8 +4,7 @@ JWT-based authentication for microservices communication
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from jwt import PyJWTError
@@ -142,7 +141,7 @@ class ServiceToken:
         service_name: str,
         target_service: str,
         ttl: int = 300,
-        extra_claims: Optional[dict] = None,
+        extra_claims: dict | None = None,
     ) -> str:
         """
         Create a service-to-service JWT token.
@@ -189,7 +188,7 @@ class ServiceToken:
                 status_code=403,
             )
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expire = now + timedelta(seconds=ttl)
 
         # Generate unique token ID
@@ -314,8 +313,8 @@ class ServiceToken:
                 "service_name": service_name,
                 "target_service": target_service,
                 "jti": payload.get("jti"),
-                "exp": datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
-                "iat": datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
+                "exp": datetime.fromtimestamp(payload["exp"], tz=UTC),
+                "iat": datetime.fromtimestamp(payload["iat"], tz=UTC),
             }
 
         except jwt.ExpiredSignatureError:
@@ -335,7 +334,7 @@ def create_service_token(
     service_name: str,
     target_service: str,
     ttl: int = 300,
-    extra_claims: Optional[dict] = None,
+    extra_claims: dict | None = None,
 ) -> str:
     """
     Create a service-to-service JWT token.

@@ -6,11 +6,11 @@ Compare with Baseline
 Script to compare current evaluation results with baseline to detect regressions.
 """
 
+import argparse
 import json
 import sys
-import argparse
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Any
 
 
 class BaselineComparator:
@@ -32,8 +32,8 @@ class BaselineComparator:
         """Initialize with current and baseline files"""
         self.current_file = current_file
         self.baseline_file = baseline_file
-        self.current: Dict[str, Any] = {}
-        self.baseline: Dict[str, Any] = {}
+        self.current: dict[str, Any] = {}
+        self.baseline: dict[str, Any] = {}
 
     def load_data(self) -> bool:
         """Load current and baseline data"""
@@ -43,7 +43,7 @@ class BaselineComparator:
             return False
 
         try:
-            with open(self.current_file, "r", encoding="utf-8") as f:
+            with open(self.current_file, encoding="utf-8") as f:
                 self.current = json.load(f)
         except json.JSONDecodeError as e:
             print(f"❌ Invalid JSON in current file: {e}")
@@ -56,7 +56,7 @@ class BaselineComparator:
             return True
 
         try:
-            with open(self.baseline_file, "r", encoding="utf-8") as f:
+            with open(self.baseline_file, encoding="utf-8") as f:
                 self.baseline = json.load(f)
         except json.JSONDecodeError as e:
             print(f"⚠️ Invalid JSON in baseline file: {e}")
@@ -64,7 +64,7 @@ class BaselineComparator:
 
         return True
 
-    def compare(self) -> Dict[str, Any]:
+    def compare(self) -> dict[str, Any]:
         """
         Compare current results with baseline
         مقارنة النتائج الحالية مع خط الأساس
@@ -159,7 +159,7 @@ class BaselineComparator:
             "summary": self._generate_summary(regressions, improvements, stable),
         }
 
-    def _compare_language_support(self) -> Dict[str, Any]:
+    def _compare_language_support(self) -> dict[str, Any]:
         """Compare language support metrics"""
         current_arabic = self.current.get("arabic_support", 0.0)
         current_english = self.current.get("english_support", 0.0)
@@ -179,7 +179,7 @@ class BaselineComparator:
             },
         }
 
-    def _compare_categories(self) -> List[Dict[str, Any]]:
+    def _compare_categories(self) -> list[dict[str, Any]]:
         """Compare category scores"""
         current_categories = self.current.get("category_scores", {})
         baseline_categories = self.baseline.get("category_scores", {})
@@ -226,9 +226,9 @@ class BaselineComparator:
 
     def _generate_summary(
         self,
-        regressions: List[Dict[str, Any]],
-        improvements: List[Dict[str, Any]],
-        stable: List[Dict[str, Any]],
+        regressions: list[dict[str, Any]],
+        improvements: list[dict[str, Any]],
+        stable: list[dict[str, Any]],
     ) -> str:
         """Generate human-readable summary"""
         if not regressions and not improvements:

@@ -7,9 +7,9 @@ Tests the notification service API endpoints with PostgreSQL backend.
 """
 
 import asyncio
+from datetime import date
+
 import httpx
-from datetime import datetime, date
-from typing import Dict, Any
 
 BASE_URL = "http://localhost:8110"
 
@@ -47,7 +47,7 @@ async def test_health_check():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Health check passed")
+            print_success("Health check passed")
             print_info(f"Service: {data.get('service')} v{data.get('version')}")
             print_info(
                 f"Database status: {data.get('database', {}).get('status', 'unknown')}"
@@ -89,7 +89,7 @@ async def test_create_notification():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Notification created")
+            print_success("Notification created")
             print_info(f"ID: {data.get('id')}")
             print_info(f"Type: {data.get('type')} ({data.get('type_ar')})")
             print_info(f"Priority: {data.get('priority')} ({data.get('priority_ar')})")
@@ -117,7 +117,7 @@ async def test_weather_alert():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Weather alert created")
+            print_success("Weather alert created")
             print_info(f"ID: {data.get('id')}")
             print_info(f"Title (AR): {data.get('title_ar')}")
             return data.get("id")
@@ -145,7 +145,7 @@ async def test_pest_alert():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Pest alert created")
+            print_success("Pest alert created")
             print_info(f"ID: {data.get('id')}")
             print_info(f"Title (AR): {data.get('title_ar')}")
             return data.get("id")
@@ -174,7 +174,7 @@ async def test_irrigation_reminder():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Irrigation reminder created")
+            print_success("Irrigation reminder created")
             print_info(f"ID: {data.get('id')}")
             print_info(f"Title (AR): {data.get('title_ar')}")
             return data.get("id")
@@ -192,7 +192,7 @@ async def test_get_farmer_notifications():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Retrieved farmer notifications")
+            print_success("Retrieved farmer notifications")
             print_info(f"Total: {data.get('total')}")
             print_info(f"Unread: {data.get('unread_count')}")
 
@@ -222,7 +222,7 @@ async def test_mark_as_read(notification_id: str):
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Notification marked as read")
+            print_success("Notification marked as read")
             print_info(f"Is read: {data.get('is_read')}")
             return True
         else:
@@ -240,7 +240,7 @@ async def test_broadcast_notifications():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Retrieved broadcast notifications")
+            print_success("Retrieved broadcast notifications")
             print_info(f"Total: {data.get('total')}")
 
             notifications = data.get("notifications", [])
@@ -278,7 +278,7 @@ async def test_update_preferences():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Preferences updated")
+            print_success("Preferences updated")
             print_info(f"Message: {data.get('message')}")
             return True
         else:
@@ -295,7 +295,7 @@ async def test_stats():
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Statistics retrieved")
+            print_success("Statistics retrieved")
             print_info(f"Total notifications: {data.get('total_notifications')}")
             print_info(f"Pending: {data.get('pending_notifications')}")
             print_info(f"Active weather alerts: {data.get('active_weather_alerts')}")
@@ -319,7 +319,7 @@ async def main():
     print(f"{'='*60}{Colors.END}\n")
 
     print_info(f"Testing API at: {BASE_URL}")
-    print_info(f"Make sure the service is running!")
+    print_info("Make sure the service is running!")
 
     # Run tests
     tests_passed = 0
@@ -373,12 +373,12 @@ async def main():
 
     # Summary
     print(f"\n{Colors.GREEN}{'='*60}")
-    print(f"  Test Results | نتائج الاختبار")
+    print("  Test Results | نتائج الاختبار")
     print(f"{'='*60}{Colors.END}\n")
 
     if tests_passed == tests_total:
         print_success(f"All tests passed! ({tests_passed}/{tests_total})")
-        print_success(f"PostgreSQL integration is working correctly! ✓")
+        print_success("PostgreSQL integration is working correctly! ✓")
     else:
         print_error(f"Some tests failed: {tests_passed}/{tests_total} passed")
 

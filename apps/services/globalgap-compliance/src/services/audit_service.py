@@ -7,12 +7,12 @@ Business logic for preparing and managing audit reports.
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from ..models import (
     AuditResult,
     ComplianceRecord,
     NonConformity,
-    ChecklistAssessment,
     SeverityLevel,
 )
 
@@ -27,14 +27,14 @@ class AuditService:
         """Initialize audit service"""
         # In a real implementation, this would connect to database
         # في التطبيق الفعلي، سيتصل هذا بقاعدة البيانات
-        self.audit_results: Dict[str, AuditResult] = {}
+        self.audit_results: dict[str, AuditResult] = {}
 
     async def prepare_audit_report(
         self,
         farm_id: str,
         tenant_id: str,
         compliance_record: ComplianceRecord,
-        non_conformities: List[NonConformity],
+        non_conformities: list[NonConformity],
         audit_type: str = "internal",
         auditor_name: str = "",
     ) -> AuditResult:
@@ -158,8 +158,8 @@ class AuditService:
         return "passed"
 
     def _generate_recommendations(
-        self, compliance_record: ComplianceRecord, non_conformities: List[NonConformity]
-    ) -> List[str]:
+        self, compliance_record: ComplianceRecord, non_conformities: list[NonConformity]
+    ) -> list[str]:
         """
         Generate recommendations based on audit findings
         إنشاء التوصيات بناءً على نتائج التدقيق
@@ -309,7 +309,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
         self.audit_results[audit_result.id] = audit_result
         return audit_result
 
-    async def get_audit_result(self, audit_id: str) -> Optional[AuditResult]:
+    async def get_audit_result(self, audit_id: str) -> AuditResult | None:
         """
         Get audit result by ID
         الحصول على نتيجة التدقيق حسب المعرف
@@ -324,7 +324,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
 
     async def get_farm_audit_history(
         self, farm_id: str, tenant_id: str, limit: int = 10
-    ) -> List[AuditResult]:
+    ) -> list[AuditResult]:
         """
         Get audit history for a farm
         الحصول على سجل التدقيق للمزرعة
@@ -353,7 +353,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
 
     async def schedule_follow_up_audit(
         self, audit_id: str, follow_up_date: datetime
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Schedule a follow-up audit
         جدولة تدقيق متابعة
@@ -386,7 +386,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
 
     async def generate_audit_certificate_recommendation(
         self, audit_result: AuditResult, compliance_record: ComplianceRecord
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate recommendation for certification based on audit
         إنشاء توصية للحصول على الشهادة بناءً على التدقيق

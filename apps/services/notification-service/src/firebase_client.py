@@ -12,12 +12,12 @@ Features:
 - Arabic/English bilingual support
 """
 
-import os
 import json
 import logging
-from typing import Optional, List, Dict, Any, Union
+import os
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -49,11 +49,11 @@ class FirebaseNotification:
 
     title: str
     body: str
-    title_ar: Optional[str] = None
-    body_ar: Optional[str] = None
-    image_url: Optional[str] = None
+    title_ar: str | None = None
+    body_ar: str | None = None
+    image_url: str | None = None
 
-    def to_dict(self, language: str = "ar") -> Dict[str, str]:
+    def to_dict(self, language: str = "ar") -> dict[str, str]:
         """تحويل إلى قاموس لـ Firebase"""
         if language == "ar" and self.title_ar:
             return {
@@ -72,12 +72,12 @@ class FirebaseData:
 
     notification_type: str
     priority: NotificationPriority
-    action_url: Optional[str] = None
-    field_id: Optional[str] = None
-    crop_type: Optional[str] = None
-    extra: Optional[Dict[str, Any]] = None
+    action_url: str | None = None
+    field_id: str | None = None
+    crop_type: str | None = None
+    extra: dict[str, Any] | None = None
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         """تحويل إلى قاموس (كل القيم نصية)"""
         data = {
             "type": self.notification_type,
@@ -127,8 +127,8 @@ class FirebaseClient:
 
     def initialize(
         self,
-        credentials_path: Optional[str] = None,
-        credentials_dict: Optional[Dict[str, Any]] = None,
+        credentials_path: str | None = None,
+        credentials_dict: dict[str, Any] | None = None,
     ) -> bool:
         """
         تهيئة Firebase Admin SDK
@@ -188,13 +188,13 @@ class FirebaseClient:
         token: str,
         title: str,
         body: str,
-        title_ar: Optional[str] = None,
-        body_ar: Optional[str] = None,
-        data: Optional[Dict[str, str]] = None,
-        image_url: Optional[str] = None,
+        title_ar: str | None = None,
+        body_ar: str | None = None,
+        data: dict[str, str] | None = None,
+        image_url: str | None = None,
         priority: NotificationPriority = NotificationPriority.MEDIUM,
         ttl: int = 86400,  # 24 hours
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         إرسال إشعار لجهاز واحد
 
@@ -298,12 +298,12 @@ class FirebaseClient:
         topic: str,
         title: str,
         body: str,
-        title_ar: Optional[str] = None,
-        body_ar: Optional[str] = None,
-        data: Optional[Dict[str, str]] = None,
-        image_url: Optional[str] = None,
+        title_ar: str | None = None,
+        body_ar: str | None = None,
+        data: dict[str, str] | None = None,
+        image_url: str | None = None,
         priority: NotificationPriority = NotificationPriority.MEDIUM,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         إرسال إشعار لموضوع (topic)
 
@@ -352,14 +352,14 @@ class FirebaseClient:
 
     def send_multicast(
         self,
-        tokens: List[str],
+        tokens: list[str],
         title: str,
         body: str,
-        title_ar: Optional[str] = None,
-        body_ar: Optional[str] = None,
-        data: Optional[Dict[str, str]] = None,
+        title_ar: str | None = None,
+        body_ar: str | None = None,
+        data: dict[str, str] | None = None,
         priority: NotificationPriority = NotificationPriority.MEDIUM,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         إرسال إشعار لعدة أجهزة
 
@@ -441,8 +441,8 @@ class FirebaseClient:
             }
 
     def subscribe_to_topic(
-        self, tokens: Union[str, List[str]], topic: str
-    ) -> Dict[str, int]:
+        self, tokens: str | list[str], topic: str
+    ) -> dict[str, int]:
         """
         اشتراك أجهزة في موضوع
 
@@ -478,8 +478,8 @@ class FirebaseClient:
             return {"success_count": 0, "failure_count": len(tokens)}
 
     def unsubscribe_from_topic(
-        self, tokens: Union[str, List[str]], topic: str
-    ) -> Dict[str, int]:
+        self, tokens: str | list[str], topic: str
+    ) -> dict[str, int]:
         """
         إلغاء اشتراك أجهزة من موضوع
 
@@ -518,7 +518,7 @@ class FirebaseClient:
 
     def send_with_retry(
         self, token: str, title: str, body: str, max_retries: int = 3, **kwargs
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         إرسال إشعار مع إعادة المحاولة
 
@@ -547,7 +547,7 @@ class FirebaseClient:
 
 
 # Global client instance
-_firebase_client: Optional[FirebaseClient] = None
+_firebase_client: FirebaseClient | None = None
 
 
 def get_firebase_client() -> FirebaseClient:

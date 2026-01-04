@@ -4,8 +4,7 @@ Token creation and verification using PyJWT
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from jwt import PyJWTError
@@ -21,10 +20,10 @@ ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
 def create_access_token(
     user_id: str,
     roles: list[str],
-    expires_delta: Optional[timedelta] = None,
-    tenant_id: Optional[str] = None,
-    permissions: Optional[list[str]] = None,
-    extra_claims: Optional[dict] = None,
+    expires_delta: timedelta | None = None,
+    tenant_id: str | None = None,
+    permissions: list[str] | None = None,
+    extra_claims: dict | None = None,
 ) -> str:
     """
     Create a JWT access token.
@@ -47,7 +46,7 @@ def create_access_token(
         ...     permissions=["farm:read", "farm:write"]
         ... )
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if expires_delta:
         expire = now + expires_delta
@@ -82,7 +81,7 @@ def create_access_token(
 
 def create_refresh_token(
     user_id: str,
-    tenant_id: Optional[str] = None,
+    tenant_id: str | None = None,
 ) -> str:
     """
     Create a JWT refresh token.
@@ -97,7 +96,7 @@ def create_refresh_token(
     Example:
         >>> refresh_token = create_refresh_token(user_id="user123")
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + timedelta(days=config.REFRESH_TOKEN_EXPIRE_DAYS)
 
     # Generate unique token ID for revocation support
@@ -173,8 +172,8 @@ def verify_token(token: str) -> TokenPayload:
             raise AuthException(AuthErrors.INVALID_TOKEN)
 
         # Convert timestamps to datetime objects
-        exp = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
-        iat = datetime.fromtimestamp(payload["iat"], tz=timezone.utc)
+        exp = datetime.fromtimestamp(payload["exp"], tz=UTC)
+        iat = datetime.fromtimestamp(payload["iat"], tz=UTC)
 
         return TokenPayload(
             user_id=user_id,
@@ -193,7 +192,7 @@ def verify_token(token: str) -> TokenPayload:
         raise AuthException(AuthErrors.INVALID_ISSUER)
     except jwt.InvalidAudienceError:
         raise AuthException(AuthErrors.INVALID_AUDIENCE)
-    except PyJWTError as e:
+    except PyJWTError:
         raise AuthException(AuthErrors.INVALID_TOKEN)
 
 
@@ -232,8 +231,8 @@ def decode_token_unsafe(token: str) -> dict:
 def create_token_pair(
     user_id: str,
     roles: list[str],
-    tenant_id: Optional[str] = None,
-    permissions: Optional[list[str]] = None,
+    tenant_id: str | None = None,
+    permissions: list[str] | None = None,
 ) -> dict:
     """
     Create both access and refresh tokens.
@@ -277,7 +276,7 @@ def create_token_pair(
 
 
 def refresh_access_token(
-    refresh_token: str, roles: list[str], permissions: Optional[list[str]] = None
+    refresh_token: str, roles: list[str], permissions: list[str] | None = None
 ) -> str:
     """
     Create a new access token using a refresh token.

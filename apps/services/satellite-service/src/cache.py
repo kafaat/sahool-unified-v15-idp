@@ -9,14 +9,14 @@ Provides caching for:
 - Field analysis results (TTL: 12 hours)
 """
 
-import json
-import hashlib
-import logging
-from typing import Optional, Any, Dict
-from datetime import datetime, timedelta
-from functools import wraps
-import os
 import asyncio
+import hashlib
+import json
+import logging
+import os
+from datetime import datetime
+from functools import wraps
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +115,7 @@ class CacheTTL:
 # =============================================================================
 
 
-async def cache_get(key: str) -> Optional[Dict[str, Any]]:
+async def cache_get(key: str) -> dict[str, Any] | None:
     """Get value from cache."""
     client = await _get_redis_client()
     if not client:
@@ -135,7 +135,7 @@ async def cache_get(key: str) -> Optional[Dict[str, Any]]:
 
 async def cache_set(
     key: str,
-    value: Dict[str, Any],
+    value: dict[str, Any],
     ttl: int = CacheTTL.NDVI,
 ) -> bool:
     """Set value in cache with TTL."""
@@ -204,7 +204,7 @@ async def get_cached_ndvi(
     field_id: str,
     date: str,
     satellite: str,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Get cached NDVI data for a field."""
     key = _ndvi_cache_key(field_id, date, satellite)
     return await cache_get(key)
@@ -214,7 +214,7 @@ async def cache_ndvi(
     field_id: str,
     date: str,
     satellite: str,
-    ndvi_data: Dict[str, Any],
+    ndvi_data: dict[str, Any],
 ) -> bool:
     """Cache NDVI data for a field."""
     key = _ndvi_cache_key(field_id, date, satellite)
@@ -229,7 +229,7 @@ async def cache_ndvi(
 async def get_cached_analysis(
     field_id: str,
     satellite: str,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Get cached field analysis."""
     key = _analysis_cache_key(field_id, satellite)
     return await cache_get(key)
@@ -238,7 +238,7 @@ async def get_cached_analysis(
 async def cache_analysis(
     field_id: str,
     satellite: str,
-    analysis_data: Dict[str, Any],
+    analysis_data: dict[str, Any],
 ) -> bool:
     """Cache field analysis results."""
     key = _analysis_cache_key(field_id, satellite)
@@ -254,7 +254,7 @@ async def get_cached_timeseries(
     field_id: str,
     days: int,
     satellite: str,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Get cached time series data."""
     key = _timeseries_cache_key(field_id, days, satellite)
     return await cache_get(key)
@@ -264,7 +264,7 @@ async def cache_timeseries(
     field_id: str,
     days: int,
     satellite: str,
-    timeseries_data: Dict[str, Any],
+    timeseries_data: dict[str, Any],
 ) -> bool:
     """Cache time series data."""
     key = _timeseries_cache_key(field_id, days, satellite)
@@ -336,7 +336,7 @@ async def _count_keys_by_pattern(client, pattern: str) -> int:
     return count
 
 
-async def get_cache_stats() -> Dict[str, Any]:
+async def get_cache_stats() -> dict[str, Any]:
     """Get cache statistics."""
     client = await _get_redis_client()
     if not client:
@@ -378,7 +378,7 @@ async def get_cache_stats() -> Dict[str, Any]:
 # =============================================================================
 
 
-async def cache_health_check() -> Dict[str, Any]:
+async def cache_health_check() -> dict[str, Any]:
     """Check cache health for monitoring."""
     client = await _get_redis_client()
 

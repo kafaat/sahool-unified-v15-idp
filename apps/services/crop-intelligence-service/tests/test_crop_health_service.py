@@ -3,10 +3,10 @@ Comprehensive Tests for Crop Health Service
 اختبارات شاملة لخدمة صحة المحاصيل
 """
 
+
 import pytest
 from fastapi.testclient import TestClient
-from datetime import datetime, date
-from src.main import app, OBSERVATIONS, ZONES
+from src.main import app
 
 
 @pytest.fixture
@@ -317,9 +317,9 @@ class TestDecisionEngine:
     def test_healthy_zone_diagnosis(self):
         """Test diagnosis of healthy zone"""
         from src.decision_engine import (
+            GrowthStage,
             Indices,
             ZoneObservation,
-            GrowthStage,
             diagnose_zone,
         )
 
@@ -340,9 +340,9 @@ class TestDecisionEngine:
     def test_stressed_zone_diagnosis(self):
         """Test diagnosis of stressed zone"""
         from src.decision_engine import (
+            GrowthStage,
             Indices,
             ZoneObservation,
-            GrowthStage,
             diagnose_zone,
         )
 

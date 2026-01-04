@@ -3,11 +3,10 @@ Unit Tests for Inventory Analytics
 اختبارات الوحدة لتحليلات المخزون
 """
 
-import pytest
-from datetime import datetime, date, timedelta
+from datetime import date, timedelta
 from decimal import Decimal
-from unittest.mock import Mock, AsyncMock, patch
-from sqlalchemy import select
+
+import pytest
 
 
 class TestConsumptionForecast:

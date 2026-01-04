@@ -15,7 +15,6 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY_FILE = ROOT / "shared" / "contracts" / "events" / "registry.json"
 OUTPUT_FILE = ROOT / "docs" / "EVENT_CATALOG.md"

@@ -17,12 +17,10 @@ References:
 - Fensholt & Proud (2012) - Evaluation of Earth Observation based global long term vegetation trends
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Tuple, Any
+from dataclasses import dataclass
+from datetime import date, timedelta
 from enum import Enum
-from datetime import datetime, date, timedelta
-import math
-
+from typing import Any
 
 # استيراد NumPy للحسابات العلمية
 # Import NumPy for scientific calculations
@@ -105,7 +103,7 @@ class AnomalyResult:
     description_ar: str
     description_en: str
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """تحويل إلى قاموس - Convert to dictionary"""
         return {
             "date": self.date.isoformat(),
@@ -133,7 +131,7 @@ class TrendResult:
     description_ar: str
     description_en: str
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """تحويل إلى قاموس - Convert to dictionary"""
         return {
             "trend_type": self.trend_type.value,
@@ -151,15 +149,15 @@ class TrendResult:
 class SeasonalMetrics:
     """مقاييس الموسم - Seasonal phenological metrics"""
 
-    season_start: Optional[date] = None  # بداية الموسم
-    peak_date: Optional[date] = None  # تاريخ الذروة
-    season_end: Optional[date] = None  # نهاية الموسم
-    season_length: Optional[int] = None  # طول الموسم (أيام)
-    peak_ndvi: Optional[float] = None  # قيمة NDVI عند الذروة
-    seasonal_amplitude: Optional[float] = None  # سعة التغير الموسمي
-    integrated_ndvi: Optional[float] = None  # التكامل الموسمي (مجموع NDVI)
+    season_start: date | None = None  # بداية الموسم
+    peak_date: date | None = None  # تاريخ الذروة
+    season_end: date | None = None  # نهاية الموسم
+    season_length: int | None = None  # طول الموسم (أيام)
+    peak_ndvi: float | None = None  # قيمة NDVI عند الذروة
+    seasonal_amplitude: float | None = None  # سعة التغير الموسمي
+    integrated_ndvi: float | None = None  # التكامل الموسمي (مجموع NDVI)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """تحويل إلى قاموس - Convert to dictionary"""
         return {
             "season_start": self.season_start.isoformat() if self.season_start else None,
@@ -184,7 +182,7 @@ class ChangeDetectionResult:
     description_ar: str
     description_en: str
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """تحويل إلى قاموس - Convert to dictionary"""
         return {
             "change_type": self.change_type.value,
@@ -203,10 +201,10 @@ class CloudMaskResult:
 
     cloud_mask: np.ndarray  # Binary mask (1 = cloud, 0 = clear)
     cloud_percentage: float  # نسبة السحب
-    shadow_mask: Optional[np.ndarray] = None  # ظلال السحب
-    quality_mask: Optional[np.ndarray] = None  # قناع الجودة
+    shadow_mask: np.ndarray | None = None  # ظلال السحب
+    quality_mask: np.ndarray | None = None  # قناع الجودة
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """تحويل إلى قاموس - Convert to dictionary"""
         return {
             "cloud_percentage": round(self.cloud_percentage, 2),
@@ -303,9 +301,9 @@ class NDVITimeSeriesAnalyzer:
 
     def detect_anomalies(
         self,
-        ndvi_series: List[NDVIPoint],
+        ndvi_series: list[NDVIPoint],
         threshold: float = 2.0
-    ) -> List[AnomalyResult]:
+    ) -> list[AnomalyResult]:
         """
         كشف الشذوذ في سلسلة NDVI الزمنية باستخدام Z-score
         Detect anomalies in NDVI time-series using Z-score method
@@ -344,7 +342,7 @@ class NDVITimeSeriesAnalyzer:
         # كشف الشذوذات
         # Detect anomalies
         anomalies = []
-        for i, (z_score, value, expected, date_val) in enumerate(zip(z_scores, values, smoothed, dates)):
+        for _i, (z_score, value, expected, date_val) in enumerate(zip(z_scores, values, smoothed, dates, strict=False)):
             if abs(z_score) > threshold:
                 # تحديد نوع الشذوذ
                 # Determine anomaly type
@@ -388,8 +386,8 @@ class NDVITimeSeriesAnalyzer:
 
     def calculate_trend(
         self,
-        ndvi_values: List[float],
-        dates: List[date]
+        ndvi_values: list[float],
+        dates: list[date]
     ) -> TrendResult:
         """
         حساب اتجاه السلسلة الزمنية باستخدام الانحدار الخطي
@@ -479,9 +477,9 @@ class NDVITimeSeriesAnalyzer:
 
     def predict_next_values(
         self,
-        ndvi_series: List[NDVIPoint],
+        ndvi_series: list[NDVIPoint],
         periods: int = 7
-    ) -> List[Tuple[date, float]]:
+    ) -> list[tuple[date, float]]:
         """
         التنبؤ بقيم NDVI المستقبلية باستخدام المتوسط المتحرك والاتجاه
         Predict future NDVI values using moving average and trend
@@ -508,10 +506,7 @@ class NDVITimeSeriesAnalyzer:
 
         # حساب الموسمية (متوسط التغير الأسبوعي)
         # Calculate seasonality (average weekly change)
-        if len(values) >= 7:
-            weekly_pattern = self._extract_weekly_pattern(values)
-        else:
-            weekly_pattern = [0] * 7
+        weekly_pattern = self._extract_weekly_pattern(values) if len(values) >= 7 else [0] * 7
 
         # التنبؤ
         # Forecast
@@ -545,8 +540,8 @@ class NDVITimeSeriesAnalyzer:
 
     def detect_phenological_stages(
         self,
-        ndvi_curve: List[NDVIPoint]
-    ) -> List[Tuple[date, PhenologicalStage, float]]:
+        ndvi_curve: list[NDVIPoint]
+    ) -> list[tuple[date, PhenologicalStage, float]]:
         """
         كشف مراحل النمو الفينولوجية من منحنى NDVI
         Detect phenological stages from NDVI curve
@@ -622,9 +617,9 @@ class NDVITimeSeriesAnalyzer:
 
     def identify_growing_season_start(
         self,
-        ndvi_series: List[NDVIPoint],
+        ndvi_series: list[NDVIPoint],
         threshold: float = 0.2
-    ) -> Optional[date]:
+    ) -> date | None:
         """
         تحديد بداية موسم النمو
         Identify start of growing season
@@ -658,8 +653,8 @@ class NDVITimeSeriesAnalyzer:
 
     def identify_peak_greenness(
         self,
-        ndvi_series: List[NDVIPoint]
-    ) -> Optional[Tuple[date, float]]:
+        ndvi_series: list[NDVIPoint]
+    ) -> tuple[date, float] | None:
         """
         تحديد ذروة الاخضرار (أعلى قيمة NDVI)
         Identify peak greenness (maximum NDVI)
@@ -680,7 +675,7 @@ class NDVITimeSeriesAnalyzer:
 
     def calculate_seasonal_integral(
         self,
-        ndvi_series: List[NDVIPoint]
+        ndvi_series: list[NDVIPoint]
     ) -> float:
         """
         حساب التكامل الموسمي (مجموع قيم NDVI عبر الموسم)
@@ -718,8 +713,8 @@ class NDVITimeSeriesAnalyzer:
 
     def compare_periods(
         self,
-        period1_ndvi: List[float],
-        period2_ndvi: List[float]
+        period1_ndvi: list[float],
+        period2_ndvi: list[float]
     ) -> ChangeDetectionResult:
         """
         مقارنة فترتين لكشف التغييرات
@@ -808,9 +803,9 @@ class NDVITimeSeriesAnalyzer:
 
     def detect_sudden_changes(
         self,
-        ndvi_series: List[NDVIPoint],
+        ndvi_series: list[NDVIPoint],
         sensitivity: float = 0.15
-    ) -> List[Tuple[date, float, str]]:
+    ) -> list[tuple[date, float, str]]:
         """
         كشف التغييرات المفاجئة في سلسلة NDVI
         Detect sudden changes in NDVI time-series
@@ -851,7 +846,7 @@ class NDVITimeSeriesAnalyzer:
         self,
         before_image: np.ndarray,
         after_image: np.ndarray
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         إنشاء خريطة التغيير بين صورتين
         Generate change map between two images
@@ -909,7 +904,7 @@ class NDVITimeSeriesAnalyzer:
 
     def detect_clouds(
         self,
-        image_data: Dict[str, np.ndarray]
+        image_data: dict[str, np.ndarray]
     ) -> CloudMaskResult:
         """
         كشف السحب في بيانات الصورة
@@ -1101,7 +1096,7 @@ class NDVITimeSeriesAnalyzer:
 
         return smoothed
 
-    def _linear_regression(self, x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
+    def _linear_regression(self, x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
         """
         حساب الانحدار الخطي البسيط
         Calculate simple linear regression
@@ -1138,7 +1133,7 @@ class NDVITimeSeriesAnalyzer:
 
         return slope, intercept
 
-    def _extract_weekly_pattern(self, values: List[float]) -> List[float]:
+    def _extract_weekly_pattern(self, values: list[float]) -> list[float]:
         """
         استخراج النمط الأسبوعي من السلسلة
         Extract weekly pattern from series
@@ -1176,11 +1171,11 @@ class NDVITimeSeriesAnalyzer:
 
 
 def create_ndvi_timeseries(
-    dates: List[date],
-    values: List[float],
-    quality_scores: Optional[List[float]] = None,
-    cloud_coverage: Optional[List[float]] = None
-) -> List[NDVIPoint]:
+    dates: list[date],
+    values: list[float],
+    quality_scores: list[float] | None = None,
+    cloud_coverage: list[float] | None = None
+) -> list[NDVIPoint]:
     """
     إنشاء سلسلة زمنية من NDVI من القوائم
     Create NDVI time-series from lists
@@ -1209,16 +1204,16 @@ def create_ndvi_timeseries(
             quality=q,
             cloud_coverage=c
         )
-        for d, v, q, c in zip(dates, values, quality_scores, cloud_coverage)
+        for d, v, q, c in zip(dates, values, quality_scores, cloud_coverage, strict=False)
     ]
 
 
 def export_results_to_dict(
-    anomalies: List[AnomalyResult],
+    anomalies: list[AnomalyResult],
     trend: TrendResult,
     seasonal_metrics: SeasonalMetrics,
-    changes: Optional[ChangeDetectionResult] = None
-) -> Dict[str, Any]:
+    changes: ChangeDetectionResult | None = None
+) -> dict[str, Any]:
     """
     تصدير نتائج التحليل إلى قاموس
     Export analysis results to dictionary

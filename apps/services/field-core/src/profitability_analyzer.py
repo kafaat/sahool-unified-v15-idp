@@ -3,11 +3,10 @@ SAHOOL Crop Profitability Analyzer
 Inspired by LiteFarm - helps farmers understand which crops are most profitable
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-from datetime import date, datetime
-from enum import Enum
 import logging
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +41,7 @@ class RevenueItem:
     unit: str
     unit_price: float
     total_revenue: float
-    grade: Optional[str] = None  # Quality grade
+    grade: str | None = None  # Quality grade
 
 
 @dataclass
@@ -57,12 +56,12 @@ class CropProfitability:
     area_ha: float
 
     # Costs
-    costs: List[CostItem]
+    costs: list[CostItem]
     total_costs: float
     cost_per_ha: float
 
     # Revenue
-    revenues: List[RevenueItem]
+    revenues: list[RevenueItem]
     total_revenue: float
     revenue_per_ha: float
 
@@ -92,12 +91,12 @@ class SeasonSummary:
     total_profit: float
     overall_margin: float
 
-    crops: List[CropProfitability]
+    crops: list[CropProfitability]
     best_crop: str
     worst_crop: str
 
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
 
 
 class ProfitabilityAnalyzer:
@@ -313,8 +312,8 @@ class ProfitabilityAnalyzer:
         crop_season_id: str,
         crop_code: str,
         area_ha: float,
-        costs: Optional[List[Dict]] = None,
-        revenues: Optional[List[Dict]] = None,
+        costs: list[dict] | None = None,
+        revenues: list[dict] | None = None,
     ) -> CropProfitability:
         """
         Analyze profitability of a single crop season.
@@ -464,7 +463,7 @@ class ProfitabilityAnalyzer:
         )
 
     async def analyze_season(
-        self, farmer_id: str, season_year: str, crops_data: List[Dict]
+        self, farmer_id: str, season_year: str, crops_data: list[dict]
     ) -> SeasonSummary:
         """Analyze all crops for a farmer in a season"""
         logger.info(f"Analyzing season {season_year} for farmer {farmer_id}")
@@ -522,8 +521,8 @@ class ProfitabilityAnalyzer:
         )
 
     async def compare_crops(
-        self, crop_codes: List[str], area_ha: float = 1.0, region: str = "sanaa"
-    ) -> List[Dict]:
+        self, crop_codes: list[str], area_ha: float = 1.0, region: str = "sanaa"
+    ) -> list[dict]:
         """
         Compare profitability of different crops.
         Useful for planning next season.
@@ -574,7 +573,7 @@ class ProfitabilityAnalyzer:
 
     async def calculate_break_even(
         self, crop_code: str, area_ha: float, total_costs: float, expected_price: float
-    ) -> Dict:
+    ) -> dict:
         """Calculate break-even yield and price"""
         logger.info(f"Calculating break-even for {crop_code}")
 
@@ -618,7 +617,7 @@ class ProfitabilityAnalyzer:
 
     async def get_cost_breakdown(
         self, crop_code: str, area_ha: float = 1.0
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Get cost breakdown by category"""
         logger.info(f"Getting cost breakdown for {crop_code}")
 
@@ -644,7 +643,7 @@ class ProfitabilityAnalyzer:
 
     async def get_historical_profitability(
         self, field_id: str, crop_code: str, years: int = 5
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """Get historical profitability for a crop on a field"""
         # This would query the database in production
         # For now, return mock data
@@ -682,7 +681,7 @@ class ProfitabilityAnalyzer:
 
     async def get_regional_benchmarks(
         self, crop_code: str, region: str = "sanaa"
-    ) -> Dict:
+    ) -> dict:
         """Get regional benchmark costs and revenues"""
         logger.info(f"Getting regional benchmarks for {crop_code} in {region}")
 
@@ -714,7 +713,7 @@ class ProfitabilityAnalyzer:
 
     def generate_recommendations(
         self, analysis: CropProfitability
-    ) -> Dict[str, List[str]]:
+    ) -> dict[str, list[str]]:
         """Generate improvement recommendations"""
         recommendations_en = []
         recommendations_ar = []
@@ -776,10 +775,10 @@ class ProfitabilityAnalyzer:
 
     def _generate_season_recommendations(
         self,
-        crop_analyses: List[CropProfitability],
+        crop_analyses: list[CropProfitability],
         total_profit: float,
         overall_margin: float,
-    ) -> tuple[List[str], List[str]]:
+    ) -> tuple[list[str], list[str]]:
         """Generate season-level recommendations"""
         recommendations_en = []
         recommendations_ar = []

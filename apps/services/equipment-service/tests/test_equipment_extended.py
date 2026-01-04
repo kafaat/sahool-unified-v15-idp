@@ -3,9 +3,8 @@ Extended Tests for Equipment Service
 اختبارات موسعة لخدمة المعدات
 """
 
+
 import pytest
-from unittest.mock import Mock, patch
-from datetime import datetime, timedelta
 
 
 class TestEquipmentEnums:
@@ -90,8 +89,8 @@ class TestEquipmentValidation:
 
     def test_equipment_name_length_validation(self):
         """Test equipment name length constraints"""
-        from src.main import EquipmentCreate, EquipmentType
         from pydantic import ValidationError
+        from src.main import EquipmentCreate, EquipmentType
 
         # Name too short (empty)
         with pytest.raises(ValidationError):
@@ -103,8 +102,8 @@ class TestEquipmentValidation:
 
     def test_equipment_type_validation(self):
         """Test equipment type is required"""
-        from src.main import EquipmentCreate
         from pydantic import ValidationError
+        from src.main import EquipmentCreate
 
         with pytest.raises(ValidationError):
             EquipmentCreate(name="Test Equipment")

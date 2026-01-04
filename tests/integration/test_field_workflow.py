@@ -13,12 +13,9 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import pytest
-import asyncio
-from typing import Dict, Any
-from datetime import datetime, date, timedelta
-from decimal import Decimal
+from datetime import date, timedelta
 
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Field Creation Workflow - اختبار سير عمل إنشاء الحقول
@@ -29,9 +26,9 @@ from decimal import Decimal
 @pytest.mark.asyncio
 async def test_create_field_workflow(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     field_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إنشاء حقل كامل
@@ -102,9 +99,9 @@ async def test_create_field_workflow(
 @pytest.mark.asyncio
 async def test_link_field_to_satellite_data(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     field_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار ربط الحقل ببيانات الأقمار الصناعية
@@ -174,9 +171,9 @@ async def test_link_field_to_satellite_data(
 @pytest.mark.asyncio
 async def test_calculate_ndvi_for_field(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     field_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار حساب NDVI للحقل
@@ -189,7 +186,7 @@ async def test_calculate_ndvi_for_field(
     """
     # Arrange - إنشاء حقل
     field_service_url = service_urls["field_core"]
-    ndvi_service_url = service_urls.get("ndvi_engine", "http://localhost:8107")
+    service_urls.get("ndvi_engine", "http://localhost:8107")
 
     field_data = field_factory.create(name="NDVI Test Field", crop_type="wheat")
     field_data["tenant_id"] = "test-tenant-123"
@@ -270,9 +267,9 @@ async def test_calculate_ndvi_for_field(
 @pytest.mark.asyncio
 async def test_crop_season_workflow(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     field_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل موسم المحصول
@@ -365,9 +362,9 @@ async def test_crop_season_workflow(
 @pytest.mark.asyncio
 async def test_field_zone_workflow(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     field_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل مناطق الحقل
@@ -460,9 +457,9 @@ async def test_field_zone_workflow(
 @pytest.mark.asyncio
 async def test_field_statistics(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     field_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار إحصائيات الحقل

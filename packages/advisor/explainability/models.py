@@ -6,7 +6,6 @@ SAHOOL AI Explainability Models
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
 
 
 @dataclass(frozen=True)

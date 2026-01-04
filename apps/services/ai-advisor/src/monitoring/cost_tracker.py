@@ -3,12 +3,11 @@ LLM Cost Tracker
 متتبع تكاليف نماذج اللغة
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Dict, Optional
-from collections import defaultdict
 import asyncio
 import logging
+from collections import defaultdict
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +29,8 @@ class UsageRecord:
     input_tokens: int
     output_tokens: int
     cost: float
-    user_id: Optional[str] = None
-    request_type: Optional[str] = None
+    user_id: str | None = None
+    request_type: str | None = None
 
 @dataclass
 class CostTracker:
@@ -44,8 +43,8 @@ class CostTracker:
 
     # Storage
     _records: list = field(default_factory=list)
-    _daily_costs: Dict[str, float] = field(default_factory=lambda: defaultdict(float))
-    _monthly_costs: Dict[str, float] = field(default_factory=lambda: defaultdict(float))
+    _daily_costs: dict[str, float] = field(default_factory=lambda: defaultdict(float))
+    _monthly_costs: dict[str, float] = field(default_factory=lambda: defaultdict(float))
     _lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
     def calculate_cost(self, model: str, input_tokens: int, output_tokens: int) -> float:
@@ -60,8 +59,8 @@ class CostTracker:
         model: str,
         input_tokens: int,
         output_tokens: int,
-        user_id: Optional[str] = None,
-        request_type: Optional[str] = None
+        user_id: str | None = None,
+        request_type: str | None = None
     ) -> UsageRecord:
         """Record LLM usage and return the record"""
         cost = self.calculate_cost(model, input_tokens, output_tokens)
@@ -93,7 +92,7 @@ class CostTracker:
 
         return record
 
-    async def check_budget(self, user_id: Optional[str] = None) -> tuple[bool, str]:
+    async def check_budget(self, user_id: str | None = None) -> tuple[bool, str]:
         """Check if user is within budget limits"""
         user_key = user_id or "anonymous"
         today = datetime.now().strftime("%Y-%m-%d")
@@ -110,7 +109,7 @@ class CostTracker:
 
         return True, ""
 
-    def get_usage_stats(self, user_id: Optional[str] = None) -> dict:
+    def get_usage_stats(self, user_id: str | None = None) -> dict:
         """Get usage statistics"""
         today = datetime.now().strftime("%Y-%m-%d")
         month = datetime.now().strftime("%Y-%m")

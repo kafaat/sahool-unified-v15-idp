@@ -9,33 +9,32 @@ This module defines the database schema for:
 - Usage Records (سجلات الاستخدام)
 """
 
-import uuid
-from datetime import datetime, date
-from decimal import Decimal
-from typing import Optional
-
-from sqlalchemy import (
-    String,
-    Integer,
-    Numeric,
-    DateTime,
-    Date,
-    Boolean,
-    Text,
-    Enum as SQLEnum,
-    ForeignKey,
-    Index,
-    CheckConstraint,
-)
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID, JSONB
-
-from .database import Base
-
 # Import enums from main (we'll reference the existing ones)
 # These will be defined in main.py
 import enum
+import uuid
+from datetime import date, datetime
+from decimal import Decimal
 
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Date,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    Numeric,
+    String,
+    Text,
+)
+from sqlalchemy import (
+    Enum as SQLEnum,
+)
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from .database import Base
 
 # =============================================================================
 # Enums - نسخة من الـEnums الموجودة في main.py
@@ -271,7 +270,7 @@ class Tenant(Base):
     )
 
     # Tax ID
-    tax_id: Mapped[Optional[str]] = mapped_column(
+    tax_id: Mapped[str | None] = mapped_column(
         String(100), nullable=True, comment="الرقم الضريبي"
     )
 
@@ -286,7 +285,7 @@ class Tenant(Base):
     )
 
     # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
-    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+    extra_metadata: Mapped[dict | None] = mapped_column(
         "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,
@@ -379,11 +378,11 @@ class Subscription(Base):
         Date, nullable=False, comment="تاريخ الانتهاء"
     )
 
-    trial_end_date: Mapped[Optional[date]] = mapped_column(
+    trial_end_date: Mapped[date | None] = mapped_column(
         Date, nullable=True, comment="تاريخ انتهاء الفترة التجريبية"
     )
 
-    canceled_at: Mapped[Optional[datetime]] = mapped_column(
+    canceled_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, comment="تاريخ الإلغاء"
     )
 
@@ -392,24 +391,24 @@ class Subscription(Base):
         Date, nullable=False, index=True, comment="تاريخ الفوترة التالي"
     )
 
-    last_billing_date: Mapped[Optional[date]] = mapped_column(
+    last_billing_date: Mapped[date | None] = mapped_column(
         Date, nullable=True, comment="تاريخ آخر فوترة"
     )
 
     # Payment Method
-    payment_method: Mapped[Optional[PaymentMethod]] = mapped_column(
+    payment_method: Mapped[PaymentMethod | None] = mapped_column(
         SQLEnum(PaymentMethod, name="payment_method_enum"),
         nullable=True,
         comment="طريقة الدفع",
     )
 
     # External IDs
-    stripe_subscription_id: Mapped[Optional[str]] = mapped_column(
+    stripe_subscription_id: Mapped[str | None] = mapped_column(
         String(255), nullable=True, index=True, comment="معرف الاشتراك في Stripe"
     )
 
     # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
-    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+    extra_metadata: Mapped[dict | None] = mapped_column(
         "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,
@@ -524,7 +523,7 @@ class Invoice(Base):
         Date, nullable=False, index=True, comment="تاريخ الاستحقاق"
     )
 
-    paid_date: Mapped[Optional[date]] = mapped_column(
+    paid_date: Mapped[date | None] = mapped_column(
         Date, nullable=True, comment="تاريخ الدفع"
     )
 
@@ -579,21 +578,21 @@ class Invoice(Base):
     )
 
     # Notes
-    notes: Mapped[Optional[str]] = mapped_column(
+    notes: Mapped[str | None] = mapped_column(
         Text, nullable=True, comment="ملاحظات (EN)"
     )
 
-    notes_ar: Mapped[Optional[str]] = mapped_column(
+    notes_ar: Mapped[str | None] = mapped_column(
         Text, nullable=True, comment="ملاحظات (AR)"
     )
 
     # External IDs
-    stripe_invoice_id: Mapped[Optional[str]] = mapped_column(
+    stripe_invoice_id: Mapped[str | None] = mapped_column(
         String(255), nullable=True, index=True, comment="معرف الفاتورة في Stripe"
     )
 
     # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
-    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+    extra_metadata: Mapped[dict | None] = mapped_column(
         "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,
@@ -696,33 +695,33 @@ class Payment(Base):
     )
 
     # Processing Details
-    paid_at: Mapped[Optional[datetime]] = mapped_column(
+    paid_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, comment="تاريخ الدفع الفعلي"
     )
 
-    processed_at: Mapped[Optional[datetime]] = mapped_column(
+    processed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, comment="تاريخ المعالجة"
     )
 
-    failure_reason: Mapped[Optional[str]] = mapped_column(
+    failure_reason: Mapped[str | None] = mapped_column(
         Text, nullable=True, comment="سبب الفشل"
     )
 
     # External References
-    stripe_payment_id: Mapped[Optional[str]] = mapped_column(
+    stripe_payment_id: Mapped[str | None] = mapped_column(
         String(255), nullable=True, index=True, comment="معرف الدفعة في Stripe"
     )
 
-    tharwatt_transaction_id: Mapped[Optional[str]] = mapped_column(
+    tharwatt_transaction_id: Mapped[str | None] = mapped_column(
         String(255), nullable=True, index=True, comment="معرف المعاملة في ثروات"
     )
 
-    receipt_url: Mapped[Optional[str]] = mapped_column(
+    receipt_url: Mapped[str | None] = mapped_column(
         String(500), nullable=True, comment="رابط الإيصال"
     )
 
     # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
-    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+    extra_metadata: Mapped[dict | None] = mapped_column(
         "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,
@@ -811,7 +810,7 @@ class UsageRecord(Base):
     )
 
     # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
-    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+    extra_metadata: Mapped[dict | None] = mapped_column(
         "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,

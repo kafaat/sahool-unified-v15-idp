@@ -44,19 +44,18 @@ Usage:
     )
 """
 
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
-from uuid import UUID, uuid4
+from datetime import date, datetime, timedelta
 from enum import Enum
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 from shared.events.publisher import EventPublisher
-from .events import (
-    IPMActivityRecordedEvent,
-    GlobalGAPSubjects,
-)
 
+from .events import (
+    GlobalGAPSubjects,
+    IPMActivityRecordedEvent,
+)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enums and Constants
@@ -150,7 +149,7 @@ class PestDetectionRecord(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()), description="Record ID")
     farm_id: UUID = Field(..., description="Farm ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
 
     # Detection details
@@ -159,42 +158,42 @@ class PestDetectionRecord(BaseModel):
 
     # Pest/Disease information
     pest_or_disease_name_en: str = Field(..., description="Pest/disease name (English)")
-    pest_or_disease_name_ar: Optional[str] = Field(
+    pest_or_disease_name_ar: str | None = Field(
         None, description="Pest/disease name (Arabic)"
     )
     pest_category: PestCategory = Field(..., description="Pest/disease category")
 
-    scientific_name: Optional[str] = Field(None, description="Scientific name")
+    scientific_name: str | None = Field(None, description="Scientific name")
 
     # Severity
     severity_level: SeverityLevel = Field(..., description="Severity level")
-    confidence_score: Optional[float] = Field(
+    confidence_score: float | None = Field(
         None, ge=0, le=1, description="AI detection confidence"
     )
 
     # Affected area
-    affected_area_ha: Optional[float] = Field(
+    affected_area_ha: float | None = Field(
         None, ge=0, description="Affected area in hectares"
     )
-    affected_area_percentage: Optional[float] = Field(
+    affected_area_percentage: float | None = Field(
         None, ge=0, le=100, description="% of field affected"
     )
 
     # Symptoms and evidence
-    symptoms_observed: List[str] = Field(
+    symptoms_observed: list[str] = Field(
         default_factory=list, description="Observed symptoms"
     )
-    image_urls: List[str] = Field(
+    image_urls: list[str] = Field(
         default_factory=list, description="Detection image URLs"
     )
 
     # Monitoring
-    monitoring_frequency_days: Optional[int] = Field(
+    monitoring_frequency_days: int | None = Field(
         None, ge=1, description="Monitoring frequency"
     )
 
     # Metadata
-    detected_by: Optional[UUID] = Field(None, description="User who detected")
+    detected_by: UUID | None = Field(None, description="User who detected")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -215,12 +214,12 @@ class PPPApplicationRecord(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()), description="Record ID")
     farm_id: UUID = Field(..., description="Farm ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
 
     # Application details
     application_date: date = Field(..., description="Application date")
-    pest_detection_id: Optional[str] = Field(
+    pest_detection_id: str | None = Field(
         None, description="Related pest detection record ID"
     )
 
@@ -228,17 +227,17 @@ class PPPApplicationRecord(BaseModel):
     ppp_name: str = Field(..., description="PPP product name")
     ppp_type: PPPType = Field(..., description="PPP type")
     active_ingredient: str = Field(..., description="Active ingredient")
-    active_ingredient_concentration: Optional[str] = Field(
+    active_ingredient_concentration: str | None = Field(
         None, description="Concentration (e.g., 25% EC)"
     )
 
     # Dosage
     dosage_per_ha: float = Field(..., ge=0, description="Dosage per hectare")
     dosage_unit: str = Field(..., description="Dosage unit (L, kg, g)")
-    total_quantity_applied: Optional[float] = Field(
+    total_quantity_applied: float | None = Field(
         None, ge=0, description="Total quantity applied"
     )
-    area_treated_ha: Optional[float] = Field(
+    area_treated_ha: float | None = Field(
         None, ge=0, description="Area treated in hectares"
     )
 
@@ -246,23 +245,23 @@ class PPPApplicationRecord(BaseModel):
     application_method: str = Field(
         ..., description="Application method (spray, granular, etc.)"
     )
-    application_equipment: Optional[str] = Field(None, description="Equipment used")
+    application_equipment: str | None = Field(None, description="Equipment used")
 
     # Compliance
     ppp_globalgap_approved: bool = Field(
         ..., description="Product is GlobalGAP approved"
     )
-    ppp_registration_number: Optional[str] = Field(
+    ppp_registration_number: str | None = Field(
         None, description="Product registration number"
     )
 
     mrl_compliant: bool = Field(
         default=True, description="MRL (Maximum Residue Level) compliant"
     )
-    withdrawal_period_days: Optional[int] = Field(
+    withdrawal_period_days: int | None = Field(
         None, ge=0, description="Withdrawal period in days"
     )
-    safe_harvest_date: Optional[date] = Field(
+    safe_harvest_date: date | None = Field(
         None, description="Safe harvest date (after withdrawal)"
     )
 
@@ -271,7 +270,7 @@ class PPPApplicationRecord(BaseModel):
     justification_en: str = Field(
         ..., description="Application justification (English)"
     )
-    justification_ar: Optional[str] = Field(
+    justification_ar: str | None = Field(
         None, description="Application justification (Arabic)"
     )
 
@@ -281,27 +280,27 @@ class PPPApplicationRecord(BaseModel):
     )
 
     # Weather conditions
-    weather_conditions: Optional[str] = Field(
+    weather_conditions: str | None = Field(
         None, description="Weather conditions during application"
     )
-    wind_speed_kmh: Optional[float] = Field(
+    wind_speed_kmh: float | None = Field(
         None, ge=0, description="Wind speed during application"
     )
 
     # Operator
-    operator_name: Optional[str] = Field(None, description="Operator name")
+    operator_name: str | None = Field(None, description="Operator name")
     operator_certified: bool = Field(
         default=False, description="Operator certified for PPP application"
     )
 
     # Evidence
-    application_record_url: Optional[str] = Field(
+    application_record_url: str | None = Field(
         None, description="Application record document URL"
     )
-    product_label_url: Optional[str] = Field(None, description="Product label URL")
+    product_label_url: str | None = Field(None, description="Product label URL")
 
     # Metadata
-    recorded_by: Optional[UUID] = Field(None, description="User who recorded")
+    recorded_by: UUID | None = Field(None, description="User who recorded")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -325,7 +324,7 @@ class IPMReport(BaseModel):
     )
     farm_id: UUID = Field(..., description="Farm ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
-    ggn: Optional[str] = Field(None, description="GlobalGAP Number")
+    ggn: str | None = Field(None, description="GlobalGAP Number")
 
     # Reporting period
     report_start_date: date = Field(..., description="Report period start")
@@ -335,16 +334,16 @@ class IPMReport(BaseModel):
     total_detections: int = Field(
         ..., ge=0, description="Total pest/disease detections"
     )
-    detections_by_category: Dict[str, int] = Field(
+    detections_by_category: dict[str, int] = Field(
         default_factory=dict,
         description="Detections by category (e.g., {'INSECT': 10, 'FUNGAL': 5})",
     )
-    detections_by_severity: Dict[str, int] = Field(
+    detections_by_severity: dict[str, int] = Field(
         default_factory=dict, description="Detections by severity level"
     )
 
     # Monitoring
-    monitoring_frequency_avg_days: Optional[float] = Field(
+    monitoring_frequency_avg_days: float | None = Field(
         None, description="Average monitoring frequency"
     )
     systematic_monitoring_in_place: bool = Field(
@@ -396,7 +395,7 @@ class IPMReport(BaseModel):
     total_active_ingredients_used: int = Field(
         ..., ge=0, description="Number of different active ingredients"
     )
-    active_ingredients_list: List[str] = Field(
+    active_ingredients_list: list[str] = Field(
         default_factory=list, description="List of active ingredients"
     )
 
@@ -419,23 +418,23 @@ class IPMReport(BaseModel):
     is_ipm_compliant: bool = Field(..., description="Meets GlobalGAP IPM requirements")
 
     # Issues and recommendations
-    compliance_issues_en: List[str] = Field(
+    compliance_issues_en: list[str] = Field(
         default_factory=list, description="Compliance issues (English)"
     )
-    compliance_issues_ar: List[str] = Field(
+    compliance_issues_ar: list[str] = Field(
         default_factory=list, description="Compliance issues (Arabic)"
     )
 
-    recommendations_en: List[str] = Field(
+    recommendations_en: list[str] = Field(
         default_factory=list, description="Recommendations (English)"
     )
-    recommendations_ar: List[str] = Field(
+    recommendations_ar: list[str] = Field(
         default_factory=list, description="Recommendations (Arabic)"
     )
 
     # Report metadata
     generated_at: datetime = Field(default_factory=datetime.utcnow)
-    generated_by: Optional[UUID] = Field(None, description="User who generated report")
+    generated_by: UUID | None = Field(None, description="User who generated report")
 
     class Config:
         json_encoders = {
@@ -463,7 +462,7 @@ class CropHealthIntegration:
     - Emit NATS events for IPM activities
     """
 
-    def __init__(self, publisher: Optional[EventPublisher] = None):
+    def __init__(self, publisher: EventPublisher | None = None):
         """
         Initialize crop health integration
 
@@ -511,14 +510,14 @@ class CropHealthIntegration:
         pest_category: PestCategory,
         severity_level: SeverityLevel,
         detection_method: DetectionMethod,
-        field_id: Optional[UUID] = None,
-        pest_or_disease_name_ar: Optional[str] = None,
-        detection_date: Optional[date] = None,
-        confidence_score: Optional[float] = None,
-        affected_area_ha: Optional[float] = None,
-        symptoms_observed: Optional[List[str]] = None,
-        image_urls: Optional[List[str]] = None,
-        detected_by: Optional[UUID] = None,
+        field_id: UUID | None = None,
+        pest_or_disease_name_ar: str | None = None,
+        detection_date: date | None = None,
+        confidence_score: float | None = None,
+        affected_area_ha: float | None = None,
+        symptoms_observed: list[str] | None = None,
+        image_urls: list[str] | None = None,
+        detected_by: UUID | None = None,
     ) -> PestDetectionRecord:
         """
         Record pest or disease detection for IPM tracking
@@ -603,16 +602,16 @@ class CropHealthIntegration:
         justification_en: str,
         threshold_exceeded: bool,
         ppp_globalgap_approved: bool,
-        field_id: Optional[UUID] = None,
-        application_date: Optional[date] = None,
-        pest_detection_id: Optional[str] = None,
-        justification_ar: Optional[str] = None,
-        area_treated_ha: Optional[float] = None,
-        withdrawal_period_days: Optional[int] = None,
+        field_id: UUID | None = None,
+        application_date: date | None = None,
+        pest_detection_id: str | None = None,
+        justification_ar: str | None = None,
+        area_treated_ha: float | None = None,
+        withdrawal_period_days: int | None = None,
         alternative_methods_tried: bool = False,
         mrl_compliant: bool = True,
         operator_certified: bool = False,
-        recorded_by: Optional[UUID] = None,
+        recorded_by: UUID | None = None,
     ) -> PPPApplicationRecord:
         """
         Record Plant Protection Product (PPP) application
@@ -716,10 +715,10 @@ class CropHealthIntegration:
         tenant_id: UUID,
         start_date: date,
         end_date: date,
-        detections: List[PestDetectionRecord],
-        ppp_applications: List[PPPApplicationRecord],
-        ggn: Optional[str] = None,
-        generated_by: Optional[UUID] = None,
+        detections: list[PestDetectionRecord],
+        ppp_applications: list[PPPApplicationRecord],
+        ggn: str | None = None,
+        generated_by: UUID | None = None,
     ) -> IPMReport:
         """
         Generate IPM report for GlobalGAP audit
@@ -741,7 +740,7 @@ class CropHealthIntegration:
         # Detection statistics
         total_detections = len(detections)
 
-        detections_by_category: Dict[str, int] = {}
+        detections_by_category: dict[str, int] = {}
         for detection in detections:
             cat = (
                 detection.pest_category.value
@@ -750,7 +749,7 @@ class CropHealthIntegration:
             )
             detections_by_category[cat] = detections_by_category.get(cat, 0) + 1
 
-        detections_by_severity: Dict[str, int] = {}
+        detections_by_severity: dict[str, int] = {}
         for detection in detections:
             sev = (
                 detection.severity_level.value
@@ -775,7 +774,7 @@ class CropHealthIntegration:
 
         # Active ingredients
         active_ingredients = list(
-            set(app.active_ingredient for app in ppp_applications)
+            {app.active_ingredient for app in ppp_applications}
         )
         total_active_ingredients = len(active_ingredients)
 

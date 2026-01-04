@@ -4,10 +4,9 @@ Links inventory with field operations, tracking all input applications to fields
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from enum import Enum
-import uuid
+from typing import Any
 
 
 class ApplicationMethod(Enum):
@@ -36,7 +35,7 @@ class InputApplication:
     field_id: str
     crop_season_id: str
     item_id: str  # Inventory item
-    batch_lot_id: Optional[str]
+    batch_lot_id: str | None
 
     # Application details
     application_date: datetime
@@ -48,31 +47,31 @@ class InputApplication:
     rate_per_ha: float  # Calculated: quantity / area
 
     # Conditions
-    weather_conditions: Optional[Dict] = None  # {temp, humidity, wind}
-    growth_stage: Optional[str] = None
+    weather_conditions: dict | None = None  # {temp, humidity, wind}
+    growth_stage: str | None = None
 
     # Operator
     applied_by: str = ""
-    equipment_used: Optional[str] = None
+    equipment_used: str | None = None
 
     # Safety & Compliance
-    withholding_period_days: Optional[int] = None  # Days before harvest
-    safe_harvest_date: Optional[date] = None
-    ppe_used: List[str] = field(default_factory=list)  # Personal protective equipment
+    withholding_period_days: int | None = None  # Days before harvest
+    safe_harvest_date: date | None = None
+    ppe_used: list[str] = field(default_factory=list)  # Personal protective equipment
 
     # Cost
     unit_cost: float = 0.0
     total_cost: float = 0.0
 
     # Efficacy tracking
-    target_pest_disease: Optional[str] = None
-    efficacy_rating: Optional[int] = None  # 1-5
-    notes: Optional[str] = None
+    target_pest_disease: str | None = None
+    efficacy_rating: int | None = None  # 1-5
+    notes: str | None = None
 
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for API response"""
         return {
             "id": self.id,
@@ -114,7 +113,7 @@ class ApplicationPlan:
     crop_type: str
 
     # Schedule
-    planned_applications: List[Dict] = field(
+    planned_applications: list[dict] = field(
         default_factory=list
     )  # [{date, item_id, quantity, purpose}]
     total_fertilizer_kg: float = 0.0
@@ -122,13 +121,13 @@ class ApplicationPlan:
     estimated_cost: float = 0.0
 
     status: str = "draft"
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
+    approved_by: str | None = None
+    approved_at: datetime | None = None
 
     created_at: datetime = field(default_factory=datetime.now)
     updated_at: datetime = field(default_factory=datetime.now)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for API response"""
         return {
             "id": self.id,
@@ -178,7 +177,7 @@ class ApplicationTracker:
         purpose: ApplicationPurpose,
         applied_by: str,
         area_ha: float,
-        application_date: Optional[datetime] = None,
+        application_date: datetime | None = None,
         **kwargs,
     ) -> InputApplication:
         """
@@ -315,7 +314,7 @@ class ApplicationTracker:
 
     async def _deduct_from_batches(
         self, item_id: str, quantity: float
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Deduct quantity from batches using FIFO (First In, First Out)
 
@@ -360,11 +359,11 @@ class ApplicationTracker:
     async def get_field_applications(
         self,
         field_id: str,
-        crop_season_id: Optional[str] = None,
-        category: Optional[str] = None,  # fertilizer, pesticide
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
-    ) -> List[InputApplication]:
+        crop_season_id: str | None = None,
+        category: str | None = None,  # fertilizer, pesticide
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> list[InputApplication]:
         """
         Get all applications for a field
 
@@ -406,7 +405,7 @@ class ApplicationTracker:
 
         return [self._db_to_dataclass(app) for app in applications]
 
-    async def get_application_summary(self, field_id: str, crop_season_id: str) -> Dict:
+    async def get_application_summary(self, field_id: str, crop_season_id: str) -> dict:
         """
         Get summary of all inputs applied to a crop season.
 
@@ -517,7 +516,7 @@ class ApplicationTracker:
         field_id: str,
         crop_season_id: str,
         crop_type: str,
-        custom_applications: Optional[List[Dict]] = None,
+        custom_applications: list[dict] | None = None,
     ) -> ApplicationPlan:
         """
         Generate recommended application plan based on:
@@ -589,7 +588,7 @@ class ApplicationTracker:
             updated_at=plan_record.updatedAt,
         )
 
-    def _get_default_plan(self, crop_type: str) -> List[Dict]:
+    def _get_default_plan(self, crop_type: str) -> list[dict]:
         """Get default application plan template for a crop"""
         # Simple templates - in production, fetch from agro-advisor
         templates = {
@@ -638,8 +637,8 @@ class ApplicationTracker:
         return templates.get(crop_type.lower(), [])
 
     async def check_withholding_period(
-        self, field_id: str, crop_season_id: str, harvest_date: Optional[date] = None
-    ) -> Dict:
+        self, field_id: str, crop_season_id: str, harvest_date: date | None = None
+    ) -> dict:
         """
         Check if harvest is safe based on pesticide withholding periods.
 
@@ -693,7 +692,7 @@ class ApplicationTracker:
             ),
         }
 
-    async def calculate_input_costs(self, field_id: str, crop_season_id: str) -> Dict:
+    async def calculate_input_costs(self, field_id: str, crop_season_id: str) -> dict:
         """
         Calculate total input costs for a crop season
 
@@ -715,7 +714,7 @@ class ApplicationTracker:
 
     async def get_application_by_id(
         self, application_id: str
-    ) -> Optional[InputApplication]:
+    ) -> InputApplication | None:
         """Get a single application by ID"""
         app = await self.db.inputapplication.find_unique(where={"id": application_id})
         if not app:

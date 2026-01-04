@@ -6,7 +6,8 @@ Specialized agent for irrigation recommendations and water management.
 وكيل متخصص لتوصيات الري وإدارة المياه.
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Any
+
 from langchain_core.tools import Tool
 
 from .base_agent import BaseAgent
@@ -34,8 +35,8 @@ class IrrigationAdvisorAgent(BaseAgent):
 
     def __init__(
         self,
-        tools: Optional[List[Tool]] = None,
-        retriever: Optional[Any] = None,
+        tools: list[Tool] | None = None,
+        retriever: Any | None = None,
     ):
         """
         Initialize Irrigation Advisor Agent
@@ -116,10 +117,10 @@ Communicate in both Arabic and English when appropriate.
         self,
         crop_type: str,
         growth_stage: str,
-        soil_data: Dict[str, Any],
-        weather_data: Dict[str, Any],
-        irrigation_system: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        soil_data: dict[str, Any],
+        weather_data: dict[str, Any],
+        irrigation_system: str | None = None,
+    ) -> dict[str, Any]:
         """
         Recommend irrigation schedule and amount
         التوصية بجدول الري والكمية
@@ -153,8 +154,8 @@ Communicate in both Arabic and English when appropriate.
         area: float,
         growth_stage: str,
         et0: float,
-        rainfall: Optional[float] = 0.0,
-    ) -> Dict[str, Any]:
+        rainfall: float | None = 0.0,
+    ) -> dict[str, Any]:
         """
         Calculate crop water requirement
         حساب احتياجات المحصول من المياه
@@ -184,10 +185,10 @@ Communicate in both Arabic and English when appropriate.
 
     async def analyze_soil_moisture(
         self,
-        sensor_data: List[Dict[str, Any]],
+        sensor_data: list[dict[str, Any]],
         soil_type: str,
         crop_type: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Analyze soil moisture sensor data
         تحليل بيانات مستشعرات رطوبة التربة
@@ -213,10 +214,10 @@ Communicate in both Arabic and English when appropriate.
 
     async def optimize_system(
         self,
-        current_system: Dict[str, Any],
-        field_characteristics: Dict[str, Any],
-        water_availability: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        current_system: dict[str, Any],
+        field_characteristics: dict[str, Any],
+        water_availability: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Optimize irrigation system performance
         تحسين أداء نظام الري
@@ -245,8 +246,8 @@ Communicate in both Arabic and English when appropriate.
         crop_type: str,
         growth_stage: str,
         water_deficit: float,
-        priority_areas: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        priority_areas: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Develop drought management strategy
         تطوير استراتيجية إدارة الجفاف
@@ -276,9 +277,9 @@ Communicate in both Arabic and English when appropriate.
         self,
         crop_type: str,
         growth_stage: str,
-        soil_analysis: Dict[str, Any],
-        irrigation_schedule: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        soil_analysis: dict[str, Any],
+        irrigation_schedule: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Provide fertigation (fertilizer + irrigation) advice
         تقديم نصائح التسميد مع الري

@@ -3,12 +3,13 @@ SAHOOL Prompt Engine Tests
 Sprint 9: Unit tests for prompt template rendering
 """
 
-import pytest
 import sys
+
+import pytest
 
 sys.path.insert(0, "packages")
 
-from advisor.ai.prompt_engine import render_prompt, get_template, list_templates
+from advisor.ai.prompt_engine import get_template, list_templates, render_prompt
 
 
 class TestRenderPrompt:

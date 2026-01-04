@@ -11,9 +11,7 @@ Revises: 001
 Create Date: 2026-01-02
 """
 from alembic import op
-import sqlalchemy as sa
 from sqlalchemy import text
-from sqlalchemy.dialects import postgresql
 
 # معرفات المراجعة، تستخدم بواسطة Alembic
 # Revision identifiers, used by Alembic

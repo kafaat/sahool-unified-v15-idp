@@ -6,8 +6,7 @@ Generates consistent test user data
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import uuid4
 
 
@@ -19,8 +18,8 @@ class TestUser:
     email: str
     tenant_id: str
     name: str
-    name_ar: Optional[str]
-    phone: Optional[str]
+    name_ar: str | None
+    phone: str | None
     roles: list[str]
     is_active: bool
     created_at: datetime
@@ -57,7 +56,7 @@ def make_user(**overrides) -> TestUser:
         "phone": "+967771234567",
         "roles": ["worker"],
         "is_active": True,
-        "created_at": datetime.now(timezone.utc),
+        "created_at": datetime.now(UTC),
     }
 
     defaults.update(overrides)

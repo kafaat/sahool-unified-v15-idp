@@ -11,10 +11,10 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
-from .envelope import EventEnvelope
-from .schema_registry import SchemaRegistry
 from shared.libs.outbox.models import OutboxEvent
 
+from .envelope import EventEnvelope
+from .schema_registry import SchemaRegistry
 
 logger = logging.getLogger(__name__)
 

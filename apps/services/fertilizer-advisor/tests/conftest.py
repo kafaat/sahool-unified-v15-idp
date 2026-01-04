@@ -3,9 +3,10 @@ Pytest Configuration and Fixtures for Fertilizer Advisor
 إعدادات وتجهيزات Pytest لمستشار السماد
 """
 
-import pytest
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -18,7 +19,7 @@ def test_client():
 
 
 @pytest.fixture
-def sample_soil_analysis() -> Dict[str, Any]:
+def sample_soil_analysis() -> dict[str, Any]:
     """Sample soil analysis data"""
     return {
         "field_id": "field_001",
@@ -34,7 +35,7 @@ def sample_soil_analysis() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_recommendation_request() -> Dict[str, Any]:
+def sample_recommendation_request() -> dict[str, Any]:
     """Sample fertilizer recommendation request"""
     return {
         "field_id": "field_001",
@@ -52,7 +53,7 @@ def sample_recommendation_request() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_schedule_request() -> Dict[str, Any]:
+def sample_schedule_request() -> dict[str, Any]:
     """Sample fertilization schedule request"""
     return {
         "field_id": "field_001",

@@ -11,11 +11,11 @@ End-to-end tests for complete payment and billing workflow:
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
 import asyncio
-from typing import Dict, Any
+from typing import Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Complete Payment Workflow Test - اختبار سير عمل الدفع الكامل
@@ -28,11 +28,11 @@ from typing import Dict, Any
 @pytest.mark.asyncio
 async def test_complete_payment_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_subscription_data: Dict[str, Any],
-    test_payment_data: Dict[str, Any],
+    e2e_headers: dict[str, str],
+    test_subscription_data: dict[str, Any],
+    test_payment_data: dict[str, Any],
     ensure_billing_ready,
-    cleanup_test_data: Dict[str, list],
+    cleanup_test_data: dict[str, list],
 ):
     """
     Test complete payment workflow: Subscription → Payment → Invoice
@@ -150,7 +150,7 @@ async def test_complete_payment_workflow(
 
     if invoices_response.status_code == 200:
         invoices = invoices_response.json()
-        print(f"✓ Invoices retrieved successfully")
+        print("✓ Invoices retrieved successfully")
 
         # Verify invoice structure
         if isinstance(invoices, list) and len(invoices) > 0:
@@ -174,8 +174,8 @@ async def test_complete_payment_workflow(
 @pytest.mark.asyncio
 async def test_tharwatt_payment_integration(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_payment_data: Dict[str, Any],
+    e2e_headers: dict[str, str],
+    test_payment_data: dict[str, Any],
     ensure_billing_ready,
 ):
     """
@@ -214,7 +214,7 @@ async def test_tharwatt_payment_integration(
 
     if payment_response.status_code in (200, 201):
         payment_data = payment_response.json()
-        print(f"✓ Tharwatt payment intent created")
+        print("✓ Tharwatt payment intent created")
 
         # Verify payment provider is set correctly
         if "provider" in payment_data:
@@ -233,8 +233,8 @@ async def test_tharwatt_payment_integration(
 @pytest.mark.asyncio
 async def test_subscription_management_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_subscription_data: Dict[str, Any],
+    e2e_headers: dict[str, str],
+    test_subscription_data: dict[str, Any],
     ensure_billing_ready,
 ):
     """
@@ -278,8 +278,8 @@ async def test_subscription_management_workflow(
     ), "Subscriptions list should be accessible"
 
     if list_response.status_code == 200:
-        subscriptions = list_response.json()
-        print(f"✓ Subscriptions listed")
+        list_response.json()
+        print("✓ Subscriptions listed")
 
     # Step 3: Get specific subscription
     get_response = await workflow_client.get(
@@ -294,8 +294,8 @@ async def test_subscription_management_workflow(
     ), "Subscription should be retrievable"
 
     if get_response.status_code == 200:
-        retrieved_subscription = get_response.json()
-        print(f"✓ Subscription retrieved successfully")
+        get_response.json()
+        print("✓ Subscription retrieved successfully")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -308,7 +308,7 @@ async def test_subscription_management_workflow(
 @pytest.mark.asyncio
 async def test_invoice_generation_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
+    e2e_headers: dict[str, str],
     ensure_billing_ready,
 ):
     """
@@ -330,7 +330,7 @@ async def test_invoice_generation_workflow(
 
     if invoices_response.status_code == 200:
         invoices = invoices_response.json()
-        print(f"✓ Invoices retrieved")
+        print("✓ Invoices retrieved")
 
         # If invoices exist, get details of first invoice
         if isinstance(invoices, list) and len(invoices) > 0:
@@ -350,7 +350,7 @@ async def test_invoice_generation_workflow(
 
                 if invoice_detail_response.status_code == 200:
                     invoice_detail = invoice_detail_response.json()
-                    print(f"✓ Invoice details retrieved")
+                    print("✓ Invoice details retrieved")
 
                     # Verify invoice structure
                     assert (
@@ -367,7 +367,7 @@ async def test_invoice_generation_workflow(
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_payment_provider_configuration(
-    workflow_client: httpx.AsyncClient, e2e_headers: Dict[str, str]
+    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
 ):
     """
     Test payment provider configuration
@@ -389,7 +389,7 @@ async def test_payment_provider_configuration(
 
     if providers_response.status_code == 200:
         providers = providers_response.json()
-        print(f"✓ Payment providers retrieved")
+        print("✓ Payment providers retrieved")
 
         # Verify Tharwatt is configured for Yemen
         if isinstance(providers, list):
@@ -414,9 +414,9 @@ async def test_payment_provider_configuration(
 @pytest.mark.asyncio
 async def test_billing_field_ops_integration(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_subscription_data: Dict[str, Any],
-    test_field_data: Dict[str, Any],
+    e2e_headers: dict[str, str],
+    test_subscription_data: dict[str, Any],
+    test_field_data: dict[str, Any],
     ensure_billing_ready,
     ensure_field_ops_ready,
 ):
@@ -474,7 +474,7 @@ async def test_billing_field_ops_integration(
 @pytest.mark.asyncio
 async def test_payment_webhook_handling(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
+    e2e_headers: dict[str, str],
     ensure_billing_ready,
 ):
     """

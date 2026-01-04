@@ -7,13 +7,12 @@ Provides consistent error responses and prevents information disclosure.
 """
 
 import logging
-import traceback
 import uuid
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger(__name__)
@@ -30,8 +29,8 @@ class AppError(Exception):
         status_code: int,
         error_code: str,
         message: str,
-        message_ar: Optional[str] = None,
-        details: Optional[Dict[str, Any]] = None,
+        message_ar: str | None = None,
+        details: dict[str, Any] | None = None,
     ):
         self.status_code = status_code
         self.error_code = error_code
@@ -47,8 +46,8 @@ class ValidationError(AppError):
     def __init__(
         self,
         message: str,
-        message_ar: Optional[str] = None,
-        details: Optional[Dict] = None,
+        message_ar: str | None = None,
+        details: dict | None = None,
     ):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -92,7 +91,7 @@ class AuthorizationError(AppError):
 class NotFoundError(AppError):
     """Resource not found error"""
 
-    def __init__(self, resource: str, message_ar: Optional[str] = None):
+    def __init__(self, resource: str, message_ar: str | None = None):
         super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,
             error_code="NOT_FOUND",
@@ -107,8 +106,8 @@ class ConflictError(AppError):
     def __init__(
         self,
         message: str,
-        message_ar: Optional[str] = None,
-        details: Optional[Dict] = None,
+        message_ar: str | None = None,
+        details: dict | None = None,
     ):
         super().__init__(
             status_code=status.HTTP_409_CONFLICT,
@@ -135,7 +134,7 @@ class RateLimitError(AppError):
 class InternalError(AppError):
     """Internal server error"""
 
-    def __init__(self, error_id: Optional[str] = None):
+    def __init__(self, error_id: str | None = None):
         super().__init__(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             error_code="INTERNAL_ERROR",
@@ -178,9 +177,9 @@ def create_error_response(
     message: str,
     message_ar: str,
     status_code: int,
-    error_id: Optional[str] = None,
-    details: Optional[Dict] = None,
-) -> Dict[str, Any]:
+    error_id: str | None = None,
+    details: dict | None = None,
+) -> dict[str, Any]:
     """
     Create a consistent error response format.
     إنشاء تنسيق استجابة خطأ متسق.

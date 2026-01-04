@@ -5,12 +5,7 @@ SAHOOL Notification Template Usage Examples
 This file demonstrates how to use the notification templating system.
 """
 
-from notification_templates import (
-    get_template_manager,
-    render_notification,
-    NotificationChannel,
-    TemplateCategory
-)
+from notification_templates import TemplateCategory, get_template_manager
 
 
 def example_disease_detection():
@@ -257,7 +252,7 @@ def example_custom_template():
     context = {"achievement": "زيادة الإنتاج بنسبة 30%"}
     push = manager.format_for_push("custom_celebration", context, language="ar")
 
-    print(f"Custom Template Registered!")
+    print("Custom Template Registered!")
     print(f"Title: {push['notification']['title']}")
     print(f"Body: {push['notification']['body']}")
 

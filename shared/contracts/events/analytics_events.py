@@ -1,9 +1,10 @@
 """Analytics Domain Events"""
 
 from dataclasses import dataclass
-from datetime import datetime, date
-from typing import Any, Dict, Optional
+from datetime import date, datetime
+from typing import Any
 from uuid import UUID
+
 from .base import BaseEvent
 
 
@@ -17,10 +18,10 @@ class NDVICalculatedEvent(BaseEvent):
     satellite_source: str = ""
     acquisition_date: date = None
     calculation_date: datetime = None
-    cloud_cover_percent: Optional[float] = None
-    quality_flag: Optional[str] = None
+    cloud_cover_percent: float | None = None
+    quality_flag: str | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         return {
             "field_id": str(self.field_id),
             "ndvi_value": self.ndvi_value,
@@ -47,10 +48,10 @@ class YieldPredictedEvent(BaseEvent):
     confidence_interval_low: float = 0.0
     confidence_interval_high: float = 0.0
     prediction_date: datetime = None
-    model_version: Optional[str] = None
-    factors_considered: Optional[list] = None
+    model_version: str | None = None
+    factors_considered: list | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         return {
             "field_id": str(self.field_id),
             "crop_id": str(self.crop_id) if self.crop_id else None,

@@ -3,8 +3,9 @@ Unit Tests for Room Management
 اختبارات الوحدة لإدارة الغرف
 """
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import Mock, AsyncMock
 from src.rooms import Room, RoomManager, RoomType
 
 

@@ -6,20 +6,19 @@ FastAPI middleware for automatic audit context injection
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Callable, Optional
 from uuid import UUID, uuid4
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-
 logger = logging.getLogger(__name__)
 
 # Context variable for audit context
-_audit_context: ContextVar[Optional["AuditContext"]] = ContextVar(
+_audit_context: ContextVar[AuditContext | None] = ContextVar(
     "audit_context", default=None
 )
 
@@ -33,25 +32,25 @@ class AuditContext:
     and can be accessed from anywhere in the request handling chain.
     """
 
-    tenant_id: Optional[UUID]
-    actor_id: Optional[UUID]
+    tenant_id: UUID | None
+    actor_id: UUID | None
     actor_type: str
     correlation_id: UUID
-    ip: Optional[str]
-    user_agent: Optional[str]
+    ip: str | None
+    user_agent: str | None
 
     @classmethod
-    def get_current(cls) -> Optional["AuditContext"]:
+    def get_current(cls) -> AuditContext | None:
         """Get the current audit context"""
         return _audit_context.get()
 
     @classmethod
-    def set_current(cls, ctx: "AuditContext") -> None:
+    def set_current(cls, ctx: AuditContext) -> None:
         """Set the current audit context"""
         _audit_context.set(ctx)
 
 
-def get_audit_context() -> Optional[AuditContext]:
+def get_audit_context() -> AuditContext | None:
     """
     Get the current audit context.
 
@@ -140,7 +139,7 @@ class AuditContextMiddleware(BaseHTTPMiddleware):
             # Reset context
             _audit_context.reset(token)
 
-    def _get_client_ip(self, request: Request) -> Optional[str]:
+    def _get_client_ip(self, request: Request) -> str | None:
         """Extract client IP, handling proxies"""
         # Check X-Forwarded-For first (for proxied requests)
         forwarded_for = request.headers.get("X-Forwarded-For")
@@ -160,7 +159,7 @@ class AuditContextMiddleware(BaseHTTPMiddleware):
         return None
 
 
-def _parse_uuid(value: Optional[str]) -> Optional[UUID]:
+def _parse_uuid(value: str | None) -> UUID | None:
     """Safely parse a UUID string"""
     if not value:
         return None

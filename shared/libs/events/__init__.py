@@ -8,14 +8,14 @@ Field-First Architecture:
 """
 
 from .envelope import EventEnvelope
-from .schema_registry import SchemaRegistry, SchemaEntry
+from .schema_registry import SchemaEntry, SchemaRegistry
 
 # NATS publisher (optional - may not have nats-py installed)
 try:
     from .nats_publisher import (
-        NATSPublisher,
-        NATSConfig,
         AnalysisEvent,
+        NATSConfig,
+        NATSPublisher,
         get_publisher,
         publish_analysis_completed,
         publish_analysis_completed_sync,

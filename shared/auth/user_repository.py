@@ -6,10 +6,9 @@ Provides database access for user validation.
 """
 
 import logging
-from typing import Optional
 
 try:
-    from sqlalchemy import select, and_
+    from sqlalchemy import and_, select
     from sqlalchemy.ext.asyncio import AsyncSession
 
     SQLALCHEMY_AVAILABLE = True
@@ -32,7 +31,7 @@ class UserValidationData:
         is_active: bool,
         is_verified: bool,
         roles: list[str],
-        tenant_id: Optional[str] = None,
+        tenant_id: str | None = None,
         is_deleted: bool = False,
         is_suspended: bool = False,
     ):
@@ -75,7 +74,7 @@ class UserRepository:
     مستودع للوصول إلى بيانات المستخدم.
     """
 
-    def __init__(self, session: Optional[AsyncSession] = None):
+    def __init__(self, session: AsyncSession | None = None):
         """
         Initialize user repository.
 
@@ -86,7 +85,7 @@ class UserRepository:
 
     async def get_user_validation_data(
         self, user_id: str
-    ) -> Optional[UserValidationData]:
+    ) -> UserValidationData | None:
         """
         Get user validation data from database.
 
@@ -198,8 +197,8 @@ class InMemoryUserRepository(UserRepository):
         email: str,
         is_active: bool = True,
         is_verified: bool = True,
-        roles: Optional[list[str]] = None,
-        tenant_id: Optional[str] = None,
+        roles: list[str] | None = None,
+        tenant_id: str | None = None,
         is_deleted: bool = False,
         is_suspended: bool = False,
     ) -> None:
@@ -217,16 +216,16 @@ class InMemoryUserRepository(UserRepository):
 
     async def get_user_validation_data(
         self, user_id: str
-    ) -> Optional[UserValidationData]:
+    ) -> UserValidationData | None:
         """Get user from in-memory store"""
         return self._users.get(user_id)
 
 
 # Global repository instance
-_user_repository: Optional[UserRepository] = None
+_user_repository: UserRepository | None = None
 
 
-def get_user_repository() -> Optional[UserRepository]:
+def get_user_repository() -> UserRepository | None:
     """
     Get the global user repository instance.
 

@@ -6,8 +6,8 @@ Middleware to extract and validate JWT tokens from requests
 import json
 import logging
 import time
-from typing import Callable, Optional
 from collections import defaultdict
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
@@ -45,7 +45,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app,
-        exclude_paths: Optional[list[str]] = None,
+        exclude_paths: list[str] | None = None,
         require_auth: bool = False,
     ):
         """
@@ -129,7 +129,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         """Check if path is excluded from authentication"""
         return any(path.startswith(excluded) for excluded in self.exclude_paths)
 
-    def _extract_token(self, request: Request) -> Optional[str]:
+    def _extract_token(self, request: Request) -> str | None:
         """
         Extract JWT token from Authorization header.
 
@@ -233,8 +233,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         requests_per_minute: int = 100,
         requests_per_hour: int = 2000,
         burst_limit: int = 20,
-        exclude_paths: Optional[list[str]] = None,
-        redis_url: Optional[str] = None,
+        exclude_paths: list[str] | None = None,
+        redis_url: str | None = None,
     ):
         """
         Initialize rate limiting middleware.

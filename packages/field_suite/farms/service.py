@@ -5,8 +5,7 @@ Business logic for farm management
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from .models import Farm, FarmLocation, FarmStatus
 
@@ -26,11 +25,11 @@ class FarmService:
         longitude: float,
         total_area_hectares: float,
         owner_id: str,
-        name_ar: Optional[str] = None,
-        address: Optional[str] = None,
-        address_ar: Optional[str] = None,
-        region: Optional[str] = None,
-        governorate: Optional[str] = None,
+        name_ar: str | None = None,
+        address: str | None = None,
+        address_ar: str | None = None,
+        region: str | None = None,
+        governorate: str | None = None,
     ) -> Farm:
         """Create a new farm"""
         location = FarmLocation(
@@ -54,7 +53,7 @@ class FarmService:
         self._farms[farm.id] = farm
         return farm
 
-    def get_farm(self, farm_id: str) -> Optional[Farm]:
+    def get_farm(self, farm_id: str) -> Farm | None:
         """Get farm by ID"""
         return self._farms.get(farm_id)
 
@@ -62,26 +61,26 @@ class FarmService:
         self,
         farm_id: str,
         status: FarmStatus,
-    ) -> Optional[Farm]:
+    ) -> Farm | None:
         """Update farm status"""
         farm = self._farms.get(farm_id)
         if farm:
             farm.status = status
-            farm.updated_at = datetime.now(timezone.utc)
+            farm.updated_at = datetime.now(UTC)
         return farm
 
-    def activate_farm(self, farm_id: str) -> Optional[Farm]:
+    def activate_farm(self, farm_id: str) -> Farm | None:
         """Activate a farm"""
         return self.update_farm_status(farm_id, FarmStatus.ACTIVE)
 
-    def deactivate_farm(self, farm_id: str) -> Optional[Farm]:
+    def deactivate_farm(self, farm_id: str) -> Farm | None:
         """Deactivate a farm"""
         return self.update_farm_status(farm_id, FarmStatus.INACTIVE)
 
     def list_tenant_farms(
         self,
         tenant_id: str,
-        status: Optional[FarmStatus] = None,
+        status: FarmStatus | None = None,
     ) -> list[Farm]:
         """List all farms for a tenant"""
         farms = [f for f in self._farms.values() if f.tenant_id == tenant_id]
@@ -92,7 +91,7 @@ class FarmService:
     def list_owner_farms(
         self,
         owner_id: str,
-        status: Optional[FarmStatus] = None,
+        status: FarmStatus | None = None,
     ) -> list[Farm]:
         """List all farms owned by a user"""
         farms = [f for f in self._farms.values() if f.owner_id == owner_id]

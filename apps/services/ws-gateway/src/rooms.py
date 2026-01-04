@@ -6,9 +6,9 @@ Manages room subscriptions for targeted message delivery
 """
 
 import logging
-from typing import Dict, Set, Optional
-from fastapi import WebSocket
 from datetime import datetime
+
+from fastapi import WebSocket
 
 logger = logging.getLogger("ws-gateway.rooms")
 
@@ -35,9 +35,9 @@ class Room:
     def __init__(self, room_id: str, room_type: str):
         self.room_id = room_id
         self.room_type = room_type
-        self.connections: Set[str] = set()
+        self.connections: set[str] = set()
         self.created_at = datetime.utcnow()
-        self.metadata: Dict = {}
+        self.metadata: dict = {}
 
     def add_connection(self, connection_id: str):
         """Add connection to room"""
@@ -68,16 +68,16 @@ class RoomManager:
 
     def __init__(self):
         # Map of room_id -> Room
-        self.rooms: Dict[str, Room] = {}
+        self.rooms: dict[str, Room] = {}
 
         # Map of connection_id -> Set[room_id]
-        self.connection_rooms: Dict[str, Set[str]] = {}
+        self.connection_rooms: dict[str, set[str]] = {}
 
         # Map of connection_id -> WebSocket
-        self.connections: Dict[str, WebSocket] = {}
+        self.connections: dict[str, WebSocket] = {}
 
         # Map of connection_id -> metadata (user_id, tenant_id, etc.)
-        self.connection_metadata: Dict[str, Dict] = {}
+        self.connection_metadata: dict[str, dict] = {}
 
     async def add_connection(
         self,
@@ -85,7 +85,7 @@ class RoomManager:
         websocket: WebSocket,
         user_id: str,
         tenant_id: str,
-        metadata: Optional[Dict] = None,
+        metadata: dict | None = None,
     ):
         """
         Add a new WebSocket connection
@@ -178,7 +178,7 @@ class RoomManager:
         return True
 
     async def broadcast_to_room(
-        self, room_id: str, message: Dict, exclude_connection: Optional[str] = None
+        self, room_id: str, message: dict, exclude_connection: str | None = None
     ) -> int:
         """
         Broadcast message to all connections in a room
@@ -205,7 +205,7 @@ class RoomManager:
         )
         return sent_count
 
-    async def send_to_user(self, user_id: str, message: Dict) -> int:
+    async def send_to_user(self, user_id: str, message: dict) -> int:
         """
         Send message to all connections of a user
         إرسال رسالة لجميع اتصالات المستخدم
@@ -213,7 +213,7 @@ class RoomManager:
         room_id = f"{RoomType.USER}:{user_id}"
         return await self.broadcast_to_room(room_id, message)
 
-    async def send_to_tenant(self, tenant_id: str, message: Dict) -> int:
+    async def send_to_tenant(self, tenant_id: str, message: dict) -> int:
         """
         Send message to all connections in a tenant
         إرسال رسالة لجميع الاتصالات في المستأجر
@@ -221,7 +221,7 @@ class RoomManager:
         room_id = f"{RoomType.TENANT}:{tenant_id}"
         return await self.broadcast_to_room(room_id, message)
 
-    async def send_to_field(self, field_id: str, message: Dict) -> int:
+    async def send_to_field(self, field_id: str, message: dict) -> int:
         """
         Send message to all watchers of a field
         إرسال رسالة لجميع المراقبين لحقل معين
@@ -229,7 +229,7 @@ class RoomManager:
         room_id = f"{RoomType.FIELD}:{field_id}"
         return await self.broadcast_to_room(room_id, message)
 
-    async def _send_to_connection(self, connection_id: str, message: Dict) -> bool:
+    async def _send_to_connection(self, connection_id: str, message: dict) -> bool:
         """
         Send message to a specific connection
         إرسال رسالة لاتصال محدد
@@ -253,18 +253,18 @@ class RoomManager:
             f"{RoomType.GLOBAL}:"
         )
 
-    def get_connection_metadata(self, connection_id: str) -> Optional[Dict]:
+    def get_connection_metadata(self, connection_id: str) -> dict | None:
         """Get metadata for a connection"""
         return self.connection_metadata.get(connection_id)
 
-    def get_user_connections(self, user_id: str) -> Set[str]:
+    def get_user_connections(self, user_id: str) -> set[str]:
         """Get all connection IDs for a user"""
         room_id = f"{RoomType.USER}:{user_id}"
         if room_id in self.rooms:
             return self.rooms[room_id].connections.copy()
         return set()
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """
         Get room statistics
         الحصول على إحصائيات الغرف
@@ -283,7 +283,7 @@ class RoomManager:
             "connections_by_room_type": self._get_connections_by_room_type(),
         }
 
-    def _get_connections_by_room_type(self) -> Dict[str, int]:
+    def _get_connections_by_room_type(self) -> dict[str, int]:
         """Get connection count by room type"""
         stats = {}
         for room in self.rooms.values():

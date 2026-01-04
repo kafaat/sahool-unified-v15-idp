@@ -4,7 +4,6 @@ Event-driven rules for automatic task generation
 """
 
 from dataclasses import dataclass
-from typing import Optional, Tuple
 
 
 @dataclass
@@ -19,7 +18,7 @@ class TaskRule:
     priority: str
     urgency_hours: int
 
-    def to_tuple(self) -> Tuple[str, str, str]:
+    def to_tuple(self) -> tuple[str, str, str]:
         """Return (title_ar, description_ar, priority) tuple"""
         return (self.title_ar, self.description_ar, self.priority)
 
@@ -27,7 +26,7 @@ class TaskRule:
 # ============== NDVI Rules ==============
 
 
-def rule_from_ndvi(ndvi_mean: float, trend_7d: float) -> Optional[TaskRule]:
+def rule_from_ndvi(ndvi_mean: float, trend_7d: float) -> TaskRule | None:
     """
     Generate task from NDVI data
 
@@ -96,7 +95,7 @@ def rule_from_ndvi(ndvi_mean: float, trend_7d: float) -> Optional[TaskRule]:
 # ============== Weather Rules ==============
 
 
-def rule_from_weather(alert_type: str, severity: str) -> Optional[TaskRule]:
+def rule_from_weather(alert_type: str, severity: str) -> TaskRule | None:
     """
     Generate task from weather alert
 
@@ -190,17 +189,16 @@ def rule_from_weather(alert_type: str, severity: str) -> Optional[TaskRule]:
             )
 
     # Strong wind
-    if alert_type == "strong_wind":
-        if severity in ("critical", "high"):
-            return TaskRule(
-                title_ar="تحذير رياح قوية",
-                title_en="Strong Wind Warning",
-                description_ar="رياح قوية متوقعة. تأمين المعدات ودعم النباتات.",
-                description_en="Strong winds expected. Secure equipment and support plants.",
-                task_type="preparation",
-                priority="high",
-                urgency_hours=4,
-            )
+    if alert_type == "strong_wind" and severity in ("critical", "high"):
+        return TaskRule(
+            title_ar="تحذير رياح قوية",
+            title_en="Strong Wind Warning",
+            description_ar="رياح قوية متوقعة. تأمين المعدات ودعم النباتات.",
+            description_en="Strong winds expected. Secure equipment and support plants.",
+            task_type="preparation",
+            priority="high",
+            urgency_hours=4,
+        )
 
     # Disease risk
     if alert_type == "disease_risk":
@@ -236,7 +234,7 @@ def rule_from_ndvi_weather(
     ndvi_trend: float,
     temp_c: float,
     humidity_pct: float,
-) -> Optional[TaskRule]:
+) -> TaskRule | None:
     """
     Combined NDVI + Weather rule
 
@@ -275,7 +273,7 @@ def rule_from_ndvi_weather(
 def rule_from_irrigation_adjustment(
     adjustment_factor: float,
     field_id: str,
-) -> Optional[TaskRule]:
+) -> TaskRule | None:
     """
     Generate task from irrigation adjustment
 

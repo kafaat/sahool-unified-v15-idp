@@ -12,16 +12,15 @@ Version: 1.0.0
 Created: 2024
 """
 
+import logging
 import os
 import time
-import logging
-from typing import Optional, Dict, Callable, Any
+from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from collections import defaultdict
-from functools import wraps
 
-from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -61,7 +60,7 @@ class RateLimitConfig:
 
 
 # Default configurations per tier (from .env.example)
-DEFAULT_TIER_CONFIGS: Dict[RateLimitTier, RateLimitConfig] = {
+DEFAULT_TIER_CONFIGS: dict[RateLimitTier, RateLimitConfig] = {
     RateLimitTier.FREE: RateLimitConfig(
         requests_per_minute=int(os.getenv("RATE_LIMIT_FREE_RPM", "30")),
         requests_per_hour=int(os.getenv("RATE_LIMIT_FREE_RPH", "500")),
@@ -112,8 +111,8 @@ class InMemoryRateLimiter:
     """
 
     def __init__(self):
-        self._minute_windows: Dict[str, RateLimitState] = defaultdict(RateLimitState)
-        self._hour_windows: Dict[str, RateLimitState] = defaultdict(RateLimitState)
+        self._minute_windows: dict[str, RateLimitState] = defaultdict(RateLimitState)
+        self._hour_windows: dict[str, RateLimitState] = defaultdict(RateLimitState)
         self._last_cleanup = time.time()
         self._cleanup_interval = 300  # 5 minutes
 
@@ -204,7 +203,7 @@ class RedisRateLimiter:
     rate limiting across multiple service instances.
     """
 
-    def __init__(self, redis_url: Optional[str] = None):
+    def __init__(self, redis_url: str | None = None):
         self._redis_url = redis_url or os.getenv("REDIS_URL")
         self._redis = None
         self._initialized = False
@@ -308,12 +307,12 @@ class RateLimiter:
     def __init__(
         self,
         use_redis: bool = True,
-        redis_url: Optional[str] = None,
-        tier_configs: Optional[Dict[RateLimitTier, RateLimitConfig]] = None,
+        redis_url: str | None = None,
+        tier_configs: dict[RateLimitTier, RateLimitConfig] | None = None,
     ):
         self._tier_configs = tier_configs or DEFAULT_TIER_CONFIGS
         self._in_memory = InMemoryRateLimiter()
-        self._redis: Optional[RedisRateLimiter] = None
+        self._redis: RedisRateLimiter | None = None
 
         if use_redis:
             self._redis = RedisRateLimiter(redis_url)
@@ -357,9 +356,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self,
         app,
         limiter: RateLimiter,
-        key_func: Optional[Callable[[Request], str]] = None,
-        tier_func: Optional[Callable[[Request], RateLimitTier]] = None,
-        exclude_paths: Optional[list] = None,
+        key_func: Callable[[Request], str] | None = None,
+        tier_func: Callable[[Request], RateLimitTier] | None = None,
+        exclude_paths: list | None = None,
     ):
         super().__init__(app)
         self.limiter = limiter
@@ -431,7 +430,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def get_rate_limit_headers(remaining: int, limit: int, reset: int) -> Dict[str, str]:
+def get_rate_limit_headers(remaining: int, limit: int, reset: int) -> dict[str, str]:
     """Generate rate limit headers for HTTP response."""
     if limit < 0:
         return {}
@@ -446,10 +445,10 @@ def get_rate_limit_headers(remaining: int, limit: int, reset: int) -> Dict[str, 
 def setup_rate_limiting(
     app: FastAPI,
     use_redis: bool = True,
-    redis_url: Optional[str] = None,
-    key_func: Optional[Callable[[Request], str]] = None,
-    tier_func: Optional[Callable[[Request], RateLimitTier]] = None,
-    exclude_paths: Optional[list] = None,
+    redis_url: str | None = None,
+    key_func: Callable[[Request], str] | None = None,
+    tier_func: Callable[[Request], RateLimitTier] | None = None,
+    exclude_paths: list | None = None,
 ) -> RateLimiter:
     """Set up rate limiting middleware for a FastAPI application.
 

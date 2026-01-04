@@ -3,11 +3,11 @@ Test suite for VRA Generator
 نظام اختبار لمولد خرائط التطبيق المتغير
 """
 
-import pytest
 import asyncio
-from datetime import datetime
-import sys
 import os
+import sys
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
@@ -15,10 +15,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from vra_generator import (
     VRAGenerator,
     VRAType,
-    ZoneMethod,
     ZoneLevel,
-    ManagementZone,
-    PrescriptionMap,
+    ZoneMethod,
 )
 
 
@@ -51,7 +49,7 @@ async def test_generate_fertilizer_prescription():
     if prescription.cost_savings is not None:
         assert prescription.cost_savings >= 0
 
-    print(f"\n✅ Fertilizer Prescription Generated:")
+    print("\n✅ Fertilizer Prescription Generated:")
     print(f"   Field: {prescription.field_id}")
     print(f"   Zones: {prescription.num_zones}")
     print(
@@ -92,7 +90,7 @@ async def test_generate_seed_prescription():
         assert zone.recommended_rate >= prescription.min_rate
         assert zone.recommended_rate <= prescription.max_rate
 
-    print(f"\n✅ Seed Prescription Generated:")
+    print("\n✅ Seed Prescription Generated:")
     print(f"   Field: {prescription.field_id}")
     print(f"   Zones: {prescription.num_zones}")
     for zone in prescription.zones:
@@ -124,7 +122,7 @@ async def test_classify_zones():
     total_percentage = sum(z.percentage for z in zones_stats.zones)
     assert abs(total_percentage - 100.0) < 0.1  # Allow small rounding error
 
-    print(f"\n✅ Zones Classified:")
+    print("\n✅ Zones Classified:")
     print(f"   Total Area: {zones_stats.total_area_ha:.2f} ha")
     print(f"   NDVI Mean: {zones_stats.ndvi_mean:.3f}")
     for zone in zones_stats.zones:
@@ -161,7 +159,7 @@ async def test_geojson_export():
         assert "rate" in feature["properties"]
         assert "color" in feature["properties"]
 
-    print(f"\n✅ GeoJSON Export:")
+    print("\n✅ GeoJSON Export:")
     print(f"   Features: {len(geojson['features'])}")
     print(f"   Prescription ID: {geojson['properties']['prescription_id']}")
 
@@ -189,7 +187,7 @@ async def test_isoxml_export():
     assert "fertilizer" in isoxml
     assert "TreatmentZone" in isoxml
 
-    print(f"\n✅ ISO-XML Export:")
+    print("\n✅ ISO-XML Export:")
     print(f"   Length: {len(isoxml)} characters")
     print(f"   Contains treatment zones: {'TreatmentZone' in isoxml}")
 
@@ -231,10 +229,10 @@ async def test_prescription_storage():
     retrieved_after = await generator.get_prescription(prescription_id)
     assert retrieved_after is None
 
-    print(f"\n✅ Prescription Storage:")
+    print("\n✅ Prescription Storage:")
     print(f"   Created: {prescription_id}")
     print(f"   Retrieved: {retrieved.id}")
-    print(f"   Deleted: Success")
+    print("   Deleted: Success")
 
 
 @pytest.mark.asyncio
@@ -282,7 +280,7 @@ async def test_calculate_zone_rate():
     # For seeds, high zones should get more than low zones
     assert seed_rate_high > seed_rate_low
 
-    print(f"\n✅ Zone Rate Calculation:")
+    print("\n✅ Zone Rate Calculation:")
     print(f"   Fertilizer - Low zone: {rate_low:.2f} kg/ha")
     print(f"   Fertilizer - High zone: {rate_high:.2f} kg/ha")
     print(f"   Seed - Low zone: {seed_rate_low:.0f} seeds/ha")

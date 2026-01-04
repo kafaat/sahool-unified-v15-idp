@@ -13,25 +13,23 @@ Comprehensive analytics for agricultural inventory management:
 - Waste tracking
 """
 
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Optional
-from datetime import datetime, date, timedelta
-from enum import Enum
-from decimal import Decimal
 import statistics
+from dataclasses import asdict, dataclass
+from datetime import date, datetime, timedelta
+from decimal import Decimal
 
-from sqlalchemy import select, func, and_, or_, desc, case
+from sqlalchemy import and_, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models.inventory import (
     InventoryItem,
     InventoryMovement,
     InventoryTransaction,
-    Warehouse,
     ItemCategory,
-    Supplier,
     MovementType,
+    Supplier,
     TransactionType,
+    Warehouse,
 )
 
 
@@ -50,7 +48,7 @@ class ConsumptionForecast:
     recommended_order_qty: float
     confidence: float
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         result = asdict(self)
         result["reorder_date"] = self.reorder_date.isoformat()
         return result
@@ -62,12 +60,12 @@ class InventoryValuation:
 
     total_value: float
     currency: str
-    by_category: Dict[str, float]
-    by_warehouse: Dict[str, float]
-    top_items: List[Dict]  # [{item, value, percentage}]
+    by_category: dict[str, float]
+    by_warehouse: dict[str, float]
+    top_items: list[dict]  # [{item, value, percentage}]
     expiring_value: float  # Value of items expiring in 30 days
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return asdict(self)
 
 
@@ -81,7 +79,7 @@ class TurnoverMetrics:
     days_of_inventory: float  # Average days in stock
     velocity: str  # "fast", "medium", "slow", "dead"
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return asdict(self)
 
 
@@ -91,11 +89,11 @@ class SeasonalPattern:
 
     item_id: str
     item_name: str
-    peak_months: List[int]  # 1-12
-    low_months: List[int]
-    seasonal_factor: Dict[int, float]  # month -> multiplier
+    peak_months: list[int]  # 1-12
+    low_months: list[int]
+    seasonal_factor: dict[int, float]  # month -> multiplier
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return asdict(self)
 
 
@@ -108,7 +106,7 @@ class InventoryAnalytics:
 
     async def get_consumption_forecast(
         self, item_id: str, forecast_days: int = 90
-    ) -> Optional[ConsumptionForecast]:
+    ) -> ConsumptionForecast | None:
         """
         Forecast future consumption based on historical data.
         Uses moving average and seasonal adjustment.
@@ -166,10 +164,7 @@ class InventoryAnalytics:
         avg_monthly = avg_daily * 30
 
         # Calculate days until stockout - prevent division by zero
-        if avg_daily > 0:
-            days_until_stockout = int(item.available_stock / avg_daily)
-        else:
-            days_until_stockout = 999
+        days_until_stockout = int(item.available_stock / avg_daily) if avg_daily > 0 else 999
 
         # Calculate reorder date (considering lead time)
         supplier_lead_time = 7  # Default
@@ -215,14 +210,14 @@ class InventoryAnalytics:
         )
 
     async def get_all_forecasts(
-        self, category: Optional[str] = None, low_stock_only: bool = False
-    ) -> List[ConsumptionForecast]:
+        self, category: str | None = None, low_stock_only: bool = False
+    ) -> list[ConsumptionForecast]:
         """Get forecasts for all items or filtered subset"""
         # Build query
         stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
             )
         )
 
@@ -246,7 +241,7 @@ class InventoryAnalytics:
         return forecasts
 
     async def get_inventory_valuation(
-        self, as_of_date: Optional[date] = None, warehouse_id: Optional[str] = None
+        self, as_of_date: date | None = None, warehouse_id: str | None = None
     ) -> InventoryValuation:
         """Calculate total inventory value with breakdowns"""
         if as_of_date is None:
@@ -264,7 +259,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
+                    InventoryItem.is_active is True,
                 )
             )
         )
@@ -343,7 +338,7 @@ class InventoryAnalytics:
 
     async def get_turnover_analysis(
         self, period_days: int = 365
-    ) -> List[TurnoverMetrics]:
+    ) -> list[TurnoverMetrics]:
         """
         Analyze inventory turnover.
 
@@ -356,7 +351,7 @@ class InventoryAnalytics:
         items_stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
             )
         )
         items_result = await self.db.execute(items_stmt)
@@ -412,9 +407,9 @@ class InventoryAnalytics:
 
         return metrics
 
-    async def identify_slow_moving(self, days_threshold: int = 90) -> List[Dict]:
+    async def identify_slow_moving(self, days_threshold: int = 90) -> list[dict]:
         """Identify items with no movement in N days"""
-        threshold_date = datetime.now() - timedelta(days=days_threshold)
+        datetime.now() - timedelta(days=days_threshold)
 
         # Get items with last movement before threshold
         stmt = (
@@ -432,7 +427,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
+                    InventoryItem.is_active is True,
                     InventoryItem.current_stock > 0,
                 )
             )
@@ -474,11 +469,11 @@ class InventoryAnalytics:
 
         return slow_moving
 
-    async def identify_dead_stock(self, days_threshold: int = 180) -> List[Dict]:
+    async def identify_dead_stock(self, days_threshold: int = 180) -> list[dict]:
         """
         Identify dead stock (no movement + near expiry or very long time)
         """
-        threshold_date = datetime.now() - timedelta(days=days_threshold)
+        datetime.now() - timedelta(days=days_threshold)
         expiry_threshold = date.today() + timedelta(days=60)
 
         stmt = (
@@ -496,7 +491,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
+                    InventoryItem.is_active is True,
                     InventoryItem.current_stock > 0,
                 )
             )
@@ -561,7 +556,7 @@ class InventoryAnalytics:
 
         return dead_stock
 
-    async def get_seasonal_patterns(self, item_id: str) -> Optional[SeasonalPattern]:
+    async def get_seasonal_patterns(self, item_id: str) -> SeasonalPattern | None:
         """Analyze seasonal consumption patterns"""
         # Get 2 years of history
         lookback_date = datetime.now() - timedelta(days=730)
@@ -624,7 +619,7 @@ class InventoryAnalytics:
             seasonal_factor=seasonal_factor,
         )
 
-    async def get_reorder_recommendations(self) -> List[Dict]:
+    async def get_reorder_recommendations(self) -> list[dict]:
         """
         Get items that need reordering.
         Considers:
@@ -640,7 +635,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
+                    InventoryItem.is_active is True,
                     InventoryItem.available_stock <= InventoryItem.reorder_level,
                 )
             )
@@ -694,7 +689,7 @@ class InventoryAnalytics:
 
         return recommendations
 
-    async def get_abc_analysis(self) -> Dict:
+    async def get_abc_analysis(self) -> dict:
         """
         ABC analysis (Pareto):
         - A items: 80% of value (top ~20%)
@@ -705,7 +700,7 @@ class InventoryAnalytics:
         stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
             )
         )
 
@@ -811,11 +806,11 @@ class InventoryAnalytics:
 
     async def get_cost_analysis(
         self,
-        field_id: Optional[str] = None,
-        crop_season_id: Optional[str] = None,
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
-    ) -> Dict:
+        field_id: str | None = None,
+        crop_season_id: str | None = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> dict:
         """
         Analyze input costs:
         - By category (fertilizer, pesticide, etc.)
@@ -864,7 +859,6 @@ class InventoryAnalytics:
 
         for row in rows:
             txn = row.InventoryTransaction
-            item = row.InventoryItem
             category = row.ItemCategory
 
             cost = txn.total_amount + txn.additional_costs
@@ -904,7 +898,7 @@ class InventoryAnalytics:
             "monthly_trend": {k: float(v) for k, v in sorted(monthly_trend.items())},
         }
 
-    async def get_waste_analysis(self, period_days: int = 365) -> Dict:
+    async def get_waste_analysis(self, period_days: int = 365) -> dict:
         """
         Analyze inventory waste:
         - Expired items
@@ -976,8 +970,8 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
-                    InventoryItem.has_expiry == True,
+                    InventoryItem.is_active is True,
+                    InventoryItem.has_expiry is True,
                     InventoryItem.expiry_date <= date.today(),
                     InventoryItem.current_stock > 0,
                 )
@@ -1030,7 +1024,7 @@ class InventoryAnalytics:
             },
         }
 
-    async def generate_dashboard_metrics(self) -> Dict:
+    async def generate_dashboard_metrics(self) -> dict:
         """
         Generate key metrics for dashboard:
         - Total SKUs
@@ -1045,7 +1039,7 @@ class InventoryAnalytics:
         total_skus_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
             )
         )
         total_skus = (await self.db.execute(total_skus_stmt)).scalar() or 0
@@ -1057,7 +1051,7 @@ class InventoryAnalytics:
         low_stock_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
                 InventoryItem.available_stock <= InventoryItem.reorder_level,
             )
         )
@@ -1068,8 +1062,8 @@ class InventoryAnalytics:
         expiring_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
-                InventoryItem.has_expiry == True,
+                InventoryItem.is_active is True,
+                InventoryItem.has_expiry is True,
                 InventoryItem.expiry_date <= expiring_date,
                 InventoryItem.current_stock > 0,
             )

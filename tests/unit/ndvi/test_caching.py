@@ -3,21 +3,21 @@ SAHOOL NDVI Caching Tests
 Sprint 8: Unit tests for caching strategy
 """
 
-import pytest
-import time
 import sys
+import time
 
 sys.path.insert(0, "archive/kernel-legacy/kernel/services/ndvi_engine/src")
 
+from datetime import UTC, datetime, timedelta
+
 from caching import (
-    make_cache_key,
-    make_observation_key,
-    InMemoryCache,
     CacheEntry,
     CacheTTLConfig,
+    InMemoryCache,
     calculate_ttl,
+    make_cache_key,
+    make_observation_key,
 )
-from datetime import datetime, timedelta, timezone
 
 
 class TestCacheKey:
@@ -192,7 +192,7 @@ class TestCacheTTL:
     def test_historical_data_long_ttl(self):
         """Data >30 days old gets long TTL"""
         config = CacheTTLConfig()
-        old_date = datetime.now(timezone.utc) - timedelta(days=60)
+        old_date = datetime.now(UTC) - timedelta(days=60)
 
         ttl = calculate_ttl(old_date, config)
 
@@ -201,7 +201,7 @@ class TestCacheTTL:
     def test_recent_data_medium_ttl(self):
         """Data 7-30 days old gets medium TTL"""
         config = CacheTTLConfig()
-        recent_date = datetime.now(timezone.utc) - timedelta(days=15)
+        recent_date = datetime.now(UTC) - timedelta(days=15)
 
         ttl = calculate_ttl(recent_date, config)
 
@@ -210,7 +210,7 @@ class TestCacheTTL:
     def test_current_data_short_ttl(self):
         """Data <7 days old gets short TTL"""
         config = CacheTTLConfig()
-        current_date = datetime.now(timezone.utc) - timedelta(days=3)
+        current_date = datetime.now(UTC) - timedelta(days=3)
 
         ttl = calculate_ttl(current_date, config)
 
@@ -222,7 +222,7 @@ class TestCacheEntry:
 
     def test_is_expired_false_when_fresh(self):
         """Fresh entry is not expired"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         entry = CacheEntry(
             value={"test": 1},
             created_at=now,
@@ -233,7 +233,7 @@ class TestCacheEntry:
 
     def test_is_expired_true_when_old(self):
         """Old entry is expired"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         entry = CacheEntry(
             value={"test": 1},
             created_at=now - timedelta(hours=2),
@@ -244,7 +244,7 @@ class TestCacheEntry:
 
     def test_age_seconds(self):
         """Age is calculated correctly"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         entry = CacheEntry(
             value={"test": 1},
             created_at=now - timedelta(seconds=30),

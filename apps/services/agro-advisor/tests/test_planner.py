@@ -4,7 +4,6 @@ Fertilizer Planner Tests - Agro Advisor
 
 import pytest
 from fastapi.testclient import TestClient
-
 from kernel.services.agro_advisor.src.engine.planner import (
     CROP_REQUIREMENTS,
     fertilizer_plan,
@@ -107,7 +106,7 @@ class TestPlannerEngine:
 
     def test_crop_requirements_complete(self):
         """Test all crops have required fields"""
-        for crop, data in CROP_REQUIREMENTS.items():
+        for _crop, data in CROP_REQUIREMENTS.items():
             assert "yield_target_ton_ha" in data
             assert "total_needs" in data
             assert "stages" in data

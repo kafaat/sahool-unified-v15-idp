@@ -13,7 +13,6 @@ Last updated: December 2025
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
 from enum import Enum
 
 
@@ -57,18 +56,18 @@ class Variety:
     crop_code: str  # رمز المحصول
     name_ar: str  # الاسم بالعربية
     name_en: str  # الاسم بالإنجليزية
-    name_local: Optional[str]  # الاسم المحلي
+    name_local: str | None  # الاسم المحلي
     origin: VarietyOrigin  # أصل الصنف
     maturity: MaturityClass  # فئة النضج
     days_to_maturity: int  # أيام حتى النضج
     yield_potential_ton_ha: float  # إمكانية الإنتاج (طن/هكتار)
-    suitable_regions: List[YemenRegion]  # المناطق المناسبة
-    altitude_min_m: Optional[int]  # الارتفاع الأدنى (متر)
-    altitude_max_m: Optional[int]  # الارتفاع الأقصى (متر)
+    suitable_regions: list[YemenRegion]  # المناطق المناسبة
+    altitude_min_m: int | None  # الارتفاع الأدنى (متر)
+    altitude_max_m: int | None  # الارتفاع الأقصى (متر)
     drought_tolerance: str  # تحمل الجفاف (منخفض/متوسط/عالي)
     heat_tolerance: str  # تحمل الحرارة
-    disease_resistance: List[str]  # مقاومة الأمراض
-    special_traits: List[str]  # سمات خاصة
+    disease_resistance: list[str]  # مقاومة الأمراض
+    special_traits: list[str]  # سمات خاصة
     seed_source: str  # مصدر البذور
     description_ar: str  # وصف بالعربية
 
@@ -1030,7 +1029,7 @@ ALL_VARIETIES: list[Variety] = (
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def get_variety(code: str) -> Optional[Variety]:
+def get_variety(code: str) -> Variety | None:
     """Get variety by code"""
     for v in ALL_VARIETIES:
         if v.code == code:
@@ -1038,32 +1037,32 @@ def get_variety(code: str) -> Optional[Variety]:
     return None
 
 
-def get_varieties_by_crop(crop_code: str) -> List[Variety]:
+def get_varieties_by_crop(crop_code: str) -> list[Variety]:
     """Get all varieties for a crop"""
     return [v for v in ALL_VARIETIES if v.crop_code == crop_code]
 
 
-def get_varieties_for_region(region: YemenRegion) -> List[Variety]:
+def get_varieties_for_region(region: YemenRegion) -> list[Variety]:
     """Get varieties suitable for a region"""
     return [v for v in ALL_VARIETIES if region in v.suitable_regions]
 
 
-def get_drought_tolerant_varieties() -> List[Variety]:
+def get_drought_tolerant_varieties() -> list[Variety]:
     """Get drought tolerant varieties"""
     return [v for v in ALL_VARIETIES if v.drought_tolerance in ["عالي", "عالي جداً"]]
 
 
-def get_heat_tolerant_varieties() -> List[Variety]:
+def get_heat_tolerant_varieties() -> list[Variety]:
     """Get heat tolerant varieties"""
     return [v for v in ALL_VARIETIES if v.heat_tolerance in ["عالي", "عالي جداً"]]
 
 
-def get_local_varieties() -> List[Variety]:
+def get_local_varieties() -> list[Variety]:
     """Get local Yemeni varieties"""
     return [v for v in ALL_VARIETIES if v.origin == VarietyOrigin.LOCAL]
 
 
-def search_varieties(query: str) -> List[Variety]:
+def search_varieties(query: str) -> list[Variety]:
     """Search varieties by name"""
     query_lower = query.lower()
     return [

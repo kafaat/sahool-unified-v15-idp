@@ -5,10 +5,9 @@ Business logic for field management
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
-from .models import Field, FieldBoundary, FieldStatus, SoilType, IrrigationType
+from .models import Field, FieldBoundary, FieldStatus, IrrigationType, SoilType
 
 
 class FieldService:
@@ -27,7 +26,7 @@ class FieldService:
         area_hectares: float,
         soil_type: SoilType = SoilType.LOAMY,
         irrigation_type: IrrigationType = IrrigationType.DRIP,
-        name_ar: Optional[str] = None,
+        name_ar: str | None = None,
     ) -> Field:
         """Create a new field"""
         boundary = FieldBoundary.from_coordinates(coordinates)
@@ -46,7 +45,7 @@ class FieldService:
         self._fields[field_obj.id] = field_obj
         return field_obj
 
-    def get_field(self, field_id: str) -> Optional[Field]:
+    def get_field(self, field_id: str) -> Field | None:
         """Get field by ID"""
         return self._fields.get(field_id)
 
@@ -54,40 +53,40 @@ class FieldService:
         self,
         field_id: str,
         status: FieldStatus,
-    ) -> Optional[Field]:
+    ) -> Field | None:
         """Update field status"""
         field_obj = self._fields.get(field_id)
         if field_obj:
             field_obj.status = status
-            field_obj.updated_at = datetime.now(timezone.utc)
+            field_obj.updated_at = datetime.now(UTC)
         return field_obj
 
     def assign_crop(
         self,
         field_id: str,
         crop_id: str,
-    ) -> Optional[Field]:
+    ) -> Field | None:
         """Assign a crop to the field"""
         field_obj = self._fields.get(field_id)
         if field_obj:
             field_obj.current_crop_id = crop_id
             field_obj.status = FieldStatus.ACTIVE
-            field_obj.updated_at = datetime.now(timezone.utc)
+            field_obj.updated_at = datetime.now(UTC)
         return field_obj
 
-    def clear_crop(self, field_id: str) -> Optional[Field]:
+    def clear_crop(self, field_id: str) -> Field | None:
         """Clear the current crop from field"""
         field_obj = self._fields.get(field_id)
         if field_obj:
             field_obj.current_crop_id = None
             field_obj.status = FieldStatus.FALLOW
-            field_obj.updated_at = datetime.now(timezone.utc)
+            field_obj.updated_at = datetime.now(UTC)
         return field_obj
 
     def list_farm_fields(
         self,
         farm_id: str,
-        status: Optional[FieldStatus] = None,
+        status: FieldStatus | None = None,
     ) -> list[Field]:
         """List all fields for a farm"""
         fields = [f for f in self._fields.values() if f.farm_id == farm_id]
@@ -98,7 +97,7 @@ class FieldService:
     def list_tenant_fields(
         self,
         tenant_id: str,
-        status: Optional[FieldStatus] = None,
+        status: FieldStatus | None = None,
     ) -> list[Field]:
         """List all fields for a tenant"""
         fields = [f for f in self._fields.values() if f.tenant_id == tenant_id]

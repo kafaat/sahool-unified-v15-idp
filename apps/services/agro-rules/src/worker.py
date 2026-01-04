@@ -6,7 +6,6 @@ Event-driven worker that generates tasks from NDVI/Weather events
 import asyncio
 import json
 import os
-from typing import Optional
 
 from nats.aio.client import Client as NATS
 
@@ -30,7 +29,7 @@ class AgroRulesWorker:
     """
 
     def __init__(self):
-        self.nc: Optional[NATS] = None
+        self.nc: NATS | None = None
         self.fieldops = FieldOpsClient(FIELDOPS_URL)
         self._running = False
         self._recent_ndvi: dict[str, dict] = {}  # field_id -> last NDVI data

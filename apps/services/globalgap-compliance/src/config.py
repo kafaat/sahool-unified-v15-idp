@@ -6,8 +6,8 @@ This module manages all environment variables and service configuration.
 تدير هذه الوحدة جميع متغيرات البيئة وإعدادات الخدمة.
 """
 
+
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     # GlobalGAP API Configuration | إعدادات واجهة برمجة GlobalGAP
     globalgap_api_url: str = "https://api.globalgap.org/v1"
-    globalgap_api_key: Optional[str] = None
+    globalgap_api_key: str | None = None
     globalgap_api_timeout: int = 30  # seconds | ثواني
 
     # IFA Standards Version | إصدار معايير IFA

@@ -10,27 +10,26 @@ Tests cover:
 - Security properties
 """
 
-import pytest
 import hashlib
 import secrets
-from typing import Tuple
 
 # Import the password hasher
 import sys
 
+import pytest
+
 sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
 
 from shared.auth.password_hasher import (
-    PasswordHasher,
+    ARGON2_AVAILABLE,
+    BCRYPT_AVAILABLE,
     HashAlgorithm,
+    PasswordHasher,
+    generate_otp,
+    generate_secure_token,
     get_password_hasher,
     hash_password,
     verify_password,
-    needs_rehash,
-    generate_otp,
-    generate_secure_token,
-    ARGON2_AVAILABLE,
-    BCRYPT_AVAILABLE,
 )
 
 

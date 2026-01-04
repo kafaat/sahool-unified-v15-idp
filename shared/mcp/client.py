@@ -10,7 +10,7 @@ import asyncio
 import json
 import logging
 import subprocess
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 from pydantic import BaseModel
@@ -28,13 +28,13 @@ class ToolCall(BaseModel):
     """Tool call request"""
 
     name: str
-    arguments: Dict[str, Any]
+    arguments: dict[str, Any]
 
 
 class ToolResult(BaseModel):
     """Tool call result"""
 
-    content: List[Dict[str, Any]]
+    content: list[dict[str, Any]]
     isError: bool = False
 
 
@@ -52,7 +52,7 @@ class MCPClient:
     """
 
     def __init__(
-        self, server_url: Optional[str] = None, command: Optional[List[str]] = None
+        self, server_url: str | None = None, command: list[str] | None = None
     ):
         """
         Initialize MCP Client
@@ -64,10 +64,10 @@ class MCPClient:
         self.server_url = server_url
         self.command = command
         self.client = httpx.AsyncClient(timeout=60.0)
-        self.process: Optional[subprocess.Popen] = None
+        self.process: subprocess.Popen | None = None
         self.request_id = 0
-        self.capabilities: Optional[Dict[str, Any]] = None
-        self.server_info: Optional[Dict[str, Any]] = None
+        self.capabilities: dict[str, Any] | None = None
+        self.server_info: dict[str, Any] | None = None
 
     def _next_request_id(self) -> int:
         """Generate next request ID"""
@@ -86,7 +86,7 @@ class MCPClient:
 
     # ==================== Connection & Initialization ====================
 
-    async def initialize(self) -> Dict[str, Any]:
+    async def initialize(self) -> dict[str, Any]:
         """
         Initialize connection to MCP server
 
@@ -124,7 +124,7 @@ class MCPClient:
 
     # ==================== Tools ====================
 
-    async def list_tools(self) -> List[Dict[str, Any]]:
+    async def list_tools(self) -> list[dict[str, Any]]:
         """
         List available tools
 
@@ -145,7 +145,7 @@ class MCPClient:
 
         return response.get("result", {}).get("tools", [])
 
-    async def call_tool(self, name: str, arguments: Dict[str, Any]) -> ToolResult:
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> ToolResult:
         """
         Call a tool
 
@@ -176,7 +176,7 @@ class MCPClient:
 
     # ==================== Resources ====================
 
-    async def list_resources(self) -> List[Dict[str, Any]]:
+    async def list_resources(self) -> list[dict[str, Any]]:
         """
         List available resources
 
@@ -197,7 +197,7 @@ class MCPClient:
 
         return response.get("result", {}).get("resources", [])
 
-    async def list_resource_templates(self) -> List[Dict[str, Any]]:
+    async def list_resource_templates(self) -> list[dict[str, Any]]:
         """
         List resource URI templates
 
@@ -218,7 +218,7 @@ class MCPClient:
 
         return response.get("result", {}).get("resourceTemplates", [])
 
-    async def read_resource(self, uri: str) -> Dict[str, Any]:
+    async def read_resource(self, uri: str) -> dict[str, Any]:
         """
         Read a resource
 
@@ -245,7 +245,7 @@ class MCPClient:
 
     # ==================== Prompts ====================
 
-    async def list_prompts(self) -> List[Dict[str, Any]]:
+    async def list_prompts(self) -> list[dict[str, Any]]:
         """
         List available prompt templates
 
@@ -267,8 +267,8 @@ class MCPClient:
         return response.get("result", {}).get("prompts", [])
 
     async def get_prompt(
-        self, name: str, arguments: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, name: str, arguments: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """
         Get a prompt template
 
@@ -298,7 +298,7 @@ class MCPClient:
 
     # ==================== Transport Implementations ====================
 
-    async def _send_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def _send_request(self, request: dict[str, Any]) -> dict[str, Any]:
         """Send request to MCP server"""
         if self.server_url:
             return await self._send_http_request(request)
@@ -307,7 +307,7 @@ class MCPClient:
         else:
             raise MCPClientError("No transport configured (need server_url or command)")
 
-    async def _send_http_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def _send_http_request(self, request: dict[str, Any]) -> dict[str, Any]:
         """Send request via HTTP"""
         try:
             response = await self.client.post(
@@ -320,7 +320,7 @@ class MCPClient:
         except httpx.HTTPError as e:
             raise MCPClientError(f"HTTP request failed: {str(e)}")
 
-    async def _send_stdio_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def _send_stdio_request(self, request: dict[str, Any]) -> dict[str, Any]:
         """Send request via stdio (not implemented in this version)"""
         raise NotImplementedError("stdio transport not implemented in async client")
 
@@ -328,7 +328,7 @@ class MCPClient:
 
     async def get_weather_forecast(
         self, latitude: float, longitude: float, days: int = 7
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get weather forecast (convenience method)
 
@@ -360,7 +360,7 @@ class MCPClient:
 
     async def analyze_crop_health(
         self, field_id: str, analysis_type: str = "ndvi"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Analyze crop health (convenience method)
 
@@ -392,7 +392,7 @@ class MCPClient:
         field_id: str,
         include_history: bool = False,
         include_sensors: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get field data (convenience method)
 
@@ -423,7 +423,7 @@ class MCPClient:
 
     async def calculate_irrigation(
         self, field_id: str, crop_type: str, soil_moisture: float, growth_stage: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Calculate irrigation (convenience method)
 
@@ -458,9 +458,9 @@ class MCPClient:
         self,
         field_id: str,
         crop_type: str,
-        soil_test: Optional[Dict[str, float]] = None,
-        target_yield: Optional[float] = None,
-    ) -> Dict[str, Any]:
+        soil_test: dict[str, float] | None = None,
+        target_yield: float | None = None,
+    ) -> dict[str, Any]:
         """
         Get fertilizer recommendation (convenience method)
 

@@ -2,8 +2,9 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID
+
 from .base import BaseEvent
 
 
@@ -18,10 +19,10 @@ class SensorReadingEvent(BaseEvent):
     value: float = 0.0
     unit: str = ""
     reading_timestamp: datetime = None
-    battery_level: Optional[float] = None
-    signal_strength: Optional[int] = None
+    battery_level: float | None = None
+    signal_strength: int | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         return {
             "sensor_id": str(self.sensor_id),
             "field_id": str(self.field_id),
@@ -48,7 +49,7 @@ class SensorAlertEvent(BaseEvent):
     actual_value: float = 0.0
     alert_timestamp: datetime = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         return {
             "sensor_id": str(self.sensor_id),
             "alert_type": self.alert_type,

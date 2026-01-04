@@ -6,7 +6,6 @@ Defines all event types that can be sent through WebSocket
 """
 
 from enum import Enum
-from typing import Dict
 
 
 class EventType(str, Enum):
@@ -74,7 +73,7 @@ class EventType(str, Enum):
 
 
 # Event messages in Arabic
-EVENT_MESSAGES_AR: Dict[EventType, str] = {
+EVENT_MESSAGES_AR: dict[EventType, str] = {
     EventType.FIELD_UPDATED: "تم تحديث بيانات الحقل",
     EventType.FIELD_CREATED: "تم إنشاء حقل جديد",
     EventType.FIELD_DELETED: "تم حذف الحقل",
@@ -112,7 +111,7 @@ EVENT_MESSAGES_AR: Dict[EventType, str] = {
 
 
 # Event messages in English
-EVENT_MESSAGES_EN: Dict[EventType, str] = {
+EVENT_MESSAGES_EN: dict[EventType, str] = {
     EventType.FIELD_UPDATED: "Field data updated",
     EventType.FIELD_CREATED: "New field created",
     EventType.FIELD_DELETED: "Field deleted",
@@ -170,7 +169,7 @@ class EventPriority(str, Enum):
 
 
 # Map event types to priorities
-EVENT_PRIORITIES: Dict[EventType, EventPriority] = {
+EVENT_PRIORITIES: dict[EventType, EventPriority] = {
     EventType.WEATHER_ALERT: EventPriority.HIGH,
     EventType.DISEASE_DETECTED: EventPriority.HIGH,
     EventType.PEST_DETECTED: EventPriority.HIGH,

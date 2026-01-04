@@ -5,25 +5,26 @@ FastAPI Middleware for Observability
 Provides automatic tracing, metrics, and logging for all requests.
 """
 
+import logging
 import time
 import uuid
-import logging
-from typing import Callable, Optional
+from collections.abc import Callable
+
+from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-from fastapi import FastAPI
 
 try:
     from opentelemetry import trace
-    from opentelemetry.trace import Status, StatusCode, SpanKind
     from opentelemetry.propagate import extract, inject
+    from opentelemetry.trace import SpanKind, Status, StatusCode
 
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
 
-from .logging import set_request_context, clear_request_context
+from .logging import clear_request_context, set_request_context
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +46,8 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         self,
         app: FastAPI,
         service_name: str,
-        metrics_collector: Optional[any] = None,
-        exclude_paths: Optional[list[str]] = None,
+        metrics_collector: any | None = None,
+        exclude_paths: list[str] | None = None,
     ):
         super().__init__(app)
         self.service_name = service_name
@@ -221,7 +222,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         log_request_body: bool = False,
         log_response_body: bool = False,
         max_body_size: int = 1024,
-        exclude_paths: Optional[list[str]] = None,
+        exclude_paths: list[str] | None = None,
     ):
         super().__init__(app)
         self.log_request_body = log_request_body
@@ -311,7 +312,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
         self,
         app: FastAPI,
         metrics_collector: any,
-        exclude_paths: Optional[list[str]] = None,
+        exclude_paths: list[str] | None = None,
     ):
         super().__init__(app)
         self.metrics_collector = metrics_collector
@@ -360,7 +361,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 def setup_observability_middleware(
     app: FastAPI,
     service_name: str,
-    metrics_collector: Optional[any] = None,
+    metrics_collector: any | None = None,
     enable_request_logging: bool = False,
     log_request_body: bool = False,
     log_response_body: bool = False,

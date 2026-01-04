@@ -5,18 +5,16 @@ Quick Test for SAHOOL Notification Templates
 """
 
 import sys
-import json
 from pathlib import Path
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
 from notification_templates import (
-    NotificationTemplateManager,
-    get_template_manager,
-    TemplateCategory,
     NotificationChannel,
-    render_notification
+    TemplateCategory,
+    get_template_manager,
+    render_notification,
 )
 
 

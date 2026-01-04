@@ -7,12 +7,13 @@ Business logic for generating and managing GlobalGAP IFA checklists.
 """
 
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from ..models import (
     Checklist,
-    ChecklistItem,
     ChecklistAssessment,
     ChecklistCategory,
+    ChecklistItem,
     ComplianceLevel,
     ControlPointStatus,
 )
@@ -28,8 +29,8 @@ class ChecklistService:
         """Initialize checklist service"""
         # In a real implementation, this would load from database
         # في التطبيق الفعلي، سيتم التحميل من قاعدة البيانات
-        self.checklist_items: Dict[str, ChecklistItem] = {}
-        self.checklists: Dict[str, Checklist] = {}
+        self.checklist_items: dict[str, ChecklistItem] = {}
+        self.checklists: dict[str, Checklist] = {}
         self._initialize_sample_items()
 
     def _initialize_sample_items(self):
@@ -157,7 +158,7 @@ class ChecklistService:
 
     async def get_checklist_by_category(
         self, category: ChecklistCategory, ifa_version: str = "6.0"
-    ) -> List[ChecklistItem]:
+    ) -> list[ChecklistItem]:
         """
         Get checklist items for a specific category
         الحصول على عناصر قائمة المراجعة لفئة معينة
@@ -179,8 +180,8 @@ class ChecklistService:
     async def get_all_checklist_items(
         self,
         ifa_version: str = "6.0",
-        compliance_level: Optional[ComplianceLevel] = None,
-    ) -> List[ChecklistItem]:
+        compliance_level: ComplianceLevel | None = None,
+    ) -> list[ChecklistItem]:
         """
         Get all checklist items
         الحصول على جميع عناصر قائمة المراجعة
@@ -207,7 +208,7 @@ class ChecklistService:
 
     async def get_checklist_item(
         self, control_point_number: str
-    ) -> Optional[ChecklistItem]:
+    ) -> ChecklistItem | None:
         """
         Get a specific checklist item by control point number
         الحصول على عنصر قائمة المراجعة حسب رقم نقطة التحكم
@@ -224,7 +225,7 @@ class ChecklistService:
         return None
 
     async def generate_farm_checklist(
-        self, farm_id: str, tenant_id: str, crop_types: List[str], scope: str = "full"
+        self, farm_id: str, tenant_id: str, crop_types: list[str], scope: str = "full"
     ) -> Checklist:
         """
         Generate a customized checklist for a farm
@@ -269,7 +270,7 @@ class ChecklistService:
             name_en=f"Checklist for Farm {farm_id}",
             ifa_version="6.0",
             checklist_type=scope,
-            applicable_categories=[cat for cat in ChecklistCategory],
+            applicable_categories=list(ChecklistCategory),
             crop_types=crop_types,
             total_items=len(all_items),
             major_must_count=major_must,
@@ -304,9 +305,9 @@ class ChecklistService:
         self,
         assessment_id: str,
         status: ControlPointStatus,
-        evidence_description: Optional[str] = None,
-        assessor_notes: Optional[str] = None,
-    ) -> Optional[ChecklistAssessment]:
+        evidence_description: str | None = None,
+        assessor_notes: str | None = None,
+    ) -> ChecklistAssessment | None:
         """
         Update an existing checklist assessment
         تحديث تقييم قائمة المراجعة الموجود
@@ -328,7 +329,7 @@ class ChecklistService:
 
     async def get_farm_assessments(
         self, farm_id: str, tenant_id: str
-    ) -> List[ChecklistAssessment]:
+    ) -> list[ChecklistAssessment]:
         """
         Get all assessments for a farm
         الحصول على جميع التقييمات للمزرعة
@@ -346,7 +347,7 @@ class ChecklistService:
 
     async def get_assessment_summary(
         self, farm_id: str, tenant_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get assessment summary for a farm
         الحصول على ملخص التقييم للمزرعة
@@ -393,7 +394,7 @@ class ChecklistService:
 
     async def search_checklist_items(
         self, query: str, language: str = "ar"
-    ) -> List[ChecklistItem]:
+    ) -> list[ChecklistItem]:
         """
         Search checklist items by keyword
         البحث في عناصر قائمة المراجعة بالكلمات الرئيسية

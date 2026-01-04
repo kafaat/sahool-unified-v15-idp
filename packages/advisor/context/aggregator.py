@@ -6,7 +6,7 @@ SAHOOL Context Aggregation Service
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 from typing import Any, Protocol
 from uuid import UUID
 
@@ -162,7 +162,7 @@ class ContextAggregator:
         Returns:
             السياق المجمّع الكامل
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # جلب بيانات الحقل
         field = self._field_svc.get_field(field_id)

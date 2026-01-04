@@ -3,10 +3,10 @@ SAHOOL Billing Core Service - Unit Tests
 اختبارات خدمة الفوترة الأساسية
 """
 
+from datetime import datetime
+
 import pytest
-from datetime import date, datetime, timedelta
 from fastapi.testclient import TestClient
-from decimal import Decimal
 
 
 @pytest.fixture
@@ -284,7 +284,7 @@ class TestUsage:
             json={"type": "api_call", "count": 1},
         )
         assert response.status_code == 200
-        assert response.json()["recorded"] == True
+        assert response.json()["recorded"] is True
 
 
 class TestCurrency:

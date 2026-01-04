@@ -6,22 +6,21 @@ A2A Protocol-compliant agent registry service with FastAPI and Redis.
 خدمة سجل وكلاء متوافقة مع بروتوكول A2A باستخدام FastAPI و Redis.
 """
 
-from fastapi import FastAPI, HTTPException, status, Header, Depends
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import Dict, Any, List, Optional
-import structlog
+import os
+import sys
 from contextlib import asynccontextmanager
 
-from .config import settings
-from .storage import RedisStorage, InMemoryStorage, RegistryStorage
+import structlog
+from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
 
-import sys
-import os
+from .config import settings
+from .storage import InMemoryStorage, RedisStorage
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from registry.agent_card import AgentCard
-from registry.registry import AgentRegistry, RegistryConfig, HealthCheckResult
+from registry.registry import AgentRegistry, RegistryConfig
 
 # Configure structured logging
 structlog.configure(
@@ -48,7 +47,7 @@ class RegisterAgentRequest(BaseModel):
 class DiscoverByTagsRequest(BaseModel):
     """Request to discover agents by tags / طلب لاكتشاف الوكلاء حسب العلامات"""
 
-    tags: List[str] = Field(..., description="Tags to search for")
+    tags: list[str] = Field(..., description="Tags to search for")
 
 
 # Global state
@@ -56,7 +55,7 @@ app_state = {}
 
 
 # API Key authentication
-async def verify_api_key(x_api_key: Optional[str] = Header(None)):
+async def verify_api_key(x_api_key: str | None = Header(None)):
     """
     Verify API key for protected endpoints
     التحقق من مفتاح API لنقاط النهاية المحمية
@@ -300,8 +299,8 @@ async def get_agent(agent_id: str):
 
 @app.get("/v1/registry/agents", tags=["Agents"])
 async def list_agents(
-    status: Optional[str] = None,
-    category: Optional[str] = None,
+    status: str | None = None,
+    category: str | None = None,
 ):
     """
     List all agents with optional filters

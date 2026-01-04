@@ -6,9 +6,9 @@ from .inventory import (
     InventoryItem,
     InventoryMovement,
     InventoryTransaction,
-    Warehouse,
     ItemCategory,
     Supplier,
+    Warehouse,
 )
 
 __all__ = [

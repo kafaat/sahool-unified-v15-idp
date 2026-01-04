@@ -5,13 +5,11 @@ AI engine for generating agricultural recommendations
 
 from __future__ import annotations
 
-from typing import Optional
-
 from .models import (
     AdvisorResponse,
-    RecommendationType,
     ConfidenceLevel,
     RecommendationAction,
+    RecommendationType,
 )
 
 
@@ -26,8 +24,8 @@ class AdvisorAI:
         self,
         tenant_id: str,
         query: str,
-        context: Optional[dict] = None,
-        field_id: Optional[str] = None,
+        context: dict | None = None,
+        field_id: str | None = None,
     ) -> AdvisorResponse:
         """
         Generate an AI recommendation based on query and context.

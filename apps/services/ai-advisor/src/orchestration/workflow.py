@@ -6,10 +6,12 @@ Manages multi-step workflows for complex agricultural tasks.
 يدير سير العمل متعدد الخطوات للمهام الزراعية المعقدة.
 """
 
-from typing import Dict, Any, List, Optional, Callable
-from enum import Enum
-import structlog
+from collections.abc import Callable
 from datetime import datetime
+from enum import Enum
+from typing import Any
+
+import structlog
 
 logger = structlog.get_logger()
 
@@ -35,7 +37,7 @@ class WorkflowStep:
         name: str,
         action: Callable,
         description: str,
-        depends_on: Optional[List[str]] = None,
+        depends_on: list[str] | None = None,
     ):
         """
         Initialize workflow step
@@ -85,7 +87,7 @@ class Workflow:
         """
         self.name = name
         self.description = description
-        self.steps: Dict[str, WorkflowStep] = {}
+        self.steps: dict[str, WorkflowStep] = {}
         self.status = WorkflowStatus.PENDING
         self.results = {}
         self.created_at = datetime.utcnow()
@@ -99,7 +101,7 @@ class Workflow:
         name: str,
         action: Callable,
         description: str,
-        depends_on: Optional[List[str]] = None,
+        depends_on: list[str] | None = None,
     ) -> "Workflow":
         """
         Add a step to the workflow
@@ -133,8 +135,8 @@ class Workflow:
 
     async def execute(
         self,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Execute the workflow
         تنفيذ سير العمل
@@ -218,7 +220,7 @@ class Workflow:
     async def _execute_step(
         self,
         step: WorkflowStep,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ):
         """
         Execute a single workflow step
@@ -276,7 +278,7 @@ class Workflow:
 
             raise
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """
         Get workflow status
         الحصول على حالة سير العمل
@@ -378,7 +380,7 @@ async def create_field_analysis_workflow(
 
         async def irrigation_recommendations(input_data):
             irrigation_advisor = supervisor.agents.get("irrigation_advisor")
-            satellite_result = input_data["previous_results"]["satellite_analysis"]
+            input_data["previous_results"]["satellite_analysis"]
             return await irrigation_advisor.recommend_irrigation(
                 crop_type=input_data["context"].get("crop_type", "wheat"),
                 growth_stage=input_data["context"].get("growth_stage", "vegetative"),

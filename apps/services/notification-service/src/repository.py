@@ -3,21 +3,20 @@ SAHOOL Notification Service - Data Repository Layer
 طبقة الوصول للبيانات - Repository Pattern
 """
 
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
-from uuid import UUID, uuid4
 import logging
+from datetime import datetime, timedelta
+from typing import Any
+from uuid import UUID, uuid4
 
 from tortoise.expressions import Q
-from tortoise.queryset import QuerySet
 
 from .models import (
-    Notification,
-    NotificationTemplate,
-    NotificationPreference,
-    NotificationLog,
-    NotificationChannel,
     ChannelType,
+    Notification,
+    NotificationChannel,
+    NotificationLog,
+    NotificationPreference,
+    NotificationTemplate,
 )
 
 logger = logging.getLogger("sahool-notifications.repository")
@@ -37,14 +36,14 @@ class NotificationRepository:
         type: str,
         channel: str = "in_app",
         priority: str = "medium",
-        tenant_id: Optional[str] = None,
-        title_ar: Optional[str] = None,
-        body_ar: Optional[str] = None,
-        data: Optional[Dict[str, Any]] = None,
-        action_url: Optional[str] = None,
-        target_governorates: Optional[List[str]] = None,
-        target_crops: Optional[List[str]] = None,
-        expires_in_hours: Optional[int] = 24,
+        tenant_id: str | None = None,
+        title_ar: str | None = None,
+        body_ar: str | None = None,
+        data: dict[str, Any] | None = None,
+        action_url: str | None = None,
+        target_governorates: list[str] | None = None,
+        target_crops: list[str] | None = None,
+        expires_in_hours: int | None = 24,
     ) -> Notification:
         """
         إنشاء إشعار جديد
@@ -78,8 +77,8 @@ class NotificationRepository:
 
     @staticmethod
     async def create_bulk(
-        notifications_data: List[Dict[str, Any]],
-    ) -> List[Notification]:
+        notifications_data: list[dict[str, Any]],
+    ) -> list[Notification]:
         """
         إنشاء إشعارات متعددة دفعة واحدة
         Create multiple notifications in bulk
@@ -106,7 +105,7 @@ class NotificationRepository:
         return notifications
 
     @staticmethod
-    async def get_by_id(notification_id: UUID) -> Optional[Notification]:
+    async def get_by_id(notification_id: UUID) -> Notification | None:
         """
         الحصول على إشعار بواسطة المعرف
         Get notification by ID
@@ -116,14 +115,14 @@ class NotificationRepository:
     @staticmethod
     async def get_by_user(
         user_id: str,
-        tenant_id: Optional[str] = None,
+        tenant_id: str | None = None,
         unread_only: bool = False,
-        type: Optional[str] = None,
-        status: Optional[str] = None,
+        type: str | None = None,
+        status: str | None = None,
         limit: int = 50,
         offset: int = 0,
         include_expired: bool = False,
-    ) -> List[Notification]:
+    ) -> list[Notification]:
         """
         الحصول على إشعارات مستخدم معين
         Get notifications for a specific user
@@ -161,7 +160,7 @@ class NotificationRepository:
         return notifications
 
     @staticmethod
-    async def get_unread_count(user_id: str, tenant_id: Optional[str] = None) -> int:
+    async def get_unread_count(user_id: str, tenant_id: str | None = None) -> int:
         """
         الحصول على عدد الإشعارات غير المقروءة
         Get count of unread notifications
@@ -184,7 +183,7 @@ class NotificationRepository:
 
     @staticmethod
     async def mark_as_read(
-        notification_id: UUID, read_at: Optional[datetime] = None
+        notification_id: UUID, read_at: datetime | None = None
     ) -> bool:
         """
         تحديد إشعار كمقروء
@@ -205,7 +204,7 @@ class NotificationRepository:
 
     @staticmethod
     async def mark_multiple_as_read(
-        notification_ids: List[UUID], read_at: Optional[datetime] = None
+        notification_ids: list[UUID], read_at: datetime | None = None
     ) -> int:
         """
         تحديد إشعارات متعددة كمقروءة
@@ -223,7 +222,7 @@ class NotificationRepository:
         return updated
 
     @staticmethod
-    async def mark_all_as_read(user_id: str, tenant_id: Optional[str] = None) -> int:
+    async def mark_all_as_read(user_id: str, tenant_id: str | None = None) -> int:
         """
         تحديد جميع إشعارات المستخدم كمقروءة
         Mark all user notifications as read
@@ -243,7 +242,7 @@ class NotificationRepository:
 
     @staticmethod
     async def update_status(
-        notification_id: UUID, status: str, sent_at: Optional[datetime] = None
+        notification_id: UUID, status: str, sent_at: datetime | None = None
     ) -> bool:
         """
         تحديث حالة الإشعار
@@ -287,8 +286,8 @@ class NotificationRepository:
     @staticmethod
     async def get_pending_notifications(
         limit: int = 100,
-        channel: Optional[str] = None,
-    ) -> List[Notification]:
+        channel: str | None = None,
+    ) -> list[Notification]:
         """
         الحصول على الإشعارات المعلقة للإرسال
         Get pending notifications for sending
@@ -308,10 +307,10 @@ class NotificationRepository:
 
     @staticmethod
     async def get_broadcast_notifications(
-        governorate: Optional[str] = None,
-        crop: Optional[str] = None,
+        governorate: str | None = None,
+        crop: str | None = None,
         limit: int = 20,
-    ) -> List[Notification]:
+    ) -> list[Notification]:
         """
         الحصول على الإشعارات العامة
         Get broadcast notifications
@@ -347,12 +346,12 @@ class NotificationTemplateRepository:
         title_template: str,
         body_template: str,
         type: str,
-        title_template_ar: Optional[str] = None,
-        body_template_ar: Optional[str] = None,
+        title_template_ar: str | None = None,
+        body_template_ar: str | None = None,
         priority: str = "medium",
         channel: str = "in_app",
-        variables: Optional[List[str]] = None,
-        tenant_id: Optional[str] = None,
+        variables: list[str] | None = None,
+        tenant_id: str | None = None,
     ) -> NotificationTemplate:
         """
         إنشاء قالب جديد
@@ -376,14 +375,14 @@ class NotificationTemplateRepository:
         return template
 
     @staticmethod
-    async def get_by_name(name: str) -> Optional[NotificationTemplate]:
+    async def get_by_name(name: str) -> NotificationTemplate | None:
         """الحصول على قالب بواسطة الاسم"""
         return await NotificationTemplate.filter(name=name, is_active=True).first()
 
     @staticmethod
     async def get_all_active(
-        tenant_id: Optional[str] = None,
-    ) -> List[NotificationTemplate]:
+        tenant_id: str | None = None,
+    ) -> list[NotificationTemplate]:
         """الحصول على جميع القوالب النشطة"""
         query = NotificationTemplate.filter(is_active=True)
 
@@ -415,10 +414,10 @@ class NotificationChannelRepository:
         user_id: str,
         channel: ChannelType,
         address: str,
-        tenant_id: Optional[str] = None,
+        tenant_id: str | None = None,
         verified: bool = False,
         enabled: bool = True,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> NotificationChannel:
         """
         إنشاء قناة إشعار جديدة
@@ -459,10 +458,10 @@ class NotificationChannelRepository:
     @staticmethod
     async def get_user_channels(
         user_id: str,
-        tenant_id: Optional[str] = None,
-        channel_type: Optional[ChannelType] = None,
+        tenant_id: str | None = None,
+        channel_type: ChannelType | None = None,
         enabled_only: bool = False,
-    ) -> List[NotificationChannel]:
+    ) -> list[NotificationChannel]:
         """
         الحصول على قنوات المستخدم
         Get user's notification channels
@@ -481,14 +480,14 @@ class NotificationChannelRepository:
         return await query.all()
 
     @staticmethod
-    async def get_by_id(channel_id: UUID) -> Optional[NotificationChannel]:
+    async def get_by_id(channel_id: UUID) -> NotificationChannel | None:
         """الحصول على قناة بواسطة المعرف"""
         return await NotificationChannel.filter(id=channel_id).first()
 
     @staticmethod
     async def verify_channel(
         channel_id: UUID,
-        verification_code: Optional[str] = None,
+        verification_code: str | None = None,
     ) -> bool:
         """
         تحقق من قناة
@@ -544,8 +543,8 @@ class NotificationChannelRepository:
     async def get_verified_channels(
         user_id: str,
         channel_type: ChannelType,
-        tenant_id: Optional[str] = None,
-    ) -> List[NotificationChannel]:
+        tenant_id: str | None = None,
+    ) -> list[NotificationChannel]:
         """
         الحصول على القنوات المحققة
         Get verified channels for a user
@@ -573,9 +572,9 @@ class NotificationPreferenceRepository:
     async def create_or_update(
         user_id: str,
         event_type: str,
-        channels: List[str],
+        channels: list[str],
         enabled: bool = True,
-        tenant_id: Optional[str] = None,
+        tenant_id: str | None = None,
         **kwargs,
     ) -> NotificationPreference:
         """
@@ -609,8 +608,8 @@ class NotificationPreferenceRepository:
 
     @staticmethod
     async def get_user_preferences(
-        user_id: str, tenant_id: Optional[str] = None
-    ) -> List[NotificationPreference]:
+        user_id: str, tenant_id: str | None = None
+    ) -> list[NotificationPreference]:
         """
         الحصول على تفضيلات المستخدم
         Get user notification preferences
@@ -624,8 +623,8 @@ class NotificationPreferenceRepository:
 
     @staticmethod
     async def get_event_preference(
-        user_id: str, event_type: str, tenant_id: Optional[str] = None
-    ) -> Optional[NotificationPreference]:
+        user_id: str, event_type: str, tenant_id: str | None = None
+    ) -> NotificationPreference | None:
         """الحصول على تفضيلات نوع حدث معين"""
         query = NotificationPreference.filter(user_id=user_id, event_type=event_type)
 
@@ -636,7 +635,7 @@ class NotificationPreferenceRepository:
 
     @staticmethod
     async def is_event_enabled(
-        user_id: str, event_type: str, tenant_id: Optional[str] = None
+        user_id: str, event_type: str, tenant_id: str | None = None
     ) -> bool:
         """التحقق من تفعيل نوع حدث معين"""
         preference = await NotificationPreferenceRepository.get_event_preference(
@@ -651,8 +650,8 @@ class NotificationPreferenceRepository:
 
     @staticmethod
     async def get_preferred_channels(
-        user_id: str, event_type: str, tenant_id: Optional[str] = None
-    ) -> List[str]:
+        user_id: str, event_type: str, tenant_id: str | None = None
+    ) -> list[str]:
         """
         الحصول على القنوات المفضلة لنوع حدث
         Get preferred channels for an event type
@@ -669,9 +668,9 @@ class NotificationPreferenceRepository:
     @staticmethod
     async def update_quiet_hours(
         user_id: str,
-        quiet_hours_start: Optional[str] = None,
-        quiet_hours_end: Optional[str] = None,
-        tenant_id: Optional[str] = None,
+        quiet_hours_start: str | None = None,
+        quiet_hours_end: str | None = None,
+        tenant_id: str | None = None,
     ) -> bool:
         """
         تحديث ساعات الهدوء
@@ -718,9 +717,9 @@ class NotificationLogRepository:
         notification_id: UUID,
         channel: str,
         status: str,
-        error_message: Optional[str] = None,
-        provider_response: Optional[Dict[str, Any]] = None,
-        provider_message_id: Optional[str] = None,
+        error_message: str | None = None,
+        provider_response: dict[str, Any] | None = None,
+        provider_message_id: str | None = None,
     ) -> NotificationLog:
         """
         إنشاء سجل توصيل
@@ -740,12 +739,12 @@ class NotificationLogRepository:
         return log
 
     @staticmethod
-    async def get_notification_logs(notification_id: UUID) -> List[NotificationLog]:
+    async def get_notification_logs(notification_id: UUID) -> list[NotificationLog]:
         """الحصول على سجلات إشعار معين"""
         return await NotificationLog.filter(notification_id=notification_id).all()
 
     @staticmethod
-    async def get_failed_logs(limit: int = 100) -> List[NotificationLog]:
+    async def get_failed_logs(limit: int = 100) -> list[NotificationLog]:
         """الحصول على السجلات الفاشلة للمحاولة مرة أخرى"""
         return (
             await NotificationLog.filter(

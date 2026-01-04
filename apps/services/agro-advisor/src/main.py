@@ -8,7 +8,6 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -25,16 +24,16 @@ if str(SHARED_PATH) not in sys.path:
 # Import shared crop catalogs
 from crops import (
     ALL_CROPS,
+    CATEGORIES_COUNT,
     CropCategory,
     get_crop,
     get_crops_by_category,
+)
+from crops import (
     search_crops as search_crops_catalog,
-    CATEGORIES_COUNT,
 )
 from yemen_varieties import (
-    ALL_VARIETIES,
     get_varieties_by_crop,
-    search_varieties,
 )
 
 from .engine import (
@@ -103,9 +102,9 @@ class DiseaseAssessRequest(BaseModel):
     field_id: str
     condition_id: str
     confidence: float = Field(ge=0, le=1)
-    crop: Optional[str] = None
-    weather: Optional[dict] = None
-    correlation_id: Optional[str] = None
+    crop: str | None = None
+    weather: dict | None = None
+    correlation_id: str | None = None
 
 
 class SymptomAssessRequest(BaseModel):
@@ -114,28 +113,28 @@ class SymptomAssessRequest(BaseModel):
     crop: str
     symptoms: list[str]
     lang: str = "ar"
-    correlation_id: Optional[str] = None
+    correlation_id: str | None = None
 
 
 class NDVIAssessRequest(BaseModel):
     tenant_id: str
     field_id: str
     ndvi: float = Field(ge=-1, le=1)
-    ndvi_history: Optional[list[float]] = None
-    crop: Optional[str] = None
-    stage: Optional[str] = None
-    correlation_id: Optional[str] = None
+    ndvi_history: list[float] | None = None
+    crop: str | None = None
+    stage: str | None = None
+    correlation_id: str | None = None
 
 
 class VisualAssessRequest(BaseModel):
     tenant_id: str
     field_id: str
-    leaf_color: Optional[str] = None
-    pattern: Optional[str] = None
-    location: Optional[str] = None
-    crop: Optional[str] = None
+    leaf_color: str | None = None
+    pattern: str | None = None
+    location: str | None = None
+    crop: str | None = None
     lang: str = "ar"
-    correlation_id: Optional[str] = None
+    correlation_id: str | None = None
 
 
 class FertilizerPlanRequest(BaseModel):
@@ -146,7 +145,7 @@ class FertilizerPlanRequest(BaseModel):
     field_size_ha: float = 1.0
     soil_fertility: str = "medium"
     irrigation_type: str = "drip"
-    correlation_id: Optional[str] = None
+    correlation_id: str | None = None
 
 
 # ============== Disease Endpoints ==============

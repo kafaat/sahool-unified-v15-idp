@@ -16,13 +16,13 @@ Features:
     - JSON and raw value publishing
 """
 
-import json
-import time
-import random
-import math
 import argparse
+import json
+import math
+import random
+import time
 from datetime import datetime
-from typing import Dict, Any, Optional
+
 import paho.mqtt.client as mqtt
 
 # =============================================================================
@@ -117,9 +117,9 @@ class SensorSimulator:
         self.tenant = tenant
         self.farm_id = farm_id
         self.field_id = field_id
-        self.client: Optional[mqtt.Client] = None
+        self.client: mqtt.Client | None = None
         self.running = False
-        self.sensor_states: Dict[str, float] = {}
+        self.sensor_states: dict[str, float] = {}
 
         # Initialize sensor states with random starting values
         for sensor, config in SENSORS.items():
@@ -290,7 +290,7 @@ class SensorSimulator:
                 # Publish device status every 10 cycles
                 if cycle % 10 == 0:
                     self.publish_device_status()
-                    print(f"  📱 Device status: online")
+                    print("  📱 Device status: online")
 
                 time.sleep(interval)
 

@@ -4,22 +4,22 @@ Sahool Vision - Diagnosis Data Models
 """
 
 from datetime import datetime
-from typing import Optional, List
+
 from pydantic import BaseModel, Field
 
-from .disease import DiseaseSeverity, CropType, Treatment
+from .disease import CropType, DiseaseSeverity, Treatment
 
 
 class DiagnosisRequest(BaseModel):
     """طلب تشخيص"""
 
-    field_id: Optional[str] = None
-    crop_type: Optional[CropType] = None
-    symptoms_description: Optional[str] = None
-    location_governorate: Optional[str] = None
-    lat: Optional[float] = None
-    lng: Optional[float] = None
-    farmer_id: Optional[str] = None
+    field_id: str | None = None
+    crop_type: CropType | None = None
+    symptoms_description: str | None = None
+    location_governorate: str | None = None
+    lat: float | None = None
+    lng: float | None = None
+    farmer_id: str | None = None
 
 
 class DiagnosisResult(BaseModel):
@@ -43,29 +43,29 @@ class DiagnosisResult(BaseModel):
 
     # Crop information
     detected_crop: CropType = Field(description="نوع المحصول المكتشف")
-    growth_stage: Optional[str] = Field(None, description="مرحلة النمو")
+    growth_stage: str | None = Field(None, description="مرحلة النمو")
 
     # Treatment recommendations
-    treatments: List[Treatment] = Field(description="العلاجات المقترحة")
+    treatments: list[Treatment] = Field(description="العلاجات المقترحة")
     urgent_action_required: bool = Field(description="هل يتطلب تدخل عاجل")
 
     # Expert review
     needs_expert_review: bool = Field(description="يحتاج مراجعة خبير")
-    expert_review_reason: Optional[str] = Field(
+    expert_review_reason: str | None = Field(
         None, description="سبب طلب مراجعة الخبير"
     )
 
     # Additional metadata
-    weather_consideration: Optional[str] = Field(None, description="اعتبارات الطقس")
-    prevention_tips: List[str] = Field(
+    weather_consideration: str | None = Field(None, description="اعتبارات الطقس")
+    prevention_tips: list[str] = Field(
         default_factory=list, description="نصائح الوقاية"
     )
-    prevention_tips_ar: List[str] = Field(
+    prevention_tips_ar: list[str] = Field(
         default_factory=list, description="نصائح الوقاية بالعربية"
     )
 
     # Image URL (for Admin Dashboard)
-    image_url: Optional[str] = Field(None, description="رابط الصورة المحفوظة")
+    image_url: str | None = Field(None, description="رابط الصورة المحفوظة")
 
 
 class DiagnosisHistoryRecord(BaseModel):
@@ -73,29 +73,29 @@ class DiagnosisHistoryRecord(BaseModel):
 
     id: str
     image_url: str
-    thumbnail_url: Optional[str] = None
+    thumbnail_url: str | None = None
     disease_id: str
     disease_name: str
     disease_name_ar: str
     confidence: float
     severity: str
     crop_type: str
-    field_id: Optional[str] = None
-    governorate: Optional[str] = None
-    location: Optional[dict] = None  # {lat, lng}
+    field_id: str | None = None
+    governorate: str | None = None
+    location: dict | None = None  # {lat, lng}
     status: str = "pending"  # pending, confirmed, rejected, treated
-    expert_notes: Optional[str] = None
+    expert_notes: str | None = None
     timestamp: datetime
-    farmer_id: Optional[str] = None
-    updated_at: Optional[datetime] = None
+    farmer_id: str | None = None
+    updated_at: datetime | None = None
 
 
 class BatchDiagnosisResult(BaseModel):
     """نتيجة تشخيص دفعة من الصور"""
 
     batch_id: str
-    field_id: Optional[str] = None
+    field_id: str | None = None
     total_images: int
     processed: int
-    results: List[dict]
+    results: list[dict]
     summary: dict

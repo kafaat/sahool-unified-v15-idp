@@ -14,12 +14,10 @@ Options:
     --force         Force rehashing even for Argon2id hashes (parameter updates)
 """
 
-import sys
-from pathlib import Path
 import argparse
 import logging
-from typing import List, Tuple
-from datetime import datetime
+import sys
+from pathlib import Path
 
 # Add project root directory to path to import shared modules dynamically
 BASE_DIR = str(Path(__file__).parent.parent.parent)
@@ -27,9 +25,9 @@ sys.path.insert(0, BASE_DIR)
 
 try:
     from shared.auth.password_hasher import (
-        get_password_hasher,
         HashAlgorithm,
         PasswordHasher,
+        get_password_hasher,
     )
 except ImportError:
     print(
@@ -100,7 +98,7 @@ class PasswordMigrator:
 
     def get_users_to_migrate(
         self, batch_size: int = 1000, offset: int = 0
-    ) -> List[Tuple]:
+    ) -> list[tuple]:
         """
         Get batch of users with passwords to potentially migrate
 
@@ -297,8 +295,9 @@ def get_database_connection():
         Database connection object
     """
     try:
-        import psycopg2
         import os
+
+        import psycopg2
 
         # Get database URL from environment
         database_url = os.getenv("DATABASE_URL")

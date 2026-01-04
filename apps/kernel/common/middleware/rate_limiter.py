@@ -19,18 +19,17 @@ Version: 2.0.0
 Created: 2026
 """
 
+import hashlib
+import logging
 import os
 import time
-import logging
-import hashlib
-from typing import Optional, Dict, Callable, Any, Tuple, List
-from dataclasses import dataclass, field
-from enum import Enum
 from abc import ABC, abstractmethod
+from collections.abc import Callable
+from dataclasses import dataclass
 from functools import wraps
-from datetime import datetime, timedelta
+from typing import Any
 
-from fastapi import FastAPI, Request, Response, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -57,13 +56,13 @@ class EndpointConfig:
     """
     requests: int
     period: int  # بالثواني - in seconds
-    burst: Optional[int] = None
+    burst: int | None = None
     strategy: str = "sliding_window"  # fixed_window, sliding_window, token_bucket
 
 
 # تكوينات افتراضية لنقاط النهاية المختلفة
 # Default configurations for different endpoints
-ENDPOINT_CONFIGS: Dict[str, EndpointConfig] = {
+ENDPOINT_CONFIGS: dict[str, EndpointConfig] = {
     "/api/v1/analyze": EndpointConfig(
         requests=10,
         period=60,  # 10 طلبات/دقيقة للمعالجة الثقيلة - 10 req/min for heavy processing
@@ -124,7 +123,7 @@ class RateLimitStrategy(ABC):
         client_id: str,
         endpoint: str,
         config: EndpointConfig
-    ) -> Tuple[bool, int, int]:
+    ) -> tuple[bool, int, int]:
         """
         التحقق من حد المعدل
         Check if request is within rate limits.
@@ -181,7 +180,7 @@ class FixedWindowLimiter(RateLimitStrategy):
         client_id: str,
         endpoint: str,
         config: EndpointConfig
-    ) -> Tuple[bool, int, int]:
+    ) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام نافذة ثابتة"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
         # If limit is zero, allow all requests
@@ -285,7 +284,7 @@ class SlidingWindowLimiter(RateLimitStrategy):
         client_id: str,
         endpoint: str,
         config: EndpointConfig
-    ) -> Tuple[bool, int, int]:
+    ) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام نافذة منزلقة"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
         if config.requests == 0:
@@ -389,7 +388,7 @@ class TokenBucketLimiter(RateLimitStrategy):
         client_id: str,
         endpoint: str,
         config: EndpointConfig
-    ) -> Tuple[bool, int, int]:
+    ) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام دلو الرموز"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
         if config.requests == 0:
@@ -455,10 +454,7 @@ class TokenBucketLimiter(RateLimitStrategy):
 
             # حساب وقت إعادة التعيين (الوقت حتى يصبح لدينا رمز واحد)
             # Calculate reset time (time until we have one token)
-            if tokens < 1.0:
-                reset_time = int((1.0 - tokens) / refill_rate) + 1
-            else:
-                reset_time = 0
+            reset_time = int((1.0 - tokens) / refill_rate) + 1 if tokens < 1.0 else 0
 
             remaining = int(tokens)
 
@@ -509,7 +505,7 @@ class RateLimiter:
         )
     """
 
-    def __init__(self, redis_url: Optional[str] = None):
+    def __init__(self, redis_url: str | None = None):
         """
         تهيئة مدير حد المعدل
         Initialize rate limiter manager.
@@ -523,7 +519,7 @@ class RateLimiter:
 
         # تهيئة الاستراتيجيات
         # Initialize strategies
-        self.strategies: Dict[str, RateLimitStrategy] = {}
+        self.strategies: dict[str, RateLimitStrategy] = {}
 
     async def initialize(self):
         """
@@ -600,7 +596,7 @@ class RateLimiter:
         self,
         client_id: str,
         endpoint: str,
-    ) -> Tuple[bool, int, int]:
+    ) -> tuple[bool, int, int]:
         """
         التحقق من حد المعدل لعميل ونقطة نهاية
         Check rate limit for a client and endpoint.
@@ -656,7 +652,7 @@ class RateLimiter:
             remaining = 0
         return remaining
 
-    async def reset_limits(self, client_id: str, endpoint: Optional[str] = None) -> bool:
+    async def reset_limits(self, client_id: str, endpoint: str | None = None) -> bool:
         """
         إعادة تعيين حدود المعدل لعميل
         Reset rate limits for a client.
@@ -684,7 +680,7 @@ class RateLimiter:
             # إعادة تعيين جميع النقاط النهائية
             # Reset all endpoints
             success = True
-            for strategy_name, strategy in self.strategies.items():
+            for _strategy_name, strategy in self.strategies.items():
                 try:
                     # إعادة تعيين جميع المفاتيح لهذا العميل
                     # Reset all keys for this client
@@ -805,8 +801,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self,
         app,
         limiter: RateLimiter,
-        exclude_paths: Optional[List[str]] = None,
-        identifier_func: Optional[Callable[[Request], str]] = None,
+        exclude_paths: list[str] | None = None,
+        identifier_func: Callable[[Request], str] | None = None,
     ):
         """
         تهيئة الميدلوير
@@ -890,7 +886,7 @@ def rate_limit(
     requests: int,
     period: int,
     strategy: str = "sliding_window",
-    burst: Optional[int] = None,
+    burst: int | None = None,
 ):
     """
     ديكوريتر لتطبيق حد معدل مخصص على نقطة نهاية
@@ -971,9 +967,9 @@ def rate_limit(
 
 def setup_rate_limiting(
     app: FastAPI,
-    redis_url: Optional[str] = None,
-    exclude_paths: Optional[List[str]] = None,
-    identifier_func: Optional[Callable[[Request], str]] = None,
+    redis_url: str | None = None,
+    exclude_paths: list[str] | None = None,
+    identifier_func: Callable[[Request], str] | None = None,
 ) -> RateLimiter:
     """
     إعداد حد المعدل لتطبيق FastAPI
@@ -1011,7 +1007,7 @@ def setup_rate_limiting(
     return limiter
 
 
-async def get_rate_limit_stats(limiter: RateLimiter, client_id: str) -> Dict[str, Any]:
+async def get_rate_limit_stats(limiter: RateLimiter, client_id: str) -> dict[str, Any]:
     """
     الحصول على إحصائيات حد المعدل لعميل
     Get rate limit statistics for a client.

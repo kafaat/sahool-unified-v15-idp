@@ -10,14 +10,12 @@ FastAPI routes for 2FA management:
 """
 
 import logging
-from datetime import datetime, timezone
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 
 from .dependencies import get_current_active_user
-from .models import AuthErrors, User
+from .models import User
 from .twofa_service import get_twofa_service
 
 logger = logging.getLogger(__name__)

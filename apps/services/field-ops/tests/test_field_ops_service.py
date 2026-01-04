@@ -5,7 +5,7 @@ Comprehensive Tests for Field Operations Service
 
 import pytest
 from fastapi.testclient import TestClient
-from src.main import app, _fields, _operations
+from src.main import app
 
 
 @pytest.fixture
@@ -260,7 +260,7 @@ class TestTenantStatistics:
         # Create some fields
         field_data = {**sample_field_data, "tenant_id": tenant_id}
         field1 = client.post("/fields", json=field_data).json()
-        field2 = client.post(
+        client.post(
             "/fields", json={**field_data, "name": "Field 2", "area_hectares": 8.5}
         ).json()
 

@@ -11,12 +11,12 @@ Tests for NATS event-driven architecture:
 Author: SAHOOL Platform Team
 """
 
-import pytest
 import asyncio
-import httpx
-from typing import Dict, Any
+import contextlib
 import json
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Field Created → Satellite Analysis Event Flow
@@ -33,9 +33,9 @@ class TestFieldCreatedEventFlow:
     async def test_field_creation_triggers_satellite_analysis(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         field_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
         nats_client,
     ):
         """
@@ -103,8 +103,8 @@ class TestWeatherAlertEventFlow:
     async def test_weather_alert_triggers_notification(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
         nats_client,
     ):
         """
@@ -124,10 +124,8 @@ class TestWeatherAlertEventFlow:
             data = json.loads(msg.data.decode())
             received_notifications.append(data)
 
-        try:
+        with contextlib.suppress(AttributeError):
             await nats_client.subscribe("notification.sent", cb=notification_handler)
-        except AttributeError:
-            pass
 
         # Simulate publishing a weather alert event
         weather_alert = {
@@ -174,9 +172,9 @@ class TestLowStockEventFlow:
     async def test_low_stock_triggers_alert(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         inventory_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
         nats_client,
     ):
         """
@@ -201,10 +199,8 @@ class TestLowStockEventFlow:
             data = json.loads(msg.data.decode())
             received_alerts.append(data)
 
-        try:
+        with contextlib.suppress(AttributeError):
             await nats_client.subscribe("inventory.low_stock", cb=alert_handler)
-        except AttributeError:
-            pass
 
         # Act - Create low stock item (should trigger event)
         create_url = f"{service_urls.get('inventory_service', 'http://localhost:8116')}/api/v1/inventory"
@@ -240,9 +236,9 @@ class TestIoTReadingEventFlow:
     async def test_iot_reading_triggers_irrigation(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         iot_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
         nats_client,
     ):
         """
@@ -266,12 +262,10 @@ class TestIoTReadingEventFlow:
             data = json.loads(msg.data.decode())
             received_recommendations.append(data)
 
-        try:
+        with contextlib.suppress(AttributeError):
             await nats_client.subscribe(
                 "irrigation.recommendation", cb=recommendation_handler
             )
-        except AttributeError:
-            pass
 
         # Act - Send IoT reading
         reading_url = f"{service_urls.get('iot_gateway', 'http://localhost:8106')}/api/v1/readings"

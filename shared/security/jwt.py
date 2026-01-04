@@ -12,8 +12,7 @@ import logging
 import os
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from jwt import PyJWTError
@@ -29,7 +28,7 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def _get_required_env(key: str, default: Optional[str] = None) -> str:
+def _get_required_env(key: str, default: str | None = None) -> str:
     """Get required environment variable, raise error if missing in production"""
     value = os.getenv(key, default)
     env = os.getenv("ENVIRONMENT", "development")
@@ -98,8 +97,8 @@ class TokenPayload:
     iat: datetime
     iss: str
     aud: str
-    jti: Optional[str] = None  # token id for revocation
-    extra: Optional[dict] = None
+    jti: str | None = None  # token id for revocation
+    extra: dict | None = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -192,8 +191,8 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
                 iat = payload.get("iat")
 
                 # Convert iat to datetime if it's a timestamp
-                if isinstance(iat, (int, float)):
-                    iat = datetime.fromtimestamp(iat, tz=timezone.utc)
+                if isinstance(iat, int | float):
+                    iat = datetime.fromtimestamp(iat, tz=UTC)
 
                 is_revoked, reason = revocation_svc.is_revoked(
                     jti=jti,
@@ -260,10 +259,10 @@ def create_token(
     tenant_id: str,
     roles: list[str],
     scopes: list[str],
-    expires_delta: Optional[timedelta] = None,
+    expires_delta: timedelta | None = None,
     token_type: str = "access",
-    extra_claims: Optional[dict] = None,
-    jti: Optional[str] = None,
+    extra_claims: dict | None = None,
+    jti: str | None = None,
 ) -> str:
     """
     Create a new JWT token.
@@ -281,7 +280,7 @@ def create_token(
     Returns:
         Encoded JWT token string
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if expires_delta:
         expire = now + expires_delta

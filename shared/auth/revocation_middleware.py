@@ -6,7 +6,7 @@ Checks if tokens are revoked before allowing access to protected routes.
 """
 
 import logging
-from typing import Callable, Optional
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
@@ -48,7 +48,7 @@ class TokenRevocationMiddleware(BaseHTTPMiddleware):
     def __init__(
         self,
         app,
-        exclude_paths: Optional[list[str]] = None,
+        exclude_paths: list[str] | None = None,
         fail_open: bool = True,
     ):
         """
@@ -153,7 +153,7 @@ class TokenRevocationMiddleware(BaseHTTPMiddleware):
         """Check if path is excluded from revocation check"""
         return any(path.startswith(excluded) for excluded in self.exclude_paths)
 
-    def _extract_token(self, request: Request) -> Optional[str]:
+    def _extract_token(self, request: Request) -> str | None:
         """
         Extract JWT token from Authorization header.
 
@@ -291,7 +291,7 @@ class RevocationCheckDependency:
                     },
                 )
 
-    def _extract_token(self, request: Request) -> Optional[str]:
+    def _extract_token(self, request: Request) -> str | None:
         """Extract JWT token from Authorization header"""
         authorization = request.headers.get(config.TOKEN_HEADER)
 

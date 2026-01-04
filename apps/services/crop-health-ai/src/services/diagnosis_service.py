@@ -8,16 +8,17 @@ Sahool Vision - Diagnosis Service
 - إدارة سجل التشخيصات
 """
 
+import logging
 import os
 import uuid
-import logging
 from datetime import datetime
-from typing import Optional, List, Dict, Any
 from pathlib import Path
+from typing import Any
+
+from ..models.diagnosis import DiagnosisResult
 
 # Fixed relative imports - إصلاح الاستيرادات النسبية
-from ..models.disease import DiseaseSeverity, CropType
-from ..models.diagnosis import DiagnosisResult, DiagnosisHistoryRecord
+from ..models.disease import CropType, DiseaseSeverity
 from .disease_service import disease_service
 from .prediction_service import prediction_service
 
@@ -88,19 +89,19 @@ class DiagnosisService:
         #   6. Consider partitioning by created_at for large datasets
         # Migration Priority: CRITICAL - Diagnosis history is essential for epidemic monitoring
         # In-memory diagnosis history (PostgreSQL in production)
-        self._history: List[Dict[str, Any]] = []
+        self._history: list[dict[str, Any]] = []
 
     def diagnose(
         self,
         image_bytes: bytes,
         filename: str,
-        field_id: Optional[str] = None,
-        crop_type: Optional[CropType] = None,
-        symptoms: Optional[str] = None,
-        governorate: Optional[str] = None,
-        lat: Optional[float] = None,
-        lng: Optional[float] = None,
-        farmer_id: Optional[str] = None,
+        field_id: str | None = None,
+        crop_type: CropType | None = None,
+        symptoms: str | None = None,
+        governorate: str | None = None,
+        lat: float | None = None,
+        lng: float | None = None,
+        farmer_id: str | None = None,
     ) -> DiagnosisResult:
         """
         تشخيص مرض النبات من الصورة
@@ -192,9 +193,9 @@ class DiagnosisService:
 
     def batch_diagnose(
         self,
-        images: List[tuple],  # List of (bytes, filename)
-        field_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        images: list[tuple],  # List of (bytes, filename)
+        field_id: str | None = None,
+    ) -> dict[str, Any]:
         """تشخيص دفعة من الصور"""
         batch_id = str(uuid.uuid4())
         results = []
@@ -235,12 +236,12 @@ class DiagnosisService:
 
     def get_history(
         self,
-        status: Optional[str] = None,
-        severity: Optional[str] = None,
-        governorate: Optional[str] = None,
+        status: str | None = None,
+        severity: str | None = None,
+        governorate: str | None = None,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """الحصول على سجل التشخيصات"""
         filtered = self._history.copy()
 
@@ -253,7 +254,7 @@ class DiagnosisService:
 
         return filtered[offset : offset + limit]
 
-    def get_diagnosis_by_id(self, diagnosis_id: str) -> Optional[Dict[str, Any]]:
+    def get_diagnosis_by_id(self, diagnosis_id: str) -> dict[str, Any] | None:
         """الحصول على تشخيص محدد"""
         for record in self._history:
             if record.get("id") == diagnosis_id:
@@ -271,8 +272,8 @@ class DiagnosisService:
         self,
         diagnosis_id: str,
         status: str,
-        expert_notes: Optional[str] = None,
-    ) -> Optional[Dict[str, Any]]:
+        expert_notes: str | None = None,
+    ) -> dict[str, Any] | None:
         """تحديث حالة التشخيص"""
         for record in self._history:
             if record.get("id") == diagnosis_id:
@@ -286,7 +287,7 @@ class DiagnosisService:
 
         return None
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """إحصائيات التشخيصات"""
         if not self._history:
             return {
@@ -338,7 +339,7 @@ class DiagnosisService:
         image_bytes: bytes,
         filename: str,
         diagnosis_id: str,
-    ) -> Optional[str]:
+    ) -> str | None:
         """حفظ الصورة على القرص مع التحقق من الأمان"""
         try:
             # Security: Validate and sanitize filename
@@ -381,17 +382,17 @@ class DiagnosisService:
     def _save_to_history(
         self,
         diagnosis_id: str,
-        image_url: Optional[str],
+        image_url: str | None,
         disease_key: str,
-        disease_info: Dict[str, Any],
+        disease_info: dict[str, Any],
         confidence: float,
         severity: DiseaseSeverity,
         detected_crop: CropType,
-        field_id: Optional[str],
-        governorate: Optional[str],
-        lat: Optional[float],
-        lng: Optional[float],
-        farmer_id: Optional[str],
+        field_id: str | None,
+        governorate: str | None,
+        lat: float | None,
+        lng: float | None,
+        farmer_id: str | None,
         timestamp: datetime,
     ) -> None:
         """حفظ التشخيص في السجل"""

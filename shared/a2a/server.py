@@ -6,21 +6,21 @@ FastAPI router for A2A protocol endpoints with WebSocket support.
 موجه FastAPI لنقاط نهاية بروتوكول A2A مع دعم WebSocket.
 """
 
-from typing import Dict, Any, Optional
+from datetime import datetime
+from typing import Any
+
+import structlog
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
-import structlog
-import asyncio
-from datetime import datetime
 
+from .agent import A2AAgent, AgentCard
 from .protocol import (
-    TaskMessage,
-    TaskResultMessage,
     ErrorMessage,
     MessageType,
+    TaskMessage,
+    TaskResultMessage,
     TaskState,
 )
-from .agent import A2AAgent, AgentCard
 
 logger = structlog.get_logger()
 
@@ -43,7 +43,7 @@ class A2AServer:
             agent: A2A agent instance to handle tasks
         """
         self.agent = agent
-        self.active_connections: Dict[str, WebSocket] = {}
+        self.active_connections: dict[str, WebSocket] = {}
 
         logger.info(
             "a2a_server_initialized",
@@ -135,7 +135,7 @@ class A2AServer:
         # Send progress updates via callback
         # إرسال تحديثات التقدم عبر callback
         async def progress_callback(
-            progress: float, partial_result: Optional[Dict[str, Any]]
+            progress: float, partial_result: dict[str, Any] | None
         ):
             """Send progress update to client"""
             update = TaskResultMessage(
@@ -330,7 +330,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         summary="Get Agent Statistics",
         description="Returns agent performance statistics",
     )
-    async def get_stats() -> Dict[str, Any]:
+    async def get_stats() -> dict[str, Any]:
         """
         Agent statistics endpoint
         نقطة نهاية إحصائيات الوكيل
@@ -357,7 +357,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         summary="Get Conversation",
         description="Returns conversation history and summary",
     )
-    async def get_conversation(conversation_id: str) -> Dict[str, Any]:
+    async def get_conversation(conversation_id: str) -> dict[str, Any]:
         """
         Conversation query endpoint
         نقطة نهاية الاستعلام عن المحادثة
@@ -466,7 +466,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
     @router.get(
         "/health", summary="Health Check", description="Agent health check endpoint"
     )
-    async def health_check() -> Dict[str, Any]:
+    async def health_check() -> dict[str, Any]:
         """
         Health check endpoint
         نقطة نهاية فحص الصحة

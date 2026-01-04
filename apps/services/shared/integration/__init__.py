@@ -10,9 +10,9 @@ This module provides:
 - Caching for inter-service calls
 """
 
+from .circuit_breaker import CircuitBreaker, CircuitState
 from .client import ServiceClient, get_service_client
 from .discovery import ServiceDiscovery, ServiceHealth
-from .circuit_breaker import CircuitBreaker, CircuitState
 
 __all__ = [
     "ServiceClient",

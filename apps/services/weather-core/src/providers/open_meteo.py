@@ -5,7 +5,6 @@ Free weather API integration for Yemen
 
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Optional
 
 import httpx
 
@@ -64,7 +63,7 @@ class OpenMeteoProvider:
     BASE_URL = "https://api.open-meteo.com/v1/forecast"
 
     def __init__(self):
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
         if self._client is None:

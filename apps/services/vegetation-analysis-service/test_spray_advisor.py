@@ -7,10 +7,11 @@ Test spray time recommendations with real weather data from Open-Meteo.
 
 import asyncio
 from datetime import datetime, timedelta
+
 from src.spray_advisor import (
     SprayAdvisor,
-    SprayProduct,
     SprayCondition,
+    SprayProduct,
 )
 
 
@@ -49,7 +50,7 @@ async def test_spray_forecast():
                 product_type=SprayProduct.HERBICIDE,
             )
 
-            print(f"\n📅 7-Day Spray Forecast (Herbicide):\n")
+            print("\n📅 7-Day Spray Forecast (Herbicide):\n")
 
             for day in forecast:
                 print(f"\n   Date: {day.date.strftime('%Y-%m-%d (%A)')}")
@@ -61,7 +62,7 @@ async def test_spray_forecast():
 
                 if day.best_window:
                     w = day.best_window
-                    print(f"\n   ⭐ BEST WINDOW:")
+                    print("\n   ⭐ BEST WINDOW:")
                     print(
                         f"      Time: {w.start_time.strftime('%H:%M')} - {w.end_time.strftime('%H:%M')}"
                     )
@@ -75,15 +76,15 @@ async def test_spray_forecast():
                     if w.risks:
                         print(f"      ⚠️  Risks: {', '.join(w.risks)}")
 
-                    print(f"\n      💡 Recommendations (English):")
+                    print("\n      💡 Recommendations (English):")
                     for rec in w.recommendations_en[:3]:  # Show first 3
                         print(f"         • {rec}")
 
-                    print(f"\n      💡 توصيات (Arabic):")
+                    print("\n      💡 توصيات (Arabic):")
                     for rec in w.recommendations_ar[:3]:  # Show first 3
                         print(f"         • {rec}")
                 else:
-                    print(f"   ❌ No suitable spray windows found")
+                    print("   ❌ No suitable spray windows found")
 
                 print(f"\n   All Windows: {len(day.all_windows)} window(s)")
 
@@ -104,9 +105,9 @@ async def test_best_spray_time():
 
     # Sanaa location
     lat, lon = 15.3694, 44.1910
-    print(f"\n📍 Location: Sanaa, Yemen")
-    print(f"   Product: Insecticide (مبيد حشري)")
-    print(f"   Searching next 3 days...\n")
+    print("\n📍 Location: Sanaa, Yemen")
+    print("   Product: Insecticide (مبيد حشري)")
+    print("   Searching next 3 days...\n")
 
     try:
         best_window = await advisor.get_best_spray_time(
@@ -117,29 +118,29 @@ async def test_best_spray_time():
         )
 
         if best_window:
-            print(f"✅ BEST SPRAY TIME FOUND:\n")
+            print("✅ BEST SPRAY TIME FOUND:\n")
             print(
                 f"   🕐 Time: {best_window.start_time.strftime('%Y-%m-%d %H:%M')} - {best_window.end_time.strftime('%H:%M')}"
             )
             print(f"   ⏱️  Duration: {best_window.duration_hours:.1f} hours")
             print(f"   📊 Score: {best_window.score:.1f}/100")
             print(f"   🎯 Condition: {best_window.condition.value.upper()}")
-            print(f"\n   🌡️  Weather Conditions:")
+            print("\n   🌡️  Weather Conditions:")
             print(f"      Temperature: {best_window.temp_avg:.1f}°C")
             print(f"      Humidity: {best_window.humidity_avg:.0f}%")
             print(f"      Wind Speed: {best_window.wind_speed_avg:.1f} km/h")
             print(f"      Rain Probability: {best_window.precipitation_prob:.0f}%")
 
             if best_window.risks:
-                print(f"\n   ⚠️  Risk Factors:")
+                print("\n   ⚠️  Risk Factors:")
                 for risk in best_window.risks:
                     print(f"      • {risk}")
 
-            print(f"\n   💡 Recommendations (English):")
+            print("\n   💡 Recommendations (English):")
             for rec in best_window.recommendations_en:
                 print(f"      • {rec}")
 
-            print(f"\n   💡 توصيات (Arabic):")
+            print("\n   💡 توصيات (Arabic):")
             for rec in best_window.recommendations_ar:
                 print(f"      • {rec}")
         else:
@@ -167,9 +168,9 @@ async def test_evaluate_specific_time():
     target_time = datetime.now() + timedelta(days=1)
     target_time = target_time.replace(hour=9, minute=0, second=0, microsecond=0)
 
-    print(f"\n📍 Location: Sanaa, Yemen")
+    print("\n📍 Location: Sanaa, Yemen")
     print(f"🕐 Target Time: {target_time.strftime('%Y-%m-%d %H:%M')}")
-    print(f"🌿 Product: Fungicide (مبيد فطري)\n")
+    print("🌿 Product: Fungicide (مبيد فطري)\n")
 
     try:
         evaluation = await advisor.evaluate_spray_time(
@@ -179,7 +180,7 @@ async def test_evaluate_specific_time():
             product_type=SprayProduct.FUNGICIDE,
         )
 
-        print(f"📊 EVALUATION RESULTS:\n")
+        print("📊 EVALUATION RESULTS:\n")
         print(f"   Score: {evaluation.score:.1f}/100")
         print(f"   Condition: {evaluation.condition.value.upper()}")
 
@@ -197,38 +198,38 @@ async def test_evaluate_specific_time():
 
         print(f"   Status: {emoji}\n")
 
-        print(f"   🌡️  Weather Forecast:")
+        print("   🌡️  Weather Forecast:")
         print(f"      Temperature: {evaluation.temp_avg:.1f}°C")
         print(f"      Humidity: {evaluation.humidity_avg:.0f}%")
         print(f"      Wind Speed: {evaluation.wind_speed_avg:.1f} km/h")
         print(f"      Rain Probability: {evaluation.precipitation_prob:.0f}%")
 
         if evaluation.risks:
-            print(f"\n   ⚠️  Risk Factors:")
+            print("\n   ⚠️  Risk Factors:")
             for risk in evaluation.risks:
                 print(f"      • {risk}")
         else:
-            print(f"\n   ✅ No significant risks identified")
+            print("\n   ✅ No significant risks identified")
 
-        print(f"\n   💡 Recommendations (English):")
+        print("\n   💡 Recommendations (English):")
         for rec in evaluation.recommendations_en:
             print(f"      • {rec}")
 
-        print(f"\n   💡 توصيات (Arabic):")
+        print("\n   💡 توصيات (Arabic):")
         for rec in evaluation.recommendations_ar:
             print(f"      • {rec}")
 
         # Decision
         print(f"\n   {'='*76}")
         if evaluation.condition in [SprayCondition.EXCELLENT, SprayCondition.GOOD]:
-            print(f"   ✅ RECOMMENDATION: Safe to spray at this time")
-            print(f"   ✅ التوصية: آمن للرش في هذا الوقت")
+            print("   ✅ RECOMMENDATION: Safe to spray at this time")
+            print("   ✅ التوصية: آمن للرش في هذا الوقت")
         elif evaluation.condition == SprayCondition.MARGINAL:
-            print(f"   ⚠️  RECOMMENDATION: Proceed with caution")
-            print(f"   ⚠️  التوصية: المضي قدماً بحذر")
+            print("   ⚠️  RECOMMENDATION: Proceed with caution")
+            print("   ⚠️  التوصية: المضي قدماً بحذر")
         else:
-            print(f"   ❌ RECOMMENDATION: NOT recommended - reschedule")
-            print(f"   ❌ التوصية: غير موصى به - أعد الجدولة")
+            print("   ❌ RECOMMENDATION: NOT recommended - reschedule")
+            print("   ❌ التوصية: غير موصى به - أعد الجدولة")
         print(f"   {'='*76}")
 
     except Exception as e:
@@ -249,8 +250,8 @@ async def test_product_comparison():
     # Hodeidah coastal location (high humidity)
     lat, lon = 14.8022, 42.9511
 
-    print(f"\n📍 Location: Hodeidah (coastal, high humidity)")
-    print(f"   Testing tomorrow at 8 AM\n")
+    print("\n📍 Location: Hodeidah (coastal, high humidity)")
+    print("   Testing tomorrow at 8 AM\n")
 
     target_time = datetime.now() + timedelta(days=1)
     target_time = target_time.replace(hour=8, minute=0, second=0, microsecond=0)

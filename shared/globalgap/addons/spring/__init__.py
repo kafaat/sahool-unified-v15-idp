@@ -13,35 +13,32 @@ The SPRING module provides:
 - Legal compliance for water rights / الامتثال القانوني لحقوق المياه
 """
 
-from .water_metrics import (
-    WaterUsageMetric,
-    WaterEfficiencyScore,
-    IrrigationEfficiency,
-    RainfallHarvesting,
-    WaterSource,
-    WaterQualityTest,
-)
-
 from .spring_checklist import (
-    SPRING_CHECKLIST,
     SPRING_CATEGORIES,
+    SPRING_CHECKLIST,
+    calculate_spring_compliance,
     get_spring_category,
     get_spring_item,
-    calculate_spring_compliance,
 )
-
+from .spring_integration import (
+    SpringIntegration,
+    calculate_water_footprint,
+    generate_usage_alerts,
+    pull_irrigation_data,
+    track_seasonal_patterns,
+)
 from .spring_report_generator import (
     SpringReportGenerator,
     WaterBalanceCalculation,
     generate_spring_report,
 )
-
-from .spring_integration import (
-    SpringIntegration,
-    pull_irrigation_data,
-    calculate_water_footprint,
-    generate_usage_alerts,
-    track_seasonal_patterns,
+from .water_metrics import (
+    IrrigationEfficiency,
+    RainfallHarvesting,
+    WaterEfficiencyScore,
+    WaterQualityTest,
+    WaterSource,
+    WaterUsageMetric,
 )
 
 __all__ = [

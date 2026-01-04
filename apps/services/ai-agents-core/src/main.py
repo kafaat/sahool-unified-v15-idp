@@ -5,24 +5,23 @@ SAHOOL AI Agents Core Service
 FastAPI service exposing the hierarchical multi-agent system.
 """
 
+import logging
+import os
+from datetime import datetime
+from typing import Any
+
+from agents import (
+    AgentContext,
+    AgentPercept,
+    DroneAgent,
+    FeedbackLearnerAgent,
+    IoTAgent,
+    MasterCoordinatorAgent,
+    MobileAgent,
+)
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Any, Dict, List, Optional
-from datetime import datetime
-import asyncio
-import logging
-import os
-
-from agents import (
-    MasterCoordinatorAgent,
-    AgentContext,
-    AgentPercept,
-    MobileAgent,
-    IoTAgent,
-    DroneAgent,
-    FeedbackLearnerAgent
-)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -61,9 +60,9 @@ feedback_learner = FeedbackLearnerAgent()
 class AnalysisRequest(BaseModel):
     field_id: str
     crop_type: str
-    sensor_data: Optional[Dict[str, Any]] = None
-    weather_data: Optional[Dict[str, Any]] = None
-    image_data: Optional[Dict[str, Any]] = None
+    sensor_data: dict[str, Any] | None = None
+    weather_data: dict[str, Any] | None = None
+    image_data: dict[str, Any] | None = None
 
 
 class FeedbackRequest(BaseModel):
@@ -72,15 +71,15 @@ class FeedbackRequest(BaseModel):
     action_type: str
     rating: float  # -1 to 1
     success: bool
-    actual_result: Optional[Dict[str, Any]] = None
-    comments: Optional[str] = None
+    actual_result: dict[str, Any] | None = None
+    comments: str | None = None
 
 
 class SensorDataRequest(BaseModel):
     device_id: str
     sensor_type: str
     value: float
-    timestamp: Optional[str] = None
+    timestamp: str | None = None
 
 
 # Health check
@@ -149,7 +148,7 @@ async def process_sensor_data(request: SensorDataRequest):
 
 
 @app.post("/api/v1/edge/mobile")
-async def mobile_quick_action(data: Dict[str, Any]):
+async def mobile_quick_action(data: dict[str, Any]):
     """إجراء سريع من الموبايل"""
     try:
         percept = AgentPercept(

@@ -164,7 +164,7 @@ class SchemaRegistry:
 
     def list_topics(self) -> list[str]:
         """List all unique topics"""
-        return list(set(e.topic for e in self._entries.values()))
+        return list({e.topic for e in self._entries.values()})
 
     def __contains__(self, schema_ref: str) -> bool:
         """Check if a schema_ref is registered"""

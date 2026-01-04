@@ -5,11 +5,10 @@ SAHOOL Action Template Factory
 يوفر طرق سهلة لإنشاء ActionTemplates من خدمات التحليل المختلفة
 """
 
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
+from datetime import datetime, timedelta
 
-from .types import ActionType, UrgencyLevel, ResourceType
-from .template import ActionTemplate, ActionStep, Resource, TimeWindow
+from .template import ActionStep, ActionTemplate, Resource
+from .types import ActionType, ResourceType, UrgencyLevel
 
 
 class ActionTemplateFactory:
@@ -26,10 +25,10 @@ class ActionTemplateFactory:
         duration_minutes: int,
         urgency: UrgencyLevel,
         confidence: float,
-        soil_moisture_percent: Optional[float] = None,
-        source_analysis_id: Optional[str] = None,
+        soil_moisture_percent: float | None = None,
+        source_analysis_id: str | None = None,
         method: str = "drip",
-        deadline: Optional[datetime] = None,
+        deadline: datetime | None = None,
     ) -> ActionTemplate:
         """إنشاء إجراء ري"""
 
@@ -124,9 +123,9 @@ class ActionTemplateFactory:
         urgency: UrgencyLevel,
         confidence: float,
         application_method: str = "broadcast",
-        npk_ratio: Optional[str] = None,
-        source_analysis_id: Optional[str] = None,
-        deadline: Optional[datetime] = None,
+        npk_ratio: str | None = None,
+        source_analysis_id: str | None = None,
+        deadline: datetime | None = None,
     ) -> ActionTemplate:
         """إنشاء إجراء تسميد"""
 
@@ -242,9 +241,9 @@ class ActionTemplateFactory:
         confidence: float,
         affected_area_percent: float,
         urgency: UrgencyLevel = UrgencyLevel.HIGH,
-        zone_ids: Optional[List[str]] = None,
-        source_analysis_id: Optional[str] = None,
-        recommended_treatment: Optional[str] = None,
+        zone_ids: list[str] | None = None,
+        source_analysis_id: str | None = None,
+        recommended_treatment: str | None = None,
     ) -> ActionTemplate:
         """إنشاء إجراء فحص مرض"""
 
@@ -299,8 +298,8 @@ class ActionTemplateFactory:
             resources_needed=[],
             estimated_duration_minutes=65,
             offline_executable=True,
-            fallback_instructions_ar=f"افحص الحقل يدوياً بحثاً عن: بقع على الأوراق، ذبول، تغير اللون. التقط صوراً للنباتات المشتبه بإصابتها",
-            fallback_instructions_en=f"Manually inspect field for: leaf spots, wilting, discoloration. Take photos of suspected infected plants",
+            fallback_instructions_ar="افحص الحقل يدوياً بحثاً عن: بقع على الأوراق، ذبول، تغير اللون. التقط صوراً للنباتات المشتبه بإصابتها",
+            fallback_instructions_en="Manually inspect field for: leaf spots, wilting, discoloration. Take photos of suspected infected plants",
             tags=["inspection", "disease", disease_name_en.lower().replace(" ", "_")],
             metadata={
                 "disease_name": disease_name_en,
@@ -319,9 +318,9 @@ class ActionTemplateFactory:
         area_hectares: float,
         urgency: UrgencyLevel,
         confidence: float,
-        target_pest_ar: Optional[str] = None,
-        target_pest_en: Optional[str] = None,
-        source_analysis_id: Optional[str] = None,
+        target_pest_ar: str | None = None,
+        target_pest_en: str | None = None,
+        source_analysis_id: str | None = None,
     ) -> ActionTemplate:
         """إنشاء إجراء رش مبيد"""
 

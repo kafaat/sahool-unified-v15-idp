@@ -3,15 +3,15 @@
 Test script for SAHOOL Data Export functionality
 """
 
-import asyncio
 import sys
 from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
+from datetime import date, datetime
+
 from data_exporter import DataExporter, ExportFormat
-from datetime import datetime, date
 
 
 def test_field_analysis_export():
@@ -121,7 +121,7 @@ def test_timeseries_export():
         field_id="FIELD_001", timeseries_data=timeseries_data, format=ExportFormat.CSV
     )
 
-    print(f"\nCSV Export:")
+    print("\nCSV Export:")
     print(f"Filename: {result.filename}")
     print(f"Size: {result.size_bytes} bytes")
     print(f"Data preview:\n{result.data[:300]}")
@@ -178,7 +178,7 @@ def test_boundaries_export():
         boundaries=boundaries, format=ExportFormat.GEOJSON
     )
 
-    print(f"\nGeoJSON Export:")
+    print("\nGeoJSON Export:")
     print(f"Filename: {result.filename}")
     print(f"Size: {result.size_bytes} bytes")
     print(f"Data preview:\n{result.data[:400]}")
@@ -213,7 +213,7 @@ def test_yield_prediction_export():
         prediction_data=prediction_data, format=ExportFormat.JSON
     )
 
-    print(f"\nJSON Export:")
+    print("\nJSON Export:")
     print(f"Filename: {result.filename}")
     print(f"Size: {result.size_bytes} bytes")
     print(f"Data:\n{result.data}")
@@ -255,7 +255,7 @@ def test_changes_report():
     # Test CSV format
     result = exporter.export_changes_report(changes=changes, format=ExportFormat.CSV)
 
-    print(f"\nCSV Export:")
+    print("\nCSV Export:")
     print(f"Filename: {result.filename}")
     print(f"Size: {result.size_bytes} bytes")
     print(f"Data:\n{result.data}")

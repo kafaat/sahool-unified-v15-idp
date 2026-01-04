@@ -6,8 +6,7 @@ Data models for RAG system
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import uuid4
 
 
@@ -18,9 +17,9 @@ class DocumentChunk:
     id: str
     document_id: str
     content: str
-    content_ar: Optional[str]
+    content_ar: str | None
     chunk_index: int
-    embedding: Optional[list[float]] = None
+    embedding: list[float] | None = None
     metadata: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -39,11 +38,11 @@ class Document:
     """Knowledge base document"""
 
     id: str
-    tenant_id: Optional[str]  # None for global documents
+    tenant_id: str | None  # None for global documents
     title: str
-    title_ar: Optional[str]
+    title_ar: str | None
     content: str
-    content_ar: Optional[str]
+    content_ar: str | None
     source: str
     category: str
     chunks: list[DocumentChunk]
@@ -57,12 +56,12 @@ class Document:
         content: str,
         source: str,
         category: str,
-        tenant_id: Optional[str] = None,
-        title_ar: Optional[str] = None,
-        content_ar: Optional[str] = None,
+        tenant_id: str | None = None,
+        title_ar: str | None = None,
+        content_ar: str | None = None,
     ) -> Document:
         """Factory method to create a new document"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         doc_id = str(uuid4())
 
         return cls(

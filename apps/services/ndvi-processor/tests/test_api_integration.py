@@ -3,7 +3,6 @@ Integration Tests for NDVI Processor API Endpoints
 اختبارات التكامل لنقاط نهاية API معالج NDVI
 """
 
-import pytest
 from fastapi import status
 
 

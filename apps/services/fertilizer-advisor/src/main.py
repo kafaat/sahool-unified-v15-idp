@@ -7,21 +7,23 @@ Field-First Architecture:
 - التحليل يخدم الميدان، لا العكس
 """
 
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
-from enum import Enum
-import uuid
-
 # Field-First: Action Template Support
 import sys
+import uuid
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Any
+
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
 
 sys.path.insert(0, "/app")
 try:
     from shared.contracts.actions import (
         ActionTemplate,
         ActionTemplateFactory,
+    )
+    from shared.contracts.actions import (
         UrgencyLevel as ActionUrgency,
     )
 
@@ -120,10 +122,10 @@ class FertilizerRecommendation(BaseModel):
     application_method_ar: str
     timing_ar: str
     timing_en: str
-    npk_content: Dict[str, float]
+    npk_content: dict[str, float]
     cost_estimate_yer: float
-    notes_ar: List[str]
-    notes_en: List[str]
+    notes_ar: list[str]
+    notes_en: list[str]
 
 
 class FertilizationPlan(BaseModel):
@@ -134,16 +136,16 @@ class FertilizationPlan(BaseModel):
     growth_stage: GrowthStage
     growth_stage_ar: str
     area_hectares: float
-    soil_analysis: Optional[SoilAnalysis]
+    soil_analysis: SoilAnalysis | None
     target_yield_kg_ha: float
-    recommendations: List[FertilizerRecommendation]
+    recommendations: list[FertilizerRecommendation]
     total_nitrogen_kg: float
     total_phosphorus_kg: float
     total_potassium_kg: float
     total_cost_yer: float
-    schedule: List[Dict[str, Any]]
-    warnings_ar: List[str]
-    warnings_en: List[str]
+    schedule: list[dict[str, Any]]
+    warnings_ar: list[str]
+    warnings_en: list[str]
     created_at: datetime
 
 
@@ -153,10 +155,10 @@ class FertilizerRequest(BaseModel):
     growth_stage: GrowthStage
     area_hectares: float = Field(..., gt=0)
     soil_type: SoilType = SoilType.LOAMY
-    target_yield_kg_ha: Optional[float] = None
-    budget_yer: Optional[float] = None
+    target_yield_kg_ha: float | None = None
+    budget_yer: float | None = None
     organic_only: bool = False
-    soil_analysis: Optional[SoilAnalysis] = None
+    soil_analysis: SoilAnalysis | None = None
 
 
 # =============================================================================
@@ -319,9 +321,9 @@ def calculate_npk_needs(
     crop: CropType,
     stage: GrowthStage,
     area_ha: float,
-    target_yield: Optional[float],
-    soil_analysis: Optional[SoilAnalysis],
-) -> Dict[str, float]:
+    target_yield: float | None,
+    soil_analysis: SoilAnalysis | None,
+) -> dict[str, float]:
     """Calculate NPK requirements based on crop, stage, and soil"""
 
     crop_data = CROP_NPK_REQUIREMENTS[crop]
@@ -372,8 +374,8 @@ def calculate_npk_needs(
 
 
 def select_fertilizers(
-    npk_needs: Dict[str, float], organic_only: bool, budget: Optional[float]
-) -> List[FertilizerRecommendation]:
+    npk_needs: dict[str, float], organic_only: bool, budget: float | None
+) -> list[FertilizerRecommendation]:
     """Select optimal fertilizer mix to meet NPK needs"""
 
     recommendations = []
@@ -454,7 +456,7 @@ def select_fertilizers(
     return recommendations
 
 
-def get_fertilizer_notes_ar(fert_type: FertilizerType) -> List[str]:
+def get_fertilizer_notes_ar(fert_type: FertilizerType) -> list[str]:
     """Get Arabic notes for fertilizer application"""
     notes = {
         FertilizerType.UREA: [
@@ -486,7 +488,7 @@ def get_fertilizer_notes_ar(fert_type: FertilizerType) -> List[str]:
     return notes.get(fert_type, ["اتبع تعليمات الشركة المصنعة"])
 
 
-def get_fertilizer_notes_en(fert_type: FertilizerType) -> List[str]:
+def get_fertilizer_notes_en(fert_type: FertilizerType) -> list[str]:
     """Get English notes for fertilizer application"""
     notes = {
         FertilizerType.UREA: [
@@ -519,8 +521,8 @@ def get_fertilizer_notes_en(fert_type: FertilizerType) -> List[str]:
 
 
 def generate_schedule(
-    crop: CropType, stage: GrowthStage, recommendations: List[FertilizerRecommendation]
-) -> List[Dict[str, Any]]:
+    crop: CropType, stage: GrowthStage, recommendations: list[FertilizerRecommendation]
+) -> list[dict[str, Any]]:
     """Generate application schedule"""
     schedule = []
     now = datetime.utcnow()

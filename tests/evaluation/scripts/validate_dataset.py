@@ -9,7 +9,7 @@ Script to validate the structure and content of golden datasets.
 import json
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Set
+from typing import Any
 
 
 class DatasetValidator:
@@ -52,10 +52,10 @@ class DatasetValidator:
     VALID_LANGUAGES = {"en", "ar"}
 
     def __init__(self):
-        self.errors: List[str] = []
-        self.warnings: List[str] = []
+        self.errors: list[str] = []
+        self.warnings: list[str] = []
 
-    def validate_dataset(self, dataset: List[Dict[str, Any]]) -> bool:
+    def validate_dataset(self, dataset: list[dict[str, Any]]) -> bool:
         """
         Validate entire dataset
         التحقق من صحة مجموعة البيانات بالكامل
@@ -72,7 +72,7 @@ class DatasetValidator:
             return False
 
         # Track IDs for uniqueness
-        ids: Set[str] = set()
+        ids: set[str] = set()
 
         for idx, test_case in enumerate(dataset):
             if not self._validate_test_case(test_case, idx):
@@ -90,7 +90,7 @@ class DatasetValidator:
 
         return len(self.errors) == 0
 
-    def _validate_test_case(self, test_case: Dict[str, Any], idx: int) -> bool:
+    def _validate_test_case(self, test_case: dict[str, Any], idx: int) -> bool:
         """Validate individual test case"""
         # Check required fields
         for field, field_type in self.REQUIRED_FIELDS.items():
@@ -129,12 +129,9 @@ class DatasetValidator:
             return False
 
         # Validate evaluation criteria
-        if not self._validate_criteria(test_case["evaluation_criteria"], idx):
-            return False
+        return self._validate_criteria(test_case["evaluation_criteria"], idx)
 
-        return True
-
-    def _validate_input(self, input_data: Dict[str, Any], idx: int) -> bool:
+    def _validate_input(self, input_data: dict[str, Any], idx: int) -> bool:
         """Validate input section"""
         for field, field_type in self.REQUIRED_INPUT_FIELDS.items():
             if field not in input_data:
@@ -156,7 +153,7 @@ class DatasetValidator:
 
         return True
 
-    def _validate_expected_output(self, output: Dict[str, Any], idx: int) -> bool:
+    def _validate_expected_output(self, output: dict[str, Any], idx: int) -> bool:
         """Validate expected output section"""
         for field, field_type in self.REQUIRED_OUTPUT_FIELDS.items():
             if field not in output:
@@ -182,7 +179,7 @@ class DatasetValidator:
 
         return True
 
-    def _validate_criteria(self, criteria: Dict[str, Any], idx: int) -> bool:
+    def _validate_criteria(self, criteria: dict[str, Any], idx: int) -> bool:
         """Validate evaluation criteria"""
         for field, field_types in self.REQUIRED_CRITERIA_FIELDS.items():
             if field not in criteria:
@@ -217,10 +214,10 @@ class DatasetValidator:
 
         return True
 
-    def _check_coverage(self, dataset: List[Dict[str, Any]]):
+    def _check_coverage(self, dataset: list[dict[str, Any]]):
         """Check dataset coverage"""
-        categories = set(tc["category"] for tc in dataset)
-        languages = set(tc["language"] for tc in dataset)
+        categories = {tc["category"] for tc in dataset}
+        languages = {tc["language"] for tc in dataset}
 
         # Check category coverage
         missing_categories = self.VALID_CATEGORIES - categories
@@ -239,7 +236,7 @@ class DatasetValidator:
         # Check each category has tests in each language
         for category in categories:
             category_cases = [tc for tc in dataset if tc["category"] == category]
-            category_langs = set(tc["language"] for tc in category_cases)
+            category_langs = {tc["language"] for tc in category_cases}
 
             missing_langs = self.VALID_LANGUAGES - category_langs
             if missing_langs:
@@ -275,7 +272,7 @@ def main():
 
     # Load dataset
     try:
-        with open(dataset_file, "r", encoding="utf-8") as f:
+        with open(dataset_file, encoding="utf-8") as f:
             dataset = json.load(f)
     except json.JSONDecodeError as e:
         print(f"❌ Invalid JSON in dataset file: {e}")

@@ -16,13 +16,13 @@ warnings.warn(
 # Re-export from new location
 from advisor import (
     AdvisorAI,
-    AdvisorResponse,
-    RAGService,
-    Document,
-    ContextBuilder,
-    FieldContext,
-    FeedbackService,
     AdvisorFeedback,
+    AdvisorResponse,
+    ContextBuilder,
+    Document,
+    FeedbackService,
+    FieldContext,
+    RAGService,
 )
 
 __all__ = [

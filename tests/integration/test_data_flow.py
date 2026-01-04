@@ -8,11 +8,11 @@ Tests messaging, caching, database operations, and vector search
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
 import asyncio
-from typing import Dict, Any
+from typing import Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # NATS Messaging Tests - اختبارات نظام الرسائل NATS
@@ -160,7 +160,7 @@ async def test_postgres_through_services():
 @pytest.mark.integration
 @pytest.mark.dataflow
 @pytest.mark.asyncio
-async def test_database_operations_through_api(auth_headers: Dict[str, str]):
+async def test_database_operations_through_api(auth_headers: dict[str, str]):
     """
     Test database CRUD operations through API
     اختبار عمليات قاعدة البيانات من خلال API
@@ -236,7 +236,7 @@ async def test_ai_advisor_qdrant_integration():
 @pytest.mark.slow
 @pytest.mark.asyncio
 async def test_field_to_ndvi_data_flow(
-    auth_headers: Dict[str, str], sample_field: Dict[str, Any]
+    auth_headers: dict[str, str], sample_field: dict[str, Any]
 ):
     """
     Test data flow from Field Ops to NDVI Engine
@@ -275,7 +275,7 @@ async def test_field_to_ndvi_data_flow(
 @pytest.mark.slow
 @pytest.mark.asyncio
 async def test_weather_to_irrigation_data_flow(
-    auth_headers: Dict[str, str], sample_location: Dict[str, float]
+    auth_headers: dict[str, str], sample_location: dict[str, float]
 ):
     """
     Test data flow from Weather to Irrigation Smart
@@ -294,7 +294,7 @@ async def test_weather_to_irrigation_data_flow(
         )
 
         if weather_response.status_code == 200:
-            weather_data = weather_response.json()
+            weather_response.json()
 
             # Step 2: Calculate irrigation using weather data
             irrigation_data = {
@@ -319,7 +319,7 @@ async def test_weather_to_irrigation_data_flow(
 @pytest.mark.integration
 @pytest.mark.dataflow
 @pytest.mark.asyncio
-async def test_ai_advisor_multi_service_integration(auth_headers: Dict[str, str]):
+async def test_ai_advisor_multi_service_integration(auth_headers: dict[str, str]):
     """
     Test AI Advisor integration with multiple services
     اختبار تكامل المستشار الذكي مع خدمات متعددة
@@ -409,7 +409,7 @@ async def test_websocket_gateway_nats_integration():
 @pytest.mark.dataflow
 @pytest.mark.slow
 @pytest.mark.asyncio
-async def test_field_data_consistency_across_services(auth_headers: Dict[str, str]):
+async def test_field_data_consistency_across_services(auth_headers: dict[str, str]):
     """
     Test that field data is consistent across services
     اختبار أن بيانات الحقل متسقة عبر الخدمات
@@ -475,7 +475,7 @@ async def test_billing_payment_provider_integration():
 @pytest.mark.dataflow
 @pytest.mark.slow
 @pytest.mark.asyncio
-async def test_satellite_to_yield_prediction_pipeline(auth_headers: Dict[str, str]):
+async def test_satellite_to_yield_prediction_pipeline(auth_headers: dict[str, str]):
     """
     Test data pipeline from Satellite to Yield Prediction
     اختبار خط أنابيب البيانات من القمر الصناعي إلى التنبؤ بالإنتاجية

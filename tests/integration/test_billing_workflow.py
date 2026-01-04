@@ -14,11 +14,6 @@ Author: SAHOOL Platform Team
 from __future__ import annotations
 
 import pytest
-import asyncio
-from typing import Dict, Any
-from datetime import datetime, date, timedelta
-from decimal import Decimal
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Subscription Creation Workflow - اختبار سير عمل إنشاء الاشتراك
@@ -29,8 +24,8 @@ from decimal import Decimal
 @pytest.mark.asyncio
 async def test_create_subscription_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إنشاء اشتراك جديد
@@ -83,7 +78,7 @@ async def test_create_subscription_workflow(
     assert "subscription_id" in tenant_result
 
     tenant_id = tenant_result["tenant_id"]
-    subscription_id = tenant_result["subscription_id"]
+    tenant_result["subscription_id"]
 
     # Step 3: Verify subscription details - التحقق من تفاصيل الاشتراك
     # Note: This requires authentication - skipping if auth not available
@@ -113,8 +108,8 @@ async def test_create_subscription_workflow(
 @pytest.mark.asyncio
 async def test_subscription_upgrade_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل ترقية الاشتراك
@@ -172,8 +167,8 @@ async def test_subscription_upgrade_workflow(
 @pytest.mark.asyncio
 async def test_invoice_generation_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إنشاء الفواتير
@@ -253,8 +248,8 @@ async def test_invoice_generation_workflow(
 @pytest.mark.asyncio
 async def test_list_invoices_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار قائمة الفواتير
@@ -310,9 +305,9 @@ async def test_list_invoices_workflow(
 @pytest.mark.asyncio
 async def test_payment_processing_workflow(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     payment_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل معالجة الدفع
@@ -392,8 +387,8 @@ async def test_payment_processing_workflow(
 @pytest.mark.asyncio
 async def test_tharwatt_payment_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل الدفع عبر ثروات
@@ -468,8 +463,8 @@ async def test_tharwatt_payment_workflow(
 @pytest.mark.asyncio
 async def test_usage_tracking_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تتبع الاستخدام
@@ -545,8 +540,8 @@ async def test_usage_tracking_workflow(
 @pytest.mark.asyncio
 async def test_quota_enforcement_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار فرض حدود الحصة
@@ -582,7 +577,7 @@ async def test_quota_enforcement_workflow(
         )
 
         if quota_response.status_code == 200:
-            quota_data = quota_response.json()
+            quota_response.json()
 
             # Try to record usage beyond limit
             # Free plan has satellite_analyses_per_month: 10
@@ -616,8 +611,8 @@ async def test_quota_enforcement_workflow(
 @pytest.mark.asyncio
 async def test_subscription_cancellation_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إلغاء الاشتراك

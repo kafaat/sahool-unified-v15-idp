@@ -7,8 +7,9 @@ Custom Exception Classes
 """
 
 from datetime import datetime
-from typing import Any, Dict, Optional
-from .error_codes import ErrorCode, ERROR_REGISTRY, BilingualMessage
+from typing import Any
+
+from .error_codes import ERROR_REGISTRY, BilingualMessage, ErrorCode
 
 
 class AppException(Exception):
@@ -20,8 +21,8 @@ class AppException(Exception):
     def __init__(
         self,
         error_code: ErrorCode,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         metadata = ERROR_REGISTRY[error_code]
 
@@ -37,11 +38,11 @@ class AppException(Exception):
         self.retryable = metadata.retryable
         self.details = details or {}
         self.timestamp = datetime.utcnow().isoformat()
-        self.path: Optional[str] = None
+        self.path: str | None = None
 
         super().__init__(self.message_en)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Get error response object
         الحصول على كائن استجابة الخطأ
@@ -69,15 +70,15 @@ class ValidationException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.VALIDATION_ERROR,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
     @classmethod
     def from_field_errors(
         cls,
-        field_errors: list[Dict[str, str]],
+        field_errors: list[dict[str, str]],
     ) -> "ValidationException":
         """
         Create validation exception from field errors
@@ -98,8 +99,8 @@ class AuthenticationException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.AUTHENTICATION_FAILED,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
@@ -113,8 +114,8 @@ class AuthorizationException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.FORBIDDEN,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
@@ -128,38 +129,38 @@ class NotFoundException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.RESOURCE_NOT_FOUND,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
     @classmethod
-    def user(cls, user_id: Optional[str] = None) -> "NotFoundException":
+    def user(cls, user_id: str | None = None) -> "NotFoundException":
         """Create exception for user not found"""
         return cls(ErrorCode.USER_NOT_FOUND, details={"userId": user_id})
 
     @classmethod
-    def farm(cls, farm_id: Optional[str] = None) -> "NotFoundException":
+    def farm(cls, farm_id: str | None = None) -> "NotFoundException":
         """Create exception for farm not found"""
         return cls(ErrorCode.FARM_NOT_FOUND, details={"farmId": farm_id})
 
     @classmethod
-    def field(cls, field_id: Optional[str] = None) -> "NotFoundException":
+    def field(cls, field_id: str | None = None) -> "NotFoundException":
         """Create exception for field not found"""
         return cls(ErrorCode.FIELD_NOT_FOUND, details={"fieldId": field_id})
 
     @classmethod
-    def crop(cls, crop_id: Optional[str] = None) -> "NotFoundException":
+    def crop(cls, crop_id: str | None = None) -> "NotFoundException":
         """Create exception for crop not found"""
         return cls(ErrorCode.CROP_NOT_FOUND, details={"cropId": crop_id})
 
     @classmethod
-    def sensor(cls, sensor_id: Optional[str] = None) -> "NotFoundException":
+    def sensor(cls, sensor_id: str | None = None) -> "NotFoundException":
         """Create exception for sensor not found"""
         return cls(ErrorCode.SENSOR_NOT_FOUND, details={"sensorId": sensor_id})
 
     @classmethod
-    def conversation(cls, conversation_id: Optional[str] = None) -> "NotFoundException":
+    def conversation(cls, conversation_id: str | None = None) -> "NotFoundException":
         """Create exception for conversation not found"""
         return cls(
             ErrorCode.CONVERSATION_NOT_FOUND,
@@ -167,22 +168,22 @@ class NotFoundException(AppException):
         )
 
     @classmethod
-    def message(cls, message_id: Optional[str] = None) -> "NotFoundException":
+    def message(cls, message_id: str | None = None) -> "NotFoundException":
         """Create exception for message not found"""
         return cls(ErrorCode.MESSAGE_NOT_FOUND, details={"messageId": message_id})
 
     @classmethod
-    def wallet(cls, wallet_id: Optional[str] = None) -> "NotFoundException":
+    def wallet(cls, wallet_id: str | None = None) -> "NotFoundException":
         """Create exception for wallet not found"""
         return cls(ErrorCode.WALLET_NOT_FOUND, details={"walletId": wallet_id})
 
     @classmethod
-    def order(cls, order_id: Optional[str] = None) -> "NotFoundException":
+    def order(cls, order_id: str | None = None) -> "NotFoundException":
         """Create exception for order not found"""
         return cls(ErrorCode.ORDER_NOT_FOUND, details={"orderId": order_id})
 
     @classmethod
-    def product(cls, product_id: Optional[str] = None) -> "NotFoundException":
+    def product(cls, product_id: str | None = None) -> "NotFoundException":
         """Create exception for product not found"""
         return cls(ErrorCode.PRODUCT_NOT_FOUND, details={"productId": product_id})
 
@@ -196,8 +197,8 @@ class ConflictException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.RESOURCE_ALREADY_EXISTS,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
@@ -211,8 +212,8 @@ class BusinessLogicException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.BUSINESS_RULE_VIOLATION,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
@@ -252,7 +253,7 @@ class BusinessLogicException(AppException):
     def operation_not_allowed(
         cls,
         operation: str,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> "BusinessLogicException":
         """Create exception for operation not allowed"""
         return cls(
@@ -270,13 +271,13 @@ class ExternalServiceException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.EXTERNAL_SERVICE_ERROR,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
     @classmethod
-    def weather_service(cls, error: Optional[Any] = None) -> "ExternalServiceException":
+    def weather_service(cls, error: Any | None = None) -> "ExternalServiceException":
         """Create exception for weather service error"""
         return cls(
             ErrorCode.WEATHER_SERVICE_UNAVAILABLE,
@@ -285,7 +286,7 @@ class ExternalServiceException(AppException):
 
     @classmethod
     def satellite_service(
-        cls, error: Optional[Any] = None
+        cls, error: Any | None = None
     ) -> "ExternalServiceException":
         """Create exception for satellite service error"""
         return cls(
@@ -294,7 +295,7 @@ class ExternalServiceException(AppException):
         )
 
     @classmethod
-    def payment_gateway(cls, error: Optional[Any] = None) -> "ExternalServiceException":
+    def payment_gateway(cls, error: Any | None = None) -> "ExternalServiceException":
         """Create exception for payment gateway error"""
         return cls(
             ErrorCode.PAYMENT_GATEWAY_ERROR,
@@ -302,7 +303,7 @@ class ExternalServiceException(AppException):
         )
 
     @classmethod
-    def sms_service(cls, error: Optional[Any] = None) -> "ExternalServiceException":
+    def sms_service(cls, error: Any | None = None) -> "ExternalServiceException":
         """Create exception for SMS service error"""
         return cls(
             ErrorCode.SMS_SERVICE_ERROR,
@@ -310,7 +311,7 @@ class ExternalServiceException(AppException):
         )
 
     @classmethod
-    def email_service(cls, error: Optional[Any] = None) -> "ExternalServiceException":
+    def email_service(cls, error: Any | None = None) -> "ExternalServiceException":
         """Create exception for email service error"""
         return cls(
             ErrorCode.EMAIL_SERVICE_ERROR,
@@ -327,8 +328,8 @@ class DatabaseException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.DATABASE_ERROR,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
@@ -365,8 +366,8 @@ class InternalServerException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.INTERNAL_SERVER_ERROR,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 
@@ -380,8 +381,8 @@ class RateLimitException(AppException):
     def __init__(
         self,
         error_code: ErrorCode = ErrorCode.RATE_LIMIT_EXCEEDED,
-        custom_message: Optional[BilingualMessage] = None,
-        details: Optional[Dict[str, Any]] = None,
+        custom_message: BilingualMessage | None = None,
+        details: dict[str, Any] | None = None,
     ):
         super().__init__(error_code, custom_message, details)
 

@@ -5,8 +5,7 @@ Converts various sensor payloads to standard format
 
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 
 @dataclass
@@ -19,8 +18,8 @@ class NormalizedReading:
     value: float
     unit: str
     timestamp: str
-    raw_topic: Optional[str] = None
-    metadata: Optional[dict] = None
+    raw_topic: str | None = None
+    metadata: dict | None = None
 
     def to_dict(self) -> dict:
         return {k: v for k, v in asdict(self).items() if v is not None}
@@ -195,15 +194,15 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
         # Try to parse if it's a string
         if isinstance(timestamp_raw, str):
             timestamp = timestamp_raw
-        elif isinstance(timestamp_raw, (int, float)):
+        elif isinstance(timestamp_raw, int | float):
             # Assume Unix timestamp
             timestamp = datetime.fromtimestamp(
-                timestamp_raw, tz=timezone.utc
+                timestamp_raw, tz=UTC
             ).isoformat()
         else:
-            timestamp = datetime.now(timezone.utc).isoformat()
+            timestamp = datetime.now(UTC).isoformat()
     else:
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
     # Extract optional metadata
     metadata = raw.get("metadata") or raw.get("meta") or {}
@@ -266,7 +265,7 @@ def normalize_batch(payload: str, topic: str = None) -> list[NormalizedReading]:
     return readings
 
 
-def _extract_device_from_topic(topic: str) -> Optional[str]:
+def _extract_device_from_topic(topic: str) -> str | None:
     """Extract device ID from MQTT topic"""
     if not topic:
         return None
@@ -277,7 +276,7 @@ def _extract_device_from_topic(topic: str) -> Optional[str]:
     return None
 
 
-def _extract_field_from_topic(topic: str) -> Optional[str]:
+def _extract_field_from_topic(topic: str) -> str | None:
     """Extract field ID from MQTT topic"""
     if not topic:
         return None
@@ -288,7 +287,7 @@ def _extract_field_from_topic(topic: str) -> Optional[str]:
     return None
 
 
-def _extract_type_from_topic(topic: str) -> Optional[str]:
+def _extract_type_from_topic(topic: str) -> str | None:
     """Extract sensor type from MQTT topic"""
     if not topic:
         return None

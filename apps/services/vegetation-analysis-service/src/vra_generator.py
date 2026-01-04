@@ -13,14 +13,12 @@ Based on NDVI zones, yield maps, soil analysis, or combined factors.
 Similar to OneSoil VRA capabilities.
 """
 
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Optional, Tuple, Any
-from datetime import datetime, date
-from enum import Enum
-import json
-import uuid
-import math
 import logging
+import uuid
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -77,13 +75,13 @@ class ManagementZone:
     zone_level: ZoneLevel
 
     # Zone characteristics
-    ndvi_range: Tuple[float, float]
+    ndvi_range: tuple[float, float]
     area_ha: float
     percentage: float  # % of total field area
 
     # Geometry
-    centroid: Tuple[float, float]  # (lon, lat)
-    polygon: List[List[Tuple[float, float]]]  # GeoJSON-style coordinates
+    centroid: tuple[float, float]  # (lon, lat)
+    polygon: list[list[tuple[float, float]]]  # GeoJSON-style coordinates
 
     # Application rate
     recommended_rate: float
@@ -115,7 +113,7 @@ class PrescriptionMap:
     # Zone configuration
     num_zones: int
     zone_method: ZoneMethod
-    zones: List[ManagementZone]
+    zones: list[ManagementZone]
 
     # Field statistics
     total_area_ha: float
@@ -125,18 +123,18 @@ class PrescriptionMap:
     flat_rate_product: float  # Product needed for flat rate
     savings_percent: float  # % savings vs. flat rate
     savings_amount: float  # Actual product saved
-    cost_savings: Optional[float] = None  # Cost savings if price provided
+    cost_savings: float | None = None  # Cost savings if price provided
 
     # Export URLs
-    shapefile_url: Optional[str] = None
-    geojson_url: Optional[str] = None
-    isoxml_url: Optional[str] = None
+    shapefile_url: str | None = None
+    geojson_url: str | None = None
+    isoxml_url: str | None = None
 
     # Metadata
-    notes: Optional[str] = None
-    notes_ar: Optional[str] = None
+    notes: str | None = None
+    notes_ar: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         data = asdict(self)
         data["vra_type"] = self.vra_type.value
@@ -152,7 +150,7 @@ class ZoneStatistics:
     """Statistics for a zone classification"""
 
     num_zones: int
-    zones: List[ManagementZone]
+    zones: list[ManagementZone]
     total_area_ha: float
     ndvi_mean: float
     ndvi_std: float
@@ -269,7 +267,7 @@ class VRAGenerator:
             multi_provider: MultiSatelliteService instance for fetching NDVI data
         """
         self.multi_provider = multi_provider
-        self._prescription_store: Dict[str, PrescriptionMap] = {}  # In-memory store
+        self._prescription_store: dict[str, PrescriptionMap] = {}  # In-memory store
 
     async def generate_prescription(
         self,
@@ -281,12 +279,12 @@ class VRAGenerator:
         unit: str,
         num_zones: int = 3,
         zone_method: ZoneMethod = ZoneMethod.NDVI_BASED,
-        min_rate: Optional[float] = None,
-        max_rate: Optional[float] = None,
-        date: Optional[datetime] = None,
-        product_price_per_unit: Optional[float] = None,
-        notes: Optional[str] = None,
-        notes_ar: Optional[str] = None,
+        min_rate: float | None = None,
+        max_rate: float | None = None,
+        date: datetime | None = None,
+        product_price_per_unit: float | None = None,
+        notes: str | None = None,
+        notes_ar: str | None = None,
     ) -> PrescriptionMap:
         """
         Generate VRA prescription map based on NDVI zones.
@@ -411,7 +409,7 @@ class VRAGenerator:
         latitude: float,
         longitude: float,
         num_zones: int = 3,
-        date: Optional[datetime] = None,
+        date: datetime | None = None,
     ) -> ZoneStatistics:
         """
         Classify field into management zones based on NDVI
@@ -546,8 +544,8 @@ class VRAGenerator:
         return round(rate, 2)
 
     def calculate_savings(
-        self, zones: List[ManagementZone], target_rate: float, total_area: float
-    ) -> Tuple[float, float, float]:
+        self, zones: list[ManagementZone], target_rate: float, total_area: float
+    ) -> tuple[float, float, float]:
         """
         Calculate savings vs. flat rate application
 
@@ -569,7 +567,7 @@ class VRAGenerator:
 
         return total_vra_product, flat_rate_product, savings_percent
 
-    def to_geojson(self, prescription: PrescriptionMap) -> Dict[str, Any]:
+    def to_geojson(self, prescription: PrescriptionMap) -> dict[str, Any]:
         """
         Convert prescription to GeoJSON FeatureCollection
 
@@ -620,7 +618,7 @@ class VRAGenerator:
 
         return geojson
 
-    def to_shapefile_data(self, prescription: PrescriptionMap) -> Dict[str, Any]:
+    def to_shapefile_data(self, prescription: PrescriptionMap) -> dict[str, Any]:
         """
         Convert prescription to Shapefile-compatible data structure
 
@@ -706,7 +704,7 @@ class VRAGenerator:
 
         return xml
 
-    async def get_prescription(self, prescription_id: str) -> Optional[PrescriptionMap]:
+    async def get_prescription(self, prescription_id: str) -> PrescriptionMap | None:
         """
         Get a prescription by ID
 
@@ -720,7 +718,7 @@ class VRAGenerator:
 
     async def get_field_prescriptions(
         self, field_id: str, limit: int = 10
-    ) -> List[PrescriptionMap]:
+    ) -> list[PrescriptionMap]:
         """
         Get all prescriptions for a field
 

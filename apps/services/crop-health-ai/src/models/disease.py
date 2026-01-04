@@ -4,7 +4,7 @@ Sahool Vision - Disease Data Models
 """
 
 from enum import Enum
-from typing import List
+
 from pydantic import BaseModel
 
 
@@ -60,8 +60,8 @@ class Treatment(BaseModel):
     application_method_ar: str
     frequency: str
     frequency_ar: str
-    precautions: List[str] = []
-    precautions_ar: List[str] = []
+    precautions: list[str] = []
+    precautions_ar: list[str] = []
 
 
 class DiseaseInfo(BaseModel):
@@ -74,6 +74,6 @@ class DiseaseInfo(BaseModel):
     description_ar: str
     crop: CropType
     severity_default: DiseaseSeverity
-    treatments: List[Treatment] = []
-    prevention: List[str] = []
-    prevention_ar: List[str] = []
+    treatments: list[Treatment] = []
+    prevention: list[str] = []
+    prevention_ar: list[str] = []

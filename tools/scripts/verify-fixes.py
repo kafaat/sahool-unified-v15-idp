@@ -4,11 +4,8 @@ SAHOOL Platform Fix Verification
 Verifies that all infrastructure and code fixes are properly applied.
 """
 
-import json
-import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, Tuple
 
 try:
     import yaml
@@ -30,7 +27,7 @@ def print_result(name: str, passed: bool, message: str = "") -> None:
     print(f"  {status} {name}{msg}")
 
 
-def verify_kong_config() -> Tuple[bool, str]:
+def verify_kong_config() -> tuple[bool, str]:
     """Verify Kong HA configuration exists and is valid."""
     kong_files = [
         "infra/kong-ha/docker-compose.kong-ha.yml",
@@ -57,7 +54,7 @@ def verify_kong_config() -> Tuple[bool, str]:
     return True, f"3 config files, {len(services)} services"
 
 
-def verify_circuit_breaker() -> Tuple[bool, str]:
+def verify_circuit_breaker() -> tuple[bool, str]:
     """Verify Circuit Breaker implementation exists."""
     cb_path = Path("shared/python-lib/sahool_core/resilient_client.py")
 
@@ -84,7 +81,7 @@ def verify_circuit_breaker() -> Tuple[bool, str]:
     return True, "CircuitBreaker with fallback support"
 
 
-def verify_postgis_migration() -> Tuple[bool, str]:
+def verify_postgis_migration() -> tuple[bool, str]:
     """Verify PostGIS optimization migration exists."""
     migration_path = Path("migrations/20241222_postgis_optimization.sql")
 
@@ -116,7 +113,7 @@ def verify_postgis_migration() -> Tuple[bool, str]:
     return True, f"Includes: {', '.join(found)}"
 
 
-def verify_memory_manager() -> Tuple[bool, str]:
+def verify_memory_manager() -> tuple[bool, str]:
     """Verify Flutter memory manager exists."""
     mm_path = Path("apps/mobile/lib/services/memory_manager.dart")
 
@@ -134,7 +131,7 @@ def verify_memory_manager() -> Tuple[bool, str]:
     return True, "LRU cache with pagination support"
 
 
-def verify_analyzer_tool() -> Tuple[bool, str]:
+def verify_analyzer_tool() -> tuple[bool, str]:
     """Verify complete analyzer tool exists."""
     analyzer_path = Path("tools/complete-analyzer.py")
 
@@ -152,7 +149,7 @@ def verify_analyzer_tool() -> Tuple[bool, str]:
     return True, "Full platform analyzer"
 
 
-def verify_precommit_hook() -> Tuple[bool, str]:
+def verify_precommit_hook() -> tuple[bool, str]:
     """Verify pre-commit hook exists."""
     hook_path = Path("tools/scripts/pre-commit")
 
@@ -176,7 +173,7 @@ def verify_precommit_hook() -> Tuple[bool, str]:
     return True, f"{found} quality checks"
 
 
-def verify_pubspec_fixes() -> Tuple[bool, str]:
+def verify_pubspec_fixes() -> tuple[bool, str]:
     """Verify Flutter pubspec fixes are applied."""
     pubspec_paths = [
         "apps/mobile/pubspec.yaml",
@@ -227,7 +224,7 @@ def main() -> int:
         ("Pubspec Fixes", verify_pubspec_fixes),
     ]
 
-    results: Dict[str, bool] = {}
+    results: dict[str, bool] = {}
 
     for name, check_func in checks:
         try:

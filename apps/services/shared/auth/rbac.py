@@ -4,10 +4,10 @@ Role-Based Access Control (RBAC) Manager
 """
 
 import logging
-from typing import Dict, List, Optional, Set, Callable
+from collections.abc import Callable
 from functools import wraps
 
-from .models import User, Role, Permission, SYSTEM_ROLES
+from .models import SYSTEM_ROLES, Permission, Role, User
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +19,9 @@ class RBACManager:
     """
 
     def __init__(self):
-        self._roles: Dict[str, Role] = dict(SYSTEM_ROLES)
-        self._permissions: Dict[str, Permission] = {}
-        self._role_hierarchy: Dict[str, List[str]] = {
+        self._roles: dict[str, Role] = dict(SYSTEM_ROLES)
+        self._permissions: dict[str, Permission] = {}
+        self._role_hierarchy: dict[str, list[str]] = {
             "super_admin": [
                 "tenant_admin",
                 "farm_manager",
@@ -34,7 +34,7 @@ class RBACManager:
             "agronomist": ["viewer"],
         }
 
-    def get_role(self, role_name: str) -> Optional[Role]:
+    def get_role(self, role_name: str) -> Role | None:
         """Get a role by name"""
         return self._roles.get(role_name)
 
@@ -48,7 +48,7 @@ class RBACManager:
         self._permissions[permission.id] = permission
         logger.debug(f"Registered permission: {permission.id}")
 
-    def get_inherited_roles(self, role_name: str) -> List[str]:
+    def get_inherited_roles(self, role_name: str) -> list[str]:
         """Get all roles inherited by a role"""
         inherited = []
         if role_name in self._role_hierarchy:
@@ -57,7 +57,7 @@ class RBACManager:
                 inherited.extend(self.get_inherited_roles(child))
         return inherited
 
-    def get_effective_permissions(self, user: User) -> Set[Permission]:
+    def get_effective_permissions(self, user: User) -> set[Permission]:
         """
         Get all effective permissions for a user including inherited ones
         الحصول على جميع الصلاحيات الفعالة للمستخدم بما في ذلك الموروثة
@@ -122,18 +122,18 @@ class PermissionChecker:
     أدوات التحقق من الصلاحيات
     """
 
-    def __init__(self, rbac: Optional[RBACManager] = None):
+    def __init__(self, rbac: RBACManager | None = None):
         self.rbac = rbac or RBACManager()
 
     def has_permission(self, user: User, permission_id: str) -> bool:
         """Check if user has permission"""
         return self.rbac.check_permission(user, permission_id)
 
-    def has_any_permission(self, user: User, permission_ids: List[str]) -> bool:
+    def has_any_permission(self, user: User, permission_ids: list[str]) -> bool:
         """Check if user has any of the permissions"""
         return any(self.has_permission(user, p) for p in permission_ids)
 
-    def has_all_permissions(self, user: User, permission_ids: List[str]) -> bool:
+    def has_all_permissions(self, user: User, permission_ids: list[str]) -> bool:
         """Check if user has all permissions"""
         return all(self.has_permission(user, p) for p in permission_ids)
 
@@ -157,8 +157,8 @@ class PermissionChecker:
 
 
 # Global instances
-_rbac_manager: Optional[RBACManager] = None
-_permission_checker: Optional[PermissionChecker] = None
+_rbac_manager: RBACManager | None = None
+_permission_checker: PermissionChecker | None = None
 
 
 def get_rbac_manager() -> RBACManager:

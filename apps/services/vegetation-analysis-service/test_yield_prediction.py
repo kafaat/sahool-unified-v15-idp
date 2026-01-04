@@ -5,7 +5,8 @@ Run with: python3 test_yield_prediction.py
 """
 
 import asyncio
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
+
 from src.yield_predictor import YieldPredictor
 
 
@@ -44,7 +45,7 @@ async def test_yield_predictor():
     print(f"  Field ID: {field_id}")
     print(f"  Crop: {crop_code}")
     print(f"  Planting Date: {planting_date.date()}")
-    print(f"  Field Area: 1.0 ha")
+    print("  Field Area: 1.0 ha")
     print(f"  NDVI Observations: {len(ndvi_series)}")
     print(f"  NDVI Peak: {max(ndvi_series):.2f}")
     print(f"  Precipitation: {weather_data['precipitation_mm']} mm")
@@ -73,27 +74,27 @@ async def test_yield_predictor():
     if prediction.days_to_harvest:
         print(f"Days to Harvest: {prediction.days_to_harvest}")
 
-    print(f"\nYield Prediction:")
+    print("\nYield Prediction:")
     print(f"  Predicted Yield: {prediction.predicted_yield_ton_ha:.2f} ton/ha")
     print(f"  Confidence: {prediction.confidence * 100:.1f}%")
     print(
         f"  Range: {prediction.yield_range_min:.2f} - {prediction.yield_range_max:.2f} ton/ha"
     )
 
-    print(f"\nComparisons:")
+    print("\nComparisons:")
     print(f"  vs. Regional Average: {prediction.comparison_to_average:+.1f}%")
     print(f"  vs. Base Yield: {prediction.comparison_to_base:+.1f}%")
 
-    print(f"\nYield Factors (0-1 scale, 1=optimal):")
+    print("\nYield Factors (0-1 scale, 1=optimal):")
     for factor, value in prediction.factors.items():
         bar = "█" * int(value * 20) + "░" * (20 - int(value * 20))
         print(f"  {factor:25s}: {bar} {value:.3f}")
 
-    print(f"\nRecommendations (Arabic):")
+    print("\nRecommendations (Arabic):")
     for i, rec in enumerate(prediction.recommendations_ar, 1):
         print(f"  {i}. {rec}")
 
-    print(f"\nRecommendations (English):")
+    print("\nRecommendations (English):")
     for i, rec in enumerate(prediction.recommendations_en, 1):
         print(f"  {i}. {rec}")
 

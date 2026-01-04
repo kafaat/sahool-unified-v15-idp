@@ -10,12 +10,12 @@ License: MIT
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def handle_data_export(payload: Dict[str, Any]) -> Dict[str, Any]:
+def handle_data_export(payload: dict[str, Any]) -> dict[str, Any]:
     """
     تصدير البيانات
     Export data

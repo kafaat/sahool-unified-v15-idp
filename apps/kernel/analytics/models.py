@@ -6,11 +6,11 @@
 Pydantic models for user activity analytics and metrics
 """
 
-from datetime import datetime, date
-from typing import Optional, List, Dict, Any
+from datetime import date, datetime
 from enum import Enum
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Any
 
+from pydantic import BaseModel, ConfigDict, Field
 
 # ============== التعدادات - Enumerations ==============
 
@@ -134,10 +134,10 @@ class AnalyticsEvent(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     # المعرفات - Identifiers
-    event_id: Optional[str] = Field(None, description="معرّف الحدث - Event ID")
+    event_id: str | None = Field(None, description="معرّف الحدث - Event ID")
     user_id: str = Field(..., description="معرّف المستخدم - User ID")
-    tenant_id: Optional[str] = Field(None, description="معرّف المستأجر - Tenant ID")
-    session_id: Optional[str] = Field(None, description="معرّف الجلسة - Session ID")
+    tenant_id: str | None = Field(None, description="معرّف المستأجر - Tenant ID")
+    session_id: str | None = Field(None, description="معرّف الجلسة - Session ID")
 
     # نوع الحدث - Event type
     event_type: EventType = Field(..., description="نوع الحدث - Event type")
@@ -149,28 +149,28 @@ class AnalyticsEvent(BaseModel):
     )
 
     # البيانات الوصفية - Metadata
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict,
         description="بيانات إضافية - Additional metadata"
     )
 
     # السياق - Context
-    field_id: Optional[str] = Field(None, description="معرّف الحقل - Field ID")
-    crop_type: Optional[str] = Field(None, description="نوع المحصول - Crop type")
-    device_type: Optional[str] = Field(None, description="نوع الجهاز - Device type (mobile/web)")
-    ip_address: Optional[str] = Field(None, description="عنوان IP - IP address")
-    user_agent: Optional[str] = Field(None, description="وكيل المستخدم - User agent")
+    field_id: str | None = Field(None, description="معرّف الحقل - Field ID")
+    crop_type: str | None = Field(None, description="نوع المحصول - Crop type")
+    device_type: str | None = Field(None, description="نوع الجهاز - Device type (mobile/web)")
+    ip_address: str | None = Field(None, description="عنوان IP - IP address")
+    user_agent: str | None = Field(None, description="وكيل المستخدم - User agent")
 
     # الموقع - Location
-    governorate: Optional[Governorate] = Field(None, description="المحافظة - Governorate")
-    district: Optional[str] = Field(None, description="المديرية - District")
+    governorate: Governorate | None = Field(None, description="المحافظة - Governorate")
+    district: str | None = Field(None, description="المديرية - District")
 
     # القيم - Values
-    duration_seconds: Optional[float] = Field(None, ge=0, description="المدة بالثواني - Duration in seconds")
-    value: Optional[float] = Field(None, description="قيمة رقمية - Numeric value")
+    duration_seconds: float | None = Field(None, ge=0, description="المدة بالثواني - Duration in seconds")
+    value: float | None = Field(None, description="قيمة رقمية - Numeric value")
 
     # العلامات - Tags
-    tags: List[str] = Field(default_factory=list, description="علامات - Tags for categorization")
+    tags: list[str] = Field(default_factory=list, description="علامات - Tags for categorization")
 
 
 class UserMetrics(BaseModel):
@@ -182,7 +182,7 @@ class UserMetrics(BaseModel):
 
     # المعرفات - Identifiers
     user_id: str = Field(..., description="معرّف المستخدم - User ID")
-    tenant_id: Optional[str] = Field(None, description="معرّف المستأجر - Tenant ID")
+    tenant_id: str | None = Field(None, description="معرّف المستأجر - Tenant ID")
 
     # الفترة الزمنية - Time period
     period_start: datetime = Field(..., description="بداية الفترة - Period start")
@@ -190,8 +190,8 @@ class UserMetrics(BaseModel):
     period_type: TimePeriod = Field(..., description="نوع الفترة - Period type")
 
     # معلومات المستخدم - User info
-    user_role: Optional[UserRole] = Field(None, description="دور المستخدم - User role")
-    governorate: Optional[Governorate] = Field(None, description="المحافظة - Governorate")
+    user_role: UserRole | None = Field(None, description="دور المستخدم - User role")
+    governorate: Governorate | None = Field(None, description="المحافظة - Governorate")
 
     # مقاييس النشاط - Activity metrics
     total_events: int = Field(0, ge=0, description="إجمالي الأحداث - Total events")
@@ -214,7 +214,7 @@ class UserMetrics(BaseModel):
     alerts_received: int = Field(0, ge=0, description="التنبيهات المستلمة - Alerts received")
     alerts_acknowledged: int = Field(0, ge=0, description="التنبيهات المطلع عليها - Alerts acknowledged")
     alert_response_rate: float = Field(0, ge=0, le=1, description="معدل الاستجابة للتنبيهات - Alert response rate")
-    average_alert_response_time_minutes: Optional[float] = Field(None, ge=0, description="متوسط وقت الاستجابة - Average response time")
+    average_alert_response_time_minutes: float | None = Field(None, ge=0, description="متوسط وقت الاستجابة - Average response time")
 
     # مقاييس التقارير - Report metrics
     reports_generated: int = Field(0, ge=0, description="التقارير المنشأة - Reports generated")
@@ -233,17 +233,17 @@ class UserMetrics(BaseModel):
     irrigation_events_completed: int = Field(0, ge=0, description="أحداث الري المكتملة - Irrigation events completed")
 
     # مقاييس التفاعل - Engagement metrics
-    feature_usage: Dict[str, int] = Field(
+    feature_usage: dict[str, int] = Field(
         default_factory=dict,
         description="استخدام الميزات - Feature usage counts"
     )
-    most_used_features: List[str] = Field(
+    most_used_features: list[str] = Field(
         default_factory=list,
         description="الميزات الأكثر استخداماً - Most used features"
     )
 
     # البيانات الإضافية - Additional data
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict,
         description="بيانات إضافية - Additional metadata"
     )
@@ -277,7 +277,7 @@ class CohortAnalysis(BaseModel):
     retention_day_90: float = Field(0, ge=0, le=1, description="الاحتفاظ في اليوم 90 - Day 90 retention")
 
     # معلومات إضافية - Additional info
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
     created_at: datetime = Field(default_factory=datetime.utcnow, description="وقت الإنشاء - Created at")
 
 
@@ -290,7 +290,7 @@ class FeatureUsage(BaseModel):
 
     # معلومات الميزة - Feature info
     feature_name: str = Field(..., description="اسم الميزة - Feature name")
-    feature_category: Optional[str] = Field(None, description="فئة الميزة - Feature category")
+    feature_category: str | None = Field(None, description="فئة الميزة - Feature category")
 
     # الفترة الزمنية - Time period
     period_start: datetime = Field(..., description="بداية الفترة - Period start")
@@ -306,7 +306,7 @@ class FeatureUsage(BaseModel):
     power_users_count: int = Field(0, ge=0, description="عدد المستخدمين المكثفين - Power users count")
 
     # البيانات الإضافية - Additional data
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
     calculated_at: datetime = Field(default_factory=datetime.utcnow, description="وقت الحساب - Calculated at")
 
 
@@ -319,7 +319,7 @@ class RegionalMetrics(BaseModel):
 
     # الموقع - Location
     governorate: Governorate = Field(..., description="المحافظة - Governorate")
-    district: Optional[str] = Field(None, description="المديرية - District")
+    district: str | None = Field(None, description="المديرية - District")
 
     # الفترة الزمنية - Time period
     period_start: datetime = Field(..., description="بداية الفترة - Period start")
@@ -336,17 +336,17 @@ class RegionalMetrics(BaseModel):
     total_area_hectares: float = Field(0, ge=0, description="المساحة الإجمالية (هكتار) - Total area (ha)")
 
     # توزيع المحاصيل - Crop distribution
-    crop_distribution: Dict[str, int] = Field(
+    crop_distribution: dict[str, int] = Field(
         default_factory=dict,
         description="توزيع المحاصيل - Crop distribution by type"
     )
 
     # مقاييس الأداء - Performance metrics
-    average_yield_improvement: Optional[float] = Field(None, description="متوسط تحسن الإنتاجية - Average yield improvement %")
-    total_water_saved_m3: Optional[float] = Field(None, ge=0, description="إجمالي المياه الموفرة (م³) - Total water saved")
+    average_yield_improvement: float | None = Field(None, description="متوسط تحسن الإنتاجية - Average yield improvement %")
+    total_water_saved_m3: float | None = Field(None, ge=0, description="إجمالي المياه الموفرة (م³) - Total water saved")
 
     # البيانات الإضافية - Additional data
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
     calculated_at: datetime = Field(default_factory=datetime.utcnow, description="وقت الحساب - Calculated at")
 
 
@@ -366,13 +366,13 @@ class FarmerAnalytics(BaseModel):
 
     # المحاصيل المراقبة - Monitored crops
     crops_monitored_count: int = Field(0, ge=0, description="عدد المحاصيل المراقبة - Monitored crops count")
-    crops_by_type: Dict[str, int] = Field(
+    crops_by_type: dict[str, int] = Field(
         default_factory=dict,
         description="المحاصيل حسب النوع - Crops by type"
     )
 
     # الاستجابة للتنبيهات - Alert response
-    alerts_response_time_avg_hours: Optional[float] = Field(
+    alerts_response_time_avg_hours: float | None = Field(
         None, ge=0,
         description="متوسط وقت الاستجابة للتنبيهات (ساعات) - Average alert response time"
     )
@@ -390,26 +390,26 @@ class FarmerAnalytics(BaseModel):
     recommendations_applied: int = Field(0, ge=0, description="التوصيات المطبقة - Applied recommendations")
 
     # تحسن الإنتاجية - Yield improvement
-    yield_improvement_trend: Optional[float] = Field(
+    yield_improvement_trend: float | None = Field(
         None,
         description="اتجاه تحسن الإنتاجية (%) - Yield improvement trend %"
     )
-    baseline_yield: Optional[float] = Field(None, ge=0, description="الإنتاجية الأساسية - Baseline yield")
-    current_yield: Optional[float] = Field(None, ge=0, description="الإنتاجية الحالية - Current yield")
+    baseline_yield: float | None = Field(None, ge=0, description="الإنتاجية الأساسية - Baseline yield")
+    current_yield: float | None = Field(None, ge=0, description="الإنتاجية الحالية - Current yield")
 
     # كفاءة المياه - Water efficiency
-    water_usage_efficiency: Optional[float] = Field(
+    water_usage_efficiency: float | None = Field(
         None, ge=0, le=1,
         description="كفاءة استخدام المياه - Water usage efficiency"
     )
-    water_saved_m3: Optional[float] = Field(None, ge=0, description="المياه الموفرة (م³) - Water saved")
+    water_saved_m3: float | None = Field(None, ge=0, description="المياه الموفرة (م³) - Water saved")
 
     # المستشعرات - Sensors
     active_sensors_count: int = Field(0, ge=0, description="عدد المستشعرات النشطة - Active sensors count")
     sensor_data_checks_per_week: float = Field(0, ge=0, description="فحوصات بيانات المستشعر أسبوعياً - Sensor checks per week")
 
     # البيانات الإضافية - Additional data
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
     calculated_at: datetime = Field(default_factory=datetime.utcnow, description="وقت الحساب - Calculated at")
 
 

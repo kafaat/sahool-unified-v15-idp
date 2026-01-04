@@ -11,6 +11,7 @@ import sys
 sys.path.insert(0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service")
 
 from datetime import date, timedelta
+
 from src.weather_integration import get_weather_service
 
 
@@ -27,7 +28,7 @@ async def example_1_forecast():
 
     print(f"\nLocation: {forecast.location}")
     print(f"Generated: {forecast.generated_at}")
-    print(f"\nNext 7 days:")
+    print("\nNext 7 days:")
 
     for i, day in enumerate(forecast.daily, 1):
         print(f"\n  Day {i}: {day.timestamp.date()}")
@@ -55,19 +56,19 @@ async def example_2_irrigation():
     )
 
     print(f"\n🌱 Crop: {recommendation.crop_name_en} ({recommendation.crop_name_ar})")
-    print(f"📍 Location: Hodeidah (14.8022°N, 42.9511°E)")
+    print("📍 Location: Hodeidah (14.8022°N, 42.9511°E)")
     print(f"🌾 Growth Stage: {recommendation.growth_stage}")
 
-    print(f"\n💧 Water Analysis (next 7 days):")
+    print("\n💧 Water Analysis (next 7 days):")
     print(f"  Water Requirement: {recommendation.water_requirement_mm} mm")
     print(f"  Expected Rain: {recommendation.precipitation_forecast_mm} mm")
     print(f"  Irrigation Needed: {recommendation.irrigation_needed_mm} mm")
 
-    print(f"\n📅 Irrigation Schedule:")
+    print("\n📅 Irrigation Schedule:")
     print(f"  Frequency: Every {recommendation.irrigation_frequency_days} days")
     print(f"  Confidence: {recommendation.confidence:.1%}")
 
-    print(f"\n📋 Recommendation:")
+    print("\n📋 Recommendation:")
     print(f"  EN: {recommendation.recommendation_en}")
     print(f"  AR: {recommendation.recommendation_ar}")
 
@@ -84,8 +85,8 @@ async def example_3_gdd_tracking():
     planting_date = date.today() - timedelta(days=90)  # Planted 90 days ago
     today = date.today() - timedelta(days=5)  # Up to 5 days ago (API limit)
 
-    print(f"\n🌾 Crop: Wheat")
-    print(f"📍 Location: Ibb (13.9667°N, 44.1667°E)")
+    print("\n🌾 Crop: Wheat")
+    print("📍 Location: Ibb (13.9667°N, 44.1667°E)")
     print(f"📅 Planting Date: {planting_date}")
     print(f"📅 Analysis Date: {today}")
     print(f"📊 Days Since Planting: {(today - planting_date).days}")
@@ -99,7 +100,7 @@ async def example_3_gdd_tracking():
         base_temp=10.0,
     )
 
-    print(f"\n🌡️  Growing Degree Days:")
+    print("\n🌡️  Growing Degree Days:")
     print(f"  Accumulated GDD: {gdd}")
     print(f"  Average GDD/day: {gdd / (today - planting_date).days:.2f}")
 
@@ -134,8 +135,8 @@ async def example_4_water_balance():
     end_date = date.today() - timedelta(days=10)
     start_date = end_date - timedelta(days=60)
 
-    print(f"\n🥔 Crop: Potato (Mid-season, Kc=1.1)")
-    print(f"📍 Location: Taiz (13.5795°N, 44.0202°E)")
+    print("\n🥔 Crop: Potato (Mid-season, Kc=1.1)")
+    print("📍 Location: Taiz (13.5795°N, 44.0202°E)")
     print(f"📅 Period: {start_date} to {end_date}")
 
     # Calculate water balance with Kc=1.1 (potato mid-season)
@@ -147,7 +148,7 @@ async def example_4_water_balance():
         kc=1.1,  # Potato mid-season crop coefficient
     )
 
-    print(f"\n💧 Water Balance Summary:")
+    print("\n💧 Water Balance Summary:")
     print(f"  Total Precipitation: {balance['summary']['total_precipitation_mm']} mm")
     print(f"  Total ETc (ET0 × Kc): {balance['summary']['total_etc_mm']} mm")
     print(f"  Water Balance: {balance['summary']['total_balance_mm']} mm")
@@ -156,17 +157,17 @@ async def example_4_water_balance():
     )
 
     if balance["summary"]["total_balance_mm"] < -100:
-        print(f"\n  ⚠️  SEVERE WATER DEFICIT!")
-        print(f"      عجز مائي شديد!")
+        print("\n  ⚠️  SEVERE WATER DEFICIT!")
+        print("      عجز مائي شديد!")
         deficit = abs(balance["summary"]["total_balance_mm"])
         print(f"      Irrigation needed: ~{deficit} mm over next period")
     elif balance["summary"]["total_balance_mm"] < 0:
-        print(f"\n  ⚡ Moderate water deficit")
-        print(f"     عجز مائي معتدل")
-        print(f"     Increase irrigation frequency")
+        print("\n  ⚡ Moderate water deficit")
+        print("     عجز مائي معتدل")
+        print("     Increase irrigation frequency")
     else:
-        print(f"\n  ✅ Water balance is positive or neutral")
-        print(f"     الميزان المائي إيجابي أو محايد")
+        print("\n  ✅ Water balance is positive or neutral")
+        print("     الميزان المائي إيجابي أو محايد")
 
 
 async def example_5_frost_protection():
@@ -178,15 +179,15 @@ async def example_5_frost_protection():
     weather = get_weather_service()
 
     # Coffee plantation in Sanaa highlands
-    print(f"\n☕ Crop: Coffee")
-    print(f"📍 Location: Sanaa Highlands (15.3694°N, 44.1910°E)")
-    print(f"🏔️  Elevation: ~2,250m (frost-prone)")
+    print("\n☕ Crop: Coffee")
+    print("📍 Location: Sanaa Highlands (15.3694°N, 44.1910°E)")
+    print("🏔️  Elevation: ~2,250m (frost-prone)")
 
     frost_risks = await weather.get_frost_risk(
         latitude=15.3694, longitude=44.1910, days=7
     )
 
-    print(f"\n❄️  7-Day Frost Risk Assessment:")
+    print("\n❄️  7-Day Frost Risk Assessment:")
 
     high_risk_days = []
     for risk in frost_risks:
@@ -208,15 +209,15 @@ async def example_5_frost_protection():
             high_risk_days.append(risk)
 
     if high_risk_days:
-        print(f"\n  ⚠️  ACTION REQUIRED!")
+        print("\n  ⚠️  ACTION REQUIRED!")
         print(f"      {len(high_risk_days)} day(s) with HIGH frost risk")
-        print(f"\n  🛡️  Protection Methods:")
-        print(f"     • Cover sensitive plants with plastic sheets")
-        print(f"     • Use smoke/heaters for valuable crops")
-        print(f"     • Irrigate before frost (wet soil retains heat)")
-        print(f"     • Avoid pruning before frost events")
+        print("\n  🛡️  Protection Methods:")
+        print("     • Cover sensitive plants with plastic sheets")
+        print("     • Use smoke/heaters for valuable crops")
+        print("     • Irrigate before frost (wet soil retains heat)")
+        print("     • Avoid pruning before frost events")
     else:
-        print(f"\n  ✅ No significant frost risk in the forecast period")
+        print("\n  ✅ No significant frost risk in the forecast period")
 
 
 async def example_6_seasonal_comparison():
@@ -235,8 +236,8 @@ async def example_6_seasonal_comparison():
     last_year_start = date(current_year - 1, 3, 1)
     last_year_end = date(current_year - 1, this_year_end.month, this_year_end.day)
 
-    print(f"\n📊 Comparing Growing Seasons in Aden")
-    print(f"📍 Location: Aden (12.7855°N, 45.0187°E)")
+    print("\n📊 Comparing Growing Seasons in Aden")
+    print("📍 Location: Aden (12.7855°N, 45.0187°E)")
 
     # Get this year's data
     this_year = await weather.get_historical(
@@ -274,7 +275,7 @@ async def example_6_seasonal_comparison():
     )
     gdd_diff = this_year.summary["gdd_base_10"] - last_year.summary["gdd_base_10"]
 
-    print(f"\n  📈 Year-over-Year Changes:")
+    print("\n  📈 Year-over-Year Changes:")
     print(f"  Temperature: {temp_diff:+.1f}°C")
     print(
         f"  Precipitation: {precip_diff:+.1f} mm ({precip_diff/last_year.summary['total_precipitation_mm']*100:+.1f}%)"
@@ -284,14 +285,14 @@ async def example_6_seasonal_comparison():
     )
 
     if temp_diff > 1:
-        print(f"\n  🌡️  This year is significantly warmer")
+        print("\n  🌡️  This year is significantly warmer")
     elif temp_diff < -1:
-        print(f"\n  ❄️  This year is significantly cooler")
+        print("\n  ❄️  This year is significantly cooler")
 
     if precip_diff < -50:
-        print(f"  💧 Drier conditions - increase irrigation")
+        print("  💧 Drier conditions - increase irrigation")
     elif precip_diff > 50:
-        print(f"  🌧️  Wetter conditions - reduce irrigation")
+        print("  🌧️  Wetter conditions - reduce irrigation")
 
 
 async def main():

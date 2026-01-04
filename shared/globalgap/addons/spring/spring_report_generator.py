@@ -10,28 +10,23 @@ efficiency recommendations, and PDF-ready formatting.
 """
 
 from datetime import date, datetime
-from typing import Dict, List, Optional, Any
-from decimal import Decimal
+from typing import Any
+
 from pydantic import BaseModel, Field
 
-from .water_metrics import (
-    WaterUsageMetric,
-    WaterEfficiencyScore,
-    IrrigationEfficiency,
-    WaterSource,
-    WaterQualityTest,
-    RainfallHarvesting,
-    calculate_water_balance,
-    classify_water_efficiency,
-)
 from .spring_checklist import (
-    SPRING_CHECKLIST,
     SPRING_CATEGORIES,
     calculate_spring_compliance,
-    get_items_by_category,
-    get_yemen_specific_items,
 )
-
+from .water_metrics import (
+    IrrigationEfficiency,
+    RainfallHarvesting,
+    WaterEfficiencyScore,
+    WaterQualityTest,
+    WaterSource,
+    WaterUsageMetric,
+    classify_water_efficiency,
+)
 
 # ==================== Water Balance Models ====================
 
@@ -89,7 +84,7 @@ class WaterBalanceCalculation(BaseModel):
     beneficial_use_efficiency_percent: float = Field(
         ..., ge=0, le=100, description="Beneficial use (%) / الاستخدام المفيد"
     )
-    water_productivity_kg_per_m3: Optional[float] = Field(
+    water_productivity_kg_per_m3: float | None = Field(
         None, description="Water productivity (kg/m³) / إنتاجية المياه"
     )
 
@@ -128,7 +123,7 @@ class SpringReportSection(BaseModel):
     content_en: str = Field(..., description="Section content (English) / محتوى القسم")
     content_ar: str = Field(..., description="Section content (Arabic) / محتوى القسم")
     order: int = Field(..., description="Display order / ترتيب العرض")
-    subsections: List["SpringReportSection"] = Field(
+    subsections: list["SpringReportSection"] = Field(
         default_factory=list, description="Subsections / الأقسام الفرعية"
     )
 
@@ -169,28 +164,28 @@ class SpringReport(BaseModel):
     )
 
     # Compliance Assessment
-    compliance_summary: Dict[str, Any] = Field(
+    compliance_summary: dict[str, Any] = Field(
         ..., description="Compliance summary / ملخص الامتثال"
     )
 
     # Sections
-    sections: List[SpringReportSection] = Field(
+    sections: list[SpringReportSection] = Field(
         default_factory=list, description="Report sections / أقسام التقرير"
     )
 
     # Recommendations
-    recommendations_en: List[str] = Field(
+    recommendations_en: list[str] = Field(
         default_factory=list, description="Recommendations (EN) / التوصيات"
     )
-    recommendations_ar: List[str] = Field(
+    recommendations_ar: list[str] = Field(
         default_factory=list, description="Recommendations (AR) / التوصيات"
     )
 
     # Yemen-specific insights
-    yemen_context_notes_en: Optional[str] = Field(
+    yemen_context_notes_en: str | None = Field(
         None, description="Yemen context (EN) / السياق اليمني"
     )
-    yemen_context_notes_ar: Optional[str] = Field(
+    yemen_context_notes_ar: str | None = Field(
         None, description="Yemen context (AR) / السياق اليمني"
     )
 
@@ -229,12 +224,12 @@ class SpringReportGenerator:
         period_end: date,
         water_balance: WaterBalanceCalculation,
         efficiency_score: WaterEfficiencyScore,
-        compliant_items: List[str],
-        water_sources: List[WaterSource],
-        usage_records: List[WaterUsageMetric],
-        quality_tests: List[WaterQualityTest],
-        efficiency_records: List[IrrigationEfficiency],
-        rainfall_records: Optional[List[RainfallHarvesting]] = None,
+        compliant_items: list[str],
+        water_sources: list[WaterSource],
+        usage_records: list[WaterUsageMetric],
+        quality_tests: list[WaterQualityTest],
+        efficiency_records: list[IrrigationEfficiency],
+        rainfall_records: list[RainfallHarvesting] | None = None,
         include_yemen_context: bool = True,
     ) -> SpringReport:
         """
@@ -311,7 +306,7 @@ class SpringReportGenerator:
 
     def _generate_executive_summary(
         self,
-        compliance: Dict[str, Any],
+        compliance: dict[str, Any],
         efficiency: WaterEfficiencyScore,
         balance: WaterBalanceCalculation,
     ) -> tuple[str, str]:
@@ -353,13 +348,13 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
 
     def _generate_report_sections(
         self,
-        water_sources: List[WaterSource],
-        usage_records: List[WaterUsageMetric],
-        quality_tests: List[WaterQualityTest],
-        efficiency_records: List[IrrigationEfficiency],
-        rainfall_records: Optional[List[RainfallHarvesting]],
-        compliance: Dict[str, Any],
-    ) -> List[SpringReportSection]:
+        water_sources: list[WaterSource],
+        usage_records: list[WaterUsageMetric],
+        quality_tests: list[WaterQualityTest],
+        efficiency_records: list[IrrigationEfficiency],
+        rainfall_records: list[RainfallHarvesting] | None,
+        compliance: dict[str, Any],
+    ) -> list[SpringReportSection]:
         """Generate detailed report sections"""
 
         sections = []
@@ -462,7 +457,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
         return sections
 
     def _format_water_sources_section(
-        self, sources: List[WaterSource], lang: str
+        self, sources: list[WaterSource], lang: str
     ) -> str:
         """Format water sources section"""
         if lang == "en":
@@ -489,7 +484,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
         return content
 
     def _format_water_usage_section(
-        self, usage: List[WaterUsageMetric], lang: str
+        self, usage: list[WaterUsageMetric], lang: str
     ) -> str:
         """Format water usage section"""
         total_usage = sum(u.volume_cubic_meters for u in usage)
@@ -513,7 +508,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
         return content
 
     def _format_water_quality_section(
-        self, tests: List[WaterQualityTest], lang: str
+        self, tests: list[WaterQualityTest], lang: str
     ) -> str:
         """Format water quality section"""
         passing_tests = sum(1 for t in tests if t.meets_irrigation_standards)
@@ -538,7 +533,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
         return content
 
     def _format_efficiency_section(
-        self, records: List[IrrigationEfficiency], lang: str
+        self, records: list[IrrigationEfficiency], lang: str
     ) -> str:
         """Format efficiency section"""
         if not records:
@@ -566,7 +561,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
         return content
 
     def _format_rainfall_section(
-        self, records: List[RainfallHarvesting], lang: str
+        self, records: list[RainfallHarvesting], lang: str
     ) -> str:
         """Format rainfall harvesting section"""
         total_collected = sum(r.collected_volume_m3 for r in records)
@@ -580,7 +575,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
 
         return content
 
-    def _format_compliance_section(self, compliance: Dict[str, Any], lang: str) -> str:
+    def _format_compliance_section(self, compliance: dict[str, Any], lang: str) -> str:
         """Format compliance summary section"""
         if lang == "en":
             content = f"Overall Compliance: {compliance['overall_compliance_percentage']:.1f}%\n"
@@ -604,9 +599,9 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
     def _generate_recommendations(
         self,
         efficiency: WaterEfficiencyScore,
-        compliance: Dict[str, Any],
+        compliance: dict[str, Any],
         balance: WaterBalanceCalculation,
-    ) -> tuple[List[str], List[str]]:
+    ) -> tuple[list[str], list[str]]:
         """Generate recommendations based on assessment"""
 
         recommendations_en = []
@@ -681,7 +676,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
         self,
         balance: WaterBalanceCalculation,
         efficiency: WaterEfficiencyScore,
-        usage_records: List[WaterUsageMetric],
+        usage_records: list[WaterUsageMetric],
     ) -> tuple[str, str]:
         """Generate Yemen-specific context and insights"""
 
@@ -746,12 +741,12 @@ def generate_spring_report(
     period_end: date,
     water_balance: WaterBalanceCalculation,
     efficiency_score: WaterEfficiencyScore,
-    compliant_items: List[str],
-    water_sources: List[WaterSource],
-    usage_records: List[WaterUsageMetric],
-    quality_tests: List[WaterQualityTest],
-    efficiency_records: List[IrrigationEfficiency],
-    rainfall_records: Optional[List[RainfallHarvesting]] = None,
+    compliant_items: list[str],
+    water_sources: list[WaterSource],
+    usage_records: list[WaterUsageMetric],
+    quality_tests: list[WaterQualityTest],
+    efficiency_records: list[IrrigationEfficiency],
+    rainfall_records: list[RainfallHarvesting] | None = None,
     include_yemen_context: bool = True,
 ) -> SpringReport:
     """

@@ -5,9 +5,7 @@ Service for managing AI feedback
 
 from __future__ import annotations
 
-from typing import Optional
-
-from .models import AdvisorFeedback, FeedbackType, FeedbackRating
+from .models import AdvisorFeedback, FeedbackRating, FeedbackType
 
 
 class FeedbackService:
@@ -26,9 +24,9 @@ class FeedbackService:
         tenant_id: str,
         user_id: str,
         feedback_type: FeedbackType,
-        rating: Optional[FeedbackRating] = None,
-        comment: Optional[str] = None,
-        outcome_notes: Optional[str] = None,
+        rating: FeedbackRating | None = None,
+        comment: str | None = None,
+        outcome_notes: str | None = None,
     ) -> AdvisorFeedback:
         """Submit feedback for an advisor response"""
         feedback = AdvisorFeedback.create(
@@ -49,7 +47,7 @@ class FeedbackService:
 
         return feedback
 
-    def get_feedback(self, feedback_id: str) -> Optional[AdvisorFeedback]:
+    def get_feedback(self, feedback_id: str) -> AdvisorFeedback | None:
         """Get feedback by ID"""
         return self._feedback.get(feedback_id)
 
@@ -64,7 +62,7 @@ class FeedbackService:
     def get_tenant_feedback(
         self,
         tenant_id: str,
-        feedback_type: Optional[FeedbackType] = None,
+        feedback_type: FeedbackType | None = None,
     ) -> list[AdvisorFeedback]:
         """Get all feedback for a tenant"""
         feedback_list = [f for f in self._feedback.values() if f.tenant_id == tenant_id]

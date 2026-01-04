@@ -5,8 +5,9 @@ Field Health API Usage Example
 This example demonstrates how to call the Field Health API endpoint
 """
 
-import requests
 import json
+
+import requests
 
 # API endpoint
 API_URL = "http://localhost:8080/api/v1/field-health"
@@ -57,7 +58,7 @@ def test_field_health_api():
         print(f"\n🏥 Overall Health Score: {result['overall_health_score']}/100")
         print(f"Status: {result['health_status']} ({result['health_status_ar']})")
 
-        print(f"\n📊 Component Scores:")
+        print("\n📊 Component Scores:")
         print(f"  • NDVI Score (40%): {result['ndvi_score']}/100")
         print(f"  • Soil Moisture Score (25%): {result['soil_moisture_score']}/100")
         print(f"  • Weather Score (20%): {result['weather_score']}/100")
@@ -70,11 +71,11 @@ def test_field_health_api():
             print(f"    EN: {risk['description_en']}")
             print(f"    Impact: {risk['impact_score']}/100")
 
-        print(f"\n💡 Recommendations (Arabic):")
+        print("\n💡 Recommendations (Arabic):")
         for i, rec in enumerate(result['recommendations_ar'], 1):
             print(f"  {i}. {rec}")
 
-        print(f"\n💡 Recommendations (English):")
+        print("\n💡 Recommendations (English):")
         for i, rec in enumerate(result['recommendations_en'], 1):
             print(f"  {i}. {rec}")
 

@@ -5,10 +5,11 @@ SAHOOL Notification Types & Templates
 Comprehensive notification system for Yemen farmers with bilingual support (Arabic/English).
 """
 
-from enum import Enum
-from typing import Dict, Any, Optional, List
-from pydantic import BaseModel, Field
 from datetime import datetime
+from enum import Enum
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 
 class NotificationType(str, Enum):
@@ -55,20 +56,20 @@ class NotificationPayload(BaseModel):
     body_ar: str = Field(..., description="النص (العربية)")
 
     # Optional fields
-    image_url: Optional[str] = Field(None, description="رابط الصورة")
-    action_url: Optional[str] = Field(None, description="رابط الإجراء")
-    field_id: Optional[str] = Field(None, description="معرف الحقل")
-    crop_type: Optional[str] = Field(None, description="نوع المحصول")
-    farmer_id: Optional[str] = Field(None, description="معرف المزارع")
+    image_url: str | None = Field(None, description="رابط الصورة")
+    action_url: str | None = Field(None, description="رابط الإجراء")
+    field_id: str | None = Field(None, description="معرف الحقل")
+    crop_type: str | None = Field(None, description="نوع المحصول")
+    farmer_id: str | None = Field(None, description="معرف المزارع")
 
     # Extra data
-    data: Dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية")
+    data: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية")
 
     # Metadata
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="وقت الإنشاء"
     )
-    expires_at: Optional[datetime] = Field(None, description="وقت الانتهاء")
+    expires_at: datetime | None = Field(None, description="وقت الانتهاء")
 
     class Config:
         json_schema_extra = {
@@ -310,7 +311,7 @@ class NotificationTemplate:
     @staticmethod
     def format_template(
         notification_type: NotificationType, language: str = "ar", **kwargs
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """
         تنسيق قالب الإشعار
 
@@ -366,7 +367,7 @@ class NotificationTemplate:
         try:
             title = lang_template["title"].format(**kwargs)
             body = lang_template["body"].format(**kwargs)
-        except KeyError as e:
+        except KeyError:
             # Missing template variable
             title = lang_template["title"]
             body = lang_template["body"]

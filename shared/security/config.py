@@ -9,13 +9,12 @@ Supports multiple secret backends:
 - Azure Key Vault (future)
 """
 
-import os
-import logging
-from typing import Optional, Dict, Any, List
-from dataclasses import dataclass, field
-from enum import Enum
 import json
-
+import logging
+import os
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -36,11 +35,11 @@ class SecretConfig:
     backend: SecretBackend = SecretBackend.ENVIRONMENT
 
     # Vault configuration
-    vault_addr: Optional[str] = None
-    vault_token: Optional[str] = None
-    vault_role_id: Optional[str] = None
-    vault_secret_id: Optional[str] = None
-    vault_namespace: Optional[str] = None
+    vault_addr: str | None = None
+    vault_token: str | None = None
+    vault_role_id: str | None = None
+    vault_secret_id: str | None = None
+    vault_namespace: str | None = None
     vault_mount_point: str = "secret"
     vault_path_prefix: str = "sahool"
 
@@ -60,10 +59,10 @@ class SecretManager:
     مدير الأسرار الموحد مع دعم الخلفيات المتعددة.
     """
 
-    def __init__(self, config: Optional[SecretConfig] = None):
+    def __init__(self, config: SecretConfig | None = None):
         self.config = config or SecretConfig()
-        self._cache: Dict[str, Any] = {}
-        self._cache_timestamps: Dict[str, float] = {}
+        self._cache: dict[str, Any] = {}
+        self._cache_timestamps: dict[str, float] = {}
         self._vault_client = None
 
         # Initialize backend
@@ -154,9 +153,9 @@ class SecretManager:
     def get_secret(
         self,
         key: str,
-        default: Optional[str] = None,
+        default: str | None = None,
         required: bool = False,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Get a secret value.
         الحصول على قيمة سرية.
@@ -202,11 +201,11 @@ class SecretManager:
 
         return value
 
-    def _get_from_environment(self, key: str) -> Optional[str]:
+    def _get_from_environment(self, key: str) -> str | None:
         """Get secret from environment variable"""
         return os.getenv(key)
 
-    def _get_from_vault(self, key: str) -> Optional[str]:
+    def _get_from_vault(self, key: str) -> str | None:
         """Get secret from HashiCorp Vault"""
         if not self._vault_client:
             return None
@@ -229,7 +228,7 @@ class SecretManager:
             logger.warning(f"Failed to read secret '{key}' from Vault: {e}")
             return None
 
-    def get_secrets_batch(self, keys: List[str]) -> Dict[str, Optional[str]]:
+    def get_secrets_batch(self, keys: list[str]) -> dict[str, str | None]:
         """
         Get multiple secrets at once.
         الحصول على أسرار متعددة دفعة واحدة.
@@ -295,10 +294,10 @@ class SecretManager:
 
 
 # Global secret manager instance
-_global_secret_manager: Optional[SecretManager] = None
+_global_secret_manager: SecretManager | None = None
 
 
-def get_secret_manager(config: Optional[SecretConfig] = None) -> SecretManager:
+def get_secret_manager(config: SecretConfig | None = None) -> SecretManager:
     """
     Get the global secret manager instance.
     الحصول على نسخة مدير الأسرار العامة.
@@ -339,7 +338,7 @@ def get_secret_manager(config: Optional[SecretConfig] = None) -> SecretManager:
 
 def get_config(
     key: str,
-    default: Optional[str] = None,
+    default: str | None = None,
     required: bool = False,
     cast_type: type = str,
 ) -> Any:
@@ -408,7 +407,7 @@ def get_jwt_secret() -> str:
     return get_config("JWT_SECRET_KEY", required=True)
 
 
-def get_cors_origins() -> List[str]:
+def get_cors_origins() -> list[str]:
     """Get CORS allowed origins"""
     return get_config(
         "CORS_ALLOWED_ORIGINS",

@@ -13,8 +13,8 @@ Revises: None
 Create Date: 2026-01-01
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 revision = "inv_0001_perf_indexes"
 down_revision = None

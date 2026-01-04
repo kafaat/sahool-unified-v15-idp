@@ -9,10 +9,10 @@ Links with crop-health-ai service to:
 """
 
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime, timedelta
 from enum import Enum
+from typing import Any
 
 from .events import GlobalGAPEventPublisher
 
@@ -69,8 +69,8 @@ class ThreatDetection:
     confidence_score: float
     detected_at: datetime
     affected_area_percentage: float
-    location_coordinates: Optional[Dict[str, float]] = None
-    image_urls: List[str] = None
+    location_coordinates: dict[str, float] | None = None
+    image_urls: list[str] = None
 
 
 @dataclass
@@ -84,8 +84,8 @@ class IPMRecord:
     action_type: IPMAction
     action_date: datetime
     description: str
-    effectiveness: Optional[float] = None
-    notes: Optional[str] = None
+    effectiveness: float | None = None
+    notes: str | None = None
 
 
 @dataclass
@@ -103,8 +103,8 @@ class PPPApplication:
     target_pest: str
     pre_harvest_interval_days: int
     applicator_name: str
-    weather_conditions: Optional[Dict[str, Any]] = None
-    equipment_used: Optional[str] = None
+    weather_conditions: dict[str, Any] | None = None
+    equipment_used: str | None = None
 
 
 @dataclass
@@ -121,9 +121,9 @@ class IPMReport:
     non_chemical_applications: int
     compliance_status: str
     mrl_compliant: bool
-    recommendations: List[str]
-    threat_breakdown: Dict[str, int]
-    action_breakdown: Dict[str, int]
+    recommendations: list[str]
+    threat_breakdown: dict[str, int]
+    action_breakdown: dict[str, int]
 
 
 class CropHealthIntegration:
@@ -141,7 +141,7 @@ class CropHealthIntegration:
 
     async def map_detection_to_ipm(
         self, detection_data: dict, field_id: str, tenant_id: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         تعيين بيانات اكتشاف الآفات/الأمراض إلى وثائق IPM
         Map pest/disease detection to IPM documentation
@@ -167,7 +167,7 @@ class CropHealthIntegration:
                 "field_id": field_id,
                 "farm_id": detection_data.get("farm_id"),
                 "timestamp": detection_data.get(
-                    "detected_at", datetime.now(timezone.utc).isoformat()
+                    "detected_at", datetime.now(UTC).isoformat()
                 ),
                 # Threat identification
                 "threat": {
@@ -256,8 +256,8 @@ class CropHealthIntegration:
         tenant_id: str,
         start_date: datetime,
         end_date: datetime,
-        detections: List[ThreatDetection],
-        ipm_records: List[IPMRecord],
+        detections: list[ThreatDetection],
+        ipm_records: list[IPMRecord],
     ) -> IPMReport:
         """
         إنشاء تقرير الإدارة المتكاملة للآفات
@@ -343,9 +343,9 @@ class CropHealthIntegration:
         farm_id: str,
         field_id: str,
         tenant_id: str,
-        applications: List[PPPApplication],
-        harvest_date: Optional[datetime] = None,
-    ) -> Dict[str, Any]:
+        applications: list[PPPApplication],
+        harvest_date: datetime | None = None,
+    ) -> dict[str, Any]:
         """
         تتبع تطبيقات منتجات وقاية النبات (PPP)
         Track Plant Protection Products (PPP) applications
@@ -488,7 +488,7 @@ class CropHealthIntegration:
 
     def _calculate_action_deadline(self, severity: SeverityLevel) -> str:
         """حساب الموعد النهائي للإجراء - Calculate action deadline"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         deadline_map = {
             SeverityLevel.CRITICAL: timedelta(days=1),
@@ -502,7 +502,7 @@ class CropHealthIntegration:
 
     def _generate_ipm_recommendations(
         self, threat_type: ThreatType, severity: SeverityLevel, detection_data: dict
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """إنشاء توصيات IPM - Generate IPM recommendations"""
         recommendations = []
 
@@ -548,11 +548,11 @@ class CropHealthIntegration:
 
     def _generate_ipm_report_recommendations(
         self,
-        detections: List[ThreatDetection],
-        ipm_records: List[IPMRecord],
+        detections: list[ThreatDetection],
+        ipm_records: list[IPMRecord],
         chemical_count: int,
         non_chemical_count: int,
-    ) -> List[str]:
+    ) -> list[str]:
         """إنشاء توصيات تقرير IPM - Generate IPM report recommendations"""
         recommendations = []
 

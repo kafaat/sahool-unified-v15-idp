@@ -3,11 +3,11 @@ Comprehensive Tests for WebSocket Gateway Service
 اختبارات شاملة لخدمة بوابة WebSocket
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import Mock, AsyncMock, patch
 from src.main import app
-import json
 
 
 @pytest.fixture
@@ -69,20 +69,18 @@ class TestWebSocketConnection:
 
     def test_websocket_connection_without_token(self, client):
         """Test WebSocket connection without token"""
-        with pytest.raises(Exception):
-            with client.websocket_connect("/ws?tenant_id=tenant_123"):
-                pass
+        with pytest.raises(Exception), client.websocket_connect("/ws?tenant_id=tenant_123"):
+            pass
 
     @patch("src.main.validate_jwt_token")
     def test_websocket_connection_invalid_token(self, mock_validate, client):
         """Test WebSocket connection with invalid token"""
         mock_validate.side_effect = ValueError("Invalid token")
 
-        with pytest.raises(Exception):
-            with client.websocket_connect(
-                "/ws?tenant_id=tenant_123&token=invalid_token"
-            ):
-                pass
+        with pytest.raises(Exception), client.websocket_connect(
+            "/ws?tenant_id=tenant_123&token=invalid_token"
+        ):
+            pass
 
     @patch("src.main.validate_jwt_token")
     def test_websocket_tenant_mismatch(self, mock_validate, client):
@@ -311,7 +309,7 @@ class TestCompleteWorkflow:
             # Step 1: Receive connection confirmation
             connection_data = websocket.receive_json()
             assert connection_data["type"] == "connected"
-            connection_id = connection_data["connection_id"]
+            connection_data["connection_id"]
 
             # Step 2: Join a room
             websocket.send_json({"type": "join_room", "room": "field_123"})

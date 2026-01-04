@@ -36,19 +36,19 @@ Usage:
     )
 """
 
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
-from uuid import UUID, uuid4
+from datetime import date, datetime, timedelta
 from enum import Enum
+from typing import Any
+from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 from shared.events.publisher import EventPublisher
+
 from .events import (
     FertilizerApplicationRecordedEvent,
     GlobalGAPSubjects,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enums and Constants
@@ -120,7 +120,7 @@ class FertilizerApplicationRecord(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()), description="Record ID")
     farm_id: UUID = Field(..., description="Farm ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
 
     # Application details
@@ -129,21 +129,21 @@ class FertilizerApplicationRecord(BaseModel):
     # Fertilizer information
     fertilizer_name: str = Field(..., description="Fertilizer product name")
     fertilizer_type: FertilizerType = Field(..., description="Fertilizer type")
-    manufacturer: Optional[str] = Field(None, description="Manufacturer name")
+    manufacturer: str | None = Field(None, description="Manufacturer name")
 
     # NPK and composition
-    npk_ratio: Optional[str] = Field(None, description="NPK ratio (e.g., 20-20-20)")
-    nitrogen_percentage: Optional[float] = Field(None, ge=0, le=100, description="N %")
-    phosphorus_percentage: Optional[float] = Field(
+    npk_ratio: str | None = Field(None, description="NPK ratio (e.g., 20-20-20)")
+    nitrogen_percentage: float | None = Field(None, ge=0, le=100, description="N %")
+    phosphorus_percentage: float | None = Field(
         None, ge=0, le=100, description="P %"
     )
-    potassium_percentage: Optional[float] = Field(None, ge=0, le=100, description="K %")
+    potassium_percentage: float | None = Field(None, ge=0, le=100, description="K %")
 
     # Other nutrients
-    secondary_nutrients: Optional[Dict[str, float]] = Field(
+    secondary_nutrients: dict[str, float] | None = Field(
         None, description="Secondary nutrients (e.g., {'Ca': 5.0, 'Mg': 2.0})"
     )
-    micronutrients: Optional[Dict[str, float]] = Field(
+    micronutrients: dict[str, float] | None = Field(
         None, description="Micronutrients (e.g., {'Fe': 0.5, 'Zn': 0.2})"
     )
 
@@ -151,46 +151,46 @@ class FertilizerApplicationRecord(BaseModel):
     quantity_applied_kg: float = Field(
         ..., ge=0, description="Total quantity applied in kg"
     )
-    application_rate_kg_per_ha: Optional[float] = Field(
+    application_rate_kg_per_ha: float | None = Field(
         None, ge=0, description="Application rate per hectare"
     )
-    area_applied_ha: Optional[float] = Field(
+    area_applied_ha: float | None = Field(
         None, ge=0, description="Area applied in hectares"
     )
 
     # Nutrient quantities (calculated)
-    nitrogen_applied_kg: Optional[float] = Field(
+    nitrogen_applied_kg: float | None = Field(
         None, ge=0, description="Total N applied in kg"
     )
-    phosphorus_applied_kg: Optional[float] = Field(
+    phosphorus_applied_kg: float | None = Field(
         None, ge=0, description="Total P applied in kg"
     )
-    potassium_applied_kg: Optional[float] = Field(
+    potassium_applied_kg: float | None = Field(
         None, ge=0, description="Total K applied in kg"
     )
 
     # Application method
     application_method: ApplicationMethod = Field(..., description="Application method")
-    application_equipment: Optional[str] = Field(None, description="Equipment used")
+    application_equipment: str | None = Field(None, description="Equipment used")
 
     # Compliance requirements
     based_on_soil_test: bool = Field(..., description="Based on soil test results")
-    soil_test_date: Optional[date] = Field(None, description="Soil test date")
-    soil_test_report_url: Optional[str] = Field(
+    soil_test_date: date | None = Field(None, description="Soil test date")
+    soil_test_report_url: str | None = Field(
         None, description="Soil test report URL"
     )
 
     based_on_plant_tissue_analysis: bool = Field(
         default=False, description="Based on plant tissue analysis"
     )
-    tissue_analysis_date: Optional[date] = Field(
+    tissue_analysis_date: date | None = Field(
         None, description="Tissue analysis date"
     )
 
     nutrient_plan_followed: bool = Field(
         ..., description="Follows nutrient management plan"
     )
-    nutrient_plan_id: Optional[str] = Field(
+    nutrient_plan_id: str | None = Field(
         None, description="Nutrient management plan ID"
     )
 
@@ -203,38 +203,38 @@ class FertilizerApplicationRecord(BaseModel):
 
     # Justification
     application_reason_en: str = Field(..., description="Application reason (English)")
-    application_reason_ar: Optional[str] = Field(
+    application_reason_ar: str | None = Field(
         None, description="Application reason (Arabic)"
     )
 
-    crop_stage: Optional[str] = Field(
+    crop_stage: str | None = Field(
         None, description="Crop growth stage at application"
     )
-    target_nutrient_deficiency: Optional[str] = Field(
+    target_nutrient_deficiency: str | None = Field(
         None, description="Target nutrient deficiency"
     )
 
     # Weather and conditions
-    weather_conditions: Optional[str] = Field(
+    weather_conditions: str | None = Field(
         None, description="Weather conditions during application"
     )
-    soil_moisture: Optional[str] = Field(None, description="Soil moisture conditions")
+    soil_moisture: str | None = Field(None, description="Soil moisture conditions")
 
     # Operator
-    operator_name: Optional[str] = Field(None, description="Operator name")
+    operator_name: str | None = Field(None, description="Operator name")
     operator_trained: bool = Field(
         default=False, description="Operator trained in fertilizer application"
     )
 
     # Evidence
-    application_record_url: Optional[str] = Field(
+    application_record_url: str | None = Field(
         None, description="Application record document URL"
     )
-    product_label_url: Optional[str] = Field(None, description="Product label/MSDS URL")
-    receipt_url: Optional[str] = Field(None, description="Purchase receipt URL")
+    product_label_url: str | None = Field(None, description="Product label/MSDS URL")
+    receipt_url: str | None = Field(None, description="Purchase receipt URL")
 
     # Metadata
-    recorded_by: Optional[UUID] = Field(None, description="User who recorded")
+    recorded_by: UUID | None = Field(None, description="User who recorded")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -260,14 +260,14 @@ class NutrientRequirement(BaseModel):
     required_kg_per_ha: float = Field(
         ..., ge=0, description="Required amount in kg per hectare"
     )
-    current_soil_level_ppm: Optional[float] = Field(
+    current_soil_level_ppm: float | None = Field(
         None, ge=0, description="Current soil level in ppm"
     )
-    optimal_soil_level_ppm: Optional[float] = Field(
+    optimal_soil_level_ppm: float | None = Field(
         None, ge=0, description="Optimal soil level in ppm"
     )
 
-    deficit_kg_per_ha: Optional[float] = Field(
+    deficit_kg_per_ha: float | None = Field(
         None, description="Deficit amount in kg per hectare"
     )
     is_deficient: bool = Field(default=False, description="Is deficient")
@@ -286,16 +286,16 @@ class NutrientManagementPlan(BaseModel):
 
     plan_id: str = Field(default_factory=lambda: str(uuid4()), description="Plan ID")
     farm_id: UUID = Field(..., description="Farm ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
 
     # Crop and season
     crop_type: str = Field(..., description="Crop type")
-    crop_variety: Optional[str] = Field(None, description="Crop variety")
+    crop_variety: str | None = Field(None, description="Crop variety")
     growing_season: str = Field(..., description="Growing season (e.g., 2024-Spring)")
 
-    planting_date: Optional[date] = Field(None, description="Planting date")
-    expected_harvest_date: Optional[date] = Field(
+    planting_date: date | None = Field(None, description="Planting date")
+    expected_harvest_date: date | None = Field(
         None, description="Expected harvest date"
     )
 
@@ -303,26 +303,26 @@ class NutrientManagementPlan(BaseModel):
     target_yield_kg_per_ha: float = Field(
         ..., ge=0, description="Target yield in kg per hectare"
     )
-    previous_yield_kg_per_ha: Optional[float] = Field(
+    previous_yield_kg_per_ha: float | None = Field(
         None, ge=0, description="Previous season yield"
     )
 
     # Soil analysis
     soil_test_date: date = Field(..., description="Soil test date")
-    soil_test_report_url: Optional[str] = Field(
+    soil_test_report_url: str | None = Field(
         None, description="Soil test report URL"
     )
 
-    soil_ph: Optional[float] = Field(None, ge=0, le=14, description="Soil pH")
-    soil_organic_matter_percentage: Optional[float] = Field(
+    soil_ph: float | None = Field(None, ge=0, le=14, description="Soil pH")
+    soil_organic_matter_percentage: float | None = Field(
         None, ge=0, le=100, description="Organic matter %"
     )
-    soil_texture: Optional[str] = Field(
+    soil_texture: str | None = Field(
         None, description="Soil texture (sandy, loamy, clay)"
     )
 
     # Nutrient requirements
-    nutrient_requirements: List[NutrientRequirement] = Field(
+    nutrient_requirements: list[NutrientRequirement] = Field(
         default_factory=list, description="List of nutrient requirements"
     )
 
@@ -341,7 +341,7 @@ class NutrientManagementPlan(BaseModel):
     number_of_applications: int = Field(
         ..., ge=1, description="Number of planned applications"
     )
-    application_schedule: List[Dict[str, Any]] = Field(
+    application_schedule: list[dict[str, Any]] = Field(
         default_factory=list, description="Application schedule with dates and amounts"
     )
 
@@ -374,19 +374,19 @@ class NutrientManagementPlan(BaseModel):
     )
 
     # Recommendations
-    recommendations_en: List[str] = Field(
+    recommendations_en: list[str] = Field(
         default_factory=list, description="Recommendations (English)"
     )
-    recommendations_ar: List[str] = Field(
+    recommendations_ar: list[str] = Field(
         default_factory=list, description="Recommendations (Arabic)"
     )
 
     # Plan metadata
-    prepared_by: Optional[UUID] = Field(None, description="User who prepared the plan")
-    approved_by: Optional[UUID] = Field(
+    prepared_by: UUID | None = Field(None, description="User who prepared the plan")
+    approved_by: UUID | None = Field(
         None, description="Agronomist/manager who approved"
     )
-    approved_date: Optional[date] = Field(None, description="Approval date")
+    approved_date: date | None = Field(None, description="Approval date")
 
     plan_status: str = Field(
         default="DRAFT",
@@ -417,14 +417,14 @@ class MRLComplianceCheck(BaseModel):
 
     # Heavy metals check
     heavy_metals_tested: bool = Field(..., description="Heavy metals tested")
-    cadmium_ppm: Optional[float] = Field(
+    cadmium_ppm: float | None = Field(
         None, ge=0, description="Cadmium content in ppm"
     )
-    lead_ppm: Optional[float] = Field(None, ge=0, description="Lead content in ppm")
-    mercury_ppm: Optional[float] = Field(
+    lead_ppm: float | None = Field(None, ge=0, description="Lead content in ppm")
+    mercury_ppm: float | None = Field(
         None, ge=0, description="Mercury content in ppm"
     )
-    arsenic_ppm: Optional[float] = Field(
+    arsenic_ppm: float | None = Field(
         None, ge=0, description="Arsenic content in ppm"
     )
 
@@ -452,14 +452,14 @@ class MRLComplianceCheck(BaseModel):
 
     # Test information
     test_date: date = Field(..., description="Test date")
-    test_laboratory: Optional[str] = Field(None, description="Testing laboratory")
-    test_report_url: Optional[str] = Field(None, description="Test report URL")
+    test_laboratory: str | None = Field(None, description="Testing laboratory")
+    test_report_url: str | None = Field(None, description="Test report URL")
 
     # Non-compliance details
-    non_compliance_issues_en: List[str] = Field(
+    non_compliance_issues_en: list[str] = Field(
         default_factory=list, description="Non-compliance issues (English)"
     )
-    non_compliance_issues_ar: List[str] = Field(
+    non_compliance_issues_ar: list[str] = Field(
         default_factory=list, description="Non-compliance issues (Arabic)"
     )
 
@@ -491,7 +491,7 @@ class FertilizerIntegration:
     - Emit NATS events for fertilizer tracking
     """
 
-    def __init__(self, publisher: Optional[EventPublisher] = None):
+    def __init__(self, publisher: EventPublisher | None = None):
         """
         Initialize fertilizer integration
 
@@ -542,14 +542,14 @@ class FertilizerIntegration:
         application_reason_en: str,
         based_on_soil_test: bool,
         nutrient_plan_followed: bool,
-        field_id: Optional[UUID] = None,
-        application_date: Optional[date] = None,
-        npk_ratio: Optional[str] = None,
-        area_applied_ha: Optional[float] = None,
-        soil_test_date: Optional[date] = None,
-        application_reason_ar: Optional[str] = None,
+        field_id: UUID | None = None,
+        application_date: date | None = None,
+        npk_ratio: str | None = None,
+        area_applied_ha: float | None = None,
+        soil_test_date: date | None = None,
+        application_reason_ar: str | None = None,
         mrl_compliant: bool = True,
-        recorded_by: Optional[UUID] = None,
+        recorded_by: UUID | None = None,
     ) -> FertilizerApplicationRecord:
         """
         Record fertilizer application for GlobalGAP compliance
@@ -646,14 +646,14 @@ class FertilizerIntegration:
         target_yield_kg_per_ha: float,
         soil_test_date: date,
         growing_season: str,
-        field_id: Optional[UUID] = None,
-        crop_variety: Optional[str] = None,
-        soil_ph: Optional[float] = None,
-        soil_organic_matter_percentage: Optional[float] = None,
-        previous_yield_kg_per_ha: Optional[float] = None,
-        planting_date: Optional[date] = None,
-        expected_harvest_date: Optional[date] = None,
-        prepared_by: Optional[UUID] = None,
+        field_id: UUID | None = None,
+        crop_variety: str | None = None,
+        soil_ph: float | None = None,
+        soil_organic_matter_percentage: float | None = None,
+        previous_yield_kg_per_ha: float | None = None,
+        planting_date: date | None = None,
+        expected_harvest_date: date | None = None,
+        prepared_by: UUID | None = None,
     ) -> NutrientManagementPlan:
         """
         Generate nutrient management plan based on crop requirements and soil test
@@ -750,10 +750,10 @@ class FertilizerIntegration:
 
         # Recommendations
         recommendations_en = [
-            f"Apply nitrogen in split doses to reduce leaching risk",
-            f"Base fertilizer rates on soil test results",
-            f"Monitor crop response and adjust applications as needed",
-            f"Keep records of all fertilizer applications for GlobalGAP compliance",
+            "Apply nitrogen in split doses to reduce leaching risk",
+            "Base fertilizer rates on soil test results",
+            "Monitor crop response and adjust applications as needed",
+            "Keep records of all fertilizer applications for GlobalGAP compliance",
         ]
 
         recommendations_ar = [
@@ -809,12 +809,12 @@ class FertilizerIntegration:
         farm_id: UUID,
         fertilizer_name: str,
         test_date: date,
-        cadmium_ppm: Optional[float] = None,
-        lead_ppm: Optional[float] = None,
-        mercury_ppm: Optional[float] = None,
-        arsenic_ppm: Optional[float] = None,
-        test_laboratory: Optional[str] = None,
-        test_report_url: Optional[str] = None,
+        cadmium_ppm: float | None = None,
+        lead_ppm: float | None = None,
+        mercury_ppm: float | None = None,
+        arsenic_ppm: float | None = None,
+        test_laboratory: str | None = None,
+        test_report_url: str | None = None,
     ) -> MRLComplianceCheck:
         """
         Check MRL compliance for fertilizer heavy metals

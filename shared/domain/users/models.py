@@ -5,9 +5,8 @@ Data models for user management
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Optional
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from uuid import uuid4
 
 
@@ -16,9 +15,9 @@ class UserProfile:
     """User profile information"""
 
     name: str
-    name_ar: Optional[str] = None
-    phone: Optional[str] = None
-    avatar_url: Optional[str] = None
+    name_ar: str | None = None
+    phone: str | None = None
+    avatar_url: str | None = None
     language: str = "ar"
     notifications_enabled: bool = True
 
@@ -44,14 +43,14 @@ class User:
     roles: list[str]
     is_active: bool
     is_verified: bool
-    password_hash: Optional[str]
-    last_login: Optional[datetime]
+    password_hash: str | None
+    last_login: datetime | None
     created_at: datetime
     updated_at: datetime
     # Two-Factor Authentication fields
-    twofa_secret: Optional[str] = None
+    twofa_secret: str | None = None
     twofa_enabled: bool = False
-    twofa_backup_codes: Optional[list[str]] = None
+    twofa_backup_codes: list[str] | None = None
 
     @classmethod
     def create(
@@ -59,12 +58,12 @@ class User:
         tenant_id: str,
         email: str,
         name: str,
-        name_ar: Optional[str] = None,
-        roles: Optional[list[str]] = None,
-        password_hash: Optional[str] = None,
+        name_ar: str | None = None,
+        roles: list[str] | None = None,
+        password_hash: str | None = None,
     ) -> User:
         """Factory method to create a new user"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             id=str(uuid4()),
             tenant_id=tenant_id,

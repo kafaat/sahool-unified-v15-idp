@@ -23,15 +23,13 @@ Usage:
 """
 
 import json
+import logging
 import time
 import uuid
-import logging
-from typing import Optional, Callable, Set
 from datetime import datetime
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.responses import StreamingResponse
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +54,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """
 
     # Sensitive headers to redact
-    SENSITIVE_HEADERS: Set[str] = {
+    SENSITIVE_HEADERS: set[str] = {
         "authorization",
         "cookie",
         "x-api-key",
@@ -73,7 +71,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         service_name: str,
         log_request_body: bool = False,
         log_response_body: bool = False,
-        exclude_paths: Optional[list[str]] = None,
+        exclude_paths: list[str] | None = None,
         max_body_length: int = 1000,
     ):
         super().__init__(app)
@@ -224,7 +222,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             )
             self._log_json(log_level, message, response_log)
 
-    def _extract_tenant_id(self, request: Request) -> Optional[str]:
+    def _extract_tenant_id(self, request: Request) -> str | None:
         """Extract tenant ID from headers or request state."""
         # Try header first
         tenant_id = request.headers.get("X-Tenant-ID")
@@ -239,7 +237,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         return tenant_id
 
-    def _extract_user_id(self, request: Request) -> Optional[str]:
+    def _extract_user_id(self, request: Request) -> str | None:
         """Extract user ID from headers or request state."""
         # Try header first
         user_id = request.headers.get("X-User-ID")
@@ -254,7 +252,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
         return user_id
 
-    async def _read_request_body(self, request: Request) -> Optional[str]:
+    async def _read_request_body(self, request: Request) -> str | None:
         """Read and return request body (with size limit)."""
         try:
             body_bytes = await request.body()

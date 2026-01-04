@@ -3,9 +3,10 @@ Stock Manager - Handles FIFO batch consumption and stock operations
 """
 
 from datetime import datetime
-from typing import List, Optional, Tuple
+
 from prisma import Prisma
 from prisma.models import BatchLot, InventoryItem, StockMovement
+
 from models import MovementType
 
 
@@ -17,7 +18,7 @@ class StockManager:
 
     async def consume_stock_fifo(
         self, item_id: str, quantity: float
-    ) -> Tuple[List[dict], float]:
+    ) -> tuple[list[dict], float]:
         """
         Consume stock using FIFO (First In First Out) method
         Returns: (consumed_batches, total_consumed)
@@ -85,14 +86,14 @@ class StockManager:
         item_id: str,
         quantity: float,
         lot_number: str,
-        batch_number: Optional[str] = None,
-        expiry_date: Optional[datetime] = None,
-        production_date: Optional[datetime] = None,
-        supplier_id: Optional[str] = None,
-        invoice_number: Optional[str] = None,
-        unit_cost: Optional[float] = None,
-        quality_grade: Optional[str] = None,
-        certifications: Optional[List[str]] = None,
+        batch_number: str | None = None,
+        expiry_date: datetime | None = None,
+        production_date: datetime | None = None,
+        supplier_id: str | None = None,
+        invoice_number: str | None = None,
+        unit_cost: float | None = None,
+        quality_grade: str | None = None,
+        certifications: list[str] | None = None,
     ) -> BatchLot:
         """Add a new batch/lot of stock"""
         # Validate input
@@ -161,13 +162,13 @@ class StockManager:
         quantity: float,
         previous_qty: float,
         new_qty: float,
-        unit_cost: Optional[float] = None,
-        reference_type: Optional[str] = None,
-        reference_id: Optional[str] = None,
-        field_id: Optional[str] = None,
-        crop_season_id: Optional[str] = None,
-        performed_by: Optional[str] = None,
-        notes: Optional[str] = None,
+        unit_cost: float | None = None,
+        reference_type: str | None = None,
+        reference_id: str | None = None,
+        field_id: str | None = None,
+        crop_season_id: str | None = None,
+        performed_by: str | None = None,
+        notes: str | None = None,
     ) -> StockMovement:
         """Create a stock movement audit record"""
         total_cost = (unit_cost * quantity) if unit_cost else None
@@ -250,7 +251,7 @@ class StockManager:
 
     async def get_batches_for_item(
         self, item_id: str, include_empty: bool = False
-    ) -> List[BatchLot]:
+    ) -> list[BatchLot]:
         """Get all batches for an item"""
         where_clause = {"itemId": item_id}
         if not include_empty:
@@ -262,7 +263,7 @@ class StockManager:
 
         return batches
 
-    async def check_low_stock(self) -> List[InventoryItem]:
+    async def check_low_stock(self) -> list[InventoryItem]:
         """Get items below reorder level"""
         items = await self.db.inventoryitem.find_many(
             where={
@@ -291,7 +292,7 @@ class StockManager:
 
         return low_stock_items
 
-    async def check_expiring_items(self, days_threshold: int = 30) -> List[BatchLot]:
+    async def check_expiring_items(self, days_threshold: int = 30) -> list[BatchLot]:
         """Get batches expiring within threshold days"""
         from datetime import timedelta
 

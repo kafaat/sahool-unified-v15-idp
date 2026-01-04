@@ -12,15 +12,18 @@ Specialized agent for:
 Uses Utility-Based decision making to select best treatment.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
-from datetime import datetime
-from dataclasses import dataclass
-import asyncio
 import logging
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
 from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer, AgentStatus,
-    AgentContext, AgentAction, AgentPercept
+    AgentAction,
+    AgentContext,
+    AgentLayer,
+    AgentPercept,
+    AgentType,
+    BaseAgent,
 )
 
 logger = logging.getLogger(__name__)
@@ -32,14 +35,14 @@ class Disease:
     disease_id: str
     name: str
     name_ar: str
-    crop_types: List[str]
-    symptoms: List[str]
-    symptoms_ar: List[str]
+    crop_types: list[str]
+    symptoms: list[str]
+    symptoms_ar: list[str]
     severity: str  # low, medium, high, critical
     spread_rate: str  # slow, moderate, fast
-    treatments: List[Dict[str, Any]]
-    prevention: List[str]
-    prevention_ar: List[str]
+    treatments: list[dict[str, Any]]
+    prevention: list[str]
+    prevention_ar: list[str]
 
 
 @dataclass
@@ -60,7 +63,7 @@ class DiseaseExpertAgent(BaseAgent):
     """
 
     # Yemen-specific disease database
-    DISEASE_DATABASE: Dict[str, Disease] = {
+    DISEASE_DATABASE: dict[str, Disease] = {
         "wheat_leaf_rust": Disease(
             disease_id="wheat_leaf_rust",
             name="Wheat Leaf Rust",
@@ -219,7 +222,7 @@ class DiseaseExpertAgent(BaseAgent):
         )
 
         # Diagnosis history for learning
-        self.diagnosis_history: List[DiagnosisResult] = []
+        self.diagnosis_history: list[DiagnosisResult] = []
 
         # Set utility function for treatment selection
         self.set_utility_function(self._treatment_utility)
@@ -289,7 +292,7 @@ class DiseaseExpertAgent(BaseAgent):
                 metadata={"disease_beliefs": self.state.beliefs}
             )
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """التشخيص واختيار العلاج"""
         # Step 1: Diagnose
         diagnosis = await self._diagnose()
@@ -325,9 +328,9 @@ class DiseaseExpertAgent(BaseAgent):
 
         return best_treatment
 
-    async def _diagnose(self) -> Optional[DiagnosisResult]:
+    async def _diagnose(self) -> DiagnosisResult | None:
         """تشخيص المرض"""
-        candidates: List[Tuple[str, float]] = []
+        candidates: list[tuple[str, float]] = []
 
         # From CNN image classification
         if "image_classification" in self.state.beliefs:
@@ -357,7 +360,7 @@ class DiseaseExpertAgent(BaseAgent):
             return None
 
         # Aggregate confidences
-        disease_scores: Dict[str, float] = {}
+        disease_scores: dict[str, float] = {}
         for disease_id, score in candidates:
             disease_scores[disease_id] = disease_scores.get(disease_id, 0) + score
 
@@ -380,7 +383,7 @@ class DiseaseExpertAgent(BaseAgent):
             urgency=self._determine_urgency(disease, severity, progression)
         )
 
-    async def _match_symptoms(self, symptoms: List[str]) -> List[Tuple[str, float]]:
+    async def _match_symptoms(self, symptoms: list[str]) -> list[tuple[str, float]]:
         """مطابقة الأعراض مع الأمراض"""
         matches = []
         for symptom in symptoms:
@@ -424,7 +427,7 @@ class DiseaseExpertAgent(BaseAgent):
         else:
             return "scheduled"
 
-    async def _generate_treatment_options(self, diagnosis: DiagnosisResult) -> List[AgentAction]:
+    async def _generate_treatment_options(self, diagnosis: DiagnosisResult) -> list[AgentAction]:
         """إنشاء خيارات العلاج"""
         actions = []
 
@@ -464,7 +467,7 @@ class DiseaseExpertAgent(BaseAgent):
 
         return actions
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ التوصية"""
         result = {
             "action_type": action.action_type,
@@ -499,7 +502,7 @@ class DiseaseExpertAgent(BaseAgent):
 
         return result
 
-    def get_disease_info(self, disease_id: str) -> Optional[Dict[str, Any]]:
+    def get_disease_info(self, disease_id: str) -> dict[str, Any] | None:
         """الحصول على معلومات المرض"""
         disease = self.DISEASE_DATABASE.get(disease_id)
         if disease:
@@ -516,7 +519,7 @@ class DiseaseExpertAgent(BaseAgent):
             }
         return None
 
-    def list_diseases_for_crop(self, crop_type: str) -> List[Dict[str, Any]]:
+    def list_diseases_for_crop(self, crop_type: str) -> list[dict[str, Any]]:
         """قائمة الأمراض حسب المحصول"""
         diseases = []
         for disease in self.DISEASE_DATABASE.values():

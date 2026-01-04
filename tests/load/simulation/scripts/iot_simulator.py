@@ -10,16 +10,17 @@ Usage:
     python iot_simulator.py --devices 10 --duration 60 --gateway http://localhost:8106
 """
 
-import asyncio
-import aiohttp
 import argparse
+import asyncio
+import json
+import logging
 import random
 import time
-import json
-from datetime import datetime, timezone
-from dataclasses import dataclass, asdict
-from typing import Optional, Dict, Any, List
-import logging
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from typing import Any
+
+import aiohttp
 
 logging.basicConfig(
     level=logging.INFO,
@@ -80,11 +81,11 @@ class IoTDevice:
         self.location = location
         self.battery_level = random.randint(50, 100)
 
-    def generate_payload(self) -> Dict[str, Any]:
+    def generate_payload(self) -> dict[str, Any]:
         raise NotImplementedError
 
 class SoilSensor(IoTDevice):
-    def generate_payload(self) -> Dict[str, Any]:
+    def generate_payload(self) -> dict[str, Any]:
         return {
             "device_id": self.device_id,
             "device_type": self.device_type,
@@ -110,11 +111,11 @@ class SoilSensor(IoTDevice):
             },
             "battery_level": self.battery_level,
             "signal_strength": -30 - random.randint(0, 60),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
 class WeatherStation(IoTDevice):
-    def generate_payload(self) -> Dict[str, Any]:
+    def generate_payload(self) -> dict[str, Any]:
         return {
             "device_id": self.device_id,
             "device_type": self.device_type,
@@ -133,11 +134,11 @@ class WeatherStation(IoTDevice):
                 "region": self.location["region"],
             },
             "battery_level": self.battery_level,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
 class IrrigationController(IoTDevice):
-    def generate_payload(self) -> Dict[str, Any]:
+    def generate_payload(self) -> dict[str, Any]:
         zones = random.randint(4, 8)
         return {
             "device_id": self.device_id,
@@ -159,11 +160,11 @@ class IrrigationController(IoTDevice):
                 "farm_name": self.location["name"],
             },
             "battery_level": self.battery_level,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
 class GPSTracker(IoTDevice):
-    def generate_payload(self) -> Dict[str, Any]:
+    def generate_payload(self) -> dict[str, Any]:
         return {
             "device_id": self.device_id,
             "device_type": self.device_type,
@@ -182,7 +183,7 @@ class GPSTracker(IoTDevice):
             },
             "battery_level": self.battery_level,
             "signal_strength": -30 - random.randint(0, 70),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -194,7 +195,7 @@ class IoTSimulator:
         self.gateway_url = gateway_url.rstrip("/")
         self.num_devices = num_devices
         self.duration_seconds = duration_seconds
-        self.devices: List[IoTDevice] = []
+        self.devices: list[IoTDevice] = []
         self.stats = SimulationStats()
         self.running = False
 
@@ -231,7 +232,7 @@ class IoTSimulator:
             "payload": payload,
             "qos": 1,
             "retain": False,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         headers = {
@@ -259,7 +260,7 @@ class IoTSimulator:
                     self.stats.messages_failed += 1
                     logger.warning(f"Device {device.device_id}: HTTP {response.status}")
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             self.stats.messages_failed += 1
             logger.warning(f"Device {device.device_id}: Timeout")
         except aiohttp.ClientError as e:
@@ -327,7 +328,7 @@ class IoTSimulator:
 
         # Save results to JSON
         results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "configuration": {
                 "gateway_url": self.gateway_url,
                 "num_devices": self.num_devices,

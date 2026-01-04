@@ -18,17 +18,18 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import asyncio
-import aiohttp
 import argparse
+import asyncio
+import json
+import logging
 import random
 import time
-import json
 import uuid
-from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List
-import logging
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
+import aiohttp
 
 logging.basicConfig(
     level=logging.INFO,
@@ -125,7 +126,7 @@ class AgentStats:
 @dataclass
 class SimulatorStats:
     start_time: float = field(default_factory=time.time)
-    agents: Dict[str, AgentStats] = field(default_factory=dict)
+    agents: dict[str, AgentStats] = field(default_factory=dict)
 
     def get_agent(self, name: str) -> AgentStats:
         if name not in self.agents:
@@ -153,10 +154,10 @@ class AIAgentSimulator:
         self.session = session
         self.base_url = base_url.rstrip("/")
         self.stats = stats
-        self.token: Optional[str] = None
+        self.token: str | None = None
 
     @property
-    def headers(self) -> Dict[str, str]:
+    def headers(self) -> dict[str, str]:
         h = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -195,7 +196,7 @@ class AIAgentSimulator:
 
                 return success, data
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             self.stats.record(agent_name, False, 60000)
             logger.warning(f"{agent_name}: {method} {path} -> Timeout")
             return False, None
@@ -301,7 +302,7 @@ class AIAgentSimulator:
 
     async def predict_yield(self):
         """Request yield prediction."""
-        location = random.choice(SAUDI_LOCATIONS)
+        random.choice(SAUDI_LOCATIONS)
         crop = random.choice(CROP_TYPES)
 
         return await self.request("POST", "/api/advisor/recommend", "yield_predictor", json={
@@ -552,7 +553,7 @@ class AgentsSimulator:
         duration = time.time() - self.stats.start_time
 
         results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "configuration": {
                 "gateway_url": self.gateway_url,
                 "num_users": self.num_users,

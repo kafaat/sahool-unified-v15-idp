@@ -7,7 +7,8 @@ Provides a unified interface for consuming domain events.
 
 import json
 import logging
-from typing import Callable, Dict, Type
+from collections.abc import Callable
+
 from .base import BaseEvent
 from .registry import EventRegistry
 
@@ -31,10 +32,10 @@ class EventConsumer:
     def __init__(self, nats_client=None, service_name: str = "unknown"):
         self._nats = nats_client
         self._service_name = service_name
-        self._handlers: Dict[str, Callable] = {}
+        self._handlers: dict[str, Callable] = {}
         self._subscriptions = []
 
-    def on(self, event_class: Type[BaseEvent]):
+    def on(self, event_class: type[BaseEvent]):
         """Decorator to register an event handler"""
 
         def decorator(handler: Callable):

@@ -17,8 +17,8 @@ warnings.warn(
 from kernel_domain.tenancy import (
     Tenant,
     TenantPlan,
-    TenantSettings,
     TenantService,
+    TenantSettings,
     TenantStatus,
 )
 

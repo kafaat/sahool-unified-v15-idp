@@ -8,15 +8,15 @@ Tests the multi-provider LLM functionality including:
 - Individual provider functionality
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
 from llm.multi_provider import (
-    MultiLLMService,
     AnthropicProvider,
-    OpenAIProvider,
     GoogleGeminiProvider,
     LLMMessage,
-    LLMProviderType,
+    MultiLLMService,
+    OpenAIProvider,
 )
 
 

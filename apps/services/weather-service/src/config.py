@@ -7,7 +7,6 @@ Configuration for weather providers, API keys, and service settings
 
 import os
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict
 from enum import Enum
 
 
@@ -31,7 +30,7 @@ class ProviderConfig:
 
     name: str
     enabled: bool = True
-    api_key: Optional[str] = None
+    api_key: str | None = None
     priority: WeatherProviderPriority = WeatherProviderPriority.FALLBACK
     rate_limit_per_day: int = 1000
     timeout_seconds: int = 30
@@ -115,7 +114,7 @@ class WeatherServiceConfig:
     """
 
     # Provider configurations - إعدادات المزودين
-    providers: Dict[str, ProviderConfig] = field(default_factory=dict)
+    providers: dict[str, ProviderConfig] = field(default_factory=dict)
 
     # Cache configuration - إعدادات التخزين المؤقت
     cache: CacheConfig = field(default_factory=CacheConfig)
@@ -235,7 +234,7 @@ def load_config_from_env() -> WeatherServiceConfig:
 
 # Global configuration instance
 # مثيل الإعدادات العامة
-_global_config: Optional[WeatherServiceConfig] = None
+_global_config: WeatherServiceConfig | None = None
 
 
 def get_config() -> WeatherServiceConfig:

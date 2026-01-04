@@ -11,8 +11,8 @@ These agents enable the system to improve over time.
 """
 
 from .feedback_learner import FeedbackLearnerAgent
-from .model_updater import ModelUpdaterAgent
 from .knowledge_miner import KnowledgeMinerAgent
+from .model_updater import ModelUpdaterAgent
 
 __all__ = [
     "FeedbackLearnerAgent",

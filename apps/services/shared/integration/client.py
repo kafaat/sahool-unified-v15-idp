@@ -3,17 +3,16 @@ Service Client for Inter-Service Communication
 عميل الخدمة للاتصال بين الخدمات
 """
 
-import os
 import logging
-import asyncio
-from typing import Optional, Dict, Any, List
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any
 
 import httpx
 
-from ..versions import SERVICE_PORTS, get_service_url
+from ..versions import get_service_url
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +39,8 @@ class ServiceResponse:
 
     success: bool
     status_code: int
-    data: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
+    data: dict[str, Any] | None = None
+    error: str | None = None
     latency_ms: float = 0
 
 
@@ -60,10 +59,10 @@ class ServiceClient:
     def __init__(
         self,
         service: ServiceName,
-        host: Optional[str] = None,
+        host: str | None = None,
         timeout: float = 30.0,
-        api_key: Optional[str] = None,
-        auth_token: Optional[str] = None,
+        api_key: str | None = None,
+        auth_token: str | None = None,
     ):
         self.service = service
         self.host = host or os.getenv("SERVICES_HOST", "localhost")
@@ -74,10 +73,10 @@ class ServiceClient:
         self.base_url = get_service_url(service.value, self.host)
 
         # Request cache
-        self._cache: Dict[str, Dict[str, Any]] = {}
+        self._cache: dict[str, dict[str, Any]] = {}
         self._cache_ttl = timedelta(minutes=5)
 
-    def _get_headers(self) -> Dict[str, str]:
+    def _get_headers(self) -> dict[str, str]:
         """Build request headers"""
         headers = {
             "Content-Type": "application/json",
@@ -90,13 +89,13 @@ class ServiceClient:
         return headers
 
     def _get_cache_key(
-        self, method: str, path: str, params: Optional[Dict] = None
+        self, method: str, path: str, params: dict | None = None
     ) -> str:
         """Generate cache key"""
         param_str = "&".join(f"{k}={v}" for k, v in sorted((params or {}).items()))
         return f"{method}:{path}?{param_str}"
 
-    def _is_cache_valid(self, cache_entry: Dict) -> bool:
+    def _is_cache_valid(self, cache_entry: dict) -> bool:
         """Check if cache entry is still valid"""
         cached_at = cache_entry.get("cached_at")
         if not cached_at:
@@ -106,7 +105,7 @@ class ServiceClient:
     async def get(
         self,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
+        params: dict[str, Any] | None = None,
         use_cache: bool = True,
     ) -> ServiceResponse:
         """Make GET request to service"""
@@ -162,8 +161,8 @@ class ServiceClient:
     async def post(
         self,
         path: str,
-        data: Optional[Dict[str, Any]] = None,
-        json: Optional[Dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> ServiceResponse:
         """Make POST request to service"""
         start = datetime.utcnow()
@@ -202,8 +201,8 @@ class ServiceClient:
     async def put(
         self,
         path: str,
-        data: Optional[Dict[str, Any]] = None,
-        json: Optional[Dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
     ) -> ServiceResponse:
         """Make PUT request to service"""
         start = datetime.utcnow()
@@ -274,12 +273,12 @@ class ServiceClient:
 
 
 # Global clients registry
-_clients: Dict[str, ServiceClient] = {}
+_clients: dict[str, ServiceClient] = {}
 
 
 def get_service_client(
     service: ServiceName,
-    host: Optional[str] = None,
+    host: str | None = None,
     **kwargs,
 ) -> ServiceClient:
     """
@@ -303,21 +302,21 @@ def get_service_client(
 # =============================================================================
 
 
-async def get_current_weather(location_id: str) -> Optional[Dict]:
+async def get_current_weather(location_id: str) -> dict | None:
     """Get current weather for a location"""
     client = get_service_client(ServiceName.WEATHER)
     response = await client.get(f"/v1/current/{location_id}")
     return response.data if response.success else None
 
 
-async def get_weather_forecast(location_id: str, days: int = 7) -> Optional[Dict]:
+async def get_weather_forecast(location_id: str, days: int = 7) -> dict | None:
     """Get weather forecast for a location"""
     client = get_service_client(ServiceName.WEATHER)
     response = await client.get(f"/v1/forecast/{location_id}", params={"days": days})
     return response.data if response.success else None
 
 
-async def get_tenant_subscription(tenant_id: str) -> Optional[Dict]:
+async def get_tenant_subscription(tenant_id: str) -> dict | None:
     """Get tenant subscription details"""
     client = get_service_client(ServiceName.BILLING)
     response = await client.get(f"/v1/tenants/{tenant_id}/subscription")
@@ -334,7 +333,7 @@ async def record_usage(tenant_id: str, usage_type: str, amount: float) -> bool:
     return response.success
 
 
-async def check_quota(tenant_id: str, usage_type: str) -> Optional[Dict]:
+async def check_quota(tenant_id: str, usage_type: str) -> dict | None:
     """Check quota for a tenant"""
     client = get_service_client(ServiceName.BILLING)
     response = await client.get(f"/v1/tenants/{tenant_id}/quota")
@@ -361,14 +360,14 @@ async def send_notification(
     return response.success
 
 
-async def get_irrigation_recommendation(field_id: str) -> Optional[Dict]:
+async def get_irrigation_recommendation(field_id: str) -> dict | None:
     """Get irrigation recommendation for a field"""
     client = get_service_client(ServiceName.IRRIGATION)
     response = await client.get(f"/v1/recommendations/{field_id}")
     return response.data if response.success else None
 
 
-async def get_satellite_imagery(field_id: str, date: str = None) -> Optional[Dict]:
+async def get_satellite_imagery(field_id: str, date: str = None) -> dict | None:
     """Get satellite imagery for a field"""
     client = get_service_client(ServiceName.SATELLITE)
     params = {"date": date} if date else None
@@ -376,7 +375,7 @@ async def get_satellite_imagery(field_id: str, date: str = None) -> Optional[Dic
     return response.data if response.success else None
 
 
-async def analyze_crop_health(image_path: str, crop_type: str) -> Optional[Dict]:
+async def analyze_crop_health(image_path: str, crop_type: str) -> dict | None:
     """Analyze crop health from image"""
     client = get_service_client(ServiceName.CROP_HEALTH)
     response = await client.post(

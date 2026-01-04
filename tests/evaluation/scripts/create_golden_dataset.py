@@ -8,10 +8,10 @@ Script to create default golden dataset for agent evaluation.
 
 import json
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 
 
-def create_golden_dataset() -> List[Dict[str, Any]]:
+def create_golden_dataset() -> list[dict[str, Any]]:
     """
     Create comprehensive golden dataset
     إنشاء مجموعة بيانات ذهبية شاملة

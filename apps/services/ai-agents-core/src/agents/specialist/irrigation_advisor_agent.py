@@ -9,15 +9,11 @@ Specialized agent for:
 - Crop water requirements
 """
 
-from typing import Any, Dict, List, Optional
-from datetime import datetime, timedelta
-import asyncio
 import logging
+from datetime import datetime
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +63,7 @@ class IrrigationAdvisorAgent(BaseAgent):
         if not self.context:
             self.context = AgentContext()
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """حساب احتياجات الري"""
         crop = self.state.beliefs.get("crop", {})
         crop_type = crop.get("type", "wheat")
@@ -115,7 +111,7 @@ class IrrigationAdvisorAgent(BaseAgent):
             source_agent=self.agent_id
         )
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ التوصية"""
         return {
             "action_type": action.action_type,

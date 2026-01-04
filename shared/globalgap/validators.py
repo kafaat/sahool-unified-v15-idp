@@ -7,19 +7,19 @@ Validation functions for IFA v6 compliance data.
 """
 
 import re
-from datetime import datetime, date, timedelta
-from typing import Dict, List, Optional, Tuple
+from datetime import date, datetime, timedelta
+
 from .constants import (
+    CERTIFICATE_VALIDITY_DAYS,
+    COMPLIANCE_THRESHOLDS,
     GGN_FORMAT_PATTERN,
     GGN_LENGTH,
     GGN_PREFIX,
-    COMPLIANCE_THRESHOLDS,
-    CERTIFICATE_VALIDITY_DAYS,
     ComplianceLevel,
 )
 
 
-def validate_ggn_number(ggn: str) -> Tuple[bool, Optional[str]]:
+def validate_ggn_number(ggn: str) -> tuple[bool, str | None]:
     """
     Validate GlobalGAP Number (GGN) format
     التحقق من صحة تنسيق رقم GlobalGAP (GGN)
@@ -63,7 +63,7 @@ def validate_ggn_number(ggn: str) -> Tuple[bool, Optional[str]]:
 
 def validate_compliance_percentage(
     compliant_count: int, total_count: int, not_applicable_count: int = 0
-) -> Tuple[float, bool]:
+) -> tuple[float, bool]:
     """
     Calculate and validate compliance percentage
     حساب والتحقق من نسبة الامتثال
@@ -96,8 +96,8 @@ def validate_compliance_percentage(
 
 
 def check_major_must_compliance(
-    findings: List[Dict], checklist_items: List[Dict]
-) -> Tuple[bool, Dict]:
+    findings: list[dict], checklist_items: list[dict]
+) -> tuple[bool, dict]:
     """
     Check if Major Must requirements are met
     التحقق من استيفاء المتطلبات الإلزامية الرئيسية
@@ -190,8 +190,8 @@ def check_major_must_compliance(
 
 
 def check_minor_must_compliance(
-    findings: List[Dict], checklist_items: List[Dict]
-) -> Tuple[bool, Dict]:
+    findings: list[dict], checklist_items: list[dict]
+) -> tuple[bool, dict]:
     """
     Check if Minor Must requirements are met
     التحقق من استيفاء المتطلبات الإلزامية الثانوية
@@ -284,9 +284,9 @@ def check_minor_must_compliance(
 
 def validate_certificate_validity(
     issue_date: date,
-    expiry_date: Optional[date] = None,
-    check_date: Optional[date] = None,
-) -> Tuple[bool, Dict]:
+    expiry_date: date | None = None,
+    check_date: date | None = None,
+) -> tuple[bool, dict]:
     """
     Validate certificate validity period
     التحقق من صحة فترة صلاحية الشهادة
@@ -346,7 +346,7 @@ def validate_certificate_validity(
     }
 
 
-def validate_farm_registration(farm_data: Dict) -> Tuple[bool, List[str]]:
+def validate_farm_registration(farm_data: dict) -> tuple[bool, list[str]]:
     """
     Validate farm registration data completeness
     التحقق من اكتمال بيانات تسجيل المزرعة
@@ -410,8 +410,8 @@ def validate_farm_registration(farm_data: Dict) -> Tuple[bool, List[str]]:
 
 
 def validate_audit_completion(
-    audit_data: Dict, findings: List[Dict], checklist_items: List[Dict]
-) -> Tuple[bool, Dict]:
+    audit_data: dict, findings: list[dict], checklist_items: list[dict]
+) -> tuple[bool, dict]:
     """
     Validate if audit is complete and ready for certification decision
     التحقق من اكتمال التدقيق والجاهزية لقرار الشهادة
@@ -508,8 +508,8 @@ def validate_audit_completion(
 
 
 def validate_corrective_action(
-    corrective_action: Dict, non_conformance: Dict
-) -> Tuple[bool, List[str]]:
+    corrective_action: dict, non_conformance: dict
+) -> tuple[bool, list[str]]:
     """
     Validate corrective action plan
     التحقق من صحة خطة الإجراء التصحيحي

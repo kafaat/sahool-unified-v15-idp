@@ -12,18 +12,17 @@ Created: 2025-12-28
 """
 
 import logging
-from typing import Optional, List, Dict, Any, Tuple
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
+from typing import Any
 from uuid import UUID
-import asyncpg
 
 from ..database import (
-    get_connection,
-    transaction,
-    registrations_repo,
-    compliance_repo,
     checklist_repo,
+    compliance_repo,
+    get_connection,
     non_conformance_repo,
+    registrations_repo,
+    transaction,
 )
 
 logger = logging.getLogger("globalgap-compliance")
@@ -65,7 +64,7 @@ class ComplianceRepository:
         include_history: bool = True,
         include_responses: bool = False,
         include_non_conformances: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get comprehensive compliance information for a farm
         الحصول على معلومات الامتثال الشاملة للمزرعة
@@ -159,9 +158,9 @@ class ComplianceRepository:
 
     async def _calculate_farm_summary(
         self,
-        registrations: List[Dict[str, Any]],
-        compliance_records: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        registrations: list[dict[str, Any]],
+        compliance_records: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """
         Calculate summary statistics for farm compliance
         حساب الإحصائيات الموجزة لامتثال المزرعة
@@ -200,7 +199,7 @@ class ComplianceRepository:
         return summary
 
     async def _calculate_compliance_trend(
-        self, compliance_records: List[Dict[str, Any]]
+        self, compliance_records: list[dict[str, Any]]
     ) -> str:
         """
         Calculate compliance trend (improving/declining/stable)
@@ -237,10 +236,10 @@ class ComplianceRepository:
         compliance_record_id: UUID,
         checklist_item_id: str,
         response: str,
-        evidence_path: Optional[str] = None,
-        notes: Optional[str] = None,
+        evidence_path: str | None = None,
+        notes: str | None = None,
         auto_create_non_conformance: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Save a checklist response and optionally create non-conformance
         حفظ استجابة قائمة التحقق واختياريًا إنشاء عدم مطابقة
@@ -318,9 +317,9 @@ class ComplianceRepository:
     async def save_checklist_responses_batch(
         self,
         compliance_record_id: UUID,
-        responses: List[Dict[str, Any]],
+        responses: list[dict[str, Any]],
         auto_create_non_conformances: bool = True,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Save multiple checklist responses in a batch with transaction
         حفظ استجابات قائمة التحقق المتعددة دفعة واحدة مع المعاملة
@@ -336,7 +335,7 @@ class ComplianceRepository:
         try:
             results = []
 
-            async with transaction() as conn:
+            async with transaction():
                 for resp in responses:
                     result = await self.save_checklist_response(
                         compliance_record_id=compliance_record_id,
@@ -366,9 +365,9 @@ class ComplianceRepository:
         checklist_item_id: str,
         severity: str,
         description: str,
-        corrective_action: Optional[str] = None,
-        due_date: Optional[date] = None,
-    ) -> Dict[str, Any]:
+        corrective_action: str | None = None,
+        due_date: date | None = None,
+    ) -> dict[str, Any]:
         """
         Create a non-conformance record
         إنشاء سجل عدم المطابقة
@@ -413,9 +412,9 @@ class ComplianceRepository:
         self,
         nc_id: UUID,
         status: str,
-        corrective_action: Optional[str] = None,
-        notes: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        corrective_action: str | None = None,
+        notes: str | None = None,
+    ) -> dict[str, Any]:
         """
         Update non-conformance status with validation
         تحديث حالة عدم المطابقة مع التحقق
@@ -446,10 +445,10 @@ class ComplianceRepository:
 
     async def get_compliance_summary_report(
         self,
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
         min_compliance_threshold: float = 80.0,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate comprehensive compliance summary report
         إنشاء تقرير موجز شامل للامتثال
@@ -560,8 +559,8 @@ class ComplianceRepository:
             raise
 
     async def get_farm_compliance_history(
-        self, farm_id: UUID, limit: Optional[int] = 10
-    ) -> List[Dict[str, Any]]:
+        self, farm_id: UUID, limit: int | None = 10
+    ) -> list[dict[str, Any]]:
         """
         Get compliance history for a farm with trend analysis
         الحصول على سجل الامتثال للمزرعة مع تحليل الاتجاه
@@ -598,9 +597,9 @@ class ComplianceRepository:
     async def get_checklist_item_analysis(
         self,
         checklist_item_id: str,
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
-    ) -> Dict[str, Any]:
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> dict[str, Any]:
         """
         Analyze compliance patterns for a specific checklist item
         تحليل أنماط الامتثال لعنصر قائمة التحقق المحدد
@@ -665,8 +664,8 @@ class ComplianceRepository:
             raise
 
     async def get_overdue_corrective_actions(
-        self, severity: Optional[str] = None, days_overdue: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+        self, severity: str | None = None, days_overdue: int | None = None
+    ) -> list[dict[str, Any]]:
         """
         Get overdue corrective actions with farm and audit details
         الحصول على الإجراءات التصحيحية المتأخرة مع تفاصيل المزرعة والتدقيق
@@ -716,7 +715,7 @@ class ComplianceRepository:
 
     async def get_expiring_certificates_report(
         self, days_ahead: int = 90
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get certificates expiring within specified days with compliance status
         الحصول على الشهادات المنتهية الصلاحية خلال أيام محددة مع حالة الامتثال
@@ -754,8 +753,8 @@ class ComplianceRepository:
             raise
 
     async def get_compliance_trends(
-        self, farm_id: Optional[UUID] = None, months: int = 12
-    ) -> Dict[str, Any]:
+        self, farm_id: UUID | None = None, months: int = 12
+    ) -> dict[str, Any]:
         """
         Get compliance trends over time with monthly aggregation
         الحصول على اتجاهات الامتثال مع مرور الوقت مع التجميع الشهري
@@ -810,10 +809,10 @@ class ComplianceRepository:
         registration_id: UUID,
         checklist_version: str,
         audit_date: date,
-        responses: List[Dict[str, Any]],
-        auditor_notes: Optional[str] = None,
+        responses: list[dict[str, Any]],
+        auditor_notes: str | None = None,
         calculate_scores: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Create a complete compliance record with all responses in one transaction
         إنشاء سجل امتثال كامل مع جميع الاستجابات في معاملة واحدة
@@ -930,8 +929,8 @@ class ComplianceRepository:
             raise
 
     def _calculate_compliance_scores(
-        self, responses: List[Dict[str, Any]]
-    ) -> Dict[str, float]:
+        self, responses: list[dict[str, Any]]
+    ) -> dict[str, float]:
         """
         Calculate compliance scores from responses
         حساب درجات الامتثال من الاستجابات
@@ -955,15 +954,12 @@ class ComplianceRepository:
 
         total = len(responses)
         compliant = sum(1 for r in responses if r["response"] == "COMPLIANT")
-        non_compliant = sum(1 for r in responses if r["response"] == "NON_COMPLIANT")
+        sum(1 for r in responses if r["response"] == "NON_COMPLIANT")
         not_applicable = sum(1 for r in responses if r["response"] == "NOT_APPLICABLE")
 
         # Calculate scores (simplified)
         applicable = total - not_applicable
-        if applicable == 0:
-            compliance_rate = 100.0
-        else:
-            compliance_rate = (compliant / applicable) * 100.0
+        compliance_rate = 100.0 if applicable == 0 else compliant / applicable * 100.0
 
         return {
             "major_must_score": compliance_rate,  # Simplified

@@ -9,10 +9,10 @@ Helper functions to integrate password migration into authentication flows.
 from __future__ import annotations
 
 import logging
-from typing import Optional, Protocol
 from dataclasses import dataclass
+from typing import Protocol
 
-from .password_hasher import get_password_hasher, hash_password
+from .password_hasher import get_password_hasher
 
 logger = logging.getLogger(__name__)
 
@@ -22,16 +22,16 @@ class AuthenticationResult:
     """Result of authentication attempt"""
 
     success: bool
-    user_id: Optional[str] = None
+    user_id: str | None = None
     needs_password_update: bool = False
-    new_password_hash: Optional[str] = None
-    error_message: Optional[str] = None
+    new_password_hash: str | None = None
+    error_message: str | None = None
 
 
 class UserRepository(Protocol):
     """Protocol for user repository operations"""
 
-    def get_user_by_email(self, email: str) -> Optional[dict]:
+    def get_user_by_email(self, email: str) -> dict | None:
         """Get user by email"""
         ...
 

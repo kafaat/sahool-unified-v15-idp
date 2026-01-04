@@ -10,14 +10,13 @@ Implements the foundation for all agent types:
 - Learning Agent
 """
 
-from abc import ABC, abstractmethod
-from enum import Enum
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Callable
-from datetime import datetime
-import asyncio
 import logging
-import json
+from abc import ABC, abstractmethod
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -51,23 +50,23 @@ class AgentStatus(Enum):
 @dataclass
 class AgentContext:
     """سياق الوكيل - البيئة والمعلومات"""
-    field_id: Optional[str] = None
-    crop_type: Optional[str] = None
-    location: Optional[Dict[str, float]] = None  # lat, lon
+    field_id: str | None = None
+    crop_type: str | None = None
+    location: dict[str, float] | None = None  # lat, lon
     timestamp: datetime = field(default_factory=datetime.now)
-    sensor_data: Dict[str, Any] = field(default_factory=dict)
-    weather_data: Dict[str, Any] = field(default_factory=dict)
-    satellite_data: Dict[str, Any] = field(default_factory=dict)
-    history: List[Dict[str, Any]] = field(default_factory=list)
-    user_preferences: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    sensor_data: dict[str, Any] = field(default_factory=dict)
+    weather_data: dict[str, Any] = field(default_factory=dict)
+    satellite_data: dict[str, Any] = field(default_factory=dict)
+    history: list[dict[str, Any]] = field(default_factory=list)
+    user_preferences: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class AgentAction:
     """إجراء الوكيل"""
     action_type: str
-    parameters: Dict[str, Any]
+    parameters: dict[str, Any]
     confidence: float  # 0.0 - 1.0
     priority: int  # 1 (highest) - 5 (lowest)
     reasoning: str
@@ -89,11 +88,11 @@ class AgentPercept:
 @dataclass
 class AgentState:
     """حالة الوكيل الداخلية"""
-    beliefs: Dict[str, Any] = field(default_factory=dict)
-    goals: List[str] = field(default_factory=list)
-    intentions: List[str] = field(default_factory=list)
-    knowledge: Dict[str, Any] = field(default_factory=dict)
-    memory: List[Dict[str, Any]] = field(default_factory=list)
+    beliefs: dict[str, Any] = field(default_factory=dict)
+    goals: list[str] = field(default_factory=list)
+    intentions: list[str] = field(default_factory=list)
+    knowledge: dict[str, Any] = field(default_factory=dict)
+    memory: list[dict[str, Any]] = field(default_factory=list)
 
 
 class BaseAgent(ABC):
@@ -123,23 +122,23 @@ class BaseAgent(ABC):
 
         self.status = AgentStatus.IDLE
         self.state = AgentState()
-        self.context: Optional[AgentContext] = None
+        self.context: AgentContext | None = None
 
         # Performance metrics
         self.total_requests = 0
         self.successful_requests = 0
         self.total_response_time_ms = 0
-        self.last_action_time: Optional[datetime] = None
+        self.last_action_time: datetime | None = None
 
         # Learning metrics
-        self.feedback_history: List[Dict[str, Any]] = []
-        self.reward_history: List[float] = []
+        self.feedback_history: list[dict[str, Any]] = []
+        self.reward_history: list[float] = []
 
         # Rules for Simple Reflex Agent
-        self.rules: List[Dict[str, Any]] = []
+        self.rules: list[dict[str, Any]] = []
 
         # Utility function for Utility-Based Agent
-        self.utility_function: Optional[Callable] = None
+        self.utility_function: Callable | None = None
 
         logger.info(f"Agent initialized: {self.name} ({self.agent_id})")
 
@@ -152,7 +151,7 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """
         معالجة المعلومات واتخاذ القرار
         Process information and make decision
@@ -160,14 +159,14 @@ class BaseAgent(ABC):
         pass
 
     @abstractmethod
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """
         تنفيذ الإجراء
         Execute the action
         """
         pass
 
-    async def run(self, percept: AgentPercept) -> Dict[str, Any]:
+    async def run(self, percept: AgentPercept) -> dict[str, Any]:
         """
         دورة الوكيل الكاملة: إدراك → تفكير → فعل
         Full agent cycle: Perceive → Think → Act
@@ -229,7 +228,7 @@ class BaseAgent(ABC):
             "action": action
         })
 
-    def evaluate_rules(self, context: AgentContext) -> Optional[AgentAction]:
+    def evaluate_rules(self, context: AgentContext) -> AgentAction | None:
         """
         تقييم القواعد للوكيل البسيط
         Evaluate rules for Simple Reflex Agent
@@ -255,7 +254,7 @@ class BaseAgent(ABC):
             return self.utility_function(action, context)
         return 0.0
 
-    def select_best_action(self, actions: List[AgentAction], context: AgentContext) -> AgentAction:
+    def select_best_action(self, actions: list[AgentAction], context: AgentContext) -> AgentAction:
         """
         اختيار أفضل إجراء بناءً على المنفعة
         Select best action based on utility
@@ -274,7 +273,7 @@ class BaseAgent(ABC):
 
         return best_action
 
-    async def learn(self, feedback: Dict[str, Any]) -> None:
+    async def learn(self, feedback: dict[str, Any]) -> None:
         """
         التعلم من التجربة
         Learn from experience (for Learning Agent)
@@ -308,7 +307,7 @@ class BaseAgent(ABC):
         """تحديث سياق الوكيل"""
         self.context = context
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """الحصول على مقاييس الأداء"""
         avg_response_time = (
             self.total_response_time_ms / self.total_requests
@@ -337,7 +336,7 @@ class BaseAgent(ABC):
             "last_action_time": self.last_action_time.isoformat() if self.last_action_time else None
         }
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """تحويل الوكيل إلى قاموس"""
         return {
             "agent_id": self.agent_id,

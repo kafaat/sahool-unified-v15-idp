@@ -2,13 +2,12 @@
 Tests for NDVI Compute Module
 """
 
-from datetime import date
 
 import pytest
 from src.compute import (
     NdviResult,
-    compute_mock,
     calculate_vegetation_indices,
+    compute_mock,
     detect_anomalies,
 )
 

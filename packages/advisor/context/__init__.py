@@ -3,7 +3,7 @@ SAHOOL Context Module
 Context building for AI recommendations
 """
 
-from .models import FieldContext, WeatherContext, HistoricalContext
+from .models import FieldContext, HistoricalContext, WeatherContext
 from .service import ContextBuilder
 
 __all__ = [

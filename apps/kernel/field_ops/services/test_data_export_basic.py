@@ -7,7 +7,6 @@ Simple tests to verify the data export service works correctly
 """
 
 import sys
-from datetime import date, timedelta
 
 
 def test_imports():
@@ -18,8 +17,8 @@ def test_imports():
         from data_exporter import (
             DataExporter,
             ExportFormat,
-            ReportType,
             ExportResult,
+            ReportType,
             export_field_csv,
             export_field_excel,
             generate_daily_report,
@@ -117,7 +116,7 @@ def test_csv_export():
         assert result.size_bytes > 0
         assert result.generated_at is not None
 
-        print(f"✓ CSV export successful")
+        print("✓ CSV export successful")
         print(f"  Filename: {result.filename}")
         print(f"  Size: {result.size_bytes} bytes")
 
@@ -135,8 +134,9 @@ def test_json_export():
     print("\nTesting JSON export...")
 
     try:
-        from data_exporter import DataExporter, ExportFormat
         import json
+
+        from data_exporter import DataExporter, ExportFormat
 
         exporter = DataExporter()
 
@@ -157,9 +157,9 @@ def test_json_export():
         assert "field_id" in data
         assert data["field_id"] == "TEST_FIELD"
 
-        print(f"✓ JSON export successful")
+        print("✓ JSON export successful")
         print(f"  Filename: {result.filename}")
-        print(f"  Valid JSON: Yes")
+        print("  Valid JSON: Yes")
 
         return True
     except Exception as e:
@@ -182,7 +182,7 @@ def test_convenience_functions():
         assert result.format.value == "csv"
         assert result.filename.endswith(".csv")
 
-        print(f"✓ Convenience function works")
+        print("✓ Convenience function works")
         print(f"  Filename: {result.filename}")
 
         return True
@@ -208,7 +208,7 @@ def test_arabic_headers():
         assert exporter.ARABIC_HEADERS["field_id"] == "معرف الحقل"
         assert exporter.ARABIC_HEADERS["crop_type"] == "نوع المحصول"
 
-        print(f"✓ Arabic headers configured")
+        print("✓ Arabic headers configured")
         print(f"  Headers count: {len(exporter.ARABIC_HEADERS)}")
 
         return True
@@ -277,7 +277,7 @@ def run_all_tests():
     results = []
 
     # Check dependencies first
-    deps = check_dependencies()
+    check_dependencies()
 
     # Run tests
     results.append(("Imports", test_imports()))

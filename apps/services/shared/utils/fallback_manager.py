@@ -9,14 +9,15 @@ to prevent cascading failures and improve system resilience.
 لمنع الفشل المتتالي وتحسين مرونة النظام.
 """
 
-import time
-import logging
-from enum import Enum
-from typing import Callable, Optional, Dict, Any, Tuple
-from functools import wraps
-from datetime import datetime, timedelta
-from threading import Lock
 import json
+import logging
+import time
+from collections.abc import Callable
+from datetime import datetime
+from enum import Enum
+from functools import wraps
+from threading import Lock
+from typing import Any
 
 # إعداد السجلات
 logging.basicConfig(level=logging.INFO)
@@ -80,8 +81,8 @@ class CircuitBreaker:
         self.success_count = 0
 
         # الأوقات - Timestamps
-        self.last_failure_time: Optional[float] = None
-        self.opened_at: Optional[float] = None
+        self.last_failure_time: float | None = None
+        self.opened_at: float | None = None
 
         # القفل للأمان في بيئة متعددة الخيوط - Thread safety lock
         self._lock = Lock()
@@ -93,7 +94,7 @@ class CircuitBreaker:
             f"success_threshold={success_threshold}"
         )
 
-    def call(self, func: Callable, *args, **kwargs) -> Tuple[Any, bool]:
+    def call(self, func: Callable, *args, **kwargs) -> tuple[Any, bool]:
         """
         تنفيذ الدالة مع حماية قاطع الدائرة
         Execute function with circuit breaker protection
@@ -239,7 +240,7 @@ class CircuitBreaker:
             self._transition_to_closed()
             logger.info("🔧 تم إعادة تعيين الدائرة يدوياً - Circuit manually reset")
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """
         الحصول على حالة قاطع الدائرة
         Get circuit breaker status
@@ -280,13 +281,13 @@ class FallbackManager:
         Initialize Fallback Manager
         """
         # خريطة الدوال الاحتياطية - Fallback functions map
-        self._fallbacks: Dict[str, Callable] = {}
+        self._fallbacks: dict[str, Callable] = {}
 
         # خريطة قواطع الدائرة - Circuit breakers map
-        self._circuit_breakers: Dict[str, CircuitBreaker] = {}
+        self._circuit_breakers: dict[str, CircuitBreaker] = {}
 
         # ذاكرة التخزين المؤقت - Cache storage
-        self._cache: Dict[str, Tuple[Any, float]] = {}
+        self._cache: dict[str, tuple[Any, float]] = {}
 
         # مدة التخزين المؤقت (5 دقائق) - Cache duration (5 minutes)
         self._cache_ttl = 300
@@ -404,7 +405,7 @@ class FallbackManager:
         with self._lock:
             self._cache[service_name] = (result, time.time())
 
-    def _get_cached_result(self, service_name: str) -> Optional[Any]:
+    def _get_cached_result(self, service_name: str) -> Any | None:
         """
         الحصول على النتيجة المخزنة
         Get cached result
@@ -428,7 +429,7 @@ class FallbackManager:
 
             return result
 
-    def get_circuit_status(self, service_name: str) -> Optional[Dict[str, Any]]:
+    def get_circuit_status(self, service_name: str) -> dict[str, Any] | None:
         """
         الحصول على حالة قاطع الدائرة لخدمة
         Get circuit breaker status for a service
@@ -458,7 +459,7 @@ class FallbackManager:
                 f"🔧 تم إعادة تعيين قاطع الدائرة - Circuit reset for: {service_name}"
             )
 
-    def get_all_statuses(self) -> Dict[str, Dict[str, Any]]:
+    def get_all_statuses(self) -> dict[str, dict[str, Any]]:
         """
         الحصول على حالة جميع قواطع الدائرة
         Get status of all circuit breakers
@@ -571,7 +572,7 @@ class ServiceFallbacks:
     """
 
     @staticmethod
-    def weather_fallback(*args, **kwargs) -> Dict[str, Any]:
+    def weather_fallback(*args, **kwargs) -> dict[str, Any]:
         """
         احتياطي لخدمة الطقس
         Weather service fallback
@@ -595,7 +596,7 @@ class ServiceFallbacks:
         }
 
     @staticmethod
-    def satellite_fallback(*args, **kwargs) -> Dict[str, Any]:
+    def satellite_fallback(*args, **kwargs) -> dict[str, Any]:
         """
         احتياطي لخدمة الأقمار الصناعية
         Satellite service fallback
@@ -615,7 +616,7 @@ class ServiceFallbacks:
         }
 
     @staticmethod
-    def ai_fallback(*args, **kwargs) -> Dict[str, Any]:
+    def ai_fallback(*args, **kwargs) -> dict[str, Any]:
         """
         احتياطي لخدمة الذكاء الاصطناعي
         AI service fallback
@@ -649,7 +650,7 @@ class ServiceFallbacks:
         }
 
     @staticmethod
-    def crop_health_fallback(*args, **kwargs) -> Dict[str, Any]:
+    def crop_health_fallback(*args, **kwargs) -> dict[str, Any]:
         """
         احتياطي لخدمة صحة المحاصيل
         Crop health service fallback
@@ -666,7 +667,7 @@ class ServiceFallbacks:
         }
 
     @staticmethod
-    def irrigation_fallback(*args, **kwargs) -> Dict[str, Any]:
+    def irrigation_fallback(*args, **kwargs) -> dict[str, Any]:
         """
         احتياطي لخدمة الري
         Irrigation service fallback

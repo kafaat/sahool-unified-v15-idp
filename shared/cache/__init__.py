@@ -12,11 +12,11 @@ License: MIT
 """
 
 from .redis_sentinel import (
+    CircuitBreaker,
     RedisSentinelClient,
     RedisSentinelConfig,
-    CircuitBreaker,
-    get_redis_client,
     close_redis_client,
+    get_redis_client,
 )
 
 __all__ = [

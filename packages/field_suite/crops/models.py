@@ -6,9 +6,8 @@ Data models for crop management
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone, date
+from datetime import UTC, date, datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -53,14 +52,14 @@ class Crop:
     tenant_id: str
     field_id: str
     crop_type: CropType
-    variety: Optional[str]
-    variety_ar: Optional[str]
+    variety: str | None
+    variety_ar: str | None
     planting_date: date
-    expected_harvest_date: Optional[date]
-    actual_harvest_date: Optional[date]
+    expected_harvest_date: date | None
+    actual_harvest_date: date | None
     growth_stage: GrowthStage
-    yield_estimate_kg: Optional[float]
-    actual_yield_kg: Optional[float]
+    yield_estimate_kg: float | None
+    actual_yield_kg: float | None
     created_at: datetime
     updated_at: datetime
 
@@ -71,12 +70,12 @@ class Crop:
         field_id: str,
         crop_type: CropType,
         planting_date: date,
-        variety: Optional[str] = None,
-        variety_ar: Optional[str] = None,
-        expected_harvest_date: Optional[date] = None,
+        variety: str | None = None,
+        variety_ar: str | None = None,
+        expected_harvest_date: date | None = None,
     ) -> Crop:
         """Factory method to create a new crop"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             id=str(uuid4()),
             tenant_id=tenant_id,

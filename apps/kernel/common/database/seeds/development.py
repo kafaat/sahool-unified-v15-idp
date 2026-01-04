@@ -6,10 +6,10 @@ Seeds the database with sample data for development and testing.
 تعبئة قاعدة البيانات ببيانات نموذجية للتطوير والاختبار.
 """
 
-import uuid
-from datetime import datetime, timedelta, date
-from typing import Dict, Any, List
 import random
+import uuid
+from datetime import date, datetime, timedelta
+from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -26,7 +26,7 @@ class DevelopmentSeeder(BaseSeeder):
     تعبئة قاعدة البيانات ببيانات نموذجية تمثل مزارع في اليمن.
     """
 
-    def seed(self) -> Dict[str, Any]:
+    def seed(self) -> dict[str, Any]:
         """
         تعبئة قاعدة البيانات ببيانات التطوير
         Seed database with development data
@@ -101,7 +101,7 @@ class DevelopmentSeeder(BaseSeeder):
 
         return results
 
-    def _seed_tenants(self, session: Session) -> List[Dict]:
+    def _seed_tenants(self, session: Session) -> list[dict]:
         """
         تعبئة المستأجرين
         Seed tenants
@@ -159,7 +159,7 @@ class DevelopmentSeeder(BaseSeeder):
 
         return tenants
 
-    def _seed_users(self, session: Session, tenants: List[Dict]) -> List[Dict]:
+    def _seed_users(self, session: Session, tenants: list[dict]) -> list[dict]:
         """
         تعبئة المستخدمين
         Seed users
@@ -231,8 +231,8 @@ class DevelopmentSeeder(BaseSeeder):
         return users
 
     def _seed_farms(
-        self, session: Session, tenants: List[Dict], users: List[Dict]
-    ) -> List[Dict]:
+        self, session: Session, tenants: list[dict], users: list[dict]
+    ) -> list[dict]:
         """
         تعبئة المزارع
         Seed farms
@@ -307,8 +307,8 @@ class DevelopmentSeeder(BaseSeeder):
         return farms
 
     def _seed_fields(
-        self, session: Session, tenants: List[Dict], farms: List[Dict]
-    ) -> List[Dict]:
+        self, session: Session, tenants: list[dict], farms: list[dict]
+    ) -> list[dict]:
         """
         تعبئة الحقول
         Seed fields with Yemen locations
@@ -343,7 +343,7 @@ class DevelopmentSeeder(BaseSeeder):
                 # إنشاء حدود بسيطة حول النقطة المركزية
                 # Create simple boundary around center point
                 offset = 0.005  # حوالي 500 متر / About 500 meters
-                boundary = {
+                {
                     "type": "Polygon",
                     "coordinates": [
                         [
@@ -393,8 +393,8 @@ class DevelopmentSeeder(BaseSeeder):
         return fields
 
     def _seed_crops(
-        self, session: Session, tenants: List[Dict], fields: List[Dict]
-    ) -> List[Dict]:
+        self, session: Session, tenants: list[dict], fields: list[dict]
+    ) -> list[dict]:
         """
         تعبئة المحاصيل
         Seed crops
@@ -481,8 +481,8 @@ class DevelopmentSeeder(BaseSeeder):
         return crops
 
     def _seed_sensors(
-        self, session: Session, tenants: List[Dict], fields: List[Dict]
-    ) -> List[Dict]:
+        self, session: Session, tenants: list[dict], fields: list[dict]
+    ) -> list[dict]:
         """
         تعبئة أجهزة الاستشعار
         Seed sensors

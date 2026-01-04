@@ -6,11 +6,12 @@ Core protocol message types, state management, and conversation handling.
 أنواع رسائل البروتوكول الأساسية وإدارة الحالة ومعالجة المحادثات.
 """
 
-from enum import Enum
-from typing import Dict, Any, List, Optional, Union
-from datetime import datetime
-from pydantic import BaseModel, Field
 import uuid
+from datetime import datetime
+from enum import Enum
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 
 class TaskState(str, Enum):
@@ -52,9 +53,9 @@ class A2AMessage(BaseModel):
     message_type: MessageType
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     sender_agent_id: str
-    receiver_agent_id: Optional[str] = None
-    conversation_id: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    receiver_agent_id: str | None = None
+    conversation_id: str | None = None
+    metadata: dict[str, Any] | None = Field(default_factory=dict)
 
     class Config:
         use_enum_values = True
@@ -76,13 +77,13 @@ class TaskMessage(A2AMessage):
     task_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     task_type: str = Field(..., description="Type of task to execute")
     task_description: str = Field(..., description="Human-readable task description")
-    parameters: Dict[str, Any] = Field(default_factory=dict)
+    parameters: dict[str, Any] = Field(default_factory=dict)
     priority: int = Field(default=5, ge=1, le=10, description="Task priority 1-10")
-    timeout_seconds: Optional[int] = Field(default=300, description="Task timeout")
+    timeout_seconds: int | None = Field(default=300, description="Task timeout")
     require_streaming: bool = Field(
         default=False, description="Request streaming response"
     )
-    context: Optional[Dict[str, Any]] = Field(
+    context: dict[str, Any] | None = Field(
         default_factory=dict, description="Additional context"
     )
 
@@ -99,15 +100,15 @@ class TaskResultMessage(A2AMessage):
     message_type: MessageType = MessageType.TASK_RESULT
     task_id: str
     state: TaskState
-    result: Optional[Dict[str, Any]] = None
-    progress: Optional[float] = Field(
+    result: dict[str, Any] | None = None
+    progress: float | None = Field(
         default=None, ge=0.0, le=1.0, description="Task progress 0-1"
     )
     is_final: bool = Field(default=True, description="Is this the final result?")
-    partial_result: Optional[Dict[str, Any]] = Field(
+    partial_result: dict[str, Any] | None = Field(
         default=None, description="Partial result for streaming"
     )
-    execution_time_ms: Optional[int] = Field(
+    execution_time_ms: int | None = Field(
         default=None, description="Execution time in milliseconds"
     )
 
@@ -122,10 +123,10 @@ class ErrorMessage(A2AMessage):
     """
 
     message_type: MessageType = MessageType.ERROR
-    task_id: Optional[str] = None
+    task_id: str | None = None
     error_code: str
     error_message: str
-    error_details: Optional[Dict[str, Any]] = None
+    error_details: dict[str, Any] | None = None
     recoverable: bool = Field(default=False, description="Can the task be retried?")
 
 
@@ -137,7 +138,7 @@ class HeartbeatMessage(A2AMessage):
 
     message_type: MessageType = MessageType.HEARTBEAT
     agent_status: str = Field(default="active")
-    load: Optional[float] = Field(
+    load: float | None = Field(
         default=None, ge=0.0, le=1.0, description="Agent load 0-1"
     )
 
@@ -150,7 +151,7 @@ class CancelMessage(A2AMessage):
 
     message_type: MessageType = MessageType.CANCEL
     task_id: str
-    reason: Optional[str] = None
+    reason: str | None = None
 
 
 class ConversationContext:
@@ -159,7 +160,7 @@ class ConversationContext:
     يدير حالة المحادثة بين الوكلاء
     """
 
-    def __init__(self, conversation_id: Optional[str] = None):
+    def __init__(self, conversation_id: str | None = None):
         """
         Initialize conversation context
         تهيئة سياق المحادثة
@@ -168,9 +169,9 @@ class ConversationContext:
             conversation_id: Optional conversation ID, auto-generated if not provided
         """
         self.conversation_id = conversation_id or str(uuid.uuid4())
-        self.messages: List[A2AMessage] = []
-        self.tasks: Dict[str, TaskState] = {}
-        self.metadata: Dict[str, Any] = {}
+        self.messages: list[A2AMessage] = []
+        self.tasks: dict[str, TaskState] = {}
+        self.metadata: dict[str, Any] = {}
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
 
@@ -192,7 +193,7 @@ class ConversationContext:
         elif isinstance(message, TaskResultMessage):
             self.tasks[message.task_id] = message.state
 
-    def get_task_state(self, task_id: str) -> Optional[TaskState]:
+    def get_task_state(self, task_id: str) -> TaskState | None:
         """
         Get current state of a task
         الحصول على الحالة الحالية للمهمة
@@ -205,7 +206,7 @@ class ConversationContext:
         """
         return self.tasks.get(task_id)
 
-    def get_messages_by_type(self, message_type: MessageType) -> List[A2AMessage]:
+    def get_messages_by_type(self, message_type: MessageType) -> list[A2AMessage]:
         """
         Filter messages by type
         تصفية الرسائل حسب النوع
@@ -218,7 +219,7 @@ class ConversationContext:
         """
         return [msg for msg in self.messages if msg.message_type == message_type]
 
-    def get_messages_by_task(self, task_id: str) -> List[A2AMessage]:
+    def get_messages_by_task(self, task_id: str) -> list[A2AMessage]:
         """
         Get all messages related to a specific task
         الحصول على جميع الرسائل المتعلقة بمهمة معينة
@@ -236,7 +237,7 @@ class ConversationContext:
             and getattr(msg, "task_id", None) == task_id
         ]
 
-    def get_summary(self) -> Dict[str, Any]:
+    def get_summary(self) -> dict[str, Any]:
         """
         Get conversation summary
         الحصول على ملخص المحادثة
@@ -291,8 +292,8 @@ class TaskQueue:
 
     def __init__(self):
         """Initialize task queue | تهيئة قائمة انتظار المهام"""
-        self.tasks: Dict[str, TaskMessage] = {}
-        self.states: Dict[str, TaskState] = {}
+        self.tasks: dict[str, TaskMessage] = {}
+        self.states: dict[str, TaskState] = {}
 
     def add_task(self, task: TaskMessage) -> None:
         """
@@ -305,7 +306,7 @@ class TaskQueue:
         self.tasks[task.task_id] = task
         self.states[task.task_id] = TaskState.PENDING
 
-    def get_task(self, task_id: str) -> Optional[TaskMessage]:
+    def get_task(self, task_id: str) -> TaskMessage | None:
         """
         Retrieve task by ID
         استرجاع المهمة بواسطة المعرف
@@ -330,7 +331,7 @@ class TaskQueue:
         if task_id in self.states:
             self.states[task_id] = state
 
-    def get_pending_tasks(self) -> List[TaskMessage]:
+    def get_pending_tasks(self) -> list[TaskMessage]:
         """
         Get all pending tasks sorted by priority
         الحصول على جميع المهام المعلقة مرتبة حسب الأولوية
@@ -362,7 +363,7 @@ class TaskQueue:
             return True
         return False
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """
         Get queue statistics
         الحصول على إحصائيات القائمة

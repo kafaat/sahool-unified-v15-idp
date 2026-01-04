@@ -22,17 +22,13 @@ Usage:
     generator.generate_postman_collection()
 """
 
-import os
-import sys
 import json
 import re
-import importlib.util
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-import inspect
+from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -52,12 +48,12 @@ class Parameter:
 class RequestBody:
     """Request body schema"""
 
-    schema: Dict[str, Any]
+    schema: dict[str, Any]
     required: bool = True
     description: str = ""
     description_ar: str = ""
     content_type: str = "application/json"
-    example: Optional[Dict[str, Any]] = None
+    example: dict[str, Any] | None = None
 
 
 @dataclass
@@ -67,8 +63,8 @@ class Response:
     status_code: int
     description: str = ""
     description_ar: str = ""
-    schema: Optional[Dict[str, Any]] = None
-    example: Optional[Dict[str, Any]] = None
+    schema: dict[str, Any] | None = None
+    example: dict[str, Any] | None = None
 
 
 @dataclass
@@ -81,10 +77,10 @@ class Endpoint:
     summary_ar: str = ""
     description: str = ""
     description_ar: str = ""
-    tags: List[str] = field(default_factory=list)
-    parameters: List[Parameter] = field(default_factory=list)
-    request_body: Optional[RequestBody] = None
-    responses: List[Response] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
+    parameters: list[Parameter] = field(default_factory=list)
+    request_body: RequestBody | None = None
+    responses: list[Response] = field(default_factory=list)
     auth_required: bool = True
     deprecated: bool = False
     service_name: str = ""
@@ -102,7 +98,7 @@ class Service:
     version: str = "1.0.0"
     port: int = 8000
     base_path: str = ""
-    endpoints: List[Endpoint] = field(default_factory=list)
+    endpoints: list[Endpoint] = field(default_factory=list)
 
 
 class APICategory(str, Enum):
@@ -151,8 +147,8 @@ class APIDocsGenerator:
 
         self.services_dir = Path(services_dir)
         self.output_dir = Path(output_dir)
-        self.services: Dict[str, Service] = {}
-        self.endpoints_by_category: Dict[APICategory, List[Endpoint]] = {
+        self.services: dict[str, Service] = {}
+        self.endpoints_by_category: dict[APICategory, list[Endpoint]] = {
             category: [] for category in APICategory
         }
 
@@ -189,7 +185,7 @@ class APIDocsGenerator:
 
         print(f"\n✅ Scanned {len(self.services)} services")
 
-    def _scan_service(self, service_name: str, main_file: Path) -> Optional[Service]:
+    def _scan_service(self, service_name: str, main_file: Path) -> Service | None:
         """
         Scan a single service and extract API endpoints
 
@@ -283,7 +279,7 @@ class APIDocsGenerator:
 
     def _extract_endpoints(
         self, content: str, service_name: str, port: int
-    ) -> List[Endpoint]:
+    ) -> list[Endpoint]:
         """
         Extract all endpoints from the content
 
@@ -369,7 +365,7 @@ class APIDocsGenerator:
 
         return endpoints
 
-    def _extract_parameters(self, func_content: str) -> List[Parameter]:
+    def _extract_parameters(self, func_content: str) -> list[Parameter]:
         """Extract parameters from function definition"""
         parameters = []
 
@@ -2567,7 +2563,7 @@ def main():
 
     print("\n" + "=" * 60)
     print("✅ Documentation generation complete!")
-    print(f"📁 Output directory: {{generator.output_dir}}")
+    print("📁 Output directory: {generator.output_dir}")
     print("=" * 60)
 
 

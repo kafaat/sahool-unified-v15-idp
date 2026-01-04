@@ -7,14 +7,12 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from .models import OutboxEvent
-
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +98,7 @@ def publish_pending(
 
             # Mark as published
             event.published = True
-            event.published_at = datetime.now(timezone.utc)
+            event.published_at = datetime.now(UTC)
             event.last_error = None
 
             published_count += 1

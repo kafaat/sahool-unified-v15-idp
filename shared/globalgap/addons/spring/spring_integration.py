@@ -9,20 +9,16 @@ usage alerts, and seasonal pattern tracking.
 تنبيهات الاستخدام، وتتبع الأنماط الموسمية.
 """
 
-from datetime import date, datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from datetime import date, datetime
 from enum import Enum
-from decimal import Decimal
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from .water_metrics import (
-    WaterUsageMetric,
     WaterSource,
-    WaterSourceType,
-    IrrigationMethod,
+    WaterUsageMetric,
 )
-
 
 # ==================== Alert Models ====================
 
@@ -60,7 +56,7 @@ class WaterUsageAlert(BaseModel):
     severity: AlertSeverity = Field(..., description="Severity level / مستوى الخطورة")
 
     farm_id: str = Field(..., description="Farm identifier / معرف المزرعة")
-    source_id: Optional[str] = Field(
+    source_id: str | None = Field(
         None, description="Water source ID / معرف مصدر المياه"
     )
 
@@ -74,29 +70,29 @@ class WaterUsageAlert(BaseModel):
     message_en: str = Field(..., description="Alert message (English) / رسالة التنبيه")
     message_ar: str = Field(..., description="Alert message (Arabic) / رسالة التنبيه")
 
-    threshold_value: Optional[float] = Field(
+    threshold_value: float | None = Field(
         None, description="Threshold value / قيمة العتبة"
     )
-    actual_value: Optional[float] = Field(
+    actual_value: float | None = Field(
         None, description="Actual value / القيمة الفعلية"
     )
 
-    recommended_action_en: Optional[str] = Field(
+    recommended_action_en: str | None = Field(
         None, description="Recommended action (EN) / الإجراء الموصى به"
     )
-    recommended_action_ar: Optional[str] = Field(
+    recommended_action_ar: str | None = Field(
         None, description="Recommended action (AR) / الإجراء الموصى به"
     )
 
     is_acknowledged: bool = Field(
         False, description="Alert acknowledged / تم الإقرار بالتنبيه"
     )
-    acknowledged_date: Optional[datetime] = Field(
+    acknowledged_date: datetime | None = Field(
         None, description="Acknowledgement date / تاريخ الإقرار"
     )
 
     is_resolved: bool = Field(False, description="Alert resolved / تم حل التنبيه")
-    resolved_date: Optional[datetime] = Field(
+    resolved_date: datetime | None = Field(
         None, description="Resolution date / تاريخ الحل"
     )
 
@@ -134,14 +130,14 @@ class CropWaterFootprint(BaseModel):
     )
 
     # Benchmarks
-    regional_benchmark_m3_per_kg: Optional[float] = Field(
+    regional_benchmark_m3_per_kg: float | None = Field(
         None, description="Regional benchmark / المعيار الإقليمي"
     )
-    global_benchmark_m3_per_kg: Optional[float] = Field(
+    global_benchmark_m3_per_kg: float | None = Field(
         None, description="Global benchmark / المعيار العالمي"
     )
 
-    performance_vs_benchmark: Optional[str] = Field(
+    performance_vs_benchmark: str | None = Field(
         None, description="Performance rating / تقييم الأداء"
     )
 
@@ -188,18 +184,18 @@ class SeasonalPattern(BaseModel):
         0, ge=0, le=100, description="Rainfall % / نسبة الأمطار"
     )
 
-    dominant_crops: List[str] = Field(
+    dominant_crops: list[str] = Field(
         default_factory=list, description="Dominant crops / المحاصيل السائدة"
     )
-    irrigation_methods_used: List[str] = Field(
+    irrigation_methods_used: list[str] = Field(
         default_factory=list, description="Irrigation methods / طرق الري"
     )
 
-    average_efficiency_percent: Optional[float] = Field(
+    average_efficiency_percent: float | None = Field(
         None, description="Avg efficiency % / الكفاءة المتوسطة"
     )
 
-    notes: Optional[str] = Field(None, description="Season notes / ملاحظات الموسم")
+    notes: str | None = Field(None, description="Season notes / ملاحظات الموسم")
 
     class Config:
         json_schema_extra = {
@@ -232,8 +228,8 @@ class SpringIntegration:
     def __init__(
         self,
         farm_id: str,
-        irrigation_service_url: Optional[str] = None,
-        api_key: Optional[str] = None,
+        irrigation_service_url: str | None = None,
+        api_key: str | None = None,
     ):
         """
         Initialize SPRING integration
@@ -254,7 +250,7 @@ class SpringIntegration:
         start_date: date,
         end_date: date,
         include_sensor_data: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Pull irrigation data from irrigation-smart service
         سحب بيانات الري من خدمة الري الذكي
@@ -355,12 +351,12 @@ class SpringIntegration:
 
     def generate_usage_alerts(
         self,
-        usage_records: List[WaterUsageMetric],
-        water_sources: List[WaterSource],
+        usage_records: list[WaterUsageMetric],
+        water_sources: list[WaterSource],
         current_month_usage_m3: float,
-        previous_month_usage_m3: Optional[float] = None,
-        groundwater_level_change_m: Optional[float] = None,
-    ) -> List[WaterUsageAlert]:
+        previous_month_usage_m3: float | None = None,
+        groundwater_level_change_m: float | None = None,
+    ) -> list[WaterUsageAlert]:
         """
         Generate water usage alerts
         إنشاء تنبيهات استخدام المياه
@@ -439,10 +435,10 @@ class SpringIntegration:
 
     def track_seasonal_patterns(
         self,
-        usage_records: List[WaterUsageMetric],
+        usage_records: list[WaterUsageMetric],
         start_date: date,
         end_date: date,
-    ) -> List[SeasonalPattern]:
+    ) -> list[SeasonalPattern]:
         """
         Track seasonal water usage patterns
         تتبع أنماط استخدام المياه الموسمية
@@ -487,11 +483,11 @@ class SpringIntegration:
 
             # Irrigation methods
             methods = list(
-                set(
+                {
                     r.irrigation_method.value
                     for r in season_records
                     if r.irrigation_method
-                )
+                }
             )
 
             pattern = SeasonalPattern(
@@ -514,7 +510,7 @@ class SpringIntegration:
 
     # ==================== Helper Methods ====================
 
-    def _get_crop_benchmarks(self, crop_type: str) -> Dict[str, Optional[float]]:
+    def _get_crop_benchmarks(self, crop_type: str) -> dict[str, float | None]:
         """Get water footprint benchmarks for crop type"""
         # Simplified benchmark data (should be from database)
         benchmarks = {
@@ -533,8 +529,8 @@ class SpringIntegration:
     def _assess_footprint_performance(
         self,
         actual: float,
-        regional_benchmark: Optional[float],
-        global_benchmark: Optional[float],
+        regional_benchmark: float | None,
+        global_benchmark: float | None,
     ) -> str:
         """Assess water footprint performance"""
         if not regional_benchmark:
@@ -671,7 +667,7 @@ class SpringIntegration:
             "(الخضروات، الفواكه) والتي توفر تغذية أفضل وإمكانات تصدير",
         )
 
-    def _define_yemen_seasons(self, year: int) -> List[Dict[str, Any]]:
+    def _define_yemen_seasons(self, year: int) -> list[dict[str, Any]]:
         """Define agricultural seasons for Yemen"""
         return [
             {
@@ -708,9 +704,9 @@ def pull_irrigation_data(
     farm_id: str,
     start_date: date,
     end_date: date,
-    service_url: Optional[str] = None,
-    api_key: Optional[str] = None,
-) -> Dict[str, Any]:
+    service_url: str | None = None,
+    api_key: str | None = None,
+) -> dict[str, Any]:
     """
     Pull irrigation data from irrigation-smart service
     سحب بيانات الري من خدمة الري الذكي
@@ -762,12 +758,12 @@ def calculate_water_footprint(
 
 def generate_usage_alerts(
     farm_id: str,
-    usage_records: List[WaterUsageMetric],
-    water_sources: List[WaterSource],
+    usage_records: list[WaterUsageMetric],
+    water_sources: list[WaterSource],
     current_month_usage_m3: float,
-    previous_month_usage_m3: Optional[float] = None,
-    groundwater_level_change_m: Optional[float] = None,
-) -> List[WaterUsageAlert]:
+    previous_month_usage_m3: float | None = None,
+    groundwater_level_change_m: float | None = None,
+) -> list[WaterUsageAlert]:
     """
     Generate water usage alerts
     إنشاء تنبيهات استخدام المياه
@@ -795,10 +791,10 @@ def generate_usage_alerts(
 
 def track_seasonal_patterns(
     farm_id: str,
-    usage_records: List[WaterUsageMetric],
+    usage_records: list[WaterUsageMetric],
     start_date: date,
     end_date: date,
-) -> List[SeasonalPattern]:
+) -> list[SeasonalPattern]:
     """
     Track seasonal water usage patterns
     تتبع أنماط استخدام المياه الموسمية

@@ -10,12 +10,12 @@ License: MIT
 """
 
 import logging
-from typing import Dict, Any, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def handle_disease_detection(payload: Dict[str, Any]) -> Dict[str, Any]:
+def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
     """
     كشف أمراض المحاصيل
     Detect crop diseases
@@ -45,8 +45,8 @@ def handle_disease_detection(payload: Dict[str, Any]) -> Dict[str, Any]:
         # Extract data from payload
         image_urls = payload.get("image_urls", [])
         field_id = payload.get("field_id")
-        crop_type = payload.get("crop_type")
-        confidence_threshold = payload.get("confidence_threshold", 0.7)
+        payload.get("crop_type")
+        payload.get("confidence_threshold", 0.7)
 
         if not image_urls or not field_id:
             raise ValueError("image_urls and field_id are required")

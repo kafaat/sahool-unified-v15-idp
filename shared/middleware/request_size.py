@@ -9,7 +9,7 @@ Security Features:
 """
 
 import logging
-from typing import Callable, Optional, Set
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
@@ -31,7 +31,7 @@ class RequestSizeLimiter:
         max_body_size: int = DEFAULT_MAX_BODY_SIZE,
         max_json_size: int = DEFAULT_MAX_JSON_SIZE,
         max_file_size: int = DEFAULT_MAX_FILE_SIZE,
-        allowed_content_types: Optional[Set[str]] = None,
+        allowed_content_types: set[str] | None = None,
     ):
         self.max_body_size = max_body_size
         self.max_json_size = max_json_size
@@ -75,7 +75,7 @@ class RequestSizeLimiter:
 
     def check_request(
         self, request: Request
-    ) -> tuple[bool, Optional[str], Optional[int]]:
+    ) -> tuple[bool, str | None, int | None]:
         """
         Check if request meets size/type requirements.
         Returns (allowed, error_message, status_code)

@@ -10,13 +10,13 @@ License: MIT
 """
 
 import logging
-from typing import Dict, Any, List
 from datetime import datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def handle_report_generation(payload: Dict[str, Any]) -> Dict[str, Any]:
+def handle_report_generation(payload: dict[str, Any]) -> dict[str, Any]:
     """
     إنشاء تقرير الحقل
     Generate field report

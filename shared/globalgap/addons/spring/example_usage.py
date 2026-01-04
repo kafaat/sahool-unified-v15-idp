@@ -9,46 +9,30 @@ in agricultural operations, with specific examples for Yemen context.
 في العمليات الزراعية، مع أمثلة محددة للسياق اليمني.
 """
 
-from datetime import date, datetime, timedelta
-from typing import List
-
-# Import SPRING components
-from spring_checklist import (
-    SPRING_CHECKLIST,
-    SPRING_CATEGORIES,
-    calculate_spring_compliance,
-    get_spring_item,
-    get_yemen_specific_items,
-)
-
-from water_metrics import (
-    WaterSource,
-    WaterSourceType,
-    WaterQualityTest,
-    WaterQualityStatus,
-    WaterUsageMetric,
-    IrrigationMethod,
-    IrrigationEfficiency,
-    RainfallHarvesting,
-    WaterEfficiencyScore,
-    calculate_water_balance,
-    classify_water_efficiency,
-)
-
-from spring_report_generator import (
-    SpringReportGenerator,
-    WaterBalanceCalculation,
-    generate_spring_report,
-    export_report_to_text,
-)
+from datetime import date
 
 from spring_integration import (
-    SpringIntegration,
     calculate_water_footprint,
     generate_usage_alerts,
-    track_seasonal_patterns,
+)
+from spring_report_generator import (
+    WaterBalanceCalculation,
+    export_report_to_text,
+    generate_spring_report,
 )
 
+# Import SPRING components
+from water_metrics import (
+    IrrigationEfficiency,
+    IrrigationMethod,
+    WaterEfficiencyScore,
+    WaterQualityStatus,
+    WaterQualityTest,
+    WaterSource,
+    WaterSourceType,
+    WaterUsageMetric,
+    classify_water_efficiency,
+)
 
 # ==================== EXAMPLE 1: Define Water Sources ====================
 
@@ -272,20 +256,20 @@ def example_5_water_balance():
     )
 
     print(f"\nWater Balance ({balance.period_start} to {balance.period_end}):")
-    print(f"\n  INPUTS:")
+    print("\n  INPUTS:")
     print(f"    Irrigation: {balance.irrigation_water_m3:,.0f} m³")
     print(f"    Rainfall: {balance.rainfall_m3:,.0f} m³")
     print(f"    Recycled: {balance.recycled_water_m3:,.0f} m³")
     print(f"    TOTAL: {balance.total_input_m3:,.0f} m³")
 
-    print(f"\n  OUTPUTS:")
+    print("\n  OUTPUTS:")
     print(f"    Crop ET: {balance.crop_evapotranspiration_m3:,.0f} m³")
     print(f"    Runoff: {balance.runoff_m3:,.0f} m³")
     print(f"    Deep Percolation: {balance.deep_percolation_m3:,.0f} m³")
     print(f"    Evaporation: {balance.evaporation_m3:,.0f} m³")
     print(f"    TOTAL: {balance.total_output_m3:,.0f} m³")
 
-    print(f"\n  EFFICIENCY:")
+    print("\n  EFFICIENCY:")
     print(f"    Beneficial Use: {balance.beneficial_use_efficiency_percent}%")
     print(f"    Water Productivity: {balance.water_productivity_kg_per_m3} kg/m³")
 
@@ -472,9 +456,9 @@ def main():
     quality_tests = example_3_water_quality()
     efficiency_records = example_4_irrigation_efficiency()
     balance = example_5_water_balance()
-    footprint = example_6_water_footprint()
-    alerts = example_7_generate_alerts(sources, usage_records)
-    report = example_8_generate_report(
+    example_6_water_footprint()
+    example_7_generate_alerts(sources, usage_records)
+    example_8_generate_report(
         balance, sources, usage_records, quality_tests, efficiency_records
     )
 

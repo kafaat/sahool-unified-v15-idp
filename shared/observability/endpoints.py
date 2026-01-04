@@ -6,15 +6,18 @@ Provides Prometheus metrics and OpenTelemetry integration endpoints.
 """
 
 from typing import Optional
+
 from fastapi import APIRouter, Response
 from fastapi.responses import PlainTextResponse
 
 try:
     from prometheus_client import (
+        CONTENT_TYPE_LATEST,
         CollectorRegistry,
         generate_latest,
-        CONTENT_TYPE_LATEST,
         multiprocess,
+    )
+    from prometheus_client import (
         CollectorRegistry as PrometheusRegistry,
     )
 
@@ -107,8 +110,8 @@ def create_observability_router(
         Returns runtime configuration and statistics.
         """
         import os
-        import sys
         import platform
+        import sys
         from datetime import datetime
 
         return {
@@ -137,11 +140,11 @@ def create_observability_router(
 # OpenTelemetry integration helpers
 try:
     from opentelemetry import trace
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+    from opentelemetry.sdk.resources import Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-    from opentelemetry.sdk.resources import Resource
-    from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
     OTEL_AVAILABLE = True
 except ImportError:
@@ -151,8 +154,8 @@ except ImportError:
 def setup_opentelemetry(
     service_name: str,
     service_version: str,
-    otlp_endpoint: Optional[str] = None,
-) -> Optional[trace.Tracer]:
+    otlp_endpoint: str | None = None,
+) -> trace.Tracer | None:
     """
     Setup OpenTelemetry tracing.
     إعداد تتبع OpenTelemetry.
@@ -273,7 +276,7 @@ def inject_trace_headers(headers: dict) -> dict:
     return carrier
 
 
-def extract_trace_from_headers(headers: dict) -> Optional[trace.SpanContext]:
+def extract_trace_from_headers(headers: dict) -> trace.SpanContext | None:
     """
     Extract trace context from HTTP headers.
     استخراج سياق التتبع من رؤوس HTTP.
@@ -287,8 +290,8 @@ def extract_trace_from_headers(headers: dict) -> Optional[trace.SpanContext]:
     if not OTEL_AVAILABLE:
         return None
 
-    from opentelemetry.propagate import extract
     from opentelemetry.context import attach
+    from opentelemetry.propagate import extract
 
     # Extract context from headers
     ctx = extract(headers)

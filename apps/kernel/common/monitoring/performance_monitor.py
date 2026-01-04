@@ -11,14 +11,14 @@ Provides comprehensive performance monitoring including:
 """
 
 import logging
-import time
-import psutil
+import statistics
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from threading import Lock
-from typing import Dict, List, Optional, Any, Literal
-import statistics
+from typing import Any, Literal
+
+import psutil
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ class MetricPoint:
 
     timestamp: datetime
     value: float
-    labels: Dict[str, str] = field(default_factory=dict)
+    labels: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -68,8 +68,8 @@ class CircularBuffer:
             self.data.append(item)
 
     def get_range(
-        self, start_time: datetime, end_time: Optional[datetime] = None
-    ) -> List[MetricPoint]:
+        self, start_time: datetime, end_time: datetime | None = None
+    ) -> list[MetricPoint]:
         """الحصول على البيانات في نطاق زمني محدد"""
         if end_time is None:
             end_time = datetime.now()
@@ -81,7 +81,7 @@ class CircularBuffer:
                 if start_time <= point.timestamp <= end_time
             ]
 
-    def get_recent(self, count: int) -> List[MetricPoint]:
+    def get_recent(self, count: int) -> list[MetricPoint]:
         """الحصول على آخر N نقطة"""
         with self._lock:
             return list(self.data)[-count:]
@@ -133,32 +133,32 @@ class PerformanceMonitor:
         self.retention_period = timedelta(hours=retention_period_hours)
 
         # Request metrics - مقاييس الطلبات
-        self.request_latencies: Dict[str, CircularBuffer] = defaultdict(
+        self.request_latencies: dict[str, CircularBuffer] = defaultdict(
             lambda: CircularBuffer(buffer_size)
         )
-        self.request_counts: Dict[str, int] = defaultdict(int)
-        self.error_counts: Dict[str, Dict[str, int]] = defaultdict(
+        self.request_counts: dict[str, int] = defaultdict(int)
+        self.error_counts: dict[str, dict[str, int]] = defaultdict(
             lambda: {"4xx": 0, "5xx": 0}
         )
 
         # Database metrics - مقاييس قاعدة البيانات
-        self.db_query_times: Dict[str, CircularBuffer] = defaultdict(
+        self.db_query_times: dict[str, CircularBuffer] = defaultdict(
             lambda: CircularBuffer(buffer_size)
         )
 
         # External API metrics - مقاييس الخدمات الخارجية
-        self.external_api_latencies: Dict[str, CircularBuffer] = defaultdict(
+        self.external_api_latencies: dict[str, CircularBuffer] = defaultdict(
             lambda: CircularBuffer(buffer_size)
         )
-        self.external_api_success: Dict[str, int] = defaultdict(int)
-        self.external_api_failures: Dict[str, int] = defaultdict(int)
+        self.external_api_success: dict[str, int] = defaultdict(int)
+        self.external_api_failures: dict[str, int] = defaultdict(int)
 
         # System metrics - مقاييس النظام
         self.memory_usage: CircularBuffer = CircularBuffer(buffer_size)
         self.cpu_usage: CircularBuffer = CircularBuffer(buffer_size)
 
         # Alerts - التنبيهات
-        self.active_alerts: List[PerformanceAlert] = []
+        self.active_alerts: list[PerformanceAlert] = []
 
         # Start time for uptime tracking
         self.start_time = datetime.now()
@@ -210,7 +210,7 @@ class PerformanceMonitor:
         query_type: str,
         duration_ms: float,
         success: bool = True,
-        table: Optional[str] = None,
+        table: str | None = None,
     ):
         """
         تتبع استعلام قاعدة البيانات
@@ -248,7 +248,7 @@ class PerformanceMonitor:
         service: str,
         duration_ms: float,
         success: bool,
-        endpoint: Optional[str] = None,
+        endpoint: str | None = None,
     ):
         """
         تتبع استدعاء خدمة خارجية
@@ -321,8 +321,8 @@ class PerformanceMonitor:
             logger.error(f"Error recording system metrics: {e}")
 
     def get_metrics_summary(
-        self, period: str = "1h", endpoint: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, period: str = "1h", endpoint: str | None = None
+    ) -> dict[str, Any]:
         """
         الحصول على ملخص المقاييس لفترة زمنية محددة
         Get metrics summary for a specific time period
@@ -365,8 +365,8 @@ class PerformanceMonitor:
         return summary
 
     def _get_request_summary(
-        self, start_time: datetime, endpoint_filter: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, start_time: datetime, endpoint_filter: str | None = None
+    ) -> dict[str, Any]:
         """Get summary of HTTP request metrics"""
         all_latencies = []
         total_requests = 0
@@ -424,7 +424,7 @@ class PerformanceMonitor:
             },
         }
 
-    def _get_database_summary(self, start_time: datetime) -> Dict[str, Any]:
+    def _get_database_summary(self, start_time: datetime) -> dict[str, Any]:
         """Get summary of database query metrics"""
         all_query_times = []
         query_counts = {}
@@ -456,7 +456,7 @@ class PerformanceMonitor:
             "by_type": query_counts,
         }
 
-    def _get_external_api_summary(self, start_time: datetime) -> Dict[str, Any]:
+    def _get_external_api_summary(self, start_time: datetime) -> dict[str, Any]:
         """Get summary of external API call metrics"""
         all_latencies = []
         total_success = sum(self.external_api_success.values())
@@ -492,7 +492,7 @@ class PerformanceMonitor:
             },
         }
 
-    def _get_system_summary(self, start_time: datetime) -> Dict[str, Any]:
+    def _get_system_summary(self, start_time: datetime) -> dict[str, Any]:
         """Get summary of system resource metrics"""
         memory_points = self.memory_usage.get_range(start_time)
         cpu_points = self.cpu_usage.get_range(start_time)
@@ -672,7 +672,7 @@ class PerformanceMonitor:
             self.active_alerts.clear()
 
     @staticmethod
-    def _percentile(data: List[float], percentile: float) -> float:
+    def _percentile(data: list[float], percentile: float) -> float:
         """Calculate percentile from sorted data"""
         if not data:
             return 0.0
@@ -708,7 +708,7 @@ class PerformanceMonitor:
 
 
 # Global instance - النسخة العامة
-_monitor: Optional[PerformanceMonitor] = None
+_monitor: PerformanceMonitor | None = None
 
 
 def get_monitor() -> PerformanceMonitor:

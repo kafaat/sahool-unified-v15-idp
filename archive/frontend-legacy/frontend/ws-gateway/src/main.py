@@ -6,12 +6,9 @@
 import asyncio
 import json
 import logging
-from typing import Set, Dict, Any
-from datetime import datetime
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-import nats
 from nats.aio.client import Client as NATS
 
 # Configure logging
@@ -47,8 +44,8 @@ app.add_middleware(
 # Connection manager
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: Dict[str, WebSocket] = {}
-        self.subscriptions: Dict[str, Set[str]] = {}  # client_id -> subjects
+        self.active_connections: dict[str, WebSocket] = {}
+        self.subscriptions: dict[str, set[str]] = {}  # client_id -> subjects
         self.nc: NATS | None = None
         self.nats_connected = False
 

@@ -18,25 +18,24 @@ Version: 1.0.0
 
 import json
 import math
-from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Any, Set
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Any
 
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 try:
+    from shapely import normalize, simplify
     from shapely.geometry import (
-        shape,
+        LineString,
+        MultiPolygon,
         Point,
         Polygon,
-        MultiPolygon,
-        LineString,
         mapping,
+        shape,
     )
     from shapely.ops import unary_union
-    from shapely.validation import make_valid, explain_validity
-    from shapely import simplify, normalize
+    from shapely.validation import explain_validity, make_valid
 
     SHAPELY_AVAILABLE = True
 except ImportError:
@@ -137,11 +136,11 @@ class ValidationIssue(BaseModel):
     severity: ValidationSeverity = Field(..., description="الخطورة - Severity")
     message_ar: str = Field(..., description="الرسالة بالعربية - Arabic message")
     message_en: str = Field(..., description="الرسالة بالإنجليزية - English message")
-    location: Optional[Dict[str, float]] = Field(
+    location: dict[str, float] | None = Field(
         None, description="موقع المشكلة - Issue location"
     )
     fixable: bool = Field(False, description="قابل للإصلاح - Can be auto-fixed")
-    details: Dict[str, Any] = Field(
+    details: dict[str, Any] = Field(
         default_factory=dict, description="تفاصيل إضافية - Additional details"
     )
 
@@ -152,27 +151,27 @@ class BoundaryValidationResult(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     is_valid: bool = Field(..., description="صالح - Is valid")
-    issues: List[ValidationIssue] = Field(
+    issues: list[ValidationIssue] = Field(
         default_factory=list, description="المشاكل - Issues"
     )
 
     # الإحصائيات - Statistics
-    area_hectares: Optional[float] = Field(
+    area_hectares: float | None = Field(
         None, description="المساحة (هكتار) - Area in hectares"
     )
-    perimeter_meters: Optional[float] = Field(
+    perimeter_meters: float | None = Field(
         None, description="المحيط (متر) - Perimeter in meters"
     )
-    centroid: Optional[Dict[str, float]] = Field(None, description="المركز - Centroid")
-    bounding_box: Optional[Dict[str, float]] = Field(
+    centroid: dict[str, float] | None = Field(None, description="المركز - Centroid")
+    bounding_box: dict[str, float] | None = Field(
         None, description="المربع المحيط - Bounding box"
     )
 
     # التحسينات - Improvements
-    simplified_geometry: Optional[Dict[str, Any]] = Field(
+    simplified_geometry: dict[str, Any] | None = Field(
         None, description="هندسة مبسطة - Simplified geometry"
     )
-    fixed_geometry: Optional[Dict[str, Any]] = Field(
+    fixed_geometry: dict[str, Any] | None = Field(
         None, description="هندسة مصلحة - Fixed geometry"
     )
 
@@ -191,7 +190,7 @@ class OverlapResult(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     has_overlap: bool = Field(..., description="يوجد تداخل - Has overlap")
-    overlapping_fields: List[Dict[str, Any]] = Field(
+    overlapping_fields: list[dict[str, Any]] = Field(
         default_factory=list, description="الحقول المتداخلة - Overlapping fields"
     )
     total_overlap_area_hectares: float = Field(
@@ -225,7 +224,7 @@ class BoundaryValidator:
     - Automatic repair of common issues
     """
 
-    def __init__(self, yemen_boundaries_path: Optional[str] = None):
+    def __init__(self, yemen_boundaries_path: str | None = None):
         """
         تهيئة المحقق
         Initialize validator
@@ -254,7 +253,7 @@ class BoundaryValidator:
         Load Yemen boundaries from GeoJSON file
         """
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
 
             # تحميل الحدود الوطنية - Load national boundaries
@@ -277,7 +276,7 @@ class BoundaryValidator:
 
     # ============== التحقق من الهندسة - Geometry Validation ==============
 
-    def validate_geometry(self, geojson: Dict[str, Any]) -> BoundaryValidationResult:
+    def validate_geometry(self, geojson: dict[str, Any]) -> BoundaryValidationResult:
         """
         التحقق من صحة هندسة GeoJSON
         Validate GeoJSON geometry
@@ -417,7 +416,7 @@ class BoundaryValidator:
             )
             return BoundaryValidationResult(is_valid=False, issues=issues)
 
-    def check_self_intersection(self, polygon: Polygon) -> List[ValidationIssue]:
+    def check_self_intersection(self, polygon: Polygon) -> list[ValidationIssue]:
         """
         التحقق من التقاطع الذاتي
         Check for self-intersections in polygon
@@ -461,7 +460,7 @@ class BoundaryValidator:
 
         return issues
 
-    def check_winding_order(self, polygon: Polygon) -> List[ValidationIssue]:
+    def check_winding_order(self, polygon: Polygon) -> list[ValidationIssue]:
         """
         التحقق من اتجاه النقاط (عكس عقارب الساعة للخارج، مع عقارب الساعة للثقوب)
         Check winding order (counter-clockwise for exterior, clockwise for holes)
@@ -582,7 +581,7 @@ class BoundaryValidator:
 
     # ============== التحقق من الحدود - Boundary Validation ==============
 
-    def _check_yemen_bounds(self, polygon: Polygon) -> List[ValidationIssue]:
+    def _check_yemen_bounds(self, polygon: Polygon) -> list[ValidationIssue]:
         """
         التحقق من أن المضلع ضمن حدود اليمن
         Check if polygon is within Yemen bounds
@@ -650,7 +649,7 @@ class BoundaryValidator:
 
         return issues
 
-    def _check_area(self, polygon: Polygon) -> List[ValidationIssue]:
+    def _check_area(self, polygon: Polygon) -> list[ValidationIssue]:
         """
         التحقق من حدود المساحة
         Check area limits
@@ -691,7 +690,7 @@ class BoundaryValidator:
 
         return issues
 
-    def _check_duplicate_points(self, polygon: Polygon) -> List[ValidationIssue]:
+    def _check_duplicate_points(self, polygon: Polygon) -> list[ValidationIssue]:
         """
         التحقق من النقاط المكررة
         Check for duplicate consecutive points
@@ -735,7 +734,7 @@ class BoundaryValidator:
 
         return issues
 
-    def _check_point_count(self, polygon: Polygon) -> List[ValidationIssue]:
+    def _check_point_count(self, polygon: Polygon) -> list[ValidationIssue]:
         """
         التحقق من عدد النقاط الكافي
         Check sufficient point count
@@ -765,9 +764,9 @@ class BoundaryValidator:
 
     def check_overlap_with_existing(
         self,
-        new_boundary: Dict[str, Any],
-        existing_fields: List[Dict[str, Any]],
-        user_id: Optional[str] = None,
+        new_boundary: dict[str, Any],
+        existing_fields: list[dict[str, Any]],
+        user_id: str | None = None,
         tolerance_percentage: float = 5.0,
     ) -> OverlapResult:
         """
@@ -857,8 +856,8 @@ class BoundaryValidator:
             return OverlapResult(has_overlap=False, overlapping_fields=[])
 
     def get_overlapping_fields(
-        self, boundary: Dict[str, Any], field_database: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
+        self, boundary: dict[str, Any], field_database: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
         """
         الحصول على قائمة الحقول المتداخلة
         Get list of overlapping fields
@@ -878,7 +877,7 @@ class BoundaryValidator:
         return result.overlapping_fields
 
     def calculate_overlap_percentage(
-        self, poly1: Dict[str, Any], poly2: Dict[str, Any]
+        self, poly1: dict[str, Any], poly2: dict[str, Any]
     ) -> float:
         """
         حساب نسبة التداخل بين مضلعين
@@ -1006,7 +1005,7 @@ class BoundaryValidator:
             print(f"خطأ في حساب المحيط - Perimeter calculation error: {e}")
             return 0.0
 
-    def get_centroid(self, polygon: Polygon) -> Dict[str, float]:
+    def get_centroid(self, polygon: Polygon) -> dict[str, float]:
         """
         الحصول على نقطة المركز
         Get centroid point
@@ -1028,7 +1027,7 @@ class BoundaryValidator:
             print(f"خطأ في حساب المركز - Centroid calculation error: {e}")
             return {"longitude": 0.0, "latitude": 0.0}
 
-    def get_bounding_box(self, polygon: Polygon) -> Dict[str, float]:
+    def get_bounding_box(self, polygon: Polygon) -> dict[str, float]:
         """
         الحصول على المربع المحيط
         Get bounding box
@@ -1059,7 +1058,7 @@ class BoundaryValidator:
 
     # ============== دوال مساعدة - Helper Functions ==============
 
-    def _calculate_signed_area(self, coords: List[Tuple[float, float]]) -> float:
+    def _calculate_signed_area(self, coords: list[tuple[float, float]]) -> float:
         """
         حساب المساحة الموقعة (للتحقق من الاتجاه)
         Calculate signed area (for winding order check)
@@ -1081,8 +1080,8 @@ class BoundaryValidator:
         return area / 2.0
 
     def _find_duplicate_consecutive_points(
-        self, coords: List[Tuple[float, float]]
-    ) -> List[int]:
+        self, coords: list[tuple[float, float]]
+    ) -> list[int]:
         """
         إيجاد النقاط المتتالية المكررة
         Find duplicate consecutive points

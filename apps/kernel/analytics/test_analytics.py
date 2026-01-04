@@ -7,18 +7,16 @@ Simple tests to verify system functionality
 """
 
 import sys
-from datetime import datetime, timedelta
 from pathlib import Path
 
 # إضافة المسار للاستيراد - Add path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
 from apps.kernel.analytics import (
-    UserAnalyticsService,
     EventType,
-    UserRole,
     Governorate,
     TimePeriod,
+    UserAnalyticsService,
 )
 
 
@@ -171,7 +169,7 @@ def test_feature_usage():
     assert feature_usage.total_uses >= 10, "Should have at least 10 uses"
 
     print("✓ تم حساب استخدام الميزات بنجاح - Feature usage calculated successfully")
-    print(f"  Feature: field_management")
+    print("  Feature: field_management")
     print(f"  Total Uses: {feature_usage.total_uses}")
     print(f"  Unique Users: {feature_usage.unique_users}")
     print()

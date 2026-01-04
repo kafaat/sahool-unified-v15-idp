@@ -9,15 +9,15 @@ in SAHOOL applications.
 في تطبيقات SAHOOL.
 """
 
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+
 from apps.kernel.common.middleware import (
-    setup_rate_limiting,
-    rate_limit,
-    RateLimiter,
-    EndpointConfig,
     ENDPOINT_CONFIGS,
+    EndpointConfig,
     get_rate_limit_stats,
+    rate_limit,
+    setup_rate_limiting,
 )
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -7,22 +7,22 @@ from .audit import AuditAction, audit_log
 from .deps import get_optional_principal, get_principal
 from .guard import require, require_all, require_any
 from .jwt import AuthError, create_token, verify_token
+from .policy_engine import (
+    PolicyContext,
+    PolicyDecision,
+    PolicyEngine,
+    PolicyResult,
+    can_access,
+    evaluate_policy,
+    get_policy_engine,
+)
 from .rbac import ROLE_PERMISSIONS, get_role_permissions, has_permission
 from .token_revocation import (
     TokenRevocationService,
     get_revocation_service,
+    is_token_revoked,
     revoke_token,
     revoke_user_tokens,
-    is_token_revoked,
-)
-from .policy_engine import (
-    PolicyEngine,
-    PolicyContext,
-    PolicyResult,
-    PolicyDecision,
-    get_policy_engine,
-    evaluate_policy,
-    can_access,
 )
 
 __version__ = "15.4.0"

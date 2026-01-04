@@ -3,13 +3,12 @@ SAHOOL - Alembic Environment Configuration
 تكوين بيئة Alembic
 """
 
-import os
 import sys
 from logging.config import fileConfig
 from pathlib import Path
 
-from sqlalchemy import engine_from_config, pool
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # إضافة المسارات المطلوبة إلى sys.path
 # Add required paths to sys.path

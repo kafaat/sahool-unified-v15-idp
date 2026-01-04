@@ -7,7 +7,8 @@ This package contains database seeding utilities for different environments.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Any, Dict
+
 from sqlalchemy.engine import Engine
 
 
@@ -31,7 +32,7 @@ class BaseSeeder(ABC):
         self.engine = engine
 
     @abstractmethod
-    def seed(self) -> Dict[str, Any]:
+    def seed(self) -> dict[str, Any]:
         """
         Seed the database with data.
         تعبئة قاعدة البيانات بالبيانات.

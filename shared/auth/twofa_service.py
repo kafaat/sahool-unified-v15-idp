@@ -14,8 +14,6 @@ import io
 import logging
 import secrets
 import string
-from datetime import datetime, timezone
-from typing import Optional
 
 try:
     import pyotp
@@ -71,7 +69,7 @@ class TwoFactorAuthService:
         return secret
 
     def generate_totp_uri(
-        self, secret: str, account_name: str, issuer: Optional[str] = None
+        self, secret: str, account_name: str, issuer: str | None = None
     ) -> str:
         """
         Generate TOTP provisioning URI for QR code.
@@ -97,7 +95,7 @@ class TwoFactorAuthService:
         return uri
 
     def generate_qr_code(
-        self, secret: str, account_name: str, issuer: Optional[str] = None
+        self, secret: str, account_name: str, issuer: str | None = None
     ) -> str:
         """
         Generate QR code for TOTP setup.
@@ -219,7 +217,7 @@ class TwoFactorAuthService:
 
     def verify_backup_code(
         self, code: str, hashed_codes: list[str]
-    ) -> tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         """
         Verify a backup code against stored hashes.
 
@@ -259,7 +257,7 @@ class TwoFactorAuthService:
 
 
 # Singleton instance
-_twofa_service: Optional[TwoFactorAuthService] = None
+_twofa_service: TwoFactorAuthService | None = None
 
 
 def get_twofa_service() -> TwoFactorAuthService:

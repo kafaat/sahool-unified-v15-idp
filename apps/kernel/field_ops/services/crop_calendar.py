@@ -8,11 +8,11 @@ Supports 18+ crops with regional adaptations
 """
 
 import json
-from datetime import date, datetime, timedelta
-from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Any
-from enum import Enum
 from dataclasses import dataclass
+from datetime import date, timedelta
+from enum import Enum
+from pathlib import Path
+from typing import Any
 
 # Try to import from models, but make it optional for standalone usage
 try:
@@ -105,12 +105,12 @@ class CropCalendar:
     name_en: str
     name_ar: str
     crop_category: str
-    planting_windows: Dict[str, Any]
-    growth_stages: Dict[str, Any]
-    total_cycle_days: Optional[int]
+    planting_windows: dict[str, Any]
+    growth_stages: dict[str, Any]
+    total_cycle_days: int | None
     is_perennial: bool = False
-    harvest_season: Optional[Dict[str, Any]] = None
-    productive_years: Optional[int] = None
+    harvest_season: dict[str, Any] | None = None
+    productive_years: int | None = None
 
 
 @dataclass
@@ -125,7 +125,7 @@ class GrowthStageInfo:
     duration_days: int
     order: int
     water_requirement: str
-    critical_tasks: List[str]
+    critical_tasks: list[str]
     start_day: int
     end_day: int
 
@@ -160,9 +160,9 @@ class Task:
     scheduled_date: date
     growth_stage: str
     priority: int  # 1=critical, 2=high, 3=medium, 4=low
-    description: Optional[str] = None
-    quantity: Optional[float] = None
-    unit: Optional[str] = None
+    description: str | None = None
+    quantity: float | None = None
+    unit: str | None = None
 
 
 # ============== فئة خدمة التقويم الزراعي - Crop Calendar Service Class ==============
@@ -199,7 +199,7 @@ class CropCalendarService:
         """
         data_path = Path(__file__).parent.parent / "data" / "crop_calendars.json"
 
-        with open(data_path, "r", encoding="utf-8") as f:
+        with open(data_path, encoding="utf-8") as f:
             data = json.load(f)
 
         self.crops_data = data.get("crops", {})
@@ -209,7 +209,7 @@ class CropCalendarService:
     # ============== 1. الحصول على التقويم - Get Calendar ==============
 
     def get_calendar(
-        self, crop_type: str, region: Optional[str] = None
+        self, crop_type: str, region: str | None = None
     ) -> CropCalendar:
         """
         الحصول على تقويم المحصول
@@ -265,7 +265,7 @@ class CropCalendarService:
 
     def get_current_stage(
         self, crop_type: str, planting_date: date
-    ) -> Tuple[str, GrowthStageInfo]:
+    ) -> tuple[str, GrowthStageInfo]:
         """
         الحصول على مرحلة النمو الحالية
         Get current growth stage based on planting date
@@ -326,8 +326,8 @@ class CropCalendarService:
         return current_stage, current_stage_info
 
     def _parse_growth_stages(
-        self, growth_stages: Dict[str, Any]
-    ) -> List[Tuple[str, GrowthStageInfo]]:
+        self, growth_stages: dict[str, Any]
+    ) -> list[tuple[str, GrowthStageInfo]]:
         """
         تحليل مراحل النمو وحساب أيام البداية والنهاية
         Parse growth stages and calculate start/end days
@@ -369,7 +369,7 @@ class CropCalendarService:
         planting_date: date,
         region: str = "highlands",
         days: int = 14,
-    ) -> List[Task]:
+    ) -> list[Task]:
         """
         الحصول على المهام القادمة للحقل
         Get upcoming tasks for a field
@@ -459,8 +459,8 @@ class CropCalendarService:
     # ============== 4. اقتراح نافذة الزراعة - Suggest Planting Window ==============
 
     def suggest_planting_window(
-        self, crop_type: str, region: str, reference_date: Optional[date] = None
-    ) -> List[PlantingWindow]:
+        self, crop_type: str, region: str, reference_date: date | None = None
+    ) -> list[PlantingWindow]:
         """
         اقتراح أفضل نوافذ الزراعة
         Suggest optimal planting windows
@@ -520,7 +520,7 @@ class CropCalendarService:
 
     def irrigation_schedule(
         self, growth_stage: str, region: str = "highlands"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         جدول الري حسب مرحلة النمو
         Irrigation schedule by growth stage
@@ -571,7 +571,7 @@ class CropCalendarService:
 
     def fertilizer_schedule(
         self, crop_type: str, growth_stage: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         جدول التسميد حسب المحصول ومرحلة النمو
         Fertilizer schedule by crop and growth stage
@@ -604,8 +604,8 @@ class CropCalendarService:
         return stage_fertilizers
 
     def pest_monitoring_schedule(
-        self, crop_type: str, season: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, crop_type: str, season: str | None = None
+    ) -> dict[str, Any]:
         """
         جدول مراقبة الآفات حسب المحصول والموسم
         Pest monitoring schedule by crop and season
@@ -649,7 +649,7 @@ class CropCalendarService:
         current_stage: str,
         today: date,
         end_date: date,
-    ) -> List[Task]:
+    ) -> list[Task]:
         """إنشاء مهام الري - Generate irrigation tasks"""
         tasks = []
 
@@ -689,7 +689,7 @@ class CropCalendarService:
         current_stage: str,
         today: date,
         end_date: date,
-    ) -> List[Task]:
+    ) -> list[Task]:
         """إنشاء مهام التسميد - Generate fertilization tasks"""
         tasks = []
 
@@ -740,7 +740,7 @@ class CropCalendarService:
         region: str,
         today: date,
         end_date: date,
-    ) -> List[Task]:
+    ) -> list[Task]:
         """إنشاء مهام مراقبة الآفات - Generate pest monitoring tasks"""
         tasks = []
 
@@ -780,7 +780,7 @@ class CropCalendarService:
         crop_type: str,
         current_stage_info: GrowthStageInfo,
         today: date,
-    ) -> List[Task]:
+    ) -> list[Task]:
         """إنشاء المهام الحرجة - Generate critical tasks from growth stage"""
         tasks = []
 
@@ -852,7 +852,7 @@ class CropCalendarService:
 
     # ============== معلومات إضافية - Additional Information ==============
 
-    def get_regional_climate_info(self, region: str) -> Dict[str, Any]:
+    def get_regional_climate_info(self, region: str) -> dict[str, Any]:
         """
         الحصول على معلومات المناخ الإقليمي
         Get regional climate information
@@ -865,7 +865,7 @@ class CropCalendarService:
         """
         return self.regions_data.get(region, {})
 
-    def list_available_crops(self) -> List[Dict[str, str]]:
+    def list_available_crops(self) -> list[dict[str, str]]:
         """
         قائمة بجميع المحاصيل المتاحة
         List all available crops

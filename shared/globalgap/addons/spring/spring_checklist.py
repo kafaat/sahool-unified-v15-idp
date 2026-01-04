@@ -8,9 +8,7 @@ compliance assessment.
 قائمة تحقق شاملة لتقييم امتثال SPRING (البرنامج المستدام للري والمياه الجوفية).
 """
 
-from typing import Dict, List, Optional
 from enum import Enum
-
 
 # ==================== Categories ====================
 
@@ -90,7 +88,7 @@ class SpringComplianceLevel(str, Enum):
 
 # ==================== SPRING Checklist Items ====================
 
-SPRING_CHECKLIST: List[Dict] = [
+SPRING_CHECKLIST: list[dict] = [
     # ==================== WATER SOURCES ====================
     {
         "item_id": "WS.01",
@@ -469,7 +467,7 @@ SPRING_CHECKLIST: List[Dict] = [
 # ==================== Helper Functions ====================
 
 
-def get_spring_category(category_code: str) -> Optional[Dict]:
+def get_spring_category(category_code: str) -> dict | None:
     """
     Get SPRING category details
     الحصول على تفاصيل فئة SPRING
@@ -483,7 +481,7 @@ def get_spring_category(category_code: str) -> Optional[Dict]:
     return SPRING_CATEGORIES.get(category_code)
 
 
-def get_spring_item(item_id: str) -> Optional[Dict]:
+def get_spring_item(item_id: str) -> dict | None:
     """
     Get specific checklist item by ID
     الحصول على عنصر قائمة تحقق محدد بواسطة المعرف
@@ -500,7 +498,7 @@ def get_spring_item(item_id: str) -> Optional[Dict]:
     return None
 
 
-def get_items_by_category(category: str) -> List[Dict]:
+def get_items_by_category(category: str) -> list[dict]:
     """
     Get all checklist items for a specific category
     الحصول على جميع عناصر قائمة التحقق لفئة محددة
@@ -514,7 +512,7 @@ def get_items_by_category(category: str) -> List[Dict]:
     return [item for item in SPRING_CHECKLIST if item["category"] == category]
 
 
-def get_mandatory_items() -> List[Dict]:
+def get_mandatory_items() -> list[dict]:
     """
     Get all mandatory checklist items
     الحصول على جميع عناصر قائمة التحقق الإلزامية
@@ -528,8 +526,8 @@ def get_mandatory_items() -> List[Dict]:
 
 
 def calculate_spring_compliance(
-    compliant_items: List[str], all_items: Optional[List[str]] = None
-) -> Dict[str, float]:
+    compliant_items: list[str], all_items: list[str] | None = None
+) -> dict[str, float]:
     """
     Calculate SPRING compliance score
     حساب درجة امتثال SPRING
@@ -553,7 +551,7 @@ def calculate_spring_compliance(
 
     # Calculate by category
     category_compliance = {}
-    for category_code in SPRING_CATEGORIES.keys():
+    for category_code in SPRING_CATEGORIES:
         category_items = [
             item["item_id"]
             for item in get_items_by_category(category_code)
@@ -579,7 +577,7 @@ def calculate_spring_compliance(
     }
 
 
-def get_yemen_specific_items() -> List[Dict]:
+def get_yemen_specific_items() -> list[dict]:
     """
     Get checklist items with Yemen-specific context
     الحصول على عناصر قائمة التحقق ذات السياق الخاص باليمن

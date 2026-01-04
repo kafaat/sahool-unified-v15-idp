@@ -5,8 +5,7 @@ Business logic for tenant management
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from .models import Tenant, TenantPlan, TenantSettings, TenantStatus
 
@@ -21,9 +20,9 @@ class TenantService:
     def create_tenant(
         self,
         name: str,
-        name_ar: Optional[str] = None,
+        name_ar: str | None = None,
         plan: TenantPlan = TenantPlan.FREE,
-        owner_id: Optional[str] = None,
+        owner_id: str | None = None,
     ) -> Tenant:
         """Create a new tenant"""
         tenant = Tenant.create(
@@ -35,7 +34,7 @@ class TenantService:
         self._tenants[tenant.id] = tenant
         return tenant
 
-    def get_tenant(self, tenant_id: str) -> Optional[Tenant]:
+    def get_tenant(self, tenant_id: str) -> Tenant | None:
         """Get tenant by ID"""
         return self._tenants.get(tenant_id)
 
@@ -43,26 +42,26 @@ class TenantService:
         self,
         tenant_id: str,
         status: TenantStatus,
-    ) -> Optional[Tenant]:
+    ) -> Tenant | None:
         """Update tenant status"""
         tenant = self._tenants.get(tenant_id)
         if tenant:
             tenant.status = status
-            tenant.updated_at = datetime.now(timezone.utc)
+            tenant.updated_at = datetime.now(UTC)
         return tenant
 
     def update_tenant_plan(
         self,
         tenant_id: str,
         plan: TenantPlan,
-    ) -> Optional[Tenant]:
+    ) -> Tenant | None:
         """Upgrade or downgrade tenant plan"""
         tenant = self._tenants.get(tenant_id)
         if tenant:
             tenant.plan = plan
             # Update settings based on plan
             tenant.settings = self._get_plan_settings(plan)
-            tenant.updated_at = datetime.now(timezone.utc)
+            tenant.updated_at = datetime.now(UTC)
         return tenant
 
     def _get_plan_settings(self, plan: TenantPlan) -> TenantSettings:
@@ -93,7 +92,7 @@ class TenantService:
 
     def list_tenants(
         self,
-        status: Optional[TenantStatus] = None,
+        status: TenantStatus | None = None,
     ) -> list[Tenant]:
         """List all tenants, optionally filtered by status"""
         tenants = list(self._tenants.values())

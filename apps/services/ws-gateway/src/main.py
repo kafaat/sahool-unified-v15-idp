@@ -8,24 +8,22 @@ import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Optional
 from uuid import uuid4
 
 from fastapi import (
     FastAPI,
+    Header,
+    HTTPException,
     Query,
     WebSocket,
     WebSocketDisconnect,
-    HTTPException,
-    Header,
 )
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
-from .rooms import RoomManager, RoomType
 from .handlers import WebSocketMessageHandler
 from .nats_bridge import NATSBridge
-from .events import EventType
+from .rooms import RoomManager
 
 # Configure logging
 logging.basicConfig(
@@ -258,17 +256,17 @@ async def websocket_endpoint(
 class BroadcastRequest(BaseModel):
     """Request model for broadcasting messages"""
 
-    tenant_id: Optional[str] = None
-    user_id: Optional[str] = None
-    field_id: Optional[str] = None
-    room: Optional[str] = None
+    tenant_id: str | None = None
+    user_id: str | None = None
+    field_id: str | None = None
+    room: str | None = None
     message: dict
 
 
 @app.post("/broadcast")
 async def broadcast_message(
     req: BroadcastRequest,
-    authorization: Optional[str] = Header(None),
+    authorization: str | None = Header(None),
 ):
     """
     Broadcast a message to specific rooms or users.

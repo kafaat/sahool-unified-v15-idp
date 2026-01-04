@@ -14,11 +14,9 @@ import hashlib
 import logging
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 
 from .policies import (
     ContentSafetyLevel,
-    InputValidationPolicy,
     PolicyManager,
     TrustLevel,
 )
@@ -38,13 +36,13 @@ class InputFilterResult:
     is_safe: bool
     filtered_text: str
     safety_level: ContentSafetyLevel
-    violations: List[str]
-    warnings: List[str]
-    metadata: Dict[str, any]
+    violations: list[str]
+    warnings: list[str]
+    metadata: dict[str, any]
 
     # Arabic translations for violations
-    violations_ar: List[str] = None
-    warnings_ar: List[str] = None
+    violations_ar: list[str] = None
+    warnings_ar: list[str] = None
 
     def __post_init__(self):
         if self.violations_ar is None:
@@ -116,7 +114,7 @@ class PromptInjectionDetector:
             re.compile(pattern, re.IGNORECASE) for pattern in self.all_patterns
         ]
 
-    def detect(self, text: str) -> Tuple[bool, List[str]]:
+    def detect(self, text: str) -> tuple[bool, list[str]]:
         """
         Detect prompt injection attempts.
 
@@ -188,7 +186,7 @@ class PIIDetector:
 
     def detect_and_mask(
         self, text: str, mask_char: str = "*"
-    ) -> Tuple[str, Dict[str, int]]:
+    ) -> tuple[str, dict[str, int]]:
         """
         Detect and mask PII in text.
 
@@ -303,7 +301,7 @@ class ToxicityFilter:
             re.IGNORECASE,
         )
 
-    def analyze(self, text: str) -> Tuple[float, Dict[str, int]]:
+    def analyze(self, text: str) -> tuple[float, dict[str, int]]:
         """
         Analyze text for toxicity.
 
@@ -360,7 +358,7 @@ class InputFilter:
             raise HTTPException(400, detail=result.violations)
     """
 
-    def __init__(self, policy_manager: Optional[PolicyManager] = None):
+    def __init__(self, policy_manager: PolicyManager | None = None):
         self.policy_manager = policy_manager or PolicyManager()
         self.prompt_injection_detector = PromptInjectionDetector()
         self.pii_detector = PIIDetector()

@@ -1,8 +1,9 @@
 import os
+
+import structlog
 from fastapi import FastAPI
 from fastapi.responses import Response
-import structlog
-from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
 
 SERVICE_NAME = os.getenv("SERVICE_NAME", "{{name}}")
 SERVICE_LAYER = os.getenv("SERVICE_LAYER", "{{layer}}")

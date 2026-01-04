@@ -4,7 +4,6 @@ Centralized configuration for JWT token handling
 """
 
 import os
-from typing import Optional
 
 
 class JWTConfig:
@@ -29,8 +28,8 @@ class JWTConfig:
     JWT_AUDIENCE: str = os.getenv("JWT_AUDIENCE", "sahool-api")
 
     # RSA Keys (optional, for RS256)
-    JWT_PUBLIC_KEY: Optional[str] = os.getenv("JWT_PUBLIC_KEY")
-    JWT_PRIVATE_KEY: Optional[str] = os.getenv("JWT_PRIVATE_KEY")
+    JWT_PUBLIC_KEY: str | None = os.getenv("JWT_PUBLIC_KEY")
+    JWT_PRIVATE_KEY: str | None = os.getenv("JWT_PRIVATE_KEY")
 
     # Token header name
     TOKEN_HEADER: str = "Authorization"
@@ -47,11 +46,11 @@ class JWTConfig:
     )
 
     # Redis configuration for token revocation
-    REDIS_URL: Optional[str] = os.getenv("REDIS_URL")
+    REDIS_URL: str | None = os.getenv("REDIS_URL")
     REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
     REDIS_PORT: int = int(os.getenv("REDIS_PORT", "6379"))
     REDIS_DB: int = int(os.getenv("REDIS_DB", "0"))
-    REDIS_PASSWORD: Optional[str] = os.getenv("REDIS_PASSWORD")
+    REDIS_PASSWORD: str | None = os.getenv("REDIS_PASSWORD")
 
     @classmethod
     def validate(cls) -> None:

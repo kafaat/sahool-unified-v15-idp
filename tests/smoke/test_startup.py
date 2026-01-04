@@ -3,7 +3,6 @@ SAHOOL Smoke Tests
 Fast tests to verify imports and basic functionality
 """
 
-import pytest
 
 
 class TestCoreImports:
@@ -56,10 +55,10 @@ class TestSecurityModules:
     def test_jwt_functions_exist(self):
         """JWT module should have required functions"""
         from shared.security.jwt import (
-            create_token,
-            verify_token,
             create_access_token,
             create_refresh_token,
+            create_token,
+            verify_token,
         )
 
         assert callable(create_token)
@@ -70,9 +69,9 @@ class TestSecurityModules:
     def test_rbac_functions_exist(self):
         """RBAC module should have required functions"""
         from shared.security.rbac import (
-            has_permission,
-            get_role_permissions,
             can_access_resource,
+            get_role_permissions,
+            has_permission,
         )
 
         assert callable(has_permission)
@@ -106,8 +105,7 @@ class TestNoCircularImports:
     def test_import_chain_security(self):
         """Security import chain should work"""
         # Import in typical order
-        from shared.security import rbac
-        from shared.security import jwt
+        from shared.security import jwt, rbac
 
         # Should not raise
         assert rbac is not None
@@ -116,6 +114,7 @@ class TestNoCircularImports:
     def test_fresh_import_works(self):
         """Fresh imports should work without state issues"""
         import importlib
+
         import shared.security.rbac
 
         # Reload should work

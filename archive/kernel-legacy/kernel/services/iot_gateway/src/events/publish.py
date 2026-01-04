@@ -6,8 +6,7 @@ Publish IoT events to NATS JetStream
 import json
 import os
 import uuid
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from nats.aio.client import Client as NATS
 
@@ -64,7 +63,7 @@ class EventEnvelope:
             aggregate_id=aggregate_id,
             tenant_id=tenant_id,
             correlation_id=correlation_id,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             payload=payload,
         )
 
@@ -86,7 +85,7 @@ class IoTPublisher:
 
     def __init__(self, nats_url: str = None):
         self.nats_url = nats_url or NATS_URL
-        self.nc: Optional[NATS] = None
+        self.nc: NATS | None = None
         self._connected = False
         self._stats = {
             "readings_published": 0,
@@ -305,7 +304,7 @@ class IoTPublisher:
 
 
 # Singleton instance
-_publisher: Optional[IoTPublisher] = None
+_publisher: IoTPublisher | None = None
 
 
 async def get_publisher() -> IoTPublisher:

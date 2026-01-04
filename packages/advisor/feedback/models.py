@@ -6,9 +6,8 @@ Data models for AI feedback
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -42,9 +41,9 @@ class AdvisorFeedback:
     tenant_id: str
     user_id: str
     feedback_type: FeedbackType
-    rating: Optional[FeedbackRating]
-    comment: Optional[str]
-    outcome_notes: Optional[str]
+    rating: FeedbackRating | None
+    comment: str | None
+    outcome_notes: str | None
     created_at: datetime
 
     @classmethod
@@ -54,9 +53,9 @@ class AdvisorFeedback:
         tenant_id: str,
         user_id: str,
         feedback_type: FeedbackType,
-        rating: Optional[FeedbackRating] = None,
-        comment: Optional[str] = None,
-        outcome_notes: Optional[str] = None,
+        rating: FeedbackRating | None = None,
+        comment: str | None = None,
+        outcome_notes: str | None = None,
     ) -> AdvisorFeedback:
         """Factory method to create feedback"""
         return cls(
@@ -68,7 +67,7 @@ class AdvisorFeedback:
             rating=rating,
             comment=comment,
             outcome_notes=outcome_notes,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     def to_dict(self) -> dict:

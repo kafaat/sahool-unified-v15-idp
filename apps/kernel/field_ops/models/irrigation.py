@@ -6,11 +6,11 @@
 Pydantic models for irrigation scheduling and water management
 """
 
-from datetime import datetime, date
-from typing import Optional, List, Dict, Any
+from datetime import date, datetime
 from enum import Enum
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from typing import Any
 
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 # ============== التعدادات - Enumerations ==============
 
@@ -127,18 +127,18 @@ class WeatherData(BaseModel):
     temp_min: float = Field(
         ..., ge=-10, le=60, description="أدنى درجة حرارة - Min temperature"
     )
-    temp_mean: Optional[float] = Field(
+    temp_mean: float | None = Field(
         None, description="متوسط درجة الحرارة - Mean temperature"
     )
 
     # الرطوبة - Humidity (%)
-    humidity_max: Optional[float] = Field(
+    humidity_max: float | None = Field(
         None, ge=0, le=100, description="أقصى رطوبة - Max humidity"
     )
-    humidity_min: Optional[float] = Field(
+    humidity_min: float | None = Field(
         None, ge=0, le=100, description="أدنى رطوبة - Min humidity"
     )
-    humidity_mean: Optional[float] = Field(
+    humidity_mean: float | None = Field(
         None, ge=0, le=100, description="متوسط الرطوبة - Mean humidity"
     )
 
@@ -148,12 +148,12 @@ class WeatherData(BaseModel):
     )
 
     # الإشعاع الشمسي - Solar radiation (MJ/m²/day)
-    solar_radiation: Optional[float] = Field(
+    solar_radiation: float | None = Field(
         None, ge=0, le=50, description="الإشعاع الشمسي - Solar radiation"
     )
 
     # ساعات السطوع - Sunshine hours
-    sunshine_hours: Optional[float] = Field(
+    sunshine_hours: float | None = Field(
         None, ge=0, le=24, description="ساعات السطوع - Sunshine hours"
     )
 
@@ -309,14 +309,14 @@ class IrrigationEvent(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    event_id: Optional[str] = Field(None, description="معرّف الحدث - Event ID")
+    event_id: str | None = Field(None, description="معرّف الحدث - Event ID")
     field_id: str = Field(..., description="معرّف الحقل - Field ID")
 
     # التوقيت - Timing
     scheduled_date: datetime = Field(
         ..., description="موعد الري المجدول - Scheduled date/time"
     )
-    actual_date: Optional[datetime] = Field(
+    actual_date: datetime | None = Field(
         None, description="الموعد الفعلي - Actual date/time"
     )
     duration_minutes: int = Field(
@@ -327,7 +327,7 @@ class IrrigationEvent(BaseModel):
     water_amount_mm: float = Field(
         ..., ge=0, description="كمية المياه (مم) - Water amount (mm)"
     )
-    water_amount_m3: Optional[float] = Field(
+    water_amount_m3: float | None = Field(
         None, ge=0, description="كمية المياه (م³) - Water amount (m³)"
     )
 
@@ -346,8 +346,8 @@ class IrrigationEvent(BaseModel):
     priority: int = Field(1, ge=1, le=5, description="الأولوية - Priority (1=highest)")
 
     # البيانات الإضافية - Additional data
-    notes: Optional[str] = Field(None, description="ملاحظات - Notes")
-    metadata: Dict[str, Any] = Field(
+    notes: str | None = Field(None, description="ملاحظات - Notes")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="بيانات إضافية - Metadata"
     )
 
@@ -372,7 +372,7 @@ class IrrigationSchedule(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    schedule_id: Optional[str] = Field(None, description="معرّف الجدول - Schedule ID")
+    schedule_id: str | None = Field(None, description="معرّف الجدول - Schedule ID")
     field_id: str = Field(..., description="معرّف الحقل - Field ID")
     tenant_id: str = Field(..., description="معرّف المستأجر - Tenant ID")
 
@@ -383,7 +383,7 @@ class IrrigationSchedule(BaseModel):
     # معلومات المحصول - Crop information
     crop_type: CropType = Field(..., description="نوع المحصول - Crop type")
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو - Growth stage")
-    planting_date: Optional[date] = Field(
+    planting_date: date | None = Field(
         None, description="تاريخ الزراعة - Planting date"
     )
 
@@ -391,7 +391,7 @@ class IrrigationSchedule(BaseModel):
     soil_type: SoilType = Field(..., description="نوع التربة - Soil type")
 
     # أحداث الري - Irrigation events
-    events: List[IrrigationEvent] = Field(
+    events: list[IrrigationEvent] = Field(
         default_factory=list, description="أحداث الري - Irrigation events"
     )
 
@@ -407,18 +407,18 @@ class IrrigationSchedule(BaseModel):
     )
 
     # تكاليف - Costs
-    estimated_electricity_cost: Optional[float] = Field(
+    estimated_electricity_cost: float | None = Field(
         None, description="تكلفة الكهرباء المقدرة - Estimated electricity cost"
     )
-    estimated_water_cost: Optional[float] = Field(
+    estimated_water_cost: float | None = Field(
         None, description="تكلفة المياه المقدرة - Estimated water cost"
     )
 
     # التحسين - Optimization
-    optimization_score: Optional[float] = Field(
+    optimization_score: float | None = Field(
         None, ge=0, le=100, description="نقاط التحسين - Optimization score"
     )
-    water_efficiency_score: Optional[float] = Field(
+    water_efficiency_score: float | None = Field(
         None, ge=0, le=100, description="نقاط كفاءة المياه - Water efficiency score"
     )
 
@@ -429,7 +429,7 @@ class IrrigationSchedule(BaseModel):
     updated_at: datetime = Field(
         default_factory=datetime.utcnow, description="تاريخ التحديث - Updated at"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="بيانات إضافية - Additional metadata"
     )
 
@@ -444,7 +444,7 @@ class IrrigationSchedule(BaseModel):
             self.total_water_m3 += event.water_amount_m3
         self.updated_at = datetime.utcnow()
 
-    def get_upcoming_events(self, days: int = 7) -> List[IrrigationEvent]:
+    def get_upcoming_events(self, days: int = 7) -> list[IrrigationEvent]:
         """
         الحصول على أحداث الري القادمة
         Get upcoming irrigation events
@@ -507,15 +507,15 @@ class IrrigationRecommendation(BaseModel):
     )
 
     # التوقيت الأمثل - Optimal timing
-    best_time_start: Optional[datetime] = Field(
+    best_time_start: datetime | None = Field(
         None, description="أفضل وقت للبدء - Best start time"
     )
-    best_time_end: Optional[datetime] = Field(
+    best_time_end: datetime | None = Field(
         None, description="أفضل وقت للانتهاء - Best end time"
     )
 
     # الملاحظات - Notes
-    notes: Optional[str] = Field(None, description="ملاحظات - Notes")
+    notes: str | None = Field(None, description="ملاحظات - Notes")
     confidence_score: float = Field(
         1.0, ge=0, le=1, description="نسبة الثقة - Confidence score"
     )

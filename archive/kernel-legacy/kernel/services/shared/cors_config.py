@@ -9,14 +9,13 @@ Usage:
 """
 
 import os
-from typing import List
 
 # Environment-based configuration
 ENV = os.getenv("ENV", "development")
 IS_PRODUCTION = ENV in ("production", "prod")
 
 # Allowed origins based on environment
-PRODUCTION_ORIGINS: List[str] = [
+PRODUCTION_ORIGINS: list[str] = [
     "https://sahool.io",
     "https://www.sahool.io",
     "https://admin.sahool.io",
@@ -24,7 +23,7 @@ PRODUCTION_ORIGINS: List[str] = [
     "https://api.sahool.io",
 ]
 
-DEVELOPMENT_ORIGINS: List[str] = [
+DEVELOPMENT_ORIGINS: list[str] = [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:8080",
@@ -38,7 +37,7 @@ CUSTOM_ORIGINS_ENV = os.getenv("CORS_ALLOWED_ORIGINS", "")
 CUSTOM_ORIGINS = [o.strip() for o in CUSTOM_ORIGINS_ENV.split(",") if o.strip()]
 
 
-def get_allowed_origins() -> List[str]:
+def get_allowed_origins() -> list[str]:
     """
     Get allowed origins based on environment
     الحصول على المصادر المسموح بها حسب البيئة

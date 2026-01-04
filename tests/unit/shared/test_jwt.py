@@ -4,7 +4,7 @@ Tests for JWT token creation and verification
 """
 
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 import pytest
 

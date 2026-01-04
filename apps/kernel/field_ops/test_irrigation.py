@@ -6,9 +6,8 @@ Irrigation Scheduling System Tests
 Note: Requires pytest and pydantic installation
 """
 
+
 import pytest
-from datetime import date, timedelta
-from typing import List
 
 # Uncomment when pydantic is installed
 # from models.irrigation import (

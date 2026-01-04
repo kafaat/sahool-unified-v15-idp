@@ -13,9 +13,9 @@ Corresponds to Event Chain 1 in SAHOOL architecture:
 satellite-service → indicators-service → crop-health-ai → yield-engine
 """
 
-from typing import Optional, Dict, Any, Tuple, List
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -189,8 +189,9 @@ class FieldMonitoringWorkflow:
 
     def _fetch_data(self, bbox, time_interval):
         """Fetch satellite data"""
+        from sentinelhub import CRS, BBox
+
         from ..tasks.fetch import SahoolSentinelFetchTask
-        from sentinelhub import BBox, CRS
 
         # Create bbox object
         sh_bbox = BBox(bbox=bbox, crs=CRS.WGS84)

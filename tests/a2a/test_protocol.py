@@ -6,37 +6,33 @@ Comprehensive tests for A2A protocol implementation.
 اختبارات شاملة لتطبيق بروتوكول A2A.
 """
 
-import pytest
-import asyncio
-from datetime import datetime
-from typing import Dict, Any
-
-import sys
 import os
+import sys
+from typing import Any
+
+import pytest
 
 # Add shared path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 
-from a2a.protocol import (
-    TaskMessage,
-    TaskResultMessage,
-    ErrorMessage,
-    HeartbeatMessage,
-    TaskState,
-    MessageType,
-    ConversationContext,
-    TaskQueue,
-)
 from a2a.agent import (
     A2AAgent,
-    AgentCard,
     AgentCapability,
+    AgentCard,
 )
 from a2a.client import (
     A2AClient,
     AgentDiscovery,
 )
-
+from a2a.protocol import (
+    ConversationContext,
+    ErrorMessage,
+    MessageType,
+    TaskMessage,
+    TaskQueue,
+    TaskResultMessage,
+    TaskState,
+)
 
 # Test Protocol Messages
 # اختبار رسائل البروتوكول
@@ -519,7 +515,7 @@ class TestA2AAgent:
             task_endpoint="http://localhost:8000/tasks",
         )
 
-        async def test_handler(task: TaskMessage) -> Dict[str, Any]:
+        async def test_handler(task: TaskMessage) -> dict[str, Any]:
             return {"result": "success"}
 
         agent.register_task_handler("test-task", test_handler)
@@ -538,7 +534,7 @@ class TestA2AAgent:
             task_endpoint="http://localhost:8000/tasks",
         )
 
-        async def test_handler(task: TaskMessage) -> Dict[str, Any]:
+        async def test_handler(task: TaskMessage) -> dict[str, Any]:
             return {"result": "success", "input": task.parameters}
 
         agent.register_task_handler("test-task", test_handler)
@@ -569,7 +565,7 @@ class TestA2AAgent:
             task_endpoint="http://localhost:8000/tasks",
         )
 
-        async def failing_handler(task: TaskMessage) -> Dict[str, Any]:
+        async def failing_handler(task: TaskMessage) -> dict[str, Any]:
             raise ValueError("Test error")
 
         agent.register_task_handler("failing-task", failing_handler)
@@ -668,7 +664,7 @@ class TestA2AIntegration:
         )
 
         # Register handler
-        async def echo_handler(task: TaskMessage) -> Dict[str, Any]:
+        async def echo_handler(task: TaskMessage) -> dict[str, Any]:
             return {"echo": task.parameters}
 
         agent.register_task_handler("echo", echo_handler)

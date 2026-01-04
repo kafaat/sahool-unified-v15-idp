@@ -8,11 +8,11 @@ Tests infrastructure services, application services, and integrations
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
-from typing import Dict
-from tests.integration.conftest import ServiceConfig, wait_for_service
 
+import httpx
+import pytest
+
+from tests.integration.conftest import ServiceConfig, wait_for_service
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Infrastructure Service Health Tests - اختبارات صحة الخدمات الأساسية
@@ -23,7 +23,7 @@ from tests.integration.conftest import ServiceConfig, wait_for_service
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_kong_gateway_health(
-    http_client: httpx.AsyncClient, infrastructure_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, infrastructure_configs: dict[str, ServiceConfig]
 ):
     """
     Test Kong API Gateway health
@@ -42,7 +42,7 @@ async def test_kong_gateway_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_nats_health(
-    http_client: httpx.AsyncClient, infrastructure_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, infrastructure_configs: dict[str, ServiceConfig]
 ):
     """
     Test NATS messaging health
@@ -61,7 +61,7 @@ async def test_nats_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_qdrant_health(
-    http_client: httpx.AsyncClient, infrastructure_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, infrastructure_configs: dict[str, ServiceConfig]
 ):
     """
     Test Qdrant vector database health
@@ -80,7 +80,7 @@ async def test_qdrant_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_prometheus_health(
-    http_client: httpx.AsyncClient, infrastructure_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, infrastructure_configs: dict[str, ServiceConfig]
 ):
     """
     Test Prometheus monitoring health
@@ -95,7 +95,7 @@ async def test_prometheus_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_grafana_health(
-    http_client: httpx.AsyncClient, infrastructure_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, infrastructure_configs: dict[str, ServiceConfig]
 ):
     """
     Test Grafana dashboard health
@@ -115,7 +115,7 @@ async def test_grafana_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_field_core_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test Field Core service health
@@ -133,7 +133,7 @@ async def test_field_core_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_field_ops_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test Field Operations service health
@@ -155,7 +155,7 @@ async def test_field_ops_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_ndvi_engine_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test NDVI Engine service health
@@ -170,7 +170,7 @@ async def test_ndvi_engine_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_weather_core_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test Weather Core service health
@@ -185,7 +185,7 @@ async def test_weather_core_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_field_chat_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test Field Chat service health
@@ -200,7 +200,7 @@ async def test_field_chat_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_iot_gateway_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test IoT Gateway service health
@@ -215,7 +215,7 @@ async def test_iot_gateway_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_agro_advisor_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test Agro Advisor service health
@@ -230,7 +230,7 @@ async def test_agro_advisor_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_ws_gateway_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test WebSocket Gateway service health
@@ -245,7 +245,7 @@ async def test_ws_gateway_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_crop_health_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """
     Test Crop Health service health
@@ -265,7 +265,7 @@ async def test_crop_health_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_task_service_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Task Service health - اختبار صحة خدمة المهام"""
     config = application_configs["task_service"]
@@ -277,7 +277,7 @@ async def test_task_service_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_equipment_service_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Equipment Service health - اختبار صحة خدمة المعدات"""
     config = application_configs["equipment_service"]
@@ -289,7 +289,7 @@ async def test_equipment_service_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_provider_config_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Provider Configuration service health - اختبار صحة خدمة تكوين المزودين"""
     config = application_configs["provider_config"]
@@ -306,7 +306,7 @@ async def test_provider_config_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_crop_health_ai_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Crop Health AI service health - اختبار صحة خدمة الذكاء الاصطناعي لصحة المحاصيل"""
     config = application_configs["crop_health_ai"]
@@ -318,7 +318,7 @@ async def test_crop_health_ai_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_virtual_sensors_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Virtual Sensors Engine health - اختبار صحة محرك المستشعرات الافتراضية"""
     config = application_configs["virtual_sensors"]
@@ -330,7 +330,7 @@ async def test_virtual_sensors_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_yield_engine_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Yield Prediction Engine health - اختبار صحة محرك التنبؤ بالإنتاجية"""
     config = application_configs["yield_engine"]
@@ -342,7 +342,7 @@ async def test_yield_engine_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_ai_advisor_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test AI Advisor Multi-Agent System health - اختبار صحة نظام المستشار الذكي متعدد الوكلاء"""
     config = application_configs["ai_advisor"]
@@ -365,7 +365,7 @@ async def test_ai_advisor_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_irrigation_smart_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Smart Irrigation service health - اختبار صحة خدمة الري الذكي"""
     config = application_configs["irrigation_smart"]
@@ -377,7 +377,7 @@ async def test_irrigation_smart_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_fertilizer_advisor_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Fertilizer Advisor service health - اختبار صحة خدمة مستشار التسميد"""
     config = application_configs["fertilizer_advisor"]
@@ -389,7 +389,7 @@ async def test_fertilizer_advisor_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_indicators_service_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Agricultural Indicators service health - اختبار صحة خدمة المؤشرات الزراعية"""
     config = application_configs["indicators_service"]
@@ -401,7 +401,7 @@ async def test_indicators_service_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_satellite_service_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Satellite service health - اختبار صحة خدمة الأقمار الصناعية"""
     config = application_configs["satellite_service"]
@@ -413,7 +413,7 @@ async def test_satellite_service_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_weather_advanced_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Weather Advanced service health - اختبار صحة خدمة الطقس المتقدمة"""
     config = application_configs["weather_advanced"]
@@ -425,7 +425,7 @@ async def test_weather_advanced_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_astronomical_calendar_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Astronomical Calendar service health - اختبار صحة خدمة التقويم الفلكي"""
     config = application_configs["astronomical_calendar"]
@@ -442,7 +442,7 @@ async def test_astronomical_calendar_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_research_core_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Research Core service health - اختبار صحة نواة البحث العلمي"""
     config = application_configs["research_core"]
@@ -454,7 +454,7 @@ async def test_research_core_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_disaster_assessment_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Disaster Assessment service health - اختبار صحة خدمة تقييم الكوارث"""
     config = application_configs["disaster_assessment"]
@@ -466,7 +466,7 @@ async def test_disaster_assessment_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_yield_prediction_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Yield Prediction service health - اختبار صحة خدمة التنبؤ بالإنتاجية"""
     config = application_configs["yield_prediction"]
@@ -478,7 +478,7 @@ async def test_yield_prediction_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_lai_estimation_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test LAI Estimation service health - اختبار صحة خدمة تقدير LAI"""
     config = application_configs["lai_estimation"]
@@ -490,7 +490,7 @@ async def test_lai_estimation_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_crop_growth_model_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Crop Growth Model service health - اختبار صحة خدمة نموذج نمو المحاصيل"""
     config = application_configs["crop_growth_model"]
@@ -502,7 +502,7 @@ async def test_crop_growth_model_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_marketplace_service_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Marketplace service health - اختبار صحة خدمة السوق"""
     config = application_configs["marketplace_service"]
@@ -519,7 +519,7 @@ async def test_marketplace_service_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_community_chat_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Community Chat service health - اختبار صحة خدمة المحادثة المجتمعية"""
     config = application_configs["community_chat"]
@@ -531,7 +531,7 @@ async def test_community_chat_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_notification_service_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Notification service health - اختبار صحة خدمة الإشعارات"""
     config = application_configs["notification_service"]
@@ -548,7 +548,7 @@ async def test_notification_service_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_billing_core_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Billing Core service health - اختبار صحة خدمة الفوترة الأساسية"""
     config = application_configs["billing_core"]
@@ -564,7 +564,7 @@ async def test_billing_core_health(
 @pytest.mark.health
 @pytest.mark.asyncio
 async def test_admin_dashboard_health(
-    http_client: httpx.AsyncClient, application_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, application_configs: dict[str, ServiceConfig]
 ):
     """Test Admin Dashboard health - اختبار صحة لوحة تحكم المشرفين"""
     config = application_configs["admin_dashboard"]
@@ -582,7 +582,7 @@ async def test_admin_dashboard_health(
 @pytest.mark.slow
 @pytest.mark.asyncio
 async def test_all_services_health(
-    http_client: httpx.AsyncClient, service_configs: Dict[str, ServiceConfig]
+    http_client: httpx.AsyncClient, service_configs: dict[str, ServiceConfig]
 ):
     """
     Comprehensive health check for all services
@@ -613,8 +613,8 @@ async def test_all_services_health(
 
     # Report results
     print(f"\n{'='*80}")
-    print(f"SAHOOL Platform Health Check Results")
-    print(f"نتائج فحص صحة منصة سهول")
+    print("SAHOOL Platform Health Check Results")
+    print("نتائج فحص صحة منصة سهول")
     print(f"{'='*80}")
     print(f"✓ Healthy Services: {len(healthy_services)}")
     print(f"✗ Failed Services: {len(failed_services)}")
@@ -622,12 +622,12 @@ async def test_all_services_health(
     print(f"{'='*80}")
 
     if failed_services:
-        print(f"\nFailed Services:")
+        print("\nFailed Services:")
         for service in failed_services:
             print(f"  ✗ {service}")
 
     if healthy_services:
-        print(f"\nHealthy Services:")
+        print("\nHealthy Services:")
         for service in healthy_services:
             print(f"  ✓ {service}")
 

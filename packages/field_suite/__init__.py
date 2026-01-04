@@ -5,10 +5,10 @@ Agricultural field management: Farms, Fields, Crops, Zones, Operations
 Hierarchy: Farm → Field → Zone → SubZone
 """
 
+from .crops import Crop, CropService
 from .farms import Farm, FarmService
 from .fields import Field, FieldService
-from .crops import Crop, CropService
-from .zones import Zone, SubZone, ZoneBoundary, ZoneType
+from .zones import SubZone, Zone, ZoneBoundary, ZoneType
 
 __version__ = "16.0.0"
 

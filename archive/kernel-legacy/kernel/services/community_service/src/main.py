@@ -14,9 +14,8 @@ import os
 import uuid
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Depends
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -84,22 +83,22 @@ class PostCreate(BaseModel):
     """Create a new post"""
 
     title: str = Field(..., min_length=1, max_length=300)
-    title_ar: Optional[str] = None
+    title_ar: str | None = None
     content: str = Field(..., min_length=1, max_length=5000)
-    content_ar: Optional[str] = None
+    content_ar: str | None = None
     category: PostCategory = PostCategory.GENERAL
-    image_urls: Optional[list[str]] = None
-    field_id: Optional[str] = None
-    location: Optional[dict] = None  # {lat, lon}
-    tags: Optional[list[str]] = None
+    image_urls: list[str] | None = None
+    field_id: str | None = None
+    location: dict | None = None  # {lat, lon}
+    tags: list[str] | None = None
 
 
 class CommentCreate(BaseModel):
     """Create a comment"""
 
     content: str = Field(..., min_length=1, max_length=2000)
-    content_ar: Optional[str] = None
-    parent_comment_id: Optional[str] = None
+    content_ar: str | None = None
+    parent_comment_id: str | None = None
 
 
 class User(BaseModel):
@@ -107,12 +106,12 @@ class User(BaseModel):
 
     user_id: str
     name: str
-    name_ar: Optional[str] = None
+    name_ar: str | None = None
     role: UserRole
     is_verified_expert: bool = False
-    avatar_url: Optional[str] = None
-    bio: Optional[str] = None
-    location: Optional[str] = None
+    avatar_url: str | None = None
+    bio: str | None = None
+    location: str | None = None
     joined_at: datetime
     posts_count: int = 0
     answers_count: int = 0
@@ -126,8 +125,8 @@ class Comment(BaseModel):
     post_id: str
     author: User
     content: str
-    content_ar: Optional[str] = None
-    parent_comment_id: Optional[str] = None
+    content_ar: str | None = None
+    parent_comment_id: str | None = None
     likes_count: int = 0
     is_expert_reply: bool = False
     is_accepted_answer: bool = False
@@ -142,14 +141,14 @@ class Post(BaseModel):
     tenant_id: str
     author: User
     title: str
-    title_ar: Optional[str] = None
+    title_ar: str | None = None
     content: str
-    content_ar: Optional[str] = None
+    content_ar: str | None = None
     category: PostCategory
-    image_urls: Optional[list[str]] = None
-    field_id: Optional[str] = None
-    location: Optional[dict] = None
-    tags: Optional[list[str]] = None
+    image_urls: list[str] | None = None
+    field_id: str | None = None
+    location: dict | None = None
+    tags: list[str] | None = None
     likes_count: int = 0
     comments_count: int = 0
     views_count: int = 0
@@ -167,7 +166,7 @@ class Story(BaseModel):
     author: User
     media_url: str
     media_type: str  # image, video
-    caption: Optional[str] = None
+    caption: str | None = None
     views_count: int = 0
     created_at: datetime
     expires_at: datetime
@@ -413,12 +412,12 @@ async def health_check():
 
 @app.get("/api/v1/posts", response_model=dict)
 async def list_posts(
-    category: Optional[PostCategory] = Query(None, description="Filter by category"),
-    author_id: Optional[str] = Query(None, description="Filter by author"),
-    has_expert_reply: Optional[bool] = Query(
+    category: PostCategory | None = Query(None, description="Filter by category"),
+    author_id: str | None = Query(None, description="Filter by author"),
+    has_expert_reply: bool | None = Query(
         None, description="Filter by expert reply"
     ),
-    search: Optional[str] = Query(None, description="Search in title and content"),
+    search: str | None = Query(None, description="Search in title and content"),
     sort_by: str = Query("recent", description="Sort: recent, popular, unanswered"),
     limit: int = Query(20, ge=1, le=50),
     offset: int = Query(0, ge=0),
@@ -748,7 +747,7 @@ async def get_stories(
 async def create_story(
     media_url: str = Query(...),
     media_type: str = Query("image"),
-    caption: Optional[str] = None,
+    caption: str | None = None,
     user_id: str = Depends(get_current_user_id),
 ):
     """Create a new story"""

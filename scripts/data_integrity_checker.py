@@ -24,15 +24,14 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import os
-import sys
-import json
 import argparse
 import asyncio
-from datetime import datetime, timezone, timedelta
-from typing import Optional, Dict, Any, List, Tuple
-from dataclasses import dataclass, field, asdict
+import json
 import logging
+import os
+import sys
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 
 try:
     import asyncpg
@@ -73,7 +72,7 @@ class IntegrityIssue:
     issue_type: str
     severity: str  # critical, high, medium, low
     count: int
-    sample_ids: List[str] = field(default_factory=list)
+    sample_ids: list[str] = field(default_factory=list)
     description: str = ""
     description_ar: str = ""
     fix_available: bool = False
@@ -85,8 +84,8 @@ class IntegrityReport:
     database: str
     total_issues: int
     critical_issues: int
-    issues: List[Dict] = field(default_factory=list)
-    tables_checked: List[str] = field(default_factory=list)
+    issues: list[dict] = field(default_factory=list)
+    tables_checked: list[str] = field(default_factory=list)
     duration_ms: float = 0.0
 
     def to_json(self) -> str:
@@ -135,8 +134,8 @@ class DataIntegrityChecker:
 
     def __init__(self, database_url: str = ASYNCPG_URL):
         self.database_url = database_url
-        self.conn: Optional[asyncpg.Connection] = None
-        self.issues: List[IntegrityIssue] = []
+        self.conn: asyncpg.Connection | None = None
+        self.issues: list[IntegrityIssue] = []
 
     async def connect(self):
         """Establish database connection."""
@@ -166,7 +165,7 @@ class DataIntegrityChecker:
     # ORPHANED RECORDS CHECKS
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def check_orphaned_fields(self) -> Optional[IntegrityIssue]:
+    async def check_orphaned_fields(self) -> IntegrityIssue | None:
         """Check for fields without valid user owners."""
         if not await self.check_table_exists("fields"):
             return None
@@ -193,7 +192,7 @@ class DataIntegrityChecker:
             )
         return None
 
-    async def check_orphaned_sensor_readings(self) -> Optional[IntegrityIssue]:
+    async def check_orphaned_sensor_readings(self) -> IntegrityIssue | None:
         """Check for sensor readings without valid fields."""
         if not await self.check_table_exists("sensor_readings"):
             return None
@@ -220,7 +219,7 @@ class DataIntegrityChecker:
             )
         return None
 
-    async def check_orphaned_tasks(self) -> Optional[IntegrityIssue]:
+    async def check_orphaned_tasks(self) -> IntegrityIssue | None:
         """Check for tasks with invalid references."""
         if not await self.check_table_exists("tasks"):
             return None
@@ -251,7 +250,7 @@ class DataIntegrityChecker:
     # STALE DATA CHECKS
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def check_stale_gps_data(self, days_threshold: int = 30) -> Optional[IntegrityIssue]:
+    async def check_stale_gps_data(self, days_threshold: int = 30) -> IntegrityIssue | None:
         """Check for stale GPS data."""
         if not await self.check_table_exists("fields"):
             return None
@@ -292,7 +291,7 @@ class DataIntegrityChecker:
     # DUPLICATE CHECKS
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def check_duplicate_users(self) -> Optional[IntegrityIssue]:
+    async def check_duplicate_users(self) -> IntegrityIssue | None:
         """Check for duplicate user emails."""
         if not await self.check_table_exists("users"):
             return None
@@ -322,7 +321,7 @@ class DataIntegrityChecker:
     # CONSTRAINT CHECKS
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def check_missing_fk_constraints(self) -> Optional[IntegrityIssue]:
+    async def check_missing_fk_constraints(self) -> IntegrityIssue | None:
         """Check for tables missing foreign key constraints."""
         # Check if fields table has FK to users
         fk_exists = await self.conn.fetchval("""
@@ -379,7 +378,7 @@ class DataIntegrityChecker:
             duration = (datetime.now() - start_time).total_seconds() * 1000
 
             report = IntegrityReport(
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 database=self.database_url.split("@")[-1] if "@" in self.database_url else "localhost",
                 total_issues=len(issues),
                 critical_issues=sum(1 for i in issues if i.severity == "critical"),
@@ -393,7 +392,7 @@ class DataIntegrityChecker:
         finally:
             await self.disconnect()
 
-    async def auto_fix(self, dry_run: bool = True) -> List[Dict]:
+    async def auto_fix(self, dry_run: bool = True) -> list[dict]:
         """Automatically fix detected issues."""
         fixes_applied = []
 

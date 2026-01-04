@@ -6,9 +6,8 @@ Data models for multi-tenancy
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Optional
 from uuid import uuid4
 
 
@@ -62,11 +61,11 @@ class Tenant:
 
     id: str
     name: str
-    name_ar: Optional[str]
+    name_ar: str | None
     status: TenantStatus
     plan: TenantPlan
     settings: TenantSettings
-    owner_id: Optional[str]
+    owner_id: str | None
     created_at: datetime
     updated_at: datetime
 
@@ -74,12 +73,12 @@ class Tenant:
     def create(
         cls,
         name: str,
-        name_ar: Optional[str] = None,
+        name_ar: str | None = None,
         plan: TenantPlan = TenantPlan.FREE,
-        owner_id: Optional[str] = None,
+        owner_id: str | None = None,
     ) -> Tenant:
         """Factory method to create a new tenant"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return cls(
             id=str(uuid4()),
             name=name,

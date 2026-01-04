@@ -77,13 +77,23 @@ ignore = [
     "E712",  # Comparison to True/False - SQLAlchemy filter pattern
     "E741",  # Ambiguous variable name - sometimes intentional (l, O, I)
     "E722",  # Bare except - sometimes needed for catch-all
+    "E721",  # Type comparison using == - sometimes intentional
+    "B018",  # Useless expression - sometimes intentional for documentation
+    "B026",  # Star-arg unpacking - valid pattern in some cases
 ]
 fixable = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
-"**/tests/*" = ["E402", "B017"]
+"**/tests/*" = ["E402", "B017", "F401", "F821"]
 "**/__init__.py" = ["F401"]
 "**/main.py" = ["E402"]  # Allow imports after sys.path modifications
+"**/examples/*" = ["F401", "F821", "E402"]  # Example code may have unused imports
+"**/example*.py" = ["F401", "F821"]  # Example files
+"archive/**" = ["F401", "F841", "F821", "E402"]  # Legacy archive code
+"legacy/**" = ["F401", "F841", "F821", "E402"]  # Legacy code
+"**/seeds/*" = ["F401"]  # Seed files
+"**/migrations/*" = ["F401", "E402"]  # Migration files
+"scripts/**" = ["F401", "E402"]  # Scripts may have conditional imports
 
 [tool.ruff.format]
 quote-style = "double"

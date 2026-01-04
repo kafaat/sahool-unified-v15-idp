@@ -7,16 +7,14 @@ Sprint 8: Clean separation of DB access from business logic
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
-from typing import Sequence
+from collections.abc import Sequence
+from datetime import UTC, date, datetime
 from uuid import UUID
 
-from sqlalchemy import and_, func, select
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from .models import NdviObservation, NdviAlert
-
+from .models import NdviAlert, NdviObservation
 
 # ─────────────────────────────────────────────────────────────────────────────
 # NDVI Observations
@@ -309,6 +307,6 @@ def acknowledge_alert(
         return False
 
     alert.acknowledged = True
-    alert.acknowledged_at = datetime.now(timezone.utc)
+    alert.acknowledged_at = datetime.now(UTC)
     alert.acknowledged_by = user_id
     return True

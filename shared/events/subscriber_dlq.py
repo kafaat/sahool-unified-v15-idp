@@ -14,7 +14,7 @@ import json
 import logging
 import traceback
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .dlq_config import DLQMessageMetadata, is_retriable_error, should_retry
 
@@ -32,8 +32,8 @@ async def _handle_failed_message_with_dlq(
     subscription,
     error: Exception,
     retry_count: int,
-    retry_timestamps: List[str],
-    retry_errors: List[str],
+    retry_timestamps: list[str],
+    retry_errors: list[str],
 ):
     """
     Handle failed message processing with DLQ logic.
@@ -95,8 +95,8 @@ async def _retry_message_with_dlq(
     msg,
     subscription,
     attempt: int,
-    retry_timestamps: List[str],
-    retry_errors: List[str],
+    retry_timestamps: list[str],
+    retry_errors: list[str],
 ):
     """
     Retry processing a failed message with metadata tracking.
@@ -155,8 +155,8 @@ async def _move_to_dlq(
     subscription,
     error: Exception,
     retry_count: int,
-    retry_timestamps: List[str],
-    retry_errors: List[str],
+    retry_timestamps: list[str],
+    retry_errors: list[str],
 ):
     """
     Move failed message to Dead Letter Queue.
@@ -232,7 +232,7 @@ async def _move_to_dlq(
         await self._nack_message(msg)
 
 
-async def _get_dlq_stats(self) -> Dict[str, Any]:
+async def _get_dlq_stats(self) -> dict[str, Any]:
     """
     Get DLQ statistics from JetStream.
 

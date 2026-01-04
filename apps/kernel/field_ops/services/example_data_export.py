@@ -8,6 +8,7 @@ to export field data in various formats and generate reports.
 """
 
 from datetime import date, timedelta
+
 from data_exporter import (
     DataExporter,
     ExportFormat,
@@ -45,7 +46,7 @@ def example_basic_csv_export():
         include_actions=True,
     )
 
-    print(f"✓ Export completed successfully!")
+    print("✓ Export completed successfully!")
     print(f"  Filename: {result.filename}")
     print(f"  Format: {result.format.value}")
     print(f"  Size: {result.size_bytes} bytes")
@@ -82,9 +83,9 @@ def example_excel_multi_sheet_export():
         include_actions=True,
     )
 
-    print(f"✓ Excel export completed!")
+    print("✓ Excel export completed!")
     print(f"  Filename: {result.filename}")
-    print(f"  Sheets included:")
+    print("  Sheets included:")
     print("    - معلومات الحقل (Field Info)")
     print("    - NDVI History")
     print("    - قراءات المستشعرات (Sensors)")
@@ -119,7 +120,7 @@ def example_geojson_export():
         include_ndvi=True,
     )
 
-    print(f"✓ GeoJSON export completed!")
+    print("✓ GeoJSON export completed!")
     print(f"  Filename: {result.filename}")
     print(f"  Format: {result.format.value}")
     print(f"  Content Type: {result.content_type}")
@@ -153,7 +154,7 @@ def example_sensor_readings_export():
         date_range=(start_date, end_date),
     )
 
-    print(f"✓ Sensor readings exported!")
+    print("✓ Sensor readings exported!")
     print(f"  Filename: {result.filename}")
     print(f"  Period: {start_date} to {end_date}")
     print(f"  Size: {result.size_bytes} bytes")
@@ -183,7 +184,7 @@ def example_recommendations_export():
         date_range=(date.today() - timedelta(days=30), date.today()),
     )
 
-    print(f"✓ Recommendations exported as PDF!")
+    print("✓ Recommendations exported as PDF!")
     print(f"  Filename: {result.filename}")
     print(f"  Size: {result.size_bytes} bytes")
     print()
@@ -211,7 +212,7 @@ def example_daily_summary_report():
         params={"field_id": "FIELD_001", "date": date.today()},
     )
 
-    print(f"✓ Daily summary report generated!")
+    print("✓ Daily summary report generated!")
     print(f"  Filename: {result.filename}")
     print(f"  Report Date: {date.today()}")
     print(f"  Size: {result.size_bytes} bytes")
@@ -249,7 +250,7 @@ def example_weekly_analysis_report():
         params={"field_id": "FIELD_001", "end_date": date.today()},
     )
 
-    print(f"✓ Weekly analysis report generated!")
+    print("✓ Weekly analysis report generated!")
     print(f"  Filename: {result.filename}")
     print(f"  Size: {result.size_bytes} bytes")
     print()
@@ -281,9 +282,9 @@ def example_monthly_report():
         },
     )
 
-    print(f"✓ Monthly report generated!")
+    print("✓ Monthly report generated!")
     print(f"  Filename: {result.filename}")
-    print(f"  Format: Excel with multiple sheets")
+    print("  Format: Excel with multiple sheets")
     print(f"  Size: {result.size_bytes} bytes")
     print()
 
@@ -313,10 +314,10 @@ def example_seasonal_comparison():
         },
     )
 
-    print(f"✓ Seasonal comparison report generated!")
+    print("✓ Seasonal comparison report generated!")
     print(f"  Filename: {result.filename}")
-    print(f"  Format: JSON")
-    print(f"  Seasons compared: 3")
+    print("  Format: JSON")
+    print("  Seasons compared: 3")
     print(f"  Size: {result.size_bytes} bytes")
     print()
 
@@ -342,9 +343,9 @@ def example_yield_forecast_report():
         report_type=ReportType.YIELD_FORECAST, params={"field_id": "FIELD_001"}
     )
 
-    print(f"✓ Yield forecast report generated!")
+    print("✓ Yield forecast report generated!")
     print(f"  Filename: {result.filename}")
-    print(f"  Format: PDF")
+    print("  Format: PDF")
     print(f"  Size: {result.size_bytes} bytes")
     print()
     print("  Report includes:")
@@ -407,9 +408,9 @@ def example_custom_arabic_headers():
         field_id="FIELD_001", format=ExportFormat.CSV, include_ndvi=True
     )
 
-    print(f"✓ CSV with custom headers exported!")
+    print("✓ CSV with custom headers exported!")
     print(f"  Filename: {result.filename}")
-    print(f"  Headers are fully bilingual (Arabic/English)")
+    print("  Headers are fully bilingual (Arabic/English)")
     print()
 
 

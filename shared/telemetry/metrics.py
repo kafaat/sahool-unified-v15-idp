@@ -31,43 +31,43 @@ Date: 2025-12-26
 import logging
 import os
 import time
-from typing import Optional, Dict, Any
 from contextlib import contextmanager
+from typing import Any
 
 from opentelemetry import metrics
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import (
-    PeriodicExportingMetricReader,
     ConsoleMetricExporter,
+    PeriodicExportingMetricReader,
 )
-from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.sdk.resources import (
-    Resource,
+    DEPLOYMENT_ENVIRONMENT,
     SERVICE_NAME,
     SERVICE_VERSION,
-    DEPLOYMENT_ENVIRONMENT,
+    Resource,
 )
-from prometheus_client import start_http_server, REGISTRY
+from prometheus_client import REGISTRY, start_http_server
 
 logger = logging.getLogger(__name__)
 
 # Global meter instance
-_meter: Optional[metrics.Meter] = None
-_meter_provider: Optional[MeterProvider] = None
+_meter: metrics.Meter | None = None
+_meter_provider: MeterProvider | None = None
 
 # Metrics instruments
-_request_counter: Optional[metrics.Counter] = None
-_request_duration: Optional[metrics.Histogram] = None
-_error_counter: Optional[metrics.Counter] = None
-_business_counters: Dict[str, metrics.Counter] = {}
-_business_histograms: Dict[str, metrics.Histogram] = {}
-_business_gauges: Dict[str, metrics.ObservableGauge] = {}
+_request_counter: metrics.Counter | None = None
+_request_duration: metrics.Histogram | None = None
+_error_counter: metrics.Counter | None = None
+_business_counters: dict[str, metrics.Counter] = {}
+_business_histograms: dict[str, metrics.Histogram] = {}
+_business_gauges: dict[str, metrics.ObservableGauge] = {}
 
 
 def init_metrics(
-    service_name: Optional[str] = None,
-    service_version: Optional[str] = None,
-    environment: Optional[str] = None,
+    service_name: str | None = None,
+    service_version: str | None = None,
+    environment: str | None = None,
     prometheus_port: int = 9090,
     enable_prometheus: bool = True,
     enable_console: bool = False,
@@ -184,7 +184,7 @@ def init_metrics(
 
 
 def get_meter(
-    name: Optional[str] = None, version: Optional[str] = None
+    name: str | None = None, version: str | None = None
 ) -> metrics.Meter:
     """
     Get a meter instance.
@@ -208,7 +208,7 @@ def track_request(
     endpoint: str,
     status_code: int,
     duration: float,
-    labels: Optional[Dict[str, str]] = None,
+    labels: dict[str, str] | None = None,
 ) -> None:
     """
     Track HTTP request metrics.
@@ -247,7 +247,7 @@ def track_request(
 
 @contextmanager
 def track_request_duration(
-    method: str, endpoint: str, labels: Optional[Dict[str, str]] = None
+    method: str, endpoint: str, labels: dict[str, str] | None = None
 ):
     """
     Context manager to track request duration.
@@ -267,7 +267,7 @@ def track_request_duration(
 
     try:
         yield
-    except Exception as e:
+    except Exception:
         status_code = 500
         raise
     finally:
@@ -351,7 +351,7 @@ def track_business_metric(
     metric_name: str,
     value: float = 1,
     metric_type: str = "counter",
-    labels: Optional[Dict[str, Any]] = None,
+    labels: dict[str, Any] | None = None,
     description: str = "",
     unit: str = "1",
 ) -> None:

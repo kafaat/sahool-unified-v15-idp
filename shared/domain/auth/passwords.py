@@ -7,12 +7,10 @@ from __future__ import annotations
 
 import hashlib
 import hmac
-import os
 import secrets
-from typing import Optional
 
 
-def hash_password(password: str, salt: Optional[bytes] = None) -> str:
+def hash_password(password: str, salt: bytes | None = None) -> str:
     """
     Hash a password using PBKDF2-SHA256.
 

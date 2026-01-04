@@ -4,7 +4,8 @@ Example usage of SAHOOL API Documentation Generator
 """
 
 from pathlib import Path
-from api_docs_generator import APIDocsGenerator, APICategory
+
+from api_docs_generator import APICategory, APIDocsGenerator
 
 
 def example_basic_usage():
@@ -85,7 +86,7 @@ def example_category_analysis():
     generator = APIDocsGenerator()
     generator.scan_all_services()
 
-    print(f"\nEndpoints by Category:")
+    print("\nEndpoints by Category:")
     print(f"{'-' * 60}")
 
     for category in APICategory:
@@ -216,19 +217,19 @@ def example_generate_statistics():
             port_ranges["Other"] += 1
 
     # Print statistics
-    print(f"\n📊 API Statistics:")
+    print("\n📊 API Statistics:")
     print(f"{'=' * 60}")
     print(f"Total Services:        {total_services}")
     print(f"Total Endpoints:       {total_endpoints}")
     print(f"Avg Endpoints/Service: {total_endpoints / total_services:.1f}")
     print()
 
-    print(f"Endpoints by Method:")
+    print("Endpoints by Method:")
     for method, count in sorted(methods.items()):
         print(f"  {method:6} {count:3}")
     print()
 
-    print(f"Services by Port Range:")
+    print("Services by Port Range:")
     for port_range, count in port_ranges.items():
         if count > 0:
             print(f"  {port_range:12} {count:3}")

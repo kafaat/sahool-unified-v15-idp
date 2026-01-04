@@ -10,12 +10,11 @@ Security Features:
 - Automatic cleanup of expired entries
 """
 
-import time
 import logging
 import threading
-from typing import Optional, Set, Dict
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+import time
+from dataclasses import dataclass
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -43,13 +42,13 @@ class TokenRevocationService:
 
     def __init__(self, cleanup_interval: int = 3600):
         # JTI-based revocation: {jti: RevocationEntry}
-        self._revoked_tokens: Dict[str, RevocationEntry] = {}
+        self._revoked_tokens: dict[str, RevocationEntry] = {}
 
         # User-based revocation: {user_id: revoked_before_timestamp}
-        self._revoked_users: Dict[str, float] = {}
+        self._revoked_users: dict[str, float] = {}
 
         # Tenant-based revocation: {tenant_id: revoked_before_timestamp}
-        self._revoked_tenants: Dict[str, float] = {}
+        self._revoked_tenants: dict[str, float] = {}
 
         # Lock for thread safety
         self._lock = threading.RLock()
@@ -90,7 +89,7 @@ class TokenRevocationService:
     def revoke_token(
         self,
         jti: str,
-        expires_at: Optional[float] = None,
+        expires_at: float | None = None,
         reason: str = "manual",
     ) -> bool:
         """
@@ -235,11 +234,11 @@ class TokenRevocationService:
 
     def is_revoked(
         self,
-        jti: Optional[str] = None,
-        user_id: Optional[str] = None,
-        tenant_id: Optional[str] = None,
-        issued_at: Optional[float] = None,
-    ) -> tuple[bool, Optional[str]]:
+        jti: str | None = None,
+        user_id: str | None = None,
+        tenant_id: str | None = None,
+        issued_at: float | None = None,
+    ) -> tuple[bool, str | None]:
         """
         Check if a token is revoked by any method.
 
@@ -286,7 +285,7 @@ class TokenRevocationService:
 
 
 # Global instance
-_revocation_service: Optional[TokenRevocationService] = None
+_revocation_service: TokenRevocationService | None = None
 
 
 def get_revocation_service() -> TokenRevocationService:
@@ -314,10 +313,10 @@ def revoke_tenant_tokens(tenant_id: str, reason: str = "security") -> bool:
 
 
 def is_token_revoked(
-    jti: Optional[str] = None,
-    user_id: Optional[str] = None,
-    tenant_id: Optional[str] = None,
-    issued_at: Optional[float] = None,
-) -> tuple[bool, Optional[str]]:
+    jti: str | None = None,
+    user_id: str | None = None,
+    tenant_id: str | None = None,
+    issued_at: float | None = None,
+) -> tuple[bool, str | None]:
     """Check if a token is revoked"""
     return get_revocation_service().is_revoked(jti, user_id, tenant_id, issued_at)

@@ -11,12 +11,11 @@ Tests for NATS event-driven architecture:
 Author: SAHOOL Platform Team
 """
 
-import pytest
 import asyncio
-import httpx
-from typing import Dict, Any
 import json
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Field Created → Satellite Analysis Event Flow
@@ -33,9 +32,9 @@ class TestFieldCreatedEventFlow:
     async def test_field_creation_triggers_satellite_analysis(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         field_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
         nats_client,
     ):
         """
@@ -103,8 +102,8 @@ class TestWeatherAlertEventFlow:
     async def test_weather_alert_triggers_notification(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
         nats_client,
     ):
         """
@@ -174,9 +173,9 @@ class TestLowStockEventFlow:
     async def test_low_stock_triggers_alert(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         inventory_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
         nats_client,
     ):
         """
@@ -240,9 +239,9 @@ class TestIoTReadingEventFlow:
     async def test_iot_reading_triggers_irrigation(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         iot_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
         nats_client,
     ):
         """

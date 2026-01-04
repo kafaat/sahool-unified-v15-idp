@@ -10,12 +10,12 @@ License: MIT
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def handle_ndvi_calculation(payload: Dict[str, Any]) -> Dict[str, Any]:
+def handle_ndvi_calculation(payload: dict[str, Any]) -> dict[str, Any]:
     """
     حساب مؤشر NDVI
     Calculate NDVI index
@@ -46,8 +46,8 @@ def handle_ndvi_calculation(payload: Dict[str, Any]) -> Dict[str, Any]:
         # Extract data from payload
         image_url = payload.get("image_url")
         field_id = payload.get("field_id")
-        red_band = payload.get("red_band", "B4")
-        nir_band = payload.get("nir_band", "B8")
+        payload.get("red_band", "B4")
+        payload.get("nir_band", "B8")
 
         if not image_url or not field_id:
             raise ValueError("image_url and field_id are required")

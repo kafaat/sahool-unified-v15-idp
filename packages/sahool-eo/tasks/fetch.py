@@ -6,9 +6,10 @@ This module provides EOTask implementations for fetching satellite data
 from various sources including Sentinel-2, Landsat, and MODIS.
 """
 
-from typing import Optional, List, Dict, Any, Tuple
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -173,15 +174,15 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
             EOPatch with fetched data
         """
         try:
+            from eolearn.core import EOPatch, FeatureType
             from sentinelhub import (
-                SentinelHubRequest,
+                CRS,
+                BBox,
                 DataCollection,
                 MimeType,
+                SentinelHubRequest,
                 SHConfig,
-                BBox,
-                CRS,
             )
-            from eolearn.core import EOPatch, FeatureType
 
             # Setup config
             if self.config:
@@ -341,13 +342,13 @@ class SahoolLandsatFetchTask(BaseSahoolFetchTask):
     def execute(self, bbox, time_interval: Tuple[str, str], size=None):
         """Execute Landsat fetch"""
         try:
+            from eolearn.core import EOPatch, FeatureType
             from sentinelhub import (
-                SentinelHubRequest,
                 DataCollection,
                 MimeType,
+                SentinelHubRequest,
                 SHConfig,
             )
-            from eolearn.core import EOPatch, FeatureType
 
             sh_config = SHConfig()
             if self.config:

@@ -6,7 +6,6 @@ Main FastAPI application entry point
 import logging
 import os
 from contextlib import asynccontextmanager
-from typing import Dict, List
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -176,7 +175,7 @@ async def root():
 # Simple in-memory connection manager
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: Dict[str, List[WebSocket]] = {}
+        self.active_connections: dict[str, list[WebSocket]] = {}
 
     async def connect(self, websocket: WebSocket, thread_id: str):
         await websocket.accept()

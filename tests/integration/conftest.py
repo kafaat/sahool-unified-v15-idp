@@ -14,19 +14,19 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
+import asyncio
 import os
 import time
-import asyncio
-from typing import AsyncGenerator, Dict, Any, Generator
+from collections.abc import AsyncGenerator, Generator
 from dataclasses import dataclass
-from contextlib import asynccontextmanager
+from typing import Any
 
-import pytest
 import httpx
-from httpx import AsyncClient, Timeout
 import psycopg2
-from psycopg2.extras import RealDictCursor
+import pytest
 from faker import Faker
+from httpx import AsyncClient, Timeout
+from psycopg2.extras import RealDictCursor
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Configuration - تكوين الاختبارات
@@ -220,7 +220,7 @@ def cleanup_test_data(db_cursor):
             except psycopg2.errors.UndefinedTable:
                 # Table might not exist, skip
                 pass
-    except Exception as e:
+    except Exception:
         # Ignore cleanup errors
         pass
 
@@ -282,7 +282,7 @@ class RetryTransport(httpx.AsyncHTTPTransport):
                 response = await super().handle_async_request(request)
                 if response.status_code < 500 or attempt == self.max_retries - 1:
                     return response
-            except (httpx.ConnectError, httpx.TimeoutException) as e:
+            except (httpx.ConnectError, httpx.TimeoutException):
                 if attempt == self.max_retries - 1:
                     raise
 
@@ -305,7 +305,7 @@ async def http_client(test_config: TestConfig) -> AsyncGenerator[AsyncClient, No
 
 
 @pytest.fixture
-def auth_headers(test_config: TestConfig) -> Dict[str, str]:
+def auth_headers(test_config: TestConfig) -> dict[str, str]:
     """
     Authentication headers for API requests
     رؤوس المصادقة لطلبات API
@@ -328,7 +328,7 @@ class FieldFactory:
     """Factory for creating test field data - مصنع لإنشاء بيانات حقول الاختبار"""
 
     @staticmethod
-    def create(name: str = None, crop_type: str = "wheat") -> Dict[str, Any]:
+    def create(name: str = None, crop_type: str = "wheat") -> dict[str, Any]:
         """Create a test field - إنشاء حقل اختبار"""
         return {
             "name": name or f"Test Field {faker_en.uuid4()[:8]}",
@@ -356,7 +356,7 @@ class WeatherQueryFactory:
     """Factory for creating weather query data - مصنع لإنشاء بيانات استعلام الطقس"""
 
     @staticmethod
-    def create(latitude: float = 15.3694, longitude: float = 44.1910) -> Dict[str, Any]:
+    def create(latitude: float = 15.3694, longitude: float = 44.1910) -> dict[str, Any]:
         """Create a weather query - إنشاء استعلام طقس"""
         return {"latitude": latitude, "longitude": longitude, "days": 7}
 
@@ -367,7 +367,7 @@ class NotificationFactory:
     @staticmethod
     def create(
         user_id: str = "test-user-123", notification_type: str = "weather_alert"
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Create a notification - إنشاء إشعار"""
         return {
             "user_id": user_id,
@@ -385,7 +385,7 @@ class InventoryItemFactory:
     """Factory for creating inventory item data - مصنع لإنشاء بيانات المخزون"""
 
     @staticmethod
-    def create(item_type: str = "fertilizer") -> Dict[str, Any]:
+    def create(item_type: str = "fertilizer") -> dict[str, Any]:
         """Create an inventory item - إنشاء عنصر مخزون"""
         return {
             "name": f"Test {item_type.title()} {faker_en.uuid4()[:8]}",
@@ -402,7 +402,7 @@ class AIQueryFactory:
     """Factory for creating AI advisor queries - مصنع لإنشاء استعلامات المستشار الذكي"""
 
     @staticmethod
-    def create(language: str = "ar") -> Dict[str, Any]:
+    def create(language: str = "ar") -> dict[str, Any]:
         """Create an AI query - إنشاء استعلام ذكي"""
         if language == "ar":
             return {
@@ -424,7 +424,7 @@ class PaymentFactory:
     """Factory for creating payment data - مصنع لإنشاء بيانات الدفع"""
 
     @staticmethod
-    def create(amount: float = 100.0, currency: str = "YER") -> Dict[str, Any]:
+    def create(amount: float = 100.0, currency: str = "YER") -> dict[str, Any]:
         """Create a payment - إنشاء دفعة"""
         return {
             "amount": amount,
@@ -440,7 +440,7 @@ class IoTReadingFactory:
     """Factory for creating IoT sensor readings - مصنع لإنشاء قراءات أجهزة IoT"""
 
     @staticmethod
-    def create(sensor_type: str = "soil_moisture") -> Dict[str, Any]:
+    def create(sensor_type: str = "soil_moisture") -> dict[str, Any]:
         """Create an IoT reading - إنشاء قراءة IoT"""
         return {
             "device_id": f"device-{faker_en.uuid4()[:8]}",
@@ -457,7 +457,7 @@ class ExperimentFactory:
     """Factory for creating research experiments - مصنع لإنشاء التجارب البحثية"""
 
     @staticmethod
-    def create() -> Dict[str, Any]:
+    def create() -> dict[str, Any]:
         """Create a research experiment - إنشاء تجربة بحثية"""
         return {
             "title": f"Test Experiment {faker_en.uuid4()[:8]}",
@@ -524,7 +524,7 @@ def experiment_factory() -> ExperimentFactory:
 
 
 @pytest.fixture
-def service_urls() -> Dict[str, str]:
+def service_urls() -> dict[str, str]:
     """
     Service URLs for integration testing
     عناوين الخدمات لاختبارات التكامل
@@ -592,7 +592,7 @@ async def wait_for_service_health(
 
 
 @pytest.fixture
-async def wait_for_services(http_client: AsyncClient, service_urls: Dict[str, str]):
+async def wait_for_services(http_client: AsyncClient, service_urls: dict[str, str]):
     """
     Wait for all services to be ready
     انتظار حتى تصبح جميع الخدمات جاهزة
@@ -617,7 +617,7 @@ class AlertFactory:
     """Factory for creating alert data - مصنع لإنشاء بيانات التنبيهات"""
 
     @staticmethod
-    def create(alert_type: str = "weather", severity: str = "medium") -> Dict[str, Any]:
+    def create(alert_type: str = "weather", severity: str = "medium") -> dict[str, Any]:
         """Create an alert - إنشاء تنبيه"""
         return {
             "type": alert_type,
@@ -636,7 +636,7 @@ class MarketplaceProductFactory:
     """Factory for creating marketplace product data - مصنع لإنشاء بيانات منتجات السوق"""
 
     @staticmethod
-    def create(product_type: str = "fertilizer") -> Dict[str, Any]:
+    def create(product_type: str = "fertilizer") -> dict[str, Any]:
         """Create a marketplace product - إنشاء منتج للسوق"""
         return {
             "name": f"Test {product_type.title()} {faker_en.uuid4()[:8]}",
@@ -655,7 +655,7 @@ class TaskFactory:
     """Factory for creating task data - مصنع لإنشاء بيانات المهام"""
 
     @staticmethod
-    def create(task_type: str = "irrigation") -> Dict[str, Any]:
+    def create(task_type: str = "irrigation") -> dict[str, Any]:
         """Create a task - إنشاء مهمة"""
         return {
             "title": f"Test Task - {task_type.title()}",
@@ -674,7 +674,7 @@ class SubscriptionFactory:
     """Factory for creating subscription data - مصنع لإنشاء بيانات الاشتراكات"""
 
     @staticmethod
-    def create(plan_id: str = "starter") -> Dict[str, Any]:
+    def create(plan_id: str = "starter") -> dict[str, Any]:
         """Create a subscription - إنشاء اشتراك"""
         return {
             "name": f"Test Tenant {faker_en.uuid4()[:8]}",
@@ -690,7 +690,7 @@ class OrderFactory:
     """Factory for creating order data - مصنع لإنشاء بيانات الطلبات"""
 
     @staticmethod
-    def create(item_count: int = 2) -> Dict[str, Any]:
+    def create(item_count: int = 2) -> dict[str, Any]:
         """Create an order - إنشاء طلب"""
         items = []
         for _ in range(item_count):
@@ -719,7 +719,7 @@ class DeviceFactory:
     """Factory for creating IoT device data - مصنع لإنشاء بيانات أجهزة IoT"""
 
     @staticmethod
-    def create(device_type: str = "soil_moisture_sensor") -> Dict[str, Any]:
+    def create(device_type: str = "soil_moisture_sensor") -> dict[str, Any]:
         """Create an IoT device - إنشاء جهاز IoT"""
         return {
             "device_id": f"device-{faker_en.uuid4()[:12]}",
@@ -736,7 +736,7 @@ class ReviewFactory:
     """Factory for creating product review data - مصنع لإنشاء بيانات مراجعات المنتجات"""
 
     @staticmethod
-    def create(rating: int = 5) -> Dict[str, Any]:
+    def create(rating: int = 5) -> dict[str, Any]:
         """Create a product review - إنشاء مراجعة منتج"""
         return {
             "product_id": f"product-{faker_en.uuid4()[:8]}",
@@ -800,25 +800,25 @@ def review_factory() -> ReviewFactory:
 
 
 @pytest.fixture
-def sample_field(field_factory: FieldFactory) -> Dict[str, Any]:
+def sample_field(field_factory: FieldFactory) -> dict[str, Any]:
     """Sample field data - بيانات حقل نموذجي"""
     return field_factory.create()
 
 
 @pytest.fixture
-def sample_location() -> Dict[str, float]:
+def sample_location() -> dict[str, float]:
     """Sample location (Sana'a, Yemen) - موقع نموذجي (صنعاء، اليمن)"""
     return {"latitude": 15.3694, "longitude": 44.1910}
 
 
 @pytest.fixture
-def sample_ai_question(ai_query_factory: AIQueryFactory) -> Dict[str, Any]:
+def sample_ai_question(ai_query_factory: AIQueryFactory) -> dict[str, Any]:
     """Sample AI question - سؤال ذكاء اصطناعي نموذجي"""
     return ai_query_factory.create()
 
 
 @pytest.fixture
-def sample_payment(payment_factory: PaymentFactory) -> Dict[str, Any]:
+def sample_payment(payment_factory: PaymentFactory) -> dict[str, Any]:
     """Sample payment data - بيانات دفع نموذجية"""
     return payment_factory.create()
 
@@ -830,7 +830,7 @@ def sample_payment(payment_factory: PaymentFactory) -> Dict[str, Any]:
 
 @pytest.fixture
 async def field_ops_client(
-    http_client: AsyncClient, service_urls: Dict[str, str]
+    http_client: AsyncClient, service_urls: dict[str, str]
 ) -> AsyncClient:
     """HTTP client for field operations service - عميل HTTP لخدمة عمليات الحقول"""
     base_url = service_urls.get("field_core", "http://localhost:3000")
@@ -840,7 +840,7 @@ async def field_ops_client(
 
 @pytest.fixture
 async def weather_client(
-    http_client: AsyncClient, service_urls: Dict[str, str]
+    http_client: AsyncClient, service_urls: dict[str, str]
 ) -> AsyncClient:
     """HTTP client for weather service - عميل HTTP لخدمة الطقس"""
     base_url = service_urls.get("weather_core", "http://localhost:8108")
@@ -850,7 +850,7 @@ async def weather_client(
 
 @pytest.fixture
 async def ndvi_client(
-    http_client: AsyncClient, service_urls: Dict[str, str]
+    http_client: AsyncClient, service_urls: dict[str, str]
 ) -> AsyncClient:
     """HTTP client for NDVI engine - عميل HTTP لمحرك NDVI"""
     base_url = service_urls.get("ndvi_engine", "http://localhost:8107")
@@ -860,7 +860,7 @@ async def ndvi_client(
 
 @pytest.fixture
 async def ai_advisor_client(
-    http_client: AsyncClient, service_urls: Dict[str, str]
+    http_client: AsyncClient, service_urls: dict[str, str]
 ) -> AsyncClient:
     """HTTP client for AI advisor - عميل HTTP للمستشار الذكي"""
     base_url = service_urls.get("ai_advisor", "http://localhost:8112")
@@ -870,7 +870,7 @@ async def ai_advisor_client(
 
 @pytest.fixture
 async def billing_client(
-    http_client: AsyncClient, service_urls: Dict[str, str]
+    http_client: AsyncClient, service_urls: dict[str, str]
 ) -> AsyncClient:
     """HTTP client for billing service - عميل HTTP لخدمة الفوترة"""
     base_url = service_urls.get("billing_core", "http://localhost:8089")
@@ -896,8 +896,9 @@ async def kong_client() -> AsyncGenerator[AsyncClient, None]:
 def mock_jwt_token(test_config: TestConfig) -> str:
     """Generate a mock JWT token for testing - إنشاء رمز JWT وهمي للاختبار"""
     try:
-        import jwt
         from datetime import datetime, timedelta
+
+        import jwt
 
         payload = {
             "sub": "test-user-123",
@@ -915,7 +916,7 @@ def mock_jwt_token(test_config: TestConfig) -> str:
 
 
 @pytest.fixture
-def mock_nats_message() -> Dict[str, Any]:
+def mock_nats_message() -> dict[str, Any]:
     """Mock NATS message for testing - رسالة NATS وهمية للاختبار"""
     return {
         "subject": "test.subject",

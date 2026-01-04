@@ -11,19 +11,18 @@ License: MIT
 
 import time
 from datetime import datetime, timedelta
+
 from redis import Redis
 
 from apps.kernel.common.queue import (
+    TaskPriority,
     TaskQueue,
+    TaskType,
     TaskWorker,
     WorkerManager,
-    TaskType,
-    TaskPriority,
-    TaskStatus,
-    register_all_handlers,
     create_queue_with_workers,
+    register_all_handlers,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Example 1: Basic Task Enqueue and Process
@@ -68,7 +67,7 @@ def example_basic_queue():
     # الحصول على حالة قائمة الانتظار
     # Get queue status
     status = queue.get_queue_status()
-    print(f"\nQueue Status:")
+    print("\nQueue Status:")
     print(f"  - Pending: {status['total_pending']}")
     print(f"  - Processing: {status['processing']}")
     print(f"  - Completed: {status['completed']}")
@@ -94,7 +93,7 @@ def example_worker_with_handlers():
 
     # إنشاء قائمة انتظار
     # Create queue
-    queue = TaskQueue(redis_client)
+    TaskQueue(redis_client)
 
     # إنشاء عامل
     # Create worker
@@ -178,7 +177,7 @@ def example_priority_queue():
         print(f"  - [{task_info['priority']}] {task_info['name']}: {task_id[:8]}...")
 
     status = queue.get_queue_status()
-    print(f"\nQueue Status by Priority:")
+    print("\nQueue Status by Priority:")
     for queue_name, count in status["queues"].items():
         print(f"  - {queue_name}: {count} tasks")
 
@@ -258,7 +257,7 @@ def example_worker_manager():
     # Get worker status
     time.sleep(1)  # انتظار قصير / Short wait
     status = manager.get_worker_status()
-    print(f"\nWorker Status:")
+    print("\nWorker Status:")
     print(f"  - Total workers: {status['total_workers']}")
 
     # توسيع العمال إلى 5
@@ -315,14 +314,14 @@ def example_retry_and_failure():
     # الحصول على معلومات المهمة
     # Get task info
     task = queue.get_task(task_id)
-    print(f"\nTask after first failure:")
+    print("\nTask after first failure:")
     print(f"  - Status: {task.status.value}")
     print(f"  - Retry count: {task.retry_count}/{task.max_retries}")
     print(f"  - Error: {task.error_message}")
 
     # إعادة محاولة مهمة فاشلة
     # Retry failed task
-    print(f"\nRetrying failed task...")
+    print("\nRetrying failed task...")
     queue.retry_failed(task_id)
 
     task = queue.get_task(task_id)
@@ -354,8 +353,8 @@ def example_quick_start():
         redis_client=redis_client, worker_count=3
     )
 
-    print(f"✓ Queue and workers ready!")
-    print(f"✓ قائمة الانتظار والعمال جاهزون!")
+    print("✓ Queue and workers ready!")
+    print("✓ قائمة الانتظار والعمال جاهزون!")
 
     # إضافة بعض المهام
     # Enqueue some tasks
@@ -378,7 +377,7 @@ def example_quick_start():
     # الحصول على الحالة
     # Get status
     status = queue.get_queue_status()
-    print(f"\nQueue Status:")
+    print("\nQueue Status:")
     print(f"  - Pending: {status['total_pending']}")
     print(f"  - Processing: {status['processing']}")
     print(f"  - Completed: {status['completed']}")
@@ -386,7 +385,7 @@ def example_quick_start():
     # إيقاف العمال
     # Stop workers
     manager.stop_all()
-    print(f"\n✓ Workers stopped")
+    print("\n✓ Workers stopped")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

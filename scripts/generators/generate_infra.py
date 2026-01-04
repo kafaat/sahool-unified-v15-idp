@@ -19,12 +19,12 @@ Usage:
         --dry-run   Print output without writing files
 """
 
-import yaml
 import argparse
 import sys
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any
+
+import yaml
 
 # Paths
 ROOT_DIR = Path(__file__).parent.parent.parent
@@ -33,17 +33,17 @@ COMPOSE_OUTPUT = ROOT_DIR / "docker" / "compose.generated.yml"
 HELM_OUTPUT = ROOT_DIR / "helm" / "sahool" / "values.generated.yaml"
 
 
-def load_services_yaml() -> Dict[str, Any]:
+def load_services_yaml() -> dict[str, Any]:
     """Load and parse services.yaml"""
     if not SERVICES_YAML.exists():
         print(f"ERROR: {SERVICES_YAML} not found")
         sys.exit(1)
 
-    with open(SERVICES_YAML, "r") as f:
+    with open(SERVICES_YAML) as f:
         return yaml.safe_load(f)
 
 
-def generate_compose_service(name: str, service: Dict[str, Any]) -> Dict[str, Any]:
+def generate_compose_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
     """Generate a Docker Compose service definition"""
     path = service.get("path", f"apps/services/{name}")
     port = service.get("port", 3000)
@@ -103,7 +103,7 @@ def generate_compose_service(name: str, service: Dict[str, Any]) -> Dict[str, An
     return compose_service
 
 
-def generate_infrastructure_services() -> Dict[str, Any]:
+def generate_infrastructure_services() -> dict[str, Any]:
     """Generate infrastructure services (postgres, redis, nats, mqtt)"""
     return {
         "postgres": {
@@ -173,7 +173,7 @@ def generate_infrastructure_services() -> Dict[str, Any]:
     }
 
 
-def generate_docker_compose(data: Dict[str, Any]) -> Dict[str, Any]:
+def generate_docker_compose(data: dict[str, Any]) -> dict[str, Any]:
     """Generate complete Docker Compose configuration"""
     services = data.get("services", {})
     applications = data.get("applications", {})
@@ -220,7 +220,7 @@ def generate_docker_compose(data: Dict[str, Any]) -> Dict[str, Any]:
     return compose
 
 
-def generate_helm_service(name: str, service: Dict[str, Any]) -> Dict[str, Any]:
+def generate_helm_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
     """Generate Helm values for a service"""
     resources = service.get("resources", {})
 
@@ -266,11 +266,11 @@ def generate_helm_service(name: str, service: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def generate_helm_values(data: Dict[str, Any]) -> Dict[str, Any]:
+def generate_helm_values(data: dict[str, Any]) -> dict[str, Any]:
     """Generate Helm values.yaml"""
     services = data.get("services", {})
     applications = data.get("applications", {})
-    infrastructure = data.get("infrastructure", {})
+    data.get("infrastructure", {})
 
     values = {
         "# AUTO-GENERATED FILE - DO NOT EDIT MANUALLY": None,
@@ -360,7 +360,7 @@ def generate_helm_values(data: Dict[str, Any]) -> Dict[str, Any]:
     return values
 
 
-def clean_yaml_output(data: Dict[str, Any]) -> str:
+def clean_yaml_output(data: dict[str, Any]) -> str:
     """Convert to YAML and clean up comment markers"""
     yaml_str = yaml.dump(
         data, default_flow_style=False, allow_unicode=True, sort_keys=False

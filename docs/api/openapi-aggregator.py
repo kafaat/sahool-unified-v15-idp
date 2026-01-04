@@ -6,14 +6,14 @@ Organized by package tier: Starter, Professional, Enterprise
 """
 
 import json
-import yaml
-import requests
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
-from datetime import datetime
 import logging
 import sys
 from collections import defaultdict
+from dataclasses import dataclass
+from typing import Any
+
+import requests
+import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -365,12 +365,12 @@ SERVICES = [
 class OpenAPIAggregator:
     """Aggregates OpenAPI specifications from multiple services"""
 
-    def __init__(self, services: List[ServiceConfig]):
+    def __init__(self, services: list[ServiceConfig]):
         self.services = services
-        self.specs: Dict[str, Any] = {}
-        self.errors: List[str] = []
+        self.specs: dict[str, Any] = {}
+        self.errors: list[str] = []
 
-    def fetch_spec(self, service: ServiceConfig, timeout: int = 5) -> Optional[Dict]:
+    def fetch_spec(self, service: ServiceConfig, timeout: int = 5) -> dict | None:
         """Fetch OpenAPI spec from a service with error handling"""
         try:
             logger.info(f"Fetching spec from {service.name} at {service.openapi_url}")
@@ -420,7 +420,7 @@ class OpenAPIAggregator:
         if self.errors:
             logger.warning(f"Failed to fetch {len(self.errors)} specs")
 
-    def merge_specs(self) -> Dict:
+    def merge_specs(self) -> dict:
         """Merge all specs into a unified OpenAPI document"""
         logger.info("Merging OpenAPI specifications...")
 
@@ -511,7 +511,7 @@ All API endpoints require JWT authentication unless otherwise specified.
 جميع نقاط النهاية تتطلب مصادقة JWT ما لم يُذكر خلاف ذلك.
 """
 
-    def _generate_tags(self) -> List[Dict]:
+    def _generate_tags(self) -> list[dict]:
         """Generate tags for all services organized by tier"""
         tags = []
 
@@ -533,7 +533,7 @@ All API endpoints require JWT authentication unless otherwise specified.
 
         return tags
 
-    def _generate_tag_groups(self) -> List[Dict]:
+    def _generate_tag_groups(self) -> list[dict]:
         """Generate tag groups for organizing services by tier"""
         return [
             {
@@ -551,7 +551,7 @@ All API endpoints require JWT authentication unless otherwise specified.
         ]
 
     def _merge_service_paths(
-        self, unified: Dict, service_spec: Dict, config: ServiceConfig
+        self, unified: dict, service_spec: dict, config: ServiceConfig
     ):
         """Merge paths from a service spec into the unified spec"""
         if "paths" not in service_spec:
@@ -586,7 +586,7 @@ All API endpoints require JWT authentication unless otherwise specified.
             unified["paths"][unified_path] = path_item
 
     def _merge_service_components(
-        self, unified: Dict, service_spec: Dict, service_name: str
+        self, unified: dict, service_spec: dict, service_name: str
     ):
         """Merge components (schemas) from a service spec"""
         if "components" not in service_spec:
@@ -598,7 +598,7 @@ All API endpoints require JWT authentication unless otherwise specified.
                 unified_schema_name = f"{service_name}_{schema_name}"
                 unified["components"]["schemas"][unified_schema_name] = schema
 
-    def save_to_file(self, spec: Dict, output_file: str):
+    def save_to_file(self, spec: dict, output_file: str):
         """Save the unified spec to a YAML file"""
         logger.info(f"Saving unified spec to {output_file}")
 

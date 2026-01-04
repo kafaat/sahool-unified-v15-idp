@@ -4,7 +4,7 @@ Provides standardized metrics for all services
 """
 
 import time
-from typing import Callable, Optional
+from collections.abc import Callable
 from functools import wraps
 
 from fastapi import FastAPI, Request, Response
@@ -22,7 +22,7 @@ class MetricsRegistry:
         self._start_time = time.time()
 
     def counter(
-        self, name: str, description: str, labels: Optional[dict] = None
+        self, name: str, description: str, labels: dict | None = None
     ) -> "Counter":
         """Create or get a counter metric"""
         key = self._make_key(name, labels)
@@ -36,7 +36,7 @@ class MetricsRegistry:
         return Counter(self._counters[key])
 
     def gauge(
-        self, name: str, description: str, labels: Optional[dict] = None
+        self, name: str, description: str, labels: dict | None = None
     ) -> "Gauge":
         """Create or get a gauge metric"""
         key = self._make_key(name, labels)
@@ -53,8 +53,8 @@ class MetricsRegistry:
         self,
         name: str,
         description: str,
-        buckets: Optional[list[float]] = None,
-        labels: Optional[dict] = None,
+        buckets: list[float] | None = None,
+        labels: dict | None = None,
     ) -> "Histogram":
         """Create or get a histogram metric"""
         key = self._make_key(name, labels)
@@ -77,13 +77,13 @@ class MetricsRegistry:
                 "description": description,
                 "labels": labels or {},
                 "buckets": buckets or default_buckets,
-                "bucket_counts": {b: 0 for b in (buckets or default_buckets)},
+                "bucket_counts": dict.fromkeys(buckets or default_buckets, 0),
                 "sum": 0,
                 "count": 0,
             }
         return Histogram(self._histograms[key])
 
-    def _make_key(self, name: str, labels: Optional[dict]) -> str:
+    def _make_key(self, name: str, labels: dict | None) -> str:
         """Create unique key for metric"""
         label_str = ",".join(f'{k}="{v}"' for k, v in sorted((labels or {}).items()))
         return f"{name}{{{label_str}}}"
@@ -230,7 +230,7 @@ class Histogram:
 
 
 # Global registry
-_registry: Optional[MetricsRegistry] = None
+_registry: MetricsRegistry | None = None
 
 
 def get_registry(service_name: str = "sahool") -> MetricsRegistry:
@@ -287,7 +287,7 @@ def setup_metrics(app: FastAPI, service_name: str = "sahool"):
                 error_counter.inc()
 
             return response
-        except Exception as e:
+        except Exception:
             error_counter.inc()
             raise
         finally:
@@ -321,7 +321,7 @@ def track_db_query(func: Callable):
             query_counter.inc()
             query_latency.observe(time.time() - start_time)
             return result
-        except Exception as e:
+        except Exception:
             query_errors.inc()
             raise
 
@@ -357,7 +357,7 @@ def track_external_call(service_name: str):
                 call_counter.inc()
                 call_latency.observe(time.time() - start_time)
                 return result
-            except Exception as e:
+            except Exception:
                 call_errors.inc()
                 raise
 

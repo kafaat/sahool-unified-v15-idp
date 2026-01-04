@@ -10,12 +10,9 @@ Comprehensive simulation tests that verify:
 5. Error handling and recovery
 """
 
-import asyncio
-import json
 import uuid
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
-from unittest.mock import AsyncMock, MagicMock, patch
+from typing import Any
 
 import pytest
 
@@ -36,9 +33,9 @@ def generate_tenant_id() -> str:
 
 def create_test_principal(
     tenant_id: str,
-    roles: List[str] = None,
+    roles: list[str] = None,
     user_id: str = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a test principal for authentication tests."""
     return {
         "sub": user_id or str(uuid.uuid4()),
@@ -55,7 +52,7 @@ def create_test_field(
     tenant_id: str = None,
     name: str = "حقل اختباري",
     area_hectares: float = 10.5,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a test field object."""
     return {
         "id": field_id or generate_field_id(),
@@ -77,7 +74,7 @@ def create_ndvi_observation(
     field_id: str,
     value: float = 0.65,
     date: str = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a test NDVI observation."""
     return {
         "field_id": field_id,
@@ -222,7 +219,7 @@ class TestAuthenticationSimulation:
 
         محاكاة: الأدوار المختلفة لها صلاحيات مختلفة
         """
-        from shared.security.rbac import has_permission, Permission
+        from shared.security.rbac import Permission, has_permission
 
         tenant_id = generate_tenant_id()
 
@@ -246,7 +243,7 @@ class TestAuthenticationSimulation:
 
         محاكاة: المدير العام يمكنه الوصول لجميع المستأجرين
         """
-        from shared.security.rbac import has_permission, Permission
+        from shared.security.rbac import Permission, has_permission
 
         super_admin = create_test_principal(
             tenant_id=generate_tenant_id(), roles=["super_admin"]
@@ -407,6 +404,7 @@ class TestErrorHandlingSimulation:
         محاكاة: أخطاء التحقق تتضمن رسائل عربية وإنجليزية
         """
         from fastapi import HTTPException
+
         from shared.security.guard import require
 
         principal = create_test_principal(

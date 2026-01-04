@@ -23,19 +23,19 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import asyncio
 import argparse
-import sys
-import os
+import asyncio
 import json
-from datetime import datetime, timezone
 import logging
+import os
+import sys
+from datetime import UTC, datetime
 
 # Add scripts directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "scripts"))
 
-from comprehensive_simulator import ComprehensiveSimulator
 from agents_simulator import AgentsSimulator
+from comprehensive_simulator import ComprehensiveSimulator
 from iot_simulator import IoTSimulator
 
 logging.basicConfig(
@@ -227,7 +227,7 @@ class SimulationRunner:
     def save_results(self):
         """Save combined results to JSON."""
         results = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "configuration": {
                 "gateway_url": self.gateway_url,
                 "duration": self.duration,

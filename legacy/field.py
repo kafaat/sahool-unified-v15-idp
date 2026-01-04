@@ -15,12 +15,12 @@ warnings.warn(
 
 # Re-export from new location
 from field_suite import (
+    Crop,
+    CropService,
     Farm,
     FarmService,
     Field,
     FieldService,
-    Crop,
-    CropService,
 )
 
 __all__ = [

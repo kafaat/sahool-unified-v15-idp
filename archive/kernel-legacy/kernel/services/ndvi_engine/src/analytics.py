@@ -7,13 +7,12 @@ Sprint 8: Trend detection, summary statistics, and anomaly detection
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 from statistics import mean, stdev
-from typing import Sequence
 
 from .models import NdviObservation
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Data Structures
@@ -227,7 +226,7 @@ def _generate_trend_messages(
         en = f"Vegetation health is declining ({strength} trend, -{change_str})"
         ar = f"صحة النباتات تتراجع (اتجاه {_strength_ar(strength)}، -{change_str})"
     elif direction == "volatile":
-        en = f"Vegetation health is unstable (high variability)"
+        en = "Vegetation health is unstable (high variability)"
         ar = "صحة النباتات غير مستقرة (تقلبات عالية)"
     else:
         en = "Vegetation health is stable"

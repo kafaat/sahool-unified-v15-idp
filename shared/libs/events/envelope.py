@@ -5,7 +5,7 @@ Standard envelope for all events in the platform
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -36,7 +36,7 @@ class EventEnvelope(BaseModel):
 
     # Timing
     occurred_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         description="When the event occurred",
     )
 

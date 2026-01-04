@@ -13,12 +13,11 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +26,7 @@ logger = logging.getLogger(__name__)
 class GeometryValidationReport:
     """Report from geometry validation job"""
 
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     completed_at: datetime | None = None
     fields_checked: int = 0
     fields_invalid: int = 0
@@ -155,7 +154,7 @@ def validate_and_fix_geometries(
         logger.exception("Geometry validation failed")
         db.rollback()
 
-    report.completed_at = datetime.now(timezone.utc)
+    report.completed_at = datetime.now(UTC)
 
     logger.info(
         f"Geometry validation complete: "

@@ -6,22 +6,21 @@ Implements MCP tool specifications for SAHOOL agricultural platform.
 Each tool follows the Model Context Protocol specification for tool invocation.
 """
 
-import asyncio
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ToolResult(BaseModel):
     """Standard result format for tool execution"""
 
     success: bool
-    data: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
-    metadata: Optional[Dict[str, Any]] = None
+    data: dict[str, Any] | None = None
+    error: str | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class SAHOOLTools:
@@ -32,7 +31,7 @@ class SAHOOLTools:
     through the Model Context Protocol.
     """
 
-    def __init__(self, base_url: Optional[str] = None):
+    def __init__(self, base_url: str | None = None):
         """
         Initialize SAHOOL Tools
 
@@ -48,7 +47,7 @@ class SAHOOLTools:
 
     # ==================== Tool Definitions ====================
 
-    def get_tool_definitions(self) -> List[Dict[str, Any]]:
+    def get_tool_definitions(self) -> list[dict[str, Any]]:
         """
         Get MCP tool definitions for all SAHOOL tools
 
@@ -251,7 +250,7 @@ class SAHOOLTools:
             return ToolResult(success=False, error=f"Unexpected error: {str(e)}")
 
     async def analyze_crop_health(
-        self, field_id: str, analysis_type: str = "ndvi", date: Optional[str] = None
+        self, field_id: str, analysis_type: str = "ndvi", date: str | None = None
     ) -> ToolResult:
         """
         Analyze crop health using satellite imagery
@@ -405,8 +404,8 @@ class SAHOOLTools:
         self,
         field_id: str,
         crop_type: str,
-        soil_test: Optional[Dict[str, float]] = None,
-        target_yield: Optional[float] = None,
+        soil_test: dict[str, float] | None = None,
+        target_yield: float | None = None,
     ) -> ToolResult:
         """
         Get fertilizer recommendations
@@ -459,7 +458,7 @@ class SAHOOLTools:
             return ToolResult(success=False, error=f"Unexpected error: {str(e)}")
 
     async def invoke_tool(
-        self, tool_name: str, arguments: Dict[str, Any]
+        self, tool_name: str, arguments: dict[str, Any]
     ) -> ToolResult:
         """
         Invoke a tool by name with arguments

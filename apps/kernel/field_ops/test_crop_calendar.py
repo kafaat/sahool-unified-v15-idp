@@ -13,6 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from datetime import date, timedelta
+
 from services.crop_calendar import CropCalendarService
 
 
@@ -34,7 +35,7 @@ def test_get_calendar():
     print(f"المحصول / Crop: {calendar.name_ar} / {calendar.name_en}")
     print(f"النوع / Type: {calendar.crop_category}")
     print(f"دورة الحياة / Total cycle: {calendar.total_cycle_days} يوم / days")
-    print(f"نوافذ الزراعة / Planting windows:")
+    print("نوافذ الزراعة / Planting windows:")
     for region, windows in calendar.planting_windows.items():
         for window_type, window_data in windows.items():
             print(
@@ -49,7 +50,7 @@ def test_get_calendar():
     print(f"المحصول / Crop: {calendar.name_ar} / {calendar.name_en}")
     print(f"محصول معمر / Perennial: {calendar.is_perennial}")
     print(f"سنوات الإنتاج / Productive years: {calendar.productive_years}")
-    print(f"موسم الحصاد / Harvest season:")
+    print("موسم الحصاد / Harvest season:")
     for region, season in calendar.harvest_season.items():
         print(
             f"  شهر {season['start_month']}-{season['end_month']}: {season['description']}"
@@ -60,7 +61,7 @@ def test_get_calendar():
     print("\n--- الطماطم في تهامة (Tomato in Tihama) ---")
     calendar = service.get_calendar("tomato", "tihama")
     print(f"المحصول / Crop: {calendar.name_ar} / {calendar.name_en}")
-    print(f"مراحل النمو / Growth stages:")
+    print("مراحل النمو / Growth stages:")
     for stage_name, stage_data in calendar.growth_stages.items():
         print(
             f"  {stage_data['order']}. {stage_data['name_ar']} ({stage_name}): "
@@ -96,7 +97,7 @@ def test_get_current_stage():
         f"نطاق المرحلة / Stage range: يوم {stage_info.start_day}-{stage_info.end_day}"
     )
     print(f"احتياج مائي / Water requirement: {stage_info.water_requirement}")
-    print(f"المهام الحرجة / Critical tasks:")
+    print("المهام الحرجة / Critical tasks:")
     for task in stage_info.critical_tasks:
         print(f"  - {task}")
 
@@ -137,7 +138,7 @@ def test_get_upcoming_tasks():
 
     print(f"عدد المهام القادمة / Total upcoming tasks: {len(tasks)}")
     print(
-        f"\nالمهام (مرتبة حسب التاريخ والأولوية) / Tasks (sorted by date & priority):\n"
+        "\nالمهام (مرتبة حسب التاريخ والأولوية) / Tasks (sorted by date & priority):\n"
     )
 
     for i, task in enumerate(tasks[:10], 1):  # عرض أول 10 مهام / Show first 10 tasks
@@ -330,7 +331,7 @@ def test_comprehensive_scenario():
     calendar = service.get_calendar("tomato", "tihama")
 
     print(f"\nدورة الحياة / Life cycle: {calendar.total_cycle_days} يوم")
-    print(f"مراحل النمو / Growth stages:")
+    print("مراحل النمو / Growth stages:")
     for stage_name, stage_data in calendar.growth_stages.items():
         print(
             f"  {stage_data['order']}. {stage_data['name_ar']}: "
@@ -343,7 +344,7 @@ def test_comprehensive_scenario():
     planting_date = date.today() - timedelta(days=50)
 
     print(f"\nتاريخ الزراعة / Planting date: {planting_date}")
-    print(f"الأيام منذ الزراعة / Days since planting: 50")
+    print("الأيام منذ الزراعة / Days since planting: 50")
 
     stage_name, stage_info = service.get_current_stage("tomato", planting_date)
     print(f"المرحلة الحالية / Current stage: {stage_info.name_ar} ({stage_name})")
@@ -375,7 +376,7 @@ def test_comprehensive_scenario():
         for task in type_tasks[:3]:  # عرض أول 3 مهام من كل نوع
             print(f"  [{task.scheduled_date}] {task.task_name_ar}")
             if task.priority == 1:
-                print(f"    ⚠️ أولوية حرجة / CRITICAL PRIORITY")
+                print("    ⚠️ أولوية حرجة / CRITICAL PRIORITY")
 
     # 5. توصيات التسميد
     # 5. Fertilization recommendations
@@ -403,7 +404,7 @@ def test_comprehensive_scenario():
         f"\nتكرار الري / Irrigation frequency: كل {irr_schedule['frequency_days']} أيام"
     )
     print(f"الوصف / Description: {irr_schedule['description_ar']}")
-    print(f"ملاحظة: معدل حسب منطقة تهامة (حار ورطب)")
+    print("ملاحظة: معدل حسب منطقة تهامة (حار ورطب)")
 
 
 def main():

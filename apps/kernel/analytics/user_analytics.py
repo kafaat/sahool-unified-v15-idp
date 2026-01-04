@@ -7,23 +7,19 @@ Advanced user activity tracking and analytics system
 """
 
 import uuid
-from datetime import datetime, date, timedelta
-from typing import List, Dict, Optional, Tuple, Any
-from collections import defaultdict, Counter
+from collections import Counter, defaultdict
+from datetime import date, datetime, timedelta
+from typing import Any
 
 from .models import (
     AnalyticsEvent,
-    UserMetrics,
     CohortAnalysis,
-    FeatureUsage,
-    RegionalMetrics,
-    FarmerAnalytics,
     EventType,
-    UserRole,
+    FeatureUsage,
     Governorate,
     TimePeriod,
+    UserMetrics,
 )
-
 
 # ============== خدمة تحليلات المستخدمين - User Analytics Service ==============
 
@@ -50,7 +46,7 @@ class UserAnalyticsService:
     - Regional metrics
     """
 
-    def __init__(self, storage_backend: Optional[Any] = None):
+    def __init__(self, storage_backend: Any | None = None):
         """
         تهيئة خدمة التحليلات
         Initialize analytics service
@@ -61,7 +57,7 @@ class UserAnalyticsService:
                            Can use database, Redis, or JSON files
         """
         self.storage = storage_backend or InMemoryStorage()
-        self.events: List[AnalyticsEvent] = []
+        self.events: list[AnalyticsEvent] = []
 
     # ============== تتبع الأحداث - Event Tracking ==============
 
@@ -69,7 +65,7 @@ class UserAnalyticsService:
         self,
         user_id: str,
         event_type: EventType,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
         **kwargs,
     ) -> AnalyticsEvent:
         """
@@ -141,8 +137,8 @@ class UserAnalyticsService:
         self,
         user_id: str,
         period: TimePeriod = TimePeriod.MONTHLY,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> UserMetrics:
         """
         الحصول على مقاييس تفاعل المستخدم
@@ -182,7 +178,7 @@ class UserAnalyticsService:
     def _calculate_user_metrics(
         self,
         user_id: str,
-        events: List[AnalyticsEvent],
+        events: list[AnalyticsEvent],
         period_start: datetime,
         period_end: datetime,
         period_type: TimePeriod,
@@ -195,7 +191,7 @@ class UserAnalyticsService:
         total_events = len(events)
 
         # أيام النشاط الفريدة - Unique active days
-        unique_days = len(set(event.timestamp.date() for event in events))
+        unique_days = len({event.timestamp.date() for event in events})
 
         # مقاييس الجلسة - Session metrics
         sessions = self._extract_sessions(events)
@@ -215,7 +211,7 @@ class UserAnalyticsService:
         )
 
         # عدد الحقول الفريدة المدارة - Unique fields managed
-        unique_fields = len(set(e.field_id for e in field_events if e.field_id))
+        unique_fields = len({e.field_id for e in field_events if e.field_id})
 
         # مقاييس التوصيات - Recommendation metrics
         rec_viewed = len(
@@ -375,7 +371,7 @@ class UserAnalyticsService:
         )
 
     def _calculate_retention_for_day(
-        self, users: List[str], start_date: date, day: int
+        self, users: list[str], start_date: date, day: int
     ) -> float:
         """
         حساب معدل الاحتفاظ ليوم محدد
@@ -402,8 +398,8 @@ class UserAnalyticsService:
     def get_feature_usage(
         self,
         feature_name: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         period: TimePeriod = TimePeriod.MONTHLY,
     ) -> FeatureUsage:
         """
@@ -432,7 +428,7 @@ class UserAnalyticsService:
 
         # حساب المقاييس - Calculate metrics
         total_uses = len(feature_events)
-        unique_users = len(set(event.user_id for event in feature_events))
+        unique_users = len({event.user_id for event in feature_events})
 
         # متوسط الاستخدامات لكل مستخدم - Average uses per user
         avg_uses_per_user = total_uses / unique_users if unique_users > 0 else 0
@@ -459,7 +455,7 @@ class UserAnalyticsService:
 
     # ============== المقاييس العامة - General Metrics ==============
 
-    def daily_active_users(self, date_val: Optional[date] = None) -> int:
+    def daily_active_users(self, date_val: date | None = None) -> int:
         """
         عدد المستخدمين النشطين يومياً
         Daily Active Users (DAU)
@@ -477,9 +473,9 @@ class UserAnalyticsService:
         end_time = datetime.combine(date_val, datetime.max.time())
 
         events = self.storage.get_events_in_range(start_time, end_time)
-        return len(set(event.user_id for event in events))
+        return len({event.user_id for event in events})
 
-    def weekly_active_users(self, week_start: Optional[date] = None) -> int:
+    def weekly_active_users(self, week_start: date | None = None) -> int:
         """
         عدد المستخدمين النشطين أسبوعياً
         Weekly Active Users (WAU)
@@ -497,9 +493,9 @@ class UserAnalyticsService:
         end_time = datetime.combine(week_start + timedelta(days=7), datetime.max.time())
 
         events = self.storage.get_events_in_range(start_time, end_time)
-        return len(set(event.user_id for event in events))
+        return len({event.user_id for event in events})
 
-    def monthly_active_users(self, month_start: Optional[date] = None) -> int:
+    def monthly_active_users(self, month_start: date | None = None) -> int:
         """
         عدد المستخدمين النشطين شهرياً
         Monthly Active Users (MAU)
@@ -519,10 +515,10 @@ class UserAnalyticsService:
         )
 
         events = self.storage.get_events_in_range(start_time, end_time)
-        return len(set(event.user_id for event in events))
+        return len({event.user_id for event in events})
 
     def average_session_duration(
-        self, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None
+        self, start_date: datetime | None = None, end_date: datetime | None = None
     ) -> float:
         """
         متوسط مدة الجلسة
@@ -552,8 +548,8 @@ class UserAnalyticsService:
     def feature_adoption_rate(
         self,
         feature_name: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> float:
         """
         معدل تبني ميزة معينة
@@ -575,8 +571,8 @@ class UserAnalyticsService:
     def crops_monitored_count(
         self,
         user_id: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> int:
         """
         عدد المحاصيل المراقبة للمزارع
@@ -612,9 +608,9 @@ class UserAnalyticsService:
     def alerts_response_time(
         self,
         user_id: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-    ) -> Optional[float]:
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+    ) -> float | None:
         """
         متوسط وقت الاستجابة للتنبيهات
         Average alert response time in hours
@@ -663,8 +659,8 @@ class UserAnalyticsService:
     def recommendation_follow_rate(
         self,
         user_id: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> float:
         """
         معدل اتباع التوصيات
@@ -699,7 +695,7 @@ class UserAnalyticsService:
         user_id: str,
         baseline_period_days: int = 180,
         current_period_days: int = 90,
-    ) -> Optional[float]:
+    ) -> float | None:
         """
         اتجاه تحسن الإنتاجية
         Yield improvement trend percentage
@@ -755,8 +751,8 @@ class UserAnalyticsService:
     # ============== التحليلات الإقليمية - Regional Analytics ==============
 
     def users_by_governorate(
-        self, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None
-    ) -> Dict[Governorate, int]:
+        self, start_date: datetime | None = None, end_date: datetime | None = None
+    ) -> dict[Governorate, int]:
         """
         توزيع المستخدمين حسب المحافظة
         User distribution by governorate
@@ -784,8 +780,8 @@ class UserAnalyticsService:
         return {gov: len(users) for gov, users in governorate_users.items()}
 
     def active_fields_by_region(
-        self, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None
-    ) -> Dict[Governorate, int]:
+        self, start_date: datetime | None = None, end_date: datetime | None = None
+    ) -> dict[Governorate, int]:
         """
         الحقول النشطة حسب المنطقة
         Active fields by region
@@ -814,10 +810,10 @@ class UserAnalyticsService:
 
     def crop_distribution(
         self,
-        governorate: Optional[Governorate] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-    ) -> Dict[str, int]:
+        governorate: Governorate | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+    ) -> dict[str, int]:
         """
         توزيع المحاصيل
         Crop distribution
@@ -867,7 +863,7 @@ class UserAnalyticsService:
         else:
             return end_date - timedelta(days=30)
 
-    def _extract_sessions(self, events: List[AnalyticsEvent]) -> List[Dict[str, Any]]:
+    def _extract_sessions(self, events: list[AnalyticsEvent]) -> list[dict[str, Any]]:
         """
         استخراج الجلسات من الأحداث
         Extract sessions from events
@@ -900,7 +896,7 @@ class UserAnalyticsService:
 
         return sessions
 
-    def _calculate_feature_usage(self, events: List[AnalyticsEvent]) -> Dict[str, int]:
+    def _calculate_feature_usage(self, events: list[AnalyticsEvent]) -> dict[str, int]:
         """
         حساب استخدام الميزات
         Calculate feature usage
@@ -930,8 +926,8 @@ class UserAnalyticsService:
         return dict(usage)
 
     def _calculate_alert_response_time(
-        self, events: List[AnalyticsEvent]
-    ) -> Optional[float]:
+        self, events: list[AnalyticsEvent]
+    ) -> float | None:
         """
         حساب متوسط وقت الاستجابة للتنبيهات
         Calculate average alert response time
@@ -969,8 +965,8 @@ class InMemoryStorage:
 
     def __init__(self):
         """تهيئة التخزين - Initialize storage"""
-        self.events: List[AnalyticsEvent] = []
-        self.users: Dict[str, Dict[str, Any]] = {}
+        self.events: list[AnalyticsEvent] = []
+        self.users: dict[str, dict[str, Any]] = {}
 
     def save_event(self, event: AnalyticsEvent) -> None:
         """
@@ -980,7 +976,7 @@ class InMemoryStorage:
 
     def get_user_events(
         self, user_id: str, start_date: datetime, end_date: datetime
-    ) -> List[AnalyticsEvent]:
+    ) -> list[AnalyticsEvent]:
         """
         الحصول على أحداث مستخدم معين - Get user events
         """
@@ -992,7 +988,7 @@ class InMemoryStorage:
 
     def get_events_in_range(
         self, start_date: datetime, end_date: datetime
-    ) -> List[AnalyticsEvent]:
+    ) -> list[AnalyticsEvent]:
         """
         الحصول على الأحداث في فترة زمنية - Get events in date range
         """
@@ -1000,7 +996,7 @@ class InMemoryStorage:
 
     def get_feature_events(
         self, feature_name: str, start_date: datetime, end_date: datetime
-    ) -> List[AnalyticsEvent]:
+    ) -> list[AnalyticsEvent]:
         """
         الحصول على أحداث ميزة معينة - Get feature events
         """
@@ -1016,9 +1012,9 @@ class InMemoryStorage:
         عدد المستخدمين النشطين الإجمالي - Total active users
         """
         events = self.get_events_in_range(start_date, end_date)
-        return len(set(e.user_id for e in events))
+        return len({e.user_id for e in events})
 
-    def get_cohort_users(self, cohort_period: date) -> List[str]:
+    def get_cohort_users(self, cohort_period: date) -> list[str]:
         """
         الحصول على مستخدمي فوج معين - Get cohort users
         """
@@ -1033,7 +1029,7 @@ class InMemoryStorage:
             if e.event_type == EventType.LOGIN and start <= e.timestamp <= end
         ]
 
-        return list(set(e.user_id for e in signup_events))
+        return list({e.user_id for e in signup_events})
 
 
 # ============== مصدّر الوحدة - Module Exports ==============

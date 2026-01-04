@@ -31,10 +31,10 @@ Usage:
 """
 
 from .performance_monitor import (
-    PerformanceMonitor,
+    CircularBuffer,
     MetricPoint,
     PerformanceAlert,
-    CircularBuffer,
+    PerformanceMonitor,
     get_monitor,
 )
 

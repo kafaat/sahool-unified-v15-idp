@@ -12,9 +12,10 @@ Corresponds to Event Chain 4 in SAHOOL architecture:
 crop-growth-model → yield-engine → marketplace-service
 """
 
-from typing import Optional, Dict, Any, Tuple, List
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 
 logger = logging.getLogger(__name__)

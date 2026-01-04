@@ -11,12 +11,11 @@ Evaluates:
 """
 
 import re
-import time
-from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
-import numpy as np
+from typing import Any
 
+import numpy as np
 
 # ============================================================================
 # EVALUATION METRICS
@@ -39,8 +38,8 @@ class EvaluationResult:
     safety_score: float  # 0-1
     overall_score: float  # 0-1
     latency_ms: float
-    details: Dict[str, Any]
-    errors: List[str]
+    details: dict[str, Any]
+    errors: list[str]
 
 
 class SafetyViolationType(Enum):
@@ -158,8 +157,8 @@ class SimilarityCalculator:
         حساب درجة BLEU لتداخل n-gram
         """
         try:
-            from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
             import nltk
+            from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 
             # Download required data
             try:
@@ -200,7 +199,7 @@ class SimilarityCalculator:
 
         return intersection / union if union > 0 else 0.0
 
-    def _tokenize(self, text: str) -> List[str]:
+    def _tokenize(self, text: str) -> list[str]:
         """
         Tokenize text (supports Arabic and English)
         تقسيم النص إلى رموز (يدعم العربية والإنجليزية)
@@ -210,7 +209,7 @@ class SimilarityCalculator:
         text = re.sub(r"[^\w\s]", " ", text)
         return [token for token in text.split() if token]
 
-    def _get_ngrams(self, tokens: List[str], n: int) -> List[Tuple[str, ...]]:
+    def _get_ngrams(self, tokens: list[str], n: int) -> list[tuple[str, ...]]:
         """Get n-grams from token list"""
         return [tuple(tokens[i : i + n]) for i in range(len(tokens) - n + 1)]
 
@@ -264,9 +263,9 @@ class SafetyChecker:
     def check_safety(
         self,
         response: str,
-        context: Dict[str, Any],
-        safety_constraints: Optional[List[str]] = None,
-    ) -> Tuple[float, List[Dict[str, Any]]]:
+        context: dict[str, Any],
+        safety_constraints: list[str] | None = None,
+    ) -> tuple[float, list[dict[str, Any]]]:
         """
         Check response for safety violations
         التحقق من الاستجابة لانتهاكات السلامة
@@ -321,7 +320,7 @@ class SafetyChecker:
 
         return safety_score, violations
 
-    def _check_harmful_content(self, response: str) -> List[Dict[str, Any]]:
+    def _check_harmful_content(self, response: str) -> list[dict[str, Any]]:
         """Check for harmful content"""
         violations = []
         response_lower = response.lower()
@@ -338,7 +337,7 @@ class SafetyChecker:
 
         return violations
 
-    def _check_bias(self, response: str) -> List[Dict[str, Any]]:
+    def _check_bias(self, response: str) -> list[dict[str, Any]]:
         """Check for bias in response"""
         violations = []
         response_lower = response.lower()
@@ -356,8 +355,8 @@ class SafetyChecker:
         return violations
 
     def _check_hallucination(
-        self, response: str, context: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, response: str, context: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Check for hallucinated information"""
         violations = []
 
@@ -386,8 +385,8 @@ class SafetyChecker:
         return violations
 
     def _check_constraints(
-        self, response: str, constraints: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, response: str, constraints: list[str]
+    ) -> list[dict[str, Any]]:
         """Check specific safety constraints"""
         violations = []
 
@@ -487,10 +486,10 @@ class AgentEvaluator:
 
     def evaluate(
         self,
-        test_case: Dict[str, Any],
+        test_case: dict[str, Any],
         agent_response: str,
         latency_ms: float,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> EvaluationResult:
         """
         Comprehensive evaluation of agent response
@@ -597,7 +596,7 @@ class AgentEvaluator:
             errors=errors,
         )
 
-    def _check_keywords(self, text: str, keywords: List[str]) -> List[str]:
+    def _check_keywords(self, text: str, keywords: list[str]) -> list[str]:
         """
         Check which keywords are present in text
         التحقق من الكلمات المفتاحية الموجودة في النص
@@ -628,8 +627,8 @@ class BatchEvaluator:
         self.evaluator = AgentEvaluator()
 
     def evaluate_batch(
-        self, test_results: List[Tuple[Dict[str, Any], str, float]]
-    ) -> Dict[str, Any]:
+        self, test_results: list[tuple[dict[str, Any], str, float]]
+    ) -> dict[str, Any]:
         """
         Evaluate batch of test results
         تقييم دفعة من نتائج الاختبار
@@ -648,7 +647,7 @@ class BatchEvaluator:
 
         return self._calculate_summary(results)
 
-    def _calculate_summary(self, results: List[EvaluationResult]) -> Dict[str, Any]:
+    def _calculate_summary(self, results: list[EvaluationResult]) -> dict[str, Any]:
         """Calculate summary statistics"""
         if not results:
             return {}

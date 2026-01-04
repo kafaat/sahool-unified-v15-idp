@@ -7,9 +7,8 @@ Simple examples for using the Crop Calendar Service
 """
 
 import sys
-import json
-from pathlib import Path
 from datetime import date, timedelta
+from pathlib import Path
 
 # Direct import without going through __init__.py
 sys.path.insert(0, str(Path(__file__).parent))
@@ -39,7 +38,7 @@ def example_1_get_crop_calendar():
     calendar = service.get_calendar("sorghum", "tihama")
     print(f"   المحصول: {calendar.name_ar} ({calendar.name_en})")
     print(f"   دورة الحياة: {calendar.total_cycle_days} يوم")
-    print(f"   نوافذ الزراعة:")
+    print("   نوافذ الزراعة:")
     for region, windows in calendar.planting_windows.items():
         for window_type, data in windows.items():
             print(
@@ -57,7 +56,7 @@ def example_1_get_crop_calendar():
     print("\n3. النخيل في حضرموت (Date Palm in Hadhramaut):")
     calendar = service.get_calendar("dates", "hadhramaut")
     print(f"   المحصول: {calendar.name_ar} ({calendar.name_en})")
-    print(f"   موسم الحصاد: شهر 7-10")
+    print("   موسم الحصاد: شهر 7-10")
 
 
 def example_2_current_stage():
@@ -100,7 +99,7 @@ def example_3_upcoming_tasks():
     planting_date = date.today() - timedelta(days=40)
 
     print(f"\nطماطم مزروعة في {planting_date}")
-    print(f"المهام القادمة خلال 14 يوم:\n")
+    print("المهام القادمة خلال 14 يوم:\n")
 
     tasks = service.get_upcoming_tasks(
         field_id="field_001",

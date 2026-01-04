@@ -11,7 +11,8 @@ from shared.security.jwt import (
     create_token_pair,
     verify_token,
 )
-from .passwords import hash_password, verify_password, generate_otp
+
+from .passwords import generate_otp, hash_password, verify_password
 
 # Alias for compatibility
 decode_token = verify_token

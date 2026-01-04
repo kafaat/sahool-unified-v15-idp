@@ -11,11 +11,11 @@ End-to-end tests for AI Advisor multi-agent system workflow:
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
 import asyncio
-from typing import Dict, Any
+from typing import Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Complete AI Advisor Workflow Test - اختبار سير عمل المستشار الذكي الكامل
@@ -28,8 +28,8 @@ from typing import Dict, Any
 @pytest.mark.asyncio
 async def test_complete_ai_advisor_workflow(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    sample_ai_question: Dict[str, Any],
+    e2e_headers: dict[str, str],
+    sample_ai_question: dict[str, Any],
     ensure_ai_advisor_ready,
 ):
     """
@@ -78,7 +78,7 @@ async def test_complete_ai_advisor_workflow(
     if question_response.status_code == 200:
         # Synchronous response
         answer_data = question_response.json()
-        print(f"✓ Received immediate answer")
+        print("✓ Received immediate answer")
 
         # Verify answer structure
         assert (
@@ -117,11 +117,11 @@ async def test_complete_ai_advisor_workflow(
                 state = status_data.get("status") or status_data.get("state")
 
                 if state == "completed":
-                    print(f"✓ AI processing completed")
+                    print("✓ AI processing completed")
                     answer_data = status_data
                     break
                 elif state == "failed":
-                    print(f"✗ AI processing failed")
+                    print("✗ AI processing failed")
                     break
 
                 print(f"  Processing... (attempt {attempt + 1}/30)")
@@ -164,7 +164,7 @@ async def test_complete_ai_advisor_workflow(
 
     if qdrant_response.status_code == 200:
         qdrant_data = qdrant_response.json()
-        print(f"✓ Qdrant vector database operational")
+        print("✓ Qdrant vector database operational")
 
         # Check if agricultural knowledge base exists
         if "result" in qdrant_data:
@@ -188,8 +188,8 @@ async def test_complete_ai_advisor_workflow(
 @pytest.mark.asyncio
 async def test_weather_agent_integration(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    test_location_yemen: Dict[str, float],
+    e2e_headers: dict[str, str],
+    test_location_yemen: dict[str, float],
     ensure_weather_ready,
 ):
     """
@@ -213,16 +213,16 @@ async def test_weather_agent_integration(
     ), "Weather agent should respond"
 
     if weather_response.status_code == 200:
-        weather_data = weather_response.json()
-        print(f"✓ Weather agent operational")
-        print(f"  Location: Sana'a, Yemen")
+        weather_response.json()
+        print("✓ Weather agent operational")
+        print("  Location: Sana'a, Yemen")
 
 
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_crop_health_agent_integration(
-    workflow_client: httpx.AsyncClient, e2e_headers: Dict[str, str]
+    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
 ):
     """
     Test Crop Health Agent integration
@@ -235,7 +235,7 @@ async def test_crop_health_agent_integration(
     health_response = await workflow_client.get("http://localhost:8095/healthz")
 
     if health_response.status_code == 200:
-        print(f"✓ Crop Health AI agent operational")
+        print("✓ Crop Health AI agent operational")
     else:
         pytest.skip("Crop Health AI not available")
 
@@ -244,7 +244,7 @@ async def test_crop_health_agent_integration(
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_satellite_agent_integration(
-    workflow_client: httpx.AsyncClient, e2e_headers: Dict[str, str]
+    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
 ):
     """
     Test Satellite Agent integration
@@ -257,7 +257,7 @@ async def test_satellite_agent_integration(
     health_response = await workflow_client.get("http://localhost:8090/healthz")
 
     if health_response.status_code == 200:
-        print(f"✓ Satellite agent operational")
+        print("✓ Satellite agent operational")
     else:
         pytest.skip("Satellite service not available")
 
@@ -267,7 +267,7 @@ async def test_satellite_agent_integration(
 @pytest.mark.asyncio
 async def test_agro_advisor_agent_integration(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
+    e2e_headers: dict[str, str],
     ensure_ai_advisor_ready,
 ):
     """
@@ -283,7 +283,7 @@ async def test_agro_advisor_agent_integration(
     assert health_response.status_code in (200, 503), "Agro Advisor should respond"
 
     if health_response.status_code == 200:
-        print(f"✓ Agro Advisor agent operational")
+        print("✓ Agro Advisor agent operational")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -295,7 +295,7 @@ async def test_agro_advisor_agent_integration(
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_rag_knowledge_base(
-    workflow_client: httpx.AsyncClient, e2e_headers: Dict[str, str]
+    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
 ):
     """
     Test RAG knowledge base integration
@@ -312,7 +312,7 @@ async def test_rag_knowledge_base(
     assert collections_response.status_code == 200, "Qdrant should be accessible"
 
     collections_data = collections_response.json()
-    print(f"✓ RAG knowledge base accessible")
+    print("✓ RAG knowledge base accessible")
 
     # Check if knowledge base has data
     if "result" in collections_data:
@@ -331,7 +331,7 @@ async def test_rag_knowledge_base(
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_semantic_search_capability(
-    workflow_client: httpx.AsyncClient, e2e_headers: Dict[str, str]
+    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
 ):
     """
     Test semantic search capability
@@ -347,7 +347,7 @@ async def test_semantic_search_capability(
 
     assert cluster_response.status_code == 200, "Qdrant cluster should be operational"
 
-    print(f"✓ Semantic search engine operational")
+    print("✓ Semantic search engine operational")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -360,7 +360,7 @@ async def test_semantic_search_capability(
 @pytest.mark.asyncio
 async def test_weather_related_question(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
+    e2e_headers: dict[str, str],
     ensure_ai_advisor_ready,
 ):
     """
@@ -392,7 +392,7 @@ async def test_weather_related_question(
     ), "Weather question should be processed"
 
     if response.status_code == 200:
-        print(f"✓ Weather-related question answered")
+        print("✓ Weather-related question answered")
 
 
 @pytest.mark.e2e
@@ -400,7 +400,7 @@ async def test_weather_related_question(
 @pytest.mark.asyncio
 async def test_crop_disease_question(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
+    e2e_headers: dict[str, str],
     ensure_ai_advisor_ready,
 ):
     """
@@ -432,7 +432,7 @@ async def test_crop_disease_question(
     ), "Crop disease question should be processed"
 
     if response.status_code == 200:
-        print(f"✓ Crop disease question answered")
+        print("✓ Crop disease question answered")
 
 
 @pytest.mark.e2e
@@ -440,7 +440,7 @@ async def test_crop_disease_question(
 @pytest.mark.asyncio
 async def test_fertilizer_recommendation_question(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
+    e2e_headers: dict[str, str],
     ensure_ai_advisor_ready,
 ):
     """
@@ -476,7 +476,7 @@ async def test_fertilizer_recommendation_question(
     ), "Fertilizer question should be processed"
 
     if response.status_code == 200:
-        print(f"✓ Fertilizer recommendation question answered")
+        print("✓ Fertilizer recommendation question answered")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -490,8 +490,8 @@ async def test_fertilizer_recommendation_question(
 @pytest.mark.asyncio
 async def test_ai_advisor_response_time(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    sample_ai_question: Dict[str, Any],
+    e2e_headers: dict[str, str],
+    sample_ai_question: dict[str, Any],
     ensure_ai_advisor_ready,
 ):
     """
@@ -537,7 +537,7 @@ async def test_ai_advisor_response_time(
 @pytest.mark.asyncio
 async def test_conversation_history(
     workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
+    e2e_headers: dict[str, str],
     ensure_ai_advisor_ready,
 ):
     """
@@ -560,7 +560,7 @@ async def test_conversation_history(
 
     if history_response.status_code == 200:
         history = history_response.json()
-        print(f"✓ Conversation history accessible")
+        print("✓ Conversation history accessible")
 
         if isinstance(history, list):
             print(f"  Total questions in history: {len(history)}")

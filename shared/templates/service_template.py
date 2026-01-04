@@ -14,47 +14,42 @@ This template demonstrates best practices for integrating:
 Use this as a reference when enhancing existing services.
 """
 
-import os
-import uuid
-from typing import Optional
-from contextlib import asynccontextmanager
-
-from fastapi import FastAPI, Request, Response, Depends, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-
 # Observability imports
 # NOTE: In production, install shared modules as a package instead of using sys.path
 # This is a temporary solution for the template example
 import sys
+import uuid
+from contextlib import asynccontextmanager
+
+import uvicorn
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 sys.path.insert(0, "../../../../shared")
 
-from observability import (
-    HealthChecker,
-    create_health_router,
-    create_metrics_router,
-    MetricsCollector,
-    setup_logging,
-    set_request_context,
-    clear_request_context,
-    setup_opentelemetry,
-    instrument_fastapi,
-    get_trace_context,
-)
+from middleware.rate_limit import RateLimiter, TierConfig
 
 # Security imports
 from security.config import (
     get_config,
-    get_jwt_secret,
     get_cors_origins,
     get_environment,
     get_log_level,
     is_production,
 )
 
-from middleware.rate_limit import RateLimiter, RateLimitConfig, TierConfig
-
+from observability import (
+    HealthChecker,
+    MetricsCollector,
+    clear_request_context,
+    create_health_router,
+    create_metrics_router,
+    get_trace_context,
+    instrument_fastapi,
+    set_request_context,
+    setup_logging,
+    setup_opentelemetry,
+)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Service Configuration

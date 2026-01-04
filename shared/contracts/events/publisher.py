@@ -5,9 +5,8 @@ Event Publisher
 Provides a unified interface for publishing domain events.
 """
 
-import json
 import logging
-from typing import Optional
+
 from .base import BaseEvent
 
 logger = logging.getLogger(__name__)
@@ -32,7 +31,7 @@ class EventPublisher:
         self._service_name = service_name
         self._service_version = service_version
 
-    async def publish(self, event: BaseEvent, subject: Optional[str] = None) -> bool:
+    async def publish(self, event: BaseEvent, subject: str | None = None) -> bool:
         """
         Publish an event to the message broker.
 

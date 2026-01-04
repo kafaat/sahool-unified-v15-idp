@@ -16,12 +16,9 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import pytest
-import asyncio
-from typing import Dict, Any, List
 from datetime import datetime, timedelta
-from decimal import Decimal
 
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Product Listing - اختبار قائمة المنتجات
@@ -32,8 +29,8 @@ from decimal import Decimal
 @pytest.mark.asyncio
 async def test_marketplace_product_listing_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل قائمة منتجات السوق
@@ -75,8 +72,8 @@ async def test_marketplace_product_listing_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_product_search_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل البحث عن المنتجات
@@ -112,8 +109,8 @@ async def test_marketplace_product_search_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_product_categories_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل فئات المنتجات
@@ -143,8 +140,8 @@ async def test_marketplace_product_categories_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_product_details_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تفاصيل المنتج
@@ -180,8 +177,8 @@ async def test_marketplace_product_details_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_seller_registration_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تسجيل البائع
@@ -234,8 +231,8 @@ async def test_marketplace_seller_registration_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_create_product_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إنشاء منتج
@@ -293,8 +290,8 @@ async def test_marketplace_create_product_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_shopping_cart_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل عربة التسوق
@@ -325,8 +322,8 @@ async def test_marketplace_shopping_cart_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_cart_checkout_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل الدفع من العربة
@@ -359,8 +356,8 @@ async def test_marketplace_cart_checkout_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_order_placement_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تقديم الطلب
@@ -414,8 +411,8 @@ async def test_marketplace_order_placement_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_order_tracking_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تتبع الطلب
@@ -441,8 +438,8 @@ async def test_marketplace_order_tracking_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_order_status_update_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تحديث حالة الطلب
@@ -483,8 +480,8 @@ async def test_marketplace_order_status_update_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_payment_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل الدفع
@@ -525,8 +522,8 @@ async def test_marketplace_payment_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_product_review_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل مراجعة المنتج
@@ -562,8 +559,8 @@ async def test_marketplace_product_review_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_seller_rating_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تقييم البائع
@@ -606,8 +603,8 @@ async def test_marketplace_seller_rating_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_inventory_update_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تحديث المخزون
@@ -646,8 +643,8 @@ async def test_marketplace_inventory_update_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_delivery_tracking_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تتبع التوصيل
@@ -681,8 +678,8 @@ async def test_marketplace_delivery_tracking_workflow(
 @pytest.mark.asyncio
 async def test_marketplace_dispute_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل النزاع

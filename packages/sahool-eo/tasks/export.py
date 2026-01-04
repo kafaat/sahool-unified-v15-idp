@@ -6,10 +6,10 @@ This module provides tasks for exporting EOPatch data to
 SAHOOL platform formats and storage systems.
 """
 
-from typing import Optional, Dict, Any, List
-from datetime import datetime
 import logging
-import json
+from datetime import datetime
+from typing import Any, Dict, List
+
 import numpy as np
 
 logger = logging.getLogger(__name__)

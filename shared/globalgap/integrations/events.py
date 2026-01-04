@@ -25,14 +25,12 @@ Usage:
     await publisher.publish_event("sahool.globalgap.compliance.updated", event)
 """
 
-from datetime import datetime, date
-from typing import List, Optional, Dict, Any
+from datetime import date, datetime
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from shared.events.contracts import BaseEvent
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # GlobalGAP Event Subjects - موضوعات أحداث GlobalGAP
@@ -124,19 +122,19 @@ class ComplianceUpdatedEvent(BaseEvent):
     certification_eligible: bool = Field(..., description="Eligible for certification")
 
     # Change tracking
-    previous_score: Optional[float] = Field(
+    previous_score: float | None = Field(
         None, ge=0, le=100, description="Previous compliance score"
     )
-    score_change: Optional[float] = Field(None, description="Score change amount")
+    score_change: float | None = Field(None, description="Score change amount")
 
     # Categories
-    category_scores: Optional[Dict[str, float]] = Field(
+    category_scores: dict[str, float] | None = Field(
         None,
         description="Compliance scores by category (e.g., {'FS': 95.0, 'ENV': 88.0})",
     )
 
-    updated_by: Optional[UUID] = Field(None, description="User who triggered update")
-    update_reason: Optional[str] = Field(None, description="Reason for update")
+    updated_by: UUID | None = Field(None, description="User who triggered update")
+    update_reason: str | None = Field(None, description="Reason for update")
 
 
 class ComplianceRequirementFailedEvent(BaseEvent):
@@ -163,17 +161,17 @@ class ComplianceRequirementFailedEvent(BaseEvent):
         ..., pattern="^(low|medium|high|critical)$", description="Failure severity"
     )
 
-    failure_reason_en: Optional[str] = Field(
+    failure_reason_en: str | None = Field(
         None, description="Failure reason in English"
     )
-    failure_reason_ar: Optional[str] = Field(
+    failure_reason_ar: str | None = Field(
         None, description="Failure reason in Arabic"
     )
 
     action_required_en: str = Field(..., description="Required action in English")
     action_required_ar: str = Field(..., description="Required action in Arabic")
 
-    due_date: Optional[datetime] = Field(None, description="Correction due date")
+    due_date: datetime | None = Field(None, description="Correction due date")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -198,33 +196,33 @@ class AuditScheduledEvent(BaseEvent):
         description="Type of audit",
     )
 
-    audit_scope: List[str] = Field(
+    audit_scope: list[str] = Field(
         default_factory=lambda: ["FV"], description="Audit scope (FV, CROPS_BASE, etc.)"
     )
 
     scheduled_date: date = Field(..., description="Scheduled audit date")
-    estimated_duration_hours: Optional[int] = Field(
+    estimated_duration_hours: int | None = Field(
         None, ge=1, description="Estimated duration in hours"
     )
 
     # Auditor information
-    lead_auditor_name: Optional[str] = Field(None, description="Lead auditor name")
+    lead_auditor_name: str | None = Field(None, description="Lead auditor name")
     certification_body: str = Field(..., description="Certification body name")
     cb_code: str = Field(..., description="Certification body code")
 
     # Contact information
-    contact_email: Optional[str] = Field(None, description="Audit contact email")
-    contact_phone: Optional[str] = Field(None, description="Audit contact phone")
+    contact_email: str | None = Field(None, description="Audit contact email")
+    contact_phone: str | None = Field(None, description="Audit contact phone")
 
     # Preparation
-    preparation_checklist_url: Optional[str] = Field(
+    preparation_checklist_url: str | None = Field(
         None, description="Preparation checklist URL"
     )
-    documents_required: Optional[List[str]] = Field(
+    documents_required: list[str] | None = Field(
         default_factory=list, description="Required documents for audit"
     )
 
-    scheduled_by: Optional[UUID] = Field(
+    scheduled_by: UUID | None = Field(
         None, description="User who scheduled the audit"
     )
 
@@ -263,7 +261,7 @@ class AuditCompletedEvent(BaseEvent):
     minor_non_conformances: int = Field(default=0, ge=0, description="Minor NCs")
 
     # Recommendation
-    audit_recommendation: Optional[str] = Field(
+    audit_recommendation: str | None = Field(
         None,
         pattern="^(APPROVE|REJECT|CONDITIONAL)$",
         description="Auditor recommendation",
@@ -280,7 +278,7 @@ class AuditCompletedEvent(BaseEvent):
     follow_up_audit_required: bool = Field(
         default=False, description="Follow-up audit required"
     )
-    estimated_report_date: Optional[date] = Field(
+    estimated_report_date: date | None = Field(
         None, description="Estimated report issue date"
     )
 
@@ -303,7 +301,7 @@ class NonConformanceDetectedEvent(BaseEvent):
     tenant_id: UUID = Field(..., description="Tenant ID")
     ggn: str = Field(..., description="GlobalGAP Number")
 
-    audit_id: Optional[UUID] = Field(None, description="Related audit ID")
+    audit_id: UUID | None = Field(None, description="Related audit ID")
 
     severity: str = Field(
         ..., pattern="^(CRITICAL|MAJOR|MINOR)$", description="NC severity"
@@ -324,8 +322,8 @@ class NonConformanceDetectedEvent(BaseEvent):
     description_en: str = Field(..., description="NC description in English")
     description_ar: str = Field(..., description="NC description in Arabic")
 
-    root_cause_en: Optional[str] = Field(None, description="Root cause in English")
-    root_cause_ar: Optional[str] = Field(None, description="Root cause in Arabic")
+    root_cause_en: str | None = Field(None, description="Root cause in English")
+    root_cause_ar: str | None = Field(None, description="Root cause in Arabic")
 
     # Dates
     identified_date: datetime = Field(
@@ -334,8 +332,8 @@ class NonConformanceDetectedEvent(BaseEvent):
     due_date: datetime = Field(..., description="Correction due date")
 
     # Evidence
-    evidence_photos: List[str] = Field(default_factory=list, description="Photo URLs")
-    evidence_documents: List[str] = Field(
+    evidence_photos: list[str] = Field(default_factory=list, description="Photo URLs")
+    evidence_documents: list[str] = Field(
         default_factory=list, description="Document URLs"
     )
 
@@ -347,10 +345,10 @@ class NonConformanceDetectedEvent(BaseEvent):
     )
 
     # Responsible
-    identified_by: Optional[UUID] = Field(
+    identified_by: UUID | None = Field(
         None, description="User/auditor who identified NC"
     )
-    assigned_to: Optional[UUID] = Field(
+    assigned_to: UUID | None = Field(
         None, description="User responsible for correction"
     )
 
@@ -375,13 +373,13 @@ class CorrectiveActionCompletedEvent(BaseEvent):
 
     # Status
     completed_on_time: bool = Field(..., description="Completed before due date")
-    days_overdue: Optional[int] = Field(None, description="Days overdue (if late)")
+    days_overdue: int | None = Field(None, description="Days overdue (if late)")
 
     # Evidence
-    completion_evidence_photos: List[str] = Field(
+    completion_evidence_photos: list[str] = Field(
         default_factory=list, description="Completion photos"
     )
-    completion_evidence_documents: List[str] = Field(
+    completion_evidence_documents: list[str] = Field(
         default_factory=list, description="Completion documents"
     )
 
@@ -389,15 +387,15 @@ class CorrectiveActionCompletedEvent(BaseEvent):
     effectiveness_verified: bool = Field(
         default=False, description="Effectiveness verified"
     )
-    verification_notes_en: Optional[str] = Field(
+    verification_notes_en: str | None = Field(
         None, description="Verification notes in English"
     )
-    verification_notes_ar: Optional[str] = Field(
+    verification_notes_ar: str | None = Field(
         None, description="Verification notes in Arabic"
     )
 
     completed_by: UUID = Field(..., description="User who completed the action")
-    verified_by: Optional[UUID] = Field(
+    verified_by: UUID | None = Field(
         None, description="User who verified effectiveness"
     )
 
@@ -432,19 +430,19 @@ class CertificateExpiringEvent(BaseEvent):
 
     # Renewal information
     renewal_required: bool = Field(default=True, description="Renewal required")
-    renewal_window_start: Optional[date] = Field(
+    renewal_window_start: date | None = Field(
         None, description="Renewal window start date"
     )
     renewal_audit_scheduled: bool = Field(
         default=False, description="Renewal audit scheduled"
     )
-    renewal_audit_date: Optional[date] = Field(
+    renewal_audit_date: date | None = Field(
         None, description="Scheduled renewal audit date"
     )
 
     # Contact
     certification_body: str = Field(..., description="Certification body")
-    cb_contact_email: Optional[str] = Field(None, description="CB contact email")
+    cb_contact_email: str | None = Field(None, description="CB contact email")
 
     # Actions
     action_required_en: str = Field(..., description="Action required in English")
@@ -470,13 +468,13 @@ class CertificateIssuedEvent(BaseEvent):
     validity_months: int = Field(..., ge=1, description="Validity period in months")
 
     # Scope
-    certification_scope: List[str] = Field(
+    certification_scope: list[str] = Field(
         default_factory=list, description="Certification scope (FV, CROPS_BASE, etc.)"
     )
-    product_types_en: List[str] = Field(
+    product_types_en: list[str] = Field(
         default_factory=list, description="Certified products (English)"
     )
-    product_types_ar: List[str] = Field(
+    product_types_ar: list[str] = Field(
         default_factory=list, description="Certified products (Arabic)"
     )
 
@@ -485,16 +483,16 @@ class CertificateIssuedEvent(BaseEvent):
     cb_code: str = Field(..., description="Certification body code")
 
     # Audit details
-    audit_id: Optional[UUID] = Field(None, description="Related audit ID")
+    audit_id: UUID | None = Field(None, description="Related audit ID")
     final_compliance_score: float = Field(
         ..., ge=0, le=100, description="Final compliance score"
     )
 
     # Certificate documents
-    certificate_url: Optional[str] = Field(None, description="Certificate PDF URL")
+    certificate_url: str | None = Field(None, description="Certificate PDF URL")
     public_listing: bool = Field(default=True, description="Listed in public database")
 
-    issued_by: Optional[UUID] = Field(
+    issued_by: UUID | None = Field(
         None, description="User who issued the certificate"
     )
 
@@ -513,7 +511,7 @@ class WaterUsageRecordedEvent(BaseEvent):
     record_id: UUID = Field(default_factory=uuid4, description="Record ID")
     farm_id: UUID = Field(..., description="Farm ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
 
     # Water usage
     water_volume_m3: float = Field(
@@ -526,12 +524,12 @@ class WaterUsageRecordedEvent(BaseEvent):
 
     # Period
     recording_date: date = Field(..., description="Recording date")
-    usage_period_start: Optional[date] = Field(None, description="Usage period start")
-    usage_period_end: Optional[date] = Field(None, description="Usage period end")
+    usage_period_start: date | None = Field(None, description="Usage period start")
+    usage_period_end: date | None = Field(None, description="Usage period end")
 
     # Irrigation details
-    irrigation_method: Optional[str] = Field(None, description="Irrigation method")
-    irrigation_efficiency: Optional[float] = Field(
+    irrigation_method: str | None = Field(None, description="Irrigation method")
+    irrigation_efficiency: float | None = Field(
         None, ge=0, le=100, description="Efficiency %"
     )
 
@@ -541,7 +539,7 @@ class WaterUsageRecordedEvent(BaseEvent):
     )
     water_rights_documented: bool = Field(..., description="Water rights documented")
 
-    recorded_by: Optional[UUID] = Field(None, description="User who recorded")
+    recorded_by: UUID | None = Field(None, description="User who recorded")
 
 
 class IPMActivityRecordedEvent(BaseEvent):
@@ -553,7 +551,7 @@ class IPMActivityRecordedEvent(BaseEvent):
     record_id: UUID = Field(default_factory=uuid4, description="Record ID")
     farm_id: UUID = Field(..., description="Farm ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
 
     activity_date: date = Field(..., description="Activity date")
     activity_type: str = Field(
@@ -564,10 +562,10 @@ class IPMActivityRecordedEvent(BaseEvent):
 
     # Pest/Disease information
     pest_or_disease_name_en: str = Field(..., description="Pest/disease name (English)")
-    pest_or_disease_name_ar: Optional[str] = Field(
+    pest_or_disease_name_ar: str | None = Field(
         None, description="Pest/disease name (Arabic)"
     )
-    pest_category: Optional[str] = Field(
+    pest_category: str | None = Field(
         None, description="Category (insect, fungal, bacterial, etc.)"
     )
 
@@ -581,20 +579,20 @@ class IPMActivityRecordedEvent(BaseEvent):
 
     # Treatment (if applicable)
     treatment_applied: bool = Field(default=False, description="Treatment applied")
-    ppp_product_name: Optional[str] = Field(
+    ppp_product_name: str | None = Field(
         None, description="Plant Protection Product used"
     )
-    ppp_active_ingredient: Optional[str] = Field(None, description="Active ingredient")
-    ppp_dosage: Optional[str] = Field(None, description="Dosage applied")
-    ppp_compliant: Optional[bool] = Field(None, description="PPP GlobalGAP compliant")
+    ppp_active_ingredient: str | None = Field(None, description="Active ingredient")
+    ppp_dosage: str | None = Field(None, description="Dosage applied")
+    ppp_compliant: bool | None = Field(None, description="PPP GlobalGAP compliant")
 
     # Documentation
     justification_en: str = Field(..., description="Treatment justification (English)")
-    justification_ar: Optional[str] = Field(
+    justification_ar: str | None = Field(
         None, description="Treatment justification (Arabic)"
     )
 
-    recorded_by: Optional[UUID] = Field(None, description="User who recorded")
+    recorded_by: UUID | None = Field(None, description="User who recorded")
 
 
 class FertilizerApplicationRecordedEvent(BaseEvent):
@@ -606,7 +604,7 @@ class FertilizerApplicationRecordedEvent(BaseEvent):
     record_id: UUID = Field(default_factory=uuid4, description="Record ID")
     farm_id: UUID = Field(..., description="Farm ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
 
     application_date: date = Field(..., description="Application date")
 
@@ -615,14 +613,14 @@ class FertilizerApplicationRecordedEvent(BaseEvent):
     fertilizer_type: str = Field(
         ..., description="Type (organic, inorganic, foliar, etc.)"
     )
-    npk_ratio: Optional[str] = Field(None, description="NPK ratio (e.g., 20-20-20)")
+    npk_ratio: str | None = Field(None, description="NPK ratio (e.g., 20-20-20)")
 
     # Quantities
     quantity_applied_kg: float = Field(..., ge=0, description="Quantity in kg")
-    application_rate_kg_per_ha: Optional[float] = Field(
+    application_rate_kg_per_ha: float | None = Field(
         None, ge=0, description="Rate per hectare"
     )
-    area_applied_ha: Optional[float] = Field(
+    area_applied_ha: float | None = Field(
         None, ge=0, description="Area applied in hectares"
     )
 
@@ -633,19 +631,19 @@ class FertilizerApplicationRecordedEvent(BaseEvent):
 
     # Compliance
     based_on_soil_test: bool = Field(..., description="Based on soil test results")
-    soil_test_date: Optional[date] = Field(None, description="Soil test date")
+    soil_test_date: date | None = Field(None, description="Soil test date")
     nutrient_plan_followed: bool = Field(
         ..., description="Nutrient management plan followed"
     )
-    mrl_compliant: Optional[bool] = Field(None, description="MRL compliance checked")
+    mrl_compliant: bool | None = Field(None, description="MRL compliance checked")
 
     # Justification
     application_reason_en: str = Field(..., description="Application reason (English)")
-    application_reason_ar: Optional[str] = Field(
+    application_reason_ar: str | None = Field(
         None, description="Application reason (Arabic)"
     )
 
-    recorded_by: Optional[UUID] = Field(None, description="User who recorded")
+    recorded_by: UUID | None = Field(None, description="User who recorded")
 
 
 class TraceabilityRecordCreatedEvent(BaseEvent):
@@ -657,7 +655,7 @@ class TraceabilityRecordCreatedEvent(BaseEvent):
     record_id: UUID = Field(default_factory=uuid4, description="Traceability record ID")
     farm_id: UUID = Field(..., description="Farm ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
-    field_id: Optional[UUID] = Field(None, description="Field ID")
+    field_id: UUID | None = Field(None, description="Field ID")
 
     # Batch information
     batch_number: str = Field(..., description="Batch/lot number")
@@ -665,18 +663,18 @@ class TraceabilityRecordCreatedEvent(BaseEvent):
 
     # Product
     product_name_en: str = Field(..., description="Product name (English)")
-    product_name_ar: Optional[str] = Field(None, description="Product name (Arabic)")
-    product_variety: Optional[str] = Field(None, description="Product variety")
+    product_name_ar: str | None = Field(None, description="Product name (Arabic)")
+    product_variety: str | None = Field(None, description="Product variety")
 
     # Quantities
     quantity_kg: float = Field(..., ge=0, description="Quantity in kg")
-    quantity_units: Optional[int] = Field(
+    quantity_units: int | None = Field(
         None, ge=0, description="Quantity in units (boxes, pallets, etc.)"
     )
 
     # Traceability
     ggn: str = Field(..., description="GlobalGAP Number")
-    planting_date: Optional[date] = Field(None, description="Planting date")
+    planting_date: date | None = Field(None, description="Planting date")
 
     # Activities tracked
     irrigation_records_linked: int = Field(
@@ -698,7 +696,7 @@ class TraceabilityRecordCreatedEvent(BaseEvent):
         default=True, description="Withdrawal period respected"
     )
 
-    created_by: Optional[UUID] = Field(None, description="User who created record")
+    created_by: UUID | None = Field(None, description="User who created record")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

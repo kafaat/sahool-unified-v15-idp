@@ -26,17 +26,14 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import os
-import sys
-import json
 import argparse
 import asyncio
-from datetime import datetime, timezone
-from typing import Dict, Any, List, Optional, Set
-from dataclasses import dataclass, field, asdict
-from enum import Enum
+import json
 import logging
-import hashlib
+import os
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
+from enum import Enum
 
 try:
     import aiohttp
@@ -98,8 +95,8 @@ REQUIRED_SERVICES = [
 @dataclass
 class ConfigDiff:
     key: str
-    source_value: Optional[str]
-    target_value: Optional[str]
+    source_value: str | None
+    target_value: str | None
     severity: str  # critical, warning, info
     recommendation: str = ""
 
@@ -119,9 +116,9 @@ class ParityReport:
     parity_score: float  # 0-100
     critical_issues: int
     warnings: int
-    config_diffs: List[Dict] = field(default_factory=list)
-    service_status: Dict[str, Dict] = field(default_factory=dict)
-    recommendations: List[str] = field(default_factory=list)
+    config_diffs: list[dict] = field(default_factory=list)
+    service_status: dict[str, dict] = field(default_factory=dict)
+    recommendations: list[str] = field(default_factory=list)
     ready_for_production: bool = False
 
     def to_json(self) -> str:
@@ -186,10 +183,10 @@ class EnvironmentParityChecker:
     def __init__(self, source_env: str, target_env: str):
         self.source_env = source_env
         self.target_env = target_env
-        self.diffs: List[ConfigDiff] = []
-        self.service_status: Dict[str, ServiceStatus] = {}
+        self.diffs: list[ConfigDiff] = []
+        self.service_status: dict[str, ServiceStatus] = {}
 
-    def _get_env_config(self, env: str) -> Dict[str, str]:
+    def _get_env_config(self, env: str) -> dict[str, str]:
         """Load environment configuration."""
         # In real implementation, this would fetch from:
         # - Kubernetes ConfigMaps/Secrets
@@ -247,7 +244,7 @@ class EnvironmentParityChecker:
 
         return result
 
-    def _compare_configs(self) -> List[ConfigDiff]:
+    def _compare_configs(self) -> list[ConfigDiff]:
         """Compare configurations between environments."""
         source_config = self._get_env_config(self.source_env)
         target_config = self._get_env_config(self.target_env)
@@ -288,28 +285,27 @@ class EnvironmentParityChecker:
 
         try:
             start = datetime.now()
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"{url}/health",
-                    timeout=aiohttp.ClientTimeout(total=5)
-                ) as response:
-                    elapsed = (datetime.now() - start).total_seconds() * 1000
+            async with aiohttp.ClientSession() as session, session.get(
+                f"{url}/health",
+                timeout=aiohttp.ClientTimeout(total=5)
+            ) as response:
+                elapsed = (datetime.now() - start).total_seconds() * 1000
 
-                    if response.status == 200:
-                        data = await response.json()
-                        return ServiceStatus(
-                            name=service,
-                            healthy=True,
-                            response_time_ms=elapsed,
-                            version=data.get("version", "unknown"),
-                        )
-                    else:
-                        return ServiceStatus(
-                            name=service,
-                            healthy=False,
-                            response_time_ms=elapsed,
-                            error=f"HTTP {response.status}",
-                        )
+                if response.status == 200:
+                    data = await response.json()
+                    return ServiceStatus(
+                        name=service,
+                        healthy=True,
+                        response_time_ms=elapsed,
+                        version=data.get("version", "unknown"),
+                    )
+                else:
+                    return ServiceStatus(
+                        name=service,
+                        healthy=False,
+                        response_time_ms=elapsed,
+                        error=f"HTTP {response.status}",
+                    )
         except Exception as e:
             return ServiceStatus(
                 name=service,
@@ -317,7 +313,7 @@ class EnvironmentParityChecker:
                 error=str(e),
             )
 
-    def _check_docker_compose_parity(self) -> List[ConfigDiff]:
+    def _check_docker_compose_parity(self) -> list[ConfigDiff]:
         """Check if docker-compose files have matching configurations."""
         diffs = []
 
@@ -331,7 +327,7 @@ class EnvironmentParityChecker:
         for compose_file in compose_files:
             full_path = os.path.join(os.getcwd(), compose_file)
             if os.path.exists(full_path):
-                with open(full_path, 'r') as f:
+                with open(full_path) as f:
                     content = f.read()
 
                     # Check for hardcoded localhost references
@@ -356,7 +352,7 @@ class EnvironmentParityChecker:
 
         return diffs
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """Generate actionable recommendations based on diffs."""
         recommendations = []
 
@@ -418,7 +414,7 @@ class EnvironmentParityChecker:
         ready = critical_issues == 0 and parity_score >= 80
 
         report = ParityReport(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             source_env=self.source_env,
             target_env=self.target_env,
             parity_score=parity_score,

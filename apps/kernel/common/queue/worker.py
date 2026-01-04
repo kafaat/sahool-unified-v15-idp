@@ -14,12 +14,13 @@ import signal
 import threading
 import time
 import uuid
+from collections.abc import Callable
 from datetime import datetime
-from typing import Dict, List, Optional, Callable, Any
+from typing import Any
 
 from redis import Redis
 
-from .task_queue import TaskQueue, Task, TaskType, TaskStatus
+from .task_queue import Task, TaskQueue, TaskType
 
 logger = logging.getLogger(__name__)
 
@@ -64,8 +65,8 @@ class TaskWorker:
     def __init__(
         self,
         redis_client: Redis,
-        worker_id: Optional[str] = None,
-        task_types: Optional[List[TaskType]] = None,
+        worker_id: str | None = None,
+        task_types: list[TaskType] | None = None,
         namespace: str = "sahool",
         poll_interval: int = 1,
         max_tasks: int = 10,
@@ -95,11 +96,11 @@ class TaskWorker:
         self.status = WorkerStatus.STOPPED
         self.is_running = False
         self.is_shutting_down = False
-        self.current_tasks: Dict[str, threading.Thread] = {}
+        self.current_tasks: dict[str, threading.Thread] = {}
 
         # معالجات المهام
         # Task handlers
-        self.task_handlers: Dict[TaskType, Callable] = {}
+        self.task_handlers: dict[TaskType, Callable] = {}
 
         # إحصائيات
         # Statistics
@@ -418,7 +419,7 @@ class TaskWorker:
         self.redis.delete(self.worker_key)
         logger.debug(f"Worker unregistered: {self.worker_id}")
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """
         الحصول على حالة العامل
         Get worker status
@@ -465,13 +466,13 @@ class WorkerManager:
         """
         self.redis = redis_client
         self.namespace = namespace
-        self.workers: Dict[str, TaskWorker] = {}
-        self.worker_threads: Dict[str, threading.Thread] = {}
+        self.workers: dict[str, TaskWorker] = {}
+        self.worker_threads: dict[str, threading.Thread] = {}
 
     def start_worker(
         self,
-        worker_id: Optional[str] = None,
-        task_types: Optional[List[TaskType]] = None,
+        worker_id: str | None = None,
+        task_types: list[TaskType] | None = None,
         max_tasks: int = 10,
     ) -> str:
         """
@@ -551,7 +552,7 @@ class WorkerManager:
 
         logger.info("All workers stopped")
 
-    def scale_workers(self, count: int, task_types: Optional[List[TaskType]] = None):
+    def scale_workers(self, count: int, task_types: list[TaskType] | None = None):
         """
         توسيع نطاق العمال
         Scale workers
@@ -577,7 +578,7 @@ class WorkerManager:
                 self.stop_worker(worker_id)
             logger.info(f"Scaled down: {current_count} -> {count} workers")
 
-    def get_worker_status(self, worker_id: Optional[str] = None) -> Dict[str, Any]:
+    def get_worker_status(self, worker_id: str | None = None) -> dict[str, Any]:
         """
         الحصول على حالة العامل/العمال
         Get worker(s) status

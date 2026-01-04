@@ -93,12 +93,12 @@ def example_run_migrations():
         result = manager.run_migrations()
 
         if result["success"]:
-            print(f"\n✓ Success! / ✓ نجاح!")
+            print("\n✓ Success! / ✓ نجاح!")
             print(f"Target Version: {result['target_version']}")
             print(f"Execution Time: {result['execution_time_ms']}ms")
             print(f"وقت التنفيذ: {result['execution_time_ms']}ms")
         else:
-            print(f"\n✗ Failed! / ✗ فشل!")
+            print("\n✗ Failed! / ✗ فشل!")
             print(f"Error: {result.get('error')}")
 
     except Exception as e:
@@ -126,11 +126,11 @@ def example_rollback():
         result = manager.rollback(steps=steps)
 
         if result["success"]:
-            print(f"\n✓ Rollback successful! / ✓ التراجع ناجح!")
+            print("\n✓ Rollback successful! / ✓ التراجع ناجح!")
             print(f"Steps: {result['steps']}")
             print(f"Execution Time: {result['execution_time_ms']}ms")
         else:
-            print(f"\n✗ Rollback failed! / ✗ فشل التراجع!")
+            print("\n✗ Rollback failed! / ✗ فشل التراجع!")
             print(f"Error: {result.get('error')}")
 
     except Exception as e:
@@ -193,7 +193,7 @@ def example_seed_data():
 
         if result["success"]:
             print("\n✓ Seeding successful! / ✓ التعبئة ناجحة!")
-            print(f"\nCreated / تم إنشاء:")
+            print("\nCreated / تم إنشاء:")
             print(f"  - Tenants: {result['tenants']}")
             print(f"    المستأجرون: {result['tenants']}")
             print(f"  - Users: {result['users']}")
@@ -209,7 +209,7 @@ def example_seed_data():
             print(f"\nExecution Time: {result['execution_time_ms']}ms")
             print(f"وقت التنفيذ: {result['execution_time_ms']}ms")
         else:
-            print(f"\n✗ Seeding failed! / ✗ فشلت التعبئة!")
+            print("\n✗ Seeding failed! / ✗ فشلت التعبئة!")
             print(f"Error: {result.get('error')}")
 
     except Exception as e:

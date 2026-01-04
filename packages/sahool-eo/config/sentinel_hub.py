@@ -6,11 +6,11 @@ This module handles Sentinel Hub API authentication and configuration
 for accessing real satellite data from ESA Copernicus program.
 """
 
+import logging
 import os
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List
 from enum import Enum
-import logging
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +138,7 @@ class SentinelHubConfig:
         import yaml
 
         try:
-            with open(governance_path, "r") as f:
+            with open(governance_path) as f:
                 creds = yaml.safe_load(f)
 
             sh_config = creds.get("sentinel_hub", {})
@@ -263,7 +263,7 @@ class SahoolEOClient:
             return True
 
         try:
-            from sentinelhub import SHConfig, SentinelHubSession
+            from sentinelhub import SentinelHubSession, SHConfig
 
             self._sh_config = SHConfig()
             self._sh_config.sh_client_id = self.config.client_id
@@ -319,7 +319,7 @@ class SahoolEOClient:
         Returns:
             sentinelhub BBox object
         """
-        from sentinelhub import BBox, CRS
+        from sentinelhub import CRS, BBox
 
         return BBox(bbox=[min_lon, min_lat, max_lon, max_lat], crs=CRS(crs))
 
@@ -355,7 +355,7 @@ class SahoolEOClient:
         Returns:
             List of available scenes
         """
-        from sentinelhub import SentinelHubCatalog, DataCollection
+        from sentinelhub import DataCollection, SentinelHubCatalog
 
         if not self._initialized:
             self.initialize()

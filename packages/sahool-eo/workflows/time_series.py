@@ -13,9 +13,10 @@ Supports gap-filling using multiple data sources:
 - Landsat 8/9 (backup, 30m, 16-day revisit)
 """
 
-from typing import Optional, Dict, Any, Tuple, List
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -179,10 +180,11 @@ class TimeSeriesWorkflow:
     ) -> Optional[Dict[str, Any]]:
         """Fetch a single observation"""
         try:
-            from ..tasks.fetch import SahoolSentinelFetchTask
+            from sentinelhub import CRS, BBox
+
             from ..tasks.cloud_mask import SahoolCloudMaskTask
+            from ..tasks.fetch import SahoolSentinelFetchTask
             from ..tasks.indices import AllIndicesTask
-            from sentinelhub import BBox, CRS
 
             sh_bbox = BBox(bbox=bbox, crs=CRS.WGS84)
 

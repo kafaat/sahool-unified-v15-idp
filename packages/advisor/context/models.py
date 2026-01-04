@@ -6,8 +6,7 @@ Data models for AI context
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
-from typing import Optional
+from datetime import date
 
 
 @dataclass
@@ -39,11 +38,11 @@ class HistoricalContext:
     """Historical data for context"""
 
     previous_crops: list[str]
-    average_yield_kg_per_hectare: Optional[float]
+    average_yield_kg_per_hectare: float | None
     common_issues: list[str]
     successful_practices: list[str]
-    last_soil_test_date: Optional[date]
-    soil_test_results: Optional[dict]
+    last_soil_test_date: date | None
+    soil_test_results: dict | None
 
     def to_dict(self) -> dict:
         return {
@@ -70,13 +69,13 @@ class FieldContext:
     area_hectares: float
     soil_type: str
     irrigation_type: str
-    current_crop: Optional[str]
-    growth_stage: Optional[str]
-    planting_date: Optional[date]
+    current_crop: str | None
+    growth_stage: str | None
+    planting_date: date | None
     location: dict
-    weather: Optional[WeatherContext]
-    history: Optional[HistoricalContext]
-    additional_notes: Optional[str]
+    weather: WeatherContext | None
+    history: HistoricalContext | None
+    additional_notes: str | None
 
     def to_dict(self) -> dict:
         return {

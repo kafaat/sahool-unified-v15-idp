@@ -17,18 +17,13 @@ Usage:
 ═══════════════════════════════════════════════════════════════════════════════════════
 """
 
-import os
-import sys
-import json
 import argparse
-import asyncio
-import aiohttp
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
-from typing import Optional, Dict, Any, List
-from dataclasses import dataclass, field, asdict
-from enum import Enum
+import json
 import logging
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime, timedelta
+from enum import Enum
+from pathlib import Path
 
 logging.basicConfig(
     level=logging.INFO,
@@ -85,7 +80,7 @@ class TimelineEvent:
 class AffectedService:
     name: str
     impact: str
-    recovery_time: Optional[str] = None
+    recovery_time: str | None = None
 
 @dataclass
 class ActionTaken:
@@ -106,8 +101,8 @@ class IncidentReport:
 
     # Timing
     detected_at: str
-    resolved_at: Optional[str] = None
-    duration_minutes: Optional[int] = None
+    resolved_at: str | None = None
+    duration_minutes: int | None = None
 
     # Description
     summary: str = ""
@@ -116,23 +111,23 @@ class IncidentReport:
     root_cause_ar: str = ""
 
     # Impact
-    affected_services: List[Dict] = field(default_factory=list)
+    affected_services: list[dict] = field(default_factory=list)
     affected_users_count: int = 0
     data_loss: bool = False
     data_loss_details: str = ""
 
     # Response
-    timeline: List[Dict] = field(default_factory=list)
-    actions_taken: List[Dict] = field(default_factory=list)
+    timeline: list[dict] = field(default_factory=list)
+    actions_taken: list[dict] = field(default_factory=list)
 
     # Prevention
-    lessons_learned: List[str] = field(default_factory=list)
-    preventive_measures: List[str] = field(default_factory=list)
+    lessons_learned: list[str] = field(default_factory=list)
+    preventive_measures: list[str] = field(default_factory=list)
 
     # Metadata
     created_by: str = "AI Technical Orchestrator"
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    last_updated: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
+    last_updated: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_markdown(self) -> str:
         """Generate a Markdown incident report."""
@@ -284,7 +279,7 @@ class IncidentReportTemplates:
         deadlock_occurred: bool = False,
     ) -> IncidentReport:
         """Template for orphaned data cleanup incidents."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         detected = now - timedelta(minutes=duration_minutes)
 
         timeline = [
@@ -392,7 +387,7 @@ class IncidentReportTemplates:
         duration_minutes: int = 0,
     ) -> IncidentReport:
         """Template for failed database migration incidents."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         detected = now - timedelta(minutes=duration_minutes)
 
         return IncidentReport(
@@ -415,7 +410,7 @@ class IncidentReportTemplates:
             data_loss=not rollback_successful,
             timeline=[
                 {"timestamp": detected.isoformat(), "description": f"Migration {migration_name} started", "description_ar": f"بدء التهجير {migration_name}", "actor": "MigrationController"},
-                {"timestamp": (detected + timedelta(minutes=1)).isoformat(), "description": f"Error occurred: {error_message[:50]}...", "description_ar": f"حدث خطأ", "actor": "PostgreSQL"},
+                {"timestamp": (detected + timedelta(minutes=1)).isoformat(), "description": f"Error occurred: {error_message[:50]}...", "description_ar": "حدث خطأ", "actor": "PostgreSQL"},
                 {"timestamp": now.isoformat(), "description": "Rollback executed" if rollback_successful else "Manual intervention required", "description_ar": "تم تنفيذ التراجع" if rollback_successful else "مطلوب تدخل يدوي", "actor": "MigrationController"},
             ],
             actions_taken=[
@@ -478,7 +473,7 @@ def main():
             incident_type=args.type,
             severity=args.severity,
             status="resolved",
-            detected_at=datetime.now(timezone.utc).isoformat(),
+            detected_at=datetime.now(UTC).isoformat(),
             duration_minutes=args.duration,
         )
 
@@ -493,7 +488,7 @@ def main():
     print(f"  Title:    {report.title}")
     print(f"  Severity: {report.severity.upper()}")
     print(f"  Status:   {report.status}")
-    print(f"  Files:")
+    print("  Files:")
     print(f"    - {md_path}")
     print(f"    - {json_path}")
     print("=" * 70 + "\n")

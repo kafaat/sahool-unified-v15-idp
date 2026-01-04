@@ -95,9 +95,7 @@ describe('API Configuration Tests', () => {
       delete (global as any).window;
       
       // Should not throw an error
-      expect(async () => {
-        await import('../advisor/api');
-      }).not.toThrow();
+      await expect(import('../advisor/api')).resolves.toBeDefined();
     });
   });
 

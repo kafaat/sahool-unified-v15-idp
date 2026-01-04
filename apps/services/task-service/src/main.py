@@ -13,9 +13,8 @@ import os
 import uuid
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Depends, Header
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -93,47 +92,47 @@ class TaskCreate(BaseModel):
     """Create a new task"""
 
     title: str = Field(..., min_length=1, max_length=200)
-    title_ar: Optional[str] = None
-    description: Optional[str] = None
-    description_ar: Optional[str] = None
+    title_ar: str | None = None
+    description: str | None = None
+    description_ar: str | None = None
     task_type: TaskType = TaskType.OTHER
     priority: TaskPriority = TaskPriority.MEDIUM
-    field_id: Optional[str] = None
-    zone_id: Optional[str] = None
-    assigned_to: Optional[str] = None
-    due_date: Optional[datetime] = None
-    scheduled_time: Optional[str] = None  # HH:MM format
-    estimated_duration_minutes: Optional[int] = None
-    metadata: Optional[dict] = None
+    field_id: str | None = None
+    zone_id: str | None = None
+    assigned_to: str | None = None
+    due_date: datetime | None = None
+    scheduled_time: str | None = None  # HH:MM format
+    estimated_duration_minutes: int | None = None
+    metadata: dict | None = None
 
 
 class TaskUpdate(BaseModel):
     """Update task properties"""
 
-    title: Optional[str] = None
-    title_ar: Optional[str] = None
-    description: Optional[str] = None
-    description_ar: Optional[str] = None
-    task_type: Optional[TaskType] = None
-    priority: Optional[TaskPriority] = None
-    field_id: Optional[str] = None
-    zone_id: Optional[str] = None
-    assigned_to: Optional[str] = None
-    due_date: Optional[datetime] = None
-    scheduled_time: Optional[str] = None
-    estimated_duration_minutes: Optional[int] = None
-    status: Optional[TaskStatus] = None
-    metadata: Optional[dict] = None
+    title: str | None = None
+    title_ar: str | None = None
+    description: str | None = None
+    description_ar: str | None = None
+    task_type: TaskType | None = None
+    priority: TaskPriority | None = None
+    field_id: str | None = None
+    zone_id: str | None = None
+    assigned_to: str | None = None
+    due_date: datetime | None = None
+    scheduled_time: str | None = None
+    estimated_duration_minutes: int | None = None
+    status: TaskStatus | None = None
+    metadata: dict | None = None
 
 
 class TaskComplete(BaseModel):
     """Complete a task with evidence"""
 
-    notes: Optional[str] = None
-    notes_ar: Optional[str] = None
-    photo_urls: Optional[list[str]] = None
-    actual_duration_minutes: Optional[int] = None
-    completion_metadata: Optional[dict] = None
+    notes: str | None = None
+    notes_ar: str | None = None
+    photo_urls: list[str] | None = None
+    actual_duration_minutes: int | None = None
+    completion_metadata: dict | None = None
 
 
 class Evidence(BaseModel):
@@ -144,7 +143,7 @@ class Evidence(BaseModel):
     type: str  # photo, note, voice, measurement
     content: str  # URL or text content
     captured_at: datetime
-    location: Optional[dict] = None  # {lat, lon}
+    location: dict | None = None  # {lat, lon}
 
 
 class Task(BaseModel):
@@ -153,26 +152,26 @@ class Task(BaseModel):
     task_id: str
     tenant_id: str
     title: str
-    title_ar: Optional[str] = None
-    description: Optional[str] = None
-    description_ar: Optional[str] = None
+    title_ar: str | None = None
+    description: str | None = None
+    description_ar: str | None = None
     task_type: TaskType
     priority: TaskPriority
     status: TaskStatus
-    field_id: Optional[str] = None
-    zone_id: Optional[str] = None
-    assigned_to: Optional[str] = None
+    field_id: str | None = None
+    zone_id: str | None = None
+    assigned_to: str | None = None
     created_by: str
-    due_date: Optional[datetime] = None
-    scheduled_time: Optional[str] = None
-    estimated_duration_minutes: Optional[int] = None
-    actual_duration_minutes: Optional[int] = None
+    due_date: datetime | None = None
+    scheduled_time: str | None = None
+    estimated_duration_minutes: int | None = None
+    actual_duration_minutes: int | None = None
     created_at: datetime
     updated_at: datetime
-    completed_at: Optional[datetime] = None
-    completion_notes: Optional[str] = None
+    completed_at: datetime | None = None
+    completion_notes: str | None = None
     evidence: list[Evidence] = []
-    metadata: Optional[dict] = None
+    metadata: dict | None = None
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -365,7 +364,7 @@ seed_demo_data()
 
 
 def get_tenant_id(
-    x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
 ) -> str:
     """Extract tenant ID from X-Tenant-Id header"""
     if not x_tenant_id:
@@ -386,13 +385,13 @@ async def health_check():
 
 @app.get("/api/v1/tasks", response_model=dict)
 async def list_tasks(
-    field_id: Optional[str] = Query(None, description="Filter by field"),
-    status: Optional[TaskStatus] = Query(None, description="Filter by status"),
-    task_type: Optional[TaskType] = Query(None, description="Filter by type"),
-    priority: Optional[TaskPriority] = Query(None, description="Filter by priority"),
-    assigned_to: Optional[str] = Query(None, description="Filter by assignee"),
-    due_before: Optional[datetime] = Query(None, description="Due before date"),
-    due_after: Optional[datetime] = Query(None, description="Due after date"),
+    field_id: str | None = Query(None, description="Filter by field"),
+    status: TaskStatus | None = Query(None, description="Filter by status"),
+    task_type: TaskType | None = Query(None, description="Filter by type"),
+    priority: TaskPriority | None = Query(None, description="Filter by priority"),
+    assigned_to: str | None = Query(None, description="Filter by assignee"),
+    due_before: datetime | None = Query(None, description="Due before date"),
+    due_after: datetime | None = Query(None, description="Due after date"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     tenant_id: str = Depends(get_tenant_id),
@@ -665,7 +664,7 @@ async def start_task(
 @app.post("/api/v1/tasks/{task_id}/cancel", response_model=Task)
 async def cancel_task(
     task_id: str,
-    reason: Optional[str] = None,
+    reason: str | None = None,
     tenant_id: str = Depends(get_tenant_id),
 ):
     """Cancel a task"""
@@ -702,8 +701,8 @@ async def add_evidence(
         ..., description="Type: photo, note, voice, measurement"
     ),
     content: str = Query(..., description="URL or text content"),
-    lat: Optional[float] = None,
-    lon: Optional[float] = None,
+    lat: float | None = None,
+    lon: float | None = None,
     tenant_id: str = Depends(get_tenant_id),
 ):
     """Add evidence to a task"""

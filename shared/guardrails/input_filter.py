@@ -14,11 +14,9 @@ import hashlib
 import logging
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
 
 from .policies import (
     ContentSafetyLevel,
-    InputValidationPolicy,
     PolicyManager,
     TrustLevel,
 )
@@ -38,13 +36,13 @@ class InputFilterResult:
     is_safe: bool
     filtered_text: str
     safety_level: ContentSafetyLevel
-    violations: List[str]
-    warnings: List[str]
-    metadata: Dict[str, any]
+    violations: list[str]
+    warnings: list[str]
+    metadata: dict[str, any]
 
     # Arabic translations for violations
-    violations_ar: List[str] = None
-    warnings_ar: List[str] = None
+    violations_ar: list[str] = None
+    warnings_ar: list[str] = None
 
     def __post_init__(self):
         if self.violations_ar is None:
@@ -116,7 +114,7 @@ class PromptInjectionDetector:
             re.compile(pattern, re.IGNORECASE) for pattern in self.all_patterns
         ]
 
-    def detect(self, text: str) -> Tuple[bool, List[str]]:
+    def detect(self, text: str) -> tuple[bool, list[str]]:
         """
         Detect prompt injection attempts.
 
@@ -128,7 +126,7 @@ class PromptInjectionDetector:
         """
         detected_patterns = []
 
-        for pattern, compiled_pattern in zip(self.all_patterns, self.compiled_patterns):
+        for pattern, compiled_pattern in zip(self.all_patterns, self.compiled_patterns, strict=False):
             if compiled_pattern.search(text):
                 detected_patterns.append(pattern)
                 logger.warning(f"Prompt injection pattern detected: {pattern}")
@@ -188,7 +186,7 @@ class PIIDetector:
 
     def detect_and_mask(
         self, text: str, mask_char: str = "*"
-    ) -> Tuple[str, Dict[str, int]]:
+    ) -> tuple[str, dict[str, int]]:
         """
         Detect and mask PII in text.
 
@@ -231,10 +229,7 @@ class PIIDetector:
 
     def contains_pii(self, text: str) -> bool:
         """Quick check if text contains any PII"""
-        for pattern in self.patterns.values():
-            if pattern.search(text):
-                return True
-        return False
+        return any(pattern.search(text) for pattern in self.patterns.values())
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -303,7 +298,7 @@ class ToxicityFilter:
             re.IGNORECASE,
         )
 
-    def analyze(self, text: str) -> Tuple[float, Dict[str, int]]:
+    def analyze(self, text: str) -> tuple[float, dict[str, int]]:
         """
         Analyze text for toxicity.
 
@@ -328,10 +323,7 @@ class ToxicityFilter:
         # Simple heuristic: ratio of toxic words to total words
         words = text.split()
         word_count = len(words)
-        if word_count == 0:
-            toxicity_score = 0.0
-        else:
-            toxicity_score = min(total_toxic_words / word_count * 5, 1.0)
+        toxicity_score = 0.0 if word_count == 0 else min(total_toxic_words / word_count * 5, 1.0)
 
         return toxicity_score, category_counts
 
@@ -360,7 +352,7 @@ class InputFilter:
             raise HTTPException(400, detail=result.violations)
     """
 
-    def __init__(self, policy_manager: Optional[PolicyManager] = None):
+    def __init__(self, policy_manager: PolicyManager | None = None):
         self.policy_manager = policy_manager or PolicyManager()
         self.prompt_injection_detector = PromptInjectionDetector()
         self.pii_detector = PIIDetector()
@@ -506,10 +498,7 @@ class InputFilter:
         if self.prompt_injection_detector.detect(text)[0]:
             return False
 
-        if self.toxicity_filter.is_toxic(text, threshold=0.8):
-            return False
-
-        return True
+        return not self.toxicity_filter.is_toxic(text, threshold=0.8)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

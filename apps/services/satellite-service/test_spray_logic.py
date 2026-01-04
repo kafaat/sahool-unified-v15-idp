@@ -5,8 +5,8 @@ Unit tests for spray advisor logic (without API calls)
 
 from src.spray_advisor import (
     SprayAdvisor,
-    SprayProduct,
     SprayCondition,
+    SprayProduct,
 )
 
 
@@ -158,11 +158,11 @@ def test_recommendations():
         if product:
             print(f"  Product: {product.value}")
 
-        print(f"\n  English Recommendations:")
+        print("\n  English Recommendations:")
         for rec in recommendations["en"][:3]:
             print(f"    • {rec}")
 
-        print(f"\n  Arabic Recommendations:")
+        print("\n  Arabic Recommendations:")
         for rec in recommendations["ar"][:3]:
             print(f"    • {rec}")
 

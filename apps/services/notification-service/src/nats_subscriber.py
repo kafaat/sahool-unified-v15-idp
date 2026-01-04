@@ -9,12 +9,11 @@ Field-First Architecture:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Optional
-from enum import Enum
+from collections.abc import Callable
+from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -57,13 +56,13 @@ class ReceivedEvent(BaseModel):
     event_type: str
     source_service: str
     timestamp: datetime
-    tenant_id: Optional[str] = None
-    field_id: Optional[str] = None
-    farmer_id: Optional[str] = None
-    data: Dict[str, Any] = Field(default_factory=dict)
-    action_template: Optional[Dict[str, Any]] = None
+    tenant_id: str | None = None
+    field_id: str | None = None
+    farmer_id: str | None = None
+    data: dict[str, Any] = Field(default_factory=dict)
+    action_template: dict[str, Any] | None = None
     notification_priority: str = "medium"
-    notification_channels: List[str] = Field(default_factory=lambda: ["in_app"])
+    notification_channels: list[str] = Field(default_factory=lambda: ["in_app"])
 
 
 class NATSSubscriber:
@@ -76,17 +75,17 @@ class NATSSubscriber:
 
     def __init__(
         self,
-        config: Optional[SubscriberConfig] = None,
-        notification_callback: Optional[Callable] = None,
+        config: SubscriberConfig | None = None,
+        notification_callback: Callable | None = None,
     ):
         self.config = config or SubscriberConfig()
-        self._nc: Optional[NATSClient] = None
-        self._subscriptions: List[Any] = []
+        self._nc: NATSClient | None = None
+        self._subscriptions: list[Any] = []
         self._connected = False
         self._notification_callback = notification_callback
 
         # Event handlers by type
-        self._handlers: Dict[str, Callable] = {}
+        self._handlers: dict[str, Callable] = {}
 
     @property
     def is_connected(self) -> bool:
@@ -209,7 +208,7 @@ class NATSSubscriber:
         except Exception as e:
             logger.error(f"Error creating notification from event: {e}")
 
-    def _event_to_notification_data(self, event: ReceivedEvent) -> Dict[str, Any]:
+    def _event_to_notification_data(self, event: ReceivedEvent) -> dict[str, Any]:
         """Convert NATS event to notification data"""
 
         # Map priority
@@ -280,11 +279,11 @@ class NATSSubscriber:
 
 
 # Singleton instance
-_subscriber_instance: Optional[NATSSubscriber] = None
+_subscriber_instance: NATSSubscriber | None = None
 
 
 async def get_subscriber(
-    notification_callback: Optional[Callable] = None,
+    notification_callback: Callable | None = None,
 ) -> NATSSubscriber:
     """Get or create the singleton NATS subscriber"""
     global _subscriber_instance

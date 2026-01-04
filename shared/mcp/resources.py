@@ -8,8 +8,7 @@ Resources provide read-only access to structured data following MCP specificatio
 
 import os
 from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 from pydantic import BaseModel
@@ -20,7 +19,7 @@ class Resource(BaseModel):
 
     uri: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     mimeType: str = "application/json"
 
 
@@ -29,14 +28,14 @@ class ResourceContent(BaseModel):
 
     uri: str
     mimeType: str = "application/json"
-    text: Optional[str] = None
-    blob: Optional[str] = None
+    text: str | None = None
+    blob: str | None = None
 
 
 class ResourceProvider(ABC):
     """Base class for resource providers"""
 
-    def __init__(self, base_url: Optional[str] = None):
+    def __init__(self, base_url: str | None = None):
         self.base_url = base_url or os.getenv("SAHOOL_API_URL", "http://localhost:8000")
         self.client = httpx.AsyncClient(timeout=30.0)
 
@@ -45,7 +44,7 @@ class ResourceProvider(ABC):
         await self.client.aclose()
 
     @abstractmethod
-    async def list_resources(self) -> List[Resource]:
+    async def list_resources(self) -> list[Resource]:
         """List available resources"""
         pass
 
@@ -63,7 +62,7 @@ class FieldDataResource(ResourceProvider):
     soil properties, crop information, and activities.
     """
 
-    async def list_resources(self) -> List[Resource]:
+    async def list_resources(self) -> list[Resource]:
         """List all available field resources"""
         try:
             response = await self.client.get(f"{self.base_url}/api/fields")
@@ -164,7 +163,7 @@ class WeatherDataResource(ResourceProvider):
     and agricultural weather advisories.
     """
 
-    async def list_resources(self) -> List[Resource]:
+    async def list_resources(self) -> list[Resource]:
         """List all available weather resources"""
         return [
             Resource(
@@ -242,7 +241,7 @@ class CropCatalogResource(ResourceProvider):
     and agricultural best practices.
     """
 
-    async def list_resources(self) -> List[Resource]:
+    async def list_resources(self) -> list[Resource]:
         """List all available crop catalog resources"""
         try:
             response = await self.client.get(f"{self.base_url}/api/crops/catalog")
@@ -350,8 +349,8 @@ class ResourceManager:
     to all SAHOOL resources.
     """
 
-    def __init__(self, base_url: Optional[str] = None):
-        self.providers: Dict[str, ResourceProvider] = {
+    def __init__(self, base_url: str | None = None):
+        self.providers: dict[str, ResourceProvider] = {
             "field": FieldDataResource(base_url),
             "weather": WeatherDataResource(base_url),
             "crops": CropCatalogResource(base_url),
@@ -362,7 +361,7 @@ class ResourceManager:
         for provider in self.providers.values():
             await provider.close()
 
-    async def list_all_resources(self) -> List[Resource]:
+    async def list_all_resources(self) -> list[Resource]:
         """List all resources from all providers"""
         all_resources = []
         for provider in self.providers.values():
@@ -379,7 +378,7 @@ class ResourceManager:
 
         return await self.providers[scheme].get_resource(uri)
 
-    def get_resource_templates(self) -> List[Dict[str, Any]]:
+    def get_resource_templates(self) -> list[dict[str, Any]]:
         """Get resource URI templates for discovery"""
         return [
             {

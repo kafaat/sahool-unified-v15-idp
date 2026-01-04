@@ -7,16 +7,16 @@ Demonstrates how to use the WeatherForecastService for agricultural weather moni
 """
 
 import asyncio
-from datetime import datetime
 
 from forecast_integration import (
     WeatherForecastService,
+    calculate_agricultural_indices,
+    detect_drought_conditions,
     detect_frost_risk,
     detect_heat_wave,
     detect_heavy_rain,
-    detect_drought_conditions,
-    calculate_agricultural_indices,
 )
+
 from config import get_config
 
 
@@ -105,7 +105,7 @@ async def main():
                 print(f"      - {alert.title_en} (Severity: {alert.severity.value})")
                 print(f"        {alert.title_ar}")
                 print(f"        Duration: {alert.start_date} to {alert.end_date}")
-                print(f"        Recommendations:")
+                print("        Recommendations:")
                 for rec in alert.recommendations_en[:2]:
                     print(f"          • {rec}")
                 print()
@@ -143,7 +143,7 @@ async def main():
         print(f"   {'Date':<12} {'GDD':<8} {'ET0(mm)':<10} {'Heat Hrs':<10} {'Deficit(mm)':<12}")
         print("   " + "-" * 76)
 
-        for i, day in enumerate(daily[:7]):
+        for _i, day in enumerate(daily[:7]):
             # Get corresponding hourly data if available
             # الحصول على البيانات الساعية المقابلة إن وجدت
             day_hourly = None
@@ -184,13 +184,13 @@ async def main():
         # توصية الري
         irrigation_needs = avg_eto - (total_rain / 7)
         if irrigation_needs > 0:
-            print(f"💧 Irrigation Recommendation:")
+            print("💧 Irrigation Recommendation:")
             print(f"   Average daily irrigation needed: ~{irrigation_needs:.2f} mm/day")
             print(f"   توصية الري اليومي: ~{irrigation_needs:.2f} ملم/يوم")
         else:
-            print(f"💧 Irrigation Recommendation:")
-            print(f"   Rainfall is sufficient, reduce irrigation")
-            print(f"   الأمطار كافية، قلل الري")
+            print("💧 Irrigation Recommendation:")
+            print("   Rainfall is sufficient, reduce irrigation")
+            print("   الأمطار كافية، قلل الري")
         print()
 
     except Exception as e:

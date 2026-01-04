@@ -6,8 +6,8 @@ Events related to crop lifecycle and health.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
-from typing import Any, Dict, List, Optional
+from datetime import date, datetime
+from typing import Any
 from uuid import UUID
 
 from .base import BaseEvent
@@ -25,11 +25,11 @@ class CropPlantedEvent(BaseEvent):
     crop_type: str = ""
     variety: str = ""
     planting_date: date = None
-    expected_harvest_date: Optional[date] = None
-    seed_source: Optional[str] = None
-    planting_density: Optional[float] = None
+    expected_harvest_date: date | None = None
+    seed_source: str | None = None
+    planting_density: float | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         payload = {
             "field_id": str(self.field_id),
             "crop_type": self.crop_type,
@@ -57,18 +57,18 @@ class CropDiseaseDetectedEvent(BaseEvent):
     PRIORITY = "high"
 
     field_id: UUID = None
-    crop_id: Optional[UUID] = None
+    crop_id: UUID | None = None
     disease_type: str = ""
-    disease_category: Optional[str] = None
+    disease_category: str | None = None
     confidence_score: float = 0.0
     detected_at: datetime = None
     affected_area_percentage: float = 0.0
-    severity_level: Optional[str] = None
-    image_urls: List[str] = field(default_factory=list)
-    detection_method: Optional[str] = None
-    recommended_actions: List[Dict[str, Any]] = field(default_factory=list)
+    severity_level: str | None = None
+    image_urls: list[str] = field(default_factory=list)
+    detection_method: str | None = None
+    recommended_actions: list[dict[str, Any]] = field(default_factory=list)
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         payload = {
             "field_id": str(self.field_id),
             "disease_type": self.disease_type,
@@ -104,11 +104,11 @@ class CropHarvestedEvent(BaseEvent):
     harvest_date: date = None
     yield_kg: float = 0.0
     area_harvested_hectares: float = 0.0
-    quality_grade: Optional[str] = None
-    moisture_content: Optional[float] = None
-    storage_location: Optional[str] = None
+    quality_grade: str | None = None
+    moisture_content: float | None = None
+    storage_location: str | None = None
 
-    def _payload_to_dict(self) -> Dict[str, Any]:
+    def _payload_to_dict(self) -> dict[str, Any]:
         payload = {
             "field_id": str(self.field_id),
             "crop_id": str(self.crop_id),

@@ -6,10 +6,10 @@ SAHOOL Field Boundary Detection - Example Usage
 Demonstrates how to use the field boundary detection API endpoints.
 """
 
-import httpx
 import asyncio
 import json
 
+import httpx
 
 BASE_URL = "http://localhost:8090"
 
@@ -42,7 +42,7 @@ async def example_detect_boundaries():
             if data["features"]:
                 first_field = data["features"][0]
                 props = first_field["properties"]
-                print(f"\nFirst field details:")
+                print("\nFirst field details:")
                 print(f"  - Field ID: {props['field_id']}")
                 print(f"  - Area: {props['area_hectares']} hectares")
                 print(f"  - Perimeter: {props['perimeter_meters']} meters")
@@ -53,7 +53,7 @@ async def example_detect_boundaries():
             # Save to file
             with open("/tmp/detected_boundaries.geojson", "w") as f:
                 json.dump(data, f, indent=2)
-            print(f"\n✓ Saved to /tmp/detected_boundaries.geojson")
+            print("\n✓ Saved to /tmp/detected_boundaries.geojson")
         else:
             print(f"✗ Error: {response.status_code}")
             print(response.text)
@@ -82,7 +82,7 @@ async def example_refine_boundary():
         if response.status_code == 200:
             data = response.json()
             stats = data["refinement_stats"]
-            print(f"✓ Boundary refined successfully")
+            print("✓ Boundary refined successfully")
             print(f"✓ Initial points: {stats['initial_points']}")
             print(f"✓ Refined points: {stats['refined_points']}")
             print(f"✓ Area: {stats['area_hectares']} hectares")
@@ -93,7 +93,7 @@ async def example_refine_boundary():
             # Save to file
             with open("/tmp/refined_boundary.geojson", "w") as f:
                 json.dump(data["refined_boundary"], f, indent=2)
-            print(f"\n✓ Saved to /tmp/refined_boundary.geojson")
+            print("\n✓ Saved to /tmp/refined_boundary.geojson")
         else:
             print(f"✗ Error: {response.status_code}")
             print(response.text)
@@ -135,14 +135,14 @@ async def example_detect_changes():
             print(f"✓ Boundary shift: {analysis['boundary_shift_meters']} meters")
             print(f"✓ Confidence: {analysis['confidence']}")
 
-            print(f"\nInterpretation:")
+            print("\nInterpretation:")
             print(f"  EN: {data['interpretation']['en']}")
             print(f"  AR: {data['interpretation']['ar']}")
 
             # Save to file
             with open("/tmp/boundary_changes.json", "w") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-            print(f"\n✓ Saved to /tmp/boundary_changes.json")
+            print("\n✓ Saved to /tmp/boundary_changes.json")
         else:
             print(f"✗ Error: {response.status_code}")
             print(response.text)
@@ -171,7 +171,7 @@ async def example_workflow():
                 first_field = boundaries["features"][0]
                 coords = first_field["geometry"]["coordinates"][0]
 
-                print(f"\nStep 2: Refining first boundary...")
+                print("\nStep 2: Refining first boundary...")
                 refine_response = await client.post(
                     f"{BASE_URL}/v1/boundaries/refine",
                     params={"coords": json.dumps(coords), "buffer_m": 30},
@@ -179,7 +179,7 @@ async def example_workflow():
 
                 if refine_response.status_code == 200:
                     refined = refine_response.json()
-                    print(f"✓ Refined boundary")
+                    print("✓ Refined boundary")
                     print(f"  Area: {refined['refinement_stats']['area_hectares']} ha")
                     print(f"  Quality: {refined['refinement_stats']['quality_score']}")
 
@@ -192,7 +192,7 @@ async def example_workflow():
 
                     with open("/tmp/workflow_result.json", "w") as f:
                         json.dump(workflow_result, f, indent=2)
-                    print(f"\n✓ Workflow complete! Saved to /tmp/workflow_result.json")
+                    print("\n✓ Workflow complete! Saved to /tmp/workflow_result.json")
 
 
 async def main():

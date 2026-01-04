@@ -11,7 +11,7 @@ import json
 import logging
 import sys
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import StreamingResponse
@@ -30,18 +30,18 @@ class JSONRPCRequest(BaseModel):
     """JSON-RPC 2.0 Request"""
 
     jsonrpc: str = "2.0"
-    id: Optional[str | int] = None
+    id: str | int | None = None
     method: str
-    params: Optional[Dict[str, Any]] = None
+    params: dict[str, Any] | None = None
 
 
 class JSONRPCResponse(BaseModel):
     """JSON-RPC 2.0 Response"""
 
     jsonrpc: str = "2.0"
-    id: Optional[str | int] = None
-    result: Optional[Any] = None
-    error: Optional[Dict[str, Any]] = None
+    id: str | int | None = None
+    result: Any | None = None
+    error: dict[str, Any] | None = None
 
 
 class JSONRPCError(BaseModel):
@@ -49,7 +49,7 @@ class JSONRPCError(BaseModel):
 
     code: int
     message: str
-    data: Optional[Any] = None
+    data: Any | None = None
 
 
 # ==================== MCP Server Implementation ====================
@@ -74,7 +74,7 @@ class MCPServer:
         self.version = version
         self.tools = SAHOOLTools()
         self.resources = ResourceManager()
-        self.prompts: List[Dict[str, Any]] = []
+        self.prompts: list[dict[str, Any]] = []
         self._initialize_prompts()
 
     def _initialize_prompts(self):
@@ -133,8 +133,8 @@ class MCPServer:
     # ==================== MCP Protocol Handlers ====================
 
     async def handle_initialize(
-        self, params: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, params: dict[str, Any] | None
+    ) -> dict[str, Any]:
         """Handle initialize request"""
         return {
             "protocolVersion": "2024-11-05",
@@ -150,12 +150,12 @@ class MCPServer:
         }
 
     async def handle_tools_list(
-        self, params: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, params: dict[str, Any] | None
+    ) -> dict[str, Any]:
         """Handle tools/list request"""
         return {"tools": self.tools.get_tool_definitions()}
 
-    async def handle_tools_call(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_tools_call(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle tools/call request"""
         tool_name = params.get("name")
         arguments = params.get("arguments", {})
@@ -176,8 +176,8 @@ class MCPServer:
         }
 
     async def handle_resources_list(
-        self, params: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, params: dict[str, Any] | None
+    ) -> dict[str, Any]:
         """Handle resources/list request"""
         resources = await self.resources.list_all_resources()
         return {
@@ -193,12 +193,12 @@ class MCPServer:
         }
 
     async def handle_resources_templates_list(
-        self, params: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, params: dict[str, Any] | None
+    ) -> dict[str, Any]:
         """Handle resources/templates/list request"""
         return {"resourceTemplates": self.resources.get_resource_templates()}
 
-    async def handle_resources_read(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_resources_read(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle resources/read request"""
         uri = params.get("uri")
         if not uri:
@@ -218,12 +218,12 @@ class MCPServer:
         }
 
     async def handle_prompts_list(
-        self, params: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, params: dict[str, Any] | None
+    ) -> dict[str, Any]:
         """Handle prompts/list request"""
         return {"prompts": self.prompts}
 
-    async def handle_prompts_get(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def handle_prompts_get(self, params: dict[str, Any]) -> dict[str, Any]:
         """Handle prompts/get request"""
         prompt_name = params.get("name")
         prompt_args = params.get("arguments", {})

@@ -4,9 +4,9 @@ AI-powered agricultural advisory: AI Engine, RAG, Context, Feedback
 """
 
 from .ai import AdvisorAI, AdvisorResponse
-from .rag import RAGService, Document
 from .context import ContextBuilder, FieldContext
-from .feedback import FeedbackService, AdvisorFeedback
+from .feedback import AdvisorFeedback, FeedbackService
+from .rag import Document, RAGService
 
 __version__ = "16.0.0"
 

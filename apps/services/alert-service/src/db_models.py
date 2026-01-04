@@ -7,13 +7,13 @@ SQLAlchemy ORM models for alerts storage
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, DateTime, Float, Index, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB, ARRAY
+from sqlalchemy import Boolean, DateTime, Index, Integer, String, Text
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
-
 
 Base = declarative_base()
 
@@ -127,7 +127,7 @@ class Alert(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         comment="When the alert was created",
     )
     expires_at: Mapped[datetime | None] = mapped_column(
@@ -316,14 +316,14 @@ class AlertRule(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         comment="When the rule was created",
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
         comment="When the rule was last updated",
     )
 

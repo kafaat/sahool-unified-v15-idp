@@ -11,10 +11,10 @@ Weather endpoints using Open-Meteo integration for:
 - Frost risk assessment
 """
 
-from fastapi import HTTPException, Query
-from typing import Optional
-from datetime import date as date_class
 import logging
+from datetime import date as date_class
+
+from fastapi import HTTPException, Query
 
 from .weather_integration import get_weather_service
 
@@ -249,10 +249,10 @@ def register_weather_endpoints(app):
         growth_stage: str = Query(
             ..., description="Growth stage (initial, development, mid, late, harvest)"
         ),
-        soil_moisture: Optional[float] = Query(
+        soil_moisture: float | None = Query(
             None, description="Current soil moisture (0-1)", ge=0, le=1
         ),
-        field_id: Optional[str] = Query(None, description="Field identifier"),
+        field_id: str | None = Query(None, description="Field identifier"),
     ):
         """
         نصائح الري | Get Irrigation Recommendation

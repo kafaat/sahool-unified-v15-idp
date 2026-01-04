@@ -6,7 +6,6 @@ Port: 8098
 
 import os
 from contextlib import asynccontextmanager
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -72,11 +71,11 @@ class WeatherAssessRequest(BaseModel):
     tenant_id: str
     field_id: str
     temp_c: float
-    humidity_pct: Optional[float] = None
-    wind_speed_kmh: Optional[float] = None
-    precipitation_mm: Optional[float] = None
-    uv_index: Optional[float] = None
-    correlation_id: Optional[str] = None
+    humidity_pct: float | None = None
+    wind_speed_kmh: float | None = None
+    precipitation_mm: float | None = None
+    uv_index: float | None = None
+    correlation_id: str | None = None
 
 
 class LocationRequest(BaseModel):
@@ -84,7 +83,7 @@ class LocationRequest(BaseModel):
     field_id: str
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)
-    correlation_id: Optional[str] = None
+    correlation_id: str | None = None
 
 
 class IrrigationRequest(BaseModel):
@@ -94,7 +93,7 @@ class IrrigationRequest(BaseModel):
     humidity_pct: float
     wind_speed_kmh: float
     precipitation_mm: float = 0
-    correlation_id: Optional[str] = None
+    correlation_id: str | None = None
 
 
 # ============== Weather Endpoints ==============

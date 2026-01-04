@@ -4,13 +4,12 @@ SAHOOL Complete Platform Analyzer
 Analyzes dependencies, conflicts, performance issues, and generates optimization reports.
 """
 
-import sys
+import argparse
 import json
 import re
-import argparse
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+import sys
 from datetime import datetime
+from pathlib import Path
 
 try:
     import yaml
@@ -32,7 +31,7 @@ class SahoolAnalyzer:
             "estimated_savings": {},
         }
 
-    def _load_manifest(self) -> Dict:
+    def _load_manifest(self) -> dict:
         """Load platform manifest or create default."""
         manifest_path = self.root / ".platform-manifest.yml"
         if manifest_path.exists() and yaml:
@@ -129,7 +128,7 @@ class SahoolAnalyzer:
                         }
                     )
 
-    def analyze_dependencies(self) -> Dict:
+    def analyze_dependencies(self) -> dict:
         """Complete dependency analysis across all platforms."""
         analysis = {
             "python": self._analyze_python_deps(),
@@ -152,12 +151,12 @@ class SahoolAnalyzer:
 
         return analysis
 
-    def _analyze_python_deps(self) -> List[Dict]:
+    def _analyze_python_deps(self) -> list[dict]:
         """Analyze Python requirements files."""
         results = []
         req_files = list(self.root.rglob("requirements.txt"))
 
-        all_deps: Dict[str, Dict] = {}
+        all_deps: dict[str, dict] = {}
         for req_file in req_files:
             try:
                 service = req_file.parent.name
@@ -190,14 +189,14 @@ class SahoolAnalyzer:
 
         return results
 
-    def _analyze_flutter_deps(self) -> List[Dict]:
+    def _analyze_flutter_deps(self) -> list[dict]:
         """Analyze Flutter pubspec files."""
         results = []
         if not yaml:
             return results
 
         pubspec_files = list(self.root.rglob("pubspec.yaml"))
-        all_deps: Dict[str, Dict] = {}
+        all_deps: dict[str, dict] = {}
 
         for pubspec in pubspec_files:
             try:
@@ -231,11 +230,11 @@ class SahoolAnalyzer:
 
         return results
 
-    def _analyze_nodejs_deps(self) -> List[Dict]:
+    def _analyze_nodejs_deps(self) -> list[dict]:
         """Analyze Node.js package.json files."""
         results = []
         package_files = list(self.root.rglob("package.json"))
-        all_deps: Dict[str, Dict] = {}
+        all_deps: dict[str, dict] = {}
 
         for pkg_file in package_files:
             if "node_modules" in str(pkg_file):
@@ -340,7 +339,7 @@ class SahoolAnalyzer:
             },
         }
 
-    def generate_report(self, quick_check: bool = False) -> Dict:
+    def generate_report(self, quick_check: bool = False) -> dict:
         """Generate the complete analysis report."""
         self.check_postgis_queries()
         self.check_kong_configuration()
@@ -423,7 +422,7 @@ def main():
                 f"  - [{issue['type']}] {issue.get('platform', issue.get('file', 'N/A'))}"
             )
 
-    print(f"\n📄 Full report saved: analysis-report.json")
+    print("\n📄 Full report saved: analysis-report.json")
 
     # Exit with error if critical issues found
     sys.exit(0 if len(report["critical"]) == 0 else 1)

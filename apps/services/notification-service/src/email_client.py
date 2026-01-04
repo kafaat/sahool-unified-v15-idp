@@ -12,31 +12,31 @@ Features:
 - Proper error handling and logging
 """
 
-import os
-import logging
-from typing import Optional, Dict, Any, List
-from dataclasses import dataclass
 import asyncio
+import logging
+import os
+from dataclasses import dataclass
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # SendGrid SDK imports
 try:
+    from python_http_client.exceptions import HTTPError
     from sendgrid import SendGridAPIClient
     from sendgrid.helpers.mail import (
-        Mail,
-        Email,
-        To,
-        Content,
-        Subject,
-        Personalization,
         Attachment,
+        Content,
+        Disposition,
+        Email,
         FileContent,
         FileName,
         FileType,
-        Disposition,
+        Mail,
+        Personalization,
+        Subject,
+        To,
     )
-    from python_http_client.exceptions import HTTPError
 
     _SENDGRID_AVAILABLE = True
 except ImportError:
@@ -51,8 +51,8 @@ class EmailMessage:
     to: str  # Recipient email
     subject: str  # Subject line
     body: str  # Plain text or HTML content
-    subject_ar: Optional[str] = None  # Arabic subject
-    body_ar: Optional[str] = None  # Arabic body
+    subject_ar: str | None = None  # Arabic subject
+    body_ar: str | None = None  # Arabic body
     is_html: bool = True  # Whether body contains HTML
 
     def get_subject(self, language: str = "ar") -> str:
@@ -88,15 +88,15 @@ class EmailClient:
 
     def __init__(self):
         self._initialized = False
-        self._client: Optional[SendGridAPIClient] = None
-        self._from_email: Optional[str] = None
-        self._from_name: Optional[str] = None
+        self._client: SendGridAPIClient | None = None
+        self._from_email: str | None = None
+        self._from_name: str | None = None
 
     def initialize(
         self,
-        api_key: Optional[str] = None,
-        from_email: Optional[str] = None,
-        from_name: Optional[str] = None,
+        api_key: str | None = None,
+        from_email: str | None = None,
+        from_name: str | None = None,
     ) -> bool:
         """
         تهيئة عميل SendGrid
@@ -164,14 +164,14 @@ class EmailClient:
         to: str,
         subject: str,
         body: str,
-        subject_ar: Optional[str] = None,
-        body_ar: Optional[str] = None,
+        subject_ar: str | None = None,
+        body_ar: str | None = None,
         language: str = "ar",
         is_html: bool = True,
-        cc: Optional[List[str]] = None,
-        bcc: Optional[List[str]] = None,
-        attachments: Optional[List[Dict[str, str]]] = None,
-    ) -> Optional[str]:
+        cc: list[str] | None = None,
+        bcc: list[str] | None = None,
+        attachments: list[dict[str, str]] | None = None,
+    ) -> str | None:
         """
         إرسال بريد إلكتروني
 
@@ -268,7 +268,7 @@ class EmailClient:
             logger.error(f"Error sending email to {to}: {e}")
             return None
 
-    def _send_sync(self, mail: Mail) -> Optional[str]:
+    def _send_sync(self, mail: Mail) -> str | None:
         """Synchronous send (for thread executor)"""
         try:
             response = self._client.send(mail)
@@ -293,14 +293,14 @@ class EmailClient:
 
     async def send_bulk_email(
         self,
-        recipients: List[str],
+        recipients: list[str],
         subject: str,
         body: str,
-        subject_ar: Optional[str] = None,
-        body_ar: Optional[str] = None,
+        subject_ar: str | None = None,
+        body_ar: str | None = None,
         language: str = "ar",
         is_html: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         إرسال بريد متعدد
 
@@ -362,7 +362,7 @@ class EmailClient:
         max_retries: int = 3,
         retry_delay: int = 5,
         **kwargs,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         إرسال بريد مع إعادة المحاولة
 
@@ -393,9 +393,9 @@ class EmailClient:
         self,
         to: str,
         template_id: str,
-        template_data: Dict[str, Any],
+        template_data: dict[str, Any],
         language: str = "ar",
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         إرسال بريد باستخدام قالب SendGrid
 
@@ -467,14 +467,11 @@ class EmailClient:
         if not local or not domain:
             return False
 
-        if "." not in domain:
-            return False
-
-        return True
+        return not "." not in domain
 
 
 # Global client instance
-_email_client: Optional[EmailClient] = None
+_email_client: EmailClient | None = None
 
 
 def get_email_client() -> EmailClient:

@@ -6,23 +6,29 @@
 Daily summary report template with Arabic/English bilingual support
 """
 
-from datetime import date, datetime, timedelta
-from typing import Dict, Any, List, Optional, TYPE_CHECKING
 import io
+from datetime import date, datetime, timedelta
+from typing import TYPE_CHECKING, Any
 
 try:
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.units import inch, cm
-    from reportlab.platypus import (
-        SimpleDocTemplate, Table, TableStyle, Paragraph,
-        Spacer, PageBreak, Image, KeepTogether
-    )
-    from reportlab.lib.enums import TA_RIGHT, TA_CENTER, TA_LEFT
-    from reportlab.graphics.shapes import Drawing
-    from reportlab.graphics.charts.lineplots import LinePlot
     from reportlab.graphics.charts.barcharts import VerticalBarChart
+    from reportlab.graphics.charts.lineplots import LinePlot
+    from reportlab.graphics.shapes import Drawing
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+    from reportlab.lib.units import cm, inch
+    from reportlab.platypus import (
+        Image,
+        KeepTogether,
+        PageBreak,
+        Paragraph,
+        SimpleDocTemplate,
+        Spacer,
+        Table,
+        TableStyle,
+    )
     REPORTLAB_AVAILABLE = True
 except ImportError:
     REPORTLAB_AVAILABLE = False
@@ -176,7 +182,7 @@ class DailySummaryReport:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"sahool_daily_summary_{field_id}_{report_date.strftime('%Y%m%d')}_{timestamp}.pdf"
 
-        from ..data_exporter import ExportResult, ExportFormat
+        from ..data_exporter import ExportFormat, ExportResult
 
         return ExportResult(
             format=ExportFormat.PDF,
@@ -192,7 +198,7 @@ class DailySummaryReport:
             }
         )
 
-    def _collect_daily_data(self, field_id: str, report_date: date) -> Dict[str, Any]:
+    def _collect_daily_data(self, field_id: str, report_date: date) -> dict[str, Any]:
         """Collect all data needed for daily report"""
         date_range = (report_date, report_date)
 
@@ -212,22 +218,22 @@ class DailySummaryReport:
             "summary": self._generate_summary(field_id, report_date),
         }
 
-    def _get_today_ndvi(self, field_id: str, report_date: date) -> Optional[Dict]:
+    def _get_today_ndvi(self, field_id: str, report_date: date) -> dict | None:
         """Get NDVI for today"""
         history = self.exporter._get_ndvi_history(field_id, (report_date, report_date))
         return history[0] if history else None
 
-    def _get_week_ndvi(self, field_id: str, report_date: date) -> List[Dict]:
+    def _get_week_ndvi(self, field_id: str, report_date: date) -> list[dict]:
         """Get NDVI for past week"""
         start_date = report_date - timedelta(days=7)
         return self.exporter._get_ndvi_history(field_id, (start_date, report_date))
 
-    def _get_today_weather(self, field_id: str, report_date: date) -> Optional[Dict]:
+    def _get_today_weather(self, field_id: str, report_date: date) -> dict | None:
         """Get weather for today"""
         weather = self.exporter._get_weather_data(field_id, (report_date, report_date))
         return weather[0] if weather else None
 
-    def _get_weather_forecast(self, field_id: str, report_date: date) -> List[Dict]:
+    def _get_weather_forecast(self, field_id: str, report_date: date) -> list[dict]:
         """Get weather forecast for next 3 days"""
         # Placeholder - in production, fetch from weather API
         forecast = []
@@ -242,7 +248,7 @@ class DailySummaryReport:
             })
         return forecast
 
-    def _get_alerts(self, field_id: str, report_date: date) -> List[Dict]:
+    def _get_alerts(self, field_id: str, report_date: date) -> list[dict]:
         """Get active alerts"""
         # Placeholder - fetch from alerts service
         return [
@@ -254,7 +260,7 @@ class DailySummaryReport:
             }
         ]
 
-    def _generate_summary(self, field_id: str, report_date: date) -> Dict[str, str]:
+    def _generate_summary(self, field_id: str, report_date: date) -> dict[str, str]:
         """Generate executive summary"""
         return {
             "status": "good",  # good, warning, critical
@@ -265,7 +271,7 @@ class DailySummaryReport:
             "action_needed": False
         }
 
-    def _create_pdf(self, data: Dict[str, Any]) -> bytes:
+    def _create_pdf(self, data: dict[str, Any]) -> bytes:
         """Create PDF document"""
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(
@@ -310,7 +316,7 @@ class DailySummaryReport:
         doc.build(story)
         return buffer.getvalue()
 
-    def _create_header(self, data: Dict) -> List:
+    def _create_header(self, data: dict) -> list:
         """Create report header"""
         elements = []
 
@@ -344,7 +350,7 @@ class DailySummaryReport:
 
         return elements
 
-    def _create_executive_summary(self, data: Dict) -> List:
+    def _create_executive_summary(self, data: dict) -> list:
         """Create executive summary section"""
         elements = []
         summary = data['summary']
@@ -398,7 +404,7 @@ class DailySummaryReport:
 
         return elements
 
-    def _create_field_info(self, data: Dict) -> List:
+    def _create_field_info(self, data: dict) -> list:
         """Create field information section"""
         elements = []
         metadata = data['metadata']
@@ -425,7 +431,7 @@ class DailySummaryReport:
 
         return elements
 
-    def _create_ndvi_section(self, data: Dict) -> List:
+    def _create_ndvi_section(self, data: dict) -> list:
         """Create NDVI section with trend analysis"""
         elements = []
 
@@ -486,7 +492,7 @@ class DailySummaryReport:
         elements.append(Spacer(1, 0.3*inch))
         return elements
 
-    def _create_sensors_section(self, data: Dict) -> List:
+    def _create_sensors_section(self, data: dict) -> list:
         """Create sensor readings section"""
         elements = []
         sensors = data.get('sensors_today', [])
@@ -516,7 +522,7 @@ class DailySummaryReport:
 
         return elements
 
-    def _create_weather_section(self, data: Dict) -> List:
+    def _create_weather_section(self, data: dict) -> list:
         """Create weather section"""
         elements = []
 
@@ -566,7 +572,7 @@ class DailySummaryReport:
         elements.append(Spacer(1, 0.3*inch))
         return elements
 
-    def _create_recommendations_section(self, data: Dict) -> List:
+    def _create_recommendations_section(self, data: dict) -> list:
         """Create recommendations section"""
         elements = []
         recommendations = data.get('recommendations', [])
@@ -595,7 +601,7 @@ class DailySummaryReport:
 
         return elements
 
-    def _create_actions_section(self, data: Dict) -> List:
+    def _create_actions_section(self, data: dict) -> list:
         """Create actions taken section"""
         elements = []
         actions = data.get('actions', [])
@@ -624,7 +630,7 @@ class DailySummaryReport:
 
         return elements
 
-    def _create_footer(self, data: Dict) -> List:
+    def _create_footer(self, data: dict) -> list:
         """Create report footer"""
         elements = []
 

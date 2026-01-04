@@ -8,7 +8,7 @@ Example usage of SAHOOL MCP client and server.
 import asyncio
 import logging
 
-from .client import MCPClient, MCPClientContext
+from .client import MCPClientContext
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -178,14 +178,14 @@ async def example_low_level_client():
             },
         )
 
-        logger.info(f"Tool result:")
+        logger.info("Tool result:")
         logger.info(f"  Is Error: {result.isError}")
         logger.info(f"  Content: {result.content}")
 
         # Read a resource
         try:
             resource_content = await client.read_resource(uri="weather://current")
-            logger.info(f"\nResource content:")
+            logger.info("\nResource content:")
             logger.info(f"  URI: {resource_content.get('uri')}")
             logger.info(f"  MIME Type: {resource_content.get('mimeType')}")
             logger.info(f"  Text: {resource_content.get('text')[:200]}...")

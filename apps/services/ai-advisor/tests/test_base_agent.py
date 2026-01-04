@@ -3,9 +3,10 @@ Unit Tests for BaseAgent
 اختبارات الوحدة للوكيل الأساسي
 """
 
+from unittest.mock import AsyncMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+from langchain_core.messages import AIMessage
 
 
 # Import after mocking to prevent initialization issues

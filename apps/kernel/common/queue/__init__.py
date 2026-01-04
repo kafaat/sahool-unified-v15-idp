@@ -46,31 +46,20 @@ Usage:
     >>> worker.start()
 """
 
-from .task_queue import (
-    TaskQueue,
-    Task,
-    TaskType,
-    TaskStatus,
-    TaskPriority
-)
-
-from .worker import (
-    TaskWorker,
-    WorkerManager,
-    WorkerStatus
-)
+from .task_queue import Task, TaskPriority, TaskQueue, TaskStatus, TaskType
 
 # إعادة تصدير معالجات المهام
 # Re-export task handlers
 from .tasks import (
-    handle_satellite_image_processing,
-    handle_ndvi_calculation,
-    handle_disease_detection,
-    handle_report_generation,
-    handle_notification_send,
     handle_data_export,
-    handle_model_inference
+    handle_disease_detection,
+    handle_model_inference,
+    handle_ndvi_calculation,
+    handle_notification_send,
+    handle_report_generation,
+    handle_satellite_image_processing,
 )
+from .worker import TaskWorker, WorkerManager, WorkerStatus
 
 __version__ = "1.0.0"
 
@@ -243,7 +232,7 @@ def create_queue_with_workers(
 
     # بدء العمال
     # Start workers
-    for i in range(worker_count):
+    for _i in range(worker_count):
         worker_id = manager.start_worker()
         worker = manager.workers[worker_id]
 

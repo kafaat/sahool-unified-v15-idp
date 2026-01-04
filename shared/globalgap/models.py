@@ -8,16 +8,16 @@ Pydantic models for IFA v6 compliance management.
 
 from __future__ import annotations
 
-from datetime import datetime, date
-from typing import Optional, List, Dict, Any
+from datetime import date, datetime
 from enum import Enum
-from pydantic import BaseModel, Field, validator, HttpUrl
 from uuid import uuid4
 
+from pydantic import BaseModel, Field, HttpUrl, validator
+
 from .constants import (
-    ComplianceLevel,
-    AuditType,
     GGN_FORMAT_PATTERN,
+    AuditType,
+    ComplianceLevel,
 )
 
 
@@ -32,7 +32,7 @@ class ChecklistItem(BaseModel):
 
     id: str = Field(..., description="Control point number (e.g., AF.1.1.1)")
     category_code: str = Field(..., description="Category code (e.g., FS, ENV, WHS)")
-    subcategory: Optional[str] = Field(None, description="Subcategory name")
+    subcategory: str | None = Field(None, description="Subcategory name")
 
     title_en: str = Field(..., description="Control point title in English")
     title_ar: str = Field(..., description="Control point title in Arabic")
@@ -44,18 +44,18 @@ class ChecklistItem(BaseModel):
         ..., description="Compliance level requirement"
     )
 
-    evidence_required: List[str] = Field(
+    evidence_required: list[str] = Field(
         default_factory=list, description="Types of evidence required"
     )
 
-    guidance_en: Optional[str] = Field(
+    guidance_en: str | None = Field(
         None, description="Implementation guidance in English"
     )
-    guidance_ar: Optional[str] = Field(
+    guidance_ar: str | None = Field(
         None, description="Implementation guidance in Arabic"
     )
 
-    applicable_to: List[str] = Field(
+    applicable_to: list[str] = Field(
         default_factory=lambda: ["FV"],
         description="Applicable scopes (FV, CROPS_BASE, etc.)",
     )
@@ -86,13 +86,13 @@ class ChecklistCategory(BaseModel):
     description_en: str = Field(..., description="Category description in English")
     description_ar: str = Field(..., description="Category description in Arabic")
 
-    items: List[ChecklistItem] = Field(
+    items: list[ChecklistItem] = Field(
         default_factory=list, description="Control points in this category"
     )
 
     order: int = Field(..., description="Display order")
 
-    def get_item_by_id(self, item_id: str) -> Optional[ChecklistItem]:
+    def get_item_by_id(self, item_id: str) -> ChecklistItem | None:
         """Get a specific item by ID"""
         for item in self.items:
             if item.id == item_id:
@@ -161,15 +161,15 @@ class AuditFinding(BaseModel):
     is_compliant: bool = Field(..., description="Compliance status")
     is_not_applicable: bool = Field(default=False, description="Not applicable flag")
 
-    evidence_collected: List[str] = Field(
+    evidence_collected: list[str] = Field(
         default_factory=list, description="Evidence types collected"
     )
 
-    notes_en: Optional[str] = Field(None, description="Auditor notes in English")
-    notes_ar: Optional[str] = Field(None, description="Auditor notes in Arabic")
+    notes_en: str | None = Field(None, description="Auditor notes in English")
+    notes_ar: str | None = Field(None, description="Auditor notes in Arabic")
 
-    photos: List[str] = Field(default_factory=list, description="Photo URLs")
-    documents: List[str] = Field(default_factory=list, description="Document URLs")
+    photos: list[str] = Field(default_factory=list, description="Photo URLs")
+    documents: list[str] = Field(default_factory=list, description="Document URLs")
 
     auditor_id: str = Field(..., description="Auditor ID")
     audit_date: datetime = Field(..., description="Date of finding")
@@ -212,8 +212,8 @@ class NonConformance(BaseModel):
     description_en: str = Field(..., description="NC description in English")
     description_ar: str = Field(..., description="NC description in Arabic")
 
-    root_cause_en: Optional[str] = Field(None, description="Root cause in English")
-    root_cause_ar: Optional[str] = Field(None, description="Root cause in Arabic")
+    root_cause_en: str | None = Field(None, description="Root cause in English")
+    root_cause_ar: str | None = Field(None, description="Root cause in Arabic")
 
     identified_date: datetime = Field(..., description="Date identified")
     due_date: datetime = Field(..., description="Correction due date")
@@ -261,10 +261,10 @@ class CorrectiveAction(BaseModel):
     action_description_ar: str = Field(..., description="Action description in Arabic")
 
     responsible_person: str = Field(..., description="Person responsible")
-    responsible_email: Optional[str] = Field(None, description="Contact email")
+    responsible_email: str | None = Field(None, description="Contact email")
 
     planned_date: date = Field(..., description="Planned completion date")
-    actual_date: Optional[date] = Field(None, description="Actual completion date")
+    actual_date: date | None = Field(None, description="Actual completion date")
 
     status: CorrectiveActionStatus = Field(
         default=CorrectiveActionStatus.PLANNED, description="Action status"
@@ -273,18 +273,18 @@ class CorrectiveAction(BaseModel):
     effectiveness_verified: bool = Field(
         default=False, description="Effectiveness verified"
     )
-    verification_date: Optional[datetime] = Field(None, description="Verification date")
-    verification_notes_en: Optional[str] = Field(
+    verification_date: datetime | None = Field(None, description="Verification date")
+    verification_notes_en: str | None = Field(
         None, description="Verification notes in English"
     )
-    verification_notes_ar: Optional[str] = Field(
+    verification_notes_ar: str | None = Field(
         None, description="Verification notes in Arabic"
     )
 
-    evidence_documents: List[str] = Field(
+    evidence_documents: list[str] = Field(
         default_factory=list, description="Supporting document URLs"
     )
-    evidence_photos: List[str] = Field(
+    evidence_photos: list[str] = Field(
         default_factory=list, description="Supporting photo URLs"
     )
 
@@ -315,34 +315,34 @@ class ProducerProfile(BaseModel):
     name_ar: str = Field(..., description="Producer name in Arabic")
 
     legal_name: str = Field(..., description="Legal business name")
-    commercial_registration: Optional[str] = Field(None, description="CR number")
+    commercial_registration: str | None = Field(None, description="CR number")
 
     # Contact Information
     email: str = Field(..., description="Contact email")
     phone: str = Field(..., description="Contact phone")
-    address_en: Optional[str] = Field(None, description="Address in English")
-    address_ar: Optional[str] = Field(None, description="Address in Arabic")
+    address_en: str | None = Field(None, description="Address in English")
+    address_ar: str | None = Field(None, description="Address in Arabic")
 
     country_code: str = Field(..., description="Country code (ISO 2-letter)")
-    region: Optional[str] = Field(None, description="State/region")
-    city: Optional[str] = Field(None, description="City")
-    postal_code: Optional[str] = Field(None, description="Postal code")
+    region: str | None = Field(None, description="State/region")
+    city: str | None = Field(None, description="City")
+    postal_code: str | None = Field(None, description="Postal code")
 
     # Contact Person
     contact_person_en: str = Field(..., description="Contact person name in English")
-    contact_person_ar: Optional[str] = Field(
+    contact_person_ar: str | None = Field(
         None, description="Contact person name in Arabic"
     )
-    contact_position: Optional[str] = Field(None, description="Contact person position")
+    contact_position: str | None = Field(None, description="Contact person position")
 
     # Website and Social
-    website: Optional[HttpUrl] = Field(None, description="Website URL")
+    website: HttpUrl | None = Field(None, description="Website URL")
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     @validator("email")
-    def validate_email(cls, v):
+    def validate_email(self, v):
         """Validate email format"""
         if "@" not in v:
             raise ValueError("Invalid email address")
@@ -383,31 +383,31 @@ class FarmRegistration(BaseModel):
     # Location
     country_code: str = Field(..., description="Country code (ISO 2-letter)")
     region: str = Field(..., description="State/region")
-    location_coordinates: Optional[Dict[str, float]] = Field(
+    location_coordinates: dict[str, float] | None = Field(
         None, description="GPS coordinates {lat, lng}"
     )
 
     # Certification Scope
-    certification_scope: List[str] = Field(
+    certification_scope: list[str] = Field(
         default_factory=lambda: ["FV"],
         description="Certification scopes (FV, CROPS_BASE, etc.)",
     )
 
-    product_types_en: List[str] = Field(
+    product_types_en: list[str] = Field(
         default_factory=list, description="Product types in English"
     )
-    product_types_ar: List[str] = Field(
+    product_types_ar: list[str] = Field(
         default_factory=list, description="Product types in Arabic"
     )
 
     # Certification Body
-    certification_body: Optional[str] = Field(None, description="CB name")
-    cb_code: Optional[str] = Field(None, description="CB code")
+    certification_body: str | None = Field(None, description="CB name")
+    cb_code: str | None = Field(None, description="CB code")
 
     # Certificate Information
-    certificate_number: Optional[str] = Field(None, description="Certificate number")
-    certificate_issue_date: Optional[date] = Field(None, description="Issue date")
-    certificate_expiry_date: Optional[date] = Field(None, description="Expiry date")
+    certificate_number: str | None = Field(None, description="Certificate number")
+    certificate_issue_date: date | None = Field(None, description="Issue date")
+    certificate_expiry_date: date | None = Field(None, description="Expiry date")
     certificate_status: str = Field(
         default="PENDING", description="Status (PENDING, ACTIVE, SUSPENDED, EXPIRED)"
     )
@@ -422,8 +422,8 @@ class FarmRegistration(BaseModel):
 
     # Registration Dates
     registration_date: datetime = Field(default_factory=datetime.utcnow)
-    last_audit_date: Optional[datetime] = Field(None, description="Last audit date")
-    next_audit_date: Optional[datetime] = Field(None, description="Next audit date")
+    last_audit_date: datetime | None = Field(None, description="Last audit date")
+    next_audit_date: datetime | None = Field(None, description="Next audit date")
 
     # Status
     is_active: bool = Field(default=True, description="Registration active status")
@@ -432,22 +432,21 @@ class FarmRegistration(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     @validator("ggn")
-    def validate_ggn(cls, v):
+    def validate_ggn(self, v):
         """Validate GGN format"""
         import re
 
         if not re.match(GGN_FORMAT_PATTERN, v):
             raise ValueError(
-                f"GGN must be 13 digits starting with 40 (e.g., 4000000000000)"
+                "GGN must be 13 digits starting with 40 (e.g., 4000000000000)"
             )
         return v
 
     @validator("certified_area_hectares")
-    def validate_certified_area(cls, v, values):
+    def validate_certified_area(self, v, values):
         """Ensure certified area doesn't exceed farm size"""
-        if "farm_size_hectares" in values:
-            if v > values["farm_size_hectares"]:
-                raise ValueError("Certified area cannot exceed total farm size")
+        if "farm_size_hectares" in values and v > values["farm_size_hectares"]:
+            raise ValueError("Certified area cannot exceed total farm size")
         return v
 
     class Config:
@@ -473,13 +472,13 @@ class AuditSession(BaseModel):
     ggn: str = Field(..., description="GlobalGAP Number")
 
     audit_type: AuditType = Field(..., description="Type of audit")
-    audit_scope: List[str] = Field(
+    audit_scope: list[str] = Field(
         default_factory=lambda: ["FV"], description="Audit scope"
     )
 
     # Audit Team
     lead_auditor_id: str = Field(..., description="Lead auditor ID")
-    auditor_ids: List[str] = Field(default_factory=list, description="Team auditor IDs")
+    auditor_ids: list[str] = Field(default_factory=list, description="Team auditor IDs")
 
     # Certification Body
     certification_body: str = Field(..., description="CB name")
@@ -487,8 +486,8 @@ class AuditSession(BaseModel):
 
     # Dates
     scheduled_date: date = Field(..., description="Scheduled audit date")
-    actual_start_date: Optional[datetime] = Field(None, description="Actual start")
-    actual_end_date: Optional[datetime] = Field(None, description="Actual end")
+    actual_start_date: datetime | None = Field(None, description="Actual start")
+    actual_end_date: datetime | None = Field(None, description="Actual end")
 
     # Status
     status: str = Field(
@@ -497,24 +496,24 @@ class AuditSession(BaseModel):
     )
 
     # Results
-    findings: List[AuditFinding] = Field(
+    findings: list[AuditFinding] = Field(
         default_factory=list, description="Audit findings"
     )
-    non_conformances: List[NonConformance] = Field(
+    non_conformances: list[NonConformance] = Field(
         default_factory=list, description="Non-conformances"
     )
 
-    overall_compliance: Optional[ComplianceRequirement] = Field(
+    overall_compliance: ComplianceRequirement | None = Field(
         None, description="Overall compliance result"
     )
 
-    recommendation: Optional[str] = Field(
+    recommendation: str | None = Field(
         None, description="Audit recommendation (APPROVE, REJECT, CONDITIONAL)"
     )
 
     # Report
-    report_url: Optional[str] = Field(None, description="Audit report URL")
-    report_issued_date: Optional[datetime] = Field(
+    report_url: str | None = Field(None, description="Audit report URL")
+    report_issued_date: datetime | None = Field(
         None, description="Report issue date"
     )
 

@@ -6,8 +6,7 @@ Subscribes to sensor events and creates tasks
 import asyncio
 import json
 import os
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import httpx
 from nats.aio.client import Client as NATS
@@ -23,7 +22,7 @@ class FieldOpsClient:
 
     def __init__(self, base_url: str = None):
         self.base_url = base_url or FIELDOPS_URL
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
         if self._client is None:
@@ -77,7 +76,7 @@ class IoTRulesWorker:
     """
 
     def __init__(self):
-        self.nc: Optional[NATS] = None
+        self.nc: NATS | None = None
         self.fieldops = FieldOpsClient()
         self._running = False
         self._recent_readings: dict[str, list[dict]] = {}  # field_id -> recent readings
@@ -174,7 +173,7 @@ class IoTRulesWorker:
                 "sensor_type": sensor_type,
                 "value": value,
                 "device_id": device_id,
-                "timestamp": datetime.now(timezone.utc),
+                "timestamp": datetime.now(UTC),
             }
         )
 
@@ -221,14 +220,14 @@ class IoTRulesWorker:
         # Check cooldown
         if task_key in self._recent_tasks:
             last_created = self._recent_tasks[task_key]
-            if datetime.now(timezone.utc) - last_created < timedelta(
+            if datetime.now(UTC) - last_created < timedelta(
                 minutes=self._cooldown_minutes
             ):
                 print(f"⏳ Skipping task (cooldown): {recommendation.title_en}")
                 return
 
         # Calculate due date
-        due_date = datetime.now(timezone.utc) + timedelta(
+        due_date = datetime.now(UTC) + timedelta(
             hours=recommendation.urgency_hours
         )
 
@@ -250,7 +249,7 @@ class IoTRulesWorker:
                 metadata=metadata,
             )
 
-            self._recent_tasks[task_key] = datetime.now(timezone.utc)
+            self._recent_tasks[task_key] = datetime.now(UTC)
             print(f"✅ Created task: {recommendation.title_en} (field: {field_id})")
 
         except Exception as e:

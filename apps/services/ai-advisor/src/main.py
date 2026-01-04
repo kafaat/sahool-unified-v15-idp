@@ -6,35 +6,35 @@ Multi-agent AI system for agricultural advisory.
 نظام ذكاء اصطناعي متعدد الوكلاء للاستشارات الزراعية.
 """
 
+from contextlib import asynccontextmanager
+from typing import Any
+
+import structlog
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Dict, Any, List, Optional
-import structlog
-from contextlib import asynccontextmanager
 
-from .config import settings
 from .agents import (
-    FieldAnalystAgent,
     DiseaseExpertAgent,
+    FieldAnalystAgent,
     IrrigationAdvisorAgent,
     YieldPredictorAgent,
 )
-from .tools import CropHealthTool, WeatherTool, SatelliteTool, AgroTool
-from .orchestration import Supervisor
-from .rag import EmbeddingsManager, KnowledgeRetriever
+from .config import settings
 from .middleware import (
+    InputValidationMiddleware,
     RateLimitMiddleware,
     rate_limiter,
-    InputValidationMiddleware,
-    validate_query_input,
 )
-from .security import PromptGuard
-from .utils import pii_masking_processor
 from .monitoring import cost_tracker
+from .orchestration import Supervisor
+from .rag import EmbeddingsManager, KnowledgeRetriever
+from .security import PromptGuard
+from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
+from .utils import pii_masking_processor
 
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
 try:
@@ -61,6 +61,7 @@ logger = structlog.get_logger()
 # Import A2A Protocol Support | استيراد دعم بروتوكول A2A
 try:
     from a2a.server import create_a2a_router
+
     from .a2a_adapter import create_ai_advisor_a2a_agent
 
     A2A_AVAILABLE = True
@@ -78,7 +79,7 @@ class QuestionRequest(BaseModel):
 
     question: str = Field(..., description="User question")
     language: str = Field(default="en", description="Response language (en/ar)")
-    context: Optional[Dict[str, Any]] = Field(
+    context: dict[str, Any] | None = Field(
         default=None, description="Additional context"
     )
 
@@ -87,9 +88,9 @@ class DiagnoseRequest(BaseModel):
     """Disease diagnosis request | طلب تشخيص مرض"""
 
     crop_type: str = Field(..., description="Type of crop")
-    symptoms: Dict[str, Any] = Field(..., description="Disease symptoms")
-    image_path: Optional[str] = Field(default=None, description="Path to crop image")
-    location: Optional[str] = Field(default=None, description="Field location")
+    symptoms: dict[str, Any] = Field(..., description="Disease symptoms")
+    image_path: str | None = Field(default=None, description="Path to crop image")
+    location: str | None = Field(default=None, description="Field location")
 
 
 class RecommendationRequest(BaseModel):
@@ -100,7 +101,7 @@ class RecommendationRequest(BaseModel):
     recommendation_type: str = Field(
         ..., description="Type (irrigation/fertilizer/pest)"
     )
-    field_data: Optional[Dict[str, Any]] = Field(default=None, description="Field data")
+    field_data: dict[str, Any] | None = Field(default=None, description="Field data")
 
 
 class FieldAnalysisRequest(BaseModel):
@@ -123,8 +124,8 @@ class AgentResponse(BaseModel):
     """Agent response model | نموذج استجابة الوكيل"""
 
     status: str
-    data: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
+    data: dict[str, Any] | None = None
+    error: str | None = None
 
 
 # Global instances | المثيلات العامة
@@ -602,7 +603,7 @@ async def get_rag_info():
 
 
 @app.get("/v1/advisor/cost/usage", tags=["Monitoring"])
-async def get_cost_usage(user_id: Optional[str] = None):
+async def get_cost_usage(user_id: str | None = None):
     """
     Get LLM cost usage statistics
     الحصول على إحصائيات تكلفة استخدام نماذج اللغة

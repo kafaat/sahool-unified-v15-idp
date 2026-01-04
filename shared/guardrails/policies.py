@@ -8,11 +8,8 @@ Author: SAHOOL Platform Team
 Updated: December 2025
 """
 
-import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Set
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Trust Levels & User Tiers
@@ -54,7 +51,7 @@ class TopicPolicy:
     """
 
     # Allowed topics - SAHOOL's core domains
-    allowed_topics: Set[str] = field(
+    allowed_topics: set[str] = field(
         default_factory=lambda: {
             # Agriculture & Farming
             "agriculture",
@@ -76,7 +73,6 @@ class TopicPolicy:
             "حصاد",
             "جني",
             "planting",
-            "زراعة",
             "بذر",
             "soil",
             "تربة",
@@ -176,7 +172,7 @@ class TopicPolicy:
     )
 
     # Blocked topics - out of scope or dangerous
-    blocked_topics: Set[str] = field(
+    blocked_topics: set[str] = field(
         default_factory=lambda: {
             # Illegal content
             "terrorism",
@@ -218,7 +214,7 @@ class TopicPolicy:
     )
 
     # Sensitive topics - allow but log and monitor
-    sensitive_topics: Set[str] = field(
+    sensitive_topics: set[str] = field(
         default_factory=lambda: {
             "pesticide toxicity",
             "سمية المبيدات",
@@ -277,7 +273,7 @@ class RateLimitPolicy:
 
 
 # Default rate limits per trust level
-RATE_LIMIT_POLICIES: Dict[TrustLevel, RateLimitPolicy] = {
+RATE_LIMIT_POLICIES: dict[TrustLevel, RateLimitPolicy] = {
     TrustLevel.BLOCKED: RateLimitPolicy(
         requests_per_minute=0,
         tokens_per_minute=0,
@@ -352,7 +348,7 @@ class InputValidationPolicy:
 
 
 # Input validation policies per trust level
-INPUT_VALIDATION_POLICIES: Dict[TrustLevel, InputValidationPolicy] = {
+INPUT_VALIDATION_POLICIES: dict[TrustLevel, InputValidationPolicy] = {
     TrustLevel.BLOCKED: InputValidationPolicy(
         max_input_length=0,
         check_prompt_injection=True,
@@ -430,7 +426,7 @@ class OutputValidationPolicy:
 
 
 # Output validation policies per trust level
-OUTPUT_VALIDATION_POLICIES: Dict[TrustLevel, OutputValidationPolicy] = {
+OUTPUT_VALIDATION_POLICIES: dict[TrustLevel, OutputValidationPolicy] = {
     TrustLevel.BLOCKED: OutputValidationPolicy(
         check_pii_leakage=True,
         check_hallucinations=True,
@@ -493,12 +489,12 @@ class PolicyManager:
 
     def __init__(self):
         self.topic_policy = TopicPolicy()
-        self._user_trust_cache: Dict[str, TrustLevel] = {}
+        self._user_trust_cache: dict[str, TrustLevel] = {}
 
     def get_user_trust_level(
         self,
-        user_id: Optional[str] = None,
-        roles: Optional[List[str]] = None,
+        user_id: str | None = None,
+        roles: list[str] | None = None,
         is_premium: bool = False,
         is_verified: bool = False,
         account_age_days: int = 0,

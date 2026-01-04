@@ -3,10 +3,10 @@ Yemen Locations Database - قاعدة بيانات مواقع اليمن
 All 22 Yemen Governorates with geographical data
 """
 
-from typing import Dict, Any
+from typing import Any
 
 # جميع محافظات اليمن الـ 22 - All 22 Yemen Governorates
-YEMEN_LOCATIONS: Dict[str, Dict[str, Any]] = {
+YEMEN_LOCATIONS: dict[str, dict[str, Any]] = {
     # المنطقة الشمالية - Northern Region
     "sanaa": {
         "lat": 15.3694,
@@ -170,7 +170,7 @@ YEMEN_LOCATIONS: Dict[str, Dict[str, Any]] = {
 }
 
 
-def get_location(location_id: str) -> Dict[str, Any] | None:
+def get_location(location_id: str) -> dict[str, Any] | None:
     """Get location data by ID"""
     return YEMEN_LOCATIONS.get(location_id.lower())
 

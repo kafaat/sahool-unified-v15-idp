@@ -5,12 +5,13 @@ Circuit Breaker Pattern Implementation
 Prevents cascading failures when a service is down
 """
 
-import logging
 import asyncio
+import logging
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional, Callable, Any
-from dataclasses import dataclass, field
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ class CircuitBreaker:
     state: CircuitState = field(default=CircuitState.CLOSED)
     failure_count: int = field(default=0)
     success_count: int = field(default=0)
-    last_failure_time: Optional[datetime] = field(default=None)
+    last_failure_time: datetime | None = field(default=None)
     half_open_calls: int = field(default=0)
 
     def _should_try(self) -> bool:
@@ -121,7 +122,7 @@ class CircuitBreaker:
         self,
         func: Callable,
         *args,
-        fallback: Optional[Callable] = None,
+        fallback: Callable | None = None,
         **kwargs,
     ) -> Any:
         """

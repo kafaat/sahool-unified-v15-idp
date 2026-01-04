@@ -9,7 +9,6 @@ Features:
 """
 
 import argparse
-import json
 import os
 import re
 import sys
@@ -105,7 +104,7 @@ def copy_template(src: Path, dst: Path, values: dict):
         dst.mkdir(parents=True, exist_ok=True)
         return
 
-    for root, dirs, files in os.walk(src):
+    for root, _dirs, files in os.walk(src):
         rel = Path(root).relative_to(src)
         (dst / rel).mkdir(parents=True, exist_ok=True)
         for f in files:
@@ -244,7 +243,7 @@ def cmd_create(args):
         )
         sys.exit(1)
 
-    print(f"🔍 Governance validation passed")
+    print("🔍 Governance validation passed")
     print(f"   Owner: {values['owner']}")
     print(f"   Team: {values['team']}")
     print(f"   Lifecycle: {values['lifecycle']}")

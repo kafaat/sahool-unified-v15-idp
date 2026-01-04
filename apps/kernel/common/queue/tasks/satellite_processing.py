@@ -10,12 +10,12 @@ License: MIT
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-def handle_satellite_image_processing(payload: Dict[str, Any]) -> Dict[str, Any]:
+def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]:
     """
     معالجة صورة القمر الصناعي
     Process satellite image

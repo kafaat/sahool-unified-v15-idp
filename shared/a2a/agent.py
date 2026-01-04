@@ -7,18 +7,20 @@ Base agent implementation with agent card generation and task handling.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional, Callable, Awaitable
+from collections.abc import Awaitable, Callable
 from datetime import datetime
-from pydantic import BaseModel, Field, HttpUrl
+from typing import Any
+
 import structlog
+from pydantic import BaseModel, Field, HttpUrl
 
 from .protocol import (
-    TaskMessage,
-    TaskResultMessage,
-    ErrorMessage,
-    TaskState,
     ConversationContext,
+    ErrorMessage,
+    TaskMessage,
     TaskQueue,
+    TaskResultMessage,
+    TaskState,
 )
 
 logger = structlog.get_logger()
@@ -33,12 +35,12 @@ class AgentCapability(BaseModel):
     capability_id: str = Field(..., description="Unique capability identifier")
     name: str = Field(..., description="Capability name")
     description: str = Field(..., description="Capability description")
-    input_schema: Dict[str, Any] = Field(..., description="JSON Schema for inputs")
-    output_schema: Dict[str, Any] = Field(..., description="JSON Schema for outputs")
-    examples: List[Dict[str, Any]] = Field(
+    input_schema: dict[str, Any] = Field(..., description="JSON Schema for inputs")
+    output_schema: dict[str, Any] = Field(..., description="JSON Schema for outputs")
+    examples: list[dict[str, Any]] = Field(
         default_factory=list, description="Usage examples"
     )
-    tags: List[str] = Field(default_factory=list, description="Capability tags")
+    tags: list[str] = Field(default_factory=list, description="Capability tags")
 
 
 class AgentCard(BaseModel):
@@ -58,18 +60,18 @@ class AgentCard(BaseModel):
     # Agent metadata
     # بيانات تعريف الوكيل
     provider: str = Field(..., description="Agent provider/organization")
-    contact_email: Optional[str] = None
-    homepage: Optional[HttpUrl] = None
-    documentation_url: Optional[HttpUrl] = None
+    contact_email: str | None = None
+    homepage: HttpUrl | None = None
+    documentation_url: HttpUrl | None = None
 
     # Capabilities
     # القدرات
-    capabilities: List[AgentCapability] = Field(..., description="Agent capabilities")
+    capabilities: list[AgentCapability] = Field(..., description="Agent capabilities")
 
     # Endpoints
     # نقاط النهاية
     task_endpoint: HttpUrl = Field(..., description="Task submission endpoint")
-    websocket_endpoint: Optional[HttpUrl] = Field(
+    websocket_endpoint: HttpUrl | None = Field(
         None, description="WebSocket endpoint for streaming"
     )
 
@@ -83,7 +85,7 @@ class AgentCard(BaseModel):
 
     # Rate limits
     # حدود المعدل
-    rate_limit: Optional[Dict[str, Any]] = Field(
+    rate_limit: dict[str, Any] | None = Field(
         None, description="Rate limit information (requests_per_minute, etc.)"
     )
 
@@ -92,7 +94,7 @@ class AgentCard(BaseModel):
     authentication_required: bool = Field(
         default=False, description="Requires authentication"
     )
-    authentication_methods: List[str] = Field(
+    authentication_methods: list[str] = Field(
         default_factory=list,
         description="Supported auth methods (api_key, oauth2, etc.)",
     )
@@ -109,7 +111,7 @@ class AgentCard(BaseModel):
             datetime: lambda v: v.isoformat(),
         }
 
-    def to_well_known_format(self) -> Dict[str, Any]:
+    def to_well_known_format(self) -> dict[str, Any]:
         """
         Convert to .well-known/agent-card.json format
         تحويل إلى تنسيق .well-known/agent-card.json
@@ -146,7 +148,7 @@ class A2AAgent(ABC):
         description: str,
         provider: str,
         task_endpoint: str,
-        websocket_endpoint: Optional[str] = None,
+        websocket_endpoint: str | None = None,
     ):
         """
         Initialize A2A agent
@@ -172,8 +174,8 @@ class A2AAgent(ABC):
         # Task management
         # إدارة المهام
         self.task_queue = TaskQueue()
-        self.task_handlers: Dict[str, Callable] = {}
-        self.conversations: Dict[str, ConversationContext] = {}
+        self.task_handlers: dict[str, Callable] = {}
+        self.conversations: dict[str, ConversationContext] = {}
 
         # Statistics
         # الإحصائيات
@@ -192,7 +194,7 @@ class A2AAgent(ABC):
         )
 
     @abstractmethod
-    def get_capabilities(self) -> List[AgentCapability]:
+    def get_capabilities(self) -> list[AgentCapability]:
         """
         Get agent capabilities
         الحصول على قدرات الوكيل
@@ -229,7 +231,7 @@ class A2AAgent(ABC):
     def register_task_handler(
         self,
         task_type: str,
-        handler: Callable[[TaskMessage], Awaitable[Dict[str, Any]]],
+        handler: Callable[[TaskMessage], Awaitable[dict[str, Any]]],
     ) -> None:
         """
         Register handler for a specific task type
@@ -365,7 +367,7 @@ class A2AAgent(ABC):
     async def stream_task_progress(
         self,
         task: TaskMessage,
-        progress_callback: Callable[[float, Optional[Dict[str, Any]]], Awaitable[None]],
+        progress_callback: Callable[[float, dict[str, Any] | None], Awaitable[None]],
     ) -> TaskResultMessage:
         """
         Handle task with streaming progress updates
@@ -388,7 +390,7 @@ class A2AAgent(ABC):
 
         return await self.handle_task(task)
 
-    def get_conversation(self, conversation_id: str) -> Optional[ConversationContext]:
+    def get_conversation(self, conversation_id: str) -> ConversationContext | None:
         """
         Get conversation context
         الحصول على سياق المحادثة
@@ -401,7 +403,7 @@ class A2AAgent(ABC):
         """
         return self.conversations.get(conversation_id)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """
         Get agent statistics
         الحصول على إحصائيات الوكيل

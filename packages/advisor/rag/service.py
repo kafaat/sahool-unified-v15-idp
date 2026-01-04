@@ -5,8 +5,6 @@ Retrieval-Augmented Generation service
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
 from uuid import uuid4
 
 from .models import Document, DocumentChunk, SearchResult
@@ -27,9 +25,9 @@ class RAGService:
         content: str,
         source: str,
         category: str,
-        tenant_id: Optional[str] = None,
-        title_ar: Optional[str] = None,
-        content_ar: Optional[str] = None,
+        tenant_id: str | None = None,
+        title_ar: str | None = None,
+        content_ar: str | None = None,
     ) -> Document:
         """Add a document to the knowledge base"""
         document = Document.create(
@@ -57,7 +55,7 @@ class RAGService:
         self,
         document: Document,
         content: str,
-        content_ar: Optional[str],
+        content_ar: str | None,
     ) -> list[DocumentChunk]:
         """Split content into chunks"""
         chunks = []
@@ -87,8 +85,8 @@ class RAGService:
     def search(
         self,
         query: str,
-        tenant_id: Optional[str] = None,
-        category: Optional[str] = None,
+        tenant_id: str | None = None,
+        category: str | None = None,
         top_k: int = 5,
     ) -> list[SearchResult]:
         """
@@ -132,14 +130,14 @@ class RAGService:
         results.sort(key=lambda r: r.score, reverse=True)
         return results[:top_k]
 
-    def get_document(self, document_id: str) -> Optional[Document]:
+    def get_document(self, document_id: str) -> Document | None:
         """Get document by ID"""
         return self._documents.get(document_id)
 
     def list_documents(
         self,
-        tenant_id: Optional[str] = None,
-        category: Optional[str] = None,
+        tenant_id: str | None = None,
+        category: str | None = None,
     ) -> list[Document]:
         """List documents"""
         documents = list(self._documents.values())

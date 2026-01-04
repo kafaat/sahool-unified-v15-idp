@@ -3,15 +3,14 @@ SAHOOL Data Exporter
 Export satellite analysis data in various formats (GeoJSON, CSV, JSON, KML)
 """
 
-from dataclasses import dataclass
-from typing import List, Dict, Optional, Union, Any
-from datetime import datetime, date
-from enum import Enum
-import json
-import io
 import csv
-from xml.etree.ElementTree import Element, SubElement, tostring
+import io
+import json
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
 from xml.dom import minidom
+from xml.etree.ElementTree import Element, SubElement, tostring
 
 
 class ExportFormat(Enum):
@@ -26,7 +25,7 @@ class ExportResult:
     format: ExportFormat
     filename: str
     content_type: str
-    data: Union[str, bytes]
+    data: str | bytes
     size_bytes: int
     generated_at: datetime
 
@@ -46,7 +45,7 @@ class DataExporter:
     def export_field_analysis(
         self,
         field_id: str,
-        analysis_data: Dict,
+        analysis_data: dict,
         format: ExportFormat = ExportFormat.GEOJSON,
     ) -> ExportResult:
         """
@@ -89,7 +88,7 @@ class DataExporter:
     def export_timeseries(
         self,
         field_id: str,
-        timeseries_data: List[Dict],
+        timeseries_data: list[dict],
         format: ExportFormat = ExportFormat.CSV,
     ) -> ExportResult:
         """
@@ -161,7 +160,7 @@ class DataExporter:
         )
 
     def export_boundaries(
-        self, boundaries: List[Dict], format: ExportFormat = ExportFormat.GEOJSON
+        self, boundaries: list[dict], format: ExportFormat = ExportFormat.GEOJSON
     ) -> ExportResult:
         """
         Export field boundaries as GeoJSON or KML.
@@ -233,7 +232,7 @@ class DataExporter:
         )
 
     def export_yield_prediction(
-        self, prediction_data: Dict, format: ExportFormat = ExportFormat.JSON
+        self, prediction_data: dict, format: ExportFormat = ExportFormat.JSON
     ) -> ExportResult:
         """
         Export yield prediction results.
@@ -272,7 +271,7 @@ class DataExporter:
         )
 
     def export_changes_report(
-        self, changes: List[Dict], format: ExportFormat = ExportFormat.CSV
+        self, changes: list[dict], format: ExportFormat = ExportFormat.CSV
     ) -> ExportResult:
         """
         Export change detection report.
@@ -339,7 +338,7 @@ class DataExporter:
             generated_at=datetime.now(),
         )
 
-    def _to_geojson(self, data: Dict, geometry_type: str = "Point") -> str:
+    def _to_geojson(self, data: dict, geometry_type: str = "Point") -> str:
         """
         Convert data to GeoJSON format.
 
@@ -380,7 +379,7 @@ class DataExporter:
 
         return json.dumps(feature, indent=2, default=str)
 
-    def _to_csv(self, data: List[Dict]) -> str:
+    def _to_csv(self, data: list[dict]) -> str:
         """
         Convert data to CSV format.
 
@@ -403,7 +402,7 @@ class DataExporter:
         fieldnames = set()
         for item in flat_data:
             fieldnames.update(item.keys())
-        fieldnames = sorted(list(fieldnames))
+        fieldnames = sorted(fieldnames)
 
         # Write to CSV
         output = io.StringIO()
@@ -413,7 +412,7 @@ class DataExporter:
 
         return output.getvalue()
 
-    def _to_kml(self, data: Dict, name: str) -> str:
+    def _to_kml(self, data: dict, name: str) -> str:
         """
         Convert data to KML format for Google Earth.
 
@@ -460,7 +459,7 @@ class DataExporter:
         dom = minidom.parseString(xml_string)
         return dom.toprettyxml(indent="  ")
 
-    def _boundaries_to_kml(self, boundaries: List[Dict]) -> str:
+    def _boundaries_to_kml(self, boundaries: list[dict]) -> str:
         """
         Convert multiple boundaries to KML format.
 
@@ -507,7 +506,7 @@ class DataExporter:
         dom = minidom.parseString(xml_string)
         return dom.toprettyxml(indent="  ")
 
-    def _format_kml_description(self, data: Dict) -> str:
+    def _format_kml_description(self, data: dict) -> str:
         """
         Format data as HTML description for KML.
 
@@ -528,7 +527,7 @@ class DataExporter:
         lines.append("</table>]]>")
         return "".join(lines)
 
-    def _flatten_dict(self, d: Dict, parent_key: str = "", sep: str = "_") -> Dict:
+    def _flatten_dict(self, d: dict, parent_key: str = "", sep: str = "_") -> dict:
         """
         Flatten nested dictionary.
 
@@ -558,7 +557,7 @@ class DataExporter:
 
         return dict(items)
 
-    def _flatten_analysis_for_csv(self, analysis: Dict) -> Dict:
+    def _flatten_analysis_for_csv(self, analysis: dict) -> dict:
         """
         Flatten analysis data specifically for CSV export.
 
@@ -594,7 +593,7 @@ class DataExporter:
 
         return flat
 
-    def _flatten_prediction_for_csv(self, prediction: Dict) -> Dict:
+    def _flatten_prediction_for_csv(self, prediction: dict) -> dict:
         """
         Flatten yield prediction data for CSV export.
 

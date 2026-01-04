@@ -6,9 +6,8 @@ Builds context for AI recommendations
 from __future__ import annotations
 
 from datetime import date
-from typing import Optional
 
-from .models import FieldContext, WeatherContext, HistoricalContext
+from .models import FieldContext, HistoricalContext, WeatherContext
 
 
 class ContextBuilder:
@@ -23,7 +22,7 @@ class ContextBuilder:
         field_id: str,
         field_data: dict,
         farm_data: dict,
-        crop_data: Optional[dict] = None,
+        crop_data: dict | None = None,
         include_weather: bool = True,
         include_history: bool = True,
     ) -> FieldContext:

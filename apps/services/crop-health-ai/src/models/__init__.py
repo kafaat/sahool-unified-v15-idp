@@ -1,21 +1,19 @@
 # Sahool Vision - Data Models
 # نماذج البيانات لخدمة سهول فيجن
 
-from .disease import (
-    DiseaseSeverity,
-    CropType,
-    TreatmentType,
-    Treatment,
-    DiseaseInfo,
-)
-
 from .diagnosis import (
-    DiagnosisResult,
-    DiagnosisRequest,
-    DiagnosisHistoryRecord,
     BatchDiagnosisResult,
+    DiagnosisHistoryRecord,
+    DiagnosisRequest,
+    DiagnosisResult,
 )
-
+from .disease import (
+    CropType,
+    DiseaseInfo,
+    DiseaseSeverity,
+    Treatment,
+    TreatmentType,
+)
 from .health import HealthCheckResponse
 
 __all__ = [

@@ -6,18 +6,18 @@ SQLAlchemy models for storing rotation plans and field history
 """
 
 from datetime import datetime
-from typing import Optional
+
 from sqlalchemy import (
+    JSON,
     Column,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
     Integer,
     String,
-    Float,
-    DateTime,
-    ForeignKey,
     Text,
-    Date,
-    JSON,
-    Index,
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship

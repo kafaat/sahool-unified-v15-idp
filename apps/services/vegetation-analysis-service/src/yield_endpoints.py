@@ -9,10 +9,10 @@ This file should not be executed - endpoints are in main.py
 # All endpoints are already in main.py
 # If this file is imported, define dummy app to prevent errors
 try:
-    from fastapi import FastAPI
-
     # Check if we're in the main module context
     import sys
+
+    from fastapi import FastAPI
 
     if "main" not in sys.modules or not hasattr(
         sys.modules.get("main", type("", (), {})()), "app"
@@ -36,23 +36,23 @@ except (NameError, ImportError, AttributeError):
 
     app = DummyApp()
 
-from typing import Optional, List, Dict
-from datetime import date, timedelta
-from pydantic import BaseModel, Field
-from fastapi import HTTPException, Query, Path
 import logging
 import uuid
+from datetime import date, timedelta
+
+from fastapi import HTTPException, Path, Query
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
 # Dummy variables to prevent NameError
 try:
     from main import (
-        get_timeseries,
+        YEMEN_REGIONS,
         SatelliteSource,
         _sar_processor,
         _yield_predictor,
-        YEMEN_REGIONS,
+        get_timeseries,
     )
 except ImportError:
     # Define dummies
@@ -74,28 +74,28 @@ class YieldPredictionRequest(BaseModel):
     crop_code: str = Field(..., description="رمز المحصول (WHEAT, TOMATO, etc.)")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
-    planting_date: Optional[date] = Field(None, description="تاريخ الزراعة")
+    planting_date: date | None = Field(None, description="تاريخ الزراعة")
     field_area_ha: float = Field(
         default=1.0, ge=0.01, description="مساحة الحقل بالهكتار"
     )
 
     # Optional: provide NDVI time series (if available)
-    ndvi_series: Optional[List[float]] = Field(
+    ndvi_series: list[float] | None = Field(
         None,
         description="سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا لم تقدم)",
     )
 
     # Weather data (optional - will be estimated if not provided)
-    precipitation_mm: Optional[float] = Field(None, description="الأمطار الكلية (مم)")
-    avg_temp_min: Optional[float] = Field(
+    precipitation_mm: float | None = Field(None, description="الأمطار الكلية (مم)")
+    avg_temp_min: float | None = Field(
         None, description="متوسط درجة الحرارة الصغرى (°س)"
     )
-    avg_temp_max: Optional[float] = Field(
+    avg_temp_max: float | None = Field(
         None, description="متوسط درجة الحرارة الكبرى (°س)"
     )
 
     # Optional: soil moisture from SAR
-    soil_moisture: Optional[float] = Field(
+    soil_moisture: float | None = Field(
         None, ge=0, le=1, description="رطوبة التربة (0-1)"
     )
 
@@ -112,15 +112,15 @@ class YieldPredictionResponse(BaseModel):
     yield_range_min: float
     yield_range_max: float
     confidence: float
-    factors: Dict[str, float]
+    factors: dict[str, float]
     comparison_to_average: float
     comparison_to_base: float
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
     prediction_date: str
     growth_stage: str
-    days_to_harvest: Optional[int]
-    data_sources_used: List[str]
+    days_to_harvest: int | None
+    data_sources_used: list[str]
 
 
 class YieldHistoryItem(BaseModel):
@@ -131,7 +131,7 @@ class YieldHistoryItem(BaseModel):
     crop_code: str
     crop_name_ar: str
     predicted_yield_ton_ha: float
-    actual_yield_ton_ha: Optional[float]
+    actual_yield_ton_ha: float | None
     confidence: float
     growth_stage: str
 
@@ -189,7 +189,6 @@ async def predict_yield(request: YieldPredictionRequest):
         except Exception as e:
             logger.warning(f"Failed to fetch NDVI timeseries: {e}")
             # Generate realistic NDVI series based on crop growth
-            days_since_planting = 60  # Assume mid-season
             request.ndvi_series = [
                 max(0.2, min(0.8, 0.3 + (i / 10) * 0.5 + random.uniform(-0.05, 0.05)))
                 for i in range(10)
@@ -300,7 +299,7 @@ async def get_yield_history(
     seasons: int = Query(
         default=5, ge=1, le=20, description="Number of past seasons to retrieve"
     ),
-    crop_code: Optional[str] = Query(None, description="Filter by crop code"),
+    crop_code: str | None = Query(None, description="Filter by crop code"),
 ):
     """
     الحصول على سجل التنبؤات السابقة | Get Yield Prediction History
@@ -333,7 +332,7 @@ async def get_yield_history(
     # Generate historical predictions
     history = []
     for i in range(seasons):
-        crop_code_selected = random.choice(crop_codes) if not crop_code else crop_code
+        crop_code_selected = crop_code if crop_code else random.choice(crop_codes)
 
         try:
             from apps.services.shared.crops import get_crop
@@ -401,7 +400,7 @@ async def get_regional_yields(
     governorate: str = Path(
         ..., description="Yemen governorate (e.g., 'ibb', 'taiz', 'hodeidah')"
     ),
-    crop: Optional[str] = Query(
+    crop: str | None = Query(
         None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"
     ),
 ):
@@ -429,7 +428,7 @@ async def get_regional_yields(
         import sys
 
         sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
-        from apps.services.shared.crops import ALL_CROPS, get_crops_for_region
+        from apps.services.shared.crops import ALL_CROPS
 
         # Get crops suitable for this region
         if crop:

@@ -10,9 +10,9 @@ real satellite data. Otherwise, it falls back to simulated data.
 """
 
 import logging
-from typing import Optional, Dict, Any, Tuple
-from datetime import datetime, date
 import os
+from datetime import date, datetime
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +26,10 @@ SENTINEL_HUB_CONFIGURED = False
 
 try:
     from sahool_eo import (
+        AllIndicesTask,
+        FieldMonitoringWorkflow,
         SahoolEOClient,
         SentinelHubConfig,
-        FieldMonitoringWorkflow,
-        AllIndicesTask,
     )
 
     EO_LEARN_AVAILABLE = True
@@ -53,7 +53,7 @@ except ImportError:
 # EO Client Singleton
 # =============================================================================
 
-_eo_client: Optional[Any] = None
+_eo_client: Any | None = None
 
 
 def get_eo_client():
@@ -87,10 +87,10 @@ async def fetch_real_satellite_data(
     latitude: float,
     longitude: float,
     start_date: date,
-    end_date: Optional[date],
+    end_date: date | None,
     max_cloud_cover: float = 30.0,
     buffer_degrees: float = 0.01,  # ~1km buffer
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Fetch real satellite data using sahool-eo
 
@@ -155,10 +155,10 @@ async def fetch_real_satellite_data(
 
 
 def convert_eo_result_to_api_format(
-    eo_result: Dict[str, Any],
+    eo_result: dict[str, Any],
     field_id: str,
     satellite: str = "sentinel-2",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Convert sahool-eo result to API response format
 
@@ -204,7 +204,7 @@ def convert_eo_result_to_api_format(
 # =============================================================================
 
 
-def get_data_source_status() -> Dict[str, Any]:
+def get_data_source_status() -> dict[str, Any]:
     """Get current data source status"""
     return {
         "eo_learn_available": EO_LEARN_AVAILABLE,
@@ -225,7 +225,7 @@ def get_data_source_status() -> Dict[str, Any]:
 # =============================================================================
 
 
-def check_eo_configuration() -> Dict[str, Any]:
+def check_eo_configuration() -> dict[str, Any]:
     """Check eo-learn configuration and dependencies"""
     checks = {
         "sahool_eo_installed": False,

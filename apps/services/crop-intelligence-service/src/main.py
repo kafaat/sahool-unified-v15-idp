@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 from contextlib import asynccontextmanager
 from datetime import date, datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query
@@ -55,7 +55,7 @@ class ObservationIn(BaseModel):
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
     indices: IndicesIn = Field(..., description="المؤشرات")
     cloud_pct: float = Field(default=0.0, ge=0, le=100, description="نسبة الغيوم")
-    notes: Optional[str] = Field(default=None, description="ملاحظات")
+    notes: str | None = Field(default=None, description="ملاحظات")
 
 
 class ObservationOut(BaseModel):
@@ -74,13 +74,13 @@ class ActionOut(BaseModel):
     type: Literal["irrigation", "fertilization", "scouting", "none"]
     priority: Literal["P0", "P1", "P2", "P3"]
     title: str
-    title_en: Optional[str] = None
+    title_en: str | None = None
     reason: str
-    reason_en: Optional[str] = None
-    evidence: Dict[str, Any] = Field(default_factory=dict)
-    recommended_window_hours: Optional[int] = None
-    recommended_dose_hint: Optional[Literal["low", "medium", "high"]] = None
-    severity: Optional[str] = None
+    reason_en: str | None = None
+    evidence: dict[str, Any] = Field(default_factory=dict)
+    recommended_window_hours: int | None = None
+    recommended_dose_hint: Literal["low", "medium", "high"] | None = None
+    severity: str | None = None
 
 
 class SummaryOut(BaseModel):
@@ -95,9 +95,9 @@ class SummaryOut(BaseModel):
 class MapLayersOut(BaseModel):
     """روابط طبقات الخريطة"""
 
-    ndvi_raster_url: Optional[str] = None
-    ndwi_raster_url: Optional[str] = None
-    ndre_raster_url: Optional[str] = None
+    ndvi_raster_url: str | None = None
+    ndwi_raster_url: str | None = None
+    ndre_raster_url: str | None = None
     zones_geojson_url: str
 
 
@@ -107,7 +107,7 @@ class FieldDiagnosisOut(BaseModel):
     field_id: str
     date: str
     summary: SummaryOut
-    actions: List[ActionOut]
+    actions: list[ActionOut]
     map_layers: MapLayersOut
 
 
@@ -116,11 +116,11 @@ class TimelinePoint(BaseModel):
 
     date: str
     ndvi: float
-    evi: Optional[float] = None
-    ndre: Optional[float] = None
-    ndwi: Optional[float] = None
-    lci: Optional[float] = None
-    savi: Optional[float] = None
+    evi: float | None = None
+    ndre: float | None = None
+    ndwi: float | None = None
+    lci: float | None = None
+    savi: float | None = None
 
 
 class ZoneTimelineOut(BaseModel):
@@ -128,32 +128,32 @@ class ZoneTimelineOut(BaseModel):
 
     zone_id: str
     field_id: str
-    series: List[TimelinePoint]
+    series: list[TimelinePoint]
 
 
 class ZoneCreate(BaseModel):
     """إنشاء منطقة جديدة"""
 
     name: str
-    name_ar: Optional[str] = None
-    geometry: Optional[Dict[str, Any]] = None
-    area_hectares: Optional[float] = None
+    name_ar: str | None = None
+    geometry: dict[str, Any] | None = None
+    area_hectares: float | None = None
 
 
 class VRTFeature(BaseModel):
     """خاصية VRT للتصدير"""
 
     type: str = "Feature"
-    properties: Dict[str, Any]
-    geometry: Optional[Dict[str, Any]] = None
+    properties: dict[str, Any]
+    geometry: dict[str, Any] | None = None
 
 
 class VRTExportOut(BaseModel):
     """تصدير VRT كـ GeoJSON FeatureCollection"""
 
     type: str = "FeatureCollection"
-    features: List[VRTFeature]
-    metadata: Dict[str, Any]
+    features: list[VRTFeature]
+    metadata: dict[str, Any]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -161,10 +161,10 @@ class VRTExportOut(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # field_id -> zone_id -> list of observations
-OBSERVATIONS: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+OBSERVATIONS: dict[str, dict[str, list[dict[str, Any]]]] = {}
 
 # field_id -> zone_id -> zone_metadata
-ZONES: Dict[str, Dict[str, Dict[str, Any]]] = {}
+ZONES: dict[str, dict[str, dict[str, Any]]] = {}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -447,7 +447,7 @@ def get_field_diagnosis(
     if field_id not in OBSERVATIONS:
         raise HTTPException(status_code=404, detail="الحقل غير موجود أو لا توجد أرصاد")
 
-    all_actions: List[Dict[str, Any]] = []
+    all_actions: list[dict[str, Any]] = []
     zones = OBSERVATIONS[field_id]
 
     for zone_id, obs_list in zones.items():
@@ -589,7 +589,7 @@ def get_zone_timeline(
 def export_vrt(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
-    action_type: Optional[str] = Query(
+    action_type: str | None = Query(
         default=None, description="نوع الإجراء: irrigation, fertilization, all"
     ),
 ):

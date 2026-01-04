@@ -3,8 +3,9 @@ Pytest configuration for agent evaluation tests
 تكوين pytest لاختبارات تقييم الوكلاء
 """
 
-import pytest
 import os
+
+import pytest
 
 
 def pytest_configure(config):

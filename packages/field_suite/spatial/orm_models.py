@@ -8,8 +8,7 @@ Each level has both WKT (for compatibility) and native PostGIS geometry columns.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -20,9 +19,9 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
-
 
 Base = declarative_base()
 
@@ -53,22 +52,22 @@ class FarmORM(Base):
         nullable=False,
         comment="Farm name",
     )
-    name_ar: Mapped[Optional[str]] = mapped_column(
+    name_ar: Mapped[str | None] = mapped_column(
         String(140),
         nullable=True,
         comment="Farm name in Arabic",
     )
-    latitude: Mapped[Optional[float]] = mapped_column(
+    latitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Farm center latitude",
     )
-    longitude: Mapped[Optional[float]] = mapped_column(
+    longitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Farm center longitude",
     )
-    total_area_hectares: Mapped[Optional[float]] = mapped_column(
+    total_area_hectares: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Total farm area in hectares",
@@ -84,7 +83,7 @@ class FarmORM(Base):
         default="active",
         comment="Farm status: active, inactive, pending",
     )
-    metadata_json: Mapped[Optional[dict]] = mapped_column(
+    metadata_json: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         default=dict,
@@ -93,17 +92,17 @@ class FarmORM(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
     )
 
     # Relationships
-    fields: Mapped[list["FieldORM"]] = relationship(
+    fields: Mapped[list[FieldORM]] = relationship(
         "FieldORM",
         back_populates="farm",
         cascade="all, delete-orphan",
@@ -152,7 +151,7 @@ class FieldORM(Base):
         nullable=False,
         comment="Field name",
     )
-    name_ar: Mapped[Optional[str]] = mapped_column(
+    name_ar: Mapped[str | None] = mapped_column(
         String(140),
         nullable=True,
         comment="Field name in Arabic",
@@ -166,12 +165,12 @@ class FieldORM(Base):
     # Native PostGIS geometry column added via migration
     # geom: geometry(Polygon, 4326) - created via Alembic
 
-    center_latitude: Mapped[Optional[float]] = mapped_column(
+    center_latitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Field center latitude",
     )
-    center_longitude: Mapped[Optional[float]] = mapped_column(
+    center_longitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Field center longitude",
@@ -181,12 +180,12 @@ class FieldORM(Base):
         nullable=False,
         comment="Field area in hectares",
     )
-    soil_type: Mapped[Optional[str]] = mapped_column(
+    soil_type: Mapped[str | None] = mapped_column(
         String(40),
         nullable=True,
         comment="Soil type: clay, sandy, loamy, etc.",
     )
-    irrigation_type: Mapped[Optional[str]] = mapped_column(
+    irrigation_type: Mapped[str | None] = mapped_column(
         String(40),
         nullable=True,
         comment="Irrigation method: drip, sprinkler, etc.",
@@ -197,12 +196,12 @@ class FieldORM(Base):
         default="active",
         comment="Field status: active, fallow, preparation, harvesting",
     )
-    current_crop_id: Mapped[Optional[UUID]] = mapped_column(
+    current_crop_id: Mapped[UUID | None] = mapped_column(
         PGUUID(as_uuid=True),
         nullable=True,
         comment="Current crop planted in this field",
     )
-    metadata_json: Mapped[Optional[dict]] = mapped_column(
+    metadata_json: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         default=dict,
@@ -211,18 +210,18 @@ class FieldORM(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
     )
 
     # Relationships
-    farm: Mapped["FarmORM"] = relationship("FarmORM", back_populates="fields")
-    zones: Mapped[list["ZoneORM"]] = relationship(
+    farm: Mapped[FarmORM] = relationship("FarmORM", back_populates="fields")
+    zones: Mapped[list[ZoneORM]] = relationship(
         "ZoneORM",
         back_populates="field",
         cascade="all, delete-orphan",
@@ -270,7 +269,7 @@ class ZoneORM(Base):
         nullable=False,
         comment="Zone name",
     )
-    name_ar: Mapped[Optional[str]] = mapped_column(
+    name_ar: Mapped[str | None] = mapped_column(
         String(140),
         nullable=True,
         comment="Zone name in Arabic",
@@ -286,12 +285,12 @@ class ZoneORM(Base):
         nullable=False,
         comment="Zone boundary as WKT POLYGON",
     )
-    center_latitude: Mapped[Optional[float]] = mapped_column(
+    center_latitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Zone center latitude",
     )
-    center_longitude: Mapped[Optional[float]] = mapped_column(
+    center_longitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Zone center longitude",
@@ -301,7 +300,7 @@ class ZoneORM(Base):
         nullable=False,
         comment="Zone area in hectares",
     )
-    properties: Mapped[Optional[dict]] = mapped_column(
+    properties: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         default=dict,
@@ -310,18 +309,18 @@ class ZoneORM(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
     )
 
     # Relationships
-    field: Mapped["FieldORM"] = relationship("FieldORM", back_populates="zones")
-    sub_zones: Mapped[list["SubZoneORM"]] = relationship(
+    field: Mapped[FieldORM] = relationship("FieldORM", back_populates="zones")
+    sub_zones: Mapped[list[SubZoneORM]] = relationship(
         "SubZoneORM",
         back_populates="zone",
         cascade="all, delete-orphan",
@@ -369,7 +368,7 @@ class SubZoneORM(Base):
         nullable=False,
         comment="Sub-zone name",
     )
-    name_ar: Mapped[Optional[str]] = mapped_column(
+    name_ar: Mapped[str | None] = mapped_column(
         String(140),
         nullable=True,
         comment="Sub-zone name in Arabic",
@@ -379,12 +378,12 @@ class SubZoneORM(Base):
         nullable=False,
         comment="Sub-zone boundary as WKT POLYGON",
     )
-    center_latitude: Mapped[Optional[float]] = mapped_column(
+    center_latitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Sub-zone center latitude",
     )
-    center_longitude: Mapped[Optional[float]] = mapped_column(
+    center_longitude: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,
         comment="Sub-zone center longitude",
@@ -394,7 +393,7 @@ class SubZoneORM(Base):
         nullable=False,
         comment="Sub-zone area in hectares",
     )
-    properties: Mapped[Optional[dict]] = mapped_column(
+    properties: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         default=dict,
@@ -403,17 +402,17 @@ class SubZoneORM(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
     )
 
     # Relationships
-    zone: Mapped["ZoneORM"] = relationship("ZoneORM", back_populates="sub_zones")
+    zone: Mapped[ZoneORM] = relationship("ZoneORM", back_populates="sub_zones")
 
     __table_args__ = (
         Index("ix_subzones_tenant", "tenant_id"),

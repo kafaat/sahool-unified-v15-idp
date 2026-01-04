@@ -4,24 +4,24 @@ SAHOOL Shared Authentication & Authorization Layer
 """
 
 from .config import AuthConfig
+from .dependencies import (
+    api_key_auth,
+    get_current_active_user,
+    get_current_user,
+    oauth2_scheme,
+    require_permissions,
+    require_roles,
+)
 from .jwt import (
+    TokenData,
     create_access_token,
     create_refresh_token,
-    verify_token,
     decode_token,
-    TokenData,
+    verify_token,
 )
-from .dependencies import (
-    get_current_user,
-    get_current_active_user,
-    require_roles,
-    require_permissions,
-    api_key_auth,
-    oauth2_scheme,
-)
-from .models import User, Role, Permission
+from .models import Permission, Role, User
 from .password import hash_password, verify_password
-from .rbac import RBACManager, PermissionChecker
+from .rbac import PermissionChecker, RBACManager
 
 __all__ = [
     # Config

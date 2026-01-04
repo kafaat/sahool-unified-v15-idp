@@ -5,13 +5,12 @@ SQLAlchemy models for the transactional outbox pattern
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text, Index
+from sqlalchemy import Boolean, DateTime, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
-
 
 Base = declarative_base()
 
@@ -106,7 +105,7 @@ class OutboxEvent(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
-        default=lambda: datetime.now(timezone.utc),
+        default=lambda: datetime.now(UTC),
         comment="When the event was created",
     )
 

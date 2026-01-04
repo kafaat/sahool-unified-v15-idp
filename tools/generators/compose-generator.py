@@ -7,9 +7,9 @@ Usage:
     python tools/generators/compose-generator.py
 """
 
-import os
-import yaml
 from pathlib import Path
+
+import yaml
 
 # Paths
 ROOT_DIR = Path(__file__).parent.parent.parent

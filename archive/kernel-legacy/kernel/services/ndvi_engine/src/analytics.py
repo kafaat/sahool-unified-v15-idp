@@ -7,13 +7,12 @@ Sprint 8: Trend detection, summary statistics, and anomaly detection
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 from statistics import mean, stdev
-from typing import Sequence
 
 from .models import NdviObservation
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Data Structures
@@ -140,7 +139,7 @@ def compute_linear_trend(
 
     # Calculate R-squared
     y_pred = [slope * i + (y_mean - slope * x_mean) for i in range(n)]
-    ss_res = sum((v - p) ** 2 for v, p in zip(values, y_pred))
+    ss_res = sum((v - p) ** 2 for v, p in zip(values, y_pred, strict=False))
     ss_tot = sum((v - y_mean) ** 2 for v in values)
 
     r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
@@ -227,7 +226,7 @@ def _generate_trend_messages(
         en = f"Vegetation health is declining ({strength} trend, -{change_str})"
         ar = f"صحة النباتات تتراجع (اتجاه {_strength_ar(strength)}، -{change_str})"
     elif direction == "volatile":
-        en = f"Vegetation health is unstable (high variability)"
+        en = "Vegetation health is unstable (high variability)"
         ar = "صحة النباتات غير مستقرة (تقلبات عالية)"
     else:
         en = "Vegetation health is stable"
@@ -367,10 +366,7 @@ def compare_to_historical_mean(
     Returns:
         Comparison dictionary with z-score and interpretation
     """
-    if historical_std == 0:
-        z_score = 0.0
-    else:
-        z_score = (current_value - historical_mean) / historical_std
+    z_score = 0.0 if historical_std == 0 else (current_value - historical_mean) / historical_std
 
     deviation_pct = (
         ((current_value - historical_mean) / historical_mean * 100)

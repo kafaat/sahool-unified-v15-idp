@@ -3,11 +3,10 @@ Input Validation Middleware
 وسيط التحقق من المدخلات
 """
 
-from fastapi import Request, HTTPException
-from starlette.middleware.base import BaseHTTPMiddleware
-from typing import Optional
-import json
 import logging
+
+from fastapi import HTTPException, Request
+from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger(__name__)
 

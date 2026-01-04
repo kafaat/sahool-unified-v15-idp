@@ -5,9 +5,7 @@ SAHOOL AI Explainer Service
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Any, Protocol
-
 
 from .models import (
     ConfidenceBreakdown,
@@ -51,10 +49,7 @@ def compute_confidence_breakdown(
         تفصيل درجة الثقة
     """
     # درجة المعرفة من الاسترجاع
-    if retrieved.scores:
-        knowledge_score = sum(retrieved.scores) / len(retrieved.scores)
-    else:
-        knowledge_score = 0.0
+    knowledge_score = sum(retrieved.scores) / len(retrieved.scores) if retrieved.scores else 0.0
 
     # درجة السياق من الاكتمال
     available = sum(1 for v in context_completeness.values() if v)

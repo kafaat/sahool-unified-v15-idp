@@ -8,11 +8,11 @@ Helps farmers plan crop rotations for soil health and disease prevention.
 Based on agronomic principles from OneSoil and LiteFarm.
 """
 
-from dataclasses import dataclass, field as dataclass_field
-from typing import List, Dict, Optional, Tuple
+import sys
+from dataclasses import dataclass
+from dataclasses import field as dataclass_field
 from datetime import date, datetime
 from enum import Enum
-import sys
 from pathlib import Path
 
 # Add shared modules to path
@@ -54,10 +54,10 @@ class RotationRule:
 
     crop_family: CropFamily
     min_years_between: int  # Minimum years before repeating
-    good_predecessors: List[CropFamily]
-    bad_predecessors: List[CropFamily]
+    good_predecessors: list[CropFamily]
+    bad_predecessors: list[CropFamily]
     nitrogen_effect: str  # "fix", "neutral", "deplete", "heavy_deplete"
-    disease_risk: Dict[str, float]  # Disease buildup risk (0-1)
+    disease_risk: dict[str, float]  # Disease buildup risk (0-1)
     root_depth: str  # "shallow", "medium", "deep"
     nutrient_demand: str  # "light", "medium", "heavy"
 
@@ -76,10 +76,10 @@ class SeasonPlan:
     crop_name_ar: str
     crop_name_en: str
     crop_family: CropFamily
-    planting_date: Optional[date] = None
-    harvest_date: Optional[date] = None
-    expected_yield: Optional[float] = None
-    notes: Optional[str] = None
+    planting_date: date | None = None
+    harvest_date: date | None = None
+    expected_yield: float | None = None
+    notes: str | None = None
 
 
 @dataclass
@@ -94,7 +94,7 @@ class RotationPlan:
     created_at: date
     start_year: int
     end_year: int
-    seasons: List[SeasonPlan]
+    seasons: list[SeasonPlan]
 
     # Analysis scores
     diversity_score: float = 0.0  # 0-100
@@ -103,12 +103,12 @@ class RotationPlan:
     nitrogen_balance: str = "neutral"  # "positive", "neutral", "negative"
 
     # Recommendations
-    recommendations_ar: List[str] = dataclass_field(default_factory=list)
-    recommendations_en: List[str] = dataclass_field(default_factory=list)
+    recommendations_ar: list[str] = dataclass_field(default_factory=list)
+    recommendations_en: list[str] = dataclass_field(default_factory=list)
 
     # Warnings
-    warnings_ar: List[str] = dataclass_field(default_factory=list)
-    warnings_en: List[str] = dataclass_field(default_factory=list)
+    warnings_ar: list[str] = dataclass_field(default_factory=list)
+    warnings_en: list[str] = dataclass_field(default_factory=list)
 
 
 @dataclass
@@ -123,10 +123,10 @@ class CropSuggestion:
     crop_name_en: str
     crop_family: CropFamily
     suitability_score: float  # 0-100
-    reasons_ar: List[str]
-    reasons_en: List[str]
-    warnings_ar: List[str] = dataclass_field(default_factory=list)
-    warnings_en: List[str] = dataclass_field(default_factory=list)
+    reasons_ar: list[str]
+    reasons_en: list[str]
+    warnings_ar: list[str] = dataclass_field(default_factory=list)
+    warnings_en: list[str] = dataclass_field(default_factory=list)
 
 
 class CropRotationPlanner:
@@ -136,7 +136,7 @@ class CropRotationPlanner:
     """
 
     # Crop family mapping - maps crop codes to families
-    CROP_FAMILY_MAP: Dict[str, CropFamily] = {
+    CROP_FAMILY_MAP: dict[str, CropFamily] = {
         # Cereals - الحبوب
         "WHEAT": CropFamily.CEREALS,
         "BARLEY": CropFamily.CEREALS,
@@ -202,7 +202,7 @@ class CropRotationPlanner:
     }
 
     # Rotation rules by crop family
-    ROTATION_RULES: Dict[CropFamily, RotationRule] = {
+    ROTATION_RULES: dict[CropFamily, RotationRule] = {
         CropFamily.CEREALS: RotationRule(
             crop_family=CropFamily.CEREALS,
             min_years_between=1,
@@ -413,8 +413,8 @@ class CropRotationPlanner:
         field_name: str,
         start_year: int,
         num_years: int = 5,
-        history: Optional[List[SeasonPlan]] = None,
-        preferences: Optional[List[str]] = None,
+        history: list[SeasonPlan] | None = None,
+        preferences: list[str] | None = None,
     ) -> RotationPlan:
         """
         Generate optimal crop rotation plan.
@@ -455,7 +455,7 @@ class CropRotationPlanner:
 
             # Determine next crop family based on history
             if all_history:
-                last_crop_family = all_history[-1].crop_family
+                all_history[-1].crop_family
                 suggestions = await self.suggest_next_crop(
                     field_id=field_id, history=all_history, season="winter"
                 )
@@ -495,8 +495,8 @@ class CropRotationPlanner:
         return plan
 
     async def suggest_next_crop(
-        self, field_id: str, history: List[SeasonPlan], season: str = "winter"
-    ) -> List[CropSuggestion]:
+        self, field_id: str, history: list[SeasonPlan], season: str = "winter"
+    ) -> list[CropSuggestion]:
         """
         Suggest best crops for next season based on history.
         اقتراح أفضل المحاصيل للموسم القادم بناءً على السجل.
@@ -608,7 +608,7 @@ class CropRotationPlanner:
 
         return suggestions
 
-    def evaluate_rotation(self, seasons: List[SeasonPlan]) -> Dict:
+    def evaluate_rotation(self, seasons: list[SeasonPlan]) -> dict:
         """
         Evaluate a rotation plan.
         تقييم خطة التدوير.
@@ -628,7 +628,7 @@ class CropRotationPlanner:
             }
 
         # Calculate diversity score
-        unique_families = len(set(s.crop_family for s in seasons))
+        unique_families = len({s.crop_family for s in seasons})
         diversity_score = min(100, (unique_families / len(seasons)) * 100 * 2)
 
         # Calculate soil health score
@@ -706,8 +706,8 @@ class CropRotationPlanner:
         }
 
     def check_rotation_rule(
-        self, proposed_crop: CropFamily, history: List[SeasonPlan]
-    ) -> Tuple[bool, List[Tuple[str, str]]]:
+        self, proposed_crop: CropFamily, history: list[SeasonPlan]
+    ) -> tuple[bool, list[tuple[str, str]]]:
         """
         Check if proposed crop violates rotation rules.
         التحقق من أن المحصول المقترح لا يخالف قواعد التدوير.
@@ -737,7 +737,7 @@ class CropRotationPlanner:
 
         return is_valid, messages
 
-    def calculate_nitrogen_balance(self, seasons: List[SeasonPlan]) -> str:
+    def calculate_nitrogen_balance(self, seasons: list[SeasonPlan]) -> str:
         """
         Calculate nitrogen balance over rotation.
         حساب توازن النيتروجين خلال التدوير.
@@ -769,7 +769,7 @@ class CropRotationPlanner:
         else:
             return "neutral"
 
-    def get_disease_risk(self, seasons: List[SeasonPlan]) -> Dict[str, float]:
+    def get_disease_risk(self, seasons: list[SeasonPlan]) -> dict[str, float]:
         """
         Calculate accumulated disease risk.
         حساب خطر تراكم الأمراض.
@@ -858,7 +858,7 @@ class CropRotationPlanner:
         }
         return names.get(family, "Wheat")
 
-    def _check_nitrogen_depletion(self, history: List[SeasonPlan]) -> bool:
+    def _check_nitrogen_depletion(self, history: list[SeasonPlan]) -> bool:
         """Check if soil nitrogen is likely depleted"""
         if not history:
             return False
@@ -878,7 +878,7 @@ class CropRotationPlanner:
         return nitrogen_score <= -2
 
     def _calculate_family_disease_risk(
-        self, family: CropFamily, history: List[SeasonPlan]
+        self, family: CropFamily, history: list[SeasonPlan]
     ) -> float:
         """Calculate disease risk for a specific family based on history"""
         if family not in self.ROTATION_RULES:
@@ -913,7 +913,7 @@ class CropRotationPlanner:
 
         return abs(depth_order.get(depth1, 0) - depth_order.get(depth2, 0)) >= 1
 
-    def _check_intensive_cultivation(self, history: List[SeasonPlan]) -> bool:
+    def _check_intensive_cultivation(self, history: list[SeasonPlan]) -> bool:
         """Check if field has been intensively cultivated without rest"""
         if len(history) < 4:
             return False
@@ -934,7 +934,7 @@ class CropRotationPlanner:
 
     async def get_field_history(
         self, field_id: str, years: int = 5
-    ) -> List[SeasonPlan]:
+    ) -> list[SeasonPlan]:
         """
         Get crop history for a field.
         الحصول على سجل المحاصيل للحقل.
@@ -956,7 +956,7 @@ def to_dict(obj):
             value = getattr(obj, field_name)
             if isinstance(value, Enum):
                 result[field_name] = value.value
-            elif isinstance(value, (date, datetime)):
+            elif isinstance(value, date | datetime):
                 result[field_name] = value.isoformat()
             elif isinstance(value, list):
                 result[field_name] = [

@@ -11,13 +11,11 @@ sys.path.insert(
 )
 
 from vegetation_indices import (
-    VegetationIndicesCalculator,
-    IndexInterpreter,
     BandData,
     CropType,
     GrowthStage,
-    VegetationIndex,
-    HealthStatus,
+    IndexInterpreter,
+    VegetationIndicesCalculator,
 )
 
 
@@ -44,7 +42,7 @@ def test_calculator():
     calculator = VegetationIndicesCalculator()
     indices = calculator.calculate_all(bands)
 
-    print(f"\nCalculated Indices for Healthy Wheat Field:")
+    print("\nCalculated Indices for Healthy Wheat Field:")
     print(f"  NDVI:  {indices.ndvi:.4f}  (Overall health)")
     print(f"  NDRE:  {indices.ndre:.4f}  (Chlorophyll/Nitrogen)")
     print(f"  GNDVI: {indices.gndvi:.4f}  (Early stress detection)")
@@ -73,7 +71,7 @@ def test_interpreter():
         growth_stage=GrowthStage.VEGETATIVE,
     )
 
-    print(f"\nNDVI Interpretation (Wheat - Vegetative):")
+    print("\nNDVI Interpretation (Wheat - Vegetative):")
     print(f"  Value:  {ndvi_interp.value:.4f}")
     print(f"  Status: {ndvi_interp.status.value}")
     print(f"  AR:     {ndvi_interp.description_ar}")
@@ -88,7 +86,7 @@ def test_interpreter():
         growth_stage=GrowthStage.VEGETATIVE,
     )
 
-    print(f"\nNDRE Interpretation (Nitrogen Status):")
+    print("\nNDRE Interpretation (Nitrogen Status):")
     print(f"  Value:  {ndre_interp.value:.4f}")
     print(f"  Status: {ndre_interp.status.value}")
     print(f"  AR:     {ndre_interp.description_ar}")
@@ -102,7 +100,7 @@ def test_interpreter():
         growth_stage=GrowthStage.REPRODUCTIVE,
     )
 
-    print(f"\nNDWI Interpretation (Water Stress):")
+    print("\nNDWI Interpretation (Water Stress):")
     print(f"  Value:  {ndwi_interp.value:.4f}")
     print(f"  Status: {ndwi_interp.status.value}")
     print(f"  AR:     {ndwi_interp.description_ar}")

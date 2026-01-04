@@ -15,11 +15,8 @@ References:
 """
 
 from dataclasses import dataclass
-from typing import List, Optional, Dict, Tuple
+from datetime import date, datetime, timedelta
 from enum import Enum
-from datetime import datetime, date, timedelta
-import math
-from collections import defaultdict
 
 
 class GrowthStage(Enum):
@@ -91,14 +88,14 @@ class PhenologyResult:
     season_progress_percent: float
     ndvi_at_detection: float
     confidence: float
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
 
     # Additional metrics
-    sos_date: Optional[date] = None  # Start of Season
-    pos_date: Optional[date] = None  # Peak of Season
-    eos_date: Optional[date] = None  # End of Season
-    estimated_harvest_date: Optional[date] = None
+    sos_date: date | None = None  # Start of Season
+    pos_date: date | None = None  # Peak of Season
+    eos_date: date | None = None  # End of Season
+    estimated_harvest_date: date | None = None
 
 
 @dataclass
@@ -108,10 +105,10 @@ class PhenologyTimeline:
     field_id: str
     crop_type: str
     planting_date: date
-    stages: List[Dict]  # [{stage, start_date, end_date, duration_days, ndvi_range}]
+    stages: list[dict]  # [{stage, start_date, end_date, duration_days, ndvi_range}]
     harvest_estimate: date
     season_length_days: int
-    critical_periods: List[Dict]  # [{period, dates, reason_ar, reason_en}]
+    critical_periods: list[dict]  # [{period, dates, reason_ar, reason_en}]
 
 
 class PhenologyDetector:
@@ -608,8 +605,8 @@ class PhenologyDetector:
         self,
         field_id: str,
         crop_type: str,
-        ndvi_series: List[Dict],  # [{date, value}]
-        planting_date: Optional[date] = None,
+        ndvi_series: list[dict],  # [{date, value}]
+        planting_date: date | None = None,
     ) -> PhenologyResult:
         """
         Detect current growth stage from NDVI pattern.
@@ -796,8 +793,8 @@ class PhenologyDetector:
         )
 
     def _smooth_ndvi_series(
-        self, ndvi_values: List[float], window_size: int = 5
-    ) -> List[float]:
+        self, ndvi_values: list[float], window_size: int = 5
+    ) -> list[float]:
         """
         Apply simple moving average smoothing to remove noise.
 
@@ -818,8 +815,8 @@ class PhenologyDetector:
         return smoothed
 
     def _detect_sos(
-        self, ndvi_series: List[Dict], planting_date: Optional[date] = None
-    ) -> Optional[date]:
+        self, ndvi_series: list[dict], planting_date: date | None = None
+    ) -> date | None:
         """
         Detect Start of Season (SOS).
 
@@ -858,7 +855,7 @@ class PhenologyDetector:
 
         return None
 
-    def _detect_pos(self, ndvi_series: List[Dict]) -> Optional[date]:
+    def _detect_pos(self, ndvi_series: list[dict]) -> date | None:
         """
         Detect Peak of Season (POS).
 
@@ -872,8 +869,8 @@ class PhenologyDetector:
         return dt if isinstance(dt, date) else datetime.fromisoformat(dt).date()
 
     def _detect_eos(
-        self, ndvi_series: List[Dict], pos_date: Optional[date]
-    ) -> Optional[date]:
+        self, ndvi_series: list[dict], pos_date: date | None
+    ) -> date | None:
         """
         Detect End of Season (EOS).
 
@@ -905,11 +902,11 @@ class PhenologyDetector:
         self,
         current_date: date,
         current_ndvi: float,
-        sos_date: Optional[date],
-        pos_date: Optional[date],
-        eos_date: Optional[date],
-        crop_params: Dict,
-    ) -> Tuple[GrowthStage, date, int]:
+        sos_date: date | None,
+        pos_date: date | None,
+        eos_date: date | None,
+        crop_params: dict,
+    ) -> tuple[GrowthStage, date, int]:
         """
         Determine current growth stage based on dates and NDVI.
 
@@ -951,8 +948,8 @@ class PhenologyDetector:
         return GrowthStage.SENESCENCE, stage_start, (current_date - stage_start).days
 
     def _predict_next_stage(
-        self, current_stage: GrowthStage, days_in_stage: int, crop_params: Dict
-    ) -> Tuple[GrowthStage, int]:
+        self, current_stage: GrowthStage, days_in_stage: int, crop_params: dict
+    ) -> tuple[GrowthStage, int]:
         """
         Predict next growth stage and days remaining.
 
@@ -987,7 +984,7 @@ class PhenologyDetector:
         return next_stage, days_remaining
 
     def _calculate_confidence(
-        self, ndvi_series: List[Dict], detected_stage: GrowthStage, crop_params: Dict
+        self, ndvi_series: list[dict], detected_stage: GrowthStage, crop_params: dict
     ) -> float:
         """
         Calculate confidence in stage detection.
@@ -1033,8 +1030,8 @@ class PhenologyDetector:
         stage: GrowthStage,
         days_to_next: int,
         current_ndvi: float,
-        crop_params: Dict,
-    ) -> Tuple[List[str], List[str]]:
+        crop_params: dict,
+    ) -> tuple[list[str], list[str]]:
         """
         Get Arabic and English recommendations for current stage.
 
@@ -1095,7 +1092,7 @@ class PhenologyDetector:
             en.append("🔍 Monitor fruit quality")
 
         elif stage == GrowthStage.RIPENING:
-            ar.append("⏱️ تحضير للحصاد خلال {0} يوم".format(days_to_next))
+            ar.append(f"⏱️ تحضير للحصاد خلال {days_to_next} يوم")
             en.append(f"⏱️ Prepare for harvest in {days_to_next} days")
             ar.append("💧 قلل الري تدريجياً")
             en.append("💧 Gradually reduce irrigation")
@@ -1147,7 +1144,7 @@ class PhenologyDetector:
         }
         return mapping.get(stage_name, GrowthStage.LEAF_DEVELOPMENT)
 
-    def get_supported_crops(self) -> List[Dict[str, str]]:
+    def get_supported_crops(self) -> list[dict[str, str]]:
         """Get list of supported crops"""
         return [
             {

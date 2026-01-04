@@ -12,8 +12,8 @@ __version__ = "1.0.0"
 # تصدير من الوحدة الأب
 try:
     from ..migrations import (
-        MigrationManager,
         MigrationInfo,
+        MigrationManager,
         PostGISMigrationHelper,
     )
     __all__ = ["MigrationManager", "MigrationInfo", "PostGISMigrationHelper"]

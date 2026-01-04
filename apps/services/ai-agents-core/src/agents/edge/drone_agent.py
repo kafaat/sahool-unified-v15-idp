@@ -12,17 +12,12 @@ On-board drone processing for:
 Target response time: < 100ms for decisions
 """
 
-from typing import Any, Dict, List, Optional, Tuple
-from datetime import datetime
-from dataclasses import dataclass
-import asyncio
 import logging
-import math
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer, AgentStatus,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentLayer, AgentPercept, AgentType, BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +38,7 @@ class ImageTile:
     tile_id: str
     center_lat: float
     center_lon: float
-    ndvi_value: Optional[float] = None
+    ndvi_value: float | None = None
     health_status: str = "unknown"
     anomaly_detected: bool = False
 
@@ -87,18 +82,18 @@ class DroneAgent(BaseAgent):
         self.drone_id = drone_id
 
         # Current mission
-        self.current_mission: Optional[Dict[str, Any]] = None
+        self.current_mission: dict[str, Any] | None = None
         self.mission_progress: float = 0.0
 
         # Position tracking
-        self.current_position: Optional[DronePosition] = None
-        self.flight_path: List[DronePosition] = []
+        self.current_position: DronePosition | None = None
+        self.flight_path: list[DronePosition] = []
 
         # Image tiles collected
-        self.tiles: List[ImageTile] = []
+        self.tiles: list[ImageTile] = []
 
         # Analysis results
-        self.field_analysis: Dict[str, Any] = {
+        self.field_analysis: dict[str, Any] = {
             "ndvi_map": [],
             "health_zones": [],
             "stress_hotspots": [],
@@ -145,7 +140,7 @@ class DroneAgent(BaseAgent):
             if self.context:
                 self.context.satellite_data["live_ndvi"] = ndvi
 
-    async def _process_image(self, image_data: Dict[str, Any]) -> ImageTile:
+    async def _process_image(self, image_data: dict[str, Any]) -> ImageTile:
         """معالجة الصورة الملتقطة"""
         tile_id = f"tile_{len(self.tiles):04d}"
 
@@ -185,13 +180,13 @@ class DroneAgent(BaseAgent):
                 return status
         return "unknown"
 
-    async def _quick_anomaly_check(self, image_data: Dict[str, Any]) -> bool:
+    async def _quick_anomaly_check(self, image_data: dict[str, Any]) -> bool:
         """فحص سريع للشذوذ"""
         # Quick check for obvious anomalies
         # In production, this would use a lightweight CNN
         return False
 
-    def _set_mission_goals(self, mission: Dict[str, Any]) -> None:
+    def _set_mission_goals(self, mission: dict[str, Any]) -> None:
         """تعيين أهداف المهمة"""
         mission_type = mission.get("type", "survey")
 
@@ -217,7 +212,7 @@ class DroneAgent(BaseAgent):
                 "return_safely"
             ]
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """التفكير واتخاذ القرار بناءً على الهدف"""
         # Safety check first
         if self.battery_level < self.min_battery_for_return:
@@ -272,7 +267,7 @@ class DroneAgent(BaseAgent):
         target_coverage = self.current_mission.get("target_coverage", 100)
         return self.mission_progress >= target_coverage
 
-    async def _check_urgent_findings(self) -> Optional[AgentAction]:
+    async def _check_urgent_findings(self) -> AgentAction | None:
         """فحص النتائج العاجلة"""
         # Check latest tiles for critical issues
         recent_tiles = self.tiles[-5:] if len(self.tiles) >= 5 else self.tiles
@@ -310,7 +305,7 @@ class DroneAgent(BaseAgent):
 
         return None
 
-    def _calculate_next_waypoint(self) -> Optional[Dict[str, float]]:
+    def _calculate_next_waypoint(self) -> dict[str, float] | None:
         """حساب نقطة الطريق التالية"""
         if not self.current_mission:
             return None
@@ -325,7 +320,7 @@ class DroneAgent(BaseAgent):
 
         return None
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ الإجراء"""
         result = {
             "action_type": action.action_type,
@@ -372,7 +367,7 @@ class DroneAgent(BaseAgent):
 
         return result
 
-    async def _generate_mission_report(self) -> Dict[str, Any]:
+    async def _generate_mission_report(self) -> dict[str, Any]:
         """إنشاء تقرير المهمة"""
         if not self.tiles:
             return {"status": "no_data"}
@@ -405,7 +400,7 @@ class DroneAgent(BaseAgent):
             "timestamp": datetime.now().isoformat()
         }
 
-    def get_live_status(self) -> Dict[str, Any]:
+    def get_live_status(self) -> dict[str, Any]:
         """الحصول على الحالة المباشرة"""
         return {
             "position": self.current_position.__dict__ if self.current_position else None,

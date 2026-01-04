@@ -8,15 +8,15 @@ and will be skipped if PostGIS is not available.
 
 from __future__ import annotations
 
-import pytest
 import sys
+
+import pytest
 
 sys.path.insert(0, "packages/field_suite")
 
 from uuid import uuid4
 
-from zones.models import Zone, SubZone, ZoneBoundary, ZoneType
-
+from zones.models import SubZone, Zone, ZoneBoundary, ZoneType
 
 # ---------------------------------------------------------------------------
 # ZoneBoundary Tests (No PostGIS required)
@@ -425,7 +425,7 @@ class TestSpatialORMModels:
 
     def test_zone_to_subzone_relationship(self):
         """Zone→SubZone relationship is defined"""
-        from spatial.orm_models import ZoneORM, SubZoneORM
+        from spatial.orm_models import SubZoneORM, ZoneORM
 
         assert hasattr(ZoneORM, "sub_zones")
         assert hasattr(SubZoneORM, "zone")

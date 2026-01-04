@@ -8,7 +8,6 @@ from __future__ import annotations
 import ssl
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -86,7 +85,7 @@ def build_mtls_ssl_context(
 def build_server_ssl_context(
     cert_path: Path,
     key_path: Path,
-    ca_cert_path: Optional[Path] = None,
+    ca_cert_path: Path | None = None,
     require_client_cert: bool = True,
 ) -> ssl.SSLContext:
     """

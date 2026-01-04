@@ -16,19 +16,14 @@ Date: 2026-01-02
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Any
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
-import math
-import statistics
+from typing import Any
 
 import numpy as np
 
-from .crop_parameters import (
-    CropParameters, Region, Season, get_crop_parameters,
-    YEMEN_CROPS
-)
+from .crop_parameters import CropParameters, Region, get_crop_parameters
 
 # Configure logging - تكوين السجلات
 logger = logging.getLogger(__name__)
@@ -76,7 +71,7 @@ class ConfidenceMetrics:
     final_confidence: float
 
     # Individual model confidences - ثقة النماذج الفردية
-    model_confidences: Dict[str, float] = field(default_factory=dict)
+    model_confidences: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -89,16 +84,16 @@ class YieldPrediction:
     predicted_yield_kg_per_hectare: float
 
     # Confidence interval - فاصل الثقة
-    confidence_interval: Dict[str, float]  # {"low": x, "mid": y, "high": z}
+    confidence_interval: dict[str, float]  # {"low": x, "mid": y, "high": z}
 
     # Overall confidence (0-1) - الثقة الإجمالية
     confidence: float
 
     # Limiting factors - العوامل المحددة
-    limiting_factors: List[Dict[str, Any]]
+    limiting_factors: list[dict[str, Any]]
 
     # Recommendations - التوصيات
-    recommendations: List[Dict[str, str]]
+    recommendations: list[dict[str, str]]
 
     # Additional metadata - بيانات إضافية
     crop_id: str
@@ -108,10 +103,10 @@ class YieldPrediction:
     prediction_date: datetime = field(default_factory=datetime.now)
 
     # Sub-model predictions - تنبؤات النماذج الفرعية
-    sub_model_predictions: Dict[str, float] = field(default_factory=dict)
+    sub_model_predictions: dict[str, float] = field(default_factory=dict)
 
     # Confidence metrics - مقاييس الثقة
-    confidence_metrics: Optional[ConfidenceMetrics] = None
+    confidence_metrics: ConfidenceMetrics | None = None
 
     # Economic projections - التوقعات الاقتصادية
     estimated_revenue_per_ha: float = 0.0
@@ -131,36 +126,36 @@ class FieldData:
     area_hectares: float
 
     # NDVI data - بيانات NDVI
-    ndvi_current: Optional[float] = None
-    ndvi_peak: Optional[float] = None
-    ndvi_history: Optional[List[Tuple[datetime, float]]] = None
+    ndvi_current: float | None = None
+    ndvi_peak: float | None = None
+    ndvi_history: list[tuple[datetime, float]] | None = None
 
     # Weather/Climate data - بيانات الطقس/المناخ
-    accumulated_gdd: Optional[float] = None
-    current_temperature: Optional[float] = None
-    temperature_history: Optional[List[float]] = None
+    accumulated_gdd: float | None = None
+    current_temperature: float | None = None
+    temperature_history: list[float] | None = None
 
     # Soil data - بيانات التربة
-    soil_moisture_current: Optional[float] = None  # Percentage
-    soil_moisture_history: Optional[List[float]] = None
-    soil_ph: Optional[float] = None
-    soil_ec: Optional[float] = None  # dS/m
-    soil_nutrient_score: Optional[float] = None  # 0-1
+    soil_moisture_current: float | None = None  # Percentage
+    soil_moisture_history: list[float] | None = None
+    soil_ph: float | None = None
+    soil_ec: float | None = None  # dS/m
+    soil_nutrient_score: float | None = None  # 0-1
 
     # Water/Irrigation data - بيانات المياه/الري
-    total_irrigation_mm: Optional[float] = None
-    total_rainfall_mm: Optional[float] = None
+    total_irrigation_mm: float | None = None
+    total_rainfall_mm: float | None = None
 
     # Crop status - حالة المحصول
-    planting_date: Optional[datetime] = None
-    current_growth_stage: Optional[GrowthStage] = None
-    days_since_planting: Optional[int] = None
+    planting_date: datetime | None = None
+    current_growth_stage: GrowthStage | None = None
+    days_since_planting: int | None = None
 
     # Historical data - البيانات التاريخية
-    historical_yields: Optional[List[float]] = None  # Past yields for this field
+    historical_yields: list[float] | None = None  # Past yields for this field
 
     # Disease/Pest data - بيانات الأمراض/الآفات
-    disease_severity: Optional[float] = None  # 0-1
+    disease_severity: float | None = None  # 0-1
 
 
 class NDVIBasedPredictor:
@@ -181,7 +176,7 @@ class NDVIBasedPredictor:
         self,
         field_data: FieldData,
         crop_params: CropParameters
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Predict yield based on NDVI
         التنبؤ بالإنتاج بناءً على NDVI
@@ -250,7 +245,7 @@ class GDDBasedPredictor:
         self,
         field_data: FieldData,
         crop_params: CropParameters
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Predict yield based on GDD accumulation
         التنبؤ بالإنتاج بناءً على تراكم GDD
@@ -338,7 +333,7 @@ class SoilMoisturePredictor:
         self,
         field_data: FieldData,
         crop_params: CropParameters
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Predict yield based on water availability
         التنبؤ بالإنتاج بناءً على توفر المياه
@@ -428,7 +423,7 @@ class HistoricalTrendPredictor:
         self,
         field_data: FieldData,
         crop_params: CropParameters
-    ) -> Tuple[float, float]:
+    ) -> tuple[float, float]:
         """
         Predict yield based on historical trends
         التنبؤ بالإنتاج بناءً على الاتجاهات التاريخية
@@ -706,8 +701,8 @@ class YieldEnsembleModel:
     def _calculate_confidence_metrics(
         self,
         field_data: FieldData,
-        predictions: Dict[str, float],
-        confidences: Dict[str, float]
+        predictions: dict[str, float],
+        confidences: dict[str, float]
     ) -> ConfidenceMetrics:
         """
         Calculate comprehensive confidence metrics
@@ -779,7 +774,7 @@ class YieldEnsembleModel:
 
         return completeness
 
-    def _model_agreement_score(self, predictions: Dict[str, float]) -> float:
+    def _model_agreement_score(self, predictions: dict[str, float]) -> float:
         """
         Calculate model agreement score (0-1)
         حساب درجة توافق النماذج
@@ -832,9 +827,9 @@ class YieldEnsembleModel:
         self,
         field_data: FieldData,
         crop_params: CropParameters,
-        predictions: Dict[str, float],
+        predictions: dict[str, float],
         ensemble_yield: float
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Identify factors limiting yield
         تحديد العوامل المحددة للإنتاج
@@ -944,8 +939,8 @@ class YieldEnsembleModel:
         self,
         field_data: FieldData,
         crop_params: CropParameters,
-        limiting_factors: List[Dict[str, Any]]
-    ) -> List[Dict[str, str]]:
+        limiting_factors: list[dict[str, Any]]
+    ) -> list[dict[str, str]]:
         """
         Generate actionable recommendations
         إنشاء توصيات قابلة للتنفيذ
@@ -983,7 +978,7 @@ class YieldEnsembleModel:
                     "action_ar": "تنفيذ ري الغسيل",
                     "details": "Apply 15-20% extra irrigation to leach salts",
                     "details_ar": "تطبيق 15-20% ري إضافي لغسل الأملاح",
-                    "expected_impact": f"Gradual yield recovery over season"
+                    "expected_impact": "Gradual yield recovery over season"
                 })
 
             elif factor_type == LimitingFactor.SOIL_pH_IMBALANCE.value:
@@ -1110,8 +1105,8 @@ class YieldEnsembleModel:
         self,
         ensemble_yield: float,
         confidence_metrics: ConfidenceMetrics,
-        predictions: Dict[str, float]
-    ) -> Dict[str, float]:
+        predictions: dict[str, float]
+    ) -> dict[str, float]:
         """
         Calculate confidence interval (low, mid, high)
         حساب فاصل الثقة (منخفض، متوسط، عالي)
@@ -1133,7 +1128,7 @@ class YieldEnsembleModel:
             "high": ensemble_yield + margin
         }
 
-    def get_feature_importance(self) -> Dict[str, float]:
+    def get_feature_importance(self) -> dict[str, float]:
         """
         Get feature importance (model weights)
         الحصول على أهمية الميزات (أوزان النماذج)
@@ -1148,7 +1143,7 @@ class YieldEnsembleModel:
             "Historical Trends": self.weights["historical"]
         }
 
-    def explain_prediction(self, prediction: YieldPrediction) -> Dict[str, Any]:
+    def explain_prediction(self, prediction: YieldPrediction) -> dict[str, Any]:
         """
         Explain a prediction with detailed breakdown
         شرح التنبؤ مع تفصيل مفصل

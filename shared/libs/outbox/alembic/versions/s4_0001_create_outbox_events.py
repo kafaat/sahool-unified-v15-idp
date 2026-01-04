@@ -5,10 +5,9 @@ Revision ID: s4_0001
 Create Date: 2025-12-17
 """
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
-
 
 # Revision identifiers
 revision = "s4_0001"

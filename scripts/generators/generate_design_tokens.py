@@ -12,10 +12,11 @@ Outputs:
 - packages/design-system/tokens/tokens.ts (TypeScript)
 """
 
-import yaml
 import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import yaml
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 TOKENS_YAML = ROOT_DIR / "governance" / "design" / "design-tokens.yaml"
@@ -23,7 +24,7 @@ OUTPUT_DIR = ROOT_DIR / "packages" / "design-system" / "tokens"
 
 
 def load_tokens():
-    with open(TOKENS_YAML, "r") as f:
+    with open(TOKENS_YAML) as f:
         return yaml.safe_load(f)
 
 
@@ -32,7 +33,7 @@ def generate_css(tokens: dict) -> str:
     lines = [
         "/* ═══════════════════════════════════════════════════════════════════════════ */",
         "/* AUTO-GENERATED - DO NOT EDIT MANUALLY */",
-        f"/* Generated from: governance/design/design-tokens.yaml */",
+        "/* Generated from: governance/design/design-tokens.yaml */",
         f"/* Generated at: {datetime.now().isoformat()} */",
         "/* ═══════════════════════════════════════════════════════════════════════════ */",
         "",
@@ -144,7 +145,7 @@ def generate_typescript(tokens: dict) -> str:
     """Generate TypeScript tokens"""
     lines = [
         "// AUTO-GENERATED - DO NOT EDIT MANUALLY",
-        f"// Generated from: governance/design/design-tokens.yaml",
+        "// Generated from: governance/design/design-tokens.yaml",
         f"// Generated at: {datetime.now().isoformat()}",
         "",
         "export const tokens = {",
@@ -191,7 +192,7 @@ def generate_dart(tokens: dict) -> str:
     """Generate Flutter/Dart tokens"""
     lines = [
         "// AUTO-GENERATED - DO NOT EDIT MANUALLY",
-        f"// Generated from: governance/design/design-tokens.yaml",
+        "// Generated from: governance/design/design-tokens.yaml",
         f"// Generated at: {datetime.now().isoformat()}",
         "",
         "import 'package:flutter/material.dart';",
@@ -226,10 +227,7 @@ def generate_dart(tokens: dict) -> str:
     for space_name, space_value in tokens.get("spacing", {}).items():
         if space_value != "0":
             # Convert rem to double
-            if "rem" in space_value:
-                value = float(space_value.replace("rem", "")) * 16
-            else:
-                value = 0
+            value = float(space_value.replace("rem", "")) * 16 if "rem" in space_value else 0
             lines.append(f"  static const double spacing{space_name} = {value};")
 
     lines.append("")
@@ -244,10 +242,7 @@ def generate_dart(tokens: dict) -> str:
     # Border Radius
     for radius_name, radius_value in tokens.get("borderRadius", {}).items():
         if radius_value != "0" and radius_value != "9999px":
-            if "rem" in radius_value:
-                value = float(radius_value.replace("rem", "")) * 16
-            else:
-                value = 0
+            value = float(radius_value.replace("rem", "")) * 16 if "rem" in radius_value else 0
             lines.append(
                 f"  static const double radius{radius_name.capitalize()} = {value};"
             )

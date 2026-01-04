@@ -8,10 +8,10 @@ Sahool Vision - AI Prediction Service
 - تشغيل الاستدلال
 """
 
-import os
 import io
 import logging
-from typing import Tuple, List, Dict, Any, Optional
+import os
+from typing import Any
 
 import numpy as np
 
@@ -91,14 +91,14 @@ class PredictionService:
         "Cherry___healthy": "healthy",
     }
 
-    def __init__(self, model_path: Optional[str] = None):
+    def __init__(self, model_path: str | None = None):
         self.model_path = model_path or os.getenv(
             "MODEL_PATH", "models/plant_disease_model.tflite"
         )
         self.model = None
         self.is_loaded = False
         self.is_real_model = False
-        self.model_type: Optional[str] = None
+        self.model_type: str | None = None
         self.class_names = disease_service.get_disease_names()
         self.input_shape = (224, 224)
 
@@ -204,15 +204,12 @@ class PredictionService:
             logger.error(f"Real inference failed: {e}, falling back to mock")
             return self._run_mock_inference(None)
 
-    def _run_mock_inference(self, image_bytes: Optional[bytes]) -> np.ndarray:
+    def _run_mock_inference(self, image_bytes: bytes | None) -> np.ndarray:
         """
         تشغيل استدلال محاكاة للتطوير
         Run simulated inference for development
         """
-        if image_bytes:
-            seed = hash(image_bytes[:100]) % (2**32)
-        else:
-            seed = np.random.randint(0, 2**32)
+        seed = hash(image_bytes[:100]) % 2 ** 32 if image_bytes else np.random.randint(0, 2 ** 32)
         np.random.seed(seed)
 
         weights = np.ones(len(self.class_names))
@@ -236,7 +233,7 @@ class PredictionService:
             return "healthy"
         return "healthy"
 
-    def predict(self, image_bytes: bytes) -> Tuple[str, float, List[Dict[str, Any]]]:
+    def predict(self, image_bytes: bytes) -> tuple[str, float, list[dict[str, Any]]]:
         """
         تشغيل استدلال الذكاء الاصطناعي على صورة النبات
         Run AI inference on plant image

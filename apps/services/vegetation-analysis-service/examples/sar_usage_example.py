@@ -10,9 +10,10 @@ This script demonstrates how to:
 4. Interpret results for irrigation decisions
 """
 
-import httpx
 import asyncio
 from datetime import datetime, timedelta
+
+import httpx
 
 
 async def check_field_soil_moisture():
@@ -32,7 +33,7 @@ async def check_field_soil_moisture():
         print("=" * 80)
 
         # 1. Get current soil moisture
-        print(f"\n1. Current Soil Moisture | رطوبة التربة الحالية")
+        print("\n1. Current Soil Moisture | رطوبة التربة الحالية")
         print("-" * 80)
 
         response = await client.get(
@@ -45,37 +46,37 @@ async def check_field_soil_moisture():
 
             print(f"Field ID: {data['field_id']}")
             print(f"Timestamp: {data['timestamp']}")
-            print(f"\nSoil Moisture:")
+            print("\nSoil Moisture:")
             print(f"  - Percentage: {data['soil_moisture']['percent']}%")
             print(
                 f"  - Volumetric: {data['soil_moisture']['volumetric_water_content']} m³/m³"
             )
             print(f"  - Status: {data['soil_moisture']['status']}")
             print(f"  - الحالة: {data['soil_moisture']['status_ar']}")
-            print(f"\nSAR Data:")
+            print("\nSAR Data:")
             print(f"  - VV Backscatter: {data['sar_data']['vv_backscatter_db']} dB")
             print(f"  - VH Backscatter: {data['sar_data']['vh_backscatter_db']} dB")
             print(f"  - Incidence Angle: {data['sar_data']['incidence_angle_deg']}°")
             print(f"  - Data Source: {data['sar_data']['data_source']}")
             print(f"\nConfidence: {data['confidence'] * 100:.0f}%")
-            print(f"\nRecommendation:")
+            print("\nRecommendation:")
             print(f"  EN: {data['recommendation_en']}")
             print(f"  AR: {data['recommendation_ar']}")
 
             # Decision making
             moisture = data["soil_moisture"]["percent"]
             if moisture < 20:
-                print(f"\n⚠️  ALERT: Immediate irrigation recommended!")
-                print(f"⚠️  تنبيه: يوصى بالري الفوري!")
+                print("\n⚠️  ALERT: Immediate irrigation recommended!")
+                print("⚠️  تنبيه: يوصى بالري الفوري!")
             elif moisture < 30:
-                print(f"\n⚡ Plan irrigation within 2-3 days")
-                print(f"⚡ خطط للري خلال 2-3 أيام")
+                print("\n⚡ Plan irrigation within 2-3 days")
+                print("⚡ خطط للري خلال 2-3 أيام")
             else:
-                print(f"\n✅ Moisture level is adequate")
-                print(f"✅ مستوى الرطوبة كافٍ")
+                print("\n✅ Moisture level is adequate")
+                print("✅ مستوى الرطوبة كافٍ")
 
         # 2. Check irrigation events
-        print(f"\n\n2. Recent Irrigation Events | أحداث الري الأخيرة")
+        print("\n\n2. Recent Irrigation Events | أحداث الري الأخيرة")
         print("-" * 80)
 
         response = await client.get(
@@ -89,7 +90,7 @@ async def check_field_soil_moisture():
             print(f"Events detected: {data['events_detected']}")
 
             if data["events_detected"] > 0:
-                print(f"\nSummary:")
+                print("\nSummary:")
                 print(
                     f"  - Total water applied: {data['summary']['total_water_applied_mm']} mm"
                 )
@@ -97,7 +98,7 @@ async def check_field_soil_moisture():
                     f"  - Average per event: {data['summary']['average_application_mm']} mm"
                 )
 
-                print(f"\nDetailed events:")
+                print("\nDetailed events:")
                 for i, event in enumerate(data["events"][:5], 1):  # Show first 5
                     print(f"\n  Event {i}:")
                     print(f"    Date: {event['detected_date']}")
@@ -109,11 +110,11 @@ async def check_field_soil_moisture():
                     print(f"    Estimated water: {event['estimated_water_mm']} mm")
                     print(f"    Confidence: {event['confidence'] * 100:.0f}%")
             else:
-                print(f"No irrigation events detected in the period")
-                print(f"لم يتم الكشف عن أحداث ري في الفترة")
+                print("No irrigation events detected in the period")
+                print("لم يتم الكشف عن أحداث ري في الفترة")
 
         # 3. Get time series data
-        print(f"\n\n3. SAR Time Series | السلسلة الزمنية SAR")
+        print("\n\n3. SAR Time Series | السلسلة الزمنية SAR")
         print("-" * 80)
 
         end_date = datetime.now()
@@ -135,7 +136,7 @@ async def check_field_soil_moisture():
             print(f"Period: {data['start_date']} to {data['end_date']}")
             print(f"Data points: {data['data_points_count']}")
 
-            print(f"\nStatistics:")
+            print("\nStatistics:")
             stats = data["statistics"]
             print(f"  - Average moisture: {stats['average_moisture_percent']}%")
             print(
@@ -145,7 +146,7 @@ async def check_field_soil_moisture():
             print(f"  - Trend: {stats['trend']}")
 
             # Show recent data points
-            print(f"\nRecent acquisitions:")
+            print("\nRecent acquisitions:")
             for point in data["timeseries"][-5:]:  # Last 5 points
                 date = datetime.fromisoformat(point["acquisition_date"])
                 print(
@@ -159,15 +160,15 @@ async def check_field_soil_moisture():
             # Trend analysis
             if stats["trend"] == "increasing":
                 print(
-                    f"\n📈 Soil moisture is increasing (recent rainfall or irrigation)"
+                    "\n📈 Soil moisture is increasing (recent rainfall or irrigation)"
                 )
-                print(f"📈 رطوبة التربة تتزايد (أمطار أو ري حديث)")
+                print("📈 رطوبة التربة تتزايد (أمطار أو ري حديث)")
             elif stats["trend"] == "decreasing":
-                print(f"\n📉 Soil moisture is decreasing (consider irrigation)")
-                print(f"📉 رطوبة التربة تتناقص (فكر في الري)")
+                print("\n📉 Soil moisture is decreasing (consider irrigation)")
+                print("📉 رطوبة التربة تتناقص (فكر في الري)")
             else:
-                print(f"\n➡️  Soil moisture is stable")
-                print(f"➡️  رطوبة التربة مستقرة")
+                print("\n➡️  Soil moisture is stable")
+                print("➡️  رطوبة التربة مستقرة")
 
         print("\n" + "=" * 80)
         print("✅ Analysis complete | اكتمل التحليل")

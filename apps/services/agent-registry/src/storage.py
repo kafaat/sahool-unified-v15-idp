@@ -6,14 +6,12 @@ Implements both in-memory and Redis-backed storage for agent cards.
 ينفذ التخزين في الذاكرة والمدعوم بـ Redis لبطاقات الوكلاء.
 """
 
-from typing import List, Dict, Any, Optional, Set
 import json
-from datetime import datetime, timedelta
+import os
+import sys
+
 import structlog
 from redis import asyncio as aioredis
-
-import sys
-import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from registry.agent_card import AgentCard
@@ -32,7 +30,7 @@ class RegistryStorage:
         """Save agent card / حفظ بطاقة الوكيل"""
         raise NotImplementedError
 
-    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    async def get_agent(self, agent_id: str) -> AgentCard | None:
         """Get agent card / الحصول على بطاقة الوكيل"""
         raise NotImplementedError
 
@@ -40,7 +38,7 @@ class RegistryStorage:
         """Delete agent card / حذف بطاقة الوكيل"""
         raise NotImplementedError
 
-    async def list_agents(self) -> List[AgentCard]:
+    async def list_agents(self) -> list[AgentCard]:
         """List all agents / قائمة بجميع الوكلاء"""
         raise NotImplementedError
 
@@ -50,7 +48,7 @@ class RegistryStorage:
         """Save health status / حفظ حالة الصحة"""
         raise NotImplementedError
 
-    async def get_health_status(self, agent_id: str) -> Optional[HealthCheckResult]:
+    async def get_health_status(self, agent_id: str) -> HealthCheckResult | None:
         """Get health status / الحصول على حالة الصحة"""
         raise NotImplementedError
 
@@ -65,8 +63,8 @@ class InMemoryStorage(RegistryStorage):
     """
 
     def __init__(self):
-        self._agents: Dict[str, AgentCard] = {}
-        self._health_status: Dict[str, HealthCheckResult] = {}
+        self._agents: dict[str, AgentCard] = {}
+        self._health_status: dict[str, HealthCheckResult] = {}
         self._logger = logger.bind(storage="in_memory")
 
     async def save_agent(self, agent_card: AgentCard) -> bool:
@@ -75,7 +73,7 @@ class InMemoryStorage(RegistryStorage):
         self._logger.debug("agent_saved", agent_id=agent_card.agent_id)
         return True
 
-    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    async def get_agent(self, agent_id: str) -> AgentCard | None:
         """Get agent card from memory"""
         return self._agents.get(agent_id)
 
@@ -89,7 +87,7 @@ class InMemoryStorage(RegistryStorage):
             return True
         return False
 
-    async def list_agents(self) -> List[AgentCard]:
+    async def list_agents(self) -> list[AgentCard]:
         """List all agents from memory"""
         return list(self._agents.values())
 
@@ -100,7 +98,7 @@ class InMemoryStorage(RegistryStorage):
         self._health_status[agent_id] = status
         return True
 
-    async def get_health_status(self, agent_id: str) -> Optional[HealthCheckResult]:
+    async def get_health_status(self, agent_id: str) -> HealthCheckResult | None:
         """Get health status from memory"""
         return self._health_status.get(agent_id)
 
@@ -131,7 +129,7 @@ class RedisStorage(RegistryStorage):
         self.redis_url = redis_url
         self.key_prefix = key_prefix
         self.ttl_seconds = ttl_seconds
-        self._redis: Optional[aioredis.Redis] = None
+        self._redis: aioredis.Redis | None = None
         self._logger = logger.bind(storage="redis")
 
     async def connect(self):
@@ -191,7 +189,7 @@ class RedisStorage(RegistryStorage):
             )
             raise
 
-    async def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    async def get_agent(self, agent_id: str) -> AgentCard | None:
         """Get agent card from Redis"""
         if not self._redis:
             raise RuntimeError("Redis not connected")
@@ -234,7 +232,7 @@ class RedisStorage(RegistryStorage):
             self._logger.error("delete_agent_failed", agent_id=agent_id, error=str(e))
             raise
 
-    async def list_agents(self) -> List[AgentCard]:
+    async def list_agents(self) -> list[AgentCard]:
         """List all agents from Redis"""
         if not self._redis:
             raise RuntimeError("Redis not connected")
@@ -278,7 +276,7 @@ class RedisStorage(RegistryStorage):
             )
             raise
 
-    async def get_health_status(self, agent_id: str) -> Optional[HealthCheckResult]:
+    async def get_health_status(self, agent_id: str) -> HealthCheckResult | None:
         """Get health status from Redis"""
         if not self._redis:
             raise RuntimeError("Redis not connected")

@@ -6,13 +6,13 @@
 Practical examples of using the analytics system
 """
 
-from datetime import datetime, date, timedelta
+from datetime import date
+
 from analytics import (
-    UserAnalyticsService,
     EventType,
-    UserRole,
     Governorate,
     TimePeriod,
+    UserAnalyticsService,
 )
 
 
@@ -148,7 +148,7 @@ def main():
         period=TimePeriod.MONTHLY
     )
 
-    print(f"\nمقاييس المستخدم farmer_001 - User Metrics for farmer_001:")
+    print("\nمقاييس المستخدم farmer_001 - User Metrics for farmer_001:")
     print(f"  • إجمالي الأحداث - Total Events: {metrics.total_events}")
     print(f"  • أيام النشاط - Active Days: {metrics.unique_days_active}")
     print(f"  • متوسط مدة الجلسة - Avg Session Duration: {metrics.average_session_duration_minutes:.2f} دقيقة")
@@ -192,7 +192,7 @@ def main():
 
     # استخدام ميزة إدارة الحقول - Field management feature usage
     field_usage = analytics.get_feature_usage("field_management")
-    print(f"\nميزة إدارة الحقول - Field Management Feature:")
+    print("\nميزة إدارة الحقول - Field Management Feature:")
     print(f"  • إجمالي الاستخدامات - Total Uses: {field_usage.total_uses}")
     print(f"  • المستخدمون الفريدون - Unique Users: {field_usage.unique_users}")
     print(f"  • متوسط الاستخدامات لكل مستخدم - Avg Uses per User: {field_usage.average_uses_per_user:.2f}")
@@ -216,7 +216,7 @@ def main():
     if response_time:
         print(f"  • متوسط وقت الاستجابة للتنبيهات - Avg Alert Response Time: {response_time:.2f} ساعة\n")
     else:
-        print(f"  • متوسط وقت الاستجابة للتنبيهات - Avg Alert Response Time: لا توجد بيانات كافية\n")
+        print("  • متوسط وقت الاستجابة للتنبيهات - Avg Alert Response Time: لا توجد بيانات كافية\n")
 
     # ============== 7. التحليلات الإقليمية - Regional Analytics ==============
     print("=" * 70)

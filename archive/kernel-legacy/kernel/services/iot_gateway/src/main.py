@@ -7,8 +7,7 @@ Port: 8096
 import asyncio
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -26,10 +25,10 @@ DEFAULT_TENANT = os.getenv("DEFAULT_TENANT", "default")
 
 
 # Global state
-mqtt_client: Optional[MqttClient] = None
-publisher: Optional[IoTPublisher] = None
-registry: Optional[DeviceRegistry] = None
-mqtt_task: Optional[asyncio.Task] = None
+mqtt_client: MqttClient | None = None
+publisher: IoTPublisher | None = None
+registry: DeviceRegistry | None = None
+mqtt_task: asyncio.Task | None = None
 
 
 async def handle_mqtt_message(msg: MqttMessage):
@@ -90,7 +89,7 @@ async def check_offline_devices():
                     field_id=device.field_id,
                     status=DeviceStatus.OFFLINE.value,
                     last_seen=device.last_seen
-                    or datetime.now(timezone.utc).isoformat(),
+                    or datetime.now(UTC).isoformat(),
                 )
 
                 # Also publish alert
@@ -201,8 +200,8 @@ class SensorReadingRequest(BaseModel):
     sensor_type: str
     value: float
     unit: str = ""
-    timestamp: Optional[str] = None
-    metadata: Optional[dict] = None
+    timestamp: str | None = None
+    metadata: dict | None = None
 
 
 class BatchReadingRequest(BaseModel):
@@ -218,8 +217,8 @@ class DeviceRegisterRequest(BaseModel):
     device_type: str
     name_ar: str
     name_en: str
-    location: Optional[dict] = None
-    metadata: Optional[dict] = None
+    location: dict | None = None
+    metadata: dict | None = None
 
 
 # ============== Sensor Endpoints ==============
@@ -235,7 +234,7 @@ async def post_sensor_reading(req: SensorReadingRequest):
     if not publisher:
         raise HTTPException(status_code=503, detail="Publisher not available")
 
-    timestamp = req.timestamp or datetime.now(timezone.utc).isoformat()
+    timestamp = req.timestamp or datetime.now(UTC).isoformat()
 
     # Auto-register device
     registry.auto_register(
@@ -299,7 +298,7 @@ async def post_batch_readings(req: BatchReadingRequest):
             sensor_type=sensor_type,
             value=float(value),
             unit=unit,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
         event_ids.append(event_id)
 

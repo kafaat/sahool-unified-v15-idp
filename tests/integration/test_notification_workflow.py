@@ -15,11 +15,10 @@ Author: SAHOOL Platform Team
 
 from __future__ import annotations
 
-import pytest
 import asyncio
-from typing import Dict, Any, List
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Notification Creation - اختبار إنشاء الإشعارات
@@ -30,9 +29,9 @@ from datetime import datetime, date, timedelta
 @pytest.mark.asyncio
 async def test_create_notification_workflow(
     http_client,
-    service_urls: Dict[str, str],
+    service_urls: dict[str, str],
     notification_factory,
-    auth_headers: Dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إنشاء إشعار
@@ -91,8 +90,8 @@ async def test_create_notification_workflow(
 @pytest.mark.asyncio
 async def test_weather_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تنبيه الطقس
@@ -135,8 +134,8 @@ async def test_weather_alert_workflow(
     # Verify weather alert structure
     assert alert["type"] == "weather_alert"
     assert alert["priority"] == "high"
-    assert "sanaa" in [g for g in alert["target_governorates"]]
-    assert "ibb" in [g for g in alert["target_governorates"]]
+    assert "sanaa" in list(alert["target_governorates"])
+    assert "ibb" in list(alert["target_governorates"])
     assert alert["data"]["alert_type"] == "frost"
     assert "expected_date" in alert["data"]
 
@@ -149,8 +148,8 @@ async def test_weather_alert_workflow(
 @pytest.mark.asyncio
 async def test_pest_outbreak_alert_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تنبيه انتشار الآفات
@@ -207,8 +206,8 @@ async def test_pest_outbreak_alert_workflow(
 @pytest.mark.asyncio
 async def test_irrigation_reminder_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تذكير الري
@@ -267,8 +266,8 @@ async def test_irrigation_reminder_workflow(
 @pytest.mark.asyncio
 async def test_farmer_notification_retrieval_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل استرجاع إشعارات المزارع
@@ -387,8 +386,8 @@ async def test_farmer_notification_retrieval_workflow(
 @pytest.mark.asyncio
 async def test_notification_filtering_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تصفية الإشعارات
@@ -474,8 +473,8 @@ async def test_notification_filtering_workflow(
 @pytest.mark.asyncio
 async def test_mark_notification_read_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تحديد الإشعار كمقروء
@@ -531,8 +530,8 @@ async def test_mark_notification_read_workflow(
 @pytest.mark.asyncio
 async def test_broadcast_notifications_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل الإشعارات العامة (البث)
@@ -622,8 +621,8 @@ async def test_broadcast_notifications_workflow(
 @pytest.mark.asyncio
 async def test_notification_preferences_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل تفضيلات الإشعارات
@@ -699,8 +698,8 @@ async def test_notification_preferences_workflow(
 @pytest.mark.asyncio
 async def test_notification_statistics_workflow(
     http_client,
-    service_urls: Dict[str, str],
-    auth_headers: Dict[str, str],
+    service_urls: dict[str, str],
+    auth_headers: dict[str, str],
 ):
     """
     اختبار سير عمل إحصائيات الإشعارات

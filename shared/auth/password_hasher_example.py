@@ -41,8 +41,6 @@ def basic_usage_example():
 # ========================================
 
 from datetime import datetime
-from typing import Optional
-from shared.auth.password_hasher import hash_password
 
 
 class UserRegistrationService:
@@ -94,7 +92,6 @@ class UserRegistrationService:
 
 from shared.auth.password_migration_helper import (
     PasswordMigrationHelper,
-    UserRepository,
 )
 
 
@@ -104,7 +101,7 @@ class SQLAlchemyUserRepository:
     def __init__(self, db_session):
         self.db = db_session
 
-    def get_user_by_email(self, email: str) -> Optional[dict]:
+    def get_user_by_email(self, email: str) -> dict | None:
         """Get user by email"""
         # Pseudo-code - replace with actual SQLAlchemy query
         user = self.db.query(User).filter(User.email == email).first()
@@ -358,8 +355,8 @@ def run_batch_migration():
     sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
 
     from database.migrations.migrate_passwords_to_argon2 import (
-        get_database_connection,
         PasswordMigrator,
+        get_database_connection,
     )
 
     # Get database connection
@@ -441,13 +438,14 @@ def monitor_migration_progress(db_connection):
 def test_all_algorithms():
     """Test hashing and verification for all supported algorithms"""
 
-    from shared.auth.password_hasher import (
-        PasswordHasher,
-        ARGON2_AVAILABLE,
-        BCRYPT_AVAILABLE,
-    )
     import hashlib
     import secrets
+
+    from shared.auth.password_hasher import (
+        ARGON2_AVAILABLE,
+        BCRYPT_AVAILABLE,
+        PasswordHasher,
+    )
 
     hasher = PasswordHasher()
     test_password = "TestPassword123!"

@@ -8,7 +8,6 @@ import logging
 import os
 from dataclasses import asdict, dataclass
 from datetime import datetime
-from typing import Optional
 from uuid import uuid4
 
 import nats
@@ -69,7 +68,7 @@ class ChatPublisher:
     """Publisher for chat events to NATS JetStream"""
 
     def __init__(self):
-        self.nc: Optional[NATS] = None
+        self.nc: NATS | None = None
         self.js = None
 
     async def connect(self):
@@ -126,8 +125,8 @@ class ChatPublisher:
         scope_type: str,
         scope_id: str,
         created_by: str,
-        title: Optional[str] = None,
-        correlation_id: Optional[str] = None,
+        title: str | None = None,
+        correlation_id: str | None = None,
     ):
         """Publish chat_thread_created event"""
         await self._publish(
@@ -150,7 +149,7 @@ class ChatPublisher:
         tenant_id: str,
         thread_id: str,
         archived_by: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ):
         """Publish chat_thread_archived event"""
         await self._publish(
@@ -175,10 +174,10 @@ class ChatPublisher:
         thread_id: str,
         message_id: str,
         sender_id: str,
-        text: Optional[str] = None,
-        attachments: Optional[list[str]] = None,
-        reply_to_id: Optional[str] = None,
-        correlation_id: Optional[str] = None,
+        text: str | None = None,
+        attachments: list[str] | None = None,
+        reply_to_id: str | None = None,
+        correlation_id: str | None = None,
     ):
         """Publish chat_message_sent event"""
         await self._publish(
@@ -204,7 +203,7 @@ class ChatPublisher:
         message_id: str,
         edited_by: str,
         new_text: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ):
         """Publish chat_message_edited event"""
         await self._publish(
@@ -230,8 +229,8 @@ class ChatPublisher:
         tenant_id: str,
         thread_id: str,
         user_id: str,
-        added_by: Optional[str] = None,
-        correlation_id: Optional[str] = None,
+        added_by: str | None = None,
+        correlation_id: str | None = None,
     ):
         """Publish chat_participant_joined event"""
         await self._publish(
@@ -252,7 +251,7 @@ class ChatPublisher:
         tenant_id: str,
         thread_id: str,
         user_id: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ):
         """Publish chat_participant_left event"""
         await self._publish(
@@ -277,7 +276,7 @@ class ChatPublisher:
         thread_id: str,
         user_id: str,
         last_read_message_id: str,
-        correlation_id: Optional[str] = None,
+        correlation_id: str | None = None,
     ):
         """Publish chat_messages_read event"""
         await self._publish(

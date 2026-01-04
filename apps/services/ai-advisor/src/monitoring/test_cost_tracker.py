@@ -4,7 +4,8 @@ Simple test for cost tracker functionality
 """
 
 import asyncio
-from cost_tracker import CostTracker, cost_tracker
+
+from cost_tracker import CostTracker
 
 
 async def test_cost_tracker():
@@ -23,9 +24,9 @@ async def test_cost_tracker():
         input_tokens=1000,
         output_tokens=500
     )
-    print(f"Test 1 - Cost Calculation:")
-    print(f"  Model: claude-3-5-sonnet-20241022")
-    print(f"  Input tokens: 1000, Output tokens: 500")
+    print("Test 1 - Cost Calculation:")
+    print("  Model: claude-3-5-sonnet-20241022")
+    print("  Input tokens: 1000, Output tokens: 500")
     print(f"  Calculated cost: ${cost:.4f}")
     print()
 
@@ -37,7 +38,7 @@ async def test_cost_tracker():
         user_id="test_user",
         request_type="chat"
     )
-    print(f"Test 2 - Record Usage:")
+    print("Test 2 - Record Usage:")
     print(f"  Timestamp: {record.timestamp}")
     print(f"  Model: {record.model}")
     print(f"  Cost: ${record.cost:.4f}")
@@ -46,7 +47,7 @@ async def test_cost_tracker():
 
     # Test 3: Get usage stats
     stats = tracker.get_usage_stats(user_id="test_user")
-    print(f"Test 3 - Usage Statistics:")
+    print("Test 3 - Usage Statistics:")
     print(f"  Daily cost: ${stats['daily_cost']:.4f}")
     print(f"  Monthly cost: ${stats['monthly_cost']:.4f}")
     print(f"  Daily limit: ${stats['daily_limit']:.2f}")
@@ -56,7 +57,7 @@ async def test_cost_tracker():
 
     # Test 4: Budget check
     within_budget, message = await tracker.check_budget(user_id="test_user")
-    print(f"Test 4 - Budget Check:")
+    print("Test 4 - Budget Check:")
     print(f"  Within budget: {within_budget}")
     if message:
         print(f"  Message: {message}")

@@ -6,8 +6,9 @@ Tool for calling the satellite-service.
 أداة لاستدعاء خدمة الأقمار الصناعية.
 """
 
+from typing import Any
+
 import httpx
-from typing import Dict, Any, Optional, List
 import structlog
 
 from ..config import settings
@@ -28,9 +29,9 @@ class SatelliteTool:
     async def get_ndvi(
         self,
         field_id: str,
-        start_date: Optional[str] = None,
-        end_date: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        start_date: str | None = None,
+        end_date: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get NDVI data for a field
         الحصول على بيانات NDVI لحقل
@@ -72,8 +73,8 @@ class SatelliteTool:
         self,
         field_id: str,
         layer: str = "true_color",
-        date: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        date: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get satellite imagery for a field
         الحصول على صور الأقمار الصناعية لحقل
@@ -117,7 +118,7 @@ class SatelliteTool:
         self,
         field_id: str,
         analysis_type: str = "variability",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Analyze field zones based on satellite data
         تحليل مناطق الحقل بناءً على بيانات الأقمار الصناعية
@@ -159,7 +160,7 @@ class SatelliteTool:
         start_date: str,
         end_date: str,
         index: str = "ndvi",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get time series data for vegetation indices
         الحصول على بيانات السلسلة الزمنية لمؤشرات الغطاء النباتي
@@ -204,7 +205,7 @@ class SatelliteTool:
         field_id: str,
         baseline_date: str,
         comparison_date: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Detect changes between two dates
         كشف التغيرات بين تاريخين

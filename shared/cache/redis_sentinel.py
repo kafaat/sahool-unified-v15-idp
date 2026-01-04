@@ -17,11 +17,10 @@ import logging
 import os
 import time
 from contextlib import contextmanager
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
-import redis
+from redis.exceptions import ConnectionError, RedisError, TimeoutError
 from redis.sentinel import Sentinel
-from redis.exceptions import ConnectionError, RedisError, TimeoutError, ResponseError
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +77,7 @@ class RedisSentinelConfig:
             "password": self.password,
         }
 
-    def get_sentinels(self) -> List[tuple]:
+    def get_sentinels(self) -> list[tuple]:
         """
         الحصول على قائمة Sentinels
 
@@ -171,7 +170,7 @@ class RedisSentinelClient:
         >>> value = client.get('key')
     """
 
-    def __init__(self, config: Optional[RedisSentinelConfig] = None):
+    def __init__(self, config: RedisSentinelConfig | None = None):
         """
         تهيئة Redis Sentinel Client
 
@@ -232,7 +231,7 @@ class RedisSentinelClient:
             logger.error(f"Failed to initialize Sentinel: {e}")
             raise
 
-    def get_master_address(self) -> Optional[tuple]:
+    def get_master_address(self) -> tuple | None:
         """
         الحصول على عنوان Master الحالي
 
@@ -245,7 +244,7 @@ class RedisSentinelClient:
             logger.error(f"Failed to discover master: {e}")
             return None
 
-    def get_slaves_addresses(self) -> List[tuple]:
+    def get_slaves_addresses(self) -> list[tuple]:
         """
         الحصول على عناوين جميع Slaves
 
@@ -315,8 +314,8 @@ class RedisSentinelClient:
         self,
         key: str,
         value: Any,
-        ex: Optional[int] = None,
-        px: Optional[int] = None,
+        ex: int | None = None,
+        px: int | None = None,
         nx: bool = False,
         xx: bool = False,
     ) -> bool:
@@ -338,7 +337,7 @@ class RedisSentinelClient:
             self._master.set, key, value, ex=ex, px=px, nx=nx, xx=xx
         )
 
-    def get(self, key: str, use_slave: bool = True) -> Optional[str]:
+    def get(self, key: str, use_slave: bool = True) -> str | None:
         """
         الحصول على قيمة مفتاح
 
@@ -409,12 +408,12 @@ class RedisSentinelClient:
         """تعيين قيمة في Hash"""
         return self._execute_with_retry(self._master.hset, name, key, value)
 
-    def hget(self, name: str, key: str, use_slave: bool = True) -> Optional[str]:
+    def hget(self, name: str, key: str, use_slave: bool = True) -> str | None:
         """الحصول على قيمة من Hash"""
         conn = self._slave if use_slave else self._master
         return self._execute_with_retry(conn.hget, name, key)
 
-    def hgetall(self, name: str, use_slave: bool = True) -> Dict:
+    def hgetall(self, name: str, use_slave: bool = True) -> dict:
         """الحصول على جميع قيم Hash"""
         conn = self._slave if use_slave else self._master
         return self._execute_with_retry(conn.hgetall, name)
@@ -435,15 +434,15 @@ class RedisSentinelClient:
         """إضافة عناصر في نهاية القائمة"""
         return self._execute_with_retry(self._master.rpush, name, *values)
 
-    def lpop(self, name: str) -> Optional[str]:
+    def lpop(self, name: str) -> str | None:
         """إزالة وإرجاع أول عنصر"""
         return self._execute_with_retry(self._master.lpop, name)
 
-    def rpop(self, name: str) -> Optional[str]:
+    def rpop(self, name: str) -> str | None:
         """إزالة وإرجاع آخر عنصر"""
         return self._execute_with_retry(self._master.rpop, name)
 
-    def lrange(self, name: str, start: int, end: int, use_slave: bool = True) -> List:
+    def lrange(self, name: str, start: int, end: int, use_slave: bool = True) -> list:
         """الحصول على نطاق من القائمة"""
         conn = self._slave if use_slave else self._master
         return self._execute_with_retry(conn.lrange, name, start, end)
@@ -469,7 +468,7 @@ class RedisSentinelClient:
     # Sorted Set Operations
     # ─────────────────────────────────────────────────────────────────────────
 
-    def zadd(self, name: str, mapping: Dict[Any, float]) -> int:
+    def zadd(self, name: str, mapping: dict[Any, float]) -> int:
         """إضافة عناصر إلى مجموعة مرتبة"""
         return self._execute_with_retry(self._master.zadd, name, mapping)
 
@@ -480,7 +479,7 @@ class RedisSentinelClient:
         end: int,
         withscores: bool = False,
         use_slave: bool = True,
-    ) -> List:
+    ) -> list:
         """الحصول على نطاق من المجموعة المرتبة"""
         conn = self._slave if use_slave else self._master
         return self._execute_with_retry(
@@ -532,7 +531,7 @@ class RedisSentinelClient:
             logger.error(f"Ping failed: {e}")
             return False
 
-    def info(self, section: Optional[str] = None) -> Dict:
+    def info(self, section: str | None = None) -> dict:
         """
         الحصول على معلومات Redis
 
@@ -548,7 +547,7 @@ class RedisSentinelClient:
             logger.error(f"Failed to get info: {e}")
             return {}
 
-    def get_sentinel_info(self) -> Dict:
+    def get_sentinel_info(self) -> dict:
         """
         الحصول على معلومات Sentinel
 
@@ -571,7 +570,7 @@ class RedisSentinelClient:
             logger.error(f"Failed to get sentinel info: {e}")
             return {"error": str(e)}
 
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """
         فحص صحة شامل
 
@@ -619,7 +618,7 @@ class RedisSentinelClient:
 # Singleton Instance
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_redis_client: Optional[RedisSentinelClient] = None
+_redis_client: RedisSentinelClient | None = None
 
 
 def get_redis_client() -> RedisSentinelClient:

@@ -12,11 +12,9 @@ Tests for professional package services:
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
-import base64
-from typing import Dict, Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Satellite Imagery Tests - اختبارات صور الأقمار الصناعية
@@ -31,8 +29,8 @@ class TestSatelliteImagery:
     async def test_get_satellite_imagery(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test retrieving satellite imagery for a field
@@ -57,13 +55,13 @@ class TestSatelliteImagery:
             202,
         ), f"Failed to get satellite imagery: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
     async def test_get_available_imagery_dates(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test retrieving available imagery dates
@@ -85,7 +83,7 @@ class TestSatelliteImagery:
             response.status_code == 200
         ), f"Failed to get imagery dates: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -101,8 +99,8 @@ class TestNDVIAnalysis:
     async def test_calculate_ndvi(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test calculating NDVI for a field
@@ -131,8 +129,8 @@ class TestNDVIAnalysis:
     async def test_get_ndvi_timeseries(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting NDVI time series data
@@ -154,13 +152,13 @@ class TestNDVIAnalysis:
             response.status_code == 200
         ), f"Failed to get NDVI timeseries: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
     async def test_get_vegetation_health_score(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting vegetation health score
@@ -194,8 +192,8 @@ class TestCropHealthAI:
     async def test_detect_disease_from_image(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test detecting disease from crop image
@@ -203,6 +201,7 @@ class TestCropHealthAI:
         """
         # Arrange - Create a dummy image (1x1 pixel red image)
         import io
+
         from PIL import Image
 
         img = Image.new("RGB", (100, 100), color="green")
@@ -235,8 +234,8 @@ class TestCropHealthAI:
     async def test_get_disease_treatment(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting disease treatment recommendations
@@ -255,7 +254,7 @@ class TestCropHealthAI:
             201,
         ), f"Failed to get treatment: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -271,8 +270,8 @@ class TestIrrigationSmart:
     async def test_get_irrigation_recommendation(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test getting irrigation recommendations
@@ -305,8 +304,8 @@ class TestIrrigationSmart:
     async def test_calculate_water_requirement(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test calculating water requirement
@@ -346,9 +345,9 @@ class TestInventoryManagement:
     async def test_create_inventory_item(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         inventory_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test creating an inventory item
@@ -372,9 +371,9 @@ class TestInventoryManagement:
     async def test_update_inventory_quantity(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         inventory_factory,
-        auth_headers: Dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test updating inventory quantity
@@ -411,8 +410,8 @@ class TestInventoryManagement:
     async def test_get_low_stock_items(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
-        auth_headers: Dict[str, str],
+        service_urls: dict[str, str],
+        auth_headers: dict[str, str],
     ):
         """
         Test retrieving low stock items
@@ -429,7 +428,7 @@ class TestInventoryManagement:
             response.status_code == 200
         ), f"Failed to get low stock items: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -455,7 +454,7 @@ class TestProfessionalPackageHealth:
     async def test_service_health(
         self,
         http_client: httpx.AsyncClient,
-        service_urls: Dict[str, str],
+        service_urls: dict[str, str],
         service_name: str,
     ):
         """

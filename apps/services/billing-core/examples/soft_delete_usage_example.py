@@ -8,30 +8,27 @@ in the billing service.
 Author: SAHOOL Team
 """
 
-from datetime import datetime, timedelta
-from typing import List, Optional
-from sqlalchemy.orm import Session
-
 # Import the soft delete utilities
 import sys
+from datetime import datetime, timedelta
+
+from sqlalchemy.orm import Session
 
 sys.path.append("/home/user/sahool-unified-v15-idp/packages/shared-db/src")
 from soft_delete_sqlalchemy import (
-    SoftDeleteMixin,
-    soft_delete_record,
-    soft_delete_many,
-    restore_record,
-    restore_many,
-    get_active_records,
-    get_deleted_records,
-    get_all_records,
     count_active_records,
     count_deleted_records,
+    get_active_records,
+    get_deleted_records,
     get_deletion_metadata,
+    restore_many,
+    restore_record,
+    soft_delete_many,
+    soft_delete_record,
 )
 
 # Import your models (these would be your actual billing models)
-from src.models import Subscription, Invoice, Payment, Tenant, Plan
+from src.models import Invoice, Payment, Subscription
 
 
 class SoftDeleteExamplesService:
@@ -48,7 +45,7 @@ class SoftDeleteExamplesService:
 
     def soft_delete_subscription(
         self, subscription_id: str, deleted_by: str
-    ) -> Optional[Subscription]:
+    ) -> Subscription | None:
         """
         Example 1: Soft delete a subscription
         مثال 1: حذف ناعم لاشتراك
@@ -71,8 +68,8 @@ class SoftDeleteExamplesService:
         return subscription
 
     def get_active_subscriptions(
-        self, tenant_id: Optional[str] = None
-    ) -> List[Subscription]:
+        self, tenant_id: str | None = None
+    ) -> list[Subscription]:
         """
         Example 2: Get all active subscriptions
         مثال 2: الحصول على جميع الاشتراكات النشطة
@@ -92,7 +89,7 @@ class SoftDeleteExamplesService:
         print(f"Found {len(subscriptions)} active subscriptions")
         return subscriptions
 
-    def get_deleted_subscriptions(self) -> List[Subscription]:
+    def get_deleted_subscriptions(self) -> list[Subscription]:
         """
         Example 3: Get all deleted subscriptions
         مثال 3: الحصول على جميع الاشتراكات المحذوفة
@@ -105,7 +102,7 @@ class SoftDeleteExamplesService:
         print(f"Found {len(subscriptions)} deleted subscriptions")
         return subscriptions
 
-    def restore_subscription(self, subscription_id: str) -> Optional[Subscription]:
+    def restore_subscription(self, subscription_id: str) -> Subscription | None:
         """
         Example 4: Restore a soft-deleted subscription
         مثال 4: استعادة اشتراك محذوف
@@ -222,7 +219,7 @@ class SoftDeleteExamplesService:
             ),
         }
 
-        print(f"Subscription Statistics:")
+        print("Subscription Statistics:")
         print(f"  Active: {stats['active']}")
         print(f"  Deleted: {stats['deleted']}")
         print(f"  Total: {stats['total']}")
@@ -267,7 +264,7 @@ class SoftDeleteExamplesService:
 
     def get_deletion_audit_trail(
         self, start_date: datetime, end_date: datetime
-    ) -> List[dict]:
+    ) -> list[dict]:
         """
         Example 9: Get deletion audit trail for a date range
         مثال 9: الحصول على سجل تدقيق الحذف لنطاق تاريخ
@@ -340,8 +337,8 @@ class SoftDeleteExamplesService:
     # ════════════════════════════════════════════════════════════════════════
 
     def find_active_subscriptions_with_filters(
-        self, plan_id: Optional[str] = None, status: Optional[str] = None
-    ) -> List[Subscription]:
+        self, plan_id: str | None = None, status: str | None = None
+    ) -> list[Subscription]:
         """
         Example 11: Complex query with soft delete filtering
         مثال 11: استعلام معقد مع تصفية الحذف الناعم
@@ -442,7 +439,7 @@ def main():
 
     try:
         # Create the examples service
-        service = SoftDeleteExamplesService(session)
+        SoftDeleteExamplesService(session)
 
         # Example 1: Soft delete a subscription
         # service.soft_delete_subscription('sub-123', deleted_by='admin-456')

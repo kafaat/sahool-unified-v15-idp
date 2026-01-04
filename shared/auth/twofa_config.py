@@ -7,9 +7,8 @@ Configuration for 2FA enforcement, grace periods, and security settings.
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -71,10 +70,7 @@ class TwoFAConfig:
         if self.enforcement_level == TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN:
             return "admin" in user_roles or "supervisor" in user_roles
 
-        if self.enforcement_level == TwoFAEnforcementLevel.REQUIRED_FOR_ALL:
-            return True
-
-        return False
+        return self.enforcement_level == TwoFAEnforcementLevel.REQUIRED_FOR_ALL
 
     def is_within_grace_period(self, user_created_at: datetime) -> bool:
         """
@@ -90,11 +86,11 @@ class TwoFAConfig:
             return False
 
         grace_period_end = user_created_at + timedelta(days=self.grace_period_days)
-        return datetime.now(timezone.utc) < grace_period_end
+        return datetime.now(UTC) < grace_period_end
 
 
 # Global configuration instance
-_twofa_config: Optional[TwoFAConfig] = None
+_twofa_config: TwoFAConfig | None = None
 
 
 def get_twofa_config() -> TwoFAConfig:
@@ -168,7 +164,7 @@ class TwoFAEnforcementMiddleware:
     This should be added to your FastAPI application after authentication.
     """
 
-    def __init__(self, config: Optional[TwoFAConfig] = None):
+    def __init__(self, config: TwoFAConfig | None = None):
         self.config = config or get_twofa_config()
 
     async def check_2fa_requirement(
@@ -177,8 +173,8 @@ class TwoFAEnforcementMiddleware:
         user_roles: list[str],
         user_created_at: datetime,
         twofa_enabled: bool,
-        exempt_paths: Optional[list[str]] = None,
-    ) -> tuple[bool, Optional[str]]:
+        exempt_paths: list[str] | None = None,
+    ) -> tuple[bool, str | None]:
         """
         Check if 2FA is required for the user and if they comply.
 

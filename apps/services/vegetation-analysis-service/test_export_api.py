@@ -9,11 +9,10 @@ Then run this test:
     python test_export_api.py
 """
 
-import requests
 import json
-import time
 from pathlib import Path
 
+import requests
 
 BASE_URL = "http://localhost:8090"
 OUTPUT_DIR = Path("export_test_outputs")
@@ -58,7 +57,7 @@ def test_export_analysis():
                     f.write(response.content)
 
                 # Display info
-                print(f"  ✓ Success")
+                print("  ✓ Success")
                 print(f"  File: {filename}")
                 print(
                     f"  Size: {response.headers.get('X-Export-Size', len(response.content))} bytes"
@@ -109,11 +108,11 @@ def test_export_timeseries():
             with open(filepath, "wb") as f:
                 f.write(response.content)
 
-            print(f"✓ Success")
+            print("✓ Success")
             print(f"File: {filename}")
             print(f"Size: {response.headers.get('X-Export-Size')} bytes")
             print(f"Data Points: {response.headers.get('X-Data-Points')}")
-            print(f"\nFirst 5 lines:")
+            print("\nFirst 5 lines:")
             print(response.text.split("\n")[:5])
 
         else:
@@ -143,7 +142,7 @@ def test_export_boundaries():
             with open(filepath, "wb") as f:
                 f.write(response.content)
 
-            print(f"✓ Success")
+            print("✓ Success")
             print(f"File: {filename}")
             print(f"Size: {response.headers.get('X-Export-Size')} bytes")
             print(f"Field Count: {response.headers.get('X-Field-Count')}")

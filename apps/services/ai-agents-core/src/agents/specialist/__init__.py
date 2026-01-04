@@ -12,9 +12,9 @@ These agents provide deep analysis in their domains.
 """
 
 from .disease_expert_agent import DiseaseExpertAgent
-from .yield_predictor_agent import YieldPredictorAgent
 from .irrigation_advisor_agent import IrrigationAdvisorAgent
 from .weather_analyst_agent import WeatherAnalystAgent
+from .yield_predictor_agent import YieldPredictorAgent
 
 __all__ = [
     "DiseaseExpertAgent",

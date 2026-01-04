@@ -7,21 +7,26 @@ Provides utilities for managing database migrations with Alembic.
 """
 
 import hashlib
-import os
-import sys
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass
+from typing import Any
 
 from alembic import command
 from alembic.config import Config
 from alembic.runtime.migration import MigrationContext
 from alembic.script import ScriptDirectory
-from sqlalchemy import create_engine, inspect, text, MetaData, Table, Column
-from sqlalchemy import String, DateTime, Integer, Boolean
-from sqlalchemy.engine import Engine
-from sqlalchemy.orm import Session
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    create_engine,
+    text,
+)
 
 
 @dataclass
@@ -49,8 +54,8 @@ class MigrationManager:
     def __init__(
         self,
         database_url: str,
-        migrations_dir: Optional[str] = None,
-        alembic_ini: Optional[str] = None
+        migrations_dir: str | None = None,
+        alembic_ini: str | None = None
     ):
         """
         Initialize migration manager.
@@ -169,7 +174,7 @@ datefmt = %H:%M:%S
 
         # إنشاء جدول الهجرات المخصص
         # Create custom migrations table
-        migrations_table = Table(
+        Table(
             'sahool_migrations',
             metadata,
             Column('id', Integer, primary_key=True, autoincrement=True),
@@ -242,7 +247,7 @@ datefmt = %H:%M:%S
 
         return f"Migration created: {head}"
 
-    def run_migrations(self, target_version: Optional[str] = None) -> Dict[str, Any]:
+    def run_migrations(self, target_version: str | None = None) -> dict[str, Any]:
         """
         تشغيل الهجرات
         Run migrations
@@ -276,7 +281,7 @@ datefmt = %H:%M:%S
             "timestamp": end_time.isoformat()
         }
 
-    def rollback(self, steps: int = 1) -> Dict[str, Any]:
+    def rollback(self, steps: int = 1) -> dict[str, Any]:
         """
         التراجع عن الهجرات
         Rollback migrations
@@ -291,10 +296,7 @@ datefmt = %H:%M:%S
 
         # حساب الإصدار المستهدف
         # Calculate target revision
-        if steps == 1:
-            target = "-1"
-        else:
-            target = f"-{steps}"
+        target = "-1" if steps == 1 else f"-{steps}"
 
         # تنفيذ التراجع
         # Execute rollback
@@ -310,7 +312,7 @@ datefmt = %H:%M:%S
             "timestamp": end_time.isoformat()
         }
 
-    def get_migration_status(self) -> Dict[str, Any]:
+    def get_migration_status(self) -> dict[str, Any]:
         """
         الحصول على حالة الهجرات
         Get migration status
@@ -368,7 +370,7 @@ datefmt = %H:%M:%S
             "applied_migrations": applied_migrations
         }
 
-    def validate_checksums(self) -> Dict[str, Any]:
+    def validate_checksums(self) -> dict[str, Any]:
         """
         التحقق من صحة checksums للهجرات المطبقة
         Validate checksums of applied migrations
@@ -406,7 +408,7 @@ datefmt = %H:%M:%S
             "conflicts": conflicts
         }
 
-    def _find_migration_file(self, revision: str) -> Optional[Path]:
+    def _find_migration_file(self, revision: str) -> Path | None:
         """
         العثور على ملف الهجرة بناءً على الإصدار
         Find migration file by revision
@@ -421,7 +423,7 @@ datefmt = %H:%M:%S
 
         return None
 
-    def seed_data(self, environment: str = "development") -> Dict[str, Any]:
+    def seed_data(self, environment: str = "development") -> dict[str, Any]:
         """
         تعبئة البيانات الأولية
         Seed initial data
@@ -475,7 +477,7 @@ class PostGISMigrationHelper:
         conn,
         table: str,
         column: str,
-        index_name: Optional[str] = None
+        index_name: str | None = None
     ) -> None:
         """
         إنشاء فهرس مكاني

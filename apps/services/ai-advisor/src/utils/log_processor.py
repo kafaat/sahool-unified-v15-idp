@@ -3,11 +3,12 @@ Structlog Processor for PII Masking
 معالج Structlog لإخفاء المعلومات الشخصية
 """
 
-from typing import Any, Dict
+from typing import Any
+
 from .pii_masker import PIIMasker
 
 
-def pii_masking_processor(logger, method_name, event_dict: Dict[str, Any]) -> Dict[str, Any]:
+def pii_masking_processor(logger, method_name, event_dict: dict[str, Any]) -> dict[str, Any]:
     """
     Structlog processor that masks PII in all log events
     معالج Structlog يخفي المعلومات الشخصية في جميع أحداث السجل

@@ -4,13 +4,14 @@ Example demonstrating how to integrate request logging into a FastAPI service.
 """
 
 import os
-from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, Depends
-from pydantic import BaseModel
 
 # Import request logging middleware
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
+
+from fastapi import FastAPI, Request
+from pydantic import BaseModel
 
 # Add shared to path (adjust based on your service location)
 SHARED_PATH = Path(__file__).parent.parent.parent
@@ -26,7 +27,6 @@ from middleware.tenant_context import (
     TenantContextMiddleware,
     get_current_tenant,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Application Setup
@@ -282,7 +282,6 @@ async def call_external_service(request: Request):
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-import logging
 
 # Configure structured logging
 from observability.logging import get_logger

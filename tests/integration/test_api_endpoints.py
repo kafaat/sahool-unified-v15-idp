@@ -8,10 +8,10 @@ Tests RESTful endpoints, authentication, data validation, and error handling
 Author: SAHOOL Platform Team
 """
 
-import pytest
-import httpx
-from typing import Dict, Any
+from typing import Any
 
+import httpx
+import pytest
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Kong API Gateway Tests - اختبارات بوابة Kong API
@@ -58,7 +58,7 @@ async def test_kong_admin_api():
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_field_ops_list_fields(
-    field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+    field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]
 ):
     """
     Test listing fields endpoint
@@ -73,7 +73,7 @@ async def test_field_ops_list_fields(
     if response.status_code == 200:
         data = response.json()
         assert isinstance(
-            data, (list, dict)
+            data, list | dict
         ), "Response should be a list or paginated object"
 
 
@@ -82,8 +82,8 @@ async def test_field_ops_list_fields(
 @pytest.mark.asyncio
 async def test_field_ops_create_field(
     field_ops_client: httpx.AsyncClient,
-    auth_headers: Dict[str, str],
-    sample_field: Dict[str, Any],
+    auth_headers: dict[str, str],
+    sample_field: dict[str, Any],
 ):
     """
     Test creating a field
@@ -108,7 +108,7 @@ async def test_field_ops_create_field(
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_field_ops_get_field(
-    field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+    field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]
 ):
     """
     Test getting a specific field
@@ -130,7 +130,7 @@ async def test_field_ops_get_field(
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_field_ops_invalid_field_data(
-    field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+    field_ops_client: httpx.AsyncClient, auth_headers: dict[str, str]
 ):
     """
     Test validation with invalid field data
@@ -158,8 +158,8 @@ async def test_field_ops_invalid_field_data(
 @pytest.mark.asyncio
 async def test_weather_get_current(
     weather_client: httpx.AsyncClient,
-    auth_headers: Dict[str, str],
-    sample_location: Dict[str, float],
+    auth_headers: dict[str, str],
+    sample_location: dict[str, float],
 ):
     """
     Test getting current weather
@@ -185,8 +185,8 @@ async def test_weather_get_current(
 @pytest.mark.asyncio
 async def test_weather_get_forecast(
     weather_client: httpx.AsyncClient,
-    auth_headers: Dict[str, str],
-    sample_location: Dict[str, float],
+    auth_headers: dict[str, str],
+    sample_location: dict[str, float],
 ):
     """
     Test getting weather forecast
@@ -207,7 +207,7 @@ async def test_weather_get_forecast(
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_ndvi_get_field_analysis(
-    ndvi_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+    ndvi_client: httpx.AsyncClient, auth_headers: dict[str, str]
 ):
     """
     Test getting NDVI analysis for a field
@@ -224,7 +224,7 @@ async def test_ndvi_get_field_analysis(
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_ndvi_calculate_index(
-    ndvi_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+    ndvi_client: httpx.AsyncClient, auth_headers: dict[str, str]
 ):
     """
     Test calculating NDVI index
@@ -256,8 +256,8 @@ async def test_ndvi_calculate_index(
 @pytest.mark.asyncio
 async def test_ai_advisor_ask_question(
     ai_advisor_client: httpx.AsyncClient,
-    auth_headers: Dict[str, str],
-    sample_ai_question: Dict[str, Any],
+    auth_headers: dict[str, str],
+    sample_ai_question: dict[str, Any],
 ):
     """
     Test asking AI advisor a question
@@ -277,7 +277,7 @@ async def test_ai_advisor_ask_question(
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_ai_advisor_get_agents(
-    ai_advisor_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+    ai_advisor_client: httpx.AsyncClient, auth_headers: dict[str, str]
 ):
     """
     Test getting available AI agents
@@ -293,7 +293,7 @@ async def test_ai_advisor_get_agents(
 
     if response.status_code == 200:
         data = response.json()
-        assert isinstance(data, (list, dict)), "Response should be agents list"
+        assert isinstance(data, list | dict), "Response should be agents list"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -305,7 +305,7 @@ async def test_ai_advisor_get_agents(
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_billing_get_subscriptions(
-    billing_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+    billing_client: httpx.AsyncClient, auth_headers: dict[str, str]
 ):
     """
     Test getting user subscriptions
@@ -323,8 +323,8 @@ async def test_billing_get_subscriptions(
 @pytest.mark.asyncio
 async def test_billing_create_payment_intent(
     billing_client: httpx.AsyncClient,
-    auth_headers: Dict[str, str],
-    sample_payment: Dict[str, Any],
+    auth_headers: dict[str, str],
+    sample_payment: dict[str, Any],
 ):
     """
     Test creating payment intent
@@ -345,7 +345,7 @@ async def test_billing_create_payment_intent(
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_billing_get_invoices(
-    billing_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+    billing_client: httpx.AsyncClient, auth_headers: dict[str, str]
 ):
     """
     Test getting user invoices
@@ -385,7 +385,7 @@ async def test_satellite_get_imagery():
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_task_service_list_tasks(auth_headers: Dict[str, str]):
+async def test_task_service_list_tasks(auth_headers: dict[str, str]):
     """
     Test listing agricultural tasks
     اختبار قائمة المهام الزراعية
@@ -398,7 +398,7 @@ async def test_task_service_list_tasks(auth_headers: Dict[str, str]):
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_task_service_create_task(auth_headers: Dict[str, str]):
+async def test_task_service_create_task(auth_headers: dict[str, str]):
     """
     Test creating agricultural task
     اختبار إنشاء مهمة زراعية
@@ -430,7 +430,7 @@ async def test_task_service_create_task(auth_headers: Dict[str, str]):
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_equipment_service_list_equipment(auth_headers: Dict[str, str]):
+async def test_equipment_service_list_equipment(auth_headers: dict[str, str]):
     """
     Test listing agricultural equipment
     اختبار قائمة المعدات الزراعية
@@ -452,7 +452,7 @@ async def test_equipment_service_list_equipment(auth_headers: Dict[str, str]):
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_irrigation_smart_calculate_et0(
-    auth_headers: Dict[str, str], sample_location: Dict[str, float]
+    auth_headers: dict[str, str], sample_location: dict[str, float]
 ):
     """
     Test calculating ET0 (reference evapotranspiration)
@@ -490,7 +490,7 @@ async def test_irrigation_smart_calculate_et0(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_marketplace_list_products(auth_headers: Dict[str, str]):
+async def test_marketplace_list_products(auth_headers: dict[str, str]):
     """
     Test listing marketplace products
     اختبار قائمة منتجات السوق

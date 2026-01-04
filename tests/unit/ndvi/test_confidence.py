@@ -3,19 +3,19 @@ SAHOOL NDVI Confidence Score Tests
 Sprint 8: Unit tests for confidence scoring
 """
 
-import pytest
 import sys
+
+import pytest
 
 sys.path.insert(0, "archive/kernel-legacy/kernel/services/ndvi_engine/src")
 
 from confidence import (
+    ConfidenceWeights,
     clamp01,
-    confidence_score,
     confidence_grade,
+    confidence_score,
     should_use_observation,
     weighted_average_ndvi,
-    ConfidenceWeights,
-    DEFAULT_WEIGHTS,
 )
 
 

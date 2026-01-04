@@ -3,19 +3,19 @@ SAHOOL NDVI Analytics Tests
 Sprint 8: Unit tests for NDVI analytics and trends
 """
 
-import pytest
-from datetime import date
 import sys
+from datetime import date
+
+import pytest
 
 sys.path.insert(0, "archive/kernel-legacy")
 
 # Use absolute imports to avoid import errors
 from kernel.services.ndvi_engine.src.analytics import (
-    compute_trend,
-    compute_linear_trend,
-    summarize,
-    compare_to_historical_mean,
     NdviSummary,
+    compare_to_historical_mean,
+    compute_linear_trend,
+    compute_trend,
 )
 
 

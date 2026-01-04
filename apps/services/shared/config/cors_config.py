@@ -12,9 +12,9 @@ Version: 1.0.0
 Created: 2024
 """
 
-import os
 import logging
-from typing import List
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -63,7 +63,7 @@ STAGING_ORIGINS = [
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def get_allowed_origins() -> List[str]:
+def get_allowed_origins() -> list[str]:
     """
     Get allowed CORS origins based on the current environment.
 
@@ -132,11 +132,11 @@ def get_allowed_origins() -> List[str]:
 
 def setup_cors_middleware(
     app: FastAPI,
-    allowed_origins: List[str] = None,
+    allowed_origins: list[str] = None,
     allow_credentials: bool = True,
-    allowed_methods: List[str] = None,
-    allowed_headers: List[str] = None,
-    expose_headers: List[str] = None,
+    allowed_methods: list[str] = None,
+    allowed_headers: list[str] = None,
+    expose_headers: list[str] = None,
     max_age: int = 3600,
 ) -> None:
     """

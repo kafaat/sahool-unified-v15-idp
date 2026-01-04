@@ -5,7 +5,7 @@ Event Registry
 Central registry for all domain events with version management.
 """
 
-from typing import Dict, Optional, Type, List
+
 from .base import BaseEvent
 
 
@@ -19,10 +19,10 @@ class EventRegistry:
     - Schema validation
     """
 
-    _events: Dict[str, Dict[str, Type[BaseEvent]]] = {}
+    _events: dict[str, dict[str, type[BaseEvent]]] = {}
 
     @classmethod
-    def register(cls, event_class: Type[BaseEvent]):
+    def register(cls, event_class: type[BaseEvent]):
         """Register an event class"""
         event_type = event_class.EVENT_TYPE
         version = event_class.EVENT_VERSION
@@ -35,7 +35,7 @@ class EventRegistry:
     @classmethod
     def get_event_class(
         cls, event_type: str, version: str = None
-    ) -> Optional[Type[BaseEvent]]:
+    ) -> type[BaseEvent] | None:
         """Get event class by type and optional version"""
         if event_type not in cls._events:
             return None
@@ -49,12 +49,12 @@ class EventRegistry:
         return versions[latest]
 
     @classmethod
-    def list_events(cls) -> List[str]:
+    def list_events(cls) -> list[str]:
         """List all registered event types"""
         return list(cls._events.keys())
 
     @classmethod
-    def list_versions(cls, event_type: str) -> List[str]:
+    def list_versions(cls, event_type: str) -> list[str]:
         """List all versions for an event type"""
         if event_type not in cls._events:
             return []
@@ -73,11 +73,11 @@ class EventRegistry:
 # Auto-register all events
 def _register_all_events():
     from . import (
-        field_events,
-        crop_events,
-        weather_events,
-        iot_events,
         analytics_events,
+        crop_events,
+        field_events,
+        iot_events,
+        weather_events,
     )
 
     for module in [
@@ -93,9 +93,8 @@ def _register_all_events():
                 isinstance(obj, type)
                 and issubclass(obj, BaseEvent)
                 and obj != BaseEvent
-            ):
-                if hasattr(obj, "EVENT_TYPE") and obj.EVENT_TYPE:
-                    EventRegistry.register(obj)
+            ) and hasattr(obj, "EVENT_TYPE") and obj.EVENT_TYPE:
+                EventRegistry.register(obj)
 
 
 _register_all_events()

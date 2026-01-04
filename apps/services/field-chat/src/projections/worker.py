@@ -4,10 +4,12 @@ Subscribes to chat events and updates read models / broadcasts to WebSockets
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 import nats
 from nats.aio.client import Client as NATS
@@ -35,8 +37,8 @@ class ChatProjectionWorker:
     3. Triggers notifications
     """
 
-    def __init__(self, broadcast_callback: Optional[Callable[[str, dict], Any]] = None):
-        self.nc: Optional[NATS] = None
+    def __init__(self, broadcast_callback: Callable[[str, dict], Any] | None = None):
+        self.nc: NATS | None = None
         self.js = None
         self.subscriptions = []
         self.running = False
@@ -53,10 +55,8 @@ class ChatProjectionWorker:
         """Close NATS connection"""
         self.running = False
         for sub in self.subscriptions:
-            try:
+            with contextlib.suppress(Exception):
                 await sub.unsubscribe()
-            except Exception:
-                pass
         if self.nc and self.nc.is_connected:
             await self.nc.close()
             logger.info("Chat projection worker disconnected")

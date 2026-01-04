@@ -13,9 +13,9 @@ import asyncio
 import json
 import logging
 import os
-from datetime import datetime, timezone
-from typing import Any, Optional
-from uuid import UUID, uuid4
+from datetime import UTC, datetime
+from typing import Any
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
@@ -60,18 +60,18 @@ class AnalysisEvent(BaseModel):
     source_service: str = Field(
         ..., description="e.g., 'satellite-service', 'irrigation-smart'"
     )
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     # Target
-    tenant_id: Optional[str] = None
-    field_id: Optional[str] = None
-    farmer_id: Optional[str] = None
+    tenant_id: str | None = None
+    field_id: str | None = None
+    farmer_id: str | None = None
 
     # Payload
     data: dict[str, Any] = Field(default_factory=dict)
 
     # ActionTemplate (if applicable)
-    action_template: Optional[dict[str, Any]] = None
+    action_template: dict[str, Any] | None = None
 
     # Notification hints
     notification_priority: str = Field(default="medium")
@@ -106,9 +106,9 @@ class NATSPublisher:
         await publisher.close()
     """
 
-    def __init__(self, config: Optional[NATSConfig] = None):
+    def __init__(self, config: NATSConfig | None = None):
         self.config = config or NATSConfig()
-        self._nc: Optional[NATSClient] = None
+        self._nc: NATSClient | None = None
         self._connected = False
 
     @property
@@ -195,8 +195,8 @@ class NATSPublisher:
         field_id: str,
         action_template: dict,
         source_service: str,
-        farmer_id: Optional[str] = None,
-        tenant_id: Optional[str] = None,
+        farmer_id: str | None = None,
+        tenant_id: str | None = None,
     ) -> bool:
         """
         Publish an action event (from ActionTemplate)
@@ -221,7 +221,7 @@ class NATSPublisher:
 
 
 # Singleton instance for convenience
-_publisher_instance: Optional[NATSPublisher] = None
+_publisher_instance: NATSPublisher | None = None
 
 
 async def get_publisher() -> NATSPublisher:
@@ -240,10 +240,10 @@ async def publish_analysis_completed(
     source_service: str,
     field_id: str,
     data: dict[str, Any],
-    action_template: Optional[dict] = None,
+    action_template: dict | None = None,
     priority: str = "medium",
-    farmer_id: Optional[str] = None,
-    tenant_id: Optional[str] = None,
+    farmer_id: str | None = None,
+    tenant_id: str | None = None,
 ) -> bool:
     """
     Convenience function to publish an analysis event
@@ -287,10 +287,10 @@ def publish_analysis_completed_sync(
     source_service: str,
     field_id: str,
     data: dict[str, Any],
-    action_template: Optional[dict] = None,
+    action_template: dict | None = None,
     priority: str = "medium",
-    farmer_id: Optional[str] = None,
-    tenant_id: Optional[str] = None,
+    farmer_id: str | None = None,
+    tenant_id: str | None = None,
 ) -> bool:
     """Sync wrapper for publish_analysis_completed"""
     try:

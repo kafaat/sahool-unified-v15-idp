@@ -30,12 +30,12 @@ Author: SAHOOL Platform Team
 Date: 2025-12-26
 """
 
-import logging
-import sys
 import json
+import logging
 import os
-from typing import Optional, Dict, Any
-from datetime import datetime, timezone
+import sys
+from datetime import UTC, datetime
+from typing import Any
 
 from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode
@@ -113,7 +113,7 @@ class JSONFormatter(logging.Formatter):
         # Base log structure
         log_data = {
             "timestamp": datetime.fromtimestamp(
-                record.created, tz=timezone.utc
+                record.created, tz=UTC
             ).isoformat(),
             "level": record.levelname,
             "logger": record.name,
@@ -198,7 +198,7 @@ class SahoolLogger(logging.LoggerAdapter):
     Custom logger adapter for SAHOOL platform with automatic context injection.
     """
 
-    def process(self, msg: str, kwargs: Dict[str, Any]) -> tuple:
+    def process(self, msg: str, kwargs: dict[str, Any]) -> tuple:
         """
         Process log message and add extra context.
 
@@ -225,10 +225,10 @@ class SahoolLogger(logging.LoggerAdapter):
 
 
 def setup_logging(
-    service_name: Optional[str] = None,
-    service_version: Optional[str] = None,
-    environment: Optional[str] = None,
-    log_level: Optional[str] = None,
+    service_name: str | None = None,
+    service_version: str | None = None,
+    environment: str | None = None,
+    log_level: str | None = None,
     json_format: bool = True,
     include_trace: bool = True,
 ) -> None:
@@ -304,7 +304,7 @@ def setup_logging(
     )
 
 
-def get_logger(name: str, extra: Optional[Dict[str, Any]] = None) -> SahoolLogger:
+def get_logger(name: str, extra: dict[str, Any] | None = None) -> SahoolLogger:
     """
     Get a logger instance with SAHOOL platform context.
 
@@ -364,7 +364,7 @@ class RequestLoggingMiddleware:
     Middleware to log all HTTP requests with trace context.
     """
 
-    def __init__(self, app, logger: Optional[logging.Logger] = None):
+    def __init__(self, app, logger: logging.Logger | None = None):
         """
         Initialize middleware.
 

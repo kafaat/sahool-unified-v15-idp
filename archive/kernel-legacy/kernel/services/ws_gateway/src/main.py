@@ -6,9 +6,8 @@ Port: 8090
 
 import json
 import os
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime
-from typing import Optional
 from uuid import uuid4
 
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
@@ -98,10 +97,8 @@ class ConnectionManager:
 
     async def send_personal(self, connection_id: str, message: dict):
         if connection_id in self.active_connections:
-            try:
+            with suppress(Exception):
                 await self.active_connections[connection_id].send_json(message)
-            except Exception:
-                pass
 
     async def broadcast_to_tenant(self, tenant_id: str, message: dict):
         if tenant_id in self.tenant_connections:
@@ -233,7 +230,7 @@ def get_stats():
 async def websocket_endpoint(
     websocket: WebSocket,
     tenant_id: str = Query(...),
-    token: Optional[str] = Query(None),
+    token: str | None = Query(None),
 ):
     """
     Main WebSocket endpoint for real-time communication
@@ -243,7 +240,6 @@ async def websocket_endpoint(
     - token: JWT token for authentication (required in production)
     """
     connection_id = str(uuid4())
-    user_id = None
 
     # Validate JWT token
     if REQUIRE_AUTH:
@@ -252,7 +248,7 @@ async def websocket_endpoint(
             return
         try:
             payload = await validate_jwt_token(token)
-            user_id = payload.get("sub") or payload.get("user_id")
+            payload.get("sub") or payload.get("user_id")
             token_tenant = payload.get("tenant_id")
             # Verify tenant_id matches token
             if token_tenant and token_tenant != tenant_id:
@@ -265,7 +261,7 @@ async def websocket_endpoint(
         # Optional auth: validate if token provided
         try:
             payload = await validate_jwt_token(token)
-            user_id = payload.get("sub") or payload.get("user_id")
+            payload.get("sub") or payload.get("user_id")
         except ValueError:
             pass  # Continue without auth in dev mode
 
@@ -362,7 +358,7 @@ async def handle_client_message(connection_id: str, tenant_id: str, data: dict):
 class BroadcastRequest(BaseModel):
     tenant_id: str
     message: dict
-    topic: Optional[str] = None
+    topic: str | None = None
 
 
 @app.post("/broadcast")

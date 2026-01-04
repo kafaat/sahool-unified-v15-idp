@@ -6,14 +6,15 @@ import os
 import sys
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # Add the src directory to the path to import models
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import the Base and models
 from db_models import Base
+
 from database import DATABASE_URL
 
 # This is the Alembic Config object

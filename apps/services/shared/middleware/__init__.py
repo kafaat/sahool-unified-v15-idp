@@ -5,16 +5,16 @@ SAHOOL Shared Middleware
 This module provides reusable middleware components for FastAPI services.
 """
 
-from .rate_limiter import (
-    RateLimiter,
-    RateLimitConfig,
-    RateLimitTier,
-    setup_rate_limiting,
-    get_rate_limit_headers,
-)
 from .health import (
-    setup_health_endpoints,
     HealthStatus,
+    setup_health_endpoints,
+)
+from .rate_limiter import (
+    RateLimitConfig,
+    RateLimiter,
+    RateLimitTier,
+    get_rate_limit_headers,
+    setup_rate_limiting,
 )
 
 __all__ = [

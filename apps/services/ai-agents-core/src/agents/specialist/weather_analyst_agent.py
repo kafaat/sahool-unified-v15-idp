@@ -9,15 +9,11 @@ Specialized agent for:
 - Climate risk assessment
 """
 
-from typing import Any, Dict, List, Optional
-from datetime import datetime, timedelta
-import asyncio
 import logging
+from datetime import datetime
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +64,7 @@ class WeatherAnalystAgent(BaseAgent):
         if not self.context:
             self.context = AgentContext()
 
-    async def _update_model(self, weather: Dict[str, Any]) -> None:
+    async def _update_model(self, weather: dict[str, Any]) -> None:
         """تحديث النموذج الداخلي"""
         temp_max = weather.get("temp_max", 25)
         temp_min = weather.get("temp_min", 15)
@@ -92,7 +88,7 @@ class WeatherAnalystAgent(BaseAgent):
         else:
             self.internal_model["rain_deficit"] = 0
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """تحليل الطقس وإصدار التنبيهات"""
         current = self.state.beliefs.get("current", {})
         forecast = self.state.beliefs.get("forecast", [])
@@ -116,10 +112,10 @@ class WeatherAnalystAgent(BaseAgent):
         # Check forecast for upcoming risks
         for day in forecast[:3]:
             if day.get("temp_max", 25) >= 45:
-                alerts.append(("upcoming_heat", "warning", f"موجة حر متوقعة"))
+                alerts.append(("upcoming_heat", "warning", "موجة حر متوقعة"))
                 break
             if day.get("precipitation", 0) >= 30:
-                alerts.append(("heavy_rain", "warning", f"أمطار غزيرة متوقعة"))
+                alerts.append(("heavy_rain", "warning", "أمطار غزيرة متوقعة"))
                 break
 
         # Check drought risk
@@ -161,7 +157,7 @@ class WeatherAnalystAgent(BaseAgent):
             source_agent=self.agent_id
         )
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ الإجراء"""
         return {
             "action_type": action.action_type,

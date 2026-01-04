@@ -12,7 +12,6 @@ import argparse
 import os
 import sys
 from pathlib import Path
-from typing import List
 
 try:
     import psycopg2
@@ -44,7 +43,7 @@ class SeedRunner:
 
     def connect(self):
         """Connect to database"""
-        print(f"Connecting to database...")
+        print("Connecting to database...")
         try:
             self.conn = psycopg2.connect(self.db_url)
             self.cursor = self.conn.cursor()
@@ -70,7 +69,7 @@ class SeedRunner:
             return False
 
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 sql_content = f.read()
 
             # Execute the SQL

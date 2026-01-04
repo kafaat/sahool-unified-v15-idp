@@ -8,7 +8,7 @@ Data models for GlobalGAP IFA checklists and control points.
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Dict, Any
+
 from pydantic import BaseModel, Field
 
 
@@ -64,7 +64,7 @@ class ChecklistItem(BaseModel):
     عنصر قائمة المراجعة (نقطة التحكم)
     """
 
-    id: Optional[str] = None
+    id: str | None = None
 
     # Control point identification | تعريف نقطة التحكم
     control_point_number: str = Field(
@@ -86,33 +86,33 @@ class ChecklistItem(BaseModel):
     )
 
     # Compliance criteria | معايير الامتثال
-    compliance_criteria_ar: List[str] = Field(
+    compliance_criteria_ar: list[str] = Field(
         default_factory=list,
         description="Compliance criteria in Arabic | معايير الامتثال بالعربية",
     )
-    compliance_criteria_en: List[str] = Field(
+    compliance_criteria_en: list[str] = Field(
         default_factory=list,
         description="Compliance criteria in English | معايير الامتثال بالإنجليزية",
     )
 
     # Guidance | الإرشادات
-    guidance_ar: Optional[str] = None
-    guidance_en: Optional[str] = None
+    guidance_ar: str | None = None
+    guidance_en: str | None = None
 
     # Verification methods | طرق التحقق
-    verification_methods: List[str] = Field(
+    verification_methods: list[str] = Field(
         default_factory=list,
         description="Visual inspection, document review, interview | فحص بصري، مراجعة مستندات، مقابلة",
     )
 
     # Required evidence | الأدلة المطلوبة
-    required_evidence: List[str] = Field(
+    required_evidence: list[str] = Field(
         default_factory=list,
         description="Documents, records, photos required | المستندات والسجلات والصور المطلوبة",
     )
 
     # Related control points | نقاط التحكم ذات الصلة
-    related_control_points: List[str] = Field(default_factory=list)
+    related_control_points: list[str] = Field(default_factory=list)
 
     # Metadata | بيانات وصفية
     ifa_version: str = Field(
@@ -142,7 +142,7 @@ class ChecklistAssessment(BaseModel):
     تقييم عنصر قائمة المراجعة لمزرعة معينة
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     farm_id: str
     tenant_id: str
     checklist_item_id: str
@@ -155,25 +155,25 @@ class ChecklistAssessment(BaseModel):
     )
 
     # Evidence | الأدلة
-    evidence_description: Optional[str] = None
-    evidence_photos: List[str] = Field(default_factory=list)
-    evidence_documents: List[str] = Field(default_factory=list)
+    evidence_description: str | None = None
+    evidence_photos: list[str] = Field(default_factory=list)
+    evidence_documents: list[str] = Field(default_factory=list)
 
     # Assessor notes | ملاحظات المقيم
-    assessor_notes: Optional[str] = None
-    non_compliance_reason: Optional[str] = None
+    assessor_notes: str | None = None
+    non_compliance_reason: str | None = None
 
     # Corrective action | الإجراء التصحيحي
     corrective_action_required: bool = False
-    corrective_action_plan: Optional[str] = None
-    corrective_action_deadline: Optional[datetime] = None
-    corrective_action_status: Optional[str] = None  # pending, in_progress, completed
+    corrective_action_plan: str | None = None
+    corrective_action_deadline: datetime | None = None
+    corrective_action_status: str | None = None  # pending, in_progress, completed
 
     # Assessment details | تفاصيل التقييم
     assessed_by: str = Field(..., description="Assessor name | اسم المقيم")
     assessment_date: datetime = Field(default_factory=datetime.utcnow)
-    verified_by: Optional[str] = None
-    verification_date: Optional[datetime] = None
+    verified_by: str | None = None
+    verification_date: datetime | None = None
 
     # Metadata | بيانات وصفية
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -199,7 +199,7 @@ class Checklist(BaseModel):
     قائمة المراجعة الكاملة للامتثال لمعايير IFA
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     name_ar: str = Field(
         ..., description="Checklist name in Arabic | اسم القائمة بالعربية"
     )
@@ -216,11 +216,11 @@ class Checklist(BaseModel):
     )
 
     # Scope | النطاق
-    applicable_categories: List[ChecklistCategory] = Field(
+    applicable_categories: list[ChecklistCategory] = Field(
         default_factory=list,
         description="Applicable categories | الفئات القابلة للتطبيق",
     )
-    crop_types: List[str] = Field(
+    crop_types: list[str] = Field(
         default_factory=list,
         description="Applicable crop types | أنواع المحاصيل القابلة للتطبيق",
     )

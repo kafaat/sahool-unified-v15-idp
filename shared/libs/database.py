@@ -9,18 +9,17 @@ Provides configuration for:
 4. Connection lifecycle management
 """
 
-import os
-import logging
 import asyncio
-from typing import Optional, AsyncIterator
+import logging
+import os
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-import time
 
 try:
-    from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
+    from sqlalchemy import event, text
+    from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
     from sqlalchemy.orm import sessionmaker
     from sqlalchemy.pool import NullPool, QueuePool
-    from sqlalchemy import event, text
 
     SQLALCHEMY_AVAILABLE = True
 except ImportError:
@@ -38,7 +37,7 @@ class DatabaseConfig:
 
     def __init__(
         self,
-        url: Optional[str] = None,
+        url: str | None = None,
         pool_size: int = 20,
         max_overflow: int = 10,
         pool_timeout: int = 30,
@@ -96,8 +95,8 @@ class DatabaseManager:
             )
 
         self.config = config
-        self._engine: Optional[AsyncEngine] = None
-        self._session_factory: Optional[sessionmaker] = None
+        self._engine: AsyncEngine | None = None
+        self._session_factory: sessionmaker | None = None
 
     def create_engine(self) -> AsyncEngine:
         """
@@ -277,10 +276,10 @@ class DatabaseManager:
 
 
 # Global database manager instance
-_db_manager: Optional[DatabaseManager] = None
+_db_manager: DatabaseManager | None = None
 
 
-def get_db_manager(config: Optional[DatabaseConfig] = None) -> DatabaseManager:
+def get_db_manager(config: DatabaseConfig | None = None) -> DatabaseManager:
     """
     Get the global database manager instance.
     الحصول على نسخة مدير قاعدة البيانات العامة.
@@ -301,7 +300,7 @@ def get_db_manager(config: Optional[DatabaseConfig] = None) -> DatabaseManager:
     return _db_manager
 
 
-async def init_db(config: Optional[DatabaseConfig] = None) -> DatabaseManager:
+async def init_db(config: DatabaseConfig | None = None) -> DatabaseManager:
     """
     Initialize the global database manager.
     تهيئة مدير قاعدة البيانات العامة.

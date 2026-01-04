@@ -13,10 +13,10 @@ GDD endpoints for crop development tracking:
 Similar to OneSoil's GDD tracking feature.
 """
 
-from fastapi import HTTPException, Query
-from typing import Optional
-from datetime import date as date_class
 import logging
+from datetime import date as date_class
+
+from fastapi import HTTPException, Query
 
 from .gdd_tracker import get_gdd_tracker
 
@@ -33,7 +33,7 @@ def register_gdd_endpoints(app):
         planting_date: str = Query(..., description="Planting date (YYYY-MM-DD)"),
         lat: float = Query(..., description="Field latitude", ge=-90, le=90),
         lon: float = Query(..., description="Field longitude", ge=-180, le=180),
-        end_date: Optional[str] = Query(None, description="End date (default: today)"),
+        end_date: str | None = Query(None, description="End date (default: today)"),
         method: str = Query(
             "simple", description="Calculation method: simple, modified, sine"
         ),
@@ -178,7 +178,7 @@ def register_gdd_endpoints(app):
         base_temp: float = Query(
             10.0, description="Base temperature (°C)", ge=0, le=20
         ),
-        upper_temp: Optional[float] = Query(
+        upper_temp: float | None = Query(
             None, description="Upper cutoff temp (°C)", ge=20, le=45
         ),
         method: str = Query(
@@ -341,7 +341,7 @@ def register_gdd_endpoints(app):
 
             return requirements.to_dict()
 
-        except ValueError as e:
+        except ValueError:
             tracker = get_gdd_tracker()
             available_crops = tracker.get_all_crops()
             crop_codes = [c["crop_code"] for c in available_crops]
@@ -482,7 +482,7 @@ def register_gdd_endpoints(app):
                 "total_gdd_required": round(total_gdd, 1),
             }
 
-        except ValueError as e:
+        except ValueError:
             tracker = get_gdd_tracker()
             available_crops = tracker.get_all_crops()
             crop_codes = [c["crop_code"] for c in available_crops]

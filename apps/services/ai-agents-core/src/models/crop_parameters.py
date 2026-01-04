@@ -12,7 +12,6 @@ Regions:
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 from enum import Enum
 
 
@@ -68,7 +67,7 @@ class GrowthParameters:
     water_requirement_mm: float
 
     # Critical growth stages - مراحل النمو الحرجة
-    stages: Dict[str, int] = field(default_factory=dict)
+    stages: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -82,7 +81,7 @@ class SoilRequirements:
     ph_max: float
 
     # Soil type preference - تفضيل نوع التربة
-    preferred_soil_types: List[str]
+    preferred_soil_types: list[str]
 
     # Electrical conductivity tolerance (dS/m) - تحمل الملوحة
     ec_tolerance: float
@@ -110,7 +109,7 @@ class RegionalAdjustment:
     climate_suitability: float
 
     # Common constraints - القيود الشائعة
-    constraints: List[str] = field(default_factory=list)
+    constraints: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -135,18 +134,18 @@ class CropParameters:
     soil: SoilRequirements
 
     # Regional adjustments - التعديلات الإقليمية
-    regional_adjustments: Dict[Region, RegionalAdjustment]
+    regional_adjustments: dict[Region, RegionalAdjustment]
 
     # Seasonal factors - العوامل الموسمية
     season: Season
-    seasonal_yield_factors: Dict[str, float] = field(default_factory=dict)
+    seasonal_yield_factors: dict[str, float] = field(default_factory=dict)
 
     # Economic parameters - المعلمات الاقتصادية
     market_price_per_kg: float = 0.0  # YER (Yemeni Rial)
     labor_hours_per_ha: float = 0.0
 
     # Disease susceptibility - قابلية الإصابة بالأمراض
-    common_diseases: List[str] = field(default_factory=list)
+    common_diseases: list[str] = field(default_factory=list)
 
     # Drought tolerance (0-1) - تحمل الجفاف
     drought_tolerance: float = 0.5
@@ -157,7 +156,7 @@ class CropParameters:
 
 # معلمات المحاصيل اليمنية الرئيسية
 # Main Yemen Crop Parameters Database
-YEMEN_CROPS: Dict[str, CropParameters] = {
+YEMEN_CROPS: dict[str, CropParameters] = {
 
     # ==================== الحبوب - CEREALS ====================
 
@@ -1331,7 +1330,7 @@ YEMEN_CROPS: Dict[str, CropParameters] = {
 }
 
 
-def get_crop_parameters(crop_id: str) -> Optional[CropParameters]:
+def get_crop_parameters(crop_id: str) -> CropParameters | None:
     """
     Get crop parameters by crop ID
     الحصول على معلمات المحصول باستخدام معرف المحصول
@@ -1345,7 +1344,7 @@ def get_crop_parameters(crop_id: str) -> Optional[CropParameters]:
     return YEMEN_CROPS.get(crop_id)
 
 
-def get_crops_by_category(category: CropCategory) -> List[CropParameters]:
+def get_crops_by_category(category: CropCategory) -> list[CropParameters]:
     """
     Get all crops in a specific category
     الحصول على جميع المحاصيل في فئة معينة
@@ -1359,7 +1358,7 @@ def get_crops_by_category(category: CropCategory) -> List[CropParameters]:
     return [crop for crop in YEMEN_CROPS.values() if crop.category == category]
 
 
-def get_crops_by_region(region: Region, min_suitability: float = 0.6) -> List[CropParameters]:
+def get_crops_by_region(region: Region, min_suitability: float = 0.6) -> list[CropParameters]:
     """
     Get suitable crops for a specific region
     الحصول على المحاصيل المناسبة لمنطقة معينة
@@ -1380,7 +1379,7 @@ def get_crops_by_region(region: Region, min_suitability: float = 0.6) -> List[Cr
     return suitable_crops
 
 
-def get_all_crop_ids() -> List[str]:
+def get_all_crop_ids() -> list[str]:
     """
     Get list of all crop IDs
     الحصول على قائمة جميع معرفات المحاصيل

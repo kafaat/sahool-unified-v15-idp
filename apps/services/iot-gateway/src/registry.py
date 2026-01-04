@@ -4,9 +4,8 @@ Lightweight device management and status tracking
 """
 
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
-from typing import Optional
 
 
 class DeviceStatus(Enum):
@@ -43,18 +42,18 @@ class Device:
     name_ar: str
     name_en: str
     status: str = DeviceStatus.UNKNOWN.value
-    last_seen: Optional[str] = None
-    last_reading: Optional[dict] = None
-    firmware_version: Optional[str] = None
-    battery_level: Optional[float] = None
-    signal_strength: Optional[int] = None  # RSSI in dBm
-    location: Optional[dict] = None  # {"lat": ..., "lng": ...}
+    last_seen: str | None = None
+    last_reading: dict | None = None
+    firmware_version: str | None = None
+    battery_level: float | None = None
+    signal_strength: int | None = None  # RSSI in dBm
+    location: dict | None = None  # {"lat": ..., "lng": ...}
     metadata: dict = field(default_factory=dict)
     created_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
     updated_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
 
     def to_dict(self) -> dict:
@@ -66,7 +65,7 @@ class Device:
             return False
         try:
             last = datetime.fromisoformat(self.last_seen.replace("Z", "+00:00"))
-            threshold = datetime.now(timezone.utc) - timedelta(minutes=timeout_minutes)
+            threshold = datetime.now(UTC) - timedelta(minutes=timeout_minutes)
             return last > threshold
         except (ValueError, TypeError):
             return False
@@ -94,7 +93,7 @@ class DeviceRegistry:
         **kwargs,
     ) -> Device:
         """Register a new device or update existing"""
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         if device_id in self._devices:
             # Update existing
@@ -124,7 +123,7 @@ class DeviceRegistry:
         print(f"📝 Registered device: {device_id} ({device_type})")
         return device
 
-    def get(self, device_id: str) -> Optional[Device]:
+    def get(self, device_id: str) -> Device | None:
         """Get device by ID"""
         return self._devices.get(device_id)
 
@@ -147,13 +146,13 @@ class DeviceRegistry:
         last_reading: dict = None,
         battery_level: float = None,
         signal_strength: int = None,
-    ) -> Optional[Device]:
+    ) -> Device | None:
         """Update device status after receiving data"""
         device = self._devices.get(device_id)
         if not device:
             return None
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         device.last_seen = now
         device.updated_at = now
 
@@ -267,7 +266,7 @@ class DeviceRegistry:
 
 
 # Global registry instance
-_registry: Optional[DeviceRegistry] = None
+_registry: DeviceRegistry | None = None
 
 
 def get_registry() -> DeviceRegistry:

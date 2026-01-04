@@ -6,7 +6,6 @@ Shared data models for JWT authentication across all services
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class Permission(str, Enum):
@@ -73,8 +72,8 @@ class TokenPayload:
     roles: list[str]
     exp: datetime
     iat: datetime
-    tenant_id: Optional[str] = None
-    jti: Optional[str] = None  # Token ID for revocation
+    tenant_id: str | None = None
+    jti: str | None = None  # Token ID for revocation
     token_type: str = "access"  # access or refresh
     permissions: list[str] = field(default_factory=list)
 
@@ -103,7 +102,7 @@ class User:
     email: str
     roles: list[str]
     farm_ids: list[str] = field(default_factory=list)
-    tenant_id: Optional[str] = None
+    tenant_id: str | None = None
     permissions: list[str] = field(default_factory=list)
     is_active: bool = True
     is_verified: bool = True

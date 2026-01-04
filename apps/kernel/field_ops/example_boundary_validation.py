@@ -9,8 +9,8 @@ Can be run directly after installing requirements:
     python example_boundary_validation.py
 """
 
-import sys
 import json
+import sys
 from pathlib import Path
 
 # إضافة المسار للوحدات - Add path to modules
@@ -18,9 +18,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 try:
     from services.boundary_validator import (
-        BoundaryValidator,
-        YEMEN_BOUNDS,
         AREA_LIMITS,
+        YEMEN_BOUNDS,
+        BoundaryValidator,
     )
 
     print("=" * 80)
@@ -58,7 +58,7 @@ try:
 
     result = validator.validate_geometry(valid_field)
 
-    print(f"\n   النتيجة - Result:")
+    print("\n   النتيجة - Result:")
     print(f"   - صالح / Valid: {result.is_valid}")
     print(f"   - المساحة / Area: {result.area_hectares:.4f} هكتار / hectares")
     print(f"   - المحيط / Perimeter: {result.perimeter_meters:.2f} متر / meters")
@@ -100,7 +100,7 @@ try:
 
     area_issues = [issue for issue in result2.issues if "area" in issue.issue_type.lower()]
     if area_issues:
-        print(f"   - المشاكل / Issues:")
+        print("   - المشاكل / Issues:")
         for issue in area_issues:
             print(f"     [{issue.severity}] {issue.message_ar}")
 
@@ -156,7 +156,7 @@ try:
     yemen_file = Path(__file__).parent / "data" / "yemen_boundaries.geojson"
     if yemen_file.exists():
         print(f"   ✓ الملف موجود / File exists: {yemen_file}")
-        with open(yemen_file, 'r', encoding='utf-8') as f:
+        with open(yemen_file, encoding='utf-8') as f:
             data = json.load(f)
             print(f"   - عدد المعالم / Feature count: {len(data.get('features', []))}")
             print(f"   - النوع / Type: {data.get('type')}")

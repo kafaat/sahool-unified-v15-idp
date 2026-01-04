@@ -20,19 +20,6 @@ from .dependencies import (
     require_permissions,
     require_roles,
 )
-from .user_cache import (
-    UserCache,
-    get_user_cache,
-    init_user_cache,
-    close_user_cache,
-)
-from .user_repository import (
-    UserRepository,
-    UserValidationData,
-    InMemoryUserRepository,
-    get_user_repository,
-    set_user_repository,
-)
 from .jwt_handler import (
     create_access_token,
     create_refresh_token,
@@ -55,6 +42,10 @@ from .models import (
     TokenPayload,
     User,
 )
+from .revocation_middleware import (
+    RevocationCheckDependency,
+    TokenRevocationMiddleware,
+)
 from .service_auth import (
     ALLOWED_SERVICES,
     SERVICE_COMMUNICATION_MATRIX,
@@ -74,13 +65,22 @@ from .service_middleware import (
 from .token_revocation import (
     RedisTokenRevocationStore,
     get_revocation_store,
-    revoke_token,
-    revoke_all_user_tokens,
     is_token_revoked,
+    revoke_all_user_tokens,
+    revoke_token,
 )
-from .revocation_middleware import (
-    TokenRevocationMiddleware,
-    RevocationCheckDependency,
+from .user_cache import (
+    UserCache,
+    close_user_cache,
+    get_user_cache,
+    init_user_cache,
+)
+from .user_repository import (
+    InMemoryUserRepository,
+    UserRepository,
+    UserValidationData,
+    get_user_repository,
+    set_user_repository,
 )
 
 __all__ = [

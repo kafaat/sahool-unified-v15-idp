@@ -6,15 +6,17 @@ Core registry service for agent registration, discovery, and health monitoring.
 خدمة السجل الأساسية لتسجيل الوكلاء واكتشافهم ومراقبة الصحة.
 """
 
-from typing import List, Dict, Any, Optional, Set
-from pydantic import BaseModel, Field
-from datetime import datetime, timedelta
 import asyncio
-import structlog
-import httpx
+import contextlib
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
-from .agent_card import AgentCard, AgentCapability, AgentSkill
+import httpx
+import structlog
+from pydantic import BaseModel, Field
+
+from .agent_card import AgentCard
 
 logger = structlog.get_logger()
 
@@ -34,9 +36,9 @@ class HealthCheckResult(BaseModel):
     agent_id: str
     status: HealthStatus
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    response_time_ms: Optional[float] = None
-    error: Optional[str] = None
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    response_time_ms: float | None = None
+    error: str | None = None
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class RegistryConfig(BaseModel):
@@ -76,15 +78,15 @@ class AgentRegistry:
     - Dependency tracking
     """
 
-    def __init__(self, config: Optional[RegistryConfig] = None):
+    def __init__(self, config: RegistryConfig | None = None):
         """Initialize registry / تهيئة السجل"""
         self.config = config or RegistryConfig()
-        self._agents: Dict[str, AgentCard] = {}
-        self._health_status: Dict[str, HealthCheckResult] = {}
-        self._capability_index: Dict[str, Set[str]] = {}
-        self._skill_index: Dict[str, Set[str]] = {}
-        self._tag_index: Dict[str, Set[str]] = {}
-        self._health_check_task: Optional[asyncio.Task] = None
+        self._agents: dict[str, AgentCard] = {}
+        self._health_status: dict[str, HealthCheckResult] = {}
+        self._capability_index: dict[str, set[str]] = {}
+        self._skill_index: dict[str, set[str]] = {}
+        self._tag_index: dict[str, set[str]] = {}
+        self._health_check_task: asyncio.Task | None = None
         self._logger = logger.bind(component="agent_registry")
 
     async def start(self):
@@ -112,10 +114,8 @@ class AgentRegistry:
 
         if self._health_check_task:
             self._health_check_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._health_check_task
-            except asyncio.CancelledError:
-                pass
 
         self._logger.info("agent_registry_stopped")
 
@@ -224,7 +224,7 @@ class AgentRegistry:
         self._logger.info("agent_deregistered", agent_id=agent_id)
         return True
 
-    def get_agent(self, agent_id: str) -> Optional[AgentCard]:
+    def get_agent(self, agent_id: str) -> AgentCard | None:
         """
         Get agent by ID
         الحصول على وكيل بواسطة المعرف
@@ -239,9 +239,9 @@ class AgentRegistry:
 
     def list_agents(
         self,
-        status: Optional[str] = None,
-        category: Optional[str] = None,
-    ) -> List[AgentCard]:
+        status: str | None = None,
+        category: str | None = None,
+    ) -> list[AgentCard]:
         """
         List all agents with optional filters
         قائمة بجميع الوكلاء مع مرشحات اختيارية
@@ -263,7 +263,7 @@ class AgentRegistry:
 
         return agents
 
-    def discover_by_capability(self, capability_name: str) -> List[AgentCard]:
+    def discover_by_capability(self, capability_name: str) -> list[AgentCard]:
         """
         Discover agents by capability
         اكتشاف الوكلاء حسب القدرة
@@ -278,7 +278,7 @@ class AgentRegistry:
         agent_ids = self._capability_index.get(cap_name, set())
         return [self._agents[aid] for aid in agent_ids if aid in self._agents]
 
-    def discover_by_skill(self, skill_id: str) -> List[AgentCard]:
+    def discover_by_skill(self, skill_id: str) -> list[AgentCard]:
         """
         Discover agents by skill
         اكتشاف الوكلاء حسب المهارة
@@ -293,7 +293,7 @@ class AgentRegistry:
         agent_ids = self._skill_index.get(skill_lower, set())
         return [self._agents[aid] for aid in agent_ids if aid in self._agents]
 
-    def discover_by_tags(self, tags: List[str]) -> List[AgentCard]:
+    def discover_by_tags(self, tags: list[str]) -> list[AgentCard]:
         """
         Discover agents by tags/keywords
         اكتشاف الوكلاء حسب العلامات/الكلمات المفتاحية
@@ -304,7 +304,7 @@ class AgentRegistry:
         Returns:
             List of agents matching any of the tags
         """
-        matching_agents: Set[str] = set()
+        matching_agents: set[str] = set()
 
         for tag in tags:
             tag_lower = tag.lower()
@@ -380,7 +380,7 @@ class AgentRegistry:
 
         return result
 
-    def get_health_status(self, agent_id: str) -> Optional[HealthCheckResult]:
+    def get_health_status(self, agent_id: str) -> HealthCheckResult | None:
         """
         Get cached health status
         الحصول على حالة الصحة المخزنة مؤقتًا
@@ -393,7 +393,7 @@ class AgentRegistry:
         """
         return self._health_status.get(agent_id)
 
-    def get_all_health_statuses(self) -> Dict[str, HealthCheckResult]:
+    def get_all_health_statuses(self) -> dict[str, HealthCheckResult]:
         """
         Get all cached health statuses
         الحصول على جميع حالات الصحة المخزنة مؤقتًا
@@ -403,7 +403,7 @@ class AgentRegistry:
         """
         return dict(self._health_status)
 
-    def get_registry_stats(self) -> Dict[str, Any]:
+    def get_registry_stats(self) -> dict[str, Any]:
         """
         Get registry statistics
         الحصول على إحصائيات السجل

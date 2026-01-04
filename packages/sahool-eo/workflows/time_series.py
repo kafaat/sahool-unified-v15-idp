@@ -13,9 +13,10 @@ Supports gap-filling using multiple data sources:
 - Landsat 8/9 (backup, 30m, 16-day revisit)
 """
 
-from typing import Optional, Dict, Any, Tuple, List
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
+from typing import Any, Optional
+
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -71,12 +72,12 @@ class TimeSeriesWorkflow:
         self,
         field_id: str,
         tenant_id: str,
-        bbox: Tuple[float, float, float, float],
+        bbox: tuple[float, float, float, float],
         start_date: str,
         end_date: str,
         interval_days: int = 10,
-        indices: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        indices: Optional[list[str]] = None,
+    ) -> dict[str, Any]:
         """
         Execute time series analysis workflow
 
@@ -162,7 +163,7 @@ class TimeSeriesWorkflow:
 
     def _generate_dates(
         self, start_date: str, end_date: str, interval_days: int
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate list of target dates"""
         dates = []
         current = datetime.strptime(start_date, "%Y-%m-%d")
@@ -175,14 +176,15 @@ class TimeSeriesWorkflow:
         return dates
 
     def _fetch_observation(
-        self, bbox: Tuple, time_interval: Tuple[str, str], indices: List[str]
-    ) -> Optional[Dict[str, Any]]:
+        self, bbox: tuple, time_interval: tuple[str, str], indices: list[str]
+    ) -> Optional[dict[str, Any]]:
         """Fetch a single observation"""
         try:
-            from ..tasks.fetch import SahoolSentinelFetchTask
+            from sentinelhub import CRS, BBox
+
             from ..tasks.cloud_mask import SahoolCloudMaskTask
+            from ..tasks.fetch import SahoolSentinelFetchTask
             from ..tasks.indices import AllIndicesTask
-            from sentinelhub import BBox, CRS
 
             sh_bbox = BBox(bbox=bbox, crs=CRS.WGS84)
 
@@ -229,8 +231,8 @@ class TimeSeriesWorkflow:
             return None
 
     def _fill_gaps(
-        self, observations: List[Dict], target_dates: List[str]
-    ) -> List[Dict]:
+        self, observations: list[dict], target_dates: list[str]
+    ) -> list[dict]:
         """Fill gaps in time series using interpolation"""
         if not observations:
             return []
@@ -257,8 +259,8 @@ class TimeSeriesWorkflow:
         return filled
 
     def _interpolate_observation(
-        self, target_date: str, observations: List[Dict], all_dates: List[str]
-    ) -> Optional[Dict]:
+        self, target_date: str, observations: list[dict], all_dates: list[str]
+    ) -> Optional[dict]:
         """Interpolate a single observation from neighbors"""
         target_dt = datetime.strptime(target_date, "%Y-%m-%d")
 
@@ -308,7 +310,7 @@ class TimeSeriesWorkflow:
 
         return interpolated
 
-    def _build_series(self, observations: List[Dict], index_name: str) -> List[Dict]:
+    def _build_series(self, observations: list[dict], index_name: str) -> list[dict]:
         """Build time series for a specific index"""
         series = []
         for obs in observations:
@@ -323,7 +325,7 @@ class TimeSeriesWorkflow:
                 )
         return sorted(series, key=lambda x: x["date"])
 
-    def _analyze_patterns(self, time_series: Dict) -> Dict[str, Any]:
+    def _analyze_patterns(self, time_series: dict) -> dict[str, Any]:
         """Analyze temporal patterns in time series"""
         analysis = {}
 
@@ -344,7 +346,7 @@ class TimeSeriesWorkflow:
 
         return analysis
 
-    def _calculate_trend(self, values: List[float]) -> str:
+    def _calculate_trend(self, values: list[float]) -> str:
         """Calculate overall trend"""
         if len(values) < 2:
             return "insufficient_data"
@@ -360,7 +362,7 @@ class TimeSeriesWorkflow:
         else:
             return "stable"
 
-    def _detect_seasonality(self, values: List[float]) -> Dict:
+    def _detect_seasonality(self, values: list[float]) -> dict:
         """Detect seasonal patterns"""
         if len(values) < 12:
             return {"detected": False, "reason": "insufficient_data"}
@@ -376,7 +378,7 @@ class TimeSeriesWorkflow:
             "amplitude": round(max(values) - min(values), 4),
         }
 
-    def _detect_anomalies(self, time_series: Dict) -> List[Dict]:
+    def _detect_anomalies(self, time_series: dict) -> list[dict]:
         """Detect anomalies in time series"""
         anomalies = []
 
@@ -388,7 +390,7 @@ class TimeSeriesWorkflow:
             mean = np.mean(values)
             std = np.std(values)
 
-            for i, point in enumerate(series):
+            for _i, point in enumerate(series):
                 z_score = (point["value"] - mean) / std if std > 0 else 0
 
                 if abs(z_score) > 2.0:
@@ -424,11 +426,11 @@ class ChangeDetectionWorkflow:
     def execute(
         self,
         field_id: str,
-        bbox: Tuple,
-        before_interval: Tuple[str, str],
-        after_interval: Tuple[str, str],
+        bbox: tuple,
+        before_interval: tuple[str, str],
+        after_interval: tuple[str, str],
         threshold: float = 0.1,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Detect changes between two periods
 

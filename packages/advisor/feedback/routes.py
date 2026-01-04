@@ -6,7 +6,6 @@ SAHOOL AI Feedback API Routes
 from __future__ import annotations
 
 from uuid import UUID
-from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -23,9 +22,9 @@ class FeedbackRequest(BaseModel):
     trace_id: str
     query: str
     feedback_type: FeedbackType
-    rating: Optional[int] = Field(None, ge=1, le=5)
-    comment: Optional[str] = Field(None, max_length=1000)
-    correct_answer: Optional[str] = None
+    rating: int | None = Field(None, ge=1, le=5)
+    comment: str | None = Field(None, max_length=1000)
+    correct_answer: str | None = None
 
 
 class FeedbackResponse(BaseModel):

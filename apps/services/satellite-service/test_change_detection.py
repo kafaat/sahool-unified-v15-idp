@@ -5,10 +5,9 @@ Test script for Change Detection System
 
 import asyncio
 from datetime import date, timedelta
+
 from src.change_detector import (
     ChangeDetector,
-    ChangeType,
-    SeverityLevel,
     NDVIDataPoint,
 )
 
@@ -72,7 +71,7 @@ async def test_change_detector():
     print(f"[English Summary] {report.summary_en}")
 
     if report.events:
-        print(f"\n[Detected Events]")
+        print("\n[Detected Events]")
         for i, event in enumerate(report.events[:3], 1):
             print(f"  Event {i}:")
             print(f"    - Type: {event.change_type.value}")
@@ -86,7 +85,7 @@ async def test_change_detector():
             print(f"    - Recommendation (AR): {event.recommended_action_ar}")
 
     if report.recommendations_ar:
-        print(f"\n[Recommendations - التوصيات]")
+        print("\n[Recommendations - التوصيات]")
         for rec in report.recommendations_ar:
             print(f"  • {rec}")
 

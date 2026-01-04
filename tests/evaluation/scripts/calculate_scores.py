@@ -6,11 +6,11 @@ Calculate Evaluation Scores
 Script to calculate evaluation scores from pytest JSON report.
 """
 
+import argparse
 import json
 import sys
-import argparse
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
 
 class ScoreCalculator:
@@ -22,7 +22,7 @@ class ScoreCalculator:
     def __init__(self, metrics_file: Path):
         """Initialize with metrics file"""
         self.metrics_file = metrics_file
-        self.test_results: List[Dict[str, Any]] = []
+        self.test_results: list[dict[str, Any]] = []
 
     def load_metrics(self) -> bool:
         """Load metrics from pytest JSON report"""
@@ -31,7 +31,7 @@ class ScoreCalculator:
             return False
 
         try:
-            with open(self.metrics_file, "r", encoding="utf-8") as f:
+            with open(self.metrics_file, encoding="utf-8") as f:
                 data = json.load(f)
 
             # Check if this is evaluation results file
@@ -51,7 +51,7 @@ class ScoreCalculator:
             print(f"❌ Error loading metrics: {e}")
             return False
 
-    def _parse_pytest_report(self, report: Dict[str, Any]):
+    def _parse_pytest_report(self, report: dict[str, Any]):
         """Parse pytest JSON report format"""
         # This is a simplified parser - adapt to actual pytest-json-report format
         tests = report.get("tests", [])
@@ -74,7 +74,7 @@ class ScoreCalculator:
                 }
             ]
 
-    def calculate_scores(self) -> Dict[str, Any]:
+    def calculate_scores(self) -> dict[str, Any]:
         """
         Calculate comprehensive evaluation scores
         حساب درجات التقييم الشاملة
@@ -170,7 +170,7 @@ class ScoreCalculator:
             "timestamp": self._get_timestamp(),
         }
 
-    def _empty_summary(self) -> Dict[str, Any]:
+    def _empty_summary(self) -> dict[str, Any]:
         """Return empty summary"""
         return {
             "overall_score": 0.0,

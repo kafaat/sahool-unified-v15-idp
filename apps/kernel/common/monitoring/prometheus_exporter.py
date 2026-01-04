@@ -8,18 +8,17 @@ Integrates with PerformanceMonitor to provide real-time metrics.
 
 import logging
 import time
-from typing import Dict, List, Optional
 from datetime import datetime
 
 try:
     from prometheus_client import (
+        REGISTRY,
+        CollectorRegistry,
         Counter,
         Gauge,
         Histogram,
         Info,
         generate_latest,
-        REGISTRY,
-        CollectorRegistry,
     )
     PROMETHEUS_AVAILABLE = True
 except ImportError:
@@ -28,7 +27,7 @@ except ImportError:
         "prometheus_client not installed. Install with: pip install prometheus-client"
     )
 
-from .performance_monitor import get_monitor, PerformanceMonitor
+from .performance_monitor import get_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +50,7 @@ class PrometheusExporter:
         self,
         service_name: str = "sahool",
         namespace: str = "sahool",
-        registry: Optional[CollectorRegistry] = None
+        registry: CollectorRegistry | None = None
     ):
         """
         Initialize Prometheus exporter
@@ -284,7 +283,7 @@ class PrometheusExporter:
         target: str,
         duration_seconds: float,
         success: bool,
-        endpoint: Optional[str] = None
+        endpoint: str | None = None
     ):
         """
         تسجيل استدعاء خدمة خارجية
@@ -403,7 +402,7 @@ class PrometheusExporter:
 
 
 # Global exporter instance - النسخة العامة للمُصدّر
-_exporter: Optional[PrometheusExporter] = None
+_exporter: PrometheusExporter | None = None
 
 
 def get_exporter(service_name: str = "sahool") -> PrometheusExporter:
@@ -499,7 +498,7 @@ def track_db_operation(query_type: str, table: str = "unknown"):
             try:
                 result = await func(*args, **kwargs)
                 return result
-            except Exception as e:
+            except Exception:
                 success = False
                 raise
             finally:
@@ -510,7 +509,7 @@ def track_db_operation(query_type: str, table: str = "unknown"):
     return decorator
 
 
-def track_external_api(target: str, endpoint: Optional[str] = None):
+def track_external_api(target: str, endpoint: str | None = None):
     """
     ديكوراتور لتتبع استدعاءات الخدمات الخارجية
     Decorator to track external API calls
@@ -533,7 +532,7 @@ def track_external_api(target: str, endpoint: Optional[str] = None):
             try:
                 result = await func(*args, **kwargs)
                 return result
-            except Exception as e:
+            except Exception:
                 success = False
                 raise
             finally:

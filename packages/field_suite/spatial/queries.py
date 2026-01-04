@@ -7,7 +7,7 @@ All queries use GIST indexes for efficient spatial operations.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import text
@@ -140,7 +140,7 @@ def find_containing_field(
     tenant_id: UUID,
     latitude: float,
     longitude: float,
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Find the field that contains a given point.
 
@@ -182,7 +182,7 @@ def find_containing_zone(
     tenant_id: UUID,
     latitude: float,
     longitude: float,
-) -> Optional[dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Find the zone that contains a given point.
 

@@ -3,11 +3,12 @@ Unit Tests for AI Agents
 اختبارات وحدة للوكلاء الذكيين
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, Mock, patch
 from src.agents import (
-    FieldAnalystAgent,
     DiseaseExpertAgent,
+    FieldAnalystAgent,
     IrrigationAdvisorAgent,
     YieldPredictorAgent,
 )
@@ -36,7 +37,7 @@ class TestFieldAnalystAgent:
             )
 
             assert result is not None
-            assert isinstance(result, (dict, str))
+            assert isinstance(result, dict | str)
 
     @pytest.mark.asyncio
     async def test_analyze_field_with_invalid_data(self, mock_knowledge_retriever):

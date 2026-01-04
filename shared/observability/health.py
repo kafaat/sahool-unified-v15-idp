@@ -8,12 +8,13 @@ for Kubernetes and monitoring systems.
 
 import asyncio
 import time
-from typing import Callable, Dict, List, Optional, Any
-from enum import Enum
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
+from typing import Any
 
-from fastapi import APIRouter, Response, status
+from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
 
@@ -32,7 +33,7 @@ class ComponentHealth:
     name: str
     status: HealthStatus
     message: str = ""
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     last_check: float = field(default_factory=time.time)
 
 
@@ -43,7 +44,7 @@ class ServiceHealth:
     service_name: str
     version: str
     status: HealthStatus
-    components: List[ComponentHealth] = field(default_factory=list)
+    components: list[ComponentHealth] = field(default_factory=list)
     uptime_seconds: float = 0
     timestamp: str = field(
         default_factory=lambda: (
@@ -53,7 +54,7 @@ class ServiceHealth:
         )
     )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON response"""
         return {
             "service": self.service_name,
@@ -83,8 +84,8 @@ class HealthChecker:
         self.service_name = service_name
         self.version = version
         self.start_time = time.time()
-        self._readiness_checks: Dict[str, Callable] = {}
-        self._liveness_checks: Dict[str, Callable] = {}
+        self._readiness_checks: dict[str, Callable] = {}
+        self._liveness_checks: dict[str, Callable] = {}
 
     def add_readiness_check(self, name: str, check_func: Callable) -> None:
         """

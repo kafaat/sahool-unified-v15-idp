@@ -9,16 +9,12 @@ Extracts and organizes knowledge:
 - Best practices identification
 """
 
-from typing import Any, Dict, List, Optional, Set
-from datetime import datetime
-from collections import defaultdict
-import asyncio
 import logging
+from collections import defaultdict
+from datetime import datetime
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentLayer, AgentPercept, AgentType, BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -38,16 +34,16 @@ class KnowledgeMinerAgent(BaseAgent):
         )
 
         # Discovered patterns
-        self.patterns: Dict[str, Dict[str, Any]] = {}
+        self.patterns: dict[str, dict[str, Any]] = {}
 
         # Extracted rules
-        self.rules: List[Dict[str, Any]] = []
+        self.rules: list[dict[str, Any]] = []
 
         # Knowledge graph (simplified)
-        self.knowledge_graph: Dict[str, Set[str]] = defaultdict(set)
+        self.knowledge_graph: dict[str, set[str]] = defaultdict(set)
 
         # Data buffer for mining
-        self.data_buffer: List[Dict[str, Any]] = []
+        self.data_buffer: list[dict[str, Any]] = []
 
     async def perceive(self, percept: AgentPercept) -> None:
         """استقبال البيانات للتنقيب"""
@@ -109,7 +105,7 @@ class KnowledgeMinerAgent(BaseAgent):
                     }
                     self.rules.append(rule)
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """التفكير في استخراج المعرفة"""
         # Extract rules from patterns
         await self._extract_rules()
@@ -132,7 +128,7 @@ class KnowledgeMinerAgent(BaseAgent):
 
         return None
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ الإجراء"""
         return {
             "action_type": action.action_type,
@@ -140,11 +136,11 @@ class KnowledgeMinerAgent(BaseAgent):
             "success": True
         }
 
-    def query_knowledge(self, entity: str) -> List[str]:
+    def query_knowledge(self, entity: str) -> list[str]:
         """الاستعلام عن المعرفة"""
         return list(self.knowledge_graph.get(entity, set()))
 
-    def get_rule_for_crop(self, crop_type: str) -> List[Dict[str, Any]]:
+    def get_rule_for_crop(self, crop_type: str) -> list[dict[str, Any]]:
         """الحصول على القواعد للمحصول"""
         return [
             r for r in self.rules

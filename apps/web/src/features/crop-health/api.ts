@@ -73,7 +73,7 @@ interface ApiDiagnosisResponse {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== 'undefined') {
+if (!process.env.NEXT_PUBLIC_API_URL && typeof window !== 'undefined') {
   console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
 }
 

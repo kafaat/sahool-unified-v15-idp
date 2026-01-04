@@ -25,7 +25,7 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor(this._ref, this._dio);
 
   @override
-  void onRequest(
+  Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
@@ -79,7 +79,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     // Log error with sanitization - NO sensitive data
     AppLogger.network(
       err.requestOptions.method,

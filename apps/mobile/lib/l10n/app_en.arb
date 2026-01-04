@@ -2,14 +2,12 @@
   "@@locale": "en",
   "@@context": "SAHOOL - Yemen Agricultural Platform - English Localization",
 
-  "_comment_app": "=== APPLICATION ===",
   "appName": "SAHOOL",
   "appTitle": "SAHOOL - Smart Agriculture Platform",
   "appDescription": "Comprehensive platform for agricultural field management in Yemen",
   "version": "Version",
   "buildNumber": "Build Number",
 
-  "_comment_common": "=== COMMON ===",
   "yes": "Yes",
   "no": "No",
   "ok": "OK",
@@ -98,7 +96,6 @@
   "fullScreen": "Full Screen",
   "exitFullScreen": "Exit Full Screen",
 
-  "_comment_status": "=== STATUS ===",
   "active": "Active",
   "inactive": "Inactive",
   "enabled": "Enabled",
@@ -120,7 +117,6 @@
   "warning": "Warning",
   "info_": "Info",
 
-  "_comment_time": "=== TIME & DATE ===",
   "today": "Today",
   "yesterday": "Yesterday",
   "tomorrow": "Tomorrow",
@@ -154,7 +150,6 @@
   "am": "AM",
   "pm": "PM",
 
-  "_comment_numbers": "=== NUMBERS & UNITS ===",
   "count": "Count",
   "total": "Total",
   "subtotal": "Subtotal",
@@ -173,7 +168,6 @@
   "unit": "Unit",
   "units": "Units",
 
-  "_comment_navigation": "=== NAVIGATION ===",
   "home": "Home",
   "dashboard": "Dashboard",
   "fields": "Fields",
@@ -266,7 +260,6 @@
   "sync": "Sync",
   "dailyBrief": "Daily Brief",
 
-  "_comment_auth": "=== AUTHENTICATION ===",
   "login": "Login",
   "logout": "Logout",
   "signIn": "Sign In",
@@ -302,13 +295,12 @@
   "welcome": "Welcome",
   "createAccount": "Create Account",
   "alreadyHaveAccount": "Already have an account?",
-  "dontHaveAccount": "Don't have an account?",
+  "dontHaveAccount": "Don''t have an account?",
   "agreeToTerms": "I agree to the Terms and Conditions",
   "termsAndConditions": "Terms and Conditions",
   "privacyPolicy": "Privacy Policy",
   "acceptTerms": "Accept Terms",
 
-  "_comment_fields": "=== FIELDS MANAGEMENT ===",
   "field": "Field",
   "fieldName": "Field Name",
   "fieldArea": "Field Area",
@@ -340,7 +332,6 @@
   "altitude": "Altitude",
   "accuracy": "Accuracy",
 
-  "_comment_soil": "=== SOIL ===",
   "soil": "Soil",
   "soilType": "Soil Type",
   "soilTexture": "Soil Texture",
@@ -365,7 +356,6 @@
   "soilComposition": "Soil Composition",
   "soilProfile": "Soil Profile",
 
-  "_comment_crops": "=== CROPS ===",
   "crop": "Crop",
   "cropName": "Crop Name",
   "cropType": "Crop Type",
@@ -399,7 +389,6 @@
   "cropPerformance": "Crop Performance",
   "cropComparison": "Crop Comparison",
 
-  "_comment_yemen_crops": "=== YEMEN CROPS ===",
   "wheat": "Wheat",
   "barley": "Barley",
   "sorghum": "Sorghum",
@@ -433,7 +422,6 @@
   "bean": "Bean",
   "pea": "Pea",
 
-  "_comment_weather": "=== WEATHER ===",
   "currentWeather": "Current Weather",
   "weatherConditions": "Weather Conditions",
   "weatherData": "Weather Data",
@@ -508,7 +496,6 @@
   "weatherTrends": "Weather Trends",
   "weatherComparison": "Weather Comparison",
 
-  "_comment_satellite_ndvi": "=== SATELLITE & NDVI ===",
   "satelliteImage": "Satellite Image",
   "satelliteData": "Satellite Data",
   "satelliteProvider": "Satellite Provider",
@@ -561,7 +548,6 @@
   "blueBand": "Blue Band",
   "nirBand": "NIR Band",
 
-  "_comment_vra": "=== VARIABLE RATE APPLICATION (VRA) ===",
   "variableRateApplication": "Variable Rate Application",
   "vraTitle": "Variable Rate Application Maps",
   "prescriptionMap": "Prescription Map",
@@ -621,7 +607,6 @@
   "standardDeviation": "Standard Deviation",
   "coefficient_of_variation": "Coefficient of Variation",
 
-  "_comment_gdd": "=== GROWING DEGREE DAYS (GDD) ===",
   "growingDegreeDays": "Growing Degree Days",
   "gddTitle": "GDD Calculator",
   "gddAccumulated": "Accumulated GDD",
@@ -674,7 +659,6 @@
   "chillingHours": "Chilling Hours",
   "vernalization": "Vernalization",
 
-  "_comment_spray": "=== SPRAY RECOMMENDATIONS ===",
   "sprayRecommendation": "Spray Recommendation",
   "sprayApplication": "Spray Application",
   "sprayDate": "Spray Date",
@@ -768,7 +752,6 @@
   "sprayPending": "Spray Pending",
   "sprayCancelled": "Spray Cancelled",
 
-  "_comment_rotation": "=== CROP ROTATION ===",
   "cropRotationPlan": "Crop Rotation Plan",
   "rotationCycle": "Rotation Cycle",
   "rotationSequence": "Rotation Sequence",
@@ -824,7 +807,6 @@
   "economicImpact": "Economic Impact",
   "environmentalImpact": "Environmental Impact",
 
-  "_comment_profitability": "=== PROFITABILITY ANALYSIS ===",
   "profitabilityReport": "Profitability Report",
   "financialAnalysis": "Financial Analysis",
   "economicAnalysis": "Economic Analysis",
@@ -939,7 +921,6 @@
   "financialHealth": "Financial Health",
   "creditScore": "Credit Score",
 
-  "_comment_inventory": "=== INVENTORY MANAGEMENT ===",
   "inventoryItem": "Inventory Item",
   "itemName": "Item Name",
   "itemCode": "Item Code",
@@ -1033,7 +1014,6 @@
   "valuationReport": "Valuation Report",
   "agingReport": "Aging Report",
 
-  "_comment_chat": "=== CHAT & MESSAGING ===",
   "message": "Message",
   "newMessage": "New Message",
   "sendMessage": "Send Message",
@@ -1099,7 +1079,6 @@
   "groupAdmin": "Group Admin",
   "groupSettings": "Group Settings",
 
-  "_comment_notifications": "=== NOTIFICATIONS & ALERTS ===",
   "notification": "Notification",
   "newNotification": "New Notification",
   "notificationList": "Notification List",
@@ -1151,7 +1130,6 @@
   "resolvedAlerts": "Resolved Alerts",
   "dismissedAlerts": "Dismissed Alerts",
 
-  "_comment_tasks": "=== TASKS ===",
   "task": "Task",
   "newTask": "New Task",
   "createTask": "Create Task",
@@ -1237,7 +1215,6 @@
   "completionRate": "Completion Rate",
   "taskPerformance": "Task Performance",
 
-  "_comment_equipment": "=== EQUIPMENT ===",
   "equipmentName": "Equipment Name",
   "equipmentType": "Equipment Type",
   "equipmentModel": "Equipment Model",
@@ -1318,7 +1295,6 @@
   "warrantyPeriod": "Warranty Period",
   "warrantyExpiry": "Warranty Expiry",
 
-  "_comment_analytics": "=== ANALYTICS & REPORTS ===",
   "report": "Report",
   "generateReport": "Generate Report",
   "viewReport": "View Report",
@@ -1390,7 +1366,6 @@
   "recommendation": "Recommendation",
   "conclusion": "Conclusion",
 
-  "_comment_profile_account": "=== PROFILE & ACCOUNT ===",
   "myAccount": "My Account",
   "editProfile": "Edit Profile",
   "viewProfile": "View Profile",
@@ -1470,7 +1445,6 @@
   "dataProtection": "Data Protection",
   "consentSettings": "Consent Settings",
 
-  "_comment_settings": "=== SETTINGS ===",
   "generalSettings": "General Settings",
   "appSettings": "App Settings",
   "displaySettings": "Display Settings",
@@ -1569,7 +1543,6 @@
   "resetToDefaults": "Reset to Defaults",
   "factoryReset": "Factory Reset",
 
-  "_comment_errors": "=== ERRORS & VALIDATION ===",
   "error_": "Error",
   "errorOccurred": "An Error Occurred",
   "errorMessage": "Error Message",
@@ -1649,7 +1622,6 @@
   "unknownError": "Unknown Error",
   "unexpectedError": "Unexpected Error",
 
-  "_comment_confirmations": "=== CONFIRMATIONS & DIALOGS ===",
   "areYouSure": "Are You Sure?",
   "confirmAction": "Confirm Action",
   "confirmDelete": "Confirm Delete",
@@ -1695,7 +1667,6 @@
   "goodEvening": "Good Evening",
   "goodNight": "Good Night",
 
-  "_comment_units": "=== UNITS OF MEASUREMENT ===",
   "hectare": "Hectare",
   "hectares": "Hectares",
   "acre": "Acre",
@@ -1749,7 +1720,6 @@
   "dS_m": "dS/m",
   "ec": "EC",
 
-  "_comment_security": "=== SECURITY ===",
   "securityWarning": "Security Warning",
   "securityAlert_": "Security Alert",
   "unsafeDevice": "Unsafe Device",
@@ -1782,7 +1752,6 @@
   "threatLevelLow": "Minor Security Warning",
   "threatLevelNone": "No Security Threats",
 
-  "_comment_misc": "=== MISCELLANEOUS ===",
   "all": "All",
   "none": "None",
   "other": "Other",
@@ -1794,7 +1763,7 @@
   "comingSoon": "Coming Soon",
   "underConstruction": "Under Construction",
   "beta": "Beta",
-  "new": "New",
+  "newItem": "New",
   "updated": "Updated",
   "featured": "Featured",
   "popular": "Popular",
@@ -1802,7 +1771,7 @@
   "optional": "Optional",
   "required_": "Required",
   "mandatory": "Mandatory",
-  "default": "Default",
+  "defaultValue": "Default",
   "custom": "Custom",
   "automatic": "Automatic",
   "manual": "Manual",
@@ -1862,7 +1831,7 @@
   "updateNow": "Update Now",
   "updateLater": "Update Later",
   "upToDate": "Up to Date",
-  "whatsNew": "What's New",
+  "whatsNew": "What''s New",
   "releaseNotes": "Release Notes",
   "changelog": "Changelog",
   "improvements": "Improvements",

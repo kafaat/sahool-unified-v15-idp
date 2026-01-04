@@ -375,7 +375,7 @@ def example_9_dynamic_rate_limits():
         config = tier_limits.get(tier, tier_limits["free"])
 
         # Check rate limit with custom config
-        limiter = RateLimiter()
+        RateLimiter()
         # Note: You'd need to customize the limiter to use this config
         # This is a simplified example
 

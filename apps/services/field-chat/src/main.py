@@ -5,7 +5,7 @@ Main FastAPI application entry point
 
 import logging
 import os
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -75,10 +75,8 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     logger.info("Shutting down Field Chat service...")
-    try:
+    with suppress(Exception):
         await Tortoise.close_connections()
-    except Exception:
-        pass
 
 
 # Create FastAPI app
@@ -190,10 +188,8 @@ class ConnectionManager:
     async def broadcast(self, thread_id: str, message: dict):
         if thread_id in self.active_connections:
             for connection in self.active_connections[thread_id]:
-                try:
+                with suppress(Exception):
                     await connection.send_json(message)
-                except Exception:
-                    pass
 
 
 manager = ConnectionManager()

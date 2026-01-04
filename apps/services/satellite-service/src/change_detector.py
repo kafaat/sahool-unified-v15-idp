@@ -1063,7 +1063,7 @@ class ChangeDetector:
             )
 
         # Get unique change types
-        change_types = list(set(e.change_type for e in events))
+        list({e.change_type for e in events})
 
         # Priority recommendations based on severity
         critical_events = [e for e in events if e.severity == SeverityLevel.CRITICAL]

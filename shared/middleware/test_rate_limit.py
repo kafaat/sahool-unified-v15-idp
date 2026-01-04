@@ -270,7 +270,7 @@ class TestDecorators:
         assert response1.status_code == 200
 
         # Second request should fail immediately due to burst limit
-        response2 = client.get("/test")
+        client.get("/test")
         # Note: May pass depending on timing and token refill
 
     async def test_rate_limit_by_user_decorator(self):

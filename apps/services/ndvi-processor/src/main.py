@@ -328,7 +328,7 @@ async def get_timeseries(
     """السلسلة الزمنية"""
     data = get_ndvi_timeseries(field_id, start, end)
 
-    sources = list(set(p.source for p in data))
+    sources = list({p.source for p in data})
 
     return TimeseriesResponse(
         field_id=field_id,

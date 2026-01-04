@@ -47,9 +47,9 @@ def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
         # Extract data from payload
         model_name = payload.get("model_name")
         model_version = payload.get("model_version", "latest")
-        input_data = payload.get("input_data", {})
+        payload.get("input_data", {})
         input_urls = payload.get("input_urls", [])
-        confidence_threshold = payload.get("confidence_threshold", 0.7)
+        payload.get("confidence_threshold", 0.7)
 
         if not model_name:
             raise ValueError("model_name is required")

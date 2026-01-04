@@ -326,13 +326,6 @@ class MockApiClient:
         await self._simulate_network_delay()
         self._request_count += 1
 
-        task_types = [
-            "irrigation",
-            "fertilization",
-            "harvest",
-            "pest_control",
-            "planting",
-        ]
         statuses = ["pending", "in_progress", "completed"]
 
         tasks = [

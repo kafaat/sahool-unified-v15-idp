@@ -596,10 +596,10 @@ class IrrigationScheduler:
 
         # إذا تجاوز الحد الأقصى، هناك تصريف - If exceeds max, drainage occurs
         if new_content > max_content:
-            drainage = new_content - max_content
+            new_content - max_content
             new_content = max_content
         else:
-            drainage = 0
+            pass
 
         # حساب عجز المياه - Calculate water deficit
         deficit = max(0, soil_properties.readily_available_water - new_content)

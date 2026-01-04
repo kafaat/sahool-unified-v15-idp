@@ -36,7 +36,7 @@ def test_get_calendar():
     print(f"النوع / Type: {calendar.crop_category}")
     print(f"دورة الحياة / Total cycle: {calendar.total_cycle_days} يوم / days")
     print("نوافذ الزراعة / Planting windows:")
-    for region, windows in calendar.planting_windows.items():
+    for _region, windows in calendar.planting_windows.items():
         for window_type, window_data in windows.items():
             print(f"  - {window_type}: شهر {window_data['start_month']}-{window_data['end_month']}")
             print(f"    {window_data['description']}")
@@ -49,7 +49,7 @@ def test_get_calendar():
     print(f"محصول معمر / Perennial: {calendar.is_perennial}")
     print(f"سنوات الإنتاج / Productive years: {calendar.productive_years}")
     print("موسم الحصاد / Harvest season:")
-    for region, season in calendar.harvest_season.items():
+    for _region, season in calendar.harvest_season.items():
         print(f"  شهر {season['start_month']}-{season['end_month']}: {season['description']}")
 
     # مثال 3: تقويم الطماطم (متاح على مدار السنة في تهامة)

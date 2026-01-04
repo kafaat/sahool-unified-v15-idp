@@ -6,6 +6,7 @@ Real-world examples for integrating fallback manager in SAHOOL services
 أمثلة واقعية لدمج مدير الاحتياطي في خدمات سهول
 """
 
+import contextlib
 import random
 import time
 from datetime import datetime
@@ -374,10 +375,8 @@ def always_fails():
 
 # فتح الدائرة - Open the circuit
 for i in range(2):
-    try:
+    with contextlib.suppress(Exception):
         reset_fm.execute_with_fallback("test_reset", always_fails)
-    except:
-        pass
 
 status_before = reset_fm.get_circuit_status("test_reset")
 print("\n  قبل إعادة التعيين - Before reset:")

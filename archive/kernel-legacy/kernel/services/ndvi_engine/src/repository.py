@@ -275,7 +275,7 @@ def get_unacknowledged_alerts(
     query = (
         select(NdviAlert)
         .where(NdviAlert.tenant_id == tenant_id)
-        .where(NdviAlert.acknowledged == False)
+        .where(NdviAlert.acknowledged is False)
     )
 
     if field_id:

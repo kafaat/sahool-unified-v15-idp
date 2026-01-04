@@ -320,9 +320,9 @@ async def test_rate_limiter_selects_correct_strategy(rate_limiter):
     """
     # اختبار اختيار الاستراتيجية بناءً على التكوين
     # Test strategy selection based on configuration
-    config_fixed = EndpointConfig(requests=10, period=60, strategy="fixed_window")
-    config_sliding = EndpointConfig(requests=10, period=60, strategy="sliding_window")
-    config_bucket = EndpointConfig(requests=10, period=60, strategy="token_bucket")
+    EndpointConfig(requests=10, period=60, strategy="fixed_window")
+    EndpointConfig(requests=10, period=60, strategy="sliding_window")
+    EndpointConfig(requests=10, period=60, strategy="token_bucket")
 
     # جميع الاستراتيجيات يجب أن تكون متاحة
     # All strategies should be available
@@ -616,7 +616,7 @@ async def test_full_rate_limiting_flow():
 
     # يجب أن يُسمح بالطلبات الأولى
     # First requests should be allowed
-    for i in range(5):
+    for _i in range(5):
         allowed, remaining, reset = await limiter.check_rate_limit(client_id, endpoint)
         assert allowed is True
 

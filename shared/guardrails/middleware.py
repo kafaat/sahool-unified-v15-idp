@@ -432,14 +432,14 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
                     if len(value) > 10:  # Only filter substantial text
                         text_fields.append((field_path, value))
 
-                elif isinstance(value, (dict, list)):
+                elif isinstance(value, dict | list):
                     # Recurse into nested structures
                     text_fields.extend(self._extract_text_fields(value, field_path))
 
         elif isinstance(data, list):
             for i, item in enumerate(data):
                 field_path = f"{path}[{i}]"
-                if isinstance(item, (dict, list)):
+                if isinstance(item, dict | list):
                     text_fields.extend(self._extract_text_fields(item, field_path))
 
         return text_fields
@@ -449,7 +449,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
         parts = field_path.split(".")
         current = data
 
-        for i, part in enumerate(parts[:-1]):
+        for _i, part in enumerate(parts[:-1]):
             # Handle array indices
             if "[" in part:
                 key, idx = part.split("[")

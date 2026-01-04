@@ -396,7 +396,7 @@ def get_alert_rules_by_field(
         query = query.where(AlertRule.tenant_id == tenant_id)
 
     if enabled_only:
-        query = query.where(AlertRule.enabled == True)
+        query = query.where(AlertRule.enabled is True)
 
     query = query.order_by(AlertRule.created_at.desc())
 
@@ -414,7 +414,7 @@ def get_enabled_rules(db: Session, tenant_id: UUID | None = None) -> list[AlertR
     Returns:
         List of enabled alert rules
     """
-    query = select(AlertRule).where(AlertRule.enabled == True)
+    query = select(AlertRule).where(AlertRule.enabled is True)
 
     if tenant_id:
         query = query.where(AlertRule.tenant_id == tenant_id)
@@ -511,7 +511,7 @@ def get_rules_ready_to_trigger(
     """
     now = datetime.now(UTC)
 
-    query = select(AlertRule).where(AlertRule.enabled == True)
+    query = select(AlertRule).where(AlertRule.enabled is True)
 
     if tenant_id:
         query = query.where(AlertRule.tenant_id == tenant_id)

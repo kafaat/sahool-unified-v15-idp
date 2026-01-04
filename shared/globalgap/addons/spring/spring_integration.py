@@ -483,11 +483,11 @@ class SpringIntegration:
 
             # Irrigation methods
             methods = list(
-                set(
+                {
                     r.irrigation_method.value
                     for r in season_records
                     if r.irrigation_method
-                )
+                }
             )
 
             pattern = SeasonalPattern(

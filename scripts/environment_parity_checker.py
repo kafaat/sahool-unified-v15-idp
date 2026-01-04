@@ -237,7 +237,7 @@ class EnvironmentParityChecker:
         env_prefix = env.upper() + "_"
         result = configs.get(env, {})
 
-        for key in result.keys():
+        for key in result:
             env_value = os.getenv(env_prefix + key) or os.getenv(key)
             if env_value:
                 result[key] = env_value
@@ -285,28 +285,27 @@ class EnvironmentParityChecker:
 
         try:
             start = datetime.now()
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    f"{url}/health",
-                    timeout=aiohttp.ClientTimeout(total=5)
-                ) as response:
-                    elapsed = (datetime.now() - start).total_seconds() * 1000
+            async with aiohttp.ClientSession() as session, session.get(
+                f"{url}/health",
+                timeout=aiohttp.ClientTimeout(total=5)
+            ) as response:
+                elapsed = (datetime.now() - start).total_seconds() * 1000
 
-                    if response.status == 200:
-                        data = await response.json()
-                        return ServiceStatus(
-                            name=service,
-                            healthy=True,
-                            response_time_ms=elapsed,
-                            version=data.get("version", "unknown"),
-                        )
-                    else:
-                        return ServiceStatus(
-                            name=service,
-                            healthy=False,
-                            response_time_ms=elapsed,
-                            error=f"HTTP {response.status}",
-                        )
+                if response.status == 200:
+                    data = await response.json()
+                    return ServiceStatus(
+                        name=service,
+                        healthy=True,
+                        response_time_ms=elapsed,
+                        version=data.get("version", "unknown"),
+                    )
+                else:
+                    return ServiceStatus(
+                        name=service,
+                        healthy=False,
+                        response_time_ms=elapsed,
+                        error=f"HTTP {response.status}",
+                    )
         except Exception as e:
             return ServiceStatus(
                 name=service,

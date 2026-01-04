@@ -524,10 +524,7 @@ class IrrigationIntegration:
             return False
 
         # Water rights must be documented
-        if not water_rights_documented:
-            return False
-
-        return True
+        return water_rights_documented
 
     # ─────────────────────────────────────────────────────────────────────────
     # Generate Reports

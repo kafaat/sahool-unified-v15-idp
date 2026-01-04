@@ -469,7 +469,7 @@ async def health_check():
 async def review_code_endpoint(request: CodeReviewRequest):
     """
     Review code content
-    
+
     - **code**: Code content to review
     - **language**: Optional programming language hint
     - **filename**: Optional filename for context
@@ -487,7 +487,7 @@ async def review_code_endpoint(request: CodeReviewRequest):
 async def review_file_endpoint(request: FileReviewRequest):
     """
     Review a file from the codebase
-    
+
     - **file_path**: Relative or absolute path to file in codebase
     """
     service = get_service()

@@ -57,7 +57,7 @@ class SoftDeleteMixin:
     """
 
     @declared_attr
-    def deleted_at(cls) -> Column:
+    def deleted_at(self) -> Column:
         """Timestamp when the record was deleted (NULL if active)"""
         return Column(
             "deleted_at",
@@ -69,7 +69,7 @@ class SoftDeleteMixin:
         )
 
     @declared_attr
-    def deleted_by(cls) -> Column:
+    def deleted_by(self) -> Column:
         """User ID or identifier who deleted the record"""
         return Column(
             "deleted_by",

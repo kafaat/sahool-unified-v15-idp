@@ -260,7 +260,7 @@ class TestTenantStatistics:
         # Create some fields
         field_data = {**sample_field_data, "tenant_id": tenant_id}
         field1 = client.post("/fields", json=field_data).json()
-        field2 = client.post(
+        client.post(
             "/fields", json={**field_data, "name": "Field 2", "area_hectares": 8.5}
         ).json()
 

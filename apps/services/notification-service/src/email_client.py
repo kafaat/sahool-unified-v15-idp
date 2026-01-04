@@ -467,10 +467,7 @@ class EmailClient:
         if not local or not domain:
             return False
 
-        if "." not in domain:
-            return False
-
-        return True
+        return not "." not in domain
 
 
 # Global client instance

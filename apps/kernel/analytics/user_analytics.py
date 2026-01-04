@@ -199,7 +199,7 @@ class UserAnalyticsService:
         total_events = len(events)
 
         # أيام النشاط الفريدة - Unique active days
-        unique_days = len(set(event.timestamp.date() for event in events))
+        unique_days = len({event.timestamp.date() for event in events})
 
         # مقاييس الجلسة - Session metrics
         sessions = self._extract_sessions(events)
@@ -213,7 +213,7 @@ class UserAnalyticsService:
         fields_viewed = len([e for e in events if e.event_type == EventType.FIELD_VIEWED])
 
         # عدد الحقول الفريدة المدارة - Unique fields managed
-        unique_fields = len(set(e.field_id for e in field_events if e.field_id))
+        unique_fields = len({e.field_id for e in field_events if e.field_id})
 
         # مقاييس التوصيات - Recommendation metrics
         rec_viewed = len([e for e in events if e.event_type == EventType.RECOMMENDATION_VIEWED])
@@ -410,7 +410,7 @@ class UserAnalyticsService:
 
         # حساب المقاييس - Calculate metrics
         total_uses = len(feature_events)
-        unique_users = len(set(event.user_id for event in feature_events))
+        unique_users = len({event.user_id for event in feature_events})
 
         # متوسط الاستخدامات لكل مستخدم - Average uses per user
         avg_uses_per_user = total_uses / unique_users if unique_users > 0 else 0
@@ -458,7 +458,7 @@ class UserAnalyticsService:
         end_time = datetime.combine(date_val, datetime.max.time())
 
         events = self.storage.get_events_in_range(start_time, end_time)
-        return len(set(event.user_id for event in events))
+        return len({event.user_id for event in events})
 
     def weekly_active_users(
         self,
@@ -481,7 +481,7 @@ class UserAnalyticsService:
         end_time = datetime.combine(week_start + timedelta(days=7), datetime.max.time())
 
         events = self.storage.get_events_in_range(start_time, end_time)
-        return len(set(event.user_id for event in events))
+        return len({event.user_id for event in events})
 
     def monthly_active_users(
         self,
@@ -504,7 +504,7 @@ class UserAnalyticsService:
         end_time = datetime.combine(month_start + timedelta(days=30), datetime.max.time())
 
         events = self.storage.get_events_in_range(start_time, end_time)
-        return len(set(event.user_id for event in events))
+        return len({event.user_id for event in events})
 
     def average_session_duration(
         self,
@@ -864,7 +864,7 @@ class UserAnalyticsService:
 
         # الجلسات غير المنتهية - Sessions without logout
         # افتراض مدة 30 دقيقة - Assume 30 minutes duration
-        for session_id, session in session_map.items():
+        for _session_id, session in session_map.items():
             if session['end'] is None:
                 session['duration_minutes'] = 30
                 sessions.append(session)
@@ -995,7 +995,7 @@ class InMemoryStorage:
         عدد المستخدمين النشطين الإجمالي - Total active users
         """
         events = self.get_events_in_range(start_date, end_date)
-        return len(set(e.user_id for e in events))
+        return len({e.user_id for e in events})
 
     def get_cohort_users(self, cohort_period: date) -> list[str]:
         """
@@ -1012,7 +1012,7 @@ class InMemoryStorage:
             and start <= e.timestamp <= end
         ]
 
-        return list(set(e.user_id for e in signup_events))
+        return list({e.user_id for e in signup_events})
 
 
 # ============== مصدّر الوحدة - Module Exports ==============

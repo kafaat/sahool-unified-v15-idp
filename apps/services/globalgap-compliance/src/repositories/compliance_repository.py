@@ -335,7 +335,7 @@ class ComplianceRepository:
         try:
             results = []
 
-            async with transaction() as conn:
+            async with transaction():
                 for resp in responses:
                     result = await self.save_checklist_response(
                         compliance_record_id=compliance_record_id,
@@ -954,15 +954,12 @@ class ComplianceRepository:
 
         total = len(responses)
         compliant = sum(1 for r in responses if r["response"] == "COMPLIANT")
-        non_compliant = sum(1 for r in responses if r["response"] == "NON_COMPLIANT")
+        sum(1 for r in responses if r["response"] == "NON_COMPLIANT")
         not_applicable = sum(1 for r in responses if r["response"] == "NOT_APPLICABLE")
 
         # Calculate scores (simplified)
         applicable = total - not_applicable
-        if applicable == 0:
-            compliance_rate = 100.0
-        else:
-            compliance_rate = (compliant / applicable) * 100.0
+        compliance_rate = 100.0 if applicable == 0 else compliant / applicable * 100.0
 
         return {
             "major_must_score": compliance_rate,  # Simplified

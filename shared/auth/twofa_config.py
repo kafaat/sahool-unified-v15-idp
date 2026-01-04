@@ -70,10 +70,7 @@ class TwoFAConfig:
         if self.enforcement_level == TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN:
             return "admin" in user_roles or "supervisor" in user_roles
 
-        if self.enforcement_level == TwoFAEnforcementLevel.REQUIRED_FOR_ALL:
-            return True
-
-        return False
+        return self.enforcement_level == TwoFAEnforcementLevel.REQUIRED_FOR_ALL
 
     def is_within_grace_period(self, user_created_at: datetime) -> bool:
         """

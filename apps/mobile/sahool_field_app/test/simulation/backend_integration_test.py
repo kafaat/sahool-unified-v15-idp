@@ -629,7 +629,7 @@ async def test_service_health_checks(suite: TestSuite):
     print("\n🧪 اختبار صحة الخدمات")
     print("-" * 40)
 
-    for service_key, config in SERVICES.items():
+    for _service_key, config in SERVICES.items():
         start = datetime.now()
         try:
             mock = MockBackendService(config)

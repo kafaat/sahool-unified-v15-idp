@@ -360,7 +360,7 @@ class MasterCoordinatorAgent(BaseAgent):
     ) -> UnifiedRecommendation:
         """إنشاء التوصية الموحدة"""
         # Get resolved actions
-        resolved_actions = {r.selected_action for r in resolutions}
+        {r.selected_action for r in resolutions}
         excluded_actions = set()
         for r in resolutions:
             for a in r.conflicting_actions:
@@ -443,7 +443,7 @@ class MasterCoordinatorAgent(BaseAgent):
         self.context = context
 
         # Distribute context to all specialists
-        for name, agent in self.specialists.items():
+        for _name, agent in self.specialists.items():
             agent.update_context(context)
 
         # Run coordination

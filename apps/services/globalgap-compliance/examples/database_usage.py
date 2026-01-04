@@ -80,7 +80,7 @@ async def example_3_add_checklist_responses(compliance_record_id):
     print("\n=== Example 3: Add Checklist Responses ===")
 
     # Single response
-    response1 = await checklist_repo.create(
+    await checklist_repo.create(
         compliance_record_id=compliance_record_id,
         checklist_item_id="FV.1.1.1",
         response="COMPLIANT",
@@ -206,7 +206,7 @@ async def example_7_transaction_usage(compliance_record_id):
 
     # Create multiple non-conformances in a single transaction
     async with transaction() as conn:
-        nc1 = await conn.fetchrow(
+        await conn.fetchrow(
             """
             INSERT INTO non_conformances (
                 compliance_record_id, checklist_item_id, severity,
@@ -222,7 +222,7 @@ async def example_7_transaction_usage(compliance_record_id):
             "OPEN",
         )
 
-        nc2 = await conn.fetchrow(
+        await conn.fetchrow(
             """
             INSERT INTO non_conformances (
                 compliance_record_id, checklist_item_id, severity,

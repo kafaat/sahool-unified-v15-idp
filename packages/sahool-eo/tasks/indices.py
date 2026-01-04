@@ -17,7 +17,7 @@ Indices:
 """
 
 import logging
-from typing import Dict, Optional
+from typing import Optional
 
 import numpy as np
 
@@ -37,7 +37,7 @@ class BaseIndexTask:
         input_feature: str = "BANDS",
         output_feature: str = "INDEX",
         mask_feature: Optional[str] = "VALID_DATA",
-        band_mapping: Optional[Dict[str, int]] = None,
+        band_mapping: Optional[dict[str, int]] = None,
     ):
         """
         Initialize index task
@@ -411,7 +411,7 @@ class AllIndicesTask:
         self,
         input_feature: str = "BANDS",
         mask_feature: Optional[str] = "VALID_DATA",
-        band_mapping: Optional[Dict[str, int]] = None,
+        band_mapping: Optional[dict[str, int]] = None,
         indices: Optional[list] = None,
     ):
         """
@@ -471,7 +471,7 @@ class AllIndicesTask:
         logger.info(f"Calculated {len(self.indices)} indices")
         return eopatch
 
-    def get_summary(self, eopatch) -> Dict[str, Dict[str, float]]:
+    def get_summary(self, eopatch) -> dict[str, dict[str, float]]:
         """
         Get summary statistics for all calculated indices
 

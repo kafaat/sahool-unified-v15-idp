@@ -863,13 +863,11 @@ def generate_weather_condition(
         elif random.random() < 0.2:
             return WeatherCondition.HEAVY_RAIN
 
-    if humidity < 30:
-        if random.random() < 0.2:
-            return WeatherCondition.DUST
+    if humidity < 30 and random.random() < 0.2:
+        return WeatherCondition.DUST
 
-    if humidity > 80 and temp < 20:
-        if random.random() < 0.3:
-            return WeatherCondition.FOG
+    if humidity > 80 and temp < 20 and random.random() < 0.3:
+        return WeatherCondition.FOG
 
     if random.random() < 0.6:
         return WeatherCondition.CLEAR
@@ -907,7 +905,7 @@ def check_for_alerts(
     """Check forecast for agricultural weather alerts"""
     alerts = []
 
-    for i, day in enumerate(forecast):
+    for _i, day in enumerate(forecast):
         # Heat wave check
         if day.temp_max_c >= 40:
             alerts.append(

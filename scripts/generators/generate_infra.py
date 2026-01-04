@@ -270,7 +270,7 @@ def generate_helm_values(data: dict[str, Any]) -> dict[str, Any]:
     """Generate Helm values.yaml"""
     services = data.get("services", {})
     applications = data.get("applications", {})
-    infrastructure = data.get("infrastructure", {})
+    data.get("infrastructure", {})
 
     values = {
         "# AUTO-GENERATED FILE - DO NOT EDIT MANUALLY": None,

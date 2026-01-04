@@ -95,7 +95,7 @@ async def test_agent_response_quality(test_case):
         pytest.skip("Evaluation mode not enabled")
 
     # Placeholder test - in production, call actual agent
-    test_id = test_case.get("id", "unknown")
+    test_case.get("id", "unknown")
 
     # For now, just verify the structure
     assert "id" in test_case

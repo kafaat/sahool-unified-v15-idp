@@ -270,7 +270,7 @@ def run_all_tests():
     results = []
 
     # Check dependencies first
-    deps = check_dependencies()
+    check_dependencies()
 
     # Run tests
     results.append(("Imports", test_imports()))

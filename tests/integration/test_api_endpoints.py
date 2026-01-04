@@ -73,7 +73,7 @@ async def test_field_ops_list_fields(
     if response.status_code == 200:
         data = response.json()
         assert isinstance(
-            data, (list, dict)
+            data, list | dict
         ), "Response should be a list or paginated object"
 
 
@@ -293,7 +293,7 @@ async def test_ai_advisor_get_agents(
 
     if response.status_code == 200:
         data = response.json()
-        assert isinstance(data, (list, dict)), "Response should be agents list"
+        assert isinstance(data, list | dict), "Response should be agents list"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -90,7 +90,7 @@ def test_unauthorized_service():
 
     try:
         # This should fail - notification-service cannot call farm-service
-        token = create_service_token(
+        create_service_token(
             service_name="notification-service", target_service="farm-service", ttl=300
         )
         print("✗ Test failed: Should have raised an exception")
@@ -107,7 +107,7 @@ def test_invalid_service():
 
     try:
         # This should fail - invalid service name
-        token = create_service_token(
+        create_service_token(
             service_name="invalid-service", target_service="field-service", ttl=300
         )
         print("✗ Test failed: Should have raised an exception")
@@ -217,7 +217,7 @@ def test_token_expiration():
         print("✓ Token created with 1 second TTL")
 
         # Verify immediately (should work)
-        payload = verify_service_token(token)
+        verify_service_token(token)
         print("✓ Token verified immediately")
 
         # Wait 2 seconds
@@ -226,7 +226,7 @@ def test_token_expiration():
 
         # Try to verify (should fail)
         try:
-            payload = verify_service_token(token)
+            verify_service_token(token)
             print("✗ Expired token should have been rejected")
             return False
         except Exception as e:

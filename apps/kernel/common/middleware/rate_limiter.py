@@ -454,10 +454,7 @@ class TokenBucketLimiter(RateLimitStrategy):
 
             # حساب وقت إعادة التعيين (الوقت حتى يصبح لدينا رمز واحد)
             # Calculate reset time (time until we have one token)
-            if tokens < 1.0:
-                reset_time = int((1.0 - tokens) / refill_rate) + 1
-            else:
-                reset_time = 0
+            reset_time = int((1.0 - tokens) / refill_rate) + 1 if tokens < 1.0 else 0
 
             remaining = int(tokens)
 
@@ -683,7 +680,7 @@ class RateLimiter:
             # إعادة تعيين جميع النقاط النهائية
             # Reset all endpoints
             success = True
-            for strategy_name, strategy in self.strategies.items():
+            for _strategy_name, strategy in self.strategies.items():
                 try:
                     # إعادة تعيين جميع المفاتيح لهذا العميل
                     # Reset all keys for this client

@@ -335,17 +335,27 @@ async def create_notification(
     title_ar: str,
     body: str,
     body_ar: str,
-    data: dict[str, Any] = {},
-    target_farmers: list[str] = [],
-    target_governorates: list[Governorate] = [],
-    target_crops: list[CropType] = [],
-    channels: list[NotificationChannel] = [NotificationChannel.IN_APP],
+    data: dict[str, Any] = None,
+    target_farmers: list[str] = None,
+    target_governorates: list[Governorate] = None,
+    target_crops: list[CropType] = None,
+    channels: list[NotificationChannel] = None,
     expires_in_hours: int | None = 24,
     tenant_id: str | None = None,
 ):
     """إنشاء إشعار جديد - Database version with preference checking"""
 
     # Determine target farmers based on criteria
+    if channels is None:
+        channels = [NotificationChannel.IN_APP]
+    if target_crops is None:
+        target_crops = []
+    if target_governorates is None:
+        target_governorates = []
+    if target_farmers is None:
+        target_farmers = []
+    if data is None:
+        data = {}
     recipients = determine_recipients_by_criteria(
         target_farmers=target_farmers,
         target_governorates=target_governorates,
@@ -716,12 +726,18 @@ async def send_whatsapp_notification(notification, farmer_id: str):
 
 
 def determine_recipients_by_criteria(
-    target_farmers: list[str] = [],
-    target_governorates: list[Governorate] = [],
-    target_crops: list[CropType] = [],
+    target_farmers: list[str] = None,
+    target_governorates: list[Governorate] = None,
+    target_crops: list[CropType] = None,
 ) -> list[str]:
     """تحديد المستلمين بناءً على معايير الإشعار"""
     # If specific farmers targeted, return them
+    if target_crops is None:
+        target_crops = []
+    if target_governorates is None:
+        target_governorates = []
+    if target_farmers is None:
+        target_farmers = []
     if target_farmers:
         return target_farmers
 
@@ -730,14 +746,12 @@ def determine_recipients_by_criteria(
 
     for farmer_id, profile in FARMER_PROFILES.items():
         # Filter by governorate
-        if target_governorates:
-            if profile.governorate not in target_governorates:
-                continue
+        if target_governorates and profile.governorate not in target_governorates:
+            continue
 
         # Filter by crops
-        if target_crops:
-            if not any(crop in profile.crops for crop in target_crops):
-                continue
+        if target_crops and not any(crop in profile.crops for crop in target_crops):
+            continue
 
         recipients.add(farmer_id)
 

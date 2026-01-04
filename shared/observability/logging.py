@@ -177,7 +177,7 @@ class SensitiveDataMasker:
                 result[key] = cls.mask_string(value)
             elif isinstance(value, dict) and deep:
                 result[key] = cls.mask_dict(value, deep=True)
-            elif isinstance(value, (list, tuple)) and deep:
+            elif isinstance(value, list | tuple) and deep:
                 result[key] = [
                     (
                         cls.mask_dict(item, deep=True)
@@ -201,7 +201,7 @@ class SensitiveDataMasker:
             return cls.mask_string(value)
         elif isinstance(value, dict):
             return cls.mask_dict(value)
-        elif isinstance(value, (list, tuple)):
+        elif isinstance(value, list | tuple):
             return [cls.mask_value(item) for item in value]
         else:
             return value

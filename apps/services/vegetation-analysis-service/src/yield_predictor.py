@@ -203,7 +203,7 @@ class YieldPredictor:
 
         # Calculate NDVI features
         ndvi_peak = max(ndvi_series) if ndvi_series else 0.5
-        ndvi_mean = sum(ndvi_series) / len(ndvi_series) if ndvi_series else 0.5
+        sum(ndvi_series) / len(ndvi_series) if ndvi_series else 0.5
         ndvi_integral = self.calculate_ndvi_integral(ndvi_series)
 
         # Calculate GDD
@@ -421,10 +421,7 @@ class YieldPredictor:
         integral_factor = max(0.3, min(2.0, integral_factor))  # Limit to 30-200%
 
         # Peak NDVI factor (penalty if too low)
-        if ndvi_peak < peak_min:
-            peak_factor = ndvi_peak / peak_min
-        else:
-            peak_factor = 1.0
+        peak_factor = ndvi_peak / peak_min if ndvi_peak < peak_min else 1.0
 
         predicted_yield = base_yield * integral_factor * peak_factor
 

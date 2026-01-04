@@ -358,7 +358,7 @@ def main():
         )
 
         # 4. Generate seed prescription
-        seed_prescription = generate_seed_prescription(field_id, latitude, longitude)
+        generate_seed_prescription(field_id, latitude, longitude)
 
         # 5. Export fertilizer prescription to GeoJSON
         export_prescription(fertilizer_prescription["id"], format="geojson")

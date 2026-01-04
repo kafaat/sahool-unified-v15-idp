@@ -847,7 +847,7 @@ def calculate_irrigation_recommendation(
     إنشاء توصية الري
     """
     crop = CROP_COEFFICIENTS.get(crop_type, CROP_COEFFICIENTS["wheat"])
-    soil = SOIL_PROPERTIES[soil_type]
+    SOIL_PROPERTIES[soil_type]
     efficiency = IRRIGATION_EFFICIENCY[irrigation_method]
 
     kc = get_crop_kc(crop_type, growth_stage)
@@ -1372,7 +1372,7 @@ async def quick_irrigation_check(
 
     # Typical irrigation amount assumption
     typical_irrigation = 30  # mm
-    remaining = typical_irrigation - total_et_loss
+    typical_irrigation - total_et_loss
     depletion = (total_et_loss / typical_irrigation) * 100
 
     # Quick assessment

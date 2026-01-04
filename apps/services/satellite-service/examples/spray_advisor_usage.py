@@ -310,7 +310,7 @@ async def example_5_get_spray_guidelines():
 
             # Show Yemen-specific advice
             print("🇾🇪 YEMEN REGIONAL CONSIDERATIONS:\n")
-            for region_key, region_data in data["yemen_considerations"].items():
+            for _region_key, region_data in data["yemen_considerations"].items():
                 print(f"   {region_data['regions_en']}:")
                 print(f"      Best time: {region_data['best_time_en']}")
                 print(f"      Notes: {region_data['notes_en']}\n")

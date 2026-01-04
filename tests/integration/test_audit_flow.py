@@ -392,7 +392,7 @@ class TestAuditIntegration:
         correlation_id = uuid4()
 
         # Simulate request context
-        ctx = AuditContext(
+        AuditContext(
             tenant_id=tenant_id,
             actor_id=actor_id,
             actor_type="user",

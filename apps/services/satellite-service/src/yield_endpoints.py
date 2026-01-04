@@ -132,7 +132,6 @@ async def predict_yield(request: YieldPredictionRequest):
         except Exception as e:
             logger.warning(f"Failed to fetch NDVI timeseries: {e}")
             # Generate realistic NDVI series based on crop growth
-            days_since_planting = 60  # Assume mid-season
             request.ndvi_series = [
                 max(0.2, min(0.8, 0.3 + (i / 10) * 0.5 + random.uniform(-0.05, 0.05)))
                 for i in range(10)
@@ -276,7 +275,7 @@ async def get_yield_history(
     # Generate historical predictions
     history = []
     for i in range(seasons):
-        crop_code_selected = random.choice(crop_codes) if not crop_code else crop_code
+        crop_code_selected = crop_code if crop_code else random.choice(crop_codes)
 
         try:
             from apps.services.shared.crops import get_crop

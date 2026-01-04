@@ -321,7 +321,7 @@ class DevelopmentSeeder(BaseSeeder):
                 # إنشاء حدود بسيطة حول النقطة المركزية
                 # Create simple boundary around center point
                 offset = 0.005  # حوالي 500 متر / About 500 meters
-                boundary = {
+                {
                     "type": "Polygon",
                     "coordinates": [[
                         [location["lon"] - offset, location["lat"] - offset],

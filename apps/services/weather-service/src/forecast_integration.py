@@ -388,7 +388,7 @@ class WeatherForecastService:
         # تجميع التوقعات حسب التاريخ
         forecast_by_date: dict[str, list[DailyForecast]] = {}
 
-        for provider_name, forecasts in sources:
+        for _provider_name, forecasts in sources:
             for forecast in forecasts:
                 forecast_by_date.setdefault(forecast.date, []).append(forecast)
 
@@ -548,7 +548,7 @@ def detect_heat_wave(
     hot_days_start = None
     max_temp_in_wave = 0.0
 
-    for i, day_forecast in enumerate(forecast):
+    for _i, day_forecast in enumerate(forecast):
         temp = day_forecast.temp_max_c
 
         if temp >= thresholds.heat_wave_medium_c:

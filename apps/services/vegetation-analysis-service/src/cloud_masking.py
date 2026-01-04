@@ -627,7 +627,7 @@ class CloudMasker:
 
         # Find 4 nearest neighbors (2 before, 2 after if possible)
         neighbors = []
-        for i, obs in enumerate(sorted_obs):
+        for _i, obs in enumerate(sorted_obs):
             obs_date = datetime.fromisoformat(obs["date"])
             distance = abs((obs_date - target_date).days)
             neighbors.append((distance, obs))

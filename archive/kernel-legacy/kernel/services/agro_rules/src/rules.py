@@ -189,17 +189,16 @@ def rule_from_weather(alert_type: str, severity: str) -> TaskRule | None:
             )
 
     # Strong wind
-    if alert_type == "strong_wind":
-        if severity in ("critical", "high"):
-            return TaskRule(
-                title_ar="تحذير رياح قوية",
-                title_en="Strong Wind Warning",
-                description_ar="رياح قوية متوقعة. تأمين المعدات ودعم النباتات.",
-                description_en="Strong winds expected. Secure equipment and support plants.",
-                task_type="preparation",
-                priority="high",
-                urgency_hours=4,
-            )
+    if alert_type == "strong_wind" and severity in ("critical", "high"):
+        return TaskRule(
+            title_ar="تحذير رياح قوية",
+            title_en="Strong Wind Warning",
+            description_ar="رياح قوية متوقعة. تأمين المعدات ودعم النباتات.",
+            description_en="Strong winds expected. Secure equipment and support plants.",
+            task_type="preparation",
+            priority="high",
+            urgency_hours=4,
+        )
 
     # Disease risk
     if alert_type == "disease_risk":

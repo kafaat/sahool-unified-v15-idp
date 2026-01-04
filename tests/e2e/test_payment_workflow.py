@@ -278,7 +278,7 @@ async def test_subscription_management_workflow(
     ), "Subscriptions list should be accessible"
 
     if list_response.status_code == 200:
-        subscriptions = list_response.json()
+        list_response.json()
         print("✓ Subscriptions listed")
 
     # Step 3: Get specific subscription
@@ -294,7 +294,7 @@ async def test_subscription_management_workflow(
     ), "Subscription should be retrievable"
 
     if get_response.status_code == 200:
-        retrieved_subscription = get_response.json()
+        get_response.json()
         print("✓ Subscription retrieved successfully")
 
 

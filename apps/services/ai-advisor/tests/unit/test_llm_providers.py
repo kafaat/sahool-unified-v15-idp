@@ -127,19 +127,18 @@ class TestMultiProviderLLM:
         with patch(
             "src.llm.multi_provider.anthropic.AsyncAnthropic",
             return_value=mock_failing_client,
+        ), patch(
+            "src.llm.multi_provider.openai.AsyncOpenAI",
+            return_value=mock_openai_client,
         ):
-            with patch(
-                "src.llm.multi_provider.openai.AsyncOpenAI",
-                return_value=mock_openai_client,
-            ):
-                llm = MultiProviderLLM(
-                    default_provider="anthropic", fallback_providers=["openai"]
-                )
+            llm = MultiProviderLLM(
+                default_provider="anthropic", fallback_providers=["openai"]
+            )
 
-                response = await llm.generate(prompt="Test prompt", max_tokens=500)
+            response = await llm.generate(prompt="Test prompt", max_tokens=500)
 
-                assert response is not None
-                assert response["provider"] == "openai"
+            assert response is not None
+            assert response["provider"] == "openai"
 
     def test_token_counting(self):
         """Test token estimation functionality"""

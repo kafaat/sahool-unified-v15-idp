@@ -67,11 +67,7 @@ class RequestSizeLimiter:
         base_ct = content_type.split(";")[0].strip().lower()
 
         # Check against allowed types
-        for allowed in self.allowed_content_types:
-            if base_ct.startswith(allowed):
-                return True
-
-        return False
+        return any(base_ct.startswith(allowed) for allowed in self.allowed_content_types)
 
     def check_request(
         self, request: Request

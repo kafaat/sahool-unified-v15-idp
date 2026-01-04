@@ -228,7 +228,7 @@ class TestCropRotationPlanner:
         )
 
         # Check that not all crops are the same family
-        families = set(s.crop_family for s in plan.seasons)
+        families = {s.crop_family for s in plan.seasons}
         assert len(families) >= 2  # At least 2 different families
 
     def test_nitrogen_effect_classification(self, planner):

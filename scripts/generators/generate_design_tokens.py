@@ -227,10 +227,7 @@ def generate_dart(tokens: dict) -> str:
     for space_name, space_value in tokens.get("spacing", {}).items():
         if space_value != "0":
             # Convert rem to double
-            if "rem" in space_value:
-                value = float(space_value.replace("rem", "")) * 16
-            else:
-                value = 0
+            value = float(space_value.replace("rem", "")) * 16 if "rem" in space_value else 0
             lines.append(f"  static const double spacing{space_name} = {value};")
 
     lines.append("")
@@ -245,10 +242,7 @@ def generate_dart(tokens: dict) -> str:
     # Border Radius
     for radius_name, radius_value in tokens.get("borderRadius", {}).items():
         if radius_value != "0" and radius_value != "9999px":
-            if "rem" in radius_value:
-                value = float(radius_value.replace("rem", "")) * 16
-            else:
-                value = 0
+            value = float(radius_value.replace("rem", "")) * 16 if "rem" in radius_value else 0
             lines.append(
                 f"  static const double radius{radius_name.capitalize()} = {value};"
             )

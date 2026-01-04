@@ -410,7 +410,7 @@ async def test_get_active_alerts_workflow(
 
     if response.status_code == 200:
         alerts = response.json()
-        assert isinstance(alerts, (list, dict))
+        assert isinstance(alerts, list | dict)
 
         if isinstance(alerts, list):
             for alert in alerts:

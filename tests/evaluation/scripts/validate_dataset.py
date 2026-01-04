@@ -129,10 +129,7 @@ class DatasetValidator:
             return False
 
         # Validate evaluation criteria
-        if not self._validate_criteria(test_case["evaluation_criteria"], idx):
-            return False
-
-        return True
+        return self._validate_criteria(test_case["evaluation_criteria"], idx)
 
     def _validate_input(self, input_data: dict[str, Any], idx: int) -> bool:
         """Validate input section"""
@@ -219,8 +216,8 @@ class DatasetValidator:
 
     def _check_coverage(self, dataset: list[dict[str, Any]]):
         """Check dataset coverage"""
-        categories = set(tc["category"] for tc in dataset)
-        languages = set(tc["language"] for tc in dataset)
+        categories = {tc["category"] for tc in dataset}
+        languages = {tc["language"] for tc in dataset}
 
         # Check category coverage
         missing_categories = self.VALID_CATEGORIES - categories
@@ -239,7 +236,7 @@ class DatasetValidator:
         # Check each category has tests in each language
         for category in categories:
             category_cases = [tc for tc in dataset if tc["category"] == category]
-            category_langs = set(tc["language"] for tc in category_cases)
+            category_langs = {tc["language"] for tc in category_cases}
 
             missing_langs = self.VALID_LANGUAGES - category_langs
             if missing_langs:

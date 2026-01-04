@@ -78,7 +78,7 @@ async def test_create_subscription_workflow(
     assert "subscription_id" in tenant_result
 
     tenant_id = tenant_result["tenant_id"]
-    subscription_id = tenant_result["subscription_id"]
+    tenant_result["subscription_id"]
 
     # Step 3: Verify subscription details - التحقق من تفاصيل الاشتراك
     # Note: This requires authentication - skipping if auth not available
@@ -577,7 +577,7 @@ async def test_quota_enforcement_workflow(
         )
 
         if quota_response.status_code == 200:
-            quota_data = quota_response.json()
+            quota_response.json()
 
             # Try to record usage beyond limit
             # Free plan has satellite_analyses_per_month: 10

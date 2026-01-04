@@ -302,7 +302,7 @@ class AIAgentSimulator:
 
     async def predict_yield(self):
         """Request yield prediction."""
-        location = random.choice(SAUDI_LOCATIONS)
+        random.choice(SAUDI_LOCATIONS)
         crop = random.choice(CROP_TYPES)
 
         return await self.request("POST", "/api/advisor/recommend", "yield_predictor", json={

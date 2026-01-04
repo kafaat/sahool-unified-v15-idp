@@ -51,7 +51,7 @@ class PIIMasker:
             return text
 
         masked = text
-        for name, (pattern, replacement) in cls._get_patterns().items():
+        for _name, (pattern, replacement) in cls._get_patterns().items():
             masked = pattern.sub(replacement, masked)
 
         return masked

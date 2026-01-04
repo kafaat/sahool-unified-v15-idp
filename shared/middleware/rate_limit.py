@@ -328,14 +328,11 @@ def rate_limit(
 
             # Use custom key function if provided
             if key_func:
-                client_ip = request.client.host if request.client else "unknown"
-                tenant_id = request.headers.get("X-Tenant-ID", "default")
-                original_key = f"{tenant_id}:{client_ip}"
+                request.headers.get("X-Tenant-ID", "default")
 
                 # Create a modified request-like object with custom key
                 custom_key = key_func(request)
                 # Store original values
-                original_client = request.client
                 # Temporarily modify for rate limit check
                 request.state._rate_limit_key = custom_key
 

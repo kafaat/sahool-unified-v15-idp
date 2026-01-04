@@ -12,6 +12,7 @@ Features:
 """
 
 import asyncio
+import contextlib
 import heapq
 import logging
 from collections import defaultdict
@@ -368,7 +369,7 @@ class NotificationScheduler:
         stats = {"success": 0, "failed": 0, "rate_limited": 0}
 
         # Send each group using multicast
-        for group_key, group_notifs in grouped.items():
+        for _group_key, group_notifs in grouped.items():
             # Filter by rate limit
             sendable = [
                 n for n in group_notifs if self.can_send_to_user(n.recipient_token)
@@ -484,10 +485,8 @@ class NotificationScheduler:
         self._running = False
         if self._worker_task:
             self._worker_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._worker_task
-            except asyncio.CancelledError:
-                pass
 
         logger.info("⏹️ Notification scheduler stopped")
 

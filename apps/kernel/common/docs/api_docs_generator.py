@@ -634,7 +634,7 @@ curl -X GET http://localhost:8090/v1/crops/list \\
 """
 
         # Add services
-        for service_name, service in sorted(self.services.items(), key=lambda x: x[1].port):
+        for _service_name, service in sorted(self.services.items(), key=lambda x: x[1].port):
             content += f"| {service.title} | {service.port} | http://localhost:{service.port} |\n"
 
         content += f"""
@@ -2365,7 +2365,7 @@ interface DiagnosisResult {{
         }
 
         # Add services as folders
-        for service_name, service in sorted(self.services.items(), key=lambda x: x[0]):
+        for _service_name, service in sorted(self.services.items(), key=lambda x: x[0]):
             folder = {
                 "name": f"{service.title} (Port {service.port})",
                 "description": f"{service.description}\n{service.description_ar}",

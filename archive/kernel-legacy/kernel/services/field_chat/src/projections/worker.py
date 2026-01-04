@@ -4,6 +4,7 @@ Subscribes to chat events and updates read models / broadcasts to WebSockets
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -54,10 +55,8 @@ class ChatProjectionWorker:
         """Close NATS connection"""
         self.running = False
         for sub in self.subscriptions:
-            try:
+            with contextlib.suppress(Exception):
                 await sub.unsubscribe()
-            except Exception:
-                pass
         if self.nc and self.nc.is_connected:
             await self.nc.close()
             logger.info("Chat projection worker disconnected")

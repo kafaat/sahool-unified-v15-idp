@@ -167,7 +167,7 @@ class TestJobManagement:
     def test_list_jobs_by_status(self):
         """Test listing jobs filtered by status"""
         job_id1 = create_job("tenant1", "field1", "ndvi", {})
-        job_id2 = create_job("tenant1", "field2", "ndvi", {})
+        create_job("tenant1", "field2", "ndvi", {})
 
         update_job_status(job_id1, JobStatus.COMPLETED)
 

@@ -400,7 +400,7 @@ def test_with_yemen_boundaries():
 
         # التحقق من المحافظة - Check governorate
         from shapely.geometry import shape
-        polygon = shape(field_in_sanaa)
+        shape(field_in_sanaa)
 
         print("\nالمحافظات المتاحة للتحقق:")
         print("Available governorates for validation:")

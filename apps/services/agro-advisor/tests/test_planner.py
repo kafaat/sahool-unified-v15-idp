@@ -106,7 +106,7 @@ class TestPlannerEngine:
 
     def test_crop_requirements_complete(self):
         """Test all crops have required fields"""
-        for crop, data in CROP_REQUIREMENTS.items():
+        for _crop, data in CROP_REQUIREMENTS.items():
             assert "yield_target_ton_ha" in data
             assert "total_needs" in data
             assert "stages" in data

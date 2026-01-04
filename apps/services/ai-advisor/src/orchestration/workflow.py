@@ -380,7 +380,7 @@ async def create_field_analysis_workflow(
 
         async def irrigation_recommendations(input_data):
             irrigation_advisor = supervisor.agents.get("irrigation_advisor")
-            satellite_result = input_data["previous_results"]["satellite_analysis"]
+            input_data["previous_results"]["satellite_analysis"]
             return await irrigation_advisor.recommend_irrigation(
                 crop_type=input_data["context"].get("crop_type", "wheat"),
                 growth_stage=input_data["context"].get("growth_stage", "vegetative"),

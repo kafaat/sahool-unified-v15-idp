@@ -138,7 +138,7 @@ def test_all_crops_valid():
 
     errors = []
 
-    for crop_code in tracker.CROP_GDD_REQUIREMENTS.keys():
+    for crop_code in tracker.CROP_GDD_REQUIREMENTS:
         try:
             # Check base temp exists
             if crop_code not in tracker.CROP_BASE_TEMPS:

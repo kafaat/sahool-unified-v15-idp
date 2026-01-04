@@ -152,13 +152,12 @@ async def transaction() -> AsyncGenerator[asyncpg.Connection, None]:
             await conn.execute("UPDATE ...")
     """
     pool = await get_pool()
-    async with pool.acquire() as connection:
-        async with connection.transaction():
-            try:
-                yield connection
-            except Exception as e:
-                logger.error(f"Transaction error: {e}")
-                raise
+    async with pool.acquire() as connection, connection.transaction():
+        try:
+            yield connection
+        except Exception as e:
+            logger.error(f"Transaction error: {e}")
+            raise
 
 
 # =============================================================================

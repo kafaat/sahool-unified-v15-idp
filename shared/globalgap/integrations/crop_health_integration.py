@@ -774,7 +774,7 @@ class CropHealthIntegration:
 
         # Active ingredients
         active_ingredients = list(
-            set(app.active_ingredient for app in ppp_applications)
+            {app.active_ingredient for app in ppp_applications}
         )
         total_active_ingredients = len(active_ingredients)
 

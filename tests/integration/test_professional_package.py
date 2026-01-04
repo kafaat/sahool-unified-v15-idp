@@ -55,7 +55,7 @@ class TestSatelliteImagery:
             202,
         ), f"Failed to get satellite imagery: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
     async def test_get_available_imagery_dates(
         self,
@@ -83,7 +83,7 @@ class TestSatelliteImagery:
             response.status_code == 200
         ), f"Failed to get imagery dates: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -152,7 +152,7 @@ class TestNDVIAnalysis:
             response.status_code == 200
         ), f"Failed to get NDVI timeseries: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
     async def test_get_vegetation_health_score(
         self,
@@ -254,7 +254,7 @@ class TestCropHealthAI:
             201,
         ), f"Failed to get treatment: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -428,7 +428,7 @@ class TestInventoryManagement:
             response.status_code == 200
         ), f"Failed to get low stock items: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

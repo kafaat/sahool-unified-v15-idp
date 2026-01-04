@@ -148,7 +148,7 @@ async def wait_for_async_operation(
     Returns:
         Operation result or None if timeout
     """
-    for attempt in range(max_attempts):
+    for _attempt in range(max_attempts):
         try:
             response = await client.get(check_url, headers=headers)
             if response.status_code == 200:

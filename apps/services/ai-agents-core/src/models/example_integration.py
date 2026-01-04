@@ -252,14 +252,14 @@ async def example_single_image_analysis():
     print("=" * 60)
 
     # Initialize agent - تهيئة الوكيل
-    agent = DiseaseDetectionAgent(enable_gpu=False)
+    DiseaseDetectionAgent(enable_gpu=False)
 
     # Note: In production, load actual model
     # ملاحظة: في الإنتاج، قم بتحميل النموذج الفعلي
     # agent.model.load_model("/path/to/model.h5")
 
     # Create dummy image for demonstration - إنشاء صورة وهمية للعرض
-    dummy_image = np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8)
+    np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8)
 
     # Analyze - تحليل
     # result = await agent.analyze_plant_health(
@@ -291,10 +291,10 @@ async def example_field_batch_analysis():
     print("=" * 60)
 
     # Initialize agent - تهيئة الوكيل
-    agent = DiseaseDetectionAgent(enable_gpu=False)
+    DiseaseDetectionAgent(enable_gpu=False)
 
     # Create dummy images - إنشاء صور وهمية
-    field_images = [
+    [
         np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8)
         for _ in range(10)
     ]

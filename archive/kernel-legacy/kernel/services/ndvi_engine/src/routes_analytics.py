@@ -308,7 +308,7 @@ async def get_health_status(
     Considers average NDVI and trend over the specified number of days.
     """
     end_date = date.today()
-    start_date = end_date - timedelta(days=days)
+    end_date - timedelta(days=days)
 
     # Placeholder
     return {

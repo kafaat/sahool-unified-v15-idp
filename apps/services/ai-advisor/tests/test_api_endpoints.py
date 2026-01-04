@@ -91,47 +91,45 @@ def mock_all_dependencies():
                                         # Mock RAG components
                                         with patch(
                                             "src.main.EmbeddingsManager"
-                                        ) as mock_emb:
-                                            with patch(
-                                                "src.main.KnowledgeRetriever"
-                                            ) as mock_ret:
-                                                with patch(
-                                                    "src.main.Supervisor"
-                                                ) as mock_sup:
+                                        ) as mock_emb, patch(
+                                            "src.main.KnowledgeRetriever"
+                                        ) as mock_ret, patch(
+                                            "src.main.Supervisor"
+                                        ) as mock_sup:
 
-                                                    emb_instance = Mock()
-                                                    mock_emb.return_value = emb_instance
+                                            emb_instance = Mock()
+                                            mock_emb.return_value = emb_instance
 
-                                                    ret_instance = Mock()
-                                                    ret_instance.get_collection_info = (
-                                                        Mock(return_value={"docs": 100})
-                                                    )
-                                                    mock_ret.return_value = ret_instance
+                                            ret_instance = Mock()
+                                            ret_instance.get_collection_info = (
+                                                Mock(return_value={"docs": 100})
+                                            )
+                                            mock_ret.return_value = ret_instance
 
-                                                    sup_instance = AsyncMock()
-                                                    sup_instance.coordinate = AsyncMock(
-                                                        return_value={
-                                                            "answer": "Agricultural advice here",
-                                                            "agents_used": [
-                                                                "field_analyst"
-                                                            ],
-                                                        }
-                                                    )
-                                                    sup_instance.get_available_agents = Mock(
-                                                        return_value=[
-                                                            {
-                                                                "name": "field_analyst",
-                                                                "role": "Field Analysis",
-                                                            }
-                                                        ]
-                                                    )
-                                                    mock_sup.return_value = sup_instance
+                                            sup_instance = AsyncMock()
+                                            sup_instance.coordinate = AsyncMock(
+                                                return_value={
+                                                    "answer": "Agricultural advice here",
+                                                    "agents_used": [
+                                                        "field_analyst"
+                                                    ],
+                                                }
+                                            )
+                                            sup_instance.get_available_agents = Mock(
+                                                return_value=[
+                                                    {
+                                                        "name": "field_analyst",
+                                                        "role": "Field Analysis",
+                                                    }
+                                                ]
+                                            )
+                                            mock_sup.return_value = sup_instance
 
-                                                    mocks["embeddings"] = mock_emb
-                                                    mocks["retriever"] = mock_ret
-                                                    mocks["supervisor"] = mock_sup
+                                            mocks["embeddings"] = mock_emb
+                                            mocks["retriever"] = mock_ret
+                                            mocks["supervisor"] = mock_sup
 
-                                                    yield mocks
+                                            yield mocks
 
 
 @pytest.fixture

@@ -15,7 +15,7 @@ satellite-service → indicators-service → crop-health-ai → yield-engine
 
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class FieldMonitoringWorkflow:
         resolution: int = 10,
         max_cloud_coverage: float = 30.0,
         cloud_mask_buffer: int = 2,
-        indices: Optional[List[str]] = None,
+        indices: Optional[list[str]] = None,
     ):
         """
         Initialize field monitoring workflow
@@ -77,10 +77,10 @@ class FieldMonitoringWorkflow:
         self,
         field_id: str,
         tenant_id: str,
-        bbox: Tuple[float, float, float, float],
-        time_interval: Tuple[str, str],
+        bbox: tuple[float, float, float, float],
+        time_interval: tuple[str, str],
         generate_events: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Execute field monitoring workflow
 
@@ -238,7 +238,7 @@ class FieldMonitoringWorkflow:
 
     def _generate_events(
         self, eopatch, field_id: str, tenant_id: str
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Generate SAHOOL events"""
         from ..tasks.export import EOPatchToSahoolTask
         from ..tasks.indices import AllIndicesTask
@@ -278,10 +278,10 @@ class BatchFieldMonitoringWorkflow:
 
     def execute(
         self,
-        fields: List[Dict[str, Any]],
+        fields: list[dict[str, Any]],
         tenant_id: str,
-        time_interval: Tuple[str, str],
-    ) -> Dict[str, Any]:
+        time_interval: tuple[str, str],
+    ) -> dict[str, Any]:
         """
         Execute batch monitoring for multiple fields
 

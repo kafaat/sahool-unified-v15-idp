@@ -475,5 +475,5 @@ class InventoryService:
             period=f"Last {days} days",
             totalConsumed=total_consumed,
             averageDaily=average_daily,
-            movements=[m for m in movements],
+            movements=list(movements),
         )

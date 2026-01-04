@@ -535,24 +535,23 @@ class BoundaryValidator:
 
         # التحقق من الحدود التفصيلية إذا كانت متوفرة
         # Check detailed boundaries if available
-        if self.yemen_boundaries:
-            if not self.yemen_boundaries.contains(polygon):
-                if self.yemen_boundaries.intersects(polygon):
-                    issues.append(ValidationIssue(
-                        issue_type=BoundarySeverity.PARTIALLY_OUT.value,
-                        severity=ValidationSeverity.WARNING,
-                        message_ar="جزء من الحقل خارج الحدود الدقيقة لليمن",
-                        message_en="Part of field is outside detailed Yemen boundaries",
-                        fixable=False
-                    ))
-                else:
-                    issues.append(ValidationIssue(
-                        issue_type=BoundarySeverity.OUT_OF_YEMEN.value,
-                        severity=ValidationSeverity.ERROR,
-                        message_ar="الحقل بالكامل خارج حدود اليمن",
-                        message_en="Field is completely outside Yemen boundaries",
-                        fixable=False
-                    ))
+        if self.yemen_boundaries and not self.yemen_boundaries.contains(polygon):
+            if self.yemen_boundaries.intersects(polygon):
+                issues.append(ValidationIssue(
+                    issue_type=BoundarySeverity.PARTIALLY_OUT.value,
+                    severity=ValidationSeverity.WARNING,
+                    message_ar="جزء من الحقل خارج الحدود الدقيقة لليمن",
+                    message_en="Part of field is outside detailed Yemen boundaries",
+                    fixable=False
+                ))
+            else:
+                issues.append(ValidationIssue(
+                    issue_type=BoundarySeverity.OUT_OF_YEMEN.value,
+                    severity=ValidationSeverity.ERROR,
+                    message_ar="الحقل بالكامل خارج حدود اليمن",
+                    message_en="Field is completely outside Yemen boundaries",
+                    fixable=False
+                ))
 
         return issues
 

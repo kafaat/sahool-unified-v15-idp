@@ -102,7 +102,7 @@ async def test_iot_device_listing_workflow(
 
     if response.status_code == 200:
         devices = response.json()
-        assert isinstance(devices, (list, dict))
+        assert isinstance(devices, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -357,7 +357,7 @@ async def test_sensor_data_aggregation_workflow(
 
     if response.status_code == 200:
         aggregated_data = response.json()
-        assert isinstance(aggregated_data, (list, dict))
+        assert isinstance(aggregated_data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -570,7 +570,7 @@ async def test_device_offline_detection_workflow(
 
     if response.status_code == 200:
         offline_devices = response.json()
-        assert isinstance(offline_devices, (list, dict))
+        assert isinstance(offline_devices, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -181,7 +181,7 @@ def verify_data_models():
             unit="°C",
             timestamp=datetime.now(UTC).isoformat(),
         )
-        data = reading.to_dict()
+        reading.to_dict()
         print("✓ SensorReading model works")
 
         # Test AggregatedData
@@ -194,7 +194,7 @@ def verify_data_models():
             mean=25.0,
             count=10,
         )
-        data = agg.to_dict()
+        agg.to_dict()
         print("✓ AggregatedData model works")
 
         # Test SensorHealth
@@ -205,7 +205,7 @@ def verify_data_models():
             status=SensorStatus.HEALTHY,
             timestamp=datetime.now(UTC).isoformat(),
         )
-        data = health.to_dict()
+        health.to_dict()
         print("✓ SensorHealth model works")
 
         return True

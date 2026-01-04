@@ -164,10 +164,7 @@ class InventoryAnalytics:
         avg_monthly = avg_daily * 30
 
         # Calculate days until stockout - prevent division by zero
-        if avg_daily > 0:
-            days_until_stockout = int(item.available_stock / avg_daily)
-        else:
-            days_until_stockout = 999
+        days_until_stockout = int(item.available_stock / avg_daily) if avg_daily > 0 else 999
 
         # Calculate reorder date (considering lead time)
         supplier_lead_time = 7  # Default
@@ -220,7 +217,7 @@ class InventoryAnalytics:
         stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
             )
         )
 
@@ -262,7 +259,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
+                    InventoryItem.is_active is True,
                 )
             )
         )
@@ -354,7 +351,7 @@ class InventoryAnalytics:
         items_stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
             )
         )
         items_result = await self.db.execute(items_stmt)
@@ -412,7 +409,7 @@ class InventoryAnalytics:
 
     async def identify_slow_moving(self, days_threshold: int = 90) -> list[dict]:
         """Identify items with no movement in N days"""
-        threshold_date = datetime.now() - timedelta(days=days_threshold)
+        datetime.now() - timedelta(days=days_threshold)
 
         # Get items with last movement before threshold
         stmt = (
@@ -430,7 +427,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
+                    InventoryItem.is_active is True,
                     InventoryItem.current_stock > 0,
                 )
             )
@@ -476,7 +473,7 @@ class InventoryAnalytics:
         """
         Identify dead stock (no movement + near expiry or very long time)
         """
-        threshold_date = datetime.now() - timedelta(days=days_threshold)
+        datetime.now() - timedelta(days=days_threshold)
         expiry_threshold = date.today() + timedelta(days=60)
 
         stmt = (
@@ -494,7 +491,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
+                    InventoryItem.is_active is True,
                     InventoryItem.current_stock > 0,
                 )
             )
@@ -638,7 +635,7 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
+                    InventoryItem.is_active is True,
                     InventoryItem.available_stock <= InventoryItem.reorder_level,
                 )
             )
@@ -703,7 +700,7 @@ class InventoryAnalytics:
         stmt = select(InventoryItem).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
             )
         )
 
@@ -862,7 +859,6 @@ class InventoryAnalytics:
 
         for row in rows:
             txn = row.InventoryTransaction
-            item = row.InventoryItem
             category = row.ItemCategory
 
             cost = txn.total_amount + txn.additional_costs
@@ -974,8 +970,8 @@ class InventoryAnalytics:
             .where(
                 and_(
                     InventoryItem.tenant_id == self.tenant_id,
-                    InventoryItem.is_active == True,
-                    InventoryItem.has_expiry == True,
+                    InventoryItem.is_active is True,
+                    InventoryItem.has_expiry is True,
                     InventoryItem.expiry_date <= date.today(),
                     InventoryItem.current_stock > 0,
                 )
@@ -1043,7 +1039,7 @@ class InventoryAnalytics:
         total_skus_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
             )
         )
         total_skus = (await self.db.execute(total_skus_stmt)).scalar() or 0
@@ -1055,7 +1051,7 @@ class InventoryAnalytics:
         low_stock_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
+                InventoryItem.is_active is True,
                 InventoryItem.available_stock <= InventoryItem.reorder_level,
             )
         )
@@ -1066,8 +1062,8 @@ class InventoryAnalytics:
         expiring_stmt = select(func.count(InventoryItem.id)).where(
             and_(
                 InventoryItem.tenant_id == self.tenant_id,
-                InventoryItem.is_active == True,
-                InventoryItem.has_expiry == True,
+                InventoryItem.is_active is True,
+                InventoryItem.has_expiry is True,
                 InventoryItem.expiry_date <= expiring_date,
                 InventoryItem.current_stock > 0,
             )

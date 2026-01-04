@@ -456,9 +456,9 @@ def main():
     quality_tests = example_3_water_quality()
     efficiency_records = example_4_irrigation_efficiency()
     balance = example_5_water_balance()
-    footprint = example_6_water_footprint()
-    alerts = example_7_generate_alerts(sources, usage_records)
-    report = example_8_generate_report(
+    example_6_water_footprint()
+    example_7_generate_alerts(sources, usage_records)
+    example_8_generate_report(
         balance, sources, usage_records, quality_tests, efficiency_records
     )
 

@@ -114,7 +114,7 @@ async def request_data_export(
     request_id = uuid4()
 
     # Log the export request
-    audit_ctx = get_audit_context()
+    get_audit_context()
     logger.info(
         f"GDPR export request: user={request.user_id}, "
         f"format={request.format}, request_id={request_id}"

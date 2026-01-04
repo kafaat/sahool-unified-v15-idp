@@ -213,7 +213,7 @@ async def test_weather_agent_integration(
     ), "Weather agent should respond"
 
     if weather_response.status_code == 200:
-        weather_data = weather_response.json()
+        weather_response.json()
         print("✓ Weather agent operational")
         print("  Location: Sana'a, Yemen")
 

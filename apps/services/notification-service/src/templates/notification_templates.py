@@ -323,7 +323,7 @@ class NotificationTemplateManager:
             Dict formatted for push notifications
         """
         rendered = self.render_template(template_id, context, language)
-        template = self.get_template(template_id, language)
+        self.get_template(template_id, language)
 
         return {
             "title": rendered["title"],
@@ -395,7 +395,7 @@ class NotificationTemplateManager:
             Dict with subject, html_body, and text_body
         """
         rendered = self.render_template(template_id, context, language)
-        template = self.get_template(template_id, language)
+        self.get_template(template_id, language)
 
         # Create HTML email
         html_body = self._create_html_email(

@@ -890,19 +890,19 @@ async def analyze_field(request: ImageryRequest):
     # Map to standard names based on satellite
     if request.satellite == SatelliteSource.SENTINEL2:
         red = bands_dict.get("B04", 0.1)
-        green = bands_dict.get("B03", 0.1)
+        bands_dict.get("B03", 0.1)
         blue = bands_dict.get("B02", 0.05)
         nir = bands_dict.get("B08", 0.3)
         swir1 = bands_dict.get("B11", 0.2)
     elif request.satellite in [SatelliteSource.LANDSAT8, SatelliteSource.LANDSAT9]:
         red = bands_dict.get("B4", 0.1)
-        green = bands_dict.get("B3", 0.1)
+        bands_dict.get("B3", 0.1)
         blue = bands_dict.get("B2", 0.05)
         nir = bands_dict.get("B5", 0.3)
         swir1 = bands_dict.get("B6", 0.2)
     else:  # MODIS
         red = bands_dict.get("B01", 0.1)
-        green = bands_dict.get("B04", 0.1)
+        bands_dict.get("B04", 0.1)
         blue = bands_dict.get("B03", 0.05)
         nir = bands_dict.get("B02", 0.3)
         swir1 = 0.2  # MODIS doesn't have SWIR at this resolution
@@ -2017,7 +2017,7 @@ async def get_specific_index(
 
     # Validate index name
     try:
-        index_enum = VegetationIndex(index_name.lower())
+        VegetationIndex(index_name.lower())
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -2504,7 +2504,6 @@ async def predict_yield(request: YieldPredictionRequest):
         except Exception as e:
             logger.warning(f"Failed to fetch NDVI timeseries: {e}")
             # Generate realistic NDVI series based on crop growth
-            days_since_planting = 60  # Assume mid-season
             request.ndvi_series = [
                 max(0.2, min(0.8, 0.3 + (i / 10) * 0.5 + random.uniform(-0.05, 0.05)))
                 for i in range(10)
@@ -2648,7 +2647,7 @@ async def get_yield_history(
     # Generate historical predictions
     history = []
     for i in range(seasons):
-        crop_code_selected = random.choice(crop_codes) if not crop_code else crop_code
+        crop_code_selected = crop_code if crop_code else random.choice(crop_codes)
 
         try:
             from apps.services.shared.crops import get_crop

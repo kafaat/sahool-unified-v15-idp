@@ -202,7 +202,7 @@ class TestIoTGateway:
         # Assert
         assert response.status_code == 200, f"Failed to get readings: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -278,7 +278,7 @@ class TestMarketplace:
             response.status_code == 200
         ), f"Failed to search listings: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
     async def test_create_order(
         self,
@@ -402,7 +402,7 @@ class TestBilling:
             response.status_code == 200
         ), f"Failed to get billing history: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -497,7 +497,7 @@ class TestResearchCore:
         # Assert
         assert response.status_code == 200, f"Failed to get results: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

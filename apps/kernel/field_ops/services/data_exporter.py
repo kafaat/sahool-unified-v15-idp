@@ -711,7 +711,7 @@ class DataExporter:
             },
             "properties": {
                 k: v for k, v in data.items()
-                if k not in ["metadata"] and not isinstance(v, (list, dict))
+                if k not in ["metadata"] and not isinstance(v, list | dict)
             }
         }
 
@@ -1028,7 +1028,7 @@ class DataExporter:
             # Flatten single record
             row = {}
             for key, value in data.items():
-                if isinstance(value, (dict, list)):
+                if isinstance(value, dict | list):
                     row[key] = str(value)
                 else:
                     row[key] = value

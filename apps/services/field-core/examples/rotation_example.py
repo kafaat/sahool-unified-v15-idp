@@ -245,7 +245,7 @@ async def main():
     print("Test: Can we plant tomatoes (Solanaceae) after wheat?")
     print(f"Result: {'✓ Compatible' if is_valid else '✗ Not Compatible'}")
     if messages:
-        for msg_ar, msg_en in messages:
+        for _msg_ar, msg_en in messages:
             print(f"  {msg_en}")
     print()
 
@@ -269,7 +269,7 @@ async def main():
     print("Test: Can we plant tomatoes again immediately after tomatoes?")
     print(f"Result: {'✓ Compatible' if is_valid2 else '✗ Not Compatible'}")
     if messages2:
-        for msg_ar, msg_en in messages2:
+        for _msg_ar, msg_en in messages2:
             print(f"  {msg_en}")
     print()
 

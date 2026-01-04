@@ -143,7 +143,7 @@ async def main():
         print(f"   {'Date':<12} {'GDD':<8} {'ET0(mm)':<10} {'Heat Hrs':<10} {'Deficit(mm)':<12}")
         print("   " + "-" * 76)
 
-        for i, day in enumerate(daily[:7]):
+        for _i, day in enumerate(daily[:7]):
             # Get corresponding hourly data if available
             # الحصول على البيانات الساعية المقابلة إن وجدت
             day_hourly = None

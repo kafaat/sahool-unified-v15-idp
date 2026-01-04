@@ -6,6 +6,7 @@ Provides service health monitoring and discovery
 """
 
 import asyncio
+import contextlib
 import logging
 import os
 from dataclasses import dataclass, field
@@ -140,7 +141,7 @@ class ServiceDiscovery:
         Check health of all services
         فحص صحة جميع الخدمات
         """
-        tasks = [self.check_service_health(service) for service in SERVICE_PORTS.keys()]
+        tasks = [self.check_service_health(service) for service in SERVICE_PORTS]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         health_map = {}
@@ -181,10 +182,8 @@ class ServiceDiscovery:
         self._running = False
         if self._check_task:
             self._check_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._check_task
-            except asyncio.CancelledError:
-                pass
         logger.info("Stopped background health checks")
 
     def get_service_health(self, service_name: str) -> ServiceHealth | None:

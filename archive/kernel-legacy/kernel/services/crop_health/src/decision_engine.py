@@ -151,22 +151,21 @@ def diagnose_zone(obs: ZoneObservation) -> list[dict[str, Any]]:
     # ═══════════════════════════════════════════════════════════════
     # القاعدة 3: مشاكل الشتلات (SAVI منخفض في المرحلة المبكرة)
     # ═══════════════════════════════════════════════════════════════
-    if obs.growth_stage == GrowthStage.seedling:
-        if idx.savi <= 0.20:
-            actions.append(
-                {
-                    "zone_id": obs.zone_id,
-                    "type": "scouting",
-                    "priority": "P1",
-                    "title": "تفقد الشتلات وعدم التجانس",
-                    "title_en": "Scout seedlings for non-uniformity",
-                    "reason": "SAVI منخفض في مرحلة الشتلات (إنبات/تربة/توزيع بذور)",
-                    "reason_en": "Low SAVI at seedling stage (germination/soil/seed distribution)",
-                    "evidence": {"savi": idx.savi},
-                    "recommended_window_hours": 72,
-                    "severity": "warning",
-                }
-            )
+    if obs.growth_stage == GrowthStage.seedling and idx.savi <= 0.20:
+        actions.append(
+            {
+                "zone_id": obs.zone_id,
+                "type": "scouting",
+                "priority": "P1",
+                "title": "تفقد الشتلات وعدم التجانس",
+                "title_en": "Scout seedlings for non-uniformity",
+                "reason": "SAVI منخفض في مرحلة الشتلات (إنبات/تربة/توزيع بذور)",
+                "reason_en": "Low SAVI at seedling stage (germination/soil/seed distribution)",
+                "evidence": {"savi": idx.savi},
+                "recommended_window_hours": 72,
+                "severity": "warning",
+            }
+        )
 
     # ═══════════════════════════════════════════════════════════════
     # القاعدة 4: ضعف عام (NDVI منخفض جداً)

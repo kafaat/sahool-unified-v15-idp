@@ -277,7 +277,7 @@ class TestProfitabilityAnalyzer:
     @pytest.mark.asyncio
     async def test_all_crops_have_data(self, analyzer):
         """Test that all crops in names dict have corresponding data"""
-        for crop_code in analyzer.CROP_NAMES_EN.keys():
+        for crop_code in analyzer.CROP_NAMES_EN:
             assert crop_code in analyzer.CROP_NAMES_AR
             assert crop_code in analyzer.REGIONAL_COSTS
             assert crop_code in analyzer.REGIONAL_YIELDS

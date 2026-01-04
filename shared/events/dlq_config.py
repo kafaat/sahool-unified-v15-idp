@@ -268,7 +268,7 @@ async def create_dlq_streams(js, config: DLQConfig | None = None):
 
     try:
         # Try to get existing stream
-        stream_info = await js.stream_info(stream_config.name)
+        await js.stream_info(stream_config.name)
         print(f"✅ DLQ stream '{stream_config.name}' already exists")
 
         # Update if needed

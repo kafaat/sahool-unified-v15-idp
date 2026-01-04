@@ -439,7 +439,7 @@ def main():
 
     try:
         # Create the examples service
-        service = SoftDeleteExamplesService(session)
+        SoftDeleteExamplesService(session)
 
         # Example 1: Soft delete a subscription
         # service.soft_delete_subscription('sub-123', deleted_by='admin-456')

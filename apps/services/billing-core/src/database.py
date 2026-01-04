@@ -80,12 +80,10 @@ def get_engine() -> AsyncEngine:
         # For async engines, SQLAlchemy 2.0+ automatically adapts sync pools
         if IS_DEV:
             # Development: Use NullPool (no pooling) for simplicity
-            pool_class = NullPool
             logger.info("Using NullPool for development environment")
         else:
             # Production: Use QueuePool for connection pooling
             # SQLAlchemy 2.0+ async engines automatically wrap sync pools
-            pool_class = QueuePool
             logger.info("Using QueuePool for production environment")
 
         # Create engine with connection pooling

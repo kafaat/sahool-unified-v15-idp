@@ -103,7 +103,7 @@ def example_worker_with_handlers():
 
     # إنشاء قائمة انتظار
     # Create queue
-    queue = TaskQueue(redis_client)
+    TaskQueue(redis_client)
 
     # إنشاء عامل
     # Create worker

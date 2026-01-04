@@ -103,7 +103,7 @@ class PlanRepository:
         query = select(Plan)
 
         if active_only:
-            query = query.where(Plan.is_active == True)
+            query = query.where(Plan.is_active is True)
 
         query = query.order_by(asc(Plan.tier)).limit(limit).offset(offset)
 
@@ -246,7 +246,7 @@ class TenantRepository:
         query = select(Tenant)
 
         if active_only:
-            query = query.where(Tenant.is_active == True)
+            query = query.where(Tenant.is_active is True)
 
         query = query.order_by(desc(Tenant.created_at)).limit(limit).offset(offset)
 
@@ -284,7 +284,7 @@ class TenantRepository:
         query = select(func.count(Tenant.id))
 
         if active_only:
-            query = query.where(Tenant.is_active == True)
+            query = query.where(Tenant.is_active is True)
 
         result = await self.db.execute(query)
         return result.scalar_one()
@@ -468,7 +468,7 @@ class SubscriptionRepository:
             )
         )
 
-        return {plan_id: count for plan_id, count in result.all()}
+        return dict(result.all())
 
 
 # =============================================================================

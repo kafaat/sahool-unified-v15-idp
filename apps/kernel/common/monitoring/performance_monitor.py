@@ -451,7 +451,7 @@ class PerformanceMonitor:
         total_success = sum(self.external_api_success.values())
         total_failures = sum(self.external_api_failures.values())
 
-        for key, buffer in self.external_api_latencies.items():
+        for _key, buffer in self.external_api_latencies.items():
             points = buffer.get_range(start_time)
             if points:
                 all_latencies.extend([p.value for p in points])

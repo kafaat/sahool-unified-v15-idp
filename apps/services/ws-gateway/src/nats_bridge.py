@@ -5,6 +5,7 @@ NATS to WebSocket Bridge
 Subscribes to NATS events and forwards them to WebSocket clients
 """
 
+import contextlib
 import json
 import logging
 from collections.abc import Callable
@@ -54,10 +55,8 @@ class NATSBridge:
         """
         # Unsubscribe from all
         for sub in self.subscriptions:
-            try:
+            with contextlib.suppress(Exception):
                 await sub.unsubscribe()
-            except:
-                pass
 
         # Close connection
         if self.nc:

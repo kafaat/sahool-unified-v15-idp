@@ -286,7 +286,7 @@ class SensorReadingRequest(BaseModel):
     metadata: dict | None = None
 
     @validator("sensor_type")
-    def validate_sensor_type(cls, v):
+    def validate_sensor_type(self, v):
         """Validate sensor type is known"""
         v = v.lower()
         if v not in SENSOR_RANGES and not v.startswith("custom_"):
@@ -294,7 +294,7 @@ class SensorReadingRequest(BaseModel):
         return v
 
     @validator("value")
-    def validate_value_range(cls, v, values):
+    def validate_value_range(self, v, values):
         """Validate sensor value is within expected range"""
         if "sensor_type" in values:
             sensor_type = values["sensor_type"].lower()

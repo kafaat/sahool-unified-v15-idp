@@ -733,7 +733,7 @@ class DiseaseCNNModel:
             ).astype(np.float32)
 
             # Run predictions - تشغيل التنبؤات
-            for i in range(num_iterations):
+            for _i in range(num_iterations):
                 if self.framework == "tensorflow":
                     img_batch = np.expand_dims(dummy_image, axis=0)
                     _ = self.model.predict(img_batch, verbose=0)

@@ -402,7 +402,7 @@ class DataExporter:
         fieldnames = set()
         for item in flat_data:
             fieldnames.update(item.keys())
-        fieldnames = sorted(list(fieldnames))
+        fieldnames = sorted(fieldnames)
 
         # Write to CSV
         output = io.StringIO()

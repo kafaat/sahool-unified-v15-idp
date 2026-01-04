@@ -210,7 +210,7 @@ class SprayAdvisor:
 
             # Calculate daily summary
             temps = [h["temp"] for h in hours]
-            humidities = [h["humidity"] for h in hours]
+            [h["humidity"] for h in hours]
             winds = [h["wind_speed"] for h in hours]
             rain_probs = [h["precipitation_prob"] for h in hours]
 
@@ -605,14 +605,13 @@ class SprayAdvisor:
                 recommendations_en.append(
                     "Fungicides: High humidity may increase spore spread"
                 )
-        elif product_type == SprayProduct.INSECTICIDE:
-            if "high_temperature" in risks:
-                recommendations_ar.append(
-                    "مبيدات الحشرات: ارش عند غروب الشمس للحصول على أفضل نتيجة"
-                )
-                recommendations_en.append(
-                    "Insecticides: Spray at dusk for best contact with insects"
-                )
+        elif product_type == SprayProduct.INSECTICIDE and "high_temperature" in risks:
+            recommendations_ar.append(
+                "مبيدات الحشرات: ارش عند غروب الشمس للحصول على أفضل نتيجة"
+            )
+            recommendations_en.append(
+                "Insecticides: Spray at dusk for best contact with insects"
+            )
 
         # Safety reminders
         if condition in [

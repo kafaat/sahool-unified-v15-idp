@@ -293,7 +293,6 @@ class TestOAuthFlow:
     async def test_oauth_token_exchange(self):
         """Test OAuth token exchange"""
         # Mock authorization code
-        auth_code = "test_authorization_code"
 
         # Mock token exchange response
         token_response = {
@@ -427,7 +426,7 @@ class TestMFAFlow:
     async def test_mfa_login_flow(self, mock_user_with_mfa, jwt_helper):
         """Test login flow with MFA"""
         # Step 1: Validate credentials
-        credentials = {
+        {
             "username": mock_user_with_mfa["username"],
             "password": "password123",
         }

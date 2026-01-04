@@ -432,7 +432,7 @@ async def list_available_crops():
     analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
     crops = []
-    for crop_code in analyzer.CROP_NAMES_EN.keys():
+    for crop_code in analyzer.CROP_NAMES_EN:
         crops.append(
             {
                 "crop_code": crop_code,

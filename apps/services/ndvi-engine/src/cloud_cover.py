@@ -169,10 +169,7 @@ def is_scene_usable(
     if cloud_coverage > max_cloud:
         return False
 
-    if usable_fraction is not None and usable_fraction < min_usable:
-        return False
-
-    return True
+    return not (usable_fraction is not None and usable_fraction < min_usable)
 
 
 def cloud_coverage_grade(coverage: float) -> tuple[str, str]:

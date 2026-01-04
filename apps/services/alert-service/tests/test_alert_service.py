@@ -325,7 +325,4 @@ class TestAlertNotifications:
             return True
         if alert["severity"] == "warning" and config.get("notify_on_warning", False):
             return True
-        if alert["severity"] == "info" and config.get("notify_on_info", False):
-            return True
-
-        return False
+        return bool(alert["severity"] == "info" and config.get("notify_on_info", False))

@@ -94,7 +94,7 @@ class ReportGenerator:
         pass_rate = self.metrics.get("pass_rate", 0.0)
         total_tests = self.metrics.get("total_tests", 0)
         passed_tests = self.metrics.get("passed_tests", 0)
-        failed_tests = self.metrics.get("failed_tests", 0)
+        self.metrics.get("failed_tests", 0)
 
         status_emoji = (
             "✅" if overall_score >= 85 else "⚠️" if overall_score >= 70 else "❌"

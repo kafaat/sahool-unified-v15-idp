@@ -270,7 +270,7 @@ class ChecklistService:
             name_en=f"Checklist for Farm {farm_id}",
             ifa_version="6.0",
             checklist_type=scope,
-            applicable_categories=[cat for cat in ChecklistCategory],
+            applicable_categories=list(ChecklistCategory),
             crop_types=crop_types,
             total_items=len(all_items),
             major_must_count=major_must,

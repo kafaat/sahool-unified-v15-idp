@@ -223,7 +223,7 @@ class DLQManager:
             total_count = stream_info.state.messages
 
             # Calculate pagination
-            start_seq = (page - 1) * page_size + 1
+            (page - 1) * page_size + 1
 
             messages = []
 

@@ -239,19 +239,19 @@ class IoTAgent(BaseAgent):
         # Current state
         self.internal_model["current_state"] = {
             sensor: self._get_latest_value(sensor)
-            for sensor in self.sensor_buffers.keys()
+            for sensor in self.sensor_buffers
         }
 
         # Calculate trends
         self.internal_model["trend"] = {
             sensor: self._calculate_trend(sensor)
-            for sensor in self.sensor_buffers.keys()
+            for sensor in self.sensor_buffers
         }
 
         # Predict next state
         self.internal_model["predicted_state"] = {
             sensor: self._predict_next_value(sensor)
-            for sensor in self.sensor_buffers.keys()
+            for sensor in self.sensor_buffers
         }
 
         # Detect anomalies

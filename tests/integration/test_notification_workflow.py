@@ -134,8 +134,8 @@ async def test_weather_alert_workflow(
     # Verify weather alert structure
     assert alert["type"] == "weather_alert"
     assert alert["priority"] == "high"
-    assert "sanaa" in [g for g in alert["target_governorates"]]
-    assert "ibb" in [g for g in alert["target_governorates"]]
+    assert "sanaa" in list(alert["target_governorates"])
+    assert "ibb" in list(alert["target_governorates"])
     assert alert["data"]["alert_type"] == "frost"
     assert "expected_date" in alert["data"]
 

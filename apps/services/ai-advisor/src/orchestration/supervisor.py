@@ -154,7 +154,7 @@ Respond with a JSON object containing:
                 routing = {
                     "agents_needed": list(self.agents.keys()),
                     "reasoning": "Fallback routing due to parsing error",
-                    "query_breakdown": {name: query for name in self.agents.keys()},
+                    "query_breakdown": {name: query for name in self.agents},
                 }
 
             logger.info(

@@ -40,7 +40,7 @@ def example_1_get_crop_calendar():
     print(f"   المحصول: {calendar.name_ar} ({calendar.name_en})")
     print(f"   دورة الحياة: {calendar.total_cycle_days} يوم")
     print("   نوافذ الزراعة:")
-    for region, windows in calendar.planting_windows.items():
+    for _region, windows in calendar.planting_windows.items():
         for window_type, data in windows.items():
             print(f"     - {window_type}: شهر {data['start_month']}-{data['end_month']}")
 

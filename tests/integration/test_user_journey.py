@@ -313,7 +313,7 @@ async def test_crisis_management_journey(
     )
 
     if search_response.status_code == 200:
-        products = search_response.json()
+        search_response.json()
 
         # Add to cart and place order
         order_data = {
@@ -533,7 +533,7 @@ async def test_business_growth_journey(
     )
 
     if subscription_response.status_code == 200:
-        current_sub = subscription_response.json()
+        subscription_response.json()
 
         # Upgrade plan
         upgrade_data = {
@@ -667,7 +667,7 @@ async def test_multi_service_integration_journey(
         "timestamp": datetime.utcnow().isoformat(),
     }
 
-    sensor_response = await http_client.post(
+    await http_client.post(
         f"{iot_url}/v1/readings", json=sensor_reading, headers=auth_headers
     )
 
@@ -710,7 +710,7 @@ async def test_multi_service_integration_journey(
         "due_date": datetime.utcnow().isoformat(),
     }
 
-    task_response = await http_client.post(
+    await http_client.post(
         f"{task_url}/api/v1/tasks", json=irrigation_task, headers=auth_headers
     )
 
@@ -722,7 +722,7 @@ async def test_multi_service_integration_journey(
         "parameters": {"duration_minutes": 30, "target_volume_liters": water_needed},
     }
 
-    actuator_response = await http_client.post(
+    await http_client.post(
         f"{iot_url}/v1/actuators/command", json=valve_command, headers=auth_headers
     )
 

@@ -6,7 +6,7 @@ Port: 3000
 
 import os
 import sys
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import UTC, datetime
 from uuid import uuid4
 
@@ -357,14 +357,12 @@ async def update_field(
 
     # نشر الحدث
     if app.state.publisher and updated_fields:
-        try:
+        with suppress(Exception):
             await app.state.publisher.publish_field_updated(
                 tenant_id=field_data["tenant_id"],
                 field_id=field_id,
                 updated_fields=updated_fields,
             )
-        except Exception:
-            pass
 
     return FieldResponse(**field_data)
 
@@ -396,14 +394,12 @@ async def delete_field(field_id: str, tenant_id: str = Depends(get_tenant_id)):
 
     # نشر الحدث
     if app.state.publisher:
-        try:
+        with suppress(Exception):
             await app.state.publisher.publish_field_deleted(
                 tenant_id=field_data["tenant_id"],
                 field_id=field_id,
                 user_id=field_data["user_id"],
             )
-        except Exception:
-            pass
 
     return {"status": "deleted", "field_id": field_id}
 
@@ -438,15 +434,13 @@ async def update_boundary(field_id: str, update: BoundaryUpdate):
 
     # نشر الحدث
     if app.state.publisher:
-        try:
+        with suppress(Exception):
             await app.state.publisher.publish_boundary_updated(
                 tenant_id=field_data["tenant_id"],
                 field_id=field_id,
                 new_area_hectares=new_area,
                 centroid={"lat": centroid_lat, "lng": centroid_lng},
             )
-        except Exception:
-            pass
 
     diff_pct = ((new_area - old_area) / old_area * 100) if old_area > 0 else 0
 
@@ -623,7 +617,7 @@ async def start_crop_season(field_id: str, season: CropSeasonCreate):
 
     # نشر الحدث
     if app.state.publisher:
-        try:
+        with suppress(Exception):
             await app.state.publisher.publish_season_started(
                 tenant_id=season_data["tenant_id"],
                 field_id=field_id,
@@ -631,8 +625,6 @@ async def start_crop_season(field_id: str, season: CropSeasonCreate):
                 crop_type=season.crop_type,
                 planting_date=season.planting_date,
             )
-        except Exception:
-            pass
 
     return CropSeasonResponse(**season_data)
 
@@ -691,7 +683,7 @@ async def close_crop_season(field_id: str, close_data: CropSeasonClose):
 
     # نشر الحدث
     if app.state.publisher:
-        try:
+        with suppress(Exception):
             await app.state.publisher.publish_season_closed(
                 tenant_id=season_data["tenant_id"],
                 field_id=field_id,
@@ -700,8 +692,6 @@ async def close_crop_season(field_id: str, close_data: CropSeasonClose):
                 harvest_date=close_data.harvest_date,
                 actual_yield_kg=close_data.actual_yield_kg,
             )
-        except Exception:
-            pass
 
     return CropSeasonResponse(**season_data)
 
@@ -741,7 +731,7 @@ async def create_zone(field_id: str, zone: ZoneCreate):
 
     # نشر الحدث
     if app.state.publisher:
-        try:
+        with suppress(Exception):
             await app.state.publisher.publish_zone_created(
                 tenant_id=zone_data["tenant_id"],
                 field_id=field_id,
@@ -749,8 +739,6 @@ async def create_zone(field_id: str, zone: ZoneCreate):
                 zone_name=zone.name,
                 area_hectares=zone_area,
             )
-        except Exception:
-            pass
 
     return ZoneResponse(**zone_data)
 
@@ -783,14 +771,12 @@ async def delete_zone(zone_id: str):
 
     # نشر الحدث
     if app.state.publisher:
-        try:
+        with suppress(Exception):
             await app.state.publisher.publish_zone_deleted(
                 tenant_id=zone_data["tenant_id"],
                 field_id=zone_data["field_id"],
                 zone_id=zone_id,
             )
-        except Exception:
-            pass
 
     return {"status": "deleted", "zone_id": zone_id}
 
@@ -844,7 +830,7 @@ async def get_field_stats(field_id: str):
     field_seasons = [s for s in _seasons.values() if s["field_id"] == field_id]
 
     # المحاصيل المزروعة
-    crops_grown = list(set(s["crop_type"] for s in field_seasons))
+    crops_grown = list({s["crop_type"] for s in field_seasons})
 
     # متوسط الإنتاج
     yields = [s["actual_yield_kg"] for s in field_seasons if s.get("actual_yield_kg")]

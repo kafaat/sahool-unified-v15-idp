@@ -7,6 +7,7 @@ Core registry service for agent registration, discovery, and health monitoring.
 """
 
 import asyncio
+import contextlib
 from datetime import datetime
 from enum import Enum
 from typing import Any
@@ -113,10 +114,8 @@ class AgentRegistry:
 
         if self._health_check_task:
             self._health_check_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._health_check_task
-            except asyncio.CancelledError:
-                pass
 
         self._logger.info("agent_registry_stopped")
 

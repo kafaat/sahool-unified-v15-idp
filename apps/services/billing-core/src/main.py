@@ -1191,7 +1191,7 @@ async def create_tenant(
         raise HTTPException(400, "الخطة غير موجودة")
 
     # Create tenant in database
-    tenant = await repo.tenants.create(
+    await repo.tenants.create(
         tenant_id=tenant_id,
         name=request.name,
         name_ar=request.name_ar,
@@ -1258,7 +1258,7 @@ async def get_tenant(
     if subscription:
         plan = await repo.plans.get_by_plan_id(subscription.plan_id)
         if plan:
-            for metric in plan.limits.keys():
+            for metric in plan.limits:
                 usage[metric] = await check_usage_limit_db(db, tenant_id, metric)
 
     return {

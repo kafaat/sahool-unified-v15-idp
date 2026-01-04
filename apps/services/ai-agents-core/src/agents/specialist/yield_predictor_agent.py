@@ -348,10 +348,7 @@ class YieldPredictorAgent(BaseAgent):
 
         if soil:
             ph = soil.get("ph", 7.0)
-            if 6.0 <= ph <= 7.5:
-                ph_factor = 1.0
-            else:
-                ph_factor = 0.8
+            ph_factor = 1.0 if 6.0 <= ph <= 7.5 else 0.8
 
             ec = soil.get("ec", 1.5)
             if ec < 2.5:

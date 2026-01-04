@@ -148,7 +148,7 @@ class SensorAggregator:
 
         # استخراج القيم - Extract values
         values = [r.value for r in readings]
-        devices = list(set(r.device_id for r in readings))
+        devices = list({r.device_id for r in readings})
 
         # حساب الإحصائيات - Calculate statistics
         stats = self.calculate_statistics(values)
@@ -226,7 +226,7 @@ class SensorAggregator:
 
         # المئينات - Percentiles
         sorted_readings = sorted(readings)
-        n = len(sorted_readings)
+        len(sorted_readings)
 
         p10 = self._percentile(sorted_readings, 10)
         p25 = self._percentile(sorted_readings, 25)

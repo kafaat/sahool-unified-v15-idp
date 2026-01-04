@@ -14,7 +14,7 @@ crop-growth-model → yield-engine → marketplace-service
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import numpy as np
 
@@ -79,7 +79,7 @@ class YieldPredictionWorkflow:
     def __init__(
         self,
         method: str = "integrated",  # "integrated", "peak", "lai"
-        crop_coefficients: Optional[Dict[str, Dict]] = None,
+        crop_coefficients: Optional[dict[str, dict]] = None,
     ):
         """
         Initialize yield prediction workflow
@@ -109,11 +109,11 @@ class YieldPredictionWorkflow:
         field_id: str,
         tenant_id: str,
         crop_type: str,
-        historical_data: List[Dict[str, Any]],
+        historical_data: list[dict[str, Any]],
         planting_date: str,
         area_hectares: float = 1.0,
         current_growth_day: Optional[int] = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Execute yield prediction workflow
 
@@ -220,7 +220,7 @@ class YieldPredictionWorkflow:
             result["error"] = str(e)
             return result
 
-    def _extract_ndvi_series(self, historical_data: List[Dict]) -> List[Dict]:
+    def _extract_ndvi_series(self, historical_data: list[dict]) -> list[dict]:
         """Extract NDVI time series from historical data"""
         series = []
         for obs in historical_data:
@@ -233,7 +233,7 @@ class YieldPredictionWorkflow:
                 )
         return sorted(series, key=lambda x: x["date"])
 
-    def _extract_lai_series(self, historical_data: List[Dict]) -> List[Dict]:
+    def _extract_lai_series(self, historical_data: list[dict]) -> list[dict]:
         """Extract LAI time series from historical data"""
         series = []
         for obs in historical_data:
@@ -259,7 +259,7 @@ class YieldPredictionWorkflow:
         else:
             return CropGrowthStage.VEGETATIVE
 
-    def _integrated_ndvi_yield(self, ndvi_series: List[Dict], coeffs: Dict) -> float:
+    def _integrated_ndvi_yield(self, ndvi_series: list[dict], coeffs: dict) -> float:
         """
         Calculate yield from integrated NDVI
 
@@ -276,7 +276,7 @@ class YieldPredictionWorkflow:
 
         return max(0, yield_estimate)
 
-    def _peak_ndvi_yield(self, ndvi_series: List[Dict], coeffs: Dict) -> float:
+    def _peak_ndvi_yield(self, ndvi_series: list[dict], coeffs: dict) -> float:
         """
         Calculate yield from peak NDVI
 
@@ -289,7 +289,7 @@ class YieldPredictionWorkflow:
 
         return max(0, yield_estimate)
 
-    def _lai_based_yield(self, lai_series: List[Dict], coeffs: Dict) -> float:
+    def _lai_based_yield(self, lai_series: list[dict], coeffs: dict) -> float:
         """
         Calculate yield from LAI
 
@@ -307,7 +307,7 @@ class YieldPredictionWorkflow:
         return max(0, yield_estimate)
 
     def _calculate_confidence(
-        self, ndvi_series: List[Dict], growth_stage: str
+        self, ndvi_series: list[dict], growth_stage: str
     ) -> float:
         """Calculate prediction confidence score"""
         confidence = 0.5  # Base confidence
@@ -340,7 +340,7 @@ class YieldPredictionWorkflow:
 
         return min(0.95, max(0.3, confidence))
 
-    def _create_yield_event(self, result: Dict) -> Dict[str, Any]:
+    def _create_yield_event(self, result: dict) -> dict[str, Any]:
         """Create YieldPredicted.v1 event"""
         import uuid
 
@@ -403,7 +403,7 @@ class GrowthStageEstimator:
             },
         }
 
-    def estimate(self, ndvi_series: List[Dict], planting_date: str) -> Dict[str, Any]:
+    def estimate(self, ndvi_series: list[dict], planting_date: str) -> dict[str, Any]:
         """
         Estimate current growth stage and progression
 
@@ -459,7 +459,7 @@ class GrowthStageEstimator:
         return CropGrowthStage.VEGETATIVE
 
     def _estimate_harvest_date(
-        self, planting_date: str, current_stage: str, durations: Dict
+        self, planting_date: str, current_stage: str, durations: dict
     ) -> str:
         """Estimate harvest date based on remaining stages"""
         planting = datetime.strptime(planting_date, "%Y-%m-%d")

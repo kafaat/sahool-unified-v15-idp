@@ -251,18 +251,17 @@ def require_service_auth(allowed_services: list[str] | None = None):
     ) -> dict:
         from fastapi import HTTPException
 
-        if allowed_services:
-            if service_info["service_name"] not in allowed_services:
-                logger.warning(
-                    f"Service {service_info['service_name']} not in allowed list"
-                )
-                raise HTTPException(
-                    status_code=403,
-                    detail={
-                        "error": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["code"],
-                        "message": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["en"],
-                    },
-                )
+        if allowed_services and service_info["service_name"] not in allowed_services:
+            logger.warning(
+                f"Service {service_info['service_name']} not in allowed list"
+            )
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    "error": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["code"],
+                    "message": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["en"],
+                },
+            )
 
         return service_info
 

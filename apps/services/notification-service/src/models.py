@@ -295,10 +295,7 @@ class NotificationPreference(Model):
         if not self.quiet_hours_start or not self.quiet_hours_end:
             return False
 
-        if check_time is None:
-            check_time = datetime.utcnow().time()
-        else:
-            check_time = check_time.time()
+        check_time = datetime.utcnow().time() if check_time is None else check_time.time()
 
         # Handle overnight quiet hours (e.g., 22:00 to 06:00)
         if self.quiet_hours_start > self.quiet_hours_end:

@@ -198,10 +198,7 @@ class TestFieldBoundary:
             return False
 
         # Check if polygon is closed
-        if coords[0] != coords[-1]:
-            return False
-
-        return True
+        return coords[0] == coords[-1]
 
 
 class TestFieldNDVIHistory:

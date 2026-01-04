@@ -1047,7 +1047,7 @@ def get_zodiac_sign(dt: datetime) -> ZodiacInfo:
 
 def get_current_season(month: int) -> SeasonInfo:
     """الحصول على الموسم الحالي"""
-    for season_key, season_data in YEMENI_SEASONS.items():
+    for _season_key, season_data in YEMENI_SEASONS.items():
         if month in season_data["months"]:
             return SeasonInfo(
                 name=season_data["name"],
@@ -1863,7 +1863,7 @@ def get_daily_wisdom():
 
     # نجم الشهر
     current_star = None
-    for star_name, star_data in IMPORTANT_STARS.items():
+    for _star_name, star_data in IMPORTANT_STARS.items():
         if star_data["rising_month"] == now.month:
             current_star = star_data
             break

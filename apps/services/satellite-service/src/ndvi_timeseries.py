@@ -342,7 +342,7 @@ class NDVITimeSeriesAnalyzer:
         # كشف الشذوذات
         # Detect anomalies
         anomalies = []
-        for i, (z_score, value, expected, date_val) in enumerate(zip(z_scores, values, smoothed, dates, strict=False)):
+        for _i, (z_score, value, expected, date_val) in enumerate(zip(z_scores, values, smoothed, dates, strict=False)):
             if abs(z_score) > threshold:
                 # تحديد نوع الشذوذ
                 # Determine anomaly type
@@ -506,10 +506,7 @@ class NDVITimeSeriesAnalyzer:
 
         # حساب الموسمية (متوسط التغير الأسبوعي)
         # Calculate seasonality (average weekly change)
-        if len(values) >= 7:
-            weekly_pattern = self._extract_weekly_pattern(values)
-        else:
-            weekly_pattern = [0] * 7
+        weekly_pattern = self._extract_weekly_pattern(values) if len(values) >= 7 else [0] * 7
 
         # التنبؤ
         # Forecast

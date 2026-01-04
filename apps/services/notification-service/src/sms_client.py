@@ -326,10 +326,7 @@ class SMSClient:
             return False
 
         # Should be between 7 and 15 digits
-        if len(digits) < 7 or len(digits) > 15:
-            return False
-
-        return True
+        return not (len(digits) < 7 or len(digits) > 15)
 
 
 # Global client instance

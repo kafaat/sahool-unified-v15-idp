@@ -294,7 +294,7 @@ async def test_weather_to_irrigation_data_flow(
         )
 
         if weather_response.status_code == 200:
-            weather_data = weather_response.json()
+            weather_response.json()
 
             # Step 2: Calculate irrigation using weather data
             irrigation_data = {

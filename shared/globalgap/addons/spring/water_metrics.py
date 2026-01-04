@@ -202,7 +202,7 @@ class WaterUsageMetric(BaseModel):
     )
 
     @validator("flow_rate_m3_per_hour", always=True)
-    def calculate_flow_rate(cls, v, values):
+    def calculate_flow_rate(self, v, values):
         """Calculate flow rate if not provided / حساب معدل التدفق إذا لم يتم توفيره"""
         if v is None and "volume_cubic_meters" in values and "duration_hours" in values:
             if values["duration_hours"] and values["duration_hours"] > 0:
@@ -275,18 +275,16 @@ class IrrigationEfficiency(BaseModel):
     notes: str | None = Field(None, description="Additional notes / ملاحظات إضافية")
 
     @validator("application_efficiency_percent", always=True)
-    def calculate_efficiency(cls, v, values):
+    def calculate_efficiency(self, v, values):
         """Calculate efficiency if not provided / حساب الكفاءة إذا لم يتم توفيرها"""
-        if v is None or v == 0:
-            if (
-                "water_applied_m3" in values
-                and "water_stored_in_root_zone_m3" in values
-            ):
-                if values["water_applied_m3"] > 0:
-                    return (
-                        values["water_stored_in_root_zone_m3"]
-                        / values["water_applied_m3"]
-                    ) * 100
+        if (v is None or v == 0) and (
+            "water_applied_m3" in values
+            and "water_stored_in_root_zone_m3" in values
+        ) and values["water_applied_m3"] > 0:
+            return (
+                values["water_stored_in_root_zone_m3"]
+                / values["water_applied_m3"]
+            ) * 100
         return v
 
     class Config:
@@ -345,7 +343,7 @@ class RainfallHarvesting(BaseModel):
     notes: str | None = Field(None, description="Additional notes / ملاحظات إضافية")
 
     @validator("collected_volume_m3", always=True)
-    def estimate_collected_volume(cls, v, values):
+    def estimate_collected_volume(self, v, values):
         """Estimate collected volume if not provided / تقدير الحجم المجمع إذا لم يتم توفيره"""
         if v is None or v == 0:
             if "rainfall_mm" in values and "collection_area_m2" in values:
@@ -451,7 +449,7 @@ class WaterEfficiencyScore(BaseModel):
     )
 
     @validator("water_use_per_hectare_m3", always=True)
-    def calculate_water_per_hectare(cls, v, values):
+    def calculate_water_per_hectare(self, v, values):
         """Calculate water use per hectare / حساب استخدام المياه لكل هكتار"""
         if v is None or v == 0:
             if "total_water_used_m3" in values and "total_irrigated_area_ha" in values:
@@ -463,7 +461,7 @@ class WaterEfficiencyScore(BaseModel):
         return v
 
     @validator("rainwater_percentage", always=True)
-    def calculate_rainwater_percentage(cls, v, values):
+    def calculate_rainwater_percentage(self, v, values):
         """Calculate rainwater percentage / حساب نسبة مياه الأمطار"""
         if v is None or v == 0:
             if "rainwater_harvested_m3" in values and "total_water_used_m3" in values:

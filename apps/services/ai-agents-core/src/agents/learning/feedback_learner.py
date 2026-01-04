@@ -221,7 +221,7 @@ class FeedbackLearnerAgent(BaseAgent):
 
         if original_feedback:
             # Calculate prediction error
-            if isinstance(actual, (int, float)) and isinstance(predicted, (int, float)):
+            if isinstance(actual, int | float) and isinstance(predicted, int | float):
                 error = abs(actual - predicted)
                 error_rate = error / predicted if predicted != 0 else 1.0
 

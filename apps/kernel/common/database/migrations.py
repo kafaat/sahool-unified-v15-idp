@@ -174,7 +174,7 @@ datefmt = %H:%M:%S
 
         # إنشاء جدول الهجرات المخصص
         # Create custom migrations table
-        migrations_table = Table(
+        Table(
             'sahool_migrations',
             metadata,
             Column('id', Integer, primary_key=True, autoincrement=True),
@@ -296,10 +296,7 @@ datefmt = %H:%M:%S
 
         # حساب الإصدار المستهدف
         # Calculate target revision
-        if steps == 1:
-            target = "-1"
-        else:
-            target = f"-{steps}"
+        target = "-1" if steps == 1 else f"-{steps}"
 
         # تنفيذ التراجع
         # Execute rollback

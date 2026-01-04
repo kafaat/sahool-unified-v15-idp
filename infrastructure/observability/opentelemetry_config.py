@@ -368,7 +368,7 @@ class TracingMiddleware:
         # Extract request info
         headers = dict(scope.get("headers", []))
         path = scope.get("path", "")
-        method = scope.get("method", "")
+        scope.get("method", "")
 
         # Get current span
         current_span = trace.get_current_span()

@@ -302,7 +302,7 @@ async def example_sahool_integration():
                 # Update farm record in database
                 # تحديث سجل المزرعة في قاعدة البيانات
                 print("\n📝 Updating farm record...")
-                farm_update = {
+                {
                     "globalgap_status": "VALID",
                     "globalgap_valid_until": cert.valid_to,
                     "globalgap_verified_at": datetime.now(),
@@ -328,7 +328,7 @@ async def example_sahool_integration():
 
                 # Update farm record
                 # تحديث سجل المزرعة
-                farm_update = {
+                {
                     "globalgap_status": cert.status.value.upper(),
                     "globalgap_verified_at": datetime.now(),
                 }

@@ -186,7 +186,7 @@ async def test_calculate_ndvi_for_field(
     """
     # Arrange - إنشاء حقل
     field_service_url = service_urls["field_core"]
-    ndvi_service_url = service_urls.get("ndvi_engine", "http://localhost:8107")
+    service_urls.get("ndvi_engine", "http://localhost:8107")
 
     field_data = field_factory.create(name="NDVI Test Field", crop_type="wheat")
     field_data["tenant_id"] = "test-tenant-123"

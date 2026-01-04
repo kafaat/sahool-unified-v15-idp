@@ -208,7 +208,7 @@ class BaseRepository(Generic[ModelType]):
         if not hasattr(self.model, "is_deleted"):
             return self.get_all(skip, limit)
 
-        query = self.db.query(self.model).filter(self.model.is_deleted == False)
+        query = self.db.query(self.model).filter(self.model.is_deleted is False)
 
         if tenant_id and hasattr(self.model, "tenant_id"):
             query = query.filter(self.model.tenant_id == tenant_id)

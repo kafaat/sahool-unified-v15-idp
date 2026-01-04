@@ -68,12 +68,11 @@ class InMemoryCache:
         """Get value from cache"""
         # Check if key exists and not expired
         if key in self._cache:
-            if key in self._expiry:
-                if time.time() > self._expiry[key]:
-                    # Expired, remove it
-                    del self._cache[key]
-                    del self._expiry[key]
-                    return None
+            if key in self._expiry and time.time() > self._expiry[key]:
+                # Expired, remove it
+                del self._cache[key]
+                del self._expiry[key]
+                return None
             return self._cache[key]
         return None
 
@@ -158,7 +157,7 @@ class RedisCache:
             await self.initialize()
 
         # Serialize value
-        if isinstance(value, (dict, list)):
+        if isinstance(value, dict | list):
             value = json.dumps(value)
         elif not isinstance(value, str):
             value = str(value)

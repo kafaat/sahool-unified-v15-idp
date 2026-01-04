@@ -149,7 +149,7 @@ async def test_complete_field_workflow(
     ), f"Recommendations request failed with status {recommendations_response.status_code}"
 
     if recommendations_response.status_code == 200:
-        recommendations = recommendations_response.json()
+        recommendations_response.json()
         print("✓ Recommendations retrieved")
     else:
         print(

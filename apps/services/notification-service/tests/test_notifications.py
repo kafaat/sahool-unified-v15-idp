@@ -124,7 +124,7 @@ class TestUserNotifications:
     def test_mark_as_read(self, client):
         response = client.put("/api/v1/notifications/notif_001/read")
         assert response.status_code == 200
-        assert response.json()["read"] == True
+        assert response.json()["read"] is True
 
     def test_mark_all_read(self, client):
         response = client.put("/api/v1/users/user_001/notifications/read-all")

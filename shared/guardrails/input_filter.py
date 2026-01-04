@@ -229,10 +229,7 @@ class PIIDetector:
 
     def contains_pii(self, text: str) -> bool:
         """Quick check if text contains any PII"""
-        for pattern in self.patterns.values():
-            if pattern.search(text):
-                return True
-        return False
+        return any(pattern.search(text) for pattern in self.patterns.values())
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -326,10 +323,7 @@ class ToxicityFilter:
         # Simple heuristic: ratio of toxic words to total words
         words = text.split()
         word_count = len(words)
-        if word_count == 0:
-            toxicity_score = 0.0
-        else:
-            toxicity_score = min(total_toxic_words / word_count * 5, 1.0)
+        toxicity_score = 0.0 if word_count == 0 else min(total_toxic_words / word_count * 5, 1.0)
 
         return toxicity_score, category_counts
 
@@ -504,10 +498,7 @@ class InputFilter:
         if self.prompt_injection_detector.detect(text)[0]:
             return False
 
-        if self.toxicity_filter.is_toxic(text, threshold=0.8):
-            return False
-
-        return True
+        return not self.toxicity_filter.is_toxic(text, threshold=0.8)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

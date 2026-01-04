@@ -284,7 +284,7 @@ class TestUsage:
             json={"type": "api_call", "count": 1},
         )
         assert response.status_code == 200
-        assert response.json()["recorded"] == True
+        assert response.json()["recorded"] is True
 
 
 class TestCurrency:

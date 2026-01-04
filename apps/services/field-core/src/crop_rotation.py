@@ -455,7 +455,7 @@ class CropRotationPlanner:
 
             # Determine next crop family based on history
             if all_history:
-                last_crop_family = all_history[-1].crop_family
+                all_history[-1].crop_family
                 suggestions = await self.suggest_next_crop(
                     field_id=field_id, history=all_history, season="winter"
                 )
@@ -628,7 +628,7 @@ class CropRotationPlanner:
             }
 
         # Calculate diversity score
-        unique_families = len(set(s.crop_family for s in seasons))
+        unique_families = len({s.crop_family for s in seasons})
         diversity_score = min(100, (unique_families / len(seasons)) * 100 * 2)
 
         # Calculate soil health score
@@ -956,7 +956,7 @@ def to_dict(obj):
             value = getattr(obj, field_name)
             if isinstance(value, Enum):
                 result[field_name] = value.value
-            elif isinstance(value, (date, datetime)):
+            elif isinstance(value, date | datetime):
                 result[field_name] = value.isoformat()
             elif isinstance(value, list):
                 result[field_name] = [

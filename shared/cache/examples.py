@@ -7,6 +7,7 @@ Redis Sentinel Usage Examples
 Author: Sahool Platform Team
 """
 
+import contextlib
 import json
 import time
 import uuid
@@ -410,10 +411,8 @@ class EventSubscriber:
                 data = message["data"]
 
                 # محاولة تحويل من JSON
-                try:
+                with contextlib.suppress(Exception):
                     data = json.loads(data)
-                except:
-                    pass
 
                 # استدعاء المعالج
                 if channel in self.handlers:

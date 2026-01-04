@@ -82,7 +82,7 @@ def check_models():
         # Check tables
         tables = Base.metadata.tables
         print(f"\n  📊 الجداول المُعرّفة: {len(tables)}")
-        for table_name in tables.keys():
+        for table_name in tables:
             print(f"     - {table_name}")
 
         print("\n✅ النماذج صحيحة\n")
@@ -159,7 +159,7 @@ def check_alembic():
         print("  ✅ alembic.ini موجود")
 
         # Try to load config
-        alembic_cfg = Config("alembic.ini")
+        Config("alembic.ini")
         print("  ✅ تم تحميل الإعدادات بنجاح")
 
         print("\n✅ Alembic جاهز\n")

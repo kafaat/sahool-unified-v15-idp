@@ -351,10 +351,9 @@ def analyze_risk_window(
             risk_factors.append(f"برودة شديدة: {expected_temperature}°C")
 
     # Excess or lack of rainfall
-    if expected_rainfall_mm is not None:
-        if expected_rainfall_mm > 50:
-            risk_score += 1
-            risk_factors.append(f"أمطار غزيرة متوقعة: {expected_rainfall_mm}mm")
+    if expected_rainfall_mm is not None and expected_rainfall_mm > 50:
+        risk_score += 1
+        risk_factors.append(f"أمطار غزيرة متوقعة: {expected_rainfall_mm}mm")
 
     # Determine risk level
     if risk_score >= 4:

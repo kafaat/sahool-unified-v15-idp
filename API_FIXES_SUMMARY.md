@@ -47,18 +47,18 @@ Results in:
 - Development: `''` + `/api/v1/fields` = `/api/v1/fields` ✅
 - Production: `https://api.sahool.sa` + `/api/v1/fields` = `https://api.sahool.sa/api/v1/fields` ✅
 
-### Secondary Issue: Ineffective Warning Condition
+### Secondary Issue: Warning Condition Clarity
 **Affected Files (All API files):**
 - `apps/web/src/features/field-map/api.ts`
 - `apps/web/src/features/reports/api.ts`
 - `apps/web/src/features/advisor/api.ts`
 - `apps/web/src/features/ndvi/api.ts`
-- `apps/web/src/features/settings/api.ts` (pre-existing issue)
-- `apps/web/src/features/crop-health/api.ts` (pre-existing issue)
+- `apps/web/src/features/settings/api.ts` (pre-existing)
+- `apps/web/src/features/crop-health/api.ts` (pre-existing)
 
-**Problem:**
+**Observation:**
 ```typescript
-// BEFORE (INCORRECT)
+// BEFORE (FUNCTIONAL BUT LESS CLEAR)
 if (!API_BASE_URL && typeof window !== 'undefined') {
   console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
 }
@@ -71,13 +71,13 @@ variable directly, which is clearer and avoids relying on the derived `API_BASE_
 
 **Solution:**
 ```typescript
-// AFTER (CORRECT)
+// AFTER (IMPROVED)
 if (!process.env.NEXT_PUBLIC_API_URL && typeof window !== 'undefined') {
   console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
 }
 ```
 
-This directly checks the environment variable, ensuring the warning triggers correctly.
+This directly checks the environment variable, which is clearer and more explicit than checking the derived `API_BASE_URL` constant.
 
 ## Files Modified
 
@@ -121,7 +121,7 @@ This directly checks the environment variable, ensuring the warning triggers cor
 
 ### Positive Impact
 1. **Fixes API Communication**: Resolves duplicate path issue that would cause 404 errors
-2. **Improves Developer Experience**: Warning now triggers correctly during development
+2. **Improves Code Clarity**: Warning condition is now more explicit and easier to understand
 3. **Consistency**: All API files now follow the same pattern
 4. **No Breaking Changes**: All API interfaces remain unchanged
 

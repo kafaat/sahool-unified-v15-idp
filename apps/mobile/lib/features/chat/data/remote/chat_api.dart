@@ -8,6 +8,9 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/input_sanitizer.dart';
+import '../../../../core/utils/input_validator.dart';
 import '../models/conversation_model.dart';
 import '../models/message_model.dart';
 
@@ -143,10 +146,27 @@ class ChatApi {
     Map<String, dynamic>? metadata,
   }) async {
     try {
+      // Validate message content before sanitization
+      if (!_validateMessageContent(content)) {
+        throw ChatApiException(
+          code: 'INVALID_CONTENT',
+          message: 'محتوى الرسالة غير صالح',
+        );
+      }
+
+      // Sanitize message content for storage
+      final sanitizedContent = InputSanitizer.sanitizeForStorage(content);
+
+      // Log sanitized version (without sensitive data)
+      AppLogger.d(
+        'Sending message to conversation $conversationId: ${InputSanitizer.sanitizeForLog(sanitizedContent)}',
+        tag: 'ChatApi',
+      );
+
       final response = await _dio.post(
         '/api/v1/conversations/$conversationId/messages',
         data: {
-          'content': content,
+          'content': sanitizedContent,
           'type': type.name,
           'attachmentUrl': attachmentUrl,
           'metadata': metadata,
@@ -170,13 +190,18 @@ class ChatApi {
     String? initialMessage,
   }) async {
     try {
+      // Sanitize initial message if provided
+      final sanitizedMessage = initialMessage != null
+          ? InputSanitizer.sanitizeForStorage(initialMessage)
+          : null;
+
       final response = await _dio.post(
         '/api/v1/conversations',
         data: {
           'participantId': participantId,
           'productId': productId,
           'orderId': orderId,
-          'initialMessage': initialMessage,
+          'initialMessage': sanitizedMessage,
         },
       );
 
@@ -230,15 +255,15 @@ class ChatApi {
     );
 
     _socket!.onConnect((_) {
-      print('✅ Chat socket connected');
+      AppLogger.i('Chat socket connected', tag: 'ChatApi');
     });
 
     _socket!.onDisconnect((_) {
-      print('❌ Chat socket disconnected');
+      AppLogger.w('Chat socket disconnected', tag: 'ChatApi');
     });
 
     _socket!.onConnectError((error) {
-      print('❌ Chat socket connection error: $error');
+      AppLogger.e('Chat socket connection error', tag: 'ChatApi', error: error);
     });
 
     // Listen for new messages
@@ -250,7 +275,7 @@ class ChatApi {
         );
         _messageStreamController.add(message);
       } catch (e) {
-        print('❌ Error parsing message: $e');
+        AppLogger.e('Error parsing message', tag: 'ChatApi', error: e);
       }
     });
 
@@ -320,9 +345,27 @@ class ChatApi {
     String? attachmentUrl,
     Map<String, dynamic>? metadata,
   }) {
+    // Validate message content before sanitization
+    if (!_validateMessageContent(content)) {
+      AppLogger.w(
+        'Attempted to send invalid message content via socket',
+        tag: 'ChatApi',
+      );
+      return;
+    }
+
+    // Sanitize message content for storage
+    final sanitizedContent = InputSanitizer.sanitizeForStorage(content);
+
+    // Log sanitized version (without sensitive data)
+    AppLogger.d(
+      'Sending message via socket to conversation $conversationId: ${InputSanitizer.sanitizeForLog(sanitizedContent)}',
+      tag: 'ChatApi',
+    );
+
     _socket?.emit('send_message', {
       'conversationId': conversationId,
-      'content': content,
+      'content': sanitizedContent,
       'type': type.name,
       'attachmentUrl': attachmentUrl,
       'metadata': metadata,
@@ -330,10 +373,45 @@ class ChatApi {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // Input Validation & Sanitization
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Validate message content before sending
+  bool _validateMessageContent(String content) {
+    // Check for empty content
+    if (content.trim().isEmpty) {
+      return false;
+    }
+
+    // Check for excessive length (prevent DoS)
+    if (content.length > 5000) {
+      return false;
+    }
+
+    // Check for SQL injection patterns
+    if (InputValidator.containsSqlInjection(content)) {
+      AppLogger.w(
+        'Message contains potential SQL injection patterns',
+        tag: 'ChatApi',
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // Error Handling
   // ─────────────────────────────────────────────────────────────────────────────
 
   Exception _handleError(DioException e) {
+    // Log sanitized error for debugging (without sensitive data)
+    AppLogger.e(
+      'API error: ${e.type.name}',
+      tag: 'ChatApi',
+      error: InputSanitizer.toLogSafe(e.message ?? 'Unknown error'),
+    );
+
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
@@ -358,6 +436,8 @@ class ChatApi {
 
         if (data is Map) {
           message = data['message'] ?? data['error'] ?? message;
+          // Sanitize error message before returning
+          message = InputSanitizer.sanitizeForDisplay(message);
         }
 
         return ChatApiException(

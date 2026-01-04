@@ -25,12 +25,13 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor(this._ref, this._dio);
 
   @override
-  void onRequest(
+  Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
     // Skip auth for public endpoints
     if (_isPublicEndpoint(options.path)) {
+      AppLogger.d('Public endpoint - no auth required', tag: 'AUTH');
       return handler.next(options);
     }
 
@@ -48,17 +49,49 @@ class AuthInterceptor extends Interceptor {
       options.headers['X-Tenant-Id'] = tenantId;
     }
 
+    // Sanitized network logging - NO token information
     AppLogger.network(
       options.method,
       options.path,
-      data: {'hasToken': accessToken != null},
+      data: {
+        'authenticated': accessToken != null,
+        'hasTenant': tenantId != null,
+      },
     );
 
     handler.next(options);
   }
 
   @override
-  void onError(DioException err, ErrorInterceptorHandler handler) async {
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    // Log successful responses with sanitization
+    AppLogger.network(
+      response.requestOptions.method,
+      response.requestOptions.path,
+      statusCode: response.statusCode,
+      data: {
+        'statusMessage': response.statusMessage,
+        // Response data is automatically sanitized by AppLogger
+      },
+    );
+
+    handler.next(response);
+  }
+
+  @override
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+    // Log error with sanitization - NO sensitive data
+    AppLogger.network(
+      err.requestOptions.method,
+      err.requestOptions.path,
+      statusCode: err.response?.statusCode,
+      data: {
+        'error': err.type.toString(),
+        'statusMessage': err.response?.statusMessage,
+        // Error details are automatically sanitized by AppLogger
+      },
+    );
+
     // Handle 401 Unauthorized
     if (err.response?.statusCode == 401) {
       AppLogger.w('Received 401 - attempting token refresh', tag: 'AUTH');
@@ -104,6 +137,10 @@ class AuthInterceptor extends Interceptor {
       final secureStorage = _ref.read(secureStorageProvider);
       final newToken = await secureStorage.getAccessToken();
 
+      if (newToken == null) {
+        throw Exception('Token refresh succeeded but no token available');
+      }
+
       // Retry original request with new token
       requestOptions.headers['Authorization'] = 'Bearer $newToken';
 
@@ -111,7 +148,7 @@ class AuthInterceptor extends Interceptor {
       handler.resolve(response);
 
       // Process queued requests
-      await _processQueuedRequests(newToken!);
+      await _processQueuedRequests(newToken);
 
       return true;
     } catch (e) {

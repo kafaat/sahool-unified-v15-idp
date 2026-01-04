@@ -6,15 +6,8 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import type { Group, GroupMember, GroupFilters, ChatMessage, Expert, ExpertQuestion } from '../types';
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import type { Group, GroupFilters, ExpertQuestion } from '../types';
+import { communityApi } from '../api';
 
 // Query Keys
 const GROUPS_KEYS = {
@@ -34,17 +27,7 @@ const GROUPS_KEYS = {
 export function useGroups(filters?: GroupFilters) {
   return useQuery({
     queryKey: GROUPS_KEYS.list(filters),
-    queryFn: async (): Promise<Group[]> => {
-      const params = new URLSearchParams();
-      if (filters?.category) params.set('category', filters.category);
-      if (filters?.privacy) params.set('privacy', filters.privacy);
-      if (filters?.joined !== undefined) params.set('joined', String(filters.joined));
-      if (filters?.sortBy) params.set('sort_by', filters.sortBy);
-      if (filters?.search) params.set('search', filters.search);
-
-      const response = await api.get(`/v1/community/groups?${params.toString()}`);
-      return response.data;
-    },
+    queryFn: () => communityApi.getGroups(filters),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -55,10 +38,7 @@ export function useGroups(filters?: GroupFilters) {
 export function useGroup(id: string) {
   return useQuery({
     queryKey: GROUPS_KEYS.group(id),
-    queryFn: async (): Promise<Group> => {
-      const response = await api.get(`/v1/community/groups/${id}`);
-      return response.data;
-    },
+    queryFn: () => communityApi.getGroupById(id),
     enabled: !!id,
   });
 }
@@ -69,10 +49,7 @@ export function useGroup(id: string) {
 export function useMyGroups() {
   return useQuery({
     queryKey: GROUPS_KEYS.myGroups(),
-    queryFn: async (): Promise<Group[]> => {
-      const response = await api.get('/v1/community/groups/my-groups');
-      return response.data;
-    },
+    queryFn: () => communityApi.getMyGroups(),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -84,10 +61,7 @@ export function useCreateGroup() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<Group>): Promise<Group> => {
-      const response = await api.post('/v1/community/groups', data);
-      return response.data;
-    },
+    mutationFn: (data: Partial<Group>) => communityApi.createGroup(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GROUPS_KEYS.all });
     },
@@ -101,9 +75,7 @@ export function useJoinGroup() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (groupId: string): Promise<void> => {
-      await api.post(`/v1/community/groups/${groupId}/join`);
-    },
+    mutationFn: (groupId: string) => communityApi.joinGroup(groupId),
     onSuccess: (_, groupId) => {
       queryClient.invalidateQueries({ queryKey: GROUPS_KEYS.group(groupId) });
       queryClient.invalidateQueries({ queryKey: GROUPS_KEYS.myGroups() });
@@ -118,9 +90,7 @@ export function useLeaveGroup() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (groupId: string): Promise<void> => {
-      await api.post(`/v1/community/groups/${groupId}/leave`);
-    },
+    mutationFn: (groupId: string) => communityApi.leaveGroup(groupId),
     onSuccess: (_, groupId) => {
       queryClient.invalidateQueries({ queryKey: GROUPS_KEYS.group(groupId) });
       queryClient.invalidateQueries({ queryKey: GROUPS_KEYS.myGroups() });
@@ -134,10 +104,7 @@ export function useLeaveGroup() {
 export function useGroupMembers(groupId: string) {
   return useQuery({
     queryKey: GROUPS_KEYS.members(groupId),
-    queryFn: async (): Promise<GroupMember[]> => {
-      const response = await api.get(`/v1/community/groups/${groupId}/members`);
-      return response.data;
-    },
+    queryFn: () => communityApi.getGroupMembers(groupId),
     enabled: !!groupId,
   });
 }
@@ -148,10 +115,7 @@ export function useGroupMembers(groupId: string) {
 export function useGroupMessages(groupId: string) {
   return useQuery({
     queryKey: GROUPS_KEYS.messages(groupId),
-    queryFn: async (): Promise<ChatMessage[]> => {
-      const response = await api.get(`/v1/community/groups/${groupId}/messages`);
-      return response.data;
-    },
+    queryFn: () => communityApi.getGroupMessages(groupId),
     enabled: !!groupId,
     refetchInterval: 10000, // Poll every 10 seconds for new messages
   });
@@ -164,7 +128,7 @@ export function useSendMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       groupId,
       content,
       type,
@@ -172,13 +136,7 @@ export function useSendMessage() {
       groupId: string;
       content: string;
       type?: 'text' | 'image' | 'file' | 'voice';
-    }): Promise<ChatMessage> => {
-      const response = await api.post(`/v1/community/groups/${groupId}/messages`, {
-        content,
-        type: type || 'text',
-      });
-      return response.data;
-    },
+    }) => communityApi.sendMessage(groupId, content, type),
     onSuccess: (_, { groupId }) => {
       queryClient.invalidateQueries({ queryKey: GROUPS_KEYS.messages(groupId) });
     },
@@ -191,10 +149,7 @@ export function useSendMessage() {
 export function useExperts() {
   return useQuery({
     queryKey: GROUPS_KEYS.experts(),
-    queryFn: async (): Promise<Expert[]> => {
-      const response = await api.get('/v1/community/experts');
-      return response.data;
-    },
+    queryFn: () => communityApi.getExperts(),
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 }
@@ -206,10 +161,7 @@ export function useAskExpert() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<ExpertQuestion>): Promise<ExpertQuestion> => {
-      const response = await api.post('/v1/community/expert-questions', data);
-      return response.data;
-    },
+    mutationFn: (data: Partial<ExpertQuestion>) => communityApi.askExpert(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GROUPS_KEYS.expertQuestions() });
     },
@@ -222,10 +174,7 @@ export function useAskExpert() {
 export function useExpertQuestions() {
   return useQuery({
     queryKey: GROUPS_KEYS.expertQuestions(),
-    queryFn: async (): Promise<ExpertQuestion[]> => {
-      const response = await api.get('/v1/community/expert-questions');
-      return response.data;
-    },
+    queryFn: () => communityApi.getExpertQuestions(),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -237,15 +186,13 @@ export function useRateExpertAnswer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       questionId,
       helpful,
     }: {
       questionId: string;
       helpful: boolean;
-    }): Promise<void> => {
-      await api.post(`/v1/community/expert-questions/${questionId}/rate`, { helpful });
-    },
+    }) => communityApi.rateExpertAnswer(questionId, helpful),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GROUPS_KEYS.expertQuestions() });
     },

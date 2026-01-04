@@ -5,6 +5,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import type { WeatherData, WeatherAlert, ForecastDataPoint } from '../types';
+import { logger } from '@/lib/logger';
 
 // API Response Types
 interface ApiForecastDay {
@@ -36,7 +37,13 @@ interface ApiWeatherAlert {
 }
 
 // API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
+// Only warn during development, don't throw during build
+if (!API_BASE_URL && typeof window !== 'undefined') {
+  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+}
+
 const WEATHER_API_BASE = `${API_BASE_URL}/api/v1/weather`;
 
 // Default coordinates for Yemen (Sana'a)
@@ -82,7 +89,7 @@ async function fetchCurrentWeather(lat?: number, lon?: number): Promise<WeatherD
       timestamp: data.current?.timestamp ?? new Date().toISOString(),
     };
   } catch (error) {
-    console.warn('فشل الاتصال بخدمة الطقس، استخدام البيانات الاحتياطية:', error);
+    logger.warn('فشل الاتصال بخدمة الطقس، استخدام البيانات الاحتياطية:', error);
 
     // Fallback to mock data
     return getMockCurrentWeather();
@@ -127,7 +134,7 @@ async function fetchWeatherForecast(lat?: number, lon?: number, days: number = 7
       conditionAr: getWeatherConditionArFromPrecipitation(day.precipitation_mm ?? 0),
     }));
   } catch (error) {
-    console.warn('فشل الاتصال بخدمة توقعات الطقس، استخدام البيانات الاحتياطية:', error);
+    logger.warn('فشل الاتصال بخدمة توقعات الطقس، استخدام البيانات الاحتياطية:', error);
 
     // Fallback to mock data
     return getMockForecast(days);
@@ -175,7 +182,7 @@ async function fetchWeatherAlerts(lat?: number, lon?: number): Promise<WeatherAl
       isActive: alert.isActive ?? true,
     }));
   } catch (error) {
-    console.warn('فشل الاتصال بخدمة تنبيهات الطقس، استخدام البيانات الاحتياطية:', error);
+    logger.warn('فشل الاتصال بخدمة تنبيهات الطقس، استخدام البيانات الاحتياطية:', error);
 
     // Fallback to mock data - return empty array as no alerts is a valid state
     return getMockAlerts();

@@ -10,6 +10,7 @@
 import { useFields, useField, useCreateField, useUpdateField, useDeleteField, useFieldStats } from '../hooks/useFields';
 import { useAuth } from '@/stores/auth.store';
 import type { FieldFormData } from '../types';
+import { logger } from '@/lib/logger';
 
 /**
  * Example 1: Fetching all fields
@@ -103,12 +104,13 @@ export function CreateFieldExample() {
         tenantId: user?.tenant_id,
       });
       alert('تم إنشاء الحقل بنجاح / Field created successfully!');
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error;
       try {
-        const errorData = JSON.parse(error.message);
+        const errorData = JSON.parse(err.message);
         alert(`خطأ: ${errorData.messageAr}\nError: ${errorData.message}`);
       } catch {
-        alert(`خطأ: ${error.message}`);
+        alert(`خطأ: ${err.message}`);
       }
     }
   };
@@ -142,12 +144,13 @@ export function UpdateFieldExample({ fieldId }: { fieldId: string }) {
         tenantId: user?.tenant_id,
       });
       alert('تم تحديث الحقل بنجاح / Field updated successfully!');
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error;
       try {
-        const errorData = JSON.parse(error.message);
+        const errorData = JSON.parse(err.message);
         alert(`خطأ: ${errorData.messageAr}\nError: ${errorData.message}`);
       } catch {
-        alert(`خطأ: ${error.message}`);
+        alert(`خطأ: ${err.message}`);
       }
     }
   };
@@ -176,12 +179,13 @@ export function DeleteFieldExample({ fieldId }: { fieldId: string }) {
     try {
       await deleteField.mutateAsync(fieldId);
       alert('تم حذف الحقل بنجاح / Field deleted successfully!');
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as Error;
       try {
-        const errorData = JSON.parse(error.message);
+        const errorData = JSON.parse(err.message);
         alert(`خطأ: ${errorData.messageAr}\nError: ${errorData.message}`);
       } catch {
-        alert(`خطأ: ${error.message}`);
+        alert(`خطأ: ${err.message}`);
       }
     }
   };
@@ -237,7 +241,7 @@ export function FieldsCRUDExample() {
 
   // Handle API errors with fallback to mock data
   if (error) {
-    console.warn('API error, displaying cached/mock data:', error);
+    logger.warn('API error, displaying cached/mock data:', error);
   }
 
   // Show loading state

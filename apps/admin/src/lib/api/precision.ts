@@ -2,6 +2,7 @@
 // عميل API للزراعة الدقيقة
 
 import { apiClient, API_URLS } from '../api';
+import { logger } from '../logger';
 
 // VRA (Variable Rate Application) Types
 export interface VRAPrescription {
@@ -97,7 +98,7 @@ export async function fetchVRAPrescriptions(params?: {
     const response = await apiClient.get(`${API_URLS.fertilizer}/v1/prescriptions`, { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch VRA prescriptions:', error);
+    logger.error('Failed to fetch VRA prescriptions:', error);
     // Return mock data for development
     return generateMockVRAPrescriptions();
   }
@@ -108,7 +109,7 @@ export async function approvePrescription(id: string): Promise<boolean> {
     await apiClient.patch(`${API_URLS.fertilizer}/v1/prescriptions/${id}/approve`);
     return true;
   } catch (error) {
-    console.error('Failed to approve prescription:', error);
+    logger.error('Failed to approve prescription:', error);
     return false;
   }
 }
@@ -118,7 +119,7 @@ export async function rejectPrescription(id: string): Promise<boolean> {
     await apiClient.patch(`${API_URLS.fertilizer}/v1/prescriptions/${id}/reject`);
     return true;
   } catch (error) {
-    console.error('Failed to reject prescription:', error);
+    logger.error('Failed to reject prescription:', error);
     return false;
   }
 }
@@ -129,7 +130,7 @@ export async function fetchGDDData(): Promise<GDDField[]> {
     const response = await apiClient.get(`${API_URLS.weather}/v1/gdd`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch GDD data:', error);
+    logger.error('Failed to fetch GDD data:', error);
     return generateMockGDDData();
   }
 }
@@ -140,7 +141,7 @@ export async function fetchSprayWindows(): Promise<SprayWindow[]> {
     const response = await apiClient.get(`${API_URLS.weather}/v1/spray-windows`);
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch spray windows:', error);
+    logger.error('Failed to fetch spray windows:', error);
     return generateMockSprayWindows();
   }
 }
@@ -150,7 +151,7 @@ export async function fetchSprayHistory(params?: { limit?: number }): Promise<Sp
     const response = await apiClient.get(`${API_URLS.fertilizer}/v1/spray-history`, { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch spray history:', error);
+    logger.error('Failed to fetch spray history:', error);
     return generateMockSprayHistory();
   }
 }

@@ -18,6 +18,7 @@ import {
   Clock
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import { logger } from '../../../lib/logger';
 import {
   LineChart,
   Line,
@@ -83,7 +84,7 @@ export default function GDDPage() {
         setSelectedField(data[0]);
       }
     } catch (error) {
-      console.error('Failed to load GDD data:', error);
+      logger.error('Failed to load GDD data:', error);
     } finally {
       setIsLoading(false);
     }

@@ -10,6 +10,7 @@
  */
 
 import type { ErrorInfo } from 'react';
+import { logger } from '../logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -165,14 +166,14 @@ async function sendError(event: ErrorEvent): Promise<void> {
   try {
     // Log to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.group('🔴 Error Captured');
-      console.error('Message:', event.message);
-      console.error('Stack:', event.stack);
+      logger.group('🔴 Error Captured');
+      logger.error('Message:', event.message);
+      logger.error('Stack:', event.stack);
       if (event.componentStack) {
-        console.error('Component Stack:', event.componentStack);
+        logger.error('Component Stack:', event.componentStack);
       }
-      console.log('Breadcrumbs:', event.breadcrumbs);
-      console.groupEnd();
+      logger.log('Breadcrumbs:', event.breadcrumbs);
+      logger.groupEnd();
     }
 
     // Send to error endpoint
@@ -183,7 +184,7 @@ async function sendError(event: ErrorEvent): Promise<void> {
     });
   } catch (e) {
     // Silent fail - don't cause more errors
-    console.warn('Failed to send error to server:', e);
+    logger.warn('Failed to send error to server:', e);
   }
 }
 
@@ -230,7 +231,7 @@ export function reportWebVitals(metric: { name: string; value: number; id: strin
   // Log in development
   if (process.env.NODE_ENV === 'development') {
     const emoji = rating === 'good' ? '🟢' : rating === 'needs-improvement' ? '🟡' : '🔴';
-    console.log(`${emoji} ${metric.name}: ${metric.value.toFixed(2)} (${rating})`);
+    logger.log(`${emoji} ${metric.name}: ${metric.value.toFixed(2)} (${rating})`);
   }
 
   // Send to analytics endpoint
@@ -341,7 +342,7 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
   };
 
   isInitialized = true;
-  console.log('🔍 Error tracking initialized');
+  logger.log('🔍 Error tracking initialized');
 }
 
 /**
@@ -374,7 +375,7 @@ export function cleanupErrorTracking(): void {
   userId = null;
   isInitialized = false;
 
-  console.log('🔍 Error tracking cleaned up');
+  logger.log('🔍 Error tracking cleaned up');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

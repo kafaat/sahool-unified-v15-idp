@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/api_config.dart';
+import '../../../core/config/env_config.dart';
 import '../models/spray_models.dart';
 
 /// Spray Service Provider
@@ -45,8 +46,8 @@ class SprayService {
             ));
 
   static String _getHost() {
-    // Use same logic as ApiConfig
-    return ApiConfig.baseUrl.contains('10.0.2.2') ? '10.0.2.2' : 'localhost';
+    // Use EnvConfig for development host
+    return EnvConfig.developmentHost;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

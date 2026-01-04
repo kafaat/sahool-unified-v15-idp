@@ -19,6 +19,7 @@ dependencies:
   # Database (Offline)
   drift: ^2.24.0
   sqlite3_flutter_libs: ^0.5.28
+  sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database
   path_provider: ^2.1.5
   path: ^1.9.0
 
@@ -81,6 +82,11 @@ dependencies:
 
   # Date/Time
   jiffy: ^6.3.1
+
+  # Security - Root/Jailbreak Detection
+  flutter_jailbreak_detection: ^1.10.0
+  device_info_plus: ^10.1.2
+  package_info_plus: ^8.1.0
 
 dev_dependencies:
   flutter_test:

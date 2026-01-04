@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 import {
   SERVICE_REGISTRY,
   ServiceType,
@@ -66,7 +67,7 @@ export const ServiceSwitcher = React.memo(function ServiceSwitcher() {
       const results = await checkServicesHealth();
       setHealthStatus(results);
     } catch (error) {
-      console.error('Health check failed:', error);
+      logger.error('Health check failed:', error);
     } finally {
       setLoading(false);
     }

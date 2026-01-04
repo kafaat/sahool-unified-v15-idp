@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useWebSocketEvent } from './useWebSocket';
 import type { AlertMessage } from './useWebSocket';
+import { logger } from '../lib/logger';
 
 export interface Alert extends AlertMessage {
   read: boolean;
@@ -344,9 +345,9 @@ function playAlertSound(): void {
     const audio = new Audio('/sounds/alert.mp3');
     audio.volume = 0.5;
     audio.play().catch((error) => {
-      console.warn('Failed to play alert sound:', error);
+      logger.warn('Failed to play alert sound:', error);
     });
   } catch (error) {
-    console.warn('Audio not supported:', error);
+    logger.warn('Audio not supported:', error);
   }
 }

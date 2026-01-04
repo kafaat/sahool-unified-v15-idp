@@ -3,22 +3,24 @@
  * خدمة الأحداث المباشرة - متوافق مع الـ kernel المسترجع
  */
 
-// Determine WebSocket protocol based on current page protocol (for security)
-// Use wss:// in production (HTTPS) and ws:// only in local development
-const getDefaultWsUrl = (): string => {
-  if (typeof window === 'undefined') return 'ws://localhost:8081';
+import { logger } from '../logger';
 
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.hostname;
-  const port = process.env.NODE_ENV === 'production' ? '' : ':8081';
+// Determine WebSocket URL from environment variable
+const getWebSocketUrl = (): string => {
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
 
-  // In production, use secure WebSocket; in development, allow insecure for localhost
-  return process.env.NODE_ENV === 'production'
-    ? `${protocol}//${host}${port}`
-    : 'ws://localhost:8081';
+  if (!wsUrl) {
+    if (process.env.NODE_ENV === 'development') {
+      logger.warn('NEXT_PUBLIC_WS_URL not set, using default ws://localhost:8081');
+      return 'ws://localhost:8081';
+    }
+    throw new Error('NEXT_PUBLIC_WS_URL environment variable is required');
+  }
+
+  return wsUrl;
 };
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || getDefaultWsUrl();
+const WS_URL = getWebSocketUrl();
 
 export interface TimelineEvent {
   event_id: string;
@@ -67,7 +69,7 @@ class WebSocketClient {
       this.ws = new WebSocket(`${this.url}/events`);
 
       this.ws.onopen = () => {
-        console.log('🔌 WebSocket connected');
+        logger.log('🔌 WebSocket connected');
         this.reconnectAttempts = 0;
         this.notifyConnectionHandlers(true);
         this.subscribe(subscriptions);
@@ -83,21 +85,21 @@ class WebSocketClient {
             this.ws?.send(JSON.stringify({ type: 'pong' }));
           }
         } catch (error) {
-          console.error('Failed to parse WebSocket message:', error);
+          logger.error('Failed to parse WebSocket message:', error);
         }
       };
 
       this.ws.onclose = (event) => {
-        console.log('🔌 WebSocket disconnected', event.code);
+        logger.log('🔌 WebSocket disconnected', event.code);
         this.notifyConnectionHandlers(false);
         this.attemptReconnect();
       };
 
       this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
+        logger.error('WebSocket error:', error);
       };
     } catch (error) {
-      console.error('Failed to create WebSocket:', error);
+      logger.error('Failed to create WebSocket:', error);
       this.attemptReconnect();
     }
   }
@@ -118,14 +120,14 @@ class WebSocketClient {
     }
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      console.log('Max reconnect attempts reached');
+      logger.log('Max reconnect attempts reached');
       return;
     }
 
     this.reconnectAttempts++;
     const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
-    console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+    logger.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
 
     // Clear any existing reconnect timeout
     if (this.reconnectTimeout) {

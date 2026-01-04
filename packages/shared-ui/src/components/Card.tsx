@@ -30,6 +30,13 @@ export function Card({
   hover = false,
   onClick
 }: CardProps) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault(); // Prevent default space scrolling behavior
+      onClick();
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -39,6 +46,7 @@ export function Card({
         className
       )}
       onClick={onClick}
+      onKeyDown={onClick ? handleKeyDown : undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
     >

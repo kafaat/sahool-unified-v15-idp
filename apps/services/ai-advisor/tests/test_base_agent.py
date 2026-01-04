@@ -41,7 +41,7 @@ class TestBaseAgent:
         assert agent.name == "TestAgent"
         assert agent.role == "Testing Assistant"
         assert agent.retriever is mock_knowledge_retriever
-        assert len(agent.conversation_history) == 0
+        assert agent.conversation_memory.get_memory_usage()['message_count'] == 0
 
     def test_retrieve_context_with_retriever(
         self, base_agent_class, mock_knowledge_retriever
@@ -184,17 +184,15 @@ class TestBaseAgent:
 
         agent = TestAgent(name="Test", role="Test")
 
-        # Add some conversation history
-        agent.conversation_history = [
-            HumanMessage(content="Hello"),
-            AIMessage(content="Hi there"),
-        ]
+        # Add some conversation memory
+        agent.conversation_memory.add_message('user', 'Hello')
+        agent.conversation_memory.add_message('assistant', 'Hi there')
 
-        assert len(agent.conversation_history) == 2
+        assert agent.conversation_memory.get_memory_usage()['message_count'] == 2
 
         agent.reset_conversation()
 
-        assert len(agent.conversation_history) == 0
+        assert agent.conversation_memory.get_memory_usage()['message_count'] == 0
 
     def test_get_info(self, base_agent_class, mock_knowledge_retriever):
         """Test agent information retrieval"""

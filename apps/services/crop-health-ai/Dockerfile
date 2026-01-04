@@ -1,3 +1,10 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has been replaced by: crop-intelligence-service (port 8095)  ║
+# ║ Port Conflict: 8095                                                         ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+#
 # ═══════════════════════════════════════════════════════════════════════════════
 # Sahool Vision - Crop Health AI Service
 # خدمة سهول فيجن للذكاء الاصطناعي

@@ -1,4 +1,7 @@
 const createNextIntlPlugin = require('next-intl/plugin');
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
@@ -29,6 +32,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '**.sahool.ye',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.sahool.io',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.sahool.app',
       },
       {
         protocol: 'https',
@@ -118,7 +129,7 @@ const nextConfig = {
 
   // Experimental features
   experimental: {
-    optimizePackageImports: ['lucide-react', '@tanstack/react-query'],
+    optimizePackageImports: ['lucide-react', '@tanstack/react-query', 'recharts'],
   },
 
   // Webpack configuration for Leaflet
@@ -131,4 +142,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withNextIntl(nextConfig);
+module.exports = withBundleAnalyzer(withNextIntl(nextConfig));

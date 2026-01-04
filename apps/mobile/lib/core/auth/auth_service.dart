@@ -33,22 +33,27 @@ enum AuthStatus { initial, authenticated, unauthenticated, loading }
 class AuthState {
   final AuthStatus status;
   final User? user;
+  final String? accessToken;
   final String? error;
 
   const AuthState({
     this.status = AuthStatus.initial,
     this.user,
+    this.accessToken,
     this.error,
   });
 
   AuthState copyWith({
     AuthStatus? status,
     User? user,
+    String? accessToken,
     String? error,
+    bool clearToken = false,
   }) {
     return AuthState(
       status: status ?? this.status,
       user: user ?? this.user,
+      accessToken: clearToken ? null : (accessToken ?? this.accessToken),
       error: error,
     );
   }
@@ -72,9 +77,11 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
       final isLoggedIn = await _authService.isLoggedIn();
       if (isLoggedIn) {
         final user = await _authService.getCurrentUser();
+        final token = await _authService.getAccessToken();
         state = state.copyWith(
           status: AuthStatus.authenticated,
           user: user,
+          accessToken: token,
         );
       } else {
         state = state.copyWith(status: AuthStatus.unauthenticated);
@@ -93,9 +100,11 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 
     try {
       final user = await _authService.login(email, password);
+      final token = await _authService.getAccessToken();
       state = state.copyWith(
         status: AuthStatus.authenticated,
         user: user,
+        accessToken: token,
       );
       return true;
     } catch (e) {
@@ -115,6 +124,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
   Future<bool> refreshSession() async {
     try {
       await _authService.refreshToken();
+      final token = await _authService.getAccessToken();
+      state = state.copyWith(accessToken: token);
       return true;
     } catch (e) {
       await logout();
@@ -169,6 +180,9 @@ class AuthService {
       // Store tokens securely
       await _storeTokens(tokens);
 
+      // Store user data and tenant ID
+      await _storeUserData(user);
+
       // Schedule token refresh
       _scheduleTokenRefresh(tokens.expiresIn);
 
@@ -209,7 +223,7 @@ class AuthService {
     }
 
     // Refresh token to get new access token
-    await refreshToken;
+    await refreshToken();
 
     // Get current user
     return getCurrentUser();
@@ -307,6 +321,12 @@ class AuthService {
 
     final expiry = DateTime.now().add(Duration(seconds: tokens.expiresIn));
     await secureStorage.setTokenExpiry(expiry);
+  }
+
+  /// Store user data securely
+  Future<void> _storeUserData(User user) async {
+    await secureStorage.setUserData(user.toJson());
+    await secureStorage.setTenantId(user.tenantId);
   }
 
   /// Schedule automatic token refresh

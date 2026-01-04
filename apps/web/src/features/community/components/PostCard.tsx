@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   ThumbsUp,
   MessageCircle,
@@ -45,7 +46,7 @@ const badgeIcons = {
   moderator: <Award className="w-4 h-4 text-yellow-500" />,
 };
 
-export const PostCard: React.FC<PostCardProps> = ({ post }) => {
+const PostCardComponent: React.FC<PostCardProps> = ({ post }) => {
   const [showComments, setShowComments] = useState(false);
 
   const likeMutation = useLikePost();
@@ -134,12 +135,18 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         {post.images && post.images.length > 0 && (
           <div className="mt-4 grid grid-cols-2 gap-2">
             {post.images.slice(0, 4).map((image, index) => (
-              <img
-                key={index}
-                src={image}
-                alt=""
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              <div key={image} className="relative w-full h-48">
+                <Image
+                  src={image}
+                  alt={`Post image ${index + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover rounded-lg"
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                />
+              </div>
             ))}
           </div>
         )}
@@ -147,9 +154,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         {/* Tags */}
         {post.tagsAr && post.tagsAr.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
-            {post.tagsAr.map((tag, index) => (
+            {post.tagsAr.map((tag) => (
               <span
-                key={index}
+                key={tag}
                 className="text-sm text-green-600 hover:text-green-700 cursor-pointer"
               >
                 #{tag}
@@ -238,5 +245,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
     </div>
   );
 };
+
+export const PostCard = React.memo(PostCardComponent);
+PostCard.displayName = 'PostCard';
 
 export default PostCard;

@@ -110,19 +110,72 @@ POST /orders/{order_id}/cancel
 ### التقييمات | Reviews
 
 ```http
-# إضافة تقييم
-POST /products/{product_id}/reviews
+# إضافة تقييم منتج
+POST /api/v1/reviews
 {
+    "productId": "prod-123",
+    "buyerId": "buyer-456",
+    "orderId": "order-789",
     "rating": 4,
+    "title": "منتج ممتاز",
     "comment": "منتج ممتاز وجودة عالية",
-    "images": []
+    "photos": []
 }
 
-# جلب التقييمات
-GET /products/{product_id}/reviews?page=1
+# جلب تقييمات منتج
+GET /api/v1/reviews/product/{product_id}?minRating=3&maxRating=5&verified=true&limit=20&offset=0
 
-# تقييم البائع
-GET /sellers/{seller_id}/rating
+# جلب إحصائيات تقييمات المنتج
+GET /api/v1/reviews/product/{product_id}/stats
+
+# جلب تقييم بالمعرف
+GET /api/v1/reviews/{review_id}
+
+# جلب تقييمات المشتري
+GET /api/v1/reviews/buyer/{buyer_id}?limit=20&offset=0
+
+# تحديث تقييم
+PUT /api/v1/reviews/{review_id}/buyer/{buyer_id}
+{
+    "rating": 5,
+    "title": "ممتاز جداً",
+    "comment": "تحديث التقييم"
+}
+
+# حذف تقييم
+DELETE /api/v1/reviews/{review_id}/buyer/{buyer_id}
+
+# وضع علامة على التقييم كمفيد
+PATCH /api/v1/reviews/{review_id}/helpful
+{
+    "helpful": true
+}
+
+# الإبلاغ عن تقييم
+POST /api/v1/reviews/{review_id}/report
+{
+    "reason": "محتوى غير مناسب"
+}
+
+# إضافة رد البائع على تقييم
+POST /api/v1/reviews/responses
+{
+    "reviewId": "review-123",
+    "sellerId": "seller-456",
+    "response": "شكراً لك على تقييمك الإيجابي"
+}
+
+# جلب ردود البائع
+GET /api/v1/reviews/responses/seller/{seller_id}?limit=20&offset=0
+
+# تحديث رد البائع
+PUT /api/v1/reviews/responses/{response_id}/seller/{seller_id}
+{
+    "response": "شكراً لك، نسعد بخدمتك"
+}
+
+# حذف رد البائع
+DELETE /api/v1/reviews/responses/{response_id}/seller/{seller_id}
 ```
 
 ### المزادات | Auctions

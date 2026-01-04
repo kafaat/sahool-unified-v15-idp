@@ -34,6 +34,9 @@ export {
   useLatestReading,
   useSensorStats,
   useSensorStream,
+  useCreateSensor,
+  useUpdateSensor,
+  useDeleteSensor,
   sensorKeys,
 } from './hooks/useSensors';
 
@@ -43,6 +46,9 @@ export {
   useActuator,
   useControlActuator,
   useSetActuatorMode,
+  useCreateActuator,
+  useUpdateActuator,
+  useDeleteActuator,
   useAlertRules,
   useAlertRule,
   useCreateAlertRule,

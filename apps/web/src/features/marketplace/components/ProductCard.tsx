@@ -11,6 +11,7 @@
 'use client';
 
 import React, { useCallback, useMemo } from 'react';
+import Image from 'next/image';
 import { ShoppingCart, Star, MapPin, Tag } from 'lucide-react';
 import type { Product } from '../types';
 import { useCart } from '../hooks/useCart';
@@ -59,10 +60,15 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({ product, onClick }) 
       {/* Image */}
       <div className="relative h-48 overflow-hidden bg-gray-100">
         {product.imageUrl ? (
-          <img
+          <Image
             src={product.imageUrl}
             alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover group-hover:scale-110 transition-transform duration-300"
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

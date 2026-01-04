@@ -6,15 +6,8 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import type { Post, Comment, CommunityFilters } from '../types';
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import type { Post, CommunityFilters } from '../types';
+import { communityApi } from '../api';
 
 // Query Keys
 const COMMUNITY_KEYS = {
@@ -33,18 +26,7 @@ const COMMUNITY_KEYS = {
 export function usePosts(filters?: CommunityFilters) {
   return useQuery({
     queryKey: COMMUNITY_KEYS.posts(filters),
-    queryFn: async (): Promise<Post[]> => {
-      const params = new URLSearchParams();
-      if (filters?.type) params.set('type', filters.type);
-      if (filters?.status) params.set('status', filters.status);
-      if (filters?.tags?.length) params.set('tags', filters.tags.join(','));
-      if (filters?.location) params.set('location', filters.location);
-      if (filters?.sortBy) params.set('sort_by', filters.sortBy);
-      if (filters?.search) params.set('search', filters.search);
-
-      const response = await api.get(`/v1/community/posts?${params.toString()}`);
-      return response.data;
-    },
+    queryFn: () => communityApi.getPosts(filters),
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 }
@@ -55,10 +37,7 @@ export function usePosts(filters?: CommunityFilters) {
 export function usePost(id: string) {
   return useQuery({
     queryKey: COMMUNITY_KEYS.post(id),
-    queryFn: async (): Promise<Post> => {
-      const response = await api.get(`/v1/community/posts/${id}`);
-      return response.data;
-    },
+    queryFn: () => communityApi.getPostById(id),
     enabled: !!id,
   });
 }
@@ -69,10 +48,7 @@ export function usePost(id: string) {
 export function useTrendingPosts() {
   return useQuery({
     queryKey: COMMUNITY_KEYS.trending(),
-    queryFn: async (): Promise<Post[]> => {
-      const response = await api.get('/v1/community/posts/trending');
-      return response.data;
-    },
+    queryFn: () => communityApi.getTrendingPosts(),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -83,10 +59,7 @@ export function useTrendingPosts() {
 export function useSavedPosts() {
   return useQuery({
     queryKey: COMMUNITY_KEYS.saved(),
-    queryFn: async (): Promise<Post[]> => {
-      const response = await api.get('/v1/community/posts/saved');
-      return response.data;
-    },
+    queryFn: () => communityApi.getSavedPosts(),
     staleTime: 5 * 60 * 1000,
   });
 }
@@ -97,10 +70,7 @@ export function useSavedPosts() {
 export function useMyPosts() {
   return useQuery({
     queryKey: COMMUNITY_KEYS.myPosts(),
-    queryFn: async (): Promise<Post[]> => {
-      const response = await api.get('/v1/community/posts/my-posts');
-      return response.data;
-    },
+    queryFn: () => communityApi.getMyPosts(),
     staleTime: 2 * 60 * 1000,
   });
 }
@@ -112,10 +82,7 @@ export function useCreatePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<Post>): Promise<Post> => {
-      const response = await api.post('/v1/community/posts', data);
-      return response.data;
-    },
+    mutationFn: (data: Partial<Post>) => communityApi.createPost(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.all });
     },
@@ -129,10 +96,8 @@ export function useUpdatePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<Post> }): Promise<Post> => {
-      const response = await api.put(`/v1/community/posts/${id}`, data);
-      return response.data;
-    },
+    mutationFn: ({ id, data }: { id: string; data: Partial<Post> }) =>
+      communityApi.updatePost(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(id) });
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts() });
@@ -147,9 +112,7 @@ export function useDeletePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string): Promise<void> => {
-      await api.delete(`/v1/community/posts/${id}`);
-    },
+    mutationFn: (id: string) => communityApi.deletePost(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.all });
     },
@@ -163,9 +126,7 @@ export function useLikePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (postId: string): Promise<void> => {
-      await api.post(`/v1/community/posts/${postId}/like`);
-    },
+    mutationFn: (postId: string) => communityApi.likePost(postId),
     onSuccess: (_, postId) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(postId) });
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.posts() });
@@ -180,9 +141,7 @@ export function useSavePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (postId: string): Promise<void> => {
-      await api.post(`/v1/community/posts/${postId}/save`);
-    },
+    mutationFn: (postId: string) => communityApi.savePost(postId),
     onSuccess: (_, postId) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(postId) });
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.saved() });
@@ -197,9 +156,7 @@ export function useSharePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (postId: string): Promise<void> => {
-      await api.post(`/v1/community/posts/${postId}/share`);
-    },
+    mutationFn: (postId: string) => communityApi.sharePost(postId),
     onSuccess: (_, postId) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(postId) });
     },
@@ -212,10 +169,7 @@ export function useSharePost() {
 export function useComments(postId: string) {
   return useQuery({
     queryKey: COMMUNITY_KEYS.comments(postId),
-    queryFn: async (): Promise<Comment[]> => {
-      const response = await api.get(`/v1/community/posts/${postId}/comments`);
-      return response.data;
-    },
+    queryFn: () => communityApi.getComments(postId),
     enabled: !!postId,
   });
 }
@@ -227,7 +181,7 @@ export function useAddComment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       postId,
       content,
       parentId,
@@ -235,13 +189,7 @@ export function useAddComment() {
       postId: string;
       content: string;
       parentId?: string;
-    }): Promise<Comment> => {
-      const response = await api.post(`/v1/community/posts/${postId}/comments`, {
-        content,
-        parentId,
-      });
-      return response.data;
-    },
+    }) => communityApi.addComment(postId, content, parentId),
     onSuccess: (_, { postId }) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.comments(postId) });
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(postId) });
@@ -256,9 +204,8 @@ export function useLikeComment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ postId, commentId }: { postId: string; commentId: string }): Promise<void> => {
-      await api.post(`/v1/community/posts/${postId}/comments/${commentId}/like`);
-    },
+    mutationFn: ({ postId, commentId }: { postId: string; commentId: string }) =>
+      communityApi.likeComment(postId, commentId),
     onSuccess: (_, { postId }) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.comments(postId) });
     },

@@ -13,7 +13,7 @@ import React from 'react';
 type Permission = string;
 type Role = string;
 
-interface PermissionGateProps {
+export interface PermissionGateProps {
   /**
    * Required permission(s) - user must have at least one
    */

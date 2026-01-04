@@ -5,6 +5,7 @@ import axios, { type AxiosResponse, type AxiosError, type InternalAxiosRequestCo
 import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
 import { apiClient as authApiClient } from './api-client';
 import Cookies from 'js-cookie';
+import { logger } from './logger';
 
 // Service ports
 const PORTS = {
@@ -31,8 +32,10 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // Create service URLs
+// In production, use base URL (Kong gateway handles routing via /api/v1/{service})
+// In development, use direct port access
 const getServiceUrl = (port: number) =>
-  IS_PRODUCTION ? `${BASE_URL}/api` : `${BASE_URL}:${port}`;
+  IS_PRODUCTION ? BASE_URL : `${BASE_URL}:${port}`;
 
 export const API_URLS = {
   fieldCore: getServiceUrl(PORTS.fieldCore),
@@ -98,7 +101,7 @@ apiClient.interceptors.response.use(
 // Dashboard Stats
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   try {
-    const response = await apiClient.get(`${API_URLS.indicators}/v1/dashboard`);
+    const response = await apiClient.get(`${API_URLS.indicators}/api/v1/indicators/dashboard`);
     return response.data;
   } catch (error) {
     // Return mock data for development
@@ -141,7 +144,7 @@ export async function fetchDiagnoses(params?: {
   offset?: number;
 }): Promise<DiagnosisRecord[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.cropHealth}/v1/diagnoses`, {
+    const response = await apiClient.get(`${API_URLS.cropHealth}/api/v1/crop-health/diagnoses`, {
       params: {
         status: params?.status,
         severity: params?.severity,
@@ -176,7 +179,7 @@ export async function fetchDiagnoses(params?: {
       } : undefined
     }));
   } catch (error) {
-    console.log('Falling back to mock diagnoses data');
+    logger.log('Falling back to mock diagnoses data');
     return generateMockDiagnoses();
   }
 }
@@ -193,7 +196,7 @@ export async function fetchDiagnosisStats(): Promise<{
   byGovernorate: Record<string, number>;
 }> {
   try {
-    const response = await apiClient.get(`${API_URLS.cropHealth}/v1/diagnoses/stats`);
+    const response = await apiClient.get(`${API_URLS.cropHealth}/api/v1/crop-health/diagnoses/stats`);
     return {
       total: response.data.total,
       pending: response.data.pending,
@@ -225,7 +228,7 @@ export async function updateDiagnosisStatus(
 ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
   try {
     const response = await apiClient.patch(
-      `${API_URLS.cropHealth}/v1/diagnoses/${id}`,
+      `${API_URLS.cropHealth}/api/v1/crop-health/diagnoses/${id}`,
       null,
       {
         params: {
@@ -236,7 +239,7 @@ export async function updateDiagnosisStatus(
     );
     return response.data;
   } catch (error) {
-    console.error('Failed to update diagnosis status:', error);
+    logger.error('Failed to update diagnosis status:', error);
     // Return mock success for development
     return { success: true, diagnosis_id: id, status };
   }
@@ -245,7 +248,7 @@ export async function updateDiagnosisStatus(
 // Weather Alerts
 export async function fetchWeatherAlerts(): Promise<WeatherAlert[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.weather}/v1/alerts`);
+    const response = await apiClient.get(`${API_URLS.weather}/api/v1/weather/alerts`);
     return response.data;
   } catch (error) {
     return [];
@@ -255,7 +258,7 @@ export async function fetchWeatherAlerts(): Promise<WeatherAlert[]> {
 // Sensor Readings
 export async function fetchSensorReadings(farmId: string): Promise<SensorReading[]> {
   try {
-    const response = await apiClient.get(`${API_URLS.virtualSensors}/v1/readings/${farmId}`);
+    const response = await apiClient.get(`${API_URLS.virtualSensors}/api/v1/iot/readings/${farmId}`);
     return response.data;
   } catch (error) {
     return [];
@@ -277,7 +280,7 @@ export async function fetchNotifications(params?: {
   createdAt: string;
 }>> {
   try {
-    const response = await apiClient.get(`${API_URLS.notifications}/v1/notifications`, { params });
+    const response = await apiClient.get(`${API_URLS.notifications}/api/v1/notifications`, { params });
     return response.data;
   } catch (error) {
     return [];
@@ -286,7 +289,7 @@ export async function fetchNotifications(params?: {
 
 export async function markNotificationRead(id: string): Promise<boolean> {
   try {
-    await apiClient.patch(`${API_URLS.notifications}/v1/notifications/${id}/read`);
+    await apiClient.patch(`${API_URLS.notifications}/api/v1/notifications/${id}/read`);
     return true;
   } catch (error) {
     return false;

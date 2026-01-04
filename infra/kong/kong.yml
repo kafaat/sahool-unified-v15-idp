@@ -1274,38 +1274,40 @@ services:
   # ============================================================================
   # لوحة التحكم - Admin Dashboard
   # ============================================================================
-  - name: admin-dashboard
-    url: http://admin-dashboard:3001
-    tags:
-      - admin
-      - dashboard
-    routes:
-      - name: admin-route
-        paths:
-          - /api/v1/admin
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - admin-users
-      - name: rate-limiting
-        config:
-          minute: 5000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-      - name: ip-restriction
-        config:
-          allow:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
+  # TODO: Admin dashboard service needs to be created
+  # خدمة لوحة التحكم تحتاج للإنشاء
+  # - name: admin-dashboard
+  #   url: http://admin-dashboard:3001
+  #   tags:
+  #     - admin
+  #     - dashboard
+  #   routes:
+  #     - name: admin-route
+  #       paths:
+  #         - /api/v1/admin
+  #       strip_path: false
+  #   plugins:
+  #     - name: jwt
+  #     - name: acl
+  #       config:
+  #         allow:
+  #           - admin-users
+  #     - name: rate-limiting
+  #       config:
+  #         minute: 5000
+  #         policy: redis
+  #         redis_host: redis
+  #         redis_port: 6379
+  #         redis_password: ${REDIS_PASSWORD}
+  #         redis_database: 1
+  #         redis_timeout: 2000
+  #         fault_tolerant: true
+  #     - name: ip-restriction
+  #       config:
+  #         allow:
+  #           - 10.0.0.0/8
+  #           - 172.16.0.0/12
+  #           - 192.168.0.0/16
 
   # ============================================================================
   # توقع الإنتاجية - Yield Prediction

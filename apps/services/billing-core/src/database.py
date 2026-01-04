@@ -77,7 +77,17 @@ def get_engine() -> AsyncEngine:
 
     if _engine is None:
         # Determine pool class based on environment
-        # For async engines, we must use async pool classes
+        # For async engines, SQLAlchemy 2.0+ automatically adapts sync pools
+        if IS_DEV:
+            # Development: Use NullPool (no pooling) for simplicity
+            pool_class = NullPool
+            logger.info("Using NullPool for development environment")
+        else:
+            # Production: Use QueuePool for connection pooling
+            # SQLAlchemy 2.0+ async engines automatically wrap sync pools
+            pool_class = QueuePool
+            logger.info("Using QueuePool for production environment")
+
         # Create engine with connection pooling
         # For async engines, SQLAlchemy automatically uses async pool classes
         engine_kwargs = {
@@ -101,6 +111,7 @@ def get_engine() -> AsyncEngine:
         else:
             # Production: Use default async pool with size limits
             # create_async_engine uses QueuePool by default for async drivers
+            engine_kwargs["poolclass"] = QueuePool
             engine_kwargs["pool_size"] = POOL_SIZE
             engine_kwargs["max_overflow"] = MAX_OVERFLOW
             engine_kwargs["pool_timeout"] = POOL_TIMEOUT

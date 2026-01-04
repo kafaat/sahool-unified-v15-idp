@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { X, Image as ImageIcon, Tag, MapPin } from 'lucide-react';
 import { useCreatePost } from '../hooks/useCommunity';
 import type { PostType } from '../types';
+import { logger } from '@/lib/logger';
 
 interface CreatePostProps {
   onClose: () => void;
@@ -55,7 +56,7 @@ export const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
       });
       onClose();
     } catch (error) {
-      console.error('Failed to create post:', error);
+      logger.error('Failed to create post:', error);
     }
   };
 

@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import '../../core/config/env_config.dart';
 
 // =============================================================================
 // Models
@@ -509,10 +510,10 @@ class WalletNotifier extends StateNotifier<WalletState> {
 /// مزود معرف المستخدم
 final userIdProvider = StateProvider<String>((ref) => '');
 
-/// مزود رابط API
+/// مزود رابط API - Marketplace API URL Provider
+/// Uses EnvConfig for environment-specific URLs
 final marketplaceApiUrlProvider = Provider<String>((ref) {
-  const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction ? 'https://api.sahool.io' : 'http://192.168.8.105:3010';
+  return EnvConfig.marketplaceUrl;
 });
 
 /// مزود المحفظة الرئيسي

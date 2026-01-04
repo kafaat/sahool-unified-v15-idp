@@ -16,6 +16,9 @@
 export { SettingsPage } from './components/SettingsPage';
 export { ProfileForm } from './components/ProfileForm';
 
+// API exports
+export { settingsApi, ERROR_MESSAGES } from './api';
+
 // Hook exports
 export {
   useUserProfile,

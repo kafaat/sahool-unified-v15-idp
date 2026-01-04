@@ -1,7 +1,14 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has port conflict with: ai-agents-core (port 8120)            ║
+# ║ Port Conflict: 8120 → Suggested new port: 8123                             ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+#
 # ============================================
 # SAHOOL GlobalGAP Compliance Service Dockerfile
 # خدمة الامتثال لمعايير GlobalGAP
-# Port: 8120
+# Port: 8120 (NEEDS CHANGE TO 8123)
 # ============================================
 
 FROM python:3.11-slim

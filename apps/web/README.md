@@ -179,6 +179,27 @@ npm run dev
 pnpm --filter sahool-web build
 ```
 
+### Bundle Analysis
+
+Analyze bundle size to identify optimization opportunities:
+
+```bash
+# Analyze both client and server bundles
+npm run analyze
+
+# Analyze server bundle only
+npm run analyze:server
+
+# Analyze client bundle only
+npm run analyze:browser
+```
+
+This will generate interactive HTML reports showing:
+- Bundle composition and size
+- Package dependencies
+- Code splitting opportunities
+- Duplicate modules
+
 ### Run Tests
 
 ```bash

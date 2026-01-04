@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { apiClient, API_URLS } from '@/lib/api';
+import { logger } from '../../lib/logger';
 
 interface SupportRequest {
   id: string;
@@ -111,7 +112,7 @@ export default function SupportPage() {
       const response = await apiClient.get(`${API_URLS.communityChat}/v1/stats`);
       setStats(response.data);
     } catch (error) {
-      console.log('Using mock stats');
+      logger.log('Using mock stats');
     }
   };
 
@@ -120,7 +121,7 @@ export default function SupportPage() {
       const response = await apiClient.get(`${API_URLS.communityChat}/v1/requests`);
       setRequests(response.data);
     } catch (error) {
-      console.log('Using mock requests');
+      logger.log('Using mock requests');
     }
   };
 

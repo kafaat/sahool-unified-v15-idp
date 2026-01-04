@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../core/storage/database.dart';
 import '../../../../core/sync/network_status.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/task.dart';
 import '../remote/tasks_api.dart';
 
@@ -62,7 +63,7 @@ class TasksRepo {
 
       return tasks.length;
     } catch (e) {
-      print('❌ Failed to refresh tasks: $e');
+      AppLogger.e('Failed to refresh tasks', tag: 'TasksRepo', error: e);
       rethrow;
     }
   }
@@ -99,7 +100,7 @@ class TasksRepo {
       }),
     );
 
-    print('✅ Task $taskId marked done locally + queued for sync');
+    AppLogger.i('Task marked done locally and queued for sync', tag: 'TasksRepo', data: {'taskId': taskId});
   }
 
   /// Update task status with offline-first pattern

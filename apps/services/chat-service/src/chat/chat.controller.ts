@@ -23,6 +23,7 @@ import {
   ApiQuery,
   ApiHeader,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ChatService } from './chat.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
@@ -58,6 +59,7 @@ export class ChatController {
    * Health check endpoint
    */
   @Get('/health')
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
   @ApiOperation({ summary: 'Health check' })
   @ApiResponse({ status: 200, description: 'Service is healthy' })
   healthCheck() {

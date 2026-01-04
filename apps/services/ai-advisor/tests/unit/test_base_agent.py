@@ -39,7 +39,7 @@ class TestBaseAgent:
         assert agent.role == "Test Agricultural Advisor"
         assert agent.tools == []
         assert agent.retriever is None
-        assert agent.conversation_history == []
+        assert agent.conversation_memory.get_memory_usage()['message_count'] == 0
         assert agent.llm is not None
 
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
@@ -106,7 +106,7 @@ class TestBaseAgent:
             assert response["role"] == "Test Advisor"
             assert "nitrogen" in response["response"].lower()
             assert 0 <= response["confidence"] <= 1
-            assert len(agent.conversation_history) == 2  # User message + AI response
+            assert agent.conversation_memory.get_memory_usage()['message_count'] == 2  # User message + AI response
 
     @pytest.mark.asyncio
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
@@ -266,20 +266,18 @@ class TestBaseAgent:
 
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_reset_conversation(self):
-        """Test conversation history reset"""
+        """Test conversation memory reset"""
         agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
-        # Add some history
-        agent.conversation_history = [
-            HumanMessage(content="Hello"),
-            AIMessage(content="Hi there"),
-        ]
+        # Add some memory
+        agent.conversation_memory.add_message('user', 'Hello')
+        agent.conversation_memory.add_message('assistant', 'Hi there')
 
-        assert len(agent.conversation_history) == 2
+        assert agent.conversation_memory.get_memory_usage()['message_count'] == 2
 
         agent.reset_conversation()
 
-        assert len(agent.conversation_history) == 0
+        assert agent.conversation_memory.get_memory_usage()['message_count'] == 0
 
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_get_info(self):

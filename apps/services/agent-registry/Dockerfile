@@ -1,3 +1,10 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has port conflict with: field-ops (port 8080)                 ║
+# ║ Port Conflict: 8080 → Suggested new port: 8121                             ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+#
 # SAHOOL Agent Registry Service - Dockerfile
 # ===========================================
 
@@ -20,9 +27,6 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy shared registry code
-COPY ../shared/registry /app/shared/registry
 
 # Copy service code
 COPY src /app/src

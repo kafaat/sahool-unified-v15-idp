@@ -1,3 +1,10 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has been replaced by: vegetation-analysis-service (port 8090)║
+# ║ Port Conflict: 8090                                                         ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+
 FROM python:3.11-slim
 
 WORKDIR /app

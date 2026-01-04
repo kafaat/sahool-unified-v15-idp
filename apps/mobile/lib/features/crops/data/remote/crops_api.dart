@@ -1,4 +1,5 @@
 import '../../../../core/http/api_client.dart';
+import '../../../../core/utils/app_logger.dart';
 
 /// Crops API - Fetch crop catalog from server
 /// واجهة برمجية للمحاصيل - جلب كتالوج المحاصيل من السيرفر
@@ -25,7 +26,7 @@ class CropsApi {
 
       return [];
     } catch (e) {
-      print('❌ Failed to fetch crops: $e');
+      AppLogger.e('Failed to fetch crops', tag: 'CropsApi', error: e);
       rethrow;
     }
   }
@@ -52,7 +53,7 @@ class CropsApi {
 
       return [];
     } catch (e) {
-      print('❌ Failed to fetch crops by category: $e');
+      AppLogger.e('Failed to fetch crops by category', tag: 'CropsApi', error: e);
       rethrow;
     }
   }
@@ -63,7 +64,7 @@ class CropsApi {
       final response = await _client.get('/crops/$cropCode');
       return response as Map<String, dynamic>?;
     } catch (e) {
-      print('❌ Failed to fetch crop by code: $e');
+      AppLogger.e('Failed to fetch crop by code', tag: 'CropsApi', error: e);
       return null;
     }
   }
@@ -88,7 +89,7 @@ class CropsApi {
 
       return [];
     } catch (e) {
-      print('❌ Failed to search crops: $e');
+      AppLogger.e('Failed to search crops', tag: 'CropsApi', error: e);
       return [];
     }
   }

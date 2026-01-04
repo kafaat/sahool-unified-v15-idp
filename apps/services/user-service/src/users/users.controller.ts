@@ -14,6 +14,8 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  ForbiddenException,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,15 +23,42 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { CurrentUser } from '@sahool/nestjs-auth/decorators';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
 
 @ApiTags('Users')
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  /**
+   * Validate resource ownership
+   * Users can only access their own data unless they are admins
+   */
+  private validateResourceOwnership(
+    currentUser: any,
+    resourceUserId: string,
+  ): void {
+    // Allow admins to access any user
+    if (currentUser?.roles?.includes('admin')) {
+      return;
+    }
+
+    // Check if the authenticated user is accessing their own data
+    if (currentUser?.id !== resourceUserId) {
+      throw new ForbiddenException(
+        'You do not have permission to access this resource',
+      );
+    }
+  }
 
   @Post()
   @ApiOperation({
@@ -111,7 +140,14 @@ export class UsersController {
     status: 404,
     description: 'User not found',
   })
-  async findOne(@Param('id') id: string) {
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - You can only access your own data',
+  })
+  async findOne(@Param('id') id: string, @CurrentUser() currentUser: any) {
+    // Validate resource ownership - users can only access their own data (unless admin)
+    this.validateResourceOwnership(currentUser, id);
+
     const user = await this.usersService.findOne(id);
     const { passwordHash, ...userWithoutPassword } = user;
     return {
@@ -163,7 +199,18 @@ export class UsersController {
     status: 404,
     description: 'User not found',
   })
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - You can only update your own data',
+  })
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() currentUser: any,
+  ) {
+    // Validate resource ownership - users can only update their own data (unless admin)
+    this.validateResourceOwnership(currentUser, id);
+
     const user = await this.usersService.update(id, updateUserDto);
     const { passwordHash, ...userWithoutPassword } = user;
     return {
@@ -188,7 +235,14 @@ export class UsersController {
     status: 404,
     description: 'User not found',
   })
-  async remove(@Param('id') id: string) {
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - You can only delete your own data',
+  })
+  async remove(@Param('id') id: string, @CurrentUser() currentUser: any) {
+    // Validate resource ownership - users can only delete their own data (unless admin)
+    this.validateResourceOwnership(currentUser, id);
+
     await this.usersService.remove(id);
     return {
       success: true,
@@ -197,15 +251,26 @@ export class UsersController {
   }
 
   @Delete(':id/hard')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Permanently delete a user',
-    description: 'حذف مستخدم نهائيا',
+    summary: 'Permanently delete a user (Admin only)',
+    description: 'حذف مستخدم نهائيا (للمشرفين فقط)',
   })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({
     status: 200,
     description: 'User permanently deleted',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Missing or invalid token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User does not have ADMIN role',
   })
   @ApiResponse({
     status: 404,

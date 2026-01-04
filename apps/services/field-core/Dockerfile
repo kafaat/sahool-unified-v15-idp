@@ -1,3 +1,10 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has been replaced by: field-management-service (port 3000)   ║
+# ║ Port Conflict: 3000                                                         ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+#
 # SAHOOL Field Core Service
 # ==========================
 # Geospatial Field Management with PostGIS & Prisma Support

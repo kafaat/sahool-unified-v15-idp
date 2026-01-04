@@ -12,13 +12,16 @@ export { StatCard, type StatCardProps } from './components/StatCard';
 export { Button, type ButtonProps } from './components/Button';
 export { Skeleton, SkeletonCard, SkeletonTable, type SkeletonProps } from './components/Skeleton';
 export { Alert, type AlertProps } from './components/Alert';
-export { ErrorBoundary, withErrorBoundary, type ErrorBoundaryProps } from './components/ErrorBoundary';
+export { ErrorBoundary, withErrorBoundary, AsyncErrorBoundary, type ErrorBoundaryProps } from './components/ErrorBoundary';
 export { LanguageSwitcher, type LanguageSwitcherProps } from './components/LanguageSwitcher';
 export { LoadingSpinner, type LoadingSpinnerProps } from './components/LoadingSpinner';
 export { LoadingOverlay, type LoadingOverlayProps } from './components/LoadingOverlay';
 export { SkipLink, type SkipLinkProps } from './components/SkipLink';
 export { VisuallyHidden, type VisuallyHiddenProps } from './components/VisuallyHidden';
 export { FocusTrap, type FocusTrapProps } from './components/FocusTrap';
+
+// Auth Components
+export { PermissionGate, RoleGate, AdminGate, withPermission, type PermissionGateProps } from './components/auth/PermissionGate';
 
 // Re-export utilities for convenience
 export * from '@sahool/shared-utils';

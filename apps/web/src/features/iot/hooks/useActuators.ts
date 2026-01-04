@@ -7,7 +7,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { actuatorsApi, alertRulesApi } from '../api';
-import type { ActuatorControlData, AlertRuleFormData } from '../types';
+import type { Actuator, ActuatorControlData, AlertRuleFormData } from '../types';
 
 // Query Keys
 export const actuatorKeys = {
@@ -79,6 +79,55 @@ export function useSetActuatorMode() {
     onSuccess: (updatedActuator) => {
       queryClient.invalidateQueries({ queryKey: actuatorKeys.lists() });
       queryClient.setQueryData(actuatorKeys.detail(updatedActuator.id), updatedActuator);
+    },
+  });
+}
+
+/**
+ * Hook to create actuator
+ * خطاف إنشاء مُشغل
+ */
+export function useCreateActuator() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: Omit<Actuator, 'id' | 'createdAt' | 'updatedAt'>) =>
+      actuatorsApi.createActuator(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: actuatorKeys.lists() });
+    },
+  });
+}
+
+/**
+ * Hook to update actuator
+ * خطاف تحديث مُشغل
+ */
+export function useUpdateActuator() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Actuator> }) =>
+      actuatorsApi.updateActuator(id, data),
+    onSuccess: (updatedActuator) => {
+      queryClient.invalidateQueries({ queryKey: actuatorKeys.lists() });
+      queryClient.setQueryData(actuatorKeys.detail(updatedActuator.id), updatedActuator);
+    },
+  });
+}
+
+/**
+ * Hook to delete actuator
+ * خطاف حذف مُشغل
+ */
+export function useDeleteActuator() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => actuatorsApi.deleteActuator(id),
+    onSuccess: (_: void, id: string) => {
+      queryClient.invalidateQueries({ queryKey: actuatorKeys.lists() });
+      queryClient.removeQueries({ queryKey: actuatorKeys.detail(id) });
     },
   });
 }

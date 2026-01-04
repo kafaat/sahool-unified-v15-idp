@@ -45,39 +45,116 @@ android {
     }
 
     // Release signing configuration
-    // SECURITY: In production, use proper keystore via environment variables:
-    // - KEYSTORE_FILE: Path to the keystore file
-    // - KEYSTORE_PASSWORD: Keystore password
-    // - KEY_ALIAS: Key alias
-    // - KEY_PASSWORD: Key password
+    // SECURITY: Release builds REQUIRE proper keystore configuration
+    // Configure via environment variables OR keystore.properties file:
+    // - KEYSTORE_FILE / storeFile: Path to the keystore file
+    // - KEYSTORE_PASSWORD / storePassword: Keystore password
+    // - KEY_ALIAS / keyAlias: Key alias
+    // - KEY_PASSWORD / keyPassword: Key password
     signingConfigs {
         create("release") {
-            val keystoreFile = System.getenv("KEYSTORE_FILE")
-            if (keystoreFile != null && file(keystoreFile).exists()) {
-                storeFile = file(keystoreFile)
-                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
-                keyAlias = System.getenv("KEY_ALIAS") ?: "sahool"
-                keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+            // Try to load from keystore.properties file first
+            val keystorePropertiesFile = rootProject.file("keystore.properties")
+            val useKeystoreProperties = keystorePropertiesFile.exists()
+
+            if (useKeystoreProperties) {
+                val keystoreProperties = java.util.Properties()
+                keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            } else {
+                // Fall back to environment variables
+                val keystoreFile = System.getenv("KEYSTORE_FILE")
+                val keystorePassword = System.getenv("KEYSTORE_PASSWORD")
+                val keyAliasEnv = System.getenv("KEY_ALIAS")
+                val keyPasswordEnv = System.getenv("KEY_PASSWORD")
+
+                if (keystoreFile != null && keystorePassword != null &&
+                    keyAliasEnv != null && keyPasswordEnv != null) {
+                    storeFile = file(keystoreFile)
+                    storePassword = keystorePassword
+                    keyAlias = keyAliasEnv
+                    keyPassword = keyPasswordEnv
+                } else {
+                    // Configuration is incomplete - will be validated in buildTypes.release
+                    storeFile = null
+                    storePassword = ""
+                    keyAlias = ""
+                    keyPassword = ""
+                }
             }
         }
     }
 
     buildTypes {
+        debug {
+            // Enable minification for debug builds to catch ProGuard issues early
+            // but use less aggressive rules to maintain debuggability
+            isMinifyEnabled = true
+            isShrinkResources = false  // Disable resource shrinking for faster builds
+
+            // Use debug-specific ProGuard rules
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules-debug.pro"
+            )
+
+            // Keep debug symbols and crash reporting information
+            isDebuggable = true
+        }
+
         release {
             // Enable code shrinking and minification for production
             isMinifyEnabled = true
             isShrinkResources = true
 
-            // Use release signing if available, otherwise fall back to debug for development
-            val releaseConfig = signingConfigs.findByName("release")
-            signingConfig = if (releaseConfig?.storeFile != null) {
-                releaseConfig
-            } else {
-                // WARNING: Debug signing for development only
-                println("WARNING: Using debug signing config. Set KEYSTORE_* env vars for production.")
-                signingConfigs.getByName("debug")
+            // SECURITY: Release builds MUST use proper keystore - no fallback to debug signing
+            val releaseConfig = signingConfigs.getByName("release")
+
+            // Validate that keystore is properly configured
+            if (releaseConfig.storeFile == null || !releaseConfig.storeFile!!.exists()) {
+                throw GradleException(
+                    """
+                    |
+                    |========================================================================
+                    | ERROR: Release keystore is not configured!
+                    |========================================================================
+                    |
+                    | Release builds require a proper keystore configuration for security.
+                    | Debug signing is NOT allowed for release builds.
+                    |
+                    | To fix this, choose ONE of the following options:
+                    |
+                    | Option 1: Create keystore.properties file (recommended for local builds)
+                    |   1. Copy android/keystore.properties.example to android/keystore.properties
+                    |   2. Fill in your keystore details:
+                    |      - storeFile=/path/to/your/keystore.jks
+                    |      - storePassword=your_keystore_password
+                    |      - keyAlias=your_key_alias
+                    |      - keyPassword=your_key_password
+                    |   3. Ensure keystore.properties is in .gitignore (never commit it!)
+                    |
+                    | Option 2: Set environment variables (recommended for CI/CD)
+                    |   export KEYSTORE_FILE=/path/to/your/keystore.jks
+                    |   export KEYSTORE_PASSWORD=your_keystore_password
+                    |   export KEY_ALIAS=your_key_alias
+                    |   export KEY_PASSWORD=your_key_password
+                    |
+                    | For development/testing only, you can use the debug build variant:
+                    |   flutter build apk --debug
+                    |
+                    |========================================================================
+                    |
+                    """.trimMargin()
+                )
             }
 
+            signingConfig = releaseConfig
+
+            // Use production ProGuard rules with aggressive obfuscation
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

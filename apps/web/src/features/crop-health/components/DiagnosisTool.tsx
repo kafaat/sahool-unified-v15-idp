@@ -8,6 +8,7 @@
 import React, { useState, useCallback } from 'react';
 import { Upload, X, Camera, FileImage, AlertCircle, Loader2 } from 'lucide-react';
 import { useCreateDiagnosis, useUploadDiagnosisImages } from '../hooks/useCropHealth';
+import { logger } from '@/lib/logger';
 
 interface DiagnosisToolProps {
   onDiagnosisCreated?: (diagnosisId: string) => void;
@@ -110,7 +111,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
       }
     } catch (err) {
       setError('حدث خطأ أثناء إنشاء التشخيص');
-      console.error(err);
+      logger.error(err);
     }
   };
 
@@ -157,7 +158,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
           </label>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {previews.map((preview, index) => (
-              <div key={index} className="relative group">
+              <div key={preview} className="relative group">
                 <img
                   src={preview}
                   alt={`Preview ${index + 1}`}

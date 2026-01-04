@@ -38,7 +38,10 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     await onSubmit(formData);
   };
 
-  const handleChange = (field: keyof TaskFormData, value: any) => {
+  const handleChange = <K extends keyof TaskFormData>(
+    field: K,
+    value: TaskFormData[K]
+  ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

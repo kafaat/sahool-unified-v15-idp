@@ -30,6 +30,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@sahool/shared-types": "*",
     "axios": "^1.7.9"
   },
   "devDependencies": {

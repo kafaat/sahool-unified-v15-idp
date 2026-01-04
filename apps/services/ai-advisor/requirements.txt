@@ -2,7 +2,7 @@
 # تبعيات FastAPI وإطار العمل
 # Updated: December 2025 - Unified versions across all services
 fastapi==0.115.5
-uvicorn[standard]==0.32.1
+uvicorn[standard]>=0.30.0,<1.0.0
 httpx==0.28.1
 pydantic==2.9.2
 pydantic-settings==2.7.1

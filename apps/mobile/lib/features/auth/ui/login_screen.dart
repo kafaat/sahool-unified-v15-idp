@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/utils/input_validator.dart';
 
 /// OTP Login Screen - تسجيل الدخول برقم الهاتف
 /// تصميم بسيط للمزارعين الذين لا يحفظون كلمات المرور
@@ -23,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isOtpSent = false;
   bool _isLoading = false;
   int _resendTimer = 0;
+  String? _phoneErrorMessage;
+  String? _otpErrorMessage;
 
   @override
   void dispose() {
@@ -37,9 +40,20 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _sendOtp() async {
-    if (_phoneController.text.length < 9) return;
+    // Validate phone number
+    final validation = InputValidator.validateYemenPhone(_phoneController.text);
 
-    setState(() => _isLoading = true);
+    if (!validation.isValid) {
+      setState(() {
+        _phoneErrorMessage = validation.errorMessageAr;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _phoneErrorMessage = null;
+    });
 
     // Simulate API call
     await Future.delayed(const Duration(seconds: 1));
@@ -70,9 +84,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
-    if (otp.length != 4) return;
 
-    setState(() => _isLoading = true);
+    // Validate OTP
+    final validation = InputValidator.validateOtp(otp, length: 4);
+
+    if (!validation.isValid) {
+      setState(() {
+        _otpErrorMessage = validation.errorMessageAr;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _otpErrorMessage = null;
+    });
 
     // Simulate verification
     await Future.delayed(const Duration(seconds: 1));
@@ -83,6 +109,13 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _onOtpChanged(int index, String value) {
+    // Clear error message when user types
+    if (_otpErrorMessage != null) {
+      setState(() {
+        _otpErrorMessage = null;
+      });
+    }
+
     if (value.isNotEmpty && index < 3) {
       _otpFocusNodes[index + 1].requestFocus();
     }
@@ -235,106 +268,152 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildPhoneInput() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Row(
-        children: [
-          // Country code
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-            decoration: BoxDecoration(
-              border: Border(
-                left: BorderSide(color: Colors.grey[300]!),
-              ),
-            ),
-            child: Row(
-              children: [
-                const Text(
-                  '🇾🇪',
-                  style: TextStyle(fontSize: 24),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '+967',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: _phoneErrorMessage != null
+                  ? Colors.red
+                  : Colors.grey[300]!,
             ),
           ),
-          // Phone input
-          Expanded(
-            child: TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2,
+          child: Row(
+            children: [
+              // Country code
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                decoration: BoxDecoration(
+                  border: Border(
+                    left: BorderSide(color: Colors.grey[300]!),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Text(
+                      '🇾🇪',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '+967',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
+                  ],
+                ),
               ),
-              decoration: const InputDecoration(
-                hintText: '7XX XXX XXX',
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              // Phone input
+              Expanded(
+                child: TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: '7XX XXX XXX',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  ),
+                  inputFormatters: InputValidator.phoneFormatters(maxLength: 9),
+                  onChanged: (_) => setState(() {
+                    // Clear error message when user types
+                    _phoneErrorMessage = null;
+                  }),
+                ),
               ),
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(9),
-              ],
-              onChanged: (_) => setState(() {}),
+            ],
+          ),
+        ),
+        // Error message
+        if (_phoneErrorMessage != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            _phoneErrorMessage!,
+            style: const TextStyle(
+              color: Colors.red,
+              fontSize: 14,
             ),
           ),
         ],
-      ),
+      ],
     );
   }
 
   Widget _buildOtpInput() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(4, (index) {
-        return Container(
-          width: 64,
-          height: 72,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: TextField(
-            controller: _otpControllers[index],
-            focusNode: _otpFocusNodes[index],
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(4, (index) {
+            return Container(
+              width: 64,
+              height: 72,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              child: TextField(
+                controller: _otpControllers[index],
+                focusNode: _otpFocusNodes[index],
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: _otpErrorMessage != null
+                          ? Colors.red
+                          : Colors.grey[300]!,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                      color: _otpErrorMessage != null
+                          ? Colors.red
+                          : SahoolColors.primary,
+                      width: 2,
+                    ),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Colors.red, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                ),
+                inputFormatters: InputValidator.otpFormatters(length: 1),
+                onChanged: (value) => _onOtpChanged(index, value),
+              ),
+            );
+          }),
+        ),
+        // Error message
+        if (_otpErrorMessage != null) ...[
+          const SizedBox(height: 16),
+          Text(
+            _otpErrorMessage!,
             style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
+              color: Colors.red,
+              fontSize: 14,
             ),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey[100],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: SahoolColors.primary, width: 2),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 20),
-            ),
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(1),
-            ],
-            onChanged: (value) => _onOtpChanged(index, value),
+            textAlign: TextAlign.center,
           ),
-        );
-      }),
+        ],
+      ],
     );
   }
 }

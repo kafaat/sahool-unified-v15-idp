@@ -1,3 +1,7 @@
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -36,20 +40,8 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
           },
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https: blob:",
-              "font-src 'self' data:",
-              "connect-src 'self' https://api.sahool.io https://api.sahool.app wss:",
-              "frame-ancestors 'self'",
-              "base-uri 'self'",
-              "form-action 'self'",
-            ].join('; '),
-          },
+          // CSP is now handled by middleware with nonce-based security
+          // See: src/middleware.ts and src/lib/security/csp-config.ts
         ],
       },
     ];
@@ -111,7 +103,10 @@ const nextConfig = {
   },
 
   // Experimental features
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@tanstack/react-query', 'recharts'],
+  },
   // Note: missingSuspenseWithCSRBailout was removed in Next.js 15
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

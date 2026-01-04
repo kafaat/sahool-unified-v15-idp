@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Users, Search, Plus, Lock, Globe } from 'lucide-react';
 import { useGroups, useJoinGroup } from '../hooks/useGroups';
 import type { GroupFilters, GroupCategory } from '../types';
@@ -110,12 +111,17 @@ export const Groups: React.FC = () => {
                 className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
               >
                 {/* Cover Image */}
-                <div className="h-32 bg-gradient-to-br from-green-400 to-green-600 relative">
+                <div className="relative h-32 bg-gradient-to-br from-green-400 to-green-600">
                   {group.coverImage && (
-                    <img
+                    <Image
                       src={group.coverImage}
-                      alt=""
-                      className="w-full h-full object-cover"
+                      alt={group.nameAr}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover"
+                      loading="lazy"
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                     />
                   )}
                   <div className="absolute top-3 right-3">

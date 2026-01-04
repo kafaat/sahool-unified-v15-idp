@@ -3,6 +3,8 @@
  * واجهة برمجية لميزة المحفظة
  */
 
+import axios from 'axios';
+import { logger } from '@/lib/logger';
 import type {
   Wallet,
   Transaction,
@@ -13,7 +15,36 @@ import type {
   WalletStats,
 } from './types';
 
-const API_BASE = '/api/v1/billing';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+
+// Only warn during development, don't throw during build
+if (!API_BASE_URL && typeof window !== 'undefined') {
+  console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+}
+
+const api = axios.create({
+  baseURL: `${API_BASE_URL}/api/v1/billing`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 10000, // 10 seconds timeout
+});
+
+// Add auth token interceptor
+// SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
+import Cookies from 'js-cookie';
+
+api.interceptors.request.use((config) => {
+  // Get token from cookie using secure cookie parser
+  if (typeof window !== 'undefined') {
+    const token = Cookies.get('access_token');
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
 
 // Mock data for development fallback
 const mockTransactions: Transaction[] = [
@@ -96,59 +127,43 @@ const mockWallet: Wallet = {
 };
 
 /**
- * Error messages in Arabic
- * رسائل الخطأ بالعربية
+ * Error messages in Arabic and English
+ * رسائل الخطأ بالعربية والإنجليزية
  */
-const errorMessages = {
-  networkError: 'فشل الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.',
-  walletNotFound: 'لم يتم العثور على المحفظة.',
-  transactionNotFound: 'لم يتم العثور على المعاملة.',
-  insufficientBalance: 'رصيد غير كاف لإتمام العملية.',
-  invalidAmount: 'المبلغ المدخل غير صحيح.',
-  serverError: 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.',
-  unauthorized: 'غير مصرح لك بهذه العملية.',
+export const ERROR_MESSAGES = {
+  NETWORK_ERROR: {
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
+  },
+  WALLET_NOT_FOUND: {
+    en: 'Wallet not found.',
+    ar: 'لم يتم العثور على المحفظة.',
+  },
+  TRANSACTION_NOT_FOUND: {
+    en: 'Transaction not found.',
+    ar: 'لم يتم العثور على المعاملة.',
+  },
+  INSUFFICIENT_BALANCE: {
+    en: 'Insufficient balance.',
+    ar: 'رصيد غير كاف لإتمام العملية.',
+  },
+  INVALID_AMOUNT: {
+    en: 'Invalid amount.',
+    ar: 'المبلغ المدخل غير صحيح.',
+  },
+  SERVER_ERROR: {
+    en: 'Server error. Please try again later.',
+    ar: 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.',
+  },
+  UNAUTHORIZED: {
+    en: 'Unauthorized access.',
+    ar: 'غير مصرح لك بهذه العملية.',
+  },
+  FETCH_FAILED: {
+    en: 'Failed to fetch wallet data. Using cached data.',
+    ar: 'فشل في جلب بيانات المحفظة. استخدام البيانات المخزنة.',
+  },
 };
-
-/**
- * Make API request with error handling
- */
-async function apiRequest<T>(
-  endpoint: string,
-  options?: RequestInit
-): Promise<{ data?: T; error?: string; errorAr?: string }> {
-  try {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const errorAr =
-        response.status === 404 ? errorMessages.walletNotFound :
-        response.status === 401 ? errorMessages.unauthorized :
-        response.status === 400 ? errorMessages.invalidAmount :
-        errorMessages.serverError;
-
-      return {
-        error: data.message || data.error || 'Request failed',
-        errorAr,
-      };
-    }
-
-    return { data };
-  } catch (error) {
-    console.error('API request error:', error);
-    return {
-      error: error instanceof Error ? error.message : 'Network error',
-      errorAr: errorMessages.networkError,
-    };
-  }
-}
 
 /**
  * Filter transactions locally (for mock data)
@@ -194,14 +209,23 @@ export const walletApi = {
    * الحصول على تفاصيل المحفظة
    */
   async getWallet(): Promise<Wallet> {
-    const response = await apiRequest<Wallet>('/wallet');
+    try {
+      const response = await api.get('/wallet');
 
-    if (response.error || !response.data) {
-      console.warn('Failed to fetch wallet, using mock data:', response.error);
+      // Handle different response formats
+      const data = response.data.data || response.data;
+
+      // Validate response structure
+      if (data && typeof data === 'object' && 'balance' in data) {
+        return data as Wallet;
+      }
+
+      logger.warn('API returned unexpected format, using mock data');
+      return mockWallet;
+    } catch (error) {
+      logger.warn('Failed to fetch wallet from API, using mock data:', error);
       return mockWallet;
     }
-
-    return response.data;
   },
 
   /**
@@ -209,10 +233,31 @@ export const walletApi = {
    * الحصول على إحصائيات المحفظة
    */
   async getStats(): Promise<WalletStats> {
-    const response = await apiRequest<WalletStats>('/wallet/stats');
+    try {
+      const response = await api.get('/wallet/stats');
+      const data = response.data.data || response.data;
 
-    if (response.error || !response.data) {
-      console.warn('Failed to fetch wallet stats, using mock data:', response.error);
+      if (data && typeof data === 'object' && 'currentBalance' in data) {
+        return data as WalletStats;
+      }
+
+      logger.warn('API returned unexpected format for stats, using mock data');
+
+      // Calculate stats from mock wallet
+      const stats: WalletStats = {
+        currentBalance: mockWallet.balance,
+        pendingBalance: mockWallet.pendingBalance,
+        totalIncome: mockWallet.totalDeposits,
+        totalExpenses: mockWallet.totalWithdrawals,
+        monthlyIncome: 1500,
+        monthlyExpenses: 557,
+        transactionCount: mockWallet.totalTransactions,
+        currency: mockWallet.currency,
+      };
+
+      return stats;
+    } catch (error) {
+      logger.warn('Failed to fetch wallet stats from API, using mock data:', error);
 
       // Calculate stats from mock wallet
       const stats: WalletStats = {
@@ -228,8 +273,6 @@ export const walletApi = {
 
       return stats;
     }
-
-    return response.data;
   },
 
   /**
@@ -237,26 +280,32 @@ export const walletApi = {
    * الحصول على قائمة المعاملات
    */
   async getTransactions(filters?: TransactionFilters): Promise<Transaction[]> {
-    // Build query parameters
-    const params = new URLSearchParams();
-    if (filters?.type) params.append('type', filters.type);
-    if (filters?.status) params.append('status', filters.status);
-    if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
-    if (filters?.dateTo) params.append('dateTo', filters.dateTo);
-    if (filters?.minAmount !== undefined) params.append('minAmount', filters.minAmount.toString());
-    if (filters?.maxAmount !== undefined) params.append('maxAmount', filters.maxAmount.toString());
+    try {
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (filters?.type) params.append('type', filters.type);
+      if (filters?.status) params.append('status', filters.status);
+      if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
+      if (filters?.dateTo) params.append('dateTo', filters.dateTo);
+      if (filters?.minAmount !== undefined) params.append('minAmount', filters.minAmount.toString());
+      if (filters?.maxAmount !== undefined) params.append('maxAmount', filters.maxAmount.toString());
 
-    const queryString = params.toString();
-    const endpoint = `/transactions${queryString ? `?${queryString}` : ''}`;
+      const queryString = params.toString();
+      const endpoint = `/transactions${queryString ? `?${queryString}` : ''}`;
 
-    const response = await apiRequest<Transaction[]>(endpoint);
+      const response = await api.get(endpoint);
+      const data = response.data.data || response.data;
 
-    if (response.error || !response.data) {
-      console.warn('Failed to fetch transactions, using mock data:', response.error);
+      if (Array.isArray(data)) {
+        return data;
+      }
+
+      logger.warn('API returned unexpected format for transactions, using mock data');
+      return filterTransactions(mockTransactions, filters);
+    } catch (error) {
+      logger.warn('Failed to fetch transactions from API, using mock data:', error);
       return filterTransactions(mockTransactions, filters);
     }
-
-    return response.data;
   },
 
   /**
@@ -264,19 +313,30 @@ export const walletApi = {
    * الحصول على معاملة حسب المعرف
    */
   async getTransactionById(id: string): Promise<Transaction> {
-    const response = await apiRequest<Transaction>(`/transactions/${id}`);
+    try {
+      const response = await api.get(`/transactions/${id}`);
+      const data = response.data.data || response.data;
 
-    if (response.error || !response.data) {
-      console.warn('Failed to fetch transaction, using mock data:', response.error);
+      if (data && typeof data === 'object' && 'id' in data) {
+        return data as Transaction;
+      }
+
+      logger.warn('API returned unexpected format for transaction, using mock data');
 
       const transaction = mockTransactions.find((t) => t.id === id);
       if (!transaction) {
-        throw new Error(errorMessages.transactionNotFound);
+        throw new Error(ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar);
+      }
+      return transaction;
+    } catch (error) {
+      logger.warn('Failed to fetch transaction from API, using mock data:', error);
+
+      const transaction = mockTransactions.find((t) => t.id === id);
+      if (!transaction) {
+        throw new Error(ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar);
       }
       return transaction;
     }
-
-    return response.data;
   },
 
   /**
@@ -284,17 +344,28 @@ export const walletApi = {
    * إنشاء إيداع
    */
   async deposit(data: DepositFormData): Promise<Transaction> {
-    const response = await apiRequest<Transaction>('/deposit', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      const response = await api.post('/deposit', data);
+      const result = response.data.data || response.data;
 
-    if (response.error || !response.data) {
-      // If API fails, throw error with Arabic message
-      throw new Error(response.errorAr || errorMessages.serverError);
+      if (result && typeof result === 'object' && 'id' in result) {
+        return result as Transaction;
+      }
+
+      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+    } catch (error) {
+      logger.error('Failed to create deposit:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
+        } else if (error.response?.status === 401) {
+          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
+        }
+      }
+
+      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
     }
-
-    return response.data;
   },
 
   /**
@@ -302,17 +373,30 @@ export const walletApi = {
    * إنشاء سحب
    */
   async withdraw(data: WithdrawalFormData): Promise<Transaction> {
-    const response = await apiRequest<Transaction>('/withdraw', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      const response = await api.post('/withdraw', data);
+      const result = response.data.data || response.data;
 
-    if (response.error || !response.data) {
-      // If API fails, throw error with Arabic message
-      throw new Error(response.errorAr || errorMessages.serverError);
+      if (result && typeof result === 'object' && 'id' in result) {
+        return result as Transaction;
+      }
+
+      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+    } catch (error) {
+      logger.error('Failed to create withdrawal:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
+        } else if (error.response?.status === 402) {
+          throw new Error(ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar);
+        } else if (error.response?.status === 401) {
+          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
+        }
+      }
+
+      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
     }
-
-    return response.data;
   },
 
   /**
@@ -320,16 +404,29 @@ export const walletApi = {
    * تحويل الأموال إلى مستخدم آخر
    */
   async transfer(data: TransferFormData): Promise<Transaction> {
-    const response = await apiRequest<Transaction>('/transfer', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    try {
+      const response = await api.post('/transfer', data);
+      const result = response.data.data || response.data;
 
-    if (response.error || !response.data) {
-      // If API fails, throw error with Arabic message
-      throw new Error(response.errorAr || errorMessages.serverError);
+      if (result && typeof result === 'object' && 'id' in result) {
+        return result as Transaction;
+      }
+
+      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+    } catch (error) {
+      logger.error('Failed to create transfer:', error);
+
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
+        } else if (error.response?.status === 402) {
+          throw new Error(ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar);
+        } else if (error.response?.status === 401) {
+          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
+        }
+      }
+
+      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
     }
-
-    return response.data;
   },
 };

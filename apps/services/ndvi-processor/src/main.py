@@ -13,8 +13,12 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Query, Response, BackgroundTasks
 
 # Add path to shared config
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
-from cors_config import setup_cors_middleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../shared/config"))
+try:
+    from cors_config import setup_cors_middleware
+except ImportError:
+    # Fallback: define secure origins locally if shared module not available
+    setup_cors_middleware = None
 
 from .models import (
     ProcessRequest,
@@ -94,7 +98,32 @@ app = FastAPI(
 )
 
 # CORS - Use centralized secure configuration
-setup_cors_middleware(app)
+if setup_cors_middleware:
+    setup_cors_middleware(app)
+else:
+    # Fallback: Secure origins list when shared module unavailable
+    from fastapi.middleware.cors import CORSMiddleware
+
+    SECURE_ORIGINS = [
+        "https://sahool.app",
+        "https://admin.sahool.app",
+        "https://api.sahool.app",
+        "http://localhost:3000",
+        "http://localhost:5173",
+    ]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=SECURE_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=[
+            "Accept",
+            "Authorization",
+            "Content-Type",
+            "X-Request-ID",
+            "X-Tenant-ID",
+        ],
+    )
 
 
 # ============== Background Processing ==============

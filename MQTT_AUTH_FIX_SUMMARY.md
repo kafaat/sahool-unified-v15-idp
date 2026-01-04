@@ -120,3 +120,4 @@ docker logs sahool-mqtt --tail 100 | grep -i "not authorised"
 4. ⏳ **Monitor logs** - Verify authentication is working
 5. ⏳ **Test MQTT functionality** - Verify services can publish/subscribe
 
+

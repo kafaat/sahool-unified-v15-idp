@@ -100,3 +100,4 @@ docker compose ps marketplace-service
 - Services restarting prevent consistent DNS registration
 - Kong DNS errors are symptoms of service instability
 
+

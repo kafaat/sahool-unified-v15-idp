@@ -137,9 +137,7 @@ Respond with a JSON object containing:
 
             messages = [
                 SystemMessage(content=self._get_routing_prompt()),
-                HumanMessage(
-                    content=f"Query: {sanitized_query}\n\nContext: {context or {}}"
-                ),
+                HumanMessage(content=f"Query: {sanitized_query}\n\nContext: {context or {}}"),
             ]
 
             response = await self.llm.ainvoke(messages)
@@ -156,7 +154,7 @@ Respond with a JSON object containing:
                 routing = {
                     "agents_needed": list(self.agents.keys()),
                     "reasoning": "Fallback routing due to parsing error",
-                    "query_breakdown": dict.fromkeys(self.agents.keys(), query),
+                    "query_breakdown": dict.fromkeys(self.agents, query),
                 }
 
             logger.info(

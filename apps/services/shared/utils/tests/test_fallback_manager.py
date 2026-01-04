@@ -78,7 +78,7 @@ class TestCircuitBreaker:
             raise Exception("فشل - failure")
 
         # محاولة 3 مرات - Try 3 times
-        for i in range(3):
+        for _i in range(3):
             with pytest.raises(Exception):
                 cb.call(failing_func)
 
@@ -102,7 +102,7 @@ class TestCircuitBreaker:
             raise Exception("فشل - failure")
 
         # فتح الدائرة - Open circuit
-        for i in range(2):
+        for _i in range(2):
             with pytest.raises(Exception):
                 cb.call(failing_func)
 
@@ -139,7 +139,7 @@ class TestCircuitBreaker:
             return "نجاح - success"
 
         # فتح الدائرة - Open circuit
-        for i in range(2):
+        for _i in range(2):
             with pytest.raises(Exception):
                 cb.call(failing_func)
 
@@ -171,7 +171,7 @@ class TestCircuitBreaker:
             return "نجاح - success"
 
         # فتح الدائرة - Open circuit
-        for i in range(2):
+        for _i in range(2):
             with pytest.raises(Exception):
                 cb.call(failing_func)
 
@@ -202,7 +202,7 @@ class TestCircuitBreaker:
             raise Exception("فشل - failure")
 
         # فتح الدائرة - Open circuit
-        for i in range(2):
+        for _i in range(2):
             with pytest.raises(Exception):
                 cb.call(failing_func)
 
@@ -364,7 +364,7 @@ class TestFallbackManager:
         fm.register_fallback("test_service", my_fallback, failure_threshold=2)
 
         # فتح الدائرة - Open circuit
-        for i in range(2):
+        for _i in range(2):
             fm.execute_with_fallback("test_service", failing_func)
 
         status = fm.get_circuit_status("test_service")
@@ -432,7 +432,7 @@ class TestDecorators:
             raise Exception("فشل - failure")
 
         # محاولتان تفشلان - Two failures
-        for i in range(2):
+        for _i in range(2):
             with pytest.raises(Exception):
                 failing_func()
 
@@ -607,7 +607,7 @@ class TestIntegration:
         )
 
         # 3 فشل - 3 failures
-        for i in range(3):
+        for _i in range(3):
             result = fm.execute_with_fallback("test_service", flaky_func)
             assert result == "احتياطي - fallback"
 
@@ -645,7 +645,7 @@ class TestIntegration:
         fm.register_fallback("service2", fallback2, failure_threshold=2)
 
         # فشل service1 - Fail service1
-        for i in range(2):
+        for _i in range(2):
             fm.execute_with_fallback("service1", failing_func)
 
         # service2 يجب أن يعمل - service2 should work

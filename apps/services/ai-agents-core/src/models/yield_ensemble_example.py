@@ -39,22 +39,27 @@ def example_basic_prediction():
         crop_id="wheat",
         region=Region.HIGHLANDS,
         area_hectares=10.0,
+
         # NDVI data - بيانات NDVI
         ndvi_current=0.70,
         ndvi_peak=0.73,
+
         # Climate data - بيانات المناخ
         accumulated_gdd=1800,
         current_temperature=20.0,
+
         # Water data - بيانات المياه
         soil_moisture_current=60.0,
         total_irrigation_mm=350,
         total_rainfall_mm=150,
+
         # Soil data - بيانات التربة
         soil_ph=6.5,
         soil_ec=2.0,
         soil_nutrient_score=0.8,
+
         # Crop status - حالة المحصول
-        days_since_planting=100,
+        days_since_planting=100
     )
 
     # Create model and predict - إنشاء النموذج والتنبؤ
@@ -91,8 +96,9 @@ def example_with_historical_data():
         total_rainfall_mm=80,
         soil_ph=6.2,
         days_since_planting=70,
+
         # Historical yields from past seasons - إنتاج تاريخي من المواسم السابقة
-        historical_yields=[24000, 26000, 25500, 27000],
+        historical_yields=[24000, 26000, 25500, 27000]
     )
 
     model = YieldEnsembleModel()
@@ -106,9 +112,7 @@ def example_with_historical_data():
     print("\nConfidence Breakdown:")
     print(f"  Data Completeness: {prediction.confidence_metrics.data_completeness:.1%}")
     print(f"  Model Agreement: {prediction.confidence_metrics.model_agreement:.1%}")
-    print(
-        f"  Historical Accuracy: {prediction.confidence_metrics.historical_accuracy:.1%}"
-    )
+    print(f"  Historical Accuracy: {prediction.confidence_metrics.historical_accuracy:.1%}")
 
 
 def example_limiting_factors_and_recommendations():
@@ -127,20 +131,25 @@ def example_limiting_factors_and_recommendations():
         crop_id="potato",
         region=Region.HIGHLANDS,
         area_hectares=5.0,
+
         # Poor NDVI indicating plant health issues
         ndvi_current=0.50,
+
         # Insufficient thermal time
         accumulated_gdd=900,
         current_temperature=18.0,
+
         # Water stress
         soil_moisture_current=30.0,
         total_irrigation_mm=200,
         total_rainfall_mm=100,
+
         # Soil issues
         soil_ph=5.2,  # Too acidic
         soil_ec=1.8,
         soil_nutrient_score=0.5,
-        days_since_planting=70,
+
+        days_since_planting=70
     )
 
     model = YieldEnsembleModel()
@@ -188,7 +197,7 @@ def example_model_explanation():
         soil_ec=0.9,
         soil_nutrient_score=0.85,
         days_since_planting=220,
-        historical_yields=[780, 820, 850],
+        historical_yields=[780, 820, 850]
     )
 
     model = YieldEnsembleModel()
@@ -205,17 +214,15 @@ def example_model_explanation():
     explanation = model.explain_prediction(prediction)
 
     print("\nSub-Model Predictions:")
-    for model_name, pred_value in explanation["sub_models"]["predictions"].items():
-        contrib = explanation["sub_models"]["contributions"][model_name]
-        print(
-            f"  {model_name:12s}: {pred_value:7.1f} kg/ha "
-            f"(weight: {contrib['weight']:.1%}, "
-            f"confidence: {contrib['confidence']:.1%})"
-        )
+    for model_name, pred_value in explanation['sub_models']['predictions'].items():
+        contrib = explanation['sub_models']['contributions'][model_name]
+        print(f"  {model_name:12s}: {pred_value:7.1f} kg/ha "
+              f"(weight: {contrib['weight']:.1%}, "
+              f"confidence: {contrib['confidence']:.1%})")
 
     print("\nConfidence Interval:")
-    for level, value in explanation["summary"].items():
-        if "confidence" not in level.lower():
+    for level, value in explanation['summary'].items():
+        if 'confidence' not in level.lower():
             continue
         print(f"  {level}: {value}")
 
@@ -243,7 +250,7 @@ def example_multi_crop_comparison():
         "total_rainfall_mm": 100,
         "soil_ph": 7.0,
         "soil_ec": 2.0,
-        "days_since_planting": 80,
+        "days_since_planting": 80
     }
 
     # Test different crops - اختبار محاصيل مختلفة
@@ -257,24 +264,18 @@ def example_multi_crop_comparison():
         prediction = model.predict(field)
 
         crop_params = get_crop_parameters(crop_id)
-        results.append(
-            {
-                "crop": crop_params.name_ar,
-                "yield_kg_ha": prediction.predicted_yield_kg_per_hectare,
-                "confidence": prediction.confidence,
-                "revenue": prediction.estimated_revenue_per_ha,
-            }
-        )
+        results.append({
+            'crop': crop_params.name_ar,
+            'yield_kg_ha': prediction.predicted_yield_kg_per_hectare,
+            'confidence': prediction.confidence,
+            'revenue': prediction.estimated_revenue_per_ha
+        })
 
     # Display comparison - عرض المقارنة
-    print(
-        f"\n{'Crop':<20} {'Yield (kg/ha)':>15} {'Confidence':>12} {'Revenue (YER)':>15}"
-    )
+    print(f"\n{'Crop':<20} {'Yield (kg/ha)':>15} {'Confidence':>12} {'Revenue (YER)':>15}")
     print("-" * 70)
-    for r in sorted(results, key=lambda x: x["revenue"], reverse=True):
-        print(
-            f"{r['crop']:<20} {r['yield_kg_ha']:>15,.0f} {r['confidence']:>11.1%} {r['revenue']:>15,.0f}"
-        )
+    for r in sorted(results, key=lambda x: x['revenue'], reverse=True):
+        print(f"{r['crop']:<20} {r['yield_kg_ha']:>15,.0f} {r['confidence']:>11.1%} {r['revenue']:>15,.0f}")
 
 
 def example_regional_comparison():
@@ -299,15 +300,13 @@ def example_regional_comparison():
         "total_rainfall_mm": 120,
         "soil_ph": 6.8,
         "soil_ec": 2.5,
-        "days_since_planting": 95,
+        "days_since_planting": 95
     }
 
     regions = [Region.HIGHLANDS, Region.TIHAMA, Region.HADHRAMAUT]
     model = YieldEnsembleModel()
 
-    print(
-        f"\n{'Region':<20} {'Yield (kg/ha)':>15} {'Multiplier':>12} {'Total Revenue':>15}"
-    )
+    print(f"\n{'Region':<20} {'Yield (kg/ha)':>15} {'Multiplier':>12} {'Total Revenue':>15}")
     print("-" * 70)
 
     for region in regions:
@@ -318,10 +317,8 @@ def example_regional_comparison():
         regional_adj = wheat_params.regional_adjustments.get(region)
         multiplier = regional_adj.yield_multiplier if regional_adj else 1.0
 
-        print(
-            f"{region.value:<20} {prediction.predicted_yield_kg_per_hectare:>15,.0f} "
-            f"{multiplier:>11.2f}x {prediction.estimated_total_revenue:>15,.0f}"
-        )
+        print(f"{region.value:<20} {prediction.predicted_yield_kg_per_hectare:>15,.0f} "
+              f"{multiplier:>11.2f}x {prediction.estimated_total_revenue:>15,.0f}")
 
 
 def main():

@@ -2647,7 +2647,7 @@ async def get_yield_history(
     # Generate historical predictions
     history = []
     for i in range(seasons):
-        crop_code_selected = random.choice(crop_codes) if not crop_code else crop_code
+        crop_code_selected = crop_code if crop_code else random.choice(crop_codes)
 
         try:
             from apps.services.shared.crops import get_crop

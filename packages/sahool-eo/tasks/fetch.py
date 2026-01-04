@@ -8,7 +8,7 @@ from various sources including Sentinel-2, Landsat, and MODIS.
 
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
@@ -29,7 +29,7 @@ class BaseSahoolFetchTask:
 
     def __init__(
         self,
-        bands: Optional[List[str]] = None,
+        bands: Optional[list[str]] = None,
         resolution: int = 10,
         max_cloud_coverage: float = 30.0,
         cache_folder: str = "./eo_cache",
@@ -144,7 +144,7 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
 
     def __init__(
         self,
-        bands: Optional[List[str]] = None,
+        bands: Optional[list[str]] = None,
         resolution: int = 10,
         max_cloud_coverage: float = 30.0,
         mosaicking_order: str = "leastCC",
@@ -159,8 +159,8 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
     def execute(
         self,
         bbox,
-        time_interval: Tuple[str, str],
-        size: Optional[Tuple[int, int]] = None,
+        time_interval: tuple[str, str],
+        size: Optional[tuple[int, int]] = None,
     ):
         """
         Execute the fetch task
@@ -256,7 +256,7 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
             logger.error(f"Failed to fetch Sentinel-2 data: {e}")
             raise
 
-    def get_band_mapping(self) -> Dict[str, int]:
+    def get_band_mapping(self) -> dict[str, int]:
         """Get mapping of band names to indices"""
         return {
             "B02": 0,
@@ -339,7 +339,7 @@ class SahoolLandsatFetchTask(BaseSahoolFetchTask):
         )
         self.data_collection = "LANDSAT_OT_L2"
 
-    def execute(self, bbox, time_interval: Tuple[str, str], size=None):
+    def execute(self, bbox, time_interval: tuple[str, str], size=None):
         """Execute Landsat fetch"""
         try:
             from eolearn.core import EOPatch, FeatureType
@@ -391,7 +391,7 @@ class SahoolLandsatFetchTask(BaseSahoolFetchTask):
             logger.error(f"Failed to fetch Landsat data: {e}")
             raise
 
-    def get_band_mapping(self) -> Dict[str, int]:
+    def get_band_mapping(self) -> dict[str, int]:
         """Get mapping of band names to indices"""
         return {
             "B02": 0,
@@ -433,7 +433,7 @@ class SahoolMODISFetchTask(BaseSahoolFetchTask):
         )
         self.product = product
 
-    def execute(self, bbox, time_interval: Tuple[str, str], size=None):
+    def execute(self, bbox, time_interval: tuple[str, str], size=None):
         """
         Execute MODIS fetch
 
@@ -448,7 +448,7 @@ class SahoolMODISFetchTask(BaseSahoolFetchTask):
         # For now, return None - MODIS integration requires additional setup
         return None
 
-    def get_band_mapping(self) -> Dict[str, int]:
+    def get_band_mapping(self) -> dict[str, int]:
         """Get mapping of band names to indices"""
         return {
             "B01": 0,

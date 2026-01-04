@@ -24,11 +24,11 @@ from watchdog.observers import Observer
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("/app/logs/code-review.log"),
-        logging.StreamHandler(),
-    ],
+        logging.FileHandler('/app/logs/code-review.log'),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 
@@ -37,44 +37,29 @@ logger = logging.getLogger(__name__)
 # API Models
 # ═══════════════════════════════════════════════════════════════════════════
 
-
 class CodeReviewRequest(BaseModel):
     """Request model for code review"""
-
     code: str = Field(..., description="Code content to review")
-    language: str | None = Field(
-        None, description="Programming language (e.g., python, typescript)"
-    )
+    language: str | None = Field(None, description="Programming language (e.g., python, typescript)")
     filename: str | None = Field(None, description="Optional filename for context")
 
 
 class FileReviewRequest(BaseModel):
     """Request model for file review"""
-
-    file_path: str = Field(
-        ..., description="Relative or absolute path to file in codebase"
-    )
+    file_path: str = Field(..., description="Relative or absolute path to file in codebase")
 
 
 class ReviewResponse(BaseModel):
     """Response model for code review"""
-
     summary: str = Field(..., description="Summary of the review")
-    critical_issues: list[str] = Field(
-        default_factory=list, description="List of critical issues"
-    )
-    suggestions: list[str] = Field(
-        default_factory=list, description="List of suggestions"
-    )
-    security_concerns: list[str] = Field(
-        default_factory=list, description="List of security concerns"
-    )
+    critical_issues: list[str] = Field(default_factory=list, description="List of critical issues")
+    suggestions: list[str] = Field(default_factory=list, description="List of suggestions")
+    security_concerns: list[str] = Field(default_factory=list, description="List of security concerns")
     score: int = Field(..., ge=0, le=100, description="Review score (0-100)")
 
 
 class HealthResponse(BaseModel):
     """Health check response"""
-
     status: str
     service: str
     ollama_connected: bool
@@ -84,7 +69,7 @@ class HealthResponse(BaseModel):
 class CodeReviewHandler(FileSystemEventHandler):
     """Handles file system events for code review"""
 
-    def __init__(self, review_service: "CodeReviewService"):
+    def __init__(self, review_service: 'CodeReviewService'):
         self.review_service = review_service
         self.settings = review_service.settings
         self.pending_reviews = set()
@@ -117,42 +102,26 @@ class CodeReviewHandler(FileSystemEventHandler):
             return False
 
         # Check file extension
-        valid_extensions = {
-            ".py",
-            ".ts",
-            ".tsx",
-            ".js",
-            ".jsx",
-            ".yml",
-            ".yaml",
-            ".json",
-            ".md",
-            ".sh",
-            ".dockerfile",
-            ".tf",
-            ".go",
-            ".rs",
-        }
+        valid_extensions = {'.py', '.ts', '.tsx', '.js', '.jsx', '.yml', '.yaml',
+                          '.json', '.md', '.sh', '.dockerfile', '.tf', '.go', '.rs'}
         if file_path.suffix.lower() not in valid_extensions:
             return False
 
         # Check if in watched paths
         file_str = str(file_path)
-        watched_paths = [p.strip() for p in self.settings.watch_paths.split(":")]
-        base_path = Path("/app/codebase")
+        watched_paths = [p.strip() for p in self.settings.watch_paths.split(':')]
+        base_path = Path('/app/codebase')
 
         for watch_path in watched_paths:
             if not watch_path:
                 continue
             # Handle both absolute and relative paths
-            if watch_path.startswith("/"):
+            if watch_path.startswith('/'):
                 check_path = Path(watch_path)
             else:
-                check_path = base_path / watch_path.lstrip("/")
+                check_path = base_path / watch_path.lstrip('/')
 
-            if file_str.startswith(str(check_path)) or str(file_path).startswith(
-                str(check_path)
-            ):
+            if file_str.startswith(str(check_path)) or str(file_path).startswith(str(check_path)):
                 return True
         return False
 
@@ -163,9 +132,7 @@ class CodeReviewHandler(FileSystemEventHandler):
             self.pending_reviews.add(file_str)
             asyncio.create_task(self.review_service.review_file(file_path))
             # Remove from pending after 5 seconds to allow re-review
-            asyncio.get_event_loop().call_later(
-                5, self.pending_reviews.discard, file_str
-            )
+            asyncio.get_event_loop().call_later(5, self.pending_reviews.discard, file_str)
 
 
 class CodeReviewService:
@@ -189,9 +156,7 @@ class CodeReviewService:
         """Check if Ollama service is available"""
         try:
             url = f"{self.settings.ollama_url}/api/tags"
-            async with self.session.get(
-                url, timeout=aiohttp.ClientTimeout(total=5)
-            ) as response:
+            async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as response:
                 return response.status == 200
         except Exception as e:
             logger.error(f"Ollama health check failed: {e}")
@@ -209,7 +174,7 @@ class CodeReviewService:
         """Review a single file using Ollama"""
         try:
             # Read file content
-            with open(file_path, encoding="utf-8", errors="ignore") as f:
+            with open(file_path, encoding='utf-8', errors='ignore') as f:
                 content = f.read()
 
             if not content.strip():
@@ -227,9 +192,7 @@ class CodeReviewService:
         except Exception as e:
             logger.error(f"Error reviewing {file_path}: {e}")
 
-    async def review_code(
-        self, code: str, language: str | None = None, filename: str | None = None
-    ) -> dict:
+    async def review_code(self, code: str, language: str | None = None, filename: str | None = None) -> dict:
         """Review code content directly using Ollama"""
         try:
             if not code.strip():
@@ -252,25 +215,24 @@ class CodeReviewService:
             if "error" in review:
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Review failed: {review.get('error')}",
+                    detail=f"Review failed: {review.get('error')}"
                 )
 
             return review
 
         except ValueError as e:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-            ) from e
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
         except Exception as e:
             logger.error(f"Error reviewing code: {e}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"An error occurred during review: {str(e)}",
-            ) from e
+                detail=f"An error occurred during review: {str(e)}"
+            )
 
-    def _create_review_prompt(
-        self, file_path: Path, content: str, language: str | None = None
-    ) -> str:
+    def _create_review_prompt(self, file_path: Path, content: str, language: str | None = None) -> str:
         """Create a review prompt for Ollama"""
         file_ext = file_path.suffix
 
@@ -279,21 +241,21 @@ class CodeReviewService:
             file_type = language.capitalize()
         else:
             file_type = {
-                ".py": "Python",
-                ".ts": "TypeScript",
-                ".tsx": "TypeScript React",
-                ".js": "JavaScript",
-                ".jsx": "JavaScript React",
-                ".yml": "YAML",
-                ".yaml": "YAML",
-                ".json": "JSON",
-                ".md": "Markdown",
-                ".sh": "Bash",
-                ".dockerfile": "Dockerfile",
-                ".tf": "Terraform",
-                ".go": "Go",
-                ".rs": "Rust",
-            }.get(file_ext, "Code")
+                '.py': 'Python',
+                '.ts': 'TypeScript',
+                '.tsx': 'TypeScript React',
+                '.js': 'JavaScript',
+                '.jsx': 'JavaScript React',
+                '.yml': 'YAML',
+                '.yaml': 'YAML',
+                '.json': 'JSON',
+                '.md': 'Markdown',
+                '.sh': 'Bash',
+                '.dockerfile': 'Dockerfile',
+                '.tf': 'Terraform',
+                '.go': 'Go',
+                '.rs': 'Rust'
+            }.get(file_ext, 'Code')
 
         prompt = f"""You are an expert code reviewer. Review the following {file_type} file for:
 1. Code quality and best practices
@@ -336,26 +298,28 @@ Format your response as JSON:
                 "model": self.settings.ollama_model,
                 "prompt": prompt,
                 "stream": False,
-                "options": {"temperature": 0.3, "top_p": 0.9, "max_tokens": 2000},
+                "options": {
+                    "temperature": 0.3,
+                    "top_p": 0.9,
+                    "max_tokens": 2000
+                }
             }
 
-            async with self.session.post(
-                url, json=payload, timeout=aiohttp.ClientTimeout(total=60)
-            ) as response:
+            async with self.session.post(url, json=payload, timeout=aiohttp.ClientTimeout(total=60)) as response:
                 if response.status == 200:
                     data = await response.json()
-                    response_text = data.get("response", "")
+                    response_text = data.get('response', '')
 
                     # Try to parse JSON from response
                     try:
                         # Extract JSON from markdown code blocks if present
-                        if "```json" in response_text:
-                            json_start = response_text.find("```json") + 7
-                            json_end = response_text.find("```", json_start)
+                        if '```json' in response_text:
+                            json_start = response_text.find('```json') + 7
+                            json_end = response_text.find('```', json_start)
                             response_text = response_text[json_start:json_end].strip()
-                        elif "```" in response_text:
-                            json_start = response_text.find("```") + 3
-                            json_end = response_text.find("```", json_start)
+                        elif '```' in response_text:
+                            json_start = response_text.find('```') + 3
+                            json_end = response_text.find('```', json_start)
                             response_text = response_text[json_start:json_end].strip()
 
                         return json.loads(response_text)
@@ -366,7 +330,7 @@ Format your response as JSON:
                             "critical_issues": [],
                             "suggestions": [],
                             "security_concerns": [],
-                            "score": 75,
+                            "score": 75
                         }
                 else:
                     logger.error(f"Ollama API error: {response.status}")
@@ -382,31 +346,29 @@ Format your response as JSON:
     def _log_review(self, file_path: Path, review: dict):
         """Log the review results"""
         timestamp = datetime.now().isoformat()
-        log_entry = {"timestamp": timestamp, "file": str(file_path), "review": review}
+        log_entry = {
+            "timestamp": timestamp,
+            "file": str(file_path),
+            "review": review
+        }
 
         # Log to file
-        log_file = Path("/app/logs/reviews.jsonl")
-        with open(log_file, "a", encoding="utf-8") as f:
-            f.write(json.dumps(log_entry) + "\n")
+        log_file = Path('/app/logs/reviews.jsonl')
+        with open(log_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(log_entry) + '\n')
 
         # Log to console
         if "error" not in review:
-            score = review.get("score", "N/A")
-            summary = review.get("summary", "No summary")
+            score = review.get('score', 'N/A')
+            summary = review.get('summary', 'No summary')
             logger.info(f"📝 Review [{score}/100] {file_path.name}: {summary[:100]}")
 
-            if review.get("critical_issues"):
-                logger.warning(
-                    f"⚠️  Critical issues in {file_path.name}: {review['critical_issues']}"
-                )
-            if review.get("security_concerns"):
-                logger.error(
-                    f"🔒 Security concerns in {file_path.name}: {review['security_concerns']}"
-                )
+            if review.get('critical_issues'):
+                logger.warning(f"⚠️  Critical issues in {file_path.name}: {review['critical_issues']}")
+            if review.get('security_concerns'):
+                logger.error(f"🔒 Security concerns in {file_path.name}: {review['security_concerns']}")
         else:
-            logger.error(
-                f"❌ Review failed for {file_path.name}: {review.get('error')}"
-            )
+            logger.error(f"❌ Review failed for {file_path.name}: {review.get('error')}")
 
     def start_watching(self):
         """Start watching the codebase"""
@@ -414,18 +376,18 @@ Format your response as JSON:
         self.observer = Observer()
 
         # Watch multiple paths
-        watch_paths = self.settings.watch_paths.split(":")
-        base_path = Path("/app/codebase")
+        watch_paths = self.settings.watch_paths.split(':')
+        base_path = Path('/app/codebase')
 
         for watch_path in watch_paths:
             watch_path = watch_path.strip()
             if not watch_path:
                 continue
             # Handle both absolute and relative paths
-            if watch_path.startswith("/"):
+            if watch_path.startswith('/'):
                 full_path = Path(watch_path)
             else:
-                full_path = base_path / watch_path.lstrip("/")
+                full_path = base_path / watch_path.lstrip('/')
 
             if full_path.exists():
                 self.observer.schedule(event_handler, str(full_path), recursive=True)
@@ -439,7 +401,6 @@ Format your response as JSON:
         try:
             while True:
                 import time
-
                 time.sleep(1)
         except KeyboardInterrupt:
             logger.info("Stopping code review service...")
@@ -453,7 +414,6 @@ Format your response as JSON:
 
 # Global service instance
 _service_instance = None
-
 
 def get_service() -> CodeReviewService:
     """Get or create the service instance"""
@@ -473,7 +433,6 @@ async def lifespan(app: FastAPI):
     # Start file watcher in background if enabled
     if service.settings.review_on_change:
         import threading
-
         watch_thread = threading.Thread(target=service.start_watching, daemon=True)
         watch_thread.start()
         logger.info("File watcher started")
@@ -489,7 +448,7 @@ app = FastAPI(
     title="Code Review Service",
     description="Real-time code review service using Ollama + DeepSeek",
     version="1.0.0",
-    lifespan=lifespan,
+    lifespan=lifespan
 )
 
 
@@ -501,7 +460,7 @@ async def health_check():
     return HealthResponse(
         status="healthy" if ollama_ok else "degraded",
         service="code-review-service",
-        ollama_connected=ollama_ok,
+        ollama_connected=ollama_ok
     )
 
 
@@ -516,7 +475,9 @@ async def review_code_endpoint(request: CodeReviewRequest):
     """
     service = get_service()
     review = await service.review_code(
-        code=request.code, language=request.language, filename=request.filename
+        code=request.code,
+        language=request.language,
+        filename=request.filename
     )
     return ReviewResponse(**review)
 
@@ -531,7 +492,7 @@ async def review_file_endpoint(request: FileReviewRequest):
     service = get_service()
 
     # Resolve file path
-    base_path = Path("/app/codebase")
+    base_path = Path('/app/codebase')
     file_path = Path(request.file_path)
 
     # Handle relative paths
@@ -542,7 +503,7 @@ async def review_file_endpoint(request: FileReviewRequest):
     if not file_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"File not found: {request.file_path}",
+            detail=f"File not found: {request.file_path}"
         )
 
     # Verify file is within codebase
@@ -551,27 +512,30 @@ async def review_file_endpoint(request: FileReviewRequest):
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="File must be within the codebase directory",
+            detail="File must be within the codebase directory"
         )
 
     # Check file size
     if file_path.stat().st_size > service.settings.max_file_size:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"File too large. Maximum size: {service.settings.max_file_size} bytes",
+            detail=f"File too large. Maximum size: {service.settings.max_file_size} bytes"
         )
 
     # Read and review file
     try:
-        with open(file_path, encoding="utf-8", errors="ignore") as f:
+        with open(file_path, encoding='utf-8', errors='ignore') as f:
             content = f.read()
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to read file: {str(e)}",
-        ) from e
+            detail=f"Failed to read file: {str(e)}"
+        )
 
-    review = await service.review_code(code=content, filename=str(file_path.name))
+    review = await service.review_code(
+        code=content,
+        filename=str(file_path.name)
+    )
     return ReviewResponse(**review)
 
 
@@ -584,7 +548,6 @@ async def main():
         # Start file watcher in background if enabled
         if service.settings.review_on_change:
             import threading
-
             watch_thread = threading.Thread(target=service.start_watching, daemon=True)
             watch_thread.start()
             logger.info("File watcher started")
@@ -594,7 +557,7 @@ async def main():
             app,
             host=service.settings.api_host,
             port=service.settings.api_port,
-            log_level=service.settings.log_level.lower(),
+            log_level=service.settings.log_level.lower()
         )
         server = uvicorn.Server(config)
         await server.serve()
@@ -607,3 +570,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+

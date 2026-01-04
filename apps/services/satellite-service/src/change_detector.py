@@ -436,14 +436,14 @@ class ChangeDetector:
             # Deviation-based anomaly detection
             deviations = [
                 actual - expected
-                for actual, expected in zip(ndvi_values, expected_pattern)
+                for actual, expected in zip(ndvi_values, expected_pattern, strict=False)
             ]
 
             # Calculate statistics on deviations
             mean_dev = statistics.mean(deviations)
             std_dev = statistics.stdev(deviations) if len(deviations) > 1 else 0.01
 
-            for i, (point, deviation) in enumerate(zip(ndvi_series, deviations)):
+            for i, (point, deviation) in enumerate(zip(ndvi_series, deviations, strict=False)):
                 z_score = abs((deviation - mean_dev) / std_dev) if std_dev > 0 else 0
 
                 if z_score >= self.ANOMALY_THRESHOLDS["mild"]:
@@ -745,7 +745,7 @@ class ChangeDetector:
         # Linear regression: y = mx + b
         sum_x = sum(x)
         sum_y = sum(values)
-        sum_xy = sum(xi * yi for xi, yi in zip(x, values))
+        sum_xy = sum(xi * yi for xi, yi in zip(x, values, strict=False))
         sum_x2 = sum(xi**2 for xi in x)
 
         denominator = n * sum_x2 - sum_x**2

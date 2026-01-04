@@ -17,7 +17,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 import importlib.util
 
 spec = importlib.util.spec_from_file_location(
-    "crop_calendar", Path(__file__).parent / "services" / "crop_calendar.py"
+    "crop_calendar",
+    Path(__file__).parent / "services" / "crop_calendar.py"
 )
 crop_calendar_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(crop_calendar_module)
@@ -27,9 +28,9 @@ CropCalendarService = crop_calendar_module.CropCalendarService
 
 def example_1_get_crop_calendar():
     """مثال 1: الحصول على تقويم محصول"""
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print("مثال 1: الحصول على تقويم المحاصيل - Get Crop Calendars")
-    print("=" * 70)
+    print("="*70)
 
     service = CropCalendarService()
 
@@ -39,11 +40,9 @@ def example_1_get_crop_calendar():
     print(f"   المحصول: {calendar.name_ar} ({calendar.name_en})")
     print(f"   دورة الحياة: {calendar.total_cycle_days} يوم")
     print("   نوافذ الزراعة:")
-    for region, windows in calendar.planting_windows.items():
+    for _region, windows in calendar.planting_windows.items():
         for window_type, data in windows.items():
-            print(
-                f"     - {window_type}: شهر {data['start_month']}-{data['end_month']}"
-            )
+            print(f"     - {window_type}: شهر {data['start_month']}-{data['end_month']}")
 
     # البن في المرتفعات
     print("\n2. البن في المرتفعات (Coffee in Highlands):")
@@ -61,9 +60,9 @@ def example_1_get_crop_calendar():
 
 def example_2_current_stage():
     """مثال 2: تحديد المرحلة الحالية للمحصول"""
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print("مثال 2: تحديد المرحلة الحالية - Get Current Growth Stage")
-    print("=" * 70)
+    print("="*70)
 
     service = CropCalendarService()
 
@@ -90,9 +89,9 @@ def example_2_current_stage():
 
 def example_3_upcoming_tasks():
     """مثال 3: الحصول على المهام القادمة"""
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print("مثال 3: المهام القادمة - Upcoming Tasks")
-    print("=" * 70)
+    print("="*70)
 
     service = CropCalendarService()
 
@@ -106,7 +105,7 @@ def example_3_upcoming_tasks():
         crop_type="tomato",
         planting_date=planting_date,
         region="tihama",
-        days=14,
+        days=14
     )
 
     print(f"إجمالي المهام: {len(tasks)}\n")
@@ -115,16 +114,14 @@ def example_3_upcoming_tasks():
     for i, task in enumerate(tasks[:10], 1):
         priority_ar = {1: "حرج", 2: "عالي", 3: "متوسط", 4: "منخفض"}
         print(f"{i}. [{task.scheduled_date}] {task.task_name_ar}")
-        print(
-            f"   النوع: {task.task_type} | الأولوية: {priority_ar.get(task.priority, 'عادي')}"
-        )
+        print(f"   النوع: {task.task_type} | الأولوية: {priority_ar.get(task.priority, 'عادي')}")
 
 
 def example_4_planting_windows():
     """مثال 4: اقتراح نوافذ الزراعة"""
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print("مثال 4: نوافذ الزراعة المثلى - Optimal Planting Windows")
-    print("=" * 70)
+    print("="*70)
 
     service = CropCalendarService()
 
@@ -139,17 +136,15 @@ def example_4_planting_windows():
         windows = service.suggest_planting_window(crop, region)
 
         for window in windows:
-            print(
-                f"  • {window.window_type}: شهر {window.start_month}-{window.end_month}"
-            )
+            print(f"  • {window.window_type}: شهر {window.start_month}-{window.end_month}")
             print(f"    {window.description}")
 
 
 def example_5_task_schedules():
     """مثال 5: جداول المهام"""
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print("مثال 5: جداول الري والتسميد - Irrigation & Fertilization Schedules")
-    print("=" * 70)
+    print("="*70)
 
     service = CropCalendarService()
 
@@ -172,9 +167,9 @@ def example_5_task_schedules():
 
 def example_6_list_crops():
     """مثال 6: قائمة المحاصيل المتاحة"""
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print("مثال 6: قائمة المحاصيل - Available Crops")
-    print("=" * 70)
+    print("="*70)
 
     service = CropCalendarService()
 
@@ -184,7 +179,7 @@ def example_6_list_crops():
     # تصنيف حسب النوع
     by_category = {}
     for crop in crops:
-        category = crop["category"]
+        category = crop['category']
         if category not in by_category:
             by_category[category] = []
         by_category[category].append(crop)
@@ -192,15 +187,15 @@ def example_6_list_crops():
     for category, category_crops in sorted(by_category.items()):
         print(f"{category.upper()}:")
         for crop in category_crops:
-            perennial = " (معمر)" if crop["is_perennial"] else ""
+            perennial = " (معمر)" if crop['is_perennial'] else ""
             print(f"  • {crop['name_ar']} - {crop['name_en']}{perennial}")
 
 
 def example_7_regional_info():
     """مثال 7: معلومات المناطق"""
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print("مثال 7: معلومات المناطق الزراعية - Regional Information")
-    print("=" * 70)
+    print("="*70)
 
     service = CropCalendarService()
 
@@ -208,18 +203,16 @@ def example_7_regional_info():
         info = service.get_regional_climate_info(region)
         print(f"\n{info['name_ar']} ({info['name_en']}):")
         print(f"  المناخ: {info['climate']}")
-        print(
-            f"  الحرارة: {info['average_temp_range']['min']}-{info['average_temp_range']['max']}°C"
-        )
+        print(f"  الحرارة: {info['average_temp_range']['min']}-{info['average_temp_range']['max']}°C")
         print(f"  الأمطار: {info['rainfall_pattern']}")
 
 
 def main():
     """تشغيل جميع الأمثلة"""
-    print("\n" + "=" * 70)
+    print("\n" + "="*70)
     print(" خدمة التقويم الزراعي - SAHOOL CROP CALENDAR SERVICE")
     print(" 18 محصول يمني × 3 مناطق × 6 مراحل نمو")
-    print("=" * 70)
+    print("="*70)
 
     try:
         example_1_get_crop_calendar()
@@ -230,14 +223,13 @@ def main():
         example_6_list_crops()
         example_7_regional_info()
 
-        print("\n" + "=" * 70)
+        print("\n" + "="*70)
         print("✓ جميع الأمثلة نجحت! All examples completed successfully!")
-        print("=" * 70 + "\n")
+        print("="*70 + "\n")
 
     except Exception as e:
         print(f"\n✗ خطأ: {e}")
         import traceback
-
         traceback.print_exc()
 
 

@@ -9,7 +9,7 @@ This module provides cloud masking tasks using:
 """
 
 import logging
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 
@@ -70,7 +70,7 @@ class SahoolCloudMaskTask:
         clp_feature: Optional[str] = "CLP",
         output_feature: str = "CLOUD_MASK",
         valid_mask_feature: str = "VALID_DATA",
-        cloud_classes: Optional[List[int]] = None,
+        cloud_classes: Optional[list[int]] = None,
         cloud_probability_threshold: float = 0.4,
         include_shadows: bool = True,
         include_cirrus: bool = True,
@@ -349,7 +349,7 @@ class CompositeCloudMaskTask:
         self.voting_threshold = voting_threshold
         self.output_feature = output_feature
 
-    def execute(self, eopatch, mask_features: List[str]):
+    def execute(self, eopatch, mask_features: list[str]):
         """
         Combine multiple cloud masks
 

@@ -57,7 +57,7 @@ async def test_marketplace_product_listing_workflow(
 
     if response.status_code == 200:
         products_data = response.json()
-        assert isinstance(products_data, (list, dict))
+        assert isinstance(products_data, list | dict)
 
         # If it's a paginated response
         if isinstance(products_data, dict):
@@ -128,7 +128,7 @@ async def test_marketplace_product_categories_workflow(
 
     if response.status_code == 200:
         categories = response.json()
-        assert isinstance(categories, (list, dict))
+        assert isinstance(categories, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -431,7 +431,7 @@ async def test_marketplace_order_tracking_workflow(
 
     if response.status_code == 200:
         orders = response.json()
-        assert isinstance(orders, (list, dict))
+        assert isinstance(orders, list | dict)
 
 
 @pytest.mark.integration

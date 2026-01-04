@@ -104,7 +104,7 @@ def copy_template(src: Path, dst: Path, values: dict):
         dst.mkdir(parents=True, exist_ok=True)
         return
 
-    for root, dirs, files in os.walk(src):
+    for root, _dirs, files in os.walk(src):
         rel = Path(root).relative_to(src)
         (dst / rel).mkdir(parents=True, exist_ok=True)
         for f in files:

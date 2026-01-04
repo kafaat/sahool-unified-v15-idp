@@ -233,7 +233,7 @@ class ConversationContext:
         return [
             msg
             for msg in self.messages
-            if isinstance(msg, (TaskMessage, TaskResultMessage, ErrorMessage))
+            if isinstance(msg, TaskMessage | TaskResultMessage | ErrorMessage)
             and getattr(msg, "task_id", None) == task_id
         ]
 

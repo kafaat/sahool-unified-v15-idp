@@ -205,7 +205,7 @@ def create_queue_with_workers(
 
     # بدء العمال
     # Start workers
-    for i in range(worker_count):
+    for _i in range(worker_count):
         worker_id = manager.start_worker()
         worker = manager.workers[worker_id]
 

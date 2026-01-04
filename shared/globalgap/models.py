@@ -342,7 +342,7 @@ class ProducerProfile(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     @validator("email")
-    def validate_email(cls, v):
+    def validate_email(self, v):
         """Validate email format"""
         if "@" not in v:
             raise ValueError("Invalid email address")
@@ -432,7 +432,7 @@ class FarmRegistration(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     @validator("ggn")
-    def validate_ggn(cls, v):
+    def validate_ggn(self, v):
         """Validate GGN format"""
         import re
 
@@ -443,11 +443,10 @@ class FarmRegistration(BaseModel):
         return v
 
     @validator("certified_area_hectares")
-    def validate_certified_area(cls, v, values):
+    def validate_certified_area(self, v, values):
         """Ensure certified area doesn't exceed farm size"""
-        if "farm_size_hectares" in values:
-            if v > values["farm_size_hectares"]:
-                raise ValueError("Certified area cannot exceed total farm size")
+        if "farm_size_hectares" in values and v > values["farm_size_hectares"]:
+            raise ValueError("Certified area cannot exceed total farm size")
         return v
 
     class Config:

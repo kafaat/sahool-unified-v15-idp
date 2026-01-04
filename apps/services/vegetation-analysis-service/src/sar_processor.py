@@ -412,7 +412,7 @@ class SARProcessor:
 
         num_events = random.randint(0, 2)
 
-        for i in range(num_events):
+        for _i in range(num_events):
             event_date = datetime.utcnow() - timedelta(
                 days=random.randint(2, days_back)
             )

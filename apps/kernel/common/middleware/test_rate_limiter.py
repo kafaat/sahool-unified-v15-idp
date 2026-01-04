@@ -613,7 +613,7 @@ async def test_full_rate_limiting_flow():
 
     # يجب أن يُسمح بالطلبات الأولى
     # First requests should be allowed
-    for i in range(5):
+    for _i in range(5):
         allowed, remaining, reset = await limiter.check_rate_limit(client_id, endpoint)
         assert allowed is True
 

@@ -35,7 +35,6 @@ class MigrationInfo:
     معلومات الهجرة
     Migration information
     """
-
     revision: str
     description: str
     timestamp: datetime
@@ -56,7 +55,7 @@ class MigrationManager:
         self,
         database_url: str,
         migrations_dir: str | None = None,
-        alembic_ini: str | None = None,
+        alembic_ini: str | None = None
     ):
         """
         Initialize migration manager.
@@ -176,16 +175,16 @@ datefmt = %H:%M:%S
         # إنشاء جدول الهجرات المخصص
         # Create custom migrations table
         Table(
-            "sahool_migrations",
+            'sahool_migrations',
             metadata,
-            Column("id", Integer, primary_key=True, autoincrement=True),
-            Column("revision", String(64), unique=True, nullable=False),
-            Column("description", String(255), nullable=False),
-            Column("checksum", String(64), nullable=False),
-            Column("applied_at", DateTime, nullable=False),
-            Column("execution_time_ms", Integer, nullable=True),
-            Column("applied_by", String(100), nullable=True),
-            Column("is_rollback", Boolean, default=False),
+            Column('id', Integer, primary_key=True, autoincrement=True),
+            Column('revision', String(64), unique=True, nullable=False),
+            Column('description', String(255), nullable=False),
+            Column('checksum', String(64), nullable=False),
+            Column('applied_at', DateTime, nullable=False),
+            Column('execution_time_ms', Integer, nullable=True),
+            Column('applied_by', String(100), nullable=True),
+            Column('is_rollback', Boolean, default=False),
         )
 
         metadata.create_all(self.engine)
@@ -205,7 +204,10 @@ datefmt = %H:%M:%S
         return hashlib.sha256(content.encode()).hexdigest()
 
     def create_migration(
-        self, name: str, description: str = "", autogenerate: bool = False
+        self,
+        name: str,
+        description: str = "",
+        autogenerate: bool = False
     ) -> str:
         """
         إنشاء هجرة جديدة
@@ -227,11 +229,15 @@ datefmt = %H:%M:%S
         # Create migration
         if autogenerate:
             command.revision(
-                self.alembic_cfg, message=description or name, autogenerate=True
+                self.alembic_cfg,
+                message=description or name,
+                autogenerate=True
             )
         else:
             command.revision(
-                self.alembic_cfg, message=description or name, autogenerate=False
+                self.alembic_cfg,
+                message=description or name,
+                autogenerate=False
             )
 
         # العثور على ملف الهجرة الذي تم إنشاؤه
@@ -272,7 +278,7 @@ datefmt = %H:%M:%S
             "success": True,
             "target_version": target_version or "head",
             "execution_time_ms": execution_time,
-            "timestamp": end_time.isoformat(),
+            "timestamp": end_time.isoformat()
         }
 
     def rollback(self, steps: int = 1) -> dict[str, Any]:
@@ -290,10 +296,7 @@ datefmt = %H:%M:%S
 
         # حساب الإصدار المستهدف
         # Calculate target revision
-        if steps == 1:
-            target = "-1"
-        else:
-            target = f"-{steps}"
+        target = "-1" if steps == 1 else f"-{steps}"
 
         # تنفيذ التراجع
         # Execute rollback
@@ -306,7 +309,7 @@ datefmt = %H:%M:%S
             "success": True,
             "steps": steps,
             "execution_time_ms": execution_time,
-            "timestamp": end_time.isoformat(),
+            "timestamp": end_time.isoformat()
         }
 
     def get_migration_status(self) -> dict[str, Any]:
@@ -331,13 +334,11 @@ datefmt = %H:%M:%S
         # Get all available migrations
         available_migrations = []
         for revision in script_dir.walk_revisions():
-            available_migrations.append(
-                {
-                    "revision": revision.revision,
-                    "description": revision.doc,
-                    "down_revision": revision.down_revision,
-                }
-            )
+            available_migrations.append({
+                "revision": revision.revision,
+                "description": revision.doc,
+                "down_revision": revision.down_revision,
+            })
 
         # الحصول على الهجرات المطبقة
         # Get applied migrations
@@ -345,20 +346,16 @@ datefmt = %H:%M:%S
         try:
             with self.engine.connect() as conn:
                 result = conn.execute(
-                    text(
-                        "SELECT revision, description, applied_at, checksum "
-                        "FROM sahool_migrations ORDER BY applied_at"
-                    )
+                    text("SELECT revision, description, applied_at, checksum "
+                         "FROM sahool_migrations ORDER BY applied_at")
                 )
                 for row in result:
-                    applied_migrations.append(
-                        {
-                            "revision": row[0],
-                            "description": row[1],
-                            "applied_at": row[2].isoformat() if row[2] else None,
-                            "checksum": row[3],
-                        }
-                    )
+                    applied_migrations.append({
+                        "revision": row[0],
+                        "description": row[1],
+                        "applied_at": row[2].isoformat() if row[2] else None,
+                        "checksum": row[3]
+                    })
         except Exception:
             # الجدول غير موجود بعد
             # Table doesn't exist yet
@@ -370,7 +367,7 @@ datefmt = %H:%M:%S
             "total_applied": len(applied_migrations),
             "pending_migrations": len(available_migrations) - len(applied_migrations),
             "available_migrations": available_migrations,
-            "applied_migrations": applied_migrations,
+            "applied_migrations": applied_migrations
         }
 
     def validate_checksums(self) -> dict[str, Any]:
@@ -400,15 +397,16 @@ datefmt = %H:%M:%S
                     current_checksum = self._calculate_checksum(migration_file)
 
                     if current_checksum != stored_checksum:
-                        conflicts.append(
-                            {
-                                "revision": revision,
-                                "stored_checksum": stored_checksum,
-                                "current_checksum": current_checksum,
-                            }
-                        )
+                        conflicts.append({
+                            "revision": revision,
+                            "stored_checksum": stored_checksum,
+                            "current_checksum": current_checksum
+                        })
 
-        return {"has_conflicts": len(conflicts) > 0, "conflicts": conflicts}
+        return {
+            "has_conflicts": len(conflicts) > 0,
+            "conflicts": conflicts
+        }
 
     def _find_migration_file(self, revision: str) -> Path | None:
         """
@@ -446,7 +444,7 @@ datefmt = %H:%M:%S
         if not seeder_class:
             return {
                 "success": False,
-                "error": f"No seeder found for environment: {environment}",
+                "error": f"No seeder found for environment: {environment}"
             }
 
         seeder = seeder_class(self.engine)
@@ -476,7 +474,10 @@ class PostGISMigrationHelper:
 
     @staticmethod
     def create_spatial_index(
-        conn, table: str, column: str, index_name: str | None = None
+        conn,
+        table: str,
+        column: str,
+        index_name: str | None = None
     ) -> None:
         """
         إنشاء فهرس مكاني
@@ -491,14 +492,18 @@ class PostGISMigrationHelper:
         if not index_name:
             index_name = f"idx_{table}_{column}_gist"
 
-        conn.execute(
-            text(f"CREATE INDEX {index_name} ON {table} USING GIST ({column})")
-        )
+        conn.execute(text(
+            f"CREATE INDEX {index_name} ON {table} USING GIST ({column})"
+        ))
         conn.commit()
 
     @staticmethod
     def add_geography_column(
-        conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT"
+        conn,
+        table: str,
+        column: str,
+        srid: int = 4326,
+        geometry_type: str = "POINT"
     ) -> None:
         """
         إضافة عمود جغرافي
@@ -511,17 +516,19 @@ class PostGISMigrationHelper:
             srid: Spatial Reference System ID (default: 4326 for WGS84)
             geometry_type: Geometry type (POINT, LINESTRING, POLYGON, etc.)
         """
-        conn.execute(
-            text(
-                f"ALTER TABLE {table} ADD COLUMN {column} "
-                f"GEOGRAPHY({geometry_type}, {srid})"
-            )
-        )
+        conn.execute(text(
+            f"ALTER TABLE {table} ADD COLUMN {column} "
+            f"GEOGRAPHY({geometry_type}, {srid})"
+        ))
         conn.commit()
 
     @staticmethod
     def add_geometry_column(
-        conn, table: str, column: str, srid: int = 4326, geometry_type: str = "POINT"
+        conn,
+        table: str,
+        column: str,
+        srid: int = 4326,
+        geometry_type: str = "POINT"
     ) -> None:
         """
         إضافة عمود هندسي
@@ -534,10 +541,8 @@ class PostGISMigrationHelper:
             srid: Spatial Reference System ID
             geometry_type: Geometry type
         """
-        conn.execute(
-            text(
-                f"SELECT AddGeometryColumn('{table}', '{column}', "
-                f"{srid}, '{geometry_type}', 2)"
-            )
-        )
+        conn.execute(text(
+            f"SELECT AddGeometryColumn('{table}', '{column}', "
+            f"{srid}, '{geometry_type}', 2)"
+        ))
         conn.commit()

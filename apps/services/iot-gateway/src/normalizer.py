@@ -194,7 +194,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
         # Try to parse if it's a string
         if isinstance(timestamp_raw, str):
             timestamp = timestamp_raw
-        elif isinstance(timestamp_raw, (int, float)):
+        elif isinstance(timestamp_raw, int | float):
             # Assume Unix timestamp
             timestamp = datetime.fromtimestamp(
                 timestamp_raw, tz=UTC

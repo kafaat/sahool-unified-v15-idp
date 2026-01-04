@@ -17,7 +17,6 @@ from enum import Enum
 
 class Region(Enum):
     """Yemen agricultural regions - المناطق الزراعية اليمنية"""
-
     TIHAMA = "tihama"  # التهامة - السهول الساحلية
     HIGHLANDS = "highlands"  # المرتفعات الجبلية
     HADHRAMAUT = "hadhramaut"  # حضرموت
@@ -27,7 +26,6 @@ class Region(Enum):
 
 class Season(Enum):
     """Agricultural seasons in Yemen - المواسم الزراعية في اليمن"""
-
     KHARIF = "kharif"  # الخريفي (Summer/Monsoon crops)
     RABI = "rabi"  # الشتوي (Winter crops)
     YEAR_ROUND = "year_round"  # على مدار السنة
@@ -35,7 +33,6 @@ class Season(Enum):
 
 class CropCategory(Enum):
     """Crop categories - فئات المحاصيل"""
-
     CEREAL = "cereal"  # الحبوب
     VEGETABLE = "vegetable"  # الخضروات
     FRUIT = "fruit"  # الفواكه
@@ -50,7 +47,6 @@ class GrowthParameters:
     Growth parameters for crop modeling
     معلمات النمو لنمذجة المحاصيل
     """
-
     # Growing Degree Days required - درجات الحرارة التراكمية المطلوبة
     gdd_required: float
 
@@ -80,7 +76,6 @@ class SoilRequirements:
     Soil requirements for crops
     متطلبات التربة للمحاصيل
     """
-
     # Optimal pH range - نطاق pH المثالي
     ph_min: float
     ph_max: float
@@ -101,7 +96,6 @@ class RegionalAdjustment:
     Regional yield adjustment factors
     عوامل التعديل الإقليمية للإنتاج
     """
-
     # Yield multiplier for the region - معامل الإنتاج للمنطقة
     yield_multiplier: float
 
@@ -124,7 +118,6 @@ class CropParameters:
     Comprehensive crop parameters
     معلمات شاملة للمحصول
     """
-
     # Basic information - المعلومات الأساسية
     crop_id: str
     name_en: str
@@ -164,7 +157,9 @@ class CropParameters:
 # معلمات المحاصيل اليمنية الرئيسية
 # Main Yemen Crop Parameters Database
 YEMEN_CROPS: dict[str, CropParameters] = {
+
     # ==================== الحبوب - CEREALS ====================
+
     "wheat": CropParameters(
         crop_id="wheat",
         name_en="Wheat",
@@ -185,15 +180,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "stem_extension": 50,
                 "heading": 80,
                 "grain_filling": 100,
-                "maturity": 120,
-            },
+                "maturity": 120
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.0,
             ph_max=7.5,
             preferred_soil_types=["loamy", "clay_loam"],
             ec_tolerance=4.0,
-            npk_ratio="120:60:40",
+            npk_ratio="120:60:40"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -201,22 +196,22 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.8,
                 climate_suitability=0.9,
-                constraints=["limited_irrigation", "steep_slopes"],
+                constraints=["limited_irrigation", "steep_slopes"]
             ),
             Region.TIHAMA: RegionalAdjustment(
                 yield_multiplier=0.6,
                 water_availability=0.5,
                 soil_quality=0.6,
                 climate_suitability=0.4,
-                constraints=["heat_stress", "water_scarcity"],
+                constraints=["heat_stress", "water_scarcity"]
             ),
             Region.HADHRAMAUT: RegionalAdjustment(
                 yield_multiplier=0.8,
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.7,
-                constraints=["water_scarcity", "soil_salinity"],
-            ),
+                constraints=["water_scarcity", "soil_salinity"]
+            )
         },
         season=Season.RABI,
         seasonal_yield_factors={"winter": 1.0, "summer": 0.3},
@@ -224,8 +219,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=80,
         common_diseases=["wheat_rust", "leaf_blight", "smut"],
         drought_tolerance=0.6,
-        heat_tolerance=0.5,
+        heat_tolerance=0.5
     ),
+
     "barley": CropParameters(
         crop_id="barley",
         name_en="Barley",
@@ -246,15 +242,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "stem_extension": 45,
                 "heading": 70,
                 "grain_filling": 85,
-                "maturity": 100,
-            },
+                "maturity": 100
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.5,
             ph_max=8.0,
             preferred_soil_types=["loamy", "sandy_loam"],
             ec_tolerance=8.0,
-            npk_ratio="90:45:30",
+            npk_ratio="90:45:30"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -262,15 +258,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.8,
                 climate_suitability=0.95,
-                constraints=[],
+                constraints=[]
             ),
             Region.HADHRAMAUT: RegionalAdjustment(
                 yield_multiplier=0.9,
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.8,
-                constraints=["water_scarcity"],
-            ),
+                constraints=["water_scarcity"]
+            )
         },
         season=Season.RABI,
         seasonal_yield_factors={"winter": 1.0, "summer": 0.4},
@@ -278,8 +274,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=70,
         common_diseases=["barley_stripe", "net_blotch"],
         drought_tolerance=0.8,
-        heat_tolerance=0.7,
+        heat_tolerance=0.7
     ),
+
     "sorghum": CropParameters(
         crop_id="sorghum",
         name_en="Sorghum",
@@ -300,15 +297,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "booting": 60,
                 "flowering": 80,
                 "grain_filling": 95,
-                "maturity": 110,
-            },
+                "maturity": 110
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.5,
             ph_max=8.0,
             preferred_soil_types=["loamy", "clay_loam", "sandy_loam"],
             ec_tolerance=5.0,
-            npk_ratio="100:50:40",
+            npk_ratio="100:50:40"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -316,22 +313,22 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.9,
-                constraints=["water_scarcity"],
+                constraints=["water_scarcity"]
             ),
             Region.HIGHLANDS: RegionalAdjustment(
                 yield_multiplier=0.9,
                 water_availability=0.7,
                 soil_quality=0.8,
                 climate_suitability=0.7,
-                constraints=["cooler_climate"],
+                constraints=["cooler_climate"]
             ),
             Region.HADHRAMAUT: RegionalAdjustment(
                 yield_multiplier=1.0,
                 water_availability=0.5,
                 soil_quality=0.7,
                 climate_suitability=0.85,
-                constraints=["water_scarcity"],
-            ),
+                constraints=["water_scarcity"]
+            )
         },
         season=Season.KHARIF,
         seasonal_yield_factors={"summer": 1.0, "winter": 0.5},
@@ -339,8 +336,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=75,
         common_diseases=["grain_mold", "leaf_blight"],
         drought_tolerance=0.9,
-        heat_tolerance=0.95,
+        heat_tolerance=0.95
     ),
+
     "corn": CropParameters(
         crop_id="corn",
         name_en="Corn (Maize)",
@@ -361,15 +359,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "tasseling": 60,
                 "silking": 70,
                 "grain_filling": 85,
-                "maturity": 100,
-            },
+                "maturity": 100
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.8,
             ph_max=7.0,
             preferred_soil_types=["loamy", "clay_loam"],
             ec_tolerance=1.7,
-            npk_ratio="150:75:60",
+            npk_ratio="150:75:60"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -377,15 +375,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.8,
-                constraints=["water_intensive"],
+                constraints=["water_intensive"]
             ),
             Region.HIGHLANDS: RegionalAdjustment(
                 yield_multiplier=0.9,
                 water_availability=0.7,
                 soil_quality=0.8,
                 climate_suitability=0.75,
-                constraints=["temperature_sensitive"],
-            ),
+                constraints=["temperature_sensitive"]
+            )
         },
         season=Season.KHARIF,
         seasonal_yield_factors={"summer": 1.0, "winter": 0.6},
@@ -393,8 +391,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=85,
         common_diseases=["corn_blight", "rust"],
         drought_tolerance=0.5,
-        heat_tolerance=0.7,
+        heat_tolerance=0.7
     ),
+
     "millet": CropParameters(
         crop_id="millet",
         name_en="Pearl Millet",
@@ -415,15 +414,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "stem_extension": 45,
                 "flowering": 60,
                 "grain_filling": 75,
-                "maturity": 90,
-            },
+                "maturity": 90
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.0,
             ph_max=8.0,
             preferred_soil_types=["sandy_loam", "loamy"],
             ec_tolerance=6.0,
-            npk_ratio="60:30:20",
+            npk_ratio="60:30:20"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -431,15 +430,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.5,
                 soil_quality=0.6,
                 climate_suitability=0.95,
-                constraints=[],
+                constraints=[]
             ),
             Region.HADHRAMAUT: RegionalAdjustment(
                 yield_multiplier=1.1,
                 water_availability=0.5,
                 soil_quality=0.6,
                 climate_suitability=0.9,
-                constraints=[],
-            ),
+                constraints=[]
+            )
         },
         season=Season.KHARIF,
         seasonal_yield_factors={"summer": 1.0, "winter": 0.3},
@@ -447,9 +446,11 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=60,
         common_diseases=["downy_mildew", "smut"],
         drought_tolerance=0.95,
-        heat_tolerance=0.95,
+        heat_tolerance=0.95
     ),
+
     # ==================== الخضروات - VEGETABLES ====================
+
     "tomato": CropParameters(
         crop_id="tomato",
         name_en="Tomato",
@@ -470,15 +471,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "flowering": 45,
                 "fruit_set": 60,
                 "ripening": 75,
-                "harvest": 90,
-            },
+                "harvest": 90
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.0,
             ph_max=6.8,
             preferred_soil_types=["loamy", "sandy_loam"],
             ec_tolerance=2.5,
-            npk_ratio="150:80:120",
+            npk_ratio="150:80:120"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -486,15 +487,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.7,
                 climate_suitability=0.8,
-                constraints=["heat_stress", "pests"],
+                constraints=["heat_stress", "pests"]
             ),
             Region.HIGHLANDS: RegionalAdjustment(
                 yield_multiplier=1.2,
                 water_availability=0.8,
                 soil_quality=0.8,
                 climate_suitability=0.95,
-                constraints=[],
-            ),
+                constraints=[]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"winter": 1.0, "summer": 0.85},
@@ -502,8 +503,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=250,
         common_diseases=["tomato_leaf_blight", "bacterial_wilt", "leaf_curl_virus"],
         drought_tolerance=0.4,
-        heat_tolerance=0.6,
+        heat_tolerance=0.6
     ),
+
     "potato": CropParameters(
         crop_id="potato",
         name_en="Potato",
@@ -524,15 +526,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "vegetative": 40,
                 "tuber_initiation": 50,
                 "tuber_bulking": 80,
-                "maturity": 100,
-            },
+                "maturity": 100
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.0,
             ph_max=6.5,
             preferred_soil_types=["sandy_loam", "loamy"],
             ec_tolerance=1.7,
-            npk_ratio="120:80:150",
+            npk_ratio="120:80:150"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -540,15 +542,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.8,
                 soil_quality=0.85,
                 climate_suitability=0.95,
-                constraints=[],
+                constraints=[]
             ),
             Region.TIHAMA: RegionalAdjustment(
                 yield_multiplier=0.6,
                 water_availability=0.6,
                 soil_quality=0.6,
                 climate_suitability=0.4,
-                constraints=["heat_stress", "disease_pressure"],
-            ),
+                constraints=["heat_stress", "disease_pressure"]
+            )
         },
         season=Season.RABI,
         seasonal_yield_factors={"winter": 1.0, "summer": 0.3},
@@ -556,8 +558,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=200,
         common_diseases=["late_blight", "early_blight", "bacterial_wilt"],
         drought_tolerance=0.5,
-        heat_tolerance=0.4,
+        heat_tolerance=0.4
     ),
+
     "onion": CropParameters(
         crop_id="onion",
         name_en="Onion",
@@ -577,15 +580,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "vegetative": 50,
                 "bulb_initiation": 80,
                 "bulb_development": 105,
-                "maturity": 120,
-            },
+                "maturity": 120
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.0,
             ph_max=7.5,
             preferred_soil_types=["sandy_loam", "loamy"],
             ec_tolerance=1.2,
-            npk_ratio="100:50:120",
+            npk_ratio="100:50:120"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -593,15 +596,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.8,
                 soil_quality=0.8,
                 climate_suitability=0.9,
-                constraints=[],
+                constraints=[]
             ),
             Region.TIHAMA: RegionalAdjustment(
                 yield_multiplier=0.9,
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.7,
-                constraints=["heat_stress"],
-            ),
+                constraints=["heat_stress"]
+            )
         },
         season=Season.RABI,
         seasonal_yield_factors={"winter": 1.0, "summer": 0.6},
@@ -609,8 +612,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=180,
         common_diseases=["purple_blotch", "stemphylium_blight"],
         drought_tolerance=0.6,
-        heat_tolerance=0.6,
+        heat_tolerance=0.6
     ),
+
     "cucumber": CropParameters(
         crop_id="cucumber",
         name_en="Cucumber",
@@ -631,15 +635,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "flowering": 30,
                 "fruit_set": 40,
                 "harvest_begin": 50,
-                "harvest_end": 60,
-            },
+                "harvest_end": 60
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.5,
             ph_max=7.0,
             preferred_soil_types=["loamy", "sandy_loam"],
             ec_tolerance=1.3,
-            npk_ratio="120:60:100",
+            npk_ratio="120:60:100"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -647,15 +651,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.7,
                 climate_suitability=0.9,
-                constraints=["disease_pressure"],
+                constraints=["disease_pressure"]
             ),
             Region.HIGHLANDS: RegionalAdjustment(
                 yield_multiplier=1.0,
                 water_availability=0.8,
                 soil_quality=0.8,
                 climate_suitability=0.8,
-                constraints=[],
-            ),
+                constraints=[]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"summer": 1.0, "winter": 0.9},
@@ -663,8 +667,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=150,
         common_diseases=["powdery_mildew", "downy_mildew", "anthracnose"],
         drought_tolerance=0.3,
-        heat_tolerance=0.7,
+        heat_tolerance=0.7
     ),
+
     "pepper": CropParameters(
         crop_id="pepper",
         name_en="Bell Pepper",
@@ -685,15 +690,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "flowering": 50,
                 "fruit_set": 60,
                 "fruit_development": 75,
-                "harvest": 85,
-            },
+                "harvest": 85
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.0,
             ph_max=7.0,
             preferred_soil_types=["loamy", "sandy_loam"],
             ec_tolerance=1.5,
-            npk_ratio="140:70:100",
+            npk_ratio="140:70:100"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -701,15 +706,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.7,
                 climate_suitability=0.85,
-                constraints=["heat_stress"],
+                constraints=["heat_stress"]
             ),
             Region.HIGHLANDS: RegionalAdjustment(
                 yield_multiplier=1.2,
                 water_availability=0.8,
                 soil_quality=0.8,
                 climate_suitability=0.9,
-                constraints=[],
-            ),
+                constraints=[]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"spring": 1.0, "summer": 0.85, "winter": 0.9},
@@ -717,8 +722,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=220,
         common_diseases=["bacterial_spot", "anthracnose", "phytophthora_blight"],
         drought_tolerance=0.4,
-        heat_tolerance=0.6,
+        heat_tolerance=0.6
     ),
+
     "eggplant": CropParameters(
         crop_id="eggplant",
         name_en="Eggplant",
@@ -739,15 +745,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "flowering": 50,
                 "fruit_set": 60,
                 "harvest_begin": 75,
-                "harvest_end": 90,
-            },
+                "harvest_end": 90
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.5,
             ph_max=6.8,
             preferred_soil_types=["loamy", "clay_loam"],
             ec_tolerance=2.0,
-            npk_ratio="150:75:100",
+            npk_ratio="150:75:100"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -755,15 +761,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.7,
                 climate_suitability=0.9,
-                constraints=[],
+                constraints=[]
             ),
             Region.HIGHLANDS: RegionalAdjustment(
                 yield_multiplier=1.0,
                 water_availability=0.8,
                 soil_quality=0.8,
                 climate_suitability=0.8,
-                constraints=["cooler_nights"],
-            ),
+                constraints=["cooler_nights"]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"summer": 1.0, "winter": 0.8},
@@ -771,9 +777,11 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=200,
         common_diseases=["bacterial_wilt", "phomopsis_blight", "leaf_spot"],
         drought_tolerance=0.5,
-        heat_tolerance=0.8,
+        heat_tolerance=0.8
     ),
+
     # ==================== الفواكه - FRUITS ====================
+
     "date_palm": CropParameters(
         crop_id="date_palm",
         name_en="Date Palm",
@@ -794,15 +802,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "kimri": 90,
                 "khalal": 120,
                 "rutab": 150,
-                "tamar": 180,
-            },
+                "tamar": 180
+            }
         ),
         soil=SoilRequirements(
             ph_min=7.0,
             ph_max=8.5,
             preferred_soil_types=["sandy_loam", "loamy"],
             ec_tolerance=12.0,
-            npk_ratio="200:100:200",
+            npk_ratio="200:100:200"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -810,15 +818,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.95,
-                constraints=["water_intensive"],
+                constraints=["water_intensive"]
             ),
             Region.HADHRAMAUT: RegionalAdjustment(
                 yield_multiplier=1.3,
                 water_availability=0.6,
                 soil_quality=0.75,
                 climate_suitability=0.98,
-                constraints=["water_intensive"],
-            ),
+                constraints=["water_intensive"]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"year": 1.0},
@@ -826,8 +834,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=150,
         common_diseases=["date_palm_bayoud", "black_scorch", "fruit_rot"],
         drought_tolerance=0.7,
-        heat_tolerance=0.98,
+        heat_tolerance=0.98
     ),
+
     "mango": CropParameters(
         crop_id="mango",
         name_en="Mango",
@@ -847,15 +856,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "fruit_set": 50,
                 "fruit_development": 90,
                 "fruit_maturation": 130,
-                "harvest": 150,
-            },
+                "harvest": 150
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.5,
             ph_max=7.5,
             preferred_soil_types=["loamy", "sandy_loam"],
             ec_tolerance=2.0,
-            npk_ratio="180:90:120",
+            npk_ratio="180:90:120"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -863,15 +872,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.95,
-                constraints=["water_requirement"],
+                constraints=["water_requirement"]
             ),
             Region.HIGHLANDS: RegionalAdjustment(
                 yield_multiplier=0.7,
                 water_availability=0.8,
                 soil_quality=0.8,
                 climate_suitability=0.6,
-                constraints=["cooler_climate", "frost_risk"],
-            ),
+                constraints=["cooler_climate", "frost_risk"]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"year": 1.0},
@@ -879,8 +888,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=120,
         common_diseases=["mango_anthracnose", "powdery_mildew", "bacterial_black_spot"],
         drought_tolerance=0.6,
-        heat_tolerance=0.9,
+        heat_tolerance=0.9
     ),
+
     "banana": CropParameters(
         crop_id="banana",
         name_en="Banana",
@@ -899,15 +909,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "vegetative": 90,
                 "flowering": 180,
                 "fruit_filling": 240,
-                "harvest": 270,
-            },
+                "harvest": 270
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.5,
             ph_max=7.0,
             preferred_soil_types=["loamy", "clay_loam"],
             ec_tolerance=1.0,
-            npk_ratio="200:100:300",
+            npk_ratio="200:100:300"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -915,15 +925,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.8,
                 climate_suitability=0.95,
-                constraints=["water_intensive", "disease_pressure"],
+                constraints=["water_intensive", "disease_pressure"]
             ),
             Region.HIGHLANDS: RegionalAdjustment(
                 yield_multiplier=0.6,
                 water_availability=0.8,
                 soil_quality=0.8,
                 climate_suitability=0.5,
-                constraints=["temperature_sensitive", "wind_damage"],
-            ),
+                constraints=["temperature_sensitive", "wind_damage"]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"year": 1.0},
@@ -931,8 +941,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=200,
         common_diseases=["banana_fusarium", "panama_disease", "sigatoka"],
         drought_tolerance=0.3,
-        heat_tolerance=0.8,
+        heat_tolerance=0.8
     ),
+
     "grape": CropParameters(
         crop_id="grape",
         name_en="Grape",
@@ -952,15 +963,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "flowering": 45,
                 "fruit_set": 60,
                 "veraison": 100,
-                "harvest": 150,
-            },
+                "harvest": 150
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.0,
             ph_max=7.5,
             preferred_soil_types=["sandy_loam", "loamy"],
             ec_tolerance=1.5,
-            npk_ratio="100:50:150",
+            npk_ratio="100:50:150"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -968,15 +979,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.85,
                 climate_suitability=0.95,
-                constraints=[],
+                constraints=[]
             ),
             Region.TIHAMA: RegionalAdjustment(
                 yield_multiplier=0.7,
                 water_availability=0.6,
                 soil_quality=0.6,
                 climate_suitability=0.6,
-                constraints=["heat_stress", "disease_pressure"],
-            ),
+                constraints=["heat_stress", "disease_pressure"]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"year": 1.0},
@@ -984,9 +995,11 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=180,
         common_diseases=["grape_downy_mildew", "powdery_mildew", "anthracnose"],
         drought_tolerance=0.7,
-        heat_tolerance=0.7,
+        heat_tolerance=0.7
     ),
+
     # ==================== المحاصيل النقدية - CASH CROPS ====================
+
     "coffee": CropParameters(
         crop_id="coffee",
         name_en="Coffee (Arabica)",
@@ -1006,15 +1019,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "fruit_set": 90,
                 "fruit_development": 180,
                 "ripening": 240,
-                "harvest": 270,
-            },
+                "harvest": 270
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.5,
             ph_max=6.5,
             preferred_soil_types=["volcanic", "loamy"],
             ec_tolerance=1.0,
-            npk_ratio="120:60:100",
+            npk_ratio="120:60:100"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -1022,15 +1035,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.8,
                 soil_quality=0.9,
                 climate_suitability=0.98,
-                constraints=[],
+                constraints=[]
             ),
             Region.TIHAMA: RegionalAdjustment(
                 yield_multiplier=0.3,
                 water_availability=0.5,
                 soil_quality=0.6,
                 climate_suitability=0.3,
-                constraints=["heat_stress", "unsuitable_climate"],
-            ),
+                constraints=["heat_stress", "unsuitable_climate"]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"year": 1.0},
@@ -1038,8 +1051,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=300,
         common_diseases=["coffee_leaf_rust", "coffee_berry_disease", "anthracnose"],
         drought_tolerance=0.5,
-        heat_tolerance=0.4,
+        heat_tolerance=0.4
     ),
+
     "qat": CropParameters(
         crop_id="qat",
         name_en="Qat (Khat)",
@@ -1058,15 +1072,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "pruning": 30,
                 "vegetative": 120,
                 "harvest_ready": 180,
-                "peak_harvest": 240,
-            },
+                "peak_harvest": 240
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.0,
             ph_max=7.5,
             preferred_soil_types=["loamy", "clay_loam"],
             ec_tolerance=2.0,
-            npk_ratio="180:90:140",
+            npk_ratio="180:90:140"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -1074,15 +1088,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.85,
                 climate_suitability=0.95,
-                constraints=["water_intensive"],
+                constraints=["water_intensive"]
             ),
             Region.TIHAMA: RegionalAdjustment(
                 yield_multiplier=0.5,
                 water_availability=0.5,
                 soil_quality=0.6,
                 climate_suitability=0.4,
-                constraints=["heat_stress", "water_intensive"],
-            ),
+                constraints=["heat_stress", "water_intensive"]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"year": 1.0},
@@ -1090,9 +1104,11 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=400,
         common_diseases=["leaf_spot", "root_rot"],
         drought_tolerance=0.4,
-        heat_tolerance=0.6,
+        heat_tolerance=0.6
     ),
+
     # ==================== البقوليات - LEGUMES ====================
+
     "lentil": CropParameters(
         crop_id="lentil",
         name_en="Lentil",
@@ -1112,15 +1128,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "vegetative": 40,
                 "flowering": 60,
                 "pod_fill": 80,
-                "maturity": 100,
-            },
+                "maturity": 100
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.0,
             ph_max=8.0,
             preferred_soil_types=["loamy", "clay_loam"],
             ec_tolerance=3.0,
-            npk_ratio="20:40:40",
+            npk_ratio="20:40:40"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -1128,15 +1144,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.8,
                 climate_suitability=0.9,
-                constraints=[],
+                constraints=[]
             ),
             Region.HADHRAMAUT: RegionalAdjustment(
                 yield_multiplier=0.8,
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.7,
-                constraints=["heat_stress"],
-            ),
+                constraints=["heat_stress"]
+            )
         },
         season=Season.RABI,
         seasonal_yield_factors={"winter": 1.0, "summer": 0.3},
@@ -1144,8 +1160,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=60,
         common_diseases=["fusarium_wilt", "rust"],
         drought_tolerance=0.7,
-        heat_tolerance=0.6,
+        heat_tolerance=0.6
     ),
+
     "chickpea": CropParameters(
         crop_id="chickpea",
         name_en="Chickpea",
@@ -1165,15 +1182,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "vegetative": 45,
                 "flowering": 70,
                 "pod_fill": 90,
-                "maturity": 110,
-            },
+                "maturity": 110
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.0,
             ph_max=8.5,
             preferred_soil_types=["loamy", "sandy_loam"],
             ec_tolerance=4.0,
-            npk_ratio="25:50:50",
+            npk_ratio="25:50:50"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -1181,15 +1198,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.7,
                 soil_quality=0.8,
                 climate_suitability=0.85,
-                constraints=[],
+                constraints=[]
             ),
             Region.HADHRAMAUT: RegionalAdjustment(
                 yield_multiplier=0.9,
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.75,
-                constraints=["heat_stress"],
-            ),
+                constraints=["heat_stress"]
+            )
         },
         season=Season.RABI,
         seasonal_yield_factors={"winter": 1.0, "summer": 0.4},
@@ -1197,9 +1214,11 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=65,
         common_diseases=["wilt", "blight", "root_rot"],
         drought_tolerance=0.8,
-        heat_tolerance=0.7,
+        heat_tolerance=0.7
     ),
+
     # ==================== الأعلاف - FODDER ====================
+
     "alfalfa": CropParameters(
         crop_id="alfalfa",
         name_en="Alfalfa (Lucerne)",
@@ -1220,15 +1239,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "flowering": 90,
                 "cutting_1": 45,
                 "cutting_2": 90,
-                "cutting_3": 135,
-            },
+                "cutting_3": 135
+            }
         ),
         soil=SoilRequirements(
             ph_min=6.5,
             ph_max=8.0,
             preferred_soil_types=["loamy", "sandy_loam"],
             ec_tolerance=2.0,
-            npk_ratio="30:60:100",
+            npk_ratio="30:60:100"
         ),
         regional_adjustments={
             Region.HIGHLANDS: RegionalAdjustment(
@@ -1236,15 +1255,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.8,
                 soil_quality=0.85,
                 climate_suitability=0.9,
-                constraints=[],
+                constraints=[]
             ),
             Region.TIHAMA: RegionalAdjustment(
                 yield_multiplier=1.0,
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.75,
-                constraints=["water_intensive"],
-            ),
+                constraints=["water_intensive"]
+            )
         },
         season=Season.YEAR_ROUND,
         seasonal_yield_factors={"year": 1.0},
@@ -1252,8 +1271,9 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=100,
         common_diseases=["leaf_spot", "root_rot", "downy_mildew"],
         drought_tolerance=0.6,
-        heat_tolerance=0.7,
+        heat_tolerance=0.7
     ),
+
     "sesame": CropParameters(
         crop_id="sesame",
         name_en="Sesame",
@@ -1273,15 +1293,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 "vegetative": 35,
                 "flowering": 55,
                 "pod_development": 75,
-                "maturity": 90,
-            },
+                "maturity": 90
+            }
         ),
         soil=SoilRequirements(
             ph_min=5.5,
             ph_max=8.0,
             preferred_soil_types=["loamy", "sandy_loam"],
             ec_tolerance=3.0,
-            npk_ratio="60:40:40",
+            npk_ratio="60:40:40"
         ),
         regional_adjustments={
             Region.TIHAMA: RegionalAdjustment(
@@ -1289,15 +1309,15 @@ YEMEN_CROPS: dict[str, CropParameters] = {
                 water_availability=0.6,
                 soil_quality=0.7,
                 climate_suitability=0.9,
-                constraints=[],
+                constraints=[]
             ),
             Region.HADHRAMAUT: RegionalAdjustment(
                 yield_multiplier=1.1,
                 water_availability=0.5,
                 soil_quality=0.7,
                 climate_suitability=0.85,
-                constraints=["water_scarcity"],
-            ),
+                constraints=["water_scarcity"]
+            )
         },
         season=Season.KHARIF,
         seasonal_yield_factors={"summer": 1.0, "winter": 0.5},
@@ -1305,7 +1325,7 @@ YEMEN_CROPS: dict[str, CropParameters] = {
         labor_hours_per_ha=70,
         common_diseases=["phytophthora_blight", "bacterial_leaf_spot"],
         drought_tolerance=0.9,
-        heat_tolerance=0.95,
+        heat_tolerance=0.95
     ),
 }
 
@@ -1338,9 +1358,7 @@ def get_crops_by_category(category: CropCategory) -> list[CropParameters]:
     return [crop for crop in YEMEN_CROPS.values() if crop.category == category]
 
 
-def get_crops_by_region(
-    region: Region, min_suitability: float = 0.6
-) -> list[CropParameters]:
+def get_crops_by_region(region: Region, min_suitability: float = 0.6) -> list[CropParameters]:
     """
     Get suitable crops for a specific region
     الحصول على المحاصيل المناسبة لمنطقة معينة

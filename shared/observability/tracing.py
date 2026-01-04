@@ -405,11 +405,11 @@ class DistributedTracer:
         if span and span.is_recording():
             for key, value in attributes.items():
                 # Convert to supported types
-                if isinstance(value, (str, int, float, bool)):
+                if isinstance(value, str | int | float | bool):
                     span.set_attribute(key, value)
-                elif isinstance(value, (list, tuple)):
+                elif isinstance(value, list | tuple):
                     # OpenTelemetry supports lists of homogeneous types
-                    if value and isinstance(value[0], (str, int, float, bool)):
+                    if value and isinstance(value[0], str | int | float | bool):
                         span.set_attribute(key, list(value))
                 else:
                     # Convert complex types to string

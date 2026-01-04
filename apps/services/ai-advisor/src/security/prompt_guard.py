@@ -8,7 +8,6 @@ import re
 
 logger = logging.getLogger(__name__)
 
-
 class PromptGuard:
     """Guards against prompt injection attacks"""
 
@@ -18,29 +17,35 @@ class PromptGuard:
         r"ignore\s+(all\s+)?(previous|above|prior)\s+(instructions?|prompts?|rules?)",
         r"disregard\s+(all\s+)?(previous|above|prior)",
         r"forget\s+(everything|all|what)\s+(you|i)\s+(said|told|wrote)",
+
         # Role manipulation
         r"you\s+are\s+(now|no\s+longer)\s+a",
         r"pretend\s+(to\s+be|you\s+are)",
         r"act\s+as\s+(if|a)",
         r"roleplay\s+as",
         r"switch\s+to\s+.*\s+mode",
+
         # System prompt extraction
         r"(show|reveal|display|print|output)\s+(your|the)\s+(system\s+)?(prompt|instructions)",
         r"what\s+(are|is)\s+your\s+(system\s+)?(prompt|instructions)",
         r"repeat\s+(your|the)\s+(system\s+)?prompt",
+
         # Jailbreak attempts
         r"dan\s+mode",
         r"developer\s+mode",
         r"jailbreak",
         r"bypass\s+(safety|filter|restriction)",
+
         # Code execution attempts
         r"execute\s+(this\s+)?(code|command|script)",
         r"run\s+(this\s+)?(code|command|script)",
         r"eval\s*\(",
         r"exec\s*\(",
+
         # Data exfiltration
         r"(send|post|transmit)\s+(to|data\s+to)\s+",
         r"fetch\s+from\s+url",
+
         # Arabic injection patterns
         r"تجاهل\s+(كل|جميع)\s+التعليمات",
         r"انس\s+(كل|ما)\s+قلته",
@@ -60,21 +65,17 @@ class PromptGuard:
             return text
 
         # Remove null bytes
-        text = text.replace("\x00", "")
+        text = text.replace('\x00', '')
 
         # Remove control characters (except newlines and tabs)
-        text = "".join(
-            char
-            for char in text
-            if char == "\n" or char == "\t" or not (0 <= ord(char) < 32)
-        )
+        text = ''.join(char for char in text if char == '\n' or char == '\t' or not (0 <= ord(char) < 32))
 
         # Normalize whitespace
-        text = " ".join(text.split())
+        text = ' '.join(text.split())
 
         # Truncate if too long
         if len(text) > cls.MAX_INPUT_LENGTH:
-            text = text[: cls.MAX_INPUT_LENGTH]
+            text = text[:cls.MAX_INPUT_LENGTH]
             logger.warning(f"Input truncated to {cls.MAX_INPUT_LENGTH} characters")
 
         return text
@@ -103,9 +104,7 @@ class PromptGuard:
         return is_suspicious, matched
 
     @classmethod
-    def validate_and_sanitize(
-        cls, text: str, strict: bool = False
-    ) -> tuple[str, bool, list[str]]:
+    def validate_and_sanitize(cls, text: str, strict: bool = False) -> tuple[str, bool, list[str]]:
         """
         Validate and sanitize input text
 

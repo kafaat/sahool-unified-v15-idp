@@ -18,14 +18,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from ..base_agent import (
-    AgentAction,
-    AgentContext,
-    AgentLayer,
-    AgentPercept,
-    AgentType,
-    BaseAgent,
-)
+from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
 from ..specialist.disease_expert_agent import DiseaseExpertAgent
 from ..specialist.irrigation_advisor_agent import IrrigationAdvisorAgent
 from ..specialist.weather_analyst_agent import WeatherAnalystAgent
@@ -36,17 +29,15 @@ logger = logging.getLogger(__name__)
 
 class ConflictType(Enum):
     """أنواع التعارض"""
-
-    RESOURCE_CONFLICT = "resource"  # Same resource, different actions
-    TIMING_CONFLICT = "timing"  # Conflicting schedules
-    PRIORITY_CONFLICT = "priority"  # Different priorities
-    GOAL_CONFLICT = "goal"  # Conflicting goals
+    RESOURCE_CONFLICT = "resource"      # Same resource, different actions
+    TIMING_CONFLICT = "timing"          # Conflicting schedules
+    PRIORITY_CONFLICT = "priority"      # Different priorities
+    GOAL_CONFLICT = "goal"              # Conflicting goals
 
 
 @dataclass
 class AgentRecommendation:
     """توصية من وكيل"""
-
     agent_id: str
     agent_name: str
     action: AgentAction
@@ -56,7 +47,6 @@ class AgentRecommendation:
 @dataclass
 class ConflictResolution:
     """حل التعارض"""
-
     conflict_type: ConflictType
     conflicting_actions: list[AgentAction]
     resolution: str
@@ -67,7 +57,6 @@ class ConflictResolution:
 @dataclass
 class UnifiedRecommendation:
     """التوصية الموحدة"""
-
     primary_action: AgentAction
     supporting_actions: list[AgentAction]
     conflicts_resolved: list[ConflictResolution]
@@ -94,7 +83,7 @@ class MasterCoordinatorAgent(BaseAgent):
         "yield_optimization": 50,
         "prevention_measures": 40,
         "scheduled_maintenance": 30,
-        "report": 10,
+        "report": 10
     }
 
     # Resource constraints
@@ -102,7 +91,7 @@ class MasterCoordinatorAgent(BaseAgent):
         "water": {"daily_limit_liters": 10000, "used": 0},
         "labor": {"hours_available": 8, "used": 0},
         "budget": {"daily_yer": 50000, "used": 0},
-        "equipment": {"available": True},
+        "equipment": {"available": True}
     }
 
     def __init__(self, agent_id: str = "master_coordinator_001"):
@@ -113,7 +102,7 @@ class MasterCoordinatorAgent(BaseAgent):
             agent_type=AgentType.UTILITY_BASED,
             layer=AgentLayer.COORDINATOR,
             description="Central coordinator for all specialist agents",
-            description_ar="المنسق المركزي لجميع الوكلاء المتخصصين",
+            description_ar="المنسق المركزي لجميع الوكلاء المتخصصين"
         )
 
         # Initialize specialist agents
@@ -131,7 +120,7 @@ class MasterCoordinatorAgent(BaseAgent):
             "maximize_yield",
             "minimize_resource_waste",
             "protect_crop_health",
-            "optimize_costs",
+            "optimize_costs"
         ]
 
         # Set utility function
@@ -143,7 +132,7 @@ class MasterCoordinatorAgent(BaseAgent):
             "disease": DiseaseExpertAgent("disease_expert_001"),
             "yield": YieldPredictorAgent("yield_predictor_001"),
             "irrigation": IrrigationAdvisorAgent("irrigation_advisor_001"),
-            "weather": WeatherAnalystAgent("weather_analyst_001"),
+            "weather": WeatherAnalystAgent("weather_analyst_001")
         }
 
     def _unified_utility(self, action: AgentAction, context: AgentContext) -> float:
@@ -172,16 +161,14 @@ class MasterCoordinatorAgent(BaseAgent):
         resource_factor = self._check_resource_availability(action)
 
         # Urgency factor
-        urgency_factor = (
-            1.0 if action.priority == 1 else (0.8 if action.priority == 2 else 0.6)
-        )
+        urgency_factor = 1.0 if action.priority == 1 else (0.8 if action.priority == 2 else 0.6)
 
         # Combined utility
         utility = (
-            0.35 * priority_score
-            + 0.25 * confidence_factor
-            + 0.20 * resource_factor
-            + 0.20 * urgency_factor
+            0.35 * priority_score +
+            0.25 * confidence_factor +
+            0.20 * resource_factor +
+            0.20 * urgency_factor
         )
 
         return utility
@@ -191,15 +178,9 @@ class MasterCoordinatorAgent(BaseAgent):
         params = action.parameters
 
         # Check water
-        if (
-            "water" in action.action_type.lower()
-            or "irrigation" in action.action_type.lower()
-        ):
+        if "water" in action.action_type.lower() or "irrigation" in action.action_type.lower():
             water_needed = params.get("amount_mm", 0) * 100  # Approximate liters
-            water_available = (
-                self.RESOURCES["water"]["daily_limit_liters"]
-                - self.RESOURCES["water"]["used"]
-            )
+            water_available = self.RESOURCES["water"]["daily_limit_liters"] - self.RESOURCES["water"]["used"]
             if water_needed > water_available:
                 return 0.3
             return 1.0
@@ -207,9 +188,7 @@ class MasterCoordinatorAgent(BaseAgent):
         # Check budget
         cost = params.get("cost_yer", 0)
         if cost > 0:
-            budget_available = (
-                self.RESOURCES["budget"]["daily_yer"] - self.RESOURCES["budget"]["used"]
-            )
+            budget_available = self.RESOURCES["budget"]["daily_yer"] - self.RESOURCES["budget"]["used"]
             if cost > budget_available:
                 return 0.4
             return 1.0
@@ -255,7 +234,7 @@ class MasterCoordinatorAgent(BaseAgent):
                 confidence=0.7,
                 priority=5,
                 reasoning="لا توجد إجراءات مطلوبة حالياً",
-                source_agent=self.agent_id,
+                source_agent=self.agent_id
             )
 
         # Step 2: Detect conflicts
@@ -269,30 +248,24 @@ class MasterCoordinatorAgent(BaseAgent):
             self.resolution_history.append(resolution)
 
         # Step 4: Prioritize and select actions
-        unified = await self._create_unified_recommendation(
-            recommendations, resolutions
-        )
+        unified = await self._create_unified_recommendation(recommendations, resolutions)
 
         # Step 5: Return coordinated action
         return AgentAction(
             action_type="coordinated_recommendation",
             parameters={
                 "unified_recommendation": {
-                    "primary": (
-                        unified.primary_action.to_dict()
-                        if hasattr(unified.primary_action, "to_dict")
-                        else str(unified.primary_action)
-                    ),
+                    "primary": unified.primary_action.to_dict() if hasattr(unified.primary_action, 'to_dict') else str(unified.primary_action),
                     "supporting": len(unified.supporting_actions),
                     "conflicts_resolved": len(unified.conflicts_resolved),
                     "summary_ar": unified.summary_ar,
-                    "details": unified.details,
+                    "details": unified.details
                 }
             },
             confidence=unified.confidence,
             priority=unified.primary_action.priority,
             reasoning=unified.summary_ar,
-            source_agent=self.agent_id,
+            source_agent=self.agent_id
         )
 
     async def _collect_all_recommendations(self) -> list[AgentRecommendation]:
@@ -302,56 +275,44 @@ class MasterCoordinatorAgent(BaseAgent):
         for name, agent in self.specialists.items():
             try:
                 action = await agent.think()
-                if action and action.action_type not in [
-                    "no_action_needed",
-                    "insufficient_data",
-                ]:
-                    recommendations.append(
-                        AgentRecommendation(
-                            agent_id=agent.agent_id,
-                            agent_name=agent.name_ar,
-                            action=action,
-                            timestamp=datetime.now(),
-                        )
-                    )
+                if action and action.action_type not in ["no_action_needed", "insufficient_data"]:
+                    recommendations.append(AgentRecommendation(
+                        agent_id=agent.agent_id,
+                        agent_name=agent.name_ar,
+                        action=action,
+                        timestamp=datetime.now()
+                    ))
             except Exception as e:
                 logger.error(f"Error collecting from {name}: {e}")
 
         return recommendations
 
-    def _detect_conflicts(
-        self, recommendations: list[AgentRecommendation]
-    ) -> list[dict[str, Any]]:
+    def _detect_conflicts(self, recommendations: list[AgentRecommendation]) -> list[dict[str, Any]]:
         """اكتشاف التعارضات"""
         conflicts = []
 
         for i, rec1 in enumerate(recommendations):
-            for rec2 in recommendations[i + 1 :]:
+            for rec2 in recommendations[i+1:]:
                 conflict = self._check_conflict(rec1.action, rec2.action)
                 if conflict:
-                    conflicts.append(
-                        {"type": conflict, "action1": rec1, "action2": rec2}
-                    )
+                    conflicts.append({
+                        "type": conflict,
+                        "action1": rec1,
+                        "action2": rec2
+                    })
 
         return conflicts
 
-    def _check_conflict(
-        self, action1: AgentAction, action2: AgentAction
-    ) -> ConflictType | None:
+    def _check_conflict(self, action1: AgentAction, action2: AgentAction) -> ConflictType | None:
         """التحقق من وجود تعارض"""
         # Resource conflict
-        if (
-            "irrigation" in action1.action_type.lower()
-            and "irrigation" in action2.action_type.lower()
-        ):
+        if ("irrigation" in action1.action_type.lower() and
+            "irrigation" in action2.action_type.lower()):
             return ConflictType.RESOURCE_CONFLICT
 
         # Timing conflict
-        if (
-            action1.priority == 1
-            and action2.priority == 1
-            and action1.action_type != action2.action_type
-        ):
+        if (action1.priority == 1 and action2.priority == 1 and
+            action1.action_type != action2.action_type):
             return ConflictType.TIMING_CONFLICT
 
         # Priority conflict
@@ -381,7 +342,7 @@ class MasterCoordinatorAgent(BaseAgent):
             ConflictType.RESOURCE_CONFLICT: "تم حل تعارض الموارد باختيار الإجراء الأكثر كفاءة",
             ConflictType.TIMING_CONFLICT: "تم حل تعارض التوقيت باختيار الإجراء الأكثر إلحاحاً",
             ConflictType.PRIORITY_CONFLICT: "تم حل تعارض الأولوية باختيار الإجراء ذو الأولوية الأعلى",
-            ConflictType.GOAL_CONFLICT: "تم حل تعارض الأهداف بموازنة المنافع",
+            ConflictType.GOAL_CONFLICT: "تم حل تعارض الأهداف بموازنة المنافع"
         }
 
         return ConflictResolution(
@@ -389,13 +350,13 @@ class MasterCoordinatorAgent(BaseAgent):
             conflicting_actions=[action1, action2],
             resolution=resolution_method.get(conflict_type, "تم الحل بناءً على المنفعة"),
             selected_action=selected,
-            reasoning=reasoning,
+            reasoning=reasoning
         )
 
     async def _create_unified_recommendation(
         self,
         recommendations: list[AgentRecommendation],
-        resolutions: list[ConflictResolution],
+        resolutions: list[ConflictResolution]
     ) -> UnifiedRecommendation:
         """إنشاء التوصية الموحدة"""
         # Get resolved actions
@@ -408,8 +369,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         # Filter valid recommendations
         valid_actions = [
-            rec.action
-            for rec in recommendations
+            rec.action for rec in recommendations
             if id(rec.action) not in excluded_actions
         ]
 
@@ -420,7 +380,7 @@ class MasterCoordinatorAgent(BaseAgent):
         # Sort by priority and utility
         sorted_actions = sorted(
             valid_actions,
-            key=lambda a: (a.priority, -self.calculate_utility(a, self.context)),
+            key=lambda a: (a.priority, -self.calculate_utility(a, self.context))
         )
 
         primary = sorted_actions[0] if sorted_actions else None
@@ -452,8 +412,8 @@ class MasterCoordinatorAgent(BaseAgent):
                 "total_recommendations": len(recommendations),
                 "conflicts_detected": len(resolutions),
                 "actions_selected": len(sorted_actions),
-                "specialist_agents": list(self.specialists.keys()),
-            },
+                "specialist_agents": list(self.specialists.keys())
+            }
         )
 
     async def act(self, action: AgentAction) -> dict[str, Any]:
@@ -461,7 +421,7 @@ class MasterCoordinatorAgent(BaseAgent):
         result = {
             "action_type": action.action_type,
             "executed_at": datetime.now().isoformat(),
-            "success": True,
+            "success": True
         }
 
         if action.action_type == "coordinated_recommendation":
@@ -470,7 +430,7 @@ class MasterCoordinatorAgent(BaseAgent):
                 "primary_action": unified.get("primary"),
                 "supporting_count": unified.get("supporting"),
                 "conflicts_resolved": unified.get("conflicts_resolved"),
-                "summary_ar": unified.get("summary_ar"),
+                "summary_ar": unified.get("summary_ar")
             }
 
             # Execute primary action through appropriate specialist
@@ -483,17 +443,15 @@ class MasterCoordinatorAgent(BaseAgent):
         self.context = context
 
         # Distribute context to all specialists
-        for name, agent in self.specialists.items():
+        for _name, agent in self.specialists.items():
             agent.update_context(context)
 
         # Run coordination
-        result = await self.run(
-            AgentPercept(
-                percept_type="full_analysis_request",
-                data={"context": "full"},
-                source="user",
-            )
-        )
+        result = await self.run(AgentPercept(
+            percept_type="full_analysis_request",
+            data={"context": "full"},
+            source="user"
+        ))
 
         return result
 
@@ -502,9 +460,10 @@ class MasterCoordinatorAgent(BaseAgent):
         return {
             "coordinator": self.get_metrics(),
             "specialists": {
-                name: agent.get_metrics() for name, agent in self.specialists.items()
+                name: agent.get_metrics()
+                for name, agent in self.specialists.items()
             },
             "resources": self.RESOURCES,
             "conflicts_resolved_total": len(self.resolution_history),
-            "active_goals": self.state.goals,
+            "active_goals": self.state.goals
         }

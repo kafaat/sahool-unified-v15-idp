@@ -369,7 +369,7 @@ class NotificationScheduler:
         stats = {"success": 0, "failed": 0, "rate_limited": 0}
 
         # Send each group using multicast
-        for group_key, group_notifs in grouped.items():
+        for _group_key, group_notifs in grouped.items():
             # Filter by rate limit
             sendable = [
                 n for n in group_notifs if self.can_send_to_user(n.recipient_token)

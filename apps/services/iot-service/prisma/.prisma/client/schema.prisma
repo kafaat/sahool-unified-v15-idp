@@ -1,0 +1,234 @@
+// This is your Prisma schema file for the IoT Service
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = ".prisma/client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum DeviceType {
+  SOIL_MOISTURE_SENSOR
+  TEMPERATURE_SENSOR
+  HUMIDITY_SENSOR
+  WATER_FLOW_METER
+  WEATHER_STATION
+  VALVE_CONTROLLER
+  PUMP_CONTROLLER
+  IRRIGATION_CONTROLLER
+  CAMERA
+  GATEWAY
+  CUSTOM
+}
+
+enum DeviceStatus {
+  ONLINE
+  OFFLINE
+  MAINTENANCE
+  ERROR
+  INACTIVE
+}
+
+enum SensorType {
+  SOIL_MOISTURE
+  SOIL_TEMPERATURE
+  AIR_TEMPERATURE
+  AIR_HUMIDITY
+  LIGHT_INTENSITY
+  WATER_FLOW
+  WATER_PRESSURE
+  WATER_LEVEL
+  PH_LEVEL
+  EC_LEVEL
+  BATTERY_LEVEL
+  SIGNAL_STRENGTH
+  RAINFALL
+  WIND_SPEED
+  WIND_DIRECTION
+  CUSTOM
+}
+
+enum ActuatorType {
+  VALVE
+  PUMP
+  MOTOR
+  RELAY
+  SWITCH
+  SERVO
+  CUSTOM
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+enum CommandStatus {
+  PENDING
+  EXECUTING
+  COMPLETED
+  FAILED
+  TIMEOUT
+  CANCELLED
+}
+
+// Main Models
+model Device {
+  id       String       @id @default(uuid())
+  tenantId String
+  deviceId String // Unique device identifier from the physical device
+  name     String
+  type     DeviceType
+  status   DeviceStatus @default(OFFLINE)
+  lastSeen DateTime?
+  metadata Json? // Additional device metadata (manufacturer, model, firmware version, etc.)
+  fieldId  String? // Optional reference to field/zone
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sensors        Sensor[]
+  sensorReadings SensorReading[]
+  actuators      Actuator[]
+  alerts         DeviceAlert[]
+
+  @@unique([tenantId, deviceId])
+  @@index([tenantId])
+  @@index([deviceId])
+  @@index([status])
+  @@index([fieldId])
+  @@index([lastSeen])
+  @@index([tenantId, status])
+  @@index([tenantId, fieldId])
+  @@map("devices")
+}
+
+model Sensor {
+  id              String     @id @default(uuid())
+  deviceId        String
+  sensorType      SensorType
+  unit            String // Unit of measurement (e.g., "%", "°C", "L/min")
+  calibrationData Json? // Calibration parameters and coefficients
+  lastReading     Float?
+  lastReadingAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  device   Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  readings SensorReading[]
+
+  @@index([deviceId])
+  @@index([sensorType])
+  @@index([deviceId, sensorType])
+  @@map("sensors")
+}
+
+model SensorReading {
+  id        String   @id @default(uuid())
+  sensorId  String
+  deviceId  String
+  value     Float
+  unit      String
+  timestamp DateTime @default(now())
+  quality   Float?   @default(1.0) // Quality indicator 0-1, null means unknown
+  metadata  Json? // Additional reading metadata (raw value, calibrated value, etc.)
+
+  // Relations
+  sensor Sensor @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([sensorId])
+  @@index([deviceId])
+  @@index([timestamp])
+  @@index([sensorId, timestamp])
+  @@index([deviceId, timestamp])
+  @@map("sensor_readings")
+}
+
+model Actuator {
+  id            String       @id @default(uuid())
+  deviceId      String
+  actuatorType  ActuatorType
+  name          String?
+  currentState  Json? // Current state (e.g., {"position": 50, "enabled": true})
+  lastCommand   String?
+  lastCommandAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  device   Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  commands ActuatorCommand[]
+
+  @@index([deviceId])
+  @@index([actuatorType])
+  @@index([deviceId, actuatorType])
+  @@map("actuators")
+}
+
+model ActuatorCommand {
+  id           String        @id @default(uuid())
+  actuatorId   String
+  command      String // Command name (e.g., "open", "close", "set_position")
+  parameters   Json? // Command parameters
+  status       CommandStatus @default(PENDING)
+  requestedAt  DateTime      @default(now())
+  executedAt   DateTime?
+  completedAt  DateTime?
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  actuator Actuator @relation(fields: [actuatorId], references: [id], onDelete: Cascade)
+
+  @@index([actuatorId])
+  @@index([status])
+  @@index([requestedAt])
+  @@index([actuatorId, status])
+  @@index([actuatorId, requestedAt])
+  @@map("actuator_commands")
+}
+
+model DeviceAlert {
+  id             String        @id @default(uuid())
+  deviceId       String
+  tenantId       String
+  alertType      String // Type of alert (e.g., "offline", "battery_low", "sensor_error")
+  severity       AlertSeverity
+  message        String
+  acknowledged   Boolean       @default(false)
+  acknowledgedBy String?
+  acknowledgedAt DateTime?
+  resolvedAt     DateTime?
+  metadata       Json? // Additional alert data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId])
+  @@index([tenantId])
+  @@index([severity])
+  @@index([acknowledged])
+  @@index([createdAt])
+  @@index([tenantId, acknowledged])
+  @@index([tenantId, severity])
+  @@index([deviceId, acknowledged])
+  @@map("device_alerts")
+}

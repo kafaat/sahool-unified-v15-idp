@@ -6,6 +6,9 @@ Multi-agent AI system for agricultural advisory.
 نظام ذكاء اصطناعي متعدد الوكلاء للاستشارات الزراعية.
 """
 
+# Import shared CORS configuration | استيراد تكوين CORS المشترك
+import os
+import sys
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -31,23 +34,6 @@ from .rag import EmbeddingsManager, KnowledgeRetriever
 from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
-
-# Configure structured logging | تكوين السجلات المنظمة
-structlog.configure(
-    processors=[
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.JSONRenderer(),
-    ]
-)
-
-logger = structlog.get_logger()
-
-# Import shared CORS configuration | استيراد تكوين CORS المشترك
-import os
-import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
 try:
@@ -342,7 +328,7 @@ async def ask_question(request: QuestionRequest):
         logger.error("ask_question_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        ) from e
+        )
 
 
 @app.post("/v1/advisor/diagnose", response_model=AgentResponse, tags=["Advisor"])
@@ -389,7 +375,7 @@ async def diagnose_disease(request: DiagnoseRequest):
         logger.error("diagnose_disease_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        ) from e
+        )
 
 
 @app.post("/v1/advisor/recommend", response_model=AgentResponse, tags=["Advisor"])
@@ -444,7 +430,7 @@ async def get_recommendations(request: RecommendationRequest):
         logger.error("get_recommendations_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        ) from e
+        )
 
 
 @app.post("/v1/advisor/analyze-field", response_model=AgentResponse, tags=["Advisor"])
@@ -533,7 +519,7 @@ async def analyze_field(request: FieldAnalysisRequest):
         logger.error("analyze_field_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        ) from e
+        )
 
 
 @app.get("/v1/advisor/agents", tags=["Advisor"])
@@ -565,7 +551,7 @@ async def list_agents():
         logger.error("list_agents_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        ) from e
+        )
 
 
 @app.get("/v1/advisor/tools", tags=["Advisor"])
@@ -612,7 +598,7 @@ async def get_rag_info():
         logger.error("get_rag_info_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        ) from e
+        )
 
 
 @app.get("/v1/advisor/cost/usage", tags=["Monitoring"])
@@ -635,22 +621,10 @@ async def get_cost_usage(user_id: str | None = None):
                 "daily_limit_usd": stats["daily_limit"],
                 "monthly_limit_usd": stats["monthly_limit"],
                 "total_requests": stats["total_requests"],
-                "daily_remaining_usd": round(
-                    stats["daily_limit"] - stats["daily_cost"], 4
-                ),
-                "monthly_remaining_usd": round(
-                    stats["monthly_limit"] - stats["monthly_cost"], 4
-                ),
-                "daily_usage_percent": (
-                    round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2)
-                    if stats["daily_limit"] > 0
-                    else 0
-                ),
-                "monthly_usage_percent": (
-                    round((stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2)
-                    if stats["monthly_limit"] > 0
-                    else 0
-                ),
+                "daily_remaining_usd": round(stats["daily_limit"] - stats["daily_cost"], 4),
+                "monthly_remaining_usd": round(stats["monthly_limit"] - stats["monthly_cost"], 4),
+                "daily_usage_percent": round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2) if stats["daily_limit"] > 0 else 0,
+                "monthly_usage_percent": round((stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2) if stats["monthly_limit"] > 0 else 0,
             },
             "user_id": user_id or "anonymous",
         }
@@ -658,7 +632,7 @@ async def get_cost_usage(user_id: str | None = None):
         logger.error("get_cost_usage_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        ) from e
+        )
 
 
 if __name__ == "__main__":

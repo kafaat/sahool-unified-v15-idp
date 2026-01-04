@@ -191,7 +191,7 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
                 iat = payload.get("iat")
 
                 # Convert iat to datetime if it's a timestamp
-                if isinstance(iat, (int, float)):
+                if isinstance(iat, int | float):
                     iat = datetime.fromtimestamp(iat, tz=UTC)
 
                 is_revoked, reason = revocation_svc.is_revoked(

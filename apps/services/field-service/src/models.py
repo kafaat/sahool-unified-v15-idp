@@ -125,7 +125,9 @@ class FieldCreate(BaseModel):
     tenant_id: str = Field(..., description="معرف المستأجر")
     user_id: str = Field(..., description="معرف المزارع")
     name: str = Field(..., min_length=1, max_length=200, description="اسم الحقل")
-    name_en: str | None = Field(None, max_length=200, description="الاسم بالإنجليزية")
+    name_en: str | None = Field(
+        None, max_length=200, description="الاسم بالإنجليزية"
+    )
 
     location: FieldLocation = Field(..., description="موقع الحقل")
     boundary: GeoPolygon | None = Field(None, description="حدود الحقل")

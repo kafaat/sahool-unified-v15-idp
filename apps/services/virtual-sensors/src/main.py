@@ -1430,7 +1430,9 @@ class VirtualSensorActionRequest(BaseModel):
     )
     field_area_hectares: float = Field(1.0, gt=0, description="مساحة الحقل بالهكتار")
     last_irrigation_date: date | None = Field(None, description="تاريخ آخر ري")
-    last_irrigation_amount: float | None = Field(None, description="كمية آخر ري بالمم")
+    last_irrigation_amount: float | None = Field(
+        None, description="كمية آخر ري بالمم"
+    )
     weather: WeatherInput = Field(..., description="بيانات الطقس")
     publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
 

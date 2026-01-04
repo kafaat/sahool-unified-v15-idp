@@ -38,14 +38,14 @@ def main():
     # بيانات الطقس لصنعاء - Weather data for Sana'a
     weather_sanaa = WeatherData(
         date=date.today(),
-        temp_max=28.0,  # درجة مئوية
+        temp_max=28.0,      # درجة مئوية
         temp_min=15.0,
         humidity_mean=45.0,  # %
-        wind_speed=2.5,  # m/s
+        wind_speed=2.5,     # m/s
         solar_radiation=22.0,  # MJ/m²/day
-        rainfall=0.0,  # mm
-        latitude=15.35,  # خط عرض صنعاء
-        elevation=2250,  # ارتفاع صنعاء (متر)
+        rainfall=0.0,       # mm
+        latitude=15.35,     # خط عرض صنعاء
+        elevation=2250      # ارتفاع صنعاء (متر)
     )
 
     et0 = scheduler.calculate_et0_penman_monteith(weather_sanaa)
@@ -64,7 +64,7 @@ def main():
         et0=et0,
         effective_rainfall=0.0,
         soil_type=SoilType.LOAMY,
-        irrigation_type=IrrigationType.DRIP,
+        irrigation_type=IrrigationType.DRIP
     )
 
     print("المحصول: قمح (Wheat)")
@@ -97,7 +97,7 @@ def main():
             et0=et0,
             effective_rainfall=0.0,
             soil_type=SoilType.LOAMY,
-            irrigation_type=IrrigationType.DRIP,
+            irrigation_type=IrrigationType.DRIP
         )
         print(f"{name_ar:<20} {name_en:<15} {water_req:>15.2f}")
 
@@ -124,18 +124,16 @@ def main():
     # إنشاء توقعات الطقس لأسبوع
     weather_forecast = []
     for i in range(7):
-        weather_forecast.append(
-            WeatherData(
-                date=date.today() + timedelta(days=i),
-                temp_max=28.0 - i * 0.3,
-                temp_min=15.0 + i * 0.2,
-                humidity_mean=45.0 + i * 2,
-                wind_speed=2.5,
-                rainfall=0.0 if i < 5 else 8.0,  # مطر متوقع في اليوم الخامس
-                latitude=15.35,
-                elevation=2250,
-            )
-        )
+        weather_forecast.append(WeatherData(
+            date=date.today() + timedelta(days=i),
+            temp_max=28.0 - i * 0.3,
+            temp_min=15.0 + i * 0.2,
+            humidity_mean=45.0 + i * 2,
+            wind_speed=2.5,
+            rainfall=0.0 if i < 5 else 8.0,  # مطر متوقع في اليوم الخامس
+            latitude=15.35,
+            elevation=2250
+        ))
 
     # إنشاء جدول الري
     schedule = scheduler.get_optimal_schedule(
@@ -148,24 +146,20 @@ def main():
         weather_forecast=weather_forecast,
         field_area_ha=2.5,
         optimize_for_cost=True,
-        electricity_night_discount=0.3,
+        electricity_night_discount=0.3
     )
 
     print("\n📋 معلومات الجدول - Schedule Information:")
     print(f"   الفترة: {schedule.start_date} إلى {schedule.end_date}")
     print(f"   عدد الريات: {len(schedule.events)}")
-    print(
-        f"   إجمالي المياه: {schedule.total_water_mm:.1f} مم ({schedule.total_water_m3:.1f} م³)"
-    )
+    print(f"   إجمالي المياه: {schedule.total_water_mm:.1f} مم ({schedule.total_water_m3:.1f} م³)")
     print(f"   متوسط الفترة: {schedule.average_interval_days:.1f} يوم")
     print(f"   تكلفة الكهرباء المقدرة: {schedule.estimated_electricity_cost:.2f} ريال")
     print(f"   نقاط التحسين: {schedule.optimization_score:.0f}/100")
     print(f"   كفاءة المياه: {schedule.water_efficiency_score:.0f}/100")
 
     print("\n📆 أحداث الري - Irrigation Events:")
-    print(
-        f"{'التاريخ':<12} {'الوقت':<8} {'الكمية (مم)':<12} {'الكمية (م³)':<12} {'المدة (دقيقة)':<15} {'ليلي':<6} {'الأولوية':<8}"
-    )
+    print(f"{'التاريخ':<12} {'الوقت':<8} {'الكمية (مم)':<12} {'الكمية (م³)':<12} {'المدة (دقيقة)':<15} {'ليلي':<6} {'الأولوية':<8}")
     print("-" * 100)
 
     for event in schedule.events:
@@ -175,11 +169,9 @@ def main():
         priority_map = {1: "حرج", 2: "مرتفع", 3: "متوسط", 4: "منخفض", 5: "عادي"}
         priority_str = priority_map.get(event.priority, str(event.priority))
 
-        print(
-            f"{date_str:<12} {time_str:<8} {event.water_amount_mm:>10.1f}   "
-            f"{event.water_amount_m3:>10.1f}   {event.duration_minutes:>13}   "
-            f"{night:<6} {priority_str:<8}"
-        )
+        print(f"{date_str:<12} {time_str:<8} {event.water_amount_mm:>10.1f}   "
+              f"{event.water_amount_m3:>10.1f}   {event.duration_minutes:>13}   "
+              f"{night:<6} {priority_str:<8}")
 
     print()
 
@@ -194,7 +186,7 @@ def main():
         wilting_point=0.13,
         root_depth=0.6,  # متر للطماطم
         infiltration_rate=25.0,
-        bulk_density=1.4,
+        bulk_density=1.4
     )
 
     print("خصائص التربة الطينية:")
@@ -213,7 +205,7 @@ def main():
         growth_stage=GrowthStage.MID_SEASON,
         soil_properties=soil_props,
         irrigation_amount=20.0,
-        previous_balance=None,
+        previous_balance=None
     )
 
     print(f"\nتوازن المياه ليوم {balance.date}:")
@@ -238,7 +230,7 @@ def main():
         soil_properties=soil_props,
         crop_type=CropType.TOMATO,
         growth_stage=GrowthStage.MID_SEASON,
-        weather_forecast=weather_forecast,
+        weather_forecast=weather_forecast
     )
 
     if recommendation.should_irrigate:
@@ -246,13 +238,9 @@ def main():
         print(f"   الكمية الموصى بها: {recommendation.recommended_amount_mm:.1f} مم")
         print(f"   الأهمية: {recommendation.urgency}")
         print(f"   العجز المائي: {recommendation.water_deficit_mm:.1f} مم")
-        print(
-            f"   توقعات الأمطار (3 أيام): {recommendation.rainfall_forecast_mm:.1f} مم"
-        )
+        print(f"   توقعات الأمطار (3 أيام): {recommendation.rainfall_forecast_mm:.1f} مم")
         if recommendation.best_time_start:
-            print(
-                f"   أفضل وقت: {recommendation.best_time_start.strftime('%Y-%m-%d %H:%M')}"
-            )
+            print(f"   أفضل وقت: {recommendation.best_time_start.strftime('%Y-%m-%d %H:%M')}")
         if recommendation.notes:
             print(f"   ملاحظات: {recommendation.notes}")
     else:

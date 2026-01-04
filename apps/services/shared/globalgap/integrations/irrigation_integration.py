@@ -116,7 +116,9 @@ class IrrigationIntegration:
             spring_data = {
                 "field_id": field_id,
                 "irrigation_event_id": irrigation_data.get("id"),
-                "date": irrigation_data.get("timestamp", datetime.now(UTC).isoformat()),
+                "date": irrigation_data.get(
+                    "timestamp", datetime.now(UTC).isoformat()
+                ),
                 # Water quantity
                 "water_volume_m3": water_volume,
                 "irrigation_method": irrigation_method,

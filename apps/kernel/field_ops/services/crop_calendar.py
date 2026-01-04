@@ -23,7 +23,6 @@ except (ImportError, ValueError):
 
     class CropType(str, Enum):
         """Crop types - fallback definition"""
-
         WHEAT = "wheat"
         SORGHUM = "sorghum"
         TOMATO = "tomato"
@@ -44,7 +43,6 @@ except (ImportError, ValueError):
 
     class GrowthStage(str, Enum):
         """Growth stages - fallback definition"""
-
         INITIAL = "initial"
         DEVELOPMENT = "development"
         MID_SEASON = "mid_season"
@@ -53,13 +51,11 @@ except (ImportError, ValueError):
 
 # ============== التعدادات الإضافية - Additional Enumerations ==============
 
-
 class DetailedGrowthStage(str, Enum):
     """
     مراحل النمو التفصيلية
     Detailed growth stages (6-stage model)
     """
-
     GERMINATION = "germination"  # إنبات
     VEGETATIVE = "vegetative"  # نمو خضري
     FLOWERING = "flowering"  # إزهار
@@ -73,7 +69,6 @@ class YemenRegion(str, Enum):
     مناطق اليمن الزراعية
     Yemen agricultural regions
     """
-
     TIHAMA = "tihama"  # تهامة - الساحل
     HIGHLANDS = "highlands"  # المرتفعات الجبلية
     HADHRAMAUT = "hadhramaut"  # حضرموت - الشرق
@@ -84,7 +79,6 @@ class Season(str, Enum):
     الفصول
     Seasons
     """
-
     SPRING = "spring"  # ربيع
     SUMMER = "summer"  # صيف
     AUTUMN = "autumn"  # خريف
@@ -93,14 +87,12 @@ class Season(str, Enum):
 
 # ============== نماذج البيانات - Data Models ==============
 
-
 @dataclass
 class CropCalendar:
     """
     تقويم محصول
     Crop calendar information
     """
-
     crop_type: str
     name_en: str
     name_ar: str
@@ -119,7 +111,6 @@ class GrowthStageInfo:
     معلومات مرحلة النمو
     Growth stage information
     """
-
     stage_name: str
     name_ar: str
     duration_days: int
@@ -136,7 +127,6 @@ class PlantingWindow:
     نافذة الزراعة
     Planting window information
     """
-
     region: str
     start_month: int
     end_month: int
@@ -150,7 +140,6 @@ class Task:
     مهمة زراعية
     Agricultural task
     """
-
     task_id: str
     field_id: str
     crop_type: str
@@ -166,7 +155,6 @@ class Task:
 
 
 # ============== فئة خدمة التقويم الزراعي - Crop Calendar Service Class ==============
-
 
 class CropCalendarService:
     """
@@ -199,7 +187,7 @@ class CropCalendarService:
         """
         data_path = Path(__file__).parent.parent / "data" / "crop_calendars.json"
 
-        with open(data_path, encoding="utf-8") as f:
+        with open(data_path, encoding='utf-8') as f:
             data = json.load(f)
 
         self.crops_data = data.get("crops", {})
@@ -209,7 +197,9 @@ class CropCalendarService:
     # ============== 1. الحصول على التقويم - Get Calendar ==============
 
     def get_calendar(
-        self, crop_type: str, region: str | None = None
+        self,
+        crop_type: str,
+        region: str | None = None
     ) -> CropCalendar:
         """
         الحصول على تقويم المحصول
@@ -240,13 +230,17 @@ class CropCalendarService:
         # Filter planting windows by region
         planting_windows = crop_data.get("planting_windows", {})
         if region:
-            planting_windows = {region: planting_windows.get(region, {})}
+            planting_windows = {
+                region: planting_windows.get(region, {})
+            }
 
         # تصفية مواسم الحصاد حسب المنطقة
         # Filter harvest seasons by region
         harvest_season = crop_data.get("harvest_season", {})
         if region and harvest_season:
-            harvest_season = {region: harvest_season.get(region, {})}
+            harvest_season = {
+                region: harvest_season.get(region, {})
+            }
 
         return CropCalendar(
             crop_type=crop_type,
@@ -258,13 +252,15 @@ class CropCalendarService:
             total_cycle_days=crop_data.get("total_cycle_days"),
             is_perennial=crop_data.get("perennial", False),
             harvest_season=harvest_season,
-            productive_years=crop_data.get("productive_years"),
+            productive_years=crop_data.get("productive_years")
         )
 
     # ============== 2. الحصول على المرحلة الحالية - Get Current Stage ==============
 
     def get_current_stage(
-        self, crop_type: str, planting_date: date
+        self,
+        crop_type: str,
+        planting_date: date
     ) -> tuple[str, GrowthStageInfo]:
         """
         الحصول على مرحلة النمو الحالية
@@ -326,7 +322,8 @@ class CropCalendarService:
         return current_stage, current_stage_info
 
     def _parse_growth_stages(
-        self, growth_stages: dict[str, Any]
+        self,
+        growth_stages: dict[str, Any]
     ) -> list[tuple[str, GrowthStageInfo]]:
         """
         تحليل مراحل النمو وحساب أيام البداية والنهاية
@@ -338,7 +335,8 @@ class CropCalendarService:
         # ترتيب المراحل حسب الترتيب
         # Sort stages by order
         sorted_stages = sorted(
-            growth_stages.items(), key=lambda x: x[1].get("order", 0)
+            growth_stages.items(),
+            key=lambda x: x[1].get("order", 0)
         )
 
         for stage_name, stage_data in sorted_stages:
@@ -352,7 +350,7 @@ class CropCalendarService:
                 water_requirement=stage_data.get("water_requirement", "moderate"),
                 critical_tasks=stage_data.get("critical_tasks", []),
                 start_day=cumulative_days,
-                end_day=cumulative_days + duration - 1,
+                end_day=cumulative_days + duration - 1
             )
 
             stages_list.append((stage_name, stage_info))
@@ -368,7 +366,7 @@ class CropCalendarService:
         crop_type: str,
         planting_date: date,
         region: str = "highlands",
-        days: int = 14,
+        days: int = 14
     ) -> list[Task]:
         """
         الحصول على المهام القادمة للحقل
@@ -415,7 +413,7 @@ class CropCalendarService:
             planting_date=planting_date,
             current_stage=current_stage_name,
             today=today,
-            end_date=end_date,
+            end_date=end_date
         )
         tasks.extend(irrigation_tasks)
 
@@ -426,7 +424,7 @@ class CropCalendarService:
             planting_date=planting_date,
             current_stage=current_stage_name,
             today=today,
-            end_date=end_date,
+            end_date=end_date
         )
         tasks.extend(fertilization_tasks)
 
@@ -437,7 +435,7 @@ class CropCalendarService:
             planting_date=planting_date,
             region=region,
             today=today,
-            end_date=end_date,
+            end_date=end_date
         )
         tasks.extend(pest_tasks)
 
@@ -446,7 +444,7 @@ class CropCalendarService:
             field_id=field_id,
             crop_type=crop_type,
             current_stage_info=current_stage_info,
-            today=today,
+            today=today
         )
         tasks.extend(critical_tasks)
 
@@ -459,7 +457,10 @@ class CropCalendarService:
     # ============== 4. اقتراح نافذة الزراعة - Suggest Planting Window ==============
 
     def suggest_planting_window(
-        self, crop_type: str, region: str, reference_date: date | None = None
+        self,
+        crop_type: str,
+        region: str,
+        reference_date: date | None = None
     ) -> list[PlantingWindow]:
         """
         اقتراح أفضل نوافذ الزراعة
@@ -505,7 +506,7 @@ class CropCalendarService:
                 start_month=window_data.get("start_month"),
                 end_month=window_data.get("end_month"),
                 window_type=window_type,
-                description=window_data.get("description", ""),
+                description=window_data.get("description", "")
             )
             windows.append(window)
 
@@ -519,7 +520,9 @@ class CropCalendarService:
     # ============== جدولة المهام - Task Scheduling ==============
 
     def irrigation_schedule(
-        self, growth_stage: str, region: str = "highlands"
+        self,
+        growth_stage: str,
+        region: str = "highlands"
     ) -> dict[str, Any]:
         """
         جدول الري حسب مرحلة النمو
@@ -537,9 +540,7 @@ class CropCalendarService:
             >>> schedule = service.irrigation_schedule("flowering")
             >>> print(schedule["frequency_days"])  # 2
         """
-        irrigation_data = self.task_schedules.get("irrigation", {}).get(
-            growth_stage, {}
-        )
+        irrigation_data = self.task_schedules.get("irrigation", {}).get(growth_stage, {})
 
         if not irrigation_data:
             # قيم افتراضية
@@ -547,7 +548,7 @@ class CropCalendarService:
             irrigation_data = {
                 "frequency_days": 4,
                 "description_ar": "ري منتظم",
-                "description_en": "Regular irrigation",
+                "description_en": "Regular irrigation"
             }
 
         # تعديلات إقليمية - Regional adjustments
@@ -566,11 +567,13 @@ class CropCalendarService:
             "frequency_days": frequency,
             "description_ar": irrigation_data.get("description_ar", ""),
             "description_en": irrigation_data.get("description_en", ""),
-            "region_adjusted": region,
+            "region_adjusted": region
         }
 
     def fertilizer_schedule(
-        self, crop_type: str, growth_stage: str
+        self,
+        crop_type: str,
+        growth_stage: str
     ) -> list[dict[str, Any]]:
         """
         جدول التسميد حسب المحصول ومرحلة النمو
@@ -598,13 +601,16 @@ class CropCalendarService:
         # تصفية حسب مرحلة النمو
         # Filter by growth stage
         stage_fertilizers = [
-            fert for fert in crop_schedule if fert.get("stage") == growth_stage
+            fert for fert in crop_schedule
+            if fert.get("stage") == growth_stage
         ]
 
         return stage_fertilizers
 
     def pest_monitoring_schedule(
-        self, crop_type: str, season: str | None = None
+        self,
+        crop_type: str,
+        season: str | None = None
     ) -> dict[str, Any]:
         """
         جدول مراقبة الآفات حسب المحصول والموسم
@@ -634,7 +640,7 @@ class CropCalendarService:
             pest_data = {
                 "frequency_days": 7,
                 "common_pests_ar": ["آفات عامة"],
-                "common_pests_en": ["general_pests"],
+                "common_pests_en": ["general_pests"]
             }
 
         return pest_data
@@ -648,7 +654,7 @@ class CropCalendarService:
         planting_date: date,
         current_stage: str,
         today: date,
-        end_date: date,
+        end_date: date
     ) -> list[Task]:
         """إنشاء مهام الري - Generate irrigation tasks"""
         tasks = []
@@ -672,7 +678,7 @@ class CropCalendarService:
                 scheduled_date=current_date,
                 growth_stage=current_stage,
                 priority=2 if current_stage in ["flowering", "fruiting"] else 3,
-                description=irrigation_schedule.get("description_en", ""),
+                description=irrigation_schedule.get("description_en", "")
             )
             tasks.append(task)
 
@@ -688,7 +694,7 @@ class CropCalendarService:
         planting_date: date,
         current_stage: str,
         today: date,
-        end_date: date,
+        end_date: date
     ) -> list[Task]:
         """إنشاء مهام التسميد - Generate fertilization tasks"""
         tasks = []
@@ -708,9 +714,7 @@ class CropCalendarService:
 
             for stage_name, stage_info in stages_list:
                 if stage_name == current_stage:
-                    task_date = planting_date + timedelta(
-                        days=stage_info.start_day + stage_day
-                    )
+                    task_date = planting_date + timedelta(days=stage_info.start_day + stage_day)
 
                     if today <= task_date <= end_date:
                         task = Task(
@@ -725,7 +729,7 @@ class CropCalendarService:
                             priority=2,
                             description=f"Apply {fert.get('amount_kg_ha')} kg/ha",
                             quantity=fert.get("amount_kg_ha"),
-                            unit="kg/ha",
+                            unit="kg/ha"
                         )
                         tasks.append(task)
                     break
@@ -739,7 +743,7 @@ class CropCalendarService:
         planting_date: date,
         region: str,
         today: date,
-        end_date: date,
+        end_date: date
     ) -> list[Task]:
         """إنشاء مهام مراقبة الآفات - Generate pest monitoring tasks"""
         tasks = []
@@ -765,7 +769,7 @@ class CropCalendarService:
                 scheduled_date=current_date,
                 growth_stage="",
                 priority=3,
-                description=f"Check for common {season} pests",
+                description=f"Check for common {season} pests"
             )
             tasks.append(task)
 
@@ -779,7 +783,7 @@ class CropCalendarService:
         field_id: str,
         crop_type: str,
         current_stage_info: GrowthStageInfo,
-        today: date,
+        today: date
     ) -> list[Task]:
         """إنشاء المهام الحرجة - Generate critical tasks from growth stage"""
         tasks = []
@@ -809,10 +813,13 @@ class CropCalendarService:
                 "pruning": ("تقليم", "Pruning"),
                 "thinning": ("خف", "Thinning"),
                 "quality_check": ("فحص الجودة", "Quality check"),
-                "packaging": ("تعبئة", "Packaging"),
+                "packaging": ("تعبئة", "Packaging")
             }
 
-            name_ar, name_en = task_translations.get(task_name, (task_name, task_name))
+            name_ar, name_en = task_translations.get(
+                task_name,
+                (task_name, task_name)
+            )
 
             # جدولة المهمة في منتصف المرحلة تقريباً
             # Schedule task approximately mid-stage
@@ -828,7 +835,7 @@ class CropCalendarService:
                 scheduled_date=today + timedelta(days=days_offset),
                 growth_stage=current_stage_info.stage_name,
                 priority=1,
-                description=f"Critical task for {current_stage_info.name_ar} stage",
+                description=f"Critical task for {current_stage_info.name_ar} stage"
             )
             tasks.append(task)
 
@@ -875,15 +882,13 @@ class CropCalendarService:
         """
         crops = []
         for crop_key, crop_data in self.crops_data.items():
-            crops.append(
-                {
-                    "crop_type": crop_key,
-                    "name_en": crop_data.get("name_en", ""),
-                    "name_ar": crop_data.get("name_ar", ""),
-                    "category": crop_data.get("type", ""),
-                    "is_perennial": crop_data.get("perennial", False),
-                }
-            )
+            crops.append({
+                "crop_type": crop_key,
+                "name_en": crop_data.get("name_en", ""),
+                "name_ar": crop_data.get("name_ar", ""),
+                "category": crop_data.get("type", ""),
+                "is_perennial": crop_data.get("perennial", False)
+            })
 
         return crops
 

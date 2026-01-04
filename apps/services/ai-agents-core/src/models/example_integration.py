@@ -43,7 +43,9 @@ class DiseaseDetectionAgent:
             enable_gpu: Enable GPU acceleration - تفعيل تسريع GPU
         """
         self.model = DiseaseCNNModel(
-            model_path=model_path, framework="tensorflow", enable_gpu=enable_gpu
+            model_path=model_path,
+            framework="tensorflow",
+            enable_gpu=enable_gpu
         )
 
         if model_path:
@@ -53,7 +55,10 @@ class DiseaseDetectionAgent:
         logger.info("Disease Detection Agent initialized")
 
     async def analyze_plant_health(
-        self, image: Any, field_id: str = None, crop_type: str = None
+        self,
+        image: Any,
+        field_id: str = None,
+        crop_type: str = None
     ) -> dict[str, Any]:
         """
         Analyze plant health from image
@@ -84,12 +89,12 @@ class DiseaseDetectionAgent:
                     "disease": primary["disease"],
                     "disease_ar": primary["disease_ar"],
                     "confidence": primary["confidence"],
-                    "severity": primary["severity"],
+                    "severity": primary["severity"]
                 },
                 "alternative_diagnoses": predictions[1:],
                 "action_required": action_required,
                 "recommended_treatment": primary["treatment_ar"],
-                "all_predictions": predictions,
+                "all_predictions": predictions
             }
 
             # Add alerts for critical conditions - إضافة تنبيهات للظروف الحرجة
@@ -97,7 +102,7 @@ class DiseaseDetectionAgent:
                 result["alert"] = {
                     "level": "urgent",
                     "message": f"كشف مرض خطير: {primary['disease_ar']}",
-                    "action": "اتخاذ إجراء فوري مطلوب",
+                    "action": "اتخاذ إجراء فوري مطلوب"
                 }
 
             return result
@@ -107,7 +112,10 @@ class DiseaseDetectionAgent:
             raise
 
     async def analyze_field_batch(
-        self, field_id: str, images: list[Any], crop_type: str = None
+        self,
+        field_id: str,
+        images: list[Any],
+        crop_type: str = None
     ) -> dict[str, Any]:
         """
         Analyze entire field from multiple images
@@ -126,7 +134,9 @@ class DiseaseDetectionAgent:
 
             # Process field images - معالجة صور الحقل
             report = await self.model.process_field_images(
-                field_id=field_id, images=images, min_confidence=0.6
+                field_id=field_id,
+                images=images,
+                min_confidence=0.6
             )
 
             # Add crop-specific information - إضافة معلومات خاصة بالمحصول
@@ -156,7 +166,7 @@ class DiseaseDetectionAgent:
             "date_palm": "نخيل",
             "coffee": "بن",
             "banana": "موز",
-            "mango": "مانجو",
+            "mango": "مانجو"
         }
         return crop_names.get(crop_type, crop_type)
 
@@ -172,47 +182,44 @@ class DiseaseDetectionAgent:
             "immediate_actions": [],
             "short_term_actions": [],
             "monitoring_schedule": {},
-            "estimated_cost": 0.0,
+            "estimated_cost": 0.0
         }
 
         # Immediate actions for critical diseases - إجراءات فورية للأمراض الحرجة
         critical_diseases = [
-            rec for rec in recommendations if rec["severity"] == "critical"
+            rec for rec in recommendations
+            if rec["severity"] == "critical"
         ]
 
         if critical_diseases:
             for disease in critical_diseases:
-                action_plan["immediate_actions"].append(
-                    {
-                        "action": f"معالجة {disease['disease_ar']}",
-                        "treatment": disease["treatment_ar"],
-                        "affected_areas": disease["affected_count"],
-                        "priority": "urgent",
-                    }
-                )
+                action_plan["immediate_actions"].append({
+                    "action": f"معالجة {disease['disease_ar']}",
+                    "treatment": disease["treatment_ar"],
+                    "affected_areas": disease["affected_count"],
+                    "priority": "urgent"
+                })
 
         # Short-term actions - إجراءات قصيرة المدى
         if health_percentage < 70:
-            action_plan["short_term_actions"].append(
-                {
-                    "action": "زيادة مراقبة الحقل",
-                    "frequency": "يومي",
-                    "duration": "أسبوعين",
-                }
-            )
+            action_plan["short_term_actions"].append({
+                "action": "زيادة مراقبة الحقل",
+                "frequency": "يومي",
+                "duration": "أسبوعين"
+            })
 
         # Monitoring schedule - جدول المراقبة
         if health_percentage < 80:
             action_plan["monitoring_schedule"] = {
                 "frequency": "يومي",
                 "duration_weeks": 2,
-                "focus_areas": ["المناطق المصابة", "النباتات المجاورة"],
+                "focus_areas": ["المناطق المصابة", "النباتات المجاورة"]
             }
         else:
             action_plan["monitoring_schedule"] = {
                 "frequency": "أسبوعي",
                 "duration_weeks": 4,
-                "focus_areas": ["الفحص العام"],
+                "focus_areas": ["الفحص العام"]
             }
 
         return action_plan
@@ -227,13 +234,12 @@ class DiseaseDetectionAgent:
             "model_status": "active" if self.model.model else "not_loaded",
             "model_version": self.model.get_model_version(),
             "is_warmed_up": self.model.is_warmed_up,
-            "metrics": self.model.get_metrics(),
+            "metrics": self.model.get_metrics()
         }
 
 
 # Example usage with FastAPI integration
 # مثال على الاستخدام مع تكامل FastAPI
-
 
 async def example_single_image_analysis():
     """
@@ -288,7 +294,10 @@ async def example_field_batch_analysis():
     DiseaseDetectionAgent(enable_gpu=False)
 
     # Create dummy images - إنشاء صور وهمية
-    [np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8) for _ in range(10)]
+    [
+        np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8)
+        for _ in range(10)
+    ]
 
     # Analyze field - تحليل الحقل
     # report = await agent.analyze_field_batch(
@@ -324,8 +333,7 @@ async def example_fastapi_integration():
     print("=" * 60)
 
     print("\nFastAPI endpoint would look like:")
-    print(
-        """
+    print("""
     @app.post("/api/v1/detect-disease")
     async def detect_disease(file: UploadFile = File(...)):
         # Read image
@@ -339,8 +347,7 @@ async def example_fastapi_integration():
             "success": True,
             "diagnosis": result
         }
-    """
-    )
+    """)
 
     print("\nنقطة نهاية FastAPI ستبدو هكذا:")
     print("- قراءة الصورة المرفوعة")

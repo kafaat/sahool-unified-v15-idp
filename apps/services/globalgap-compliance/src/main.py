@@ -71,7 +71,9 @@ logger = structlog.get_logger(__name__)
 # ============== Authentication ==============
 
 
-def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
+def get_tenant_id(
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
+) -> str:
     """
     Extract and validate tenant ID from X-Tenant-Id header
     استخراج والتحقق من معرف المستأجر من رأس X-Tenant-Id

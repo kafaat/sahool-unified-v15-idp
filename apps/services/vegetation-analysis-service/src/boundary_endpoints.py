@@ -146,7 +146,7 @@ def register_boundary_endpoints(app, boundary_detector):
 
         try:
             # Convert to tuple format
-            coord_tuples = [(lon, lat) for lon, lat in request.coords]
+            coord_tuples = list(request.coords)
 
             if len(coord_tuples) < 3:
                 raise HTTPException(
@@ -217,7 +217,7 @@ def register_boundary_endpoints(app, boundary_detector):
             # Parse previous coordinates
             try:
                 coord_list = json.loads(previous_coords)
-                coord_tuples = [(lon, lat) for lon, lat in coord_list]
+                coord_tuples = list(coord_list)
             except (json.JSONDecodeError, ValueError):
                 raise HTTPException(
                     status_code=400,

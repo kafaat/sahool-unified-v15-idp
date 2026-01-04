@@ -141,7 +141,8 @@ export class AuthModule {
       try {
         JWTConfig.validate();
       } catch (error) {
-        console.error('[AuthModule] Configuration validation failed:', error.message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('[AuthModule] Configuration validation failed:', errorMessage);
         throw error;
       }
     }

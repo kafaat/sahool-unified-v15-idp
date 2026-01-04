@@ -229,7 +229,7 @@ class BaseAgent(ABC):
         """
         lines = []
         for key, value in context.items():
-            if isinstance(value, (dict, list)):
+            if isinstance(value, dict | list):
                 import json
 
                 value = json.dumps(value, ensure_ascii=False, indent=2)

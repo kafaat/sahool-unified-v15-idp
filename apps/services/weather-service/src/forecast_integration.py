@@ -268,11 +268,9 @@ class WeatherForecastService:
         # جرب المزودين حسب ترتيب الأولوية
         sorted_providers = sorted(
             self.providers.items(),
-            key=lambda x: (
-                self.config.providers.get(x[0], {}).priority.value
-                if hasattr(self.config.providers.get(x[0], {}), "priority")
-                else 999
-            ),
+            key=lambda x: self.config.providers.get(x[0], {}).priority.value
+            if hasattr(self.config.providers.get(x[0], {}), "priority")
+            else 999,
         )
 
         for provider_name, provider in sorted_providers:
@@ -289,9 +287,7 @@ class WeatherForecastService:
 
         return None, None, "none"
 
-    def parse_openweather_response(
-        self, response: dict[str, Any]
-    ) -> list[DailyForecast]:
+    def parse_openweather_response(self, response: dict[str, Any]) -> list[DailyForecast]:
         """
         Parse OpenWeatherMap API response
         تحليل استجابة OpenWeatherMap API
@@ -321,10 +317,10 @@ class WeatherForecastService:
                     temp_max_c=max(temps),
                     temp_min_c=min(temps),
                     precipitation_mm=sum(precips),
-                    precipitation_probability_pct=int(
-                        (items[0].get("pop", 0) or 0) * 100
+                    precipitation_probability_pct=int((items[0].get("pop", 0) or 0) * 100),
+                    wind_speed_max_kmh=max(
+                        i["wind"]["speed"] * 3.6 for i in items
                     ),
-                    wind_speed_max_kmh=max(i["wind"]["speed"] * 3.6 for i in items),
                     uv_index_max=0,
                     condition=condition,
                     condition_ar=self._translate_condition(condition),
@@ -334,9 +330,7 @@ class WeatherForecastService:
 
         return forecasts
 
-    def parse_weatherapi_response(
-        self, response: dict[str, Any]
-    ) -> list[DailyForecast]:
+    def parse_weatherapi_response(self, response: dict[str, Any]) -> list[DailyForecast]:
         """
         Parse WeatherAPI.com response
         تحليل استجابة WeatherAPI.com
@@ -357,9 +351,7 @@ class WeatherForecastService:
                     temp_max_c=day_data.get("maxtemp_c", 0),
                     temp_min_c=day_data.get("mintemp_c", 0),
                     precipitation_mm=day_data.get("totalprecip_mm", 0),
-                    precipitation_probability_pct=day_data.get(
-                        "daily_chance_of_rain", 0
-                    ),
+                    precipitation_probability_pct=day_data.get("daily_chance_of_rain", 0),
                     wind_speed_max_kmh=day_data.get("maxwind_kph", 0),
                     uv_index_max=day_data.get("uv", 0),
                     condition=day_data.get("condition", {}).get("text", "Unknown"),
@@ -372,9 +364,7 @@ class WeatherForecastService:
 
         return forecasts
 
-    def aggregate_forecasts(
-        self, sources: list[tuple[str, list[DailyForecast]]]
-    ) -> list[DailyForecast]:
+    def aggregate_forecasts(self, sources: list[tuple[str, list[DailyForecast]]]) -> list[DailyForecast]:
         """
         Aggregate forecasts from multiple sources
         تجميع التوقعات من مصادر متعددة
@@ -398,7 +388,7 @@ class WeatherForecastService:
         # تجميع التوقعات حسب التاريخ
         forecast_by_date: dict[str, list[DailyForecast]] = {}
 
-        for provider_name, forecasts in sources:
+        for _provider_name, forecasts in sources:
             for forecast in forecasts:
                 forecast_by_date.setdefault(forecast.date, []).append(forecast)
 
@@ -414,23 +404,15 @@ class WeatherForecastService:
             aggregated.append(
                 DailyForecast(
                     date=date_str,
-                    temp_max_c=sum(f.temp_max_c for f in day_forecasts)
-                    / len(day_forecasts),
-                    temp_min_c=sum(f.temp_min_c for f in day_forecasts)
-                    / len(day_forecasts),
-                    precipitation_mm=sum(f.precipitation_mm for f in day_forecasts)
-                    / len(day_forecasts),
+                    temp_max_c=sum(f.temp_max_c for f in day_forecasts) / len(day_forecasts),
+                    temp_min_c=sum(f.temp_min_c for f in day_forecasts) / len(day_forecasts),
+                    precipitation_mm=sum(f.precipitation_mm for f in day_forecasts) / len(day_forecasts),
                     precipitation_probability_pct=sum(
                         f.precipitation_probability_pct for f in day_forecasts
-                    )
-                    / len(day_forecasts),
-                    wind_speed_max_kmh=sum(f.wind_speed_max_kmh for f in day_forecasts)
-                    / len(day_forecasts),
-                    uv_index_max=sum(f.uv_index_max for f in day_forecasts)
-                    / len(day_forecasts),
-                    condition=day_forecasts[
-                        0
-                    ].condition,  # Use first provider's condition
+                    ) / len(day_forecasts),
+                    wind_speed_max_kmh=sum(f.wind_speed_max_kmh for f in day_forecasts) / len(day_forecasts),
+                    uv_index_max=sum(f.uv_index_max for f in day_forecasts) / len(day_forecasts),
+                    condition=day_forecasts[0].condition,  # Use first provider's condition
                     condition_ar=day_forecasts[0].condition_ar,
                     icon=day_forecasts[0].icon,
                     sunrise=day_forecasts[0].sunrise,
@@ -566,7 +548,7 @@ def detect_heat_wave(
     hot_days_start = None
     max_temp_in_wave = 0.0
 
-    for i, day_forecast in enumerate(forecast):
+    for _i, day_forecast in enumerate(forecast):
         temp = day_forecast.temp_max_c
 
         if temp >= thresholds.heat_wave_medium_c:
@@ -927,7 +909,9 @@ def calculate_agricultural_indices(
 
     # Growing Degree Days
     # أيام درجة النمو
-    indices.gdd = calculate_gdd(daily_forecast.temp_min_c, daily_forecast.temp_max_c)
+    indices.gdd = calculate_gdd(
+        daily_forecast.temp_min_c, daily_forecast.temp_max_c
+    )
 
     # Chill hours (if hourly data available)
     # ساعات البرودة (إذا توفرت البيانات الساعية)
@@ -962,7 +946,9 @@ def calculate_agricultural_indices(
 
     # Moisture deficit (ET0 - Precipitation)
     # عجز الرطوبة
-    indices.moisture_deficit_mm = max(0, indices.eto - daily_forecast.precipitation_mm)
+    indices.moisture_deficit_mm = max(
+        0, indices.eto - daily_forecast.precipitation_mm
+    )
 
     return indices
 

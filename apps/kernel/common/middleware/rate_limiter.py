@@ -54,7 +54,6 @@ class EndpointConfig:
         burst: الحد الأقصى للطلبات المتتالية - Maximum burst requests
         strategy: استراتيجية الحد - Limiting strategy to use
     """
-
     requests: int
     period: int  # بالثواني - in seconds
     burst: int | None = None
@@ -68,28 +67,30 @@ ENDPOINT_CONFIGS: dict[str, EndpointConfig] = {
         requests=10,
         period=60,  # 10 طلبات/دقيقة للمعالجة الثقيلة - 10 req/min for heavy processing
         burst=2,
-        strategy="token_bucket",
+        strategy="token_bucket"
     ),
     "/api/v1/field-health": EndpointConfig(
         requests=30,
         period=60,  # 30 طلب/دقيقة - 30 req/min
         burst=5,
-        strategy="sliding_window",
+        strategy="sliding_window"
     ),
     "/api/v1/weather": EndpointConfig(
         requests=60,
         period=60,  # 60 طلب/دقيقة - 60 req/min
         burst=10,
-        strategy="sliding_window",
+        strategy="sliding_window"
     ),
     "/api/v1/sensors": EndpointConfig(
         requests=100,
         period=60,  # 100 طلب/دقيقة - 100 req/min
         burst=20,
-        strategy="fixed_window",
+        strategy="fixed_window"
     ),
     "/healthz": EndpointConfig(
-        requests=0, period=0, strategy="fixed_window"  # غير محدود - unlimited
+        requests=0,  # غير محدود - unlimited
+        period=0,
+        strategy="fixed_window"
     ),
 }
 
@@ -118,7 +119,10 @@ class RateLimitStrategy(ABC):
 
     @abstractmethod
     async def check_rate_limit(
-        self, client_id: str, endpoint: str, config: EndpointConfig
+        self,
+        client_id: str,
+        endpoint: str,
+        config: EndpointConfig
     ) -> tuple[bool, int, int]:
         """
         التحقق من حد المعدل
@@ -172,7 +176,10 @@ class FixedWindowLimiter(RateLimitStrategy):
     """
 
     async def check_rate_limit(
-        self, client_id: str, endpoint: str, config: EndpointConfig
+        self,
+        client_id: str,
+        endpoint: str,
+        config: EndpointConfig
     ) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام نافذة ثابتة"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
@@ -196,9 +203,7 @@ class FixedWindowLimiter(RateLimitStrategy):
             # Increment counter atomically
             pipe = self.redis.pipeline()
             pipe.incr(window_key)
-            pipe.expire(
-                window_key, config.period * 2
-            )  # احتفظ بنافذتين - Keep 2 windows
+            pipe.expire(window_key, config.period * 2)  # احتفظ بنافذتين - Keep 2 windows
             results = await pipe.execute()
 
             current_count = results[0]
@@ -275,7 +280,10 @@ class SlidingWindowLimiter(RateLimitStrategy):
     """
 
     async def check_rate_limit(
-        self, client_id: str, endpoint: str, config: EndpointConfig
+        self,
+        client_id: str,
+        endpoint: str,
+        config: EndpointConfig
     ) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام نافذة منزلقة"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
@@ -376,7 +384,10 @@ class TokenBucketLimiter(RateLimitStrategy):
     """
 
     async def check_rate_limit(
-        self, client_id: str, endpoint: str, config: EndpointConfig
+        self,
+        client_id: str,
+        endpoint: str,
+        config: EndpointConfig
     ) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام دلو الرموز"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
@@ -407,8 +418,8 @@ class TokenBucketLimiter(RateLimitStrategy):
 
             # استخراج القيم الحالية
             # Extract current values
-            last_update = float(bucket.get("last_update", now))
-            tokens = float(bucket.get("tokens", max_tokens))
+            last_update = float(bucket.get('last_update', now))
+            tokens = float(bucket.get('tokens', max_tokens))
 
             # حساب الرموز الجديدة المضافة منذ آخر تحديث
             # Calculate new tokens added since last update
@@ -434,16 +445,16 @@ class TokenBucketLimiter(RateLimitStrategy):
             # تحديث حالة الدلو
             # Update bucket state
             pipe = self.redis.pipeline()
-            pipe.hset(key, mapping={"tokens": str(tokens), "last_update": str(now)})
+            pipe.hset(key, mapping={
+                'tokens': str(tokens),
+                'last_update': str(now)
+            })
             pipe.expire(key, config.period * 2)
             await pipe.execute()
 
             # حساب وقت إعادة التعيين (الوقت حتى يصبح لدينا رمز واحد)
             # Calculate reset time (time until we have one token)
-            if tokens < 1.0:
-                reset_time = int((1.0 - tokens) / refill_rate) + 1
-            else:
-                reset_time = 0
+            reset_time = int((1.0 - tokens) / refill_rate) + 1 if tokens < 1.0 else 0
 
             remaining = int(tokens)
 
@@ -531,9 +542,7 @@ class RateLimiter:
             # اختبار الاتصال
             # Test connection
             await self.redis.ping()
-            logger.info(
-                f"✓ Redis متصل للحد من المعدل - Redis connected for rate limiting: {self.redis_url}"
-            )
+            logger.info(f"✓ Redis متصل للحد من المعدل - Redis connected for rate limiting: {self.redis_url}")
 
         except Exception as e:
             logger.warning(
@@ -577,7 +586,10 @@ class RateLimiter:
         # تكوين افتراضي: 60 طلب/دقيقة
         # Default config: 60 req/min
         return EndpointConfig(
-            requests=60, period=60, burst=10, strategy="sliding_window"
+            requests=60,
+            period=60,
+            burst=10,
+            strategy="sliding_window"
         )
 
     async def check_rate_limit(
@@ -611,7 +623,8 @@ class RateLimiter:
         # الحصول على الاستراتيجية
         # Get strategy
         strategy = self.strategies.get(
-            config.strategy, self.strategies["sliding_window"]
+            config.strategy,
+            self.strategies["sliding_window"]
         )
 
         return await strategy.check_rate_limit(client_id, endpoint, config)
@@ -639,9 +652,7 @@ class RateLimiter:
             remaining = 0
         return remaining
 
-    async def reset_limits(
-        self, client_id: str, endpoint: str | None = None
-    ) -> bool:
+    async def reset_limits(self, client_id: str, endpoint: str | None = None) -> bool:
         """
         إعادة تعيين حدود المعدل لعميل
         Reset rate limits for a client.
@@ -661,14 +672,15 @@ class RateLimiter:
             # Reset specific endpoint
             config = self._get_endpoint_config(endpoint)
             strategy = self.strategies.get(
-                config.strategy, self.strategies["sliding_window"]
+                config.strategy,
+                self.strategies["sliding_window"]
             )
             return await strategy.reset_limits(client_id, endpoint)
         else:
             # إعادة تعيين جميع النقاط النهائية
             # Reset all endpoints
             success = True
-            for strategy_name, strategy in self.strategies.items():
+            for _strategy_name, strategy in self.strategies.items():
                 try:
                     # إعادة تعيين جميع المفاتيح لهذا العميل
                     # Reset all keys for this client
@@ -676,9 +688,7 @@ class RateLimiter:
                         pattern = f"ratelimit:*:{client_id}:*"
                         cursor = 0
                         while True:
-                            cursor, keys = await self.redis.scan(
-                                cursor, match=pattern, count=100
-                            )
+                            cursor, keys = await self.redis.scan(cursor, match=pattern, count=100)
                             if keys:
                                 await self.redis.delete(*keys)
                             if cursor == 0:
@@ -806,14 +816,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         """
         super().__init__(app)
         self.limiter = limiter
-        self.exclude_paths = exclude_paths or [
-            "/healthz",
-            "/readyz",
-            "/livez",
-            "/metrics",
-            "/docs",
-            "/openapi.json",
-        ]
+        self.exclude_paths = exclude_paths or ["/healthz", "/readyz", "/livez", "/metrics", "/docs", "/openapi.json"]
         self.identifier_func = identifier_func or ClientIdentifier.get_client_id
 
     async def dispatch(self, request: Request, call_next):
@@ -834,15 +837,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # التحقق من حد المعدل
         # Check rate limit
         allowed, remaining, reset = await self.limiter.check_rate_limit(
-            client_id=client_id, endpoint=endpoint
+            client_id=client_id,
+            endpoint=endpoint
         )
 
         # إعداد رؤوس حد المعدل
         # Prepare rate limit headers
         headers = {
-            "X-RateLimit-Limit": str(
-                self.limiter._get_endpoint_config(endpoint).requests
-            ),
+            "X-RateLimit-Limit": str(self.limiter._get_endpoint_config(endpoint).requests),
             "X-RateLimit-Remaining": str(max(0, remaining)),
             "X-RateLimit-Reset": str(reset),
             "X-RateLimit-Client-ID": client_id,
@@ -902,7 +904,6 @@ def rate_limit(
         strategy: استراتيجية الحد - Limiting strategy
         burst: الحد الأقصى للطلبات المتتالية - Maximum burst requests
     """
-
     def decorator(func: Callable):
         # تسجيل التكوين المخصص
         # Register custom configuration
@@ -929,7 +930,8 @@ def rate_limit(
             # التحقق من حد المعدل
             # Check rate limit
             allowed, remaining, reset = await wrapper._limiter.check_rate_limit(
-                client_id=client_id, endpoint=endpoint_path
+                client_id=client_id,
+                endpoint=endpoint_path
             )
 
             if not allowed:
@@ -945,7 +947,7 @@ def rate_limit(
                         "X-RateLimit-Limit": str(requests),
                         "X-RateLimit-Remaining": "0",
                         "X-RateLimit-Reset": str(reset),
-                    },
+                    }
                 )
 
             # تنفيذ الدالة
@@ -1020,7 +1022,7 @@ async def get_rate_limit_stats(limiter: RateLimiter, client_id: str) -> dict[str
     stats = {
         "client_id": client_id,
         "identification_method": ClientIdentifier.get_identification_method(client_id),
-        "endpoints": {},
+        "endpoints": {}
     }
 
     for endpoint, config in ENDPOINT_CONFIGS.items():

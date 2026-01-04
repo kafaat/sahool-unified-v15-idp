@@ -227,7 +227,9 @@ class IoTRulesWorker:
                 return
 
         # Calculate due date
-        due_date = datetime.now(UTC) + timedelta(hours=recommendation.urgency_hours)
+        due_date = datetime.now(UTC) + timedelta(
+            hours=recommendation.urgency_hours
+        )
 
         # Add device info to metadata
         metadata = recommendation.metadata or {}

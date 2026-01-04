@@ -261,7 +261,7 @@ async def test_interpolation():
             print(f"   {obs['date']}: {obs['ndvi']:.3f} {status}")
 
     # Verify interpolated values are reasonable
-    for i, obs in enumerate(interpolated):
+    for _i, obs in enumerate(interpolated):
         if obs.get("interpolated", False):
             # Check that interpolated value is within range of neighbors
             assert 0 <= obs["ndvi"] <= 1

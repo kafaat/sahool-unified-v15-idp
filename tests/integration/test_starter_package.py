@@ -141,7 +141,7 @@ class TestFieldOperations:
         # Assert
         assert response.status_code == 200, f"Failed to list fields: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))  # Could be list or paginated response
+        assert isinstance(data, list | dict)  # Could be list or paginated response
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -259,7 +259,7 @@ class TestAstronomicalCalendar:
             response.status_code == 200
         ), f"Failed to get planting calendar: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -295,7 +295,7 @@ class TestAgroAdvisor:
             201,
         ), f"Failed to get crop recommendations: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
     async def test_get_fertilizer_recommendation(
         self,
@@ -391,7 +391,7 @@ class TestNotifications:
             response.status_code == 200
         ), f"Failed to get notifications: {response.text}"
         data = response.json()
-        assert isinstance(data, (list, dict))
+        assert isinstance(data, list | dict)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

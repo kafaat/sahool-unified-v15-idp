@@ -572,7 +572,7 @@ def get_dashboard_summary(
     total_health_score = 0
     all_alerts = []
 
-    for i in range(num_fields):
+    for _i in range(num_fields):
         field_id = f"field_{uuid.uuid4().hex[:8]}"
         field_indicators = get_field_indicators(field_id)
         fields_data.append(field_indicators)

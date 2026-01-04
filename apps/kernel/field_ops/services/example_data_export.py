@@ -43,7 +43,7 @@ def example_basic_csv_export():
         include_sensors=True,
         include_weather=True,
         include_recommendations=True,
-        include_actions=True,
+        include_actions=True
     )
 
     print("✓ Export completed successfully!")
@@ -80,7 +80,7 @@ def example_excel_multi_sheet_export():
         include_sensors=True,
         include_weather=True,
         include_recommendations=True,
-        include_actions=True,
+        include_actions=True
     )
 
     print("✓ Excel export completed!")
@@ -117,7 +117,7 @@ def example_geojson_export():
         field_id="FIELD_001",
         format=ExportFormat.GEOJSON,
         include_metadata=True,
-        include_ndvi=True,
+        include_ndvi=True
     )
 
     print("✓ GeoJSON export completed!")
@@ -151,7 +151,7 @@ def example_sensor_readings_export():
     result = exporter.export_sensor_readings(
         field_id="FIELD_001",
         format=ExportFormat.EXCEL,
-        date_range=(start_date, end_date),
+        date_range=(start_date, end_date)
     )
 
     print("✓ Sensor readings exported!")
@@ -181,7 +181,7 @@ def example_recommendations_export():
     result = exporter.export_recommendations(
         field_id="FIELD_001",
         format=ExportFormat.PDF,
-        date_range=(date.today() - timedelta(days=30), date.today()),
+        date_range=(date.today() - timedelta(days=30), date.today())
     )
 
     print("✓ Recommendations exported as PDF!")
@@ -209,7 +209,10 @@ def example_daily_summary_report():
 
     result = exporter.generate_report(
         report_type=ReportType.DAILY_SUMMARY,
-        params={"field_id": "FIELD_001", "date": date.today()},
+        params={
+            "field_id": "FIELD_001",
+            "date": date.today()
+        }
     )
 
     print("✓ Daily summary report generated!")
@@ -247,7 +250,10 @@ def example_weekly_analysis_report():
 
     result = exporter.generate_report(
         report_type=ReportType.WEEKLY_ANALYSIS,
-        params={"field_id": "FIELD_001", "end_date": date.today()},
+        params={
+            "field_id": "FIELD_001",
+            "end_date": date.today()
+        }
     )
 
     print("✓ Weekly analysis report generated!")
@@ -278,8 +284,8 @@ def example_monthly_report():
         params={
             "field_id": "FIELD_001",
             "month": date.today().month,
-            "year": date.today().year,
-        },
+            "year": date.today().year
+        }
     )
 
     print("✓ Monthly report generated!")
@@ -310,8 +316,8 @@ def example_seasonal_comparison():
         report_type=ReportType.SEASONAL_COMPARISON,
         params={
             "field_id": "FIELD_001",
-            "seasons": ["2023-winter", "2024-spring", "2024-summer"],
-        },
+            "seasons": ["2023-winter", "2024-spring", "2024-summer"]
+        }
     )
 
     print("✓ Seasonal comparison report generated!")
@@ -340,7 +346,10 @@ def example_yield_forecast_report():
     exporter = DataExporter()
 
     result = exporter.generate_report(
-        report_type=ReportType.YIELD_FORECAST, params={"field_id": "FIELD_001"}
+        report_type=ReportType.YIELD_FORECAST,
+        params={
+            "field_id": "FIELD_001"
+        }
     )
 
     print("✓ Yield forecast report generated!")
@@ -400,12 +409,15 @@ def example_custom_arabic_headers():
     exporter = DataExporter()
 
     # Customize Arabic headers
-    exporter.ARABIC_HEADERS.update(
-        {"custom_field": "حقل مخصص", "new_metric": "مؤشر جديد"}
-    )
+    exporter.ARABIC_HEADERS.update({
+        "custom_field": "حقل مخصص",
+        "new_metric": "مؤشر جديد"
+    })
 
     result = exporter.export_field_data(
-        field_id="FIELD_001", format=ExportFormat.CSV, include_ndvi=True
+        field_id="FIELD_001",
+        format=ExportFormat.CSV,
+        include_ndvi=True
     )
 
     print("✓ CSV with custom headers exported!")
@@ -459,7 +471,6 @@ def main():
     except Exception as e:
         print(f"\n❌ Error running examples: {str(e)}")
         import traceback
-
         traceback.print_exc()
 
 

@@ -12,6 +12,7 @@ Author: SAHOOL Platform Team
 """
 
 import asyncio
+import contextlib
 import json
 
 import httpx
@@ -123,10 +124,8 @@ class TestWeatherAlertEventFlow:
             data = json.loads(msg.data.decode())
             received_notifications.append(data)
 
-        try:
+        with contextlib.suppress(AttributeError):
             await nats_client.subscribe("notification.sent", cb=notification_handler)
-        except AttributeError:
-            pass
 
         # Simulate publishing a weather alert event
         weather_alert = {
@@ -200,10 +199,8 @@ class TestLowStockEventFlow:
             data = json.loads(msg.data.decode())
             received_alerts.append(data)
 
-        try:
+        with contextlib.suppress(AttributeError):
             await nats_client.subscribe("inventory.low_stock", cb=alert_handler)
-        except AttributeError:
-            pass
 
         # Act - Create low stock item (should trigger event)
         create_url = f"{service_urls.get('inventory_service', 'http://localhost:8116')}/api/v1/inventory"
@@ -265,12 +262,10 @@ class TestIoTReadingEventFlow:
             data = json.loads(msg.data.decode())
             received_recommendations.append(data)
 
-        try:
+        with contextlib.suppress(AttributeError):
             await nats_client.subscribe(
                 "irrigation.recommendation", cb=recommendation_handler
             )
-        except AttributeError:
-            pass
 
         # Act - Send IoT reading
         reading_url = f"{service_urls.get('iot_gateway', 'http://localhost:8106')}/api/v1/readings"

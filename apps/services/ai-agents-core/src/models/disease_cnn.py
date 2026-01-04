@@ -21,7 +21,6 @@ from PIL import Image
 # ML Framework imports (support both TensorFlow and PyTorch)
 try:
     import tensorflow as tf
-
     TF_AVAILABLE = True
 except ImportError:
     TF_AVAILABLE = False
@@ -29,7 +28,6 @@ except ImportError:
 try:
     import torch
     import torchvision.transforms as transforms
-
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
@@ -51,50 +49,50 @@ class DiseaseConfig:
             "name_ar": "لفحة أوراق الطماطم",
             "severity": "high",
             "treatment": "Apply copper-based fungicide",
-            "treatment_ar": "استخدام مبيد فطري نحاسي",
+            "treatment_ar": "استخدام مبيد فطري نحاسي"
         },
         "wheat_rust": {
             "name_ar": "صدأ القمح",
             "severity": "critical",
             "treatment": "Apply triazole fungicides",
-            "treatment_ar": "استخدام مبيدات الفطريات ترايازول",
+            "treatment_ar": "استخدام مبيدات الفطريات ترايازول"
         },
         "grape_downy_mildew": {
             "name_ar": "البياض الزغبي للعنب",
             "severity": "high",
             "treatment": "Apply mancozeb or copper fungicides",
-            "treatment_ar": "استخدام مانكوزيب أو مبيدات نحاسية",
+            "treatment_ar": "استخدام مانكوزيب أو مبيدات نحاسية"
         },
         "date_palm_bayoud": {
             "name_ar": "مرض البيوض في النخيل",
             "severity": "critical",
             "treatment": "Remove infected trees, soil treatment",
-            "treatment_ar": "إزالة الأشجار المصابة، معالجة التربة",
+            "treatment_ar": "إزالة الأشجار المصابة، معالجة التربة"
         },
         "coffee_leaf_rust": {
             "name_ar": "صدأ أوراق البن",
             "severity": "high",
             "treatment": "Apply copper-based fungicides, improve air circulation",
-            "treatment_ar": "استخدام مبيدات نحاسية، تحسين دوران الهواء",
+            "treatment_ar": "استخدام مبيدات نحاسية، تحسين دوران الهواء"
         },
         "banana_fusarium": {
             "name_ar": "فطر الفيوزاريوم في الموز",
             "severity": "critical",
             "treatment": "Use resistant varieties, soil fumigation",
-            "treatment_ar": "استخدام أصناف مقاومة، تبخير التربة",
+            "treatment_ar": "استخدام أصناف مقاومة، تبخير التربة"
         },
         "mango_anthracnose": {
             "name_ar": "أنثراكنوز المانجو",
             "severity": "medium",
             "treatment": "Apply copper fungicides, improve drainage",
-            "treatment_ar": "استخدام مبيدات نحاسية، تحسين الصرف",
+            "treatment_ar": "استخدام مبيدات نحاسية، تحسين الصرف"
         },
         "healthy": {
             "name_ar": "سليم",
             "severity": "none",
             "treatment": "No treatment needed",
-            "treatment_ar": "لا حاجة للعلاج",
-        },
+            "treatment_ar": "لا حاجة للعلاج"
+        }
     }
 
     # Model configuration - إعدادات النموذج
@@ -106,7 +104,7 @@ class DiseaseConfig:
 
     # Preprocessing configuration - إعدادات المعالجة المسبقة
     NORMALIZATION_MEAN = [0.485, 0.456, 0.406]  # ImageNet mean
-    NORMALIZATION_STD = [0.229, 0.224, 0.225]  # ImageNet std
+    NORMALIZATION_STD = [0.229, 0.224, 0.225]   # ImageNet std
 
     # TTA (Test Time Augmentation) configuration
     TTA_ENABLED = True
@@ -127,7 +125,7 @@ class DiseaseCNNModel:
         model_path: str | None = None,
         framework: str = "auto",
         device: str = "auto",
-        enable_gpu: bool = True,
+        enable_gpu: bool = True
     ):
         """
         Initialize Disease CNN Model
@@ -155,16 +153,14 @@ class DiseaseCNNModel:
             "total_predictions": 0,
             "avg_inference_time_ms": 0,
             "cache_hits": 0,
-            "errors": 0,
+            "errors": 0
         }
 
         # ONNX flag for special handling
         # علم ONNX للمعالجة الخاصة
         self._is_onnx = False
 
-        logger.info(
-            f"Initialized DiseaseCNNModel with framework: {self.framework}, device: {self.device}"
-        )
+        logger.info(f"Initialized DiseaseCNNModel with framework: {self.framework}, device: {self.device}")
 
     def _detect_framework(self, framework: str) -> str:
         """
@@ -177,9 +173,7 @@ class DiseaseCNNModel:
             elif TORCH_AVAILABLE:
                 return "pytorch"
             else:
-                raise RuntimeError(
-                    "No ML framework available. Install TensorFlow or PyTorch."
-                )
+                raise RuntimeError("No ML framework available. Install TensorFlow or PyTorch.")
 
         if framework == "tensorflow" and not TF_AVAILABLE:
             raise RuntimeError("TensorFlow not available")
@@ -200,7 +194,7 @@ class DiseaseCNNModel:
             return "cpu"
 
         if self.framework == "tensorflow" and TF_AVAILABLE:
-            gpus = tf.config.list_physical_devices("GPU")
+            gpus = tf.config.list_physical_devices('GPU')
             return "gpu" if gpus else "cpu"
 
         if self.framework == "pytorch" and TORCH_AVAILABLE:
@@ -235,43 +229,35 @@ class DiseaseCNNModel:
             elif self.framework == "pytorch":
                 # Security: Only support safe serialization formats (no pickle)
                 # الأمان: دعم صيغ التسلسل الآمنة فقط (بدون pickle)
-                if model_path.endswith(".onnx"):
+                if model_path.endswith('.onnx'):
                     # ONNX format - safest and recommended option
                     # صيغة ONNX - الخيار الأكثر أماناً والموصى به
                     try:
                         import onnxruntime as ort
-
                         self.model = ort.InferenceSession(model_path)
                         self._is_onnx = True
                         logger.info("Model loaded successfully with ONNX Runtime")
                     except ImportError:
-                        raise RuntimeError(
-                            "onnxruntime required for ONNX models: pip install onnxruntime"
-                        )
-                elif model_path.endswith(".safetensors"):
+                        raise RuntimeError("onnxruntime required for ONNX models: pip install onnxruntime")
+                elif model_path.endswith('.safetensors'):
                     # SafeTensors format - safe alternative to pickle
                     # صيغة SafeTensors - بديل آمن لـ pickle
                     try:
                         from safetensors.torch import load_file
                         from torchvision import models
-
                         self.model = models.resnet50(weights=None)
-                        self.model.fc = torch.nn.Linear(
-                            2048, len(self.config.SUPPORTED_DISEASES)
-                        )
+                        self.model.fc = torch.nn.Linear(2048, len(self.config.SUPPORTED_DISEASES))
                         state_dict = load_file(model_path)
                         self.model.load_state_dict(state_dict)
                         self.model.to(self.device)
                         self.model.eval()
                         logger.info("Model loaded successfully with SafeTensors")
                     except ImportError:
-                        raise RuntimeError(
-                            "safetensors required: pip install safetensors"
-                        )
+                        raise RuntimeError("safetensors required: pip install safetensors")
                 else:
                     # Unsupported format - recommend conversion to ONNX or SafeTensors
                     # صيغة غير مدعومة - يُنصح بالتحويل إلى ONNX أو SafeTensors
-                    supported = [".onnx", ".safetensors"]
+                    supported = ['.onnx', '.safetensors']
                     raise ValueError(
                         f"Unsupported model format. For security, only {supported} are allowed. "
                         f"صيغة غير مدعومة. للأمان، الصيغ المسموحة فقط: {supported}. "
@@ -307,7 +293,9 @@ class DiseaseCNNModel:
         return self.config.DEFAULT_MODEL_VERSION
 
     def preprocess_image(
-        self, image_data: str | np.ndarray | Image.Image, target_size: int | None = None
+        self,
+        image_data: str | np.ndarray | Image.Image,
+        target_size: int | None = None
     ) -> np.ndarray:
         """
         Preprocess image for model input
@@ -323,11 +311,11 @@ class DiseaseCNNModel:
         try:
             # Load image - تحميل الصورة
             if isinstance(image_data, str):
-                image = Image.open(image_data).convert("RGB")
+                image = Image.open(image_data).convert('RGB')
             elif isinstance(image_data, np.ndarray):
-                image = Image.fromarray(image_data).convert("RGB")
+                image = Image.fromarray(image_data).convert('RGB')
             elif isinstance(image_data, Image.Image):
-                image = image_data.convert("RGB")
+                image = image_data.convert('RGB')
             else:
                 raise ValueError(f"Unsupported image type: {type(image_data)}")
 
@@ -348,7 +336,9 @@ class DiseaseCNNModel:
             raise
 
     def resize_to_input_size(
-        self, image: Image.Image | np.ndarray, size: int = 224
+        self,
+        image: Image.Image | np.ndarray,
+        size: int = 224
     ) -> Image.Image:
         """
         Resize image to model input size
@@ -390,7 +380,9 @@ class DiseaseCNNModel:
         return image
 
     def augment_for_inference(
-        self, image: np.ndarray, n_augmentations: int = 5
+        self,
+        image: np.ndarray,
+        n_augmentations: int = 5
     ) -> list[np.ndarray]:
         """
         Apply Test Time Augmentation (TTA) for robust predictions
@@ -425,7 +417,9 @@ class DiseaseCNNModel:
         return augmented[:n_augmentations]
 
     def predict(
-        self, image: str | np.ndarray | Image.Image, return_bbox: bool = True
+        self,
+        image: str | np.ndarray | Image.Image,
+        return_bbox: bool = True
     ) -> tuple[str, float, dict | None]:
         """
         Predict disease from image
@@ -483,7 +477,8 @@ class DiseaseCNNModel:
             raise
 
     def _estimate_disease_region(
-        self, image: str | np.ndarray | Image.Image
+        self,
+        image: str | np.ndarray | Image.Image
     ) -> dict | None:
         """
         Estimate disease-affected region using simple image processing
@@ -512,9 +507,7 @@ class DiseaseCNNModel:
             mask = cv2.inRange(hsv, lower_brown, upper_brown)
 
             # Find contours
-            contours, _ = cv2.findContours(
-                mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-            )
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
             if contours:
                 # Get largest contour
@@ -526,7 +519,7 @@ class DiseaseCNNModel:
                     "y": int(y),
                     "width": int(w),
                     "height": int(h),
-                    "confidence": 0.7,  # Placeholder confidence
+                    "confidence": 0.7  # Placeholder confidence
                 }
 
             return None
@@ -536,7 +529,9 @@ class DiseaseCNNModel:
             return None
 
     def get_top_k_predictions(
-        self, image: str | np.ndarray | Image.Image, k: int = 3
+        self,
+        image: str | np.ndarray | Image.Image,
+        k: int = 3
     ) -> list[dict[str, Any]]:
         """
         Get top K disease predictions
@@ -577,16 +572,14 @@ class DiseaseCNNModel:
                 disease_name = disease_names[idx]
                 disease_info = self.config.SUPPORTED_DISEASES[disease_name]
 
-                results.append(
-                    {
-                        "disease": disease_name,
-                        "disease_ar": disease_info["name_ar"],
-                        "confidence": float(predictions[idx]),
-                        "severity": disease_info["severity"],
-                        "treatment": disease_info["treatment"],
-                        "treatment_ar": disease_info["treatment_ar"],
-                    }
-                )
+                results.append({
+                    "disease": disease_name,
+                    "disease_ar": disease_info["name_ar"],
+                    "confidence": float(predictions[idx]),
+                    "severity": disease_info["severity"],
+                    "treatment": disease_info["treatment"],
+                    "treatment_ar": disease_info["treatment_ar"]
+                })
 
             return results
 
@@ -598,7 +591,7 @@ class DiseaseCNNModel:
         self,
         image: str | np.ndarray | Image.Image,
         predictions: list[dict[str, Any]],
-        output_path: str | None = None,
+        output_path: str | None = None
     ) -> np.ndarray:
         """
         Visualize predictions on image
@@ -647,15 +640,8 @@ class DiseaseCNNModel:
 
                 # Draw text - رسم النص
                 text = f"{i+1}. {disease} ({disease_ar}) - {confidence*100:.1f}%"
-                cv2.putText(
-                    overlay,
-                    text,
-                    (10, y_offset),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.6,
-                    color,
-                    2,
-                )
+                cv2.putText(overlay, text, (10, y_offset),
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
                 y_offset += 30
 
             # Blend overlay - دمج الطبقة
@@ -704,14 +690,12 @@ class DiseaseCNNModel:
             async with aiohttp.ClientSession() as session:
                 async with session.get(download_url) as response:
                     if response.status == 200:
-                        with open(local_path, "wb") as f:
+                        with open(local_path, 'wb') as f:
                             f.write(await response.read())
                         logger.info(f"Model downloaded successfully to: {local_path}")
                         return str(local_path)
                     else:
-                        raise RuntimeError(
-                            f"Failed to download model: HTTP {response.status}"
-                        )
+                        raise RuntimeError(f"Failed to download model: HTTP {response.status}")
 
         except Exception as e:
             logger.error(f"Error downloading model: {e}")
@@ -743,19 +727,19 @@ class DiseaseCNNModel:
         try:
             # Create dummy image - إنشاء صورة وهمية
             dummy_image = np.random.rand(
-                self.config.DEFAULT_INPUT_SIZE, self.config.DEFAULT_INPUT_SIZE, 3
+                self.config.DEFAULT_INPUT_SIZE,
+                self.config.DEFAULT_INPUT_SIZE,
+                3
             ).astype(np.float32)
 
             # Run predictions - تشغيل التنبؤات
-            for i in range(num_iterations):
+            for _i in range(num_iterations):
                 if self.framework == "tensorflow":
                     img_batch = np.expand_dims(dummy_image, axis=0)
                     _ = self.model.predict(img_batch, verbose=0)
 
                 elif self.framework == "pytorch":
-                    img_tensor = (
-                        torch.from_numpy(dummy_image).permute(2, 0, 1).unsqueeze(0)
-                    )
+                    img_tensor = torch.from_numpy(dummy_image).permute(2, 0, 1).unsqueeze(0)
                     img_tensor = img_tensor.to(self.device)
                     with torch.no_grad():
                         _ = self.model(img_tensor)
@@ -768,7 +752,9 @@ class DiseaseCNNModel:
             raise
 
     def predict_batch(
-        self, images: list[str | np.ndarray | Image.Image], batch_size: int = 8
+        self,
+        images: list[str | np.ndarray | Image.Image],
+        batch_size: int = 8
     ) -> list[tuple[str, float, dict | None]]:
         """
         Predict diseases for a batch of images
@@ -791,7 +777,7 @@ class DiseaseCNNModel:
 
             # Process in batches - معالجة في دفعات
             for i in range(0, len(images), batch_size):
-                batch = images[i : i + batch_size]
+                batch = images[i:i + batch_size]
 
                 # Preprocess batch - معالجة الدفعة مسبقاً
                 batch_arrays = [self.preprocess_image(img) for img in batch]
@@ -828,7 +814,7 @@ class DiseaseCNNModel:
         self,
         field_id: str,
         images: list[str | np.ndarray | Image.Image],
-        min_confidence: float = 0.5,
+        min_confidence: float = 0.5
     ) -> dict[str, Any]:
         """
         Process all images from a field and generate comprehensive report
@@ -861,18 +847,16 @@ class DiseaseCNNModel:
                         total_diseased += 1
 
                         disease_info = self.config.SUPPORTED_DISEASES[disease]
-                        high_confidence_detections.append(
-                            {
-                                "image_index": i,
-                                "disease": disease,
-                                "disease_ar": disease_info["name_ar"],
-                                "confidence": confidence,
-                                "severity": disease_info["severity"],
-                                "bbox": bbox,
-                                "treatment": disease_info["treatment"],
-                                "treatment_ar": disease_info["treatment_ar"],
-                            }
-                        )
+                        high_confidence_detections.append({
+                            "image_index": i,
+                            "disease": disease,
+                            "disease_ar": disease_info["name_ar"],
+                            "confidence": confidence,
+                            "severity": disease_info["severity"],
+                            "bbox": bbox,
+                            "treatment": disease_info["treatment"],
+                            "treatment_ar": disease_info["treatment_ar"]
+                        })
 
             # Calculate statistics - حساب الإحصائيات
             total_images = len(images)
@@ -901,7 +885,7 @@ class DiseaseCNNModel:
                 "disease_distribution": disease_counts,
                 "detections": high_confidence_detections,
                 "recommendations": self._generate_recommendations(disease_counts),
-                "model_version": self.get_model_version(),
+                "model_version": self.get_model_version()
             }
 
             logger.info(f"Field analysis completed for {field_id}: {field_status}")
@@ -913,7 +897,8 @@ class DiseaseCNNModel:
             raise
 
     def _generate_recommendations(
-        self, disease_counts: dict[str, int]
+        self,
+        disease_counts: dict[str, int]
     ) -> list[dict[str, str]]:
         """
         Generate treatment recommendations based on detected diseases
@@ -929,7 +914,9 @@ class DiseaseCNNModel:
 
         # Sort diseases by count - ترتيب الأمراض حسب العدد
         sorted_diseases = sorted(
-            disease_counts.items(), key=lambda x: x[1], reverse=True
+            disease_counts.items(),
+            key=lambda x: x[1],
+            reverse=True
         )
 
         for disease, count in sorted_diseases:
@@ -938,21 +925,15 @@ class DiseaseCNNModel:
 
             disease_info = self.config.SUPPORTED_DISEASES[disease]
 
-            recommendations.append(
-                {
-                    "disease": disease,
-                    "disease_ar": disease_info["name_ar"],
-                    "affected_count": count,
-                    "severity": disease_info["severity"],
-                    "treatment": disease_info["treatment"],
-                    "treatment_ar": disease_info["treatment_ar"],
-                    "priority": (
-                        "high"
-                        if disease_info["severity"] in ["critical", "high"]
-                        else "medium"
-                    ),
-                }
-            )
+            recommendations.append({
+                "disease": disease,
+                "disease_ar": disease_info["name_ar"],
+                "affected_count": count,
+                "severity": disease_info["severity"],
+                "treatment": disease_info["treatment"],
+                "treatment_ar": disease_info["treatment_ar"],
+                "priority": "high" if disease_info["severity"] in ["critical", "high"] else "medium"
+            })
 
         return recommendations
 
@@ -966,9 +947,7 @@ class DiseaseCNNModel:
         # Update running average - تحديث المتوسط الجاري
         n = self.metrics["total_predictions"]
         old_avg = self.metrics["avg_inference_time_ms"]
-        self.metrics["avg_inference_time_ms"] = (
-            old_avg * (n - 1) + inference_time_ms
-        ) / n
+        self.metrics["avg_inference_time_ms"] = (old_avg * (n - 1) + inference_time_ms) / n
 
     def get_metrics(self) -> dict[str, Any]:
         """
@@ -984,13 +963,13 @@ class DiseaseCNNModel:
             "framework": self.framework,
             "device": self.device,
             "is_warmed_up": self.is_warmed_up,
-            "supported_diseases": len(self.config.SUPPORTED_DISEASES),
+            "supported_diseases": len(self.config.SUPPORTED_DISEASES)
         }
 
     def __del__(self):
         """Cleanup resources - تنظيف الموارد"""
         try:
-            if hasattr(self, "executor"):
+            if hasattr(self, 'executor'):
                 self.executor.shutdown(wait=True)
         except Exception:
             pass

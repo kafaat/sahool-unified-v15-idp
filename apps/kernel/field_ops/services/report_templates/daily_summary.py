@@ -29,7 +29,6 @@ try:
         Table,
         TableStyle,
     )
-
     REPORTLAB_AVAILABLE = True
 except ImportError:
     REPORTLAB_AVAILABLE = False
@@ -72,112 +71,94 @@ class DailySummaryReport:
         styles = getSampleStyleSheet()
 
         # Title style - bilingual
-        styles.add(
-            ParagraphStyle(
-                name="ReportTitle",
-                parent=styles["Heading1"],
-                fontSize=22,
-                textColor=colors.HexColor("#366092"),
-                spaceAfter=20,
-                alignment=TA_CENTER,
-                fontName="Helvetica-Bold",
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='ReportTitle',
+            parent=styles['Heading1'],
+            fontSize=22,
+            textColor=colors.HexColor('#366092'),
+            spaceAfter=20,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        ))
 
         # Arabic heading
-        styles.add(
-            ParagraphStyle(
-                name="ArabicHeading",
-                parent=styles["Heading2"],
-                fontSize=16,
-                textColor=colors.HexColor("#2c5282"),
-                spaceAfter=12,
-                spaceBefore=12,
-                alignment=TA_RIGHT,
-                fontName="Helvetica-Bold",
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='ArabicHeading',
+            parent=styles['Heading2'],
+            fontSize=16,
+            textColor=colors.HexColor('#2c5282'),
+            spaceAfter=12,
+            spaceBefore=12,
+            alignment=TA_RIGHT,
+            fontName='Helvetica-Bold'
+        ))
 
         # English heading
-        styles.add(
-            ParagraphStyle(
-                name="EnglishHeading",
-                parent=styles["Heading2"],
-                fontSize=14,
-                textColor=colors.HexColor("#2c5282"),
-                spaceAfter=10,
-                alignment=TA_LEFT,
-                fontName="Helvetica-Bold",
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='EnglishHeading',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('#2c5282'),
+            spaceAfter=10,
+            alignment=TA_LEFT,
+            fontName='Helvetica-Bold'
+        ))
 
         # Bilingual heading (centered)
-        styles.add(
-            ParagraphStyle(
-                name="BilingualHeading",
-                parent=styles["Heading2"],
-                fontSize=15,
-                textColor=colors.HexColor("#2c5282"),
-                spaceAfter=12,
-                spaceBefore=12,
-                alignment=TA_CENTER,
-                fontName="Helvetica-Bold",
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='BilingualHeading',
+            parent=styles['Heading2'],
+            fontSize=15,
+            textColor=colors.HexColor('#2c5282'),
+            spaceAfter=12,
+            spaceBefore=12,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        ))
 
         # Normal text
-        styles.add(
-            ParagraphStyle(
-                name="NormalArabic",
-                parent=styles["Normal"],
-                fontSize=11,
-                alignment=TA_RIGHT,
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='NormalArabic',
+            parent=styles['Normal'],
+            fontSize=11,
+            alignment=TA_RIGHT,
+        ))
 
-        styles.add(
-            ParagraphStyle(
-                name="NormalEnglish",
-                parent=styles["Normal"],
-                fontSize=10,
-                alignment=TA_LEFT,
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='NormalEnglish',
+            parent=styles['Normal'],
+            fontSize=10,
+            alignment=TA_LEFT,
+        ))
 
         # Status indicators
-        styles.add(
-            ParagraphStyle(
-                name="StatusGood",
-                parent=styles["Normal"],
-                fontSize=12,
-                textColor=colors.green,
-                fontName="Helvetica-Bold",
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='StatusGood',
+            parent=styles['Normal'],
+            fontSize=12,
+            textColor=colors.green,
+            fontName='Helvetica-Bold'
+        ))
 
-        styles.add(
-            ParagraphStyle(
-                name="StatusWarning",
-                parent=styles["Normal"],
-                fontSize=12,
-                textColor=colors.orange,
-                fontName="Helvetica-Bold",
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='StatusWarning',
+            parent=styles['Normal'],
+            fontSize=12,
+            textColor=colors.orange,
+            fontName='Helvetica-Bold'
+        ))
 
-        styles.add(
-            ParagraphStyle(
-                name="StatusCritical",
-                parent=styles["Normal"],
-                fontSize=12,
-                textColor=colors.red,
-                fontName="Helvetica-Bold",
-            )
-        )
+        styles.add(ParagraphStyle(
+            name='StatusCritical',
+            parent=styles['Normal'],
+            fontSize=12,
+            textColor=colors.red,
+            fontName='Helvetica-Bold'
+        ))
 
         return styles
 
-    def generate(self, field_id: str, report_date: date) -> "ExportResult":
+    def generate(self, field_id: str, report_date: date) -> 'ExportResult':
         """
         Generate daily summary report
 
@@ -213,8 +194,8 @@ class DailySummaryReport:
             metadata={
                 "field_id": field_id,
                 "report_type": "daily_summary",
-                "report_date": report_date.isoformat(),
-            },
+                "report_date": report_date.isoformat()
+            }
         )
 
     def _collect_daily_data(self, field_id: str, report_date: date) -> dict[str, Any]:
@@ -258,15 +239,13 @@ class DailySummaryReport:
         forecast = []
         for i in range(1, 4):
             forecast_date = report_date + timedelta(days=i)
-            forecast.append(
-                {
-                    "date": forecast_date.isoformat(),
-                    "temp_max": 30.0,
-                    "temp_min": 18.0,
-                    "rainfall_prob": 10.0,
-                    "conditions": "مشمس جزئياً",
-                }
-            )
+            forecast.append({
+                "date": forecast_date.isoformat(),
+                "temp_max": 30.0,
+                "temp_min": 18.0,
+                "rainfall_prob": 10.0,
+                "conditions": "مشمس جزئياً"
+            })
         return forecast
 
     def _get_alerts(self, field_id: str, report_date: date) -> list[dict]:
@@ -277,7 +256,7 @@ class DailySummaryReport:
                 "type": "irrigation",
                 "severity": "warning",
                 "message_ar": "رطوبة التربة منخفضة - يُنصح بالري",
-                "message_en": "Low soil moisture - irrigation recommended",
+                "message_en": "Low soil moisture - irrigation recommended"
             }
         ]
 
@@ -289,7 +268,7 @@ class DailySummaryReport:
             "status_en": "Good",
             "summary_ar": "الحقل في حالة جيدة. جميع المؤشرات ضمن النطاق الطبيعي.",
             "summary_en": "Field is in good condition. All indicators within normal range.",
-            "action_needed": False,
+            "action_needed": False
         }
 
     def _create_pdf(self, data: dict[str, Any]) -> bytes:
@@ -298,10 +277,10 @@ class DailySummaryReport:
         doc = SimpleDocTemplate(
             buffer,
             pagesize=A4,
-            rightMargin=2 * cm,
-            leftMargin=2 * cm,
-            topMargin=2 * cm,
-            bottomMargin=2 * cm,
+            rightMargin=2*cm,
+            leftMargin=2*cm,
+            topMargin=2*cm,
+            bottomMargin=2*cm
         )
 
         story = []
@@ -349,10 +328,10 @@ class DailySummaryReport:
         # Title - Bilingual
         title = Paragraph(
             "تقرير يومي - Daily Summary Report<br/><font size=14>SAHOOL Agricultural Platform</font>",
-            self.styles["ReportTitle"],
+            self.styles['ReportTitle']
         )
         elements.append(title)
-        elements.append(Spacer(1, 0.1 * inch))
+        elements.append(Spacer(1, 0.1*inch))
 
         # Report info
         report_info = f"""
@@ -362,112 +341,93 @@ class DailySummaryReport:
         <b>تم الإنشاء - Generated:</b> {data['generated_at'].strftime('%Y-%m-%d %H:%M')}
         </para>
         """
-        elements.append(Paragraph(report_info, self.styles["Normal"]))
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Paragraph(report_info, self.styles['Normal']))
+        elements.append(Spacer(1, 0.3*inch))
 
         # Separator line
         elements.append(self._create_separator())
-        elements.append(Spacer(1, 0.2 * inch))
+        elements.append(Spacer(1, 0.2*inch))
 
         return elements
 
     def _create_executive_summary(self, data: dict) -> list:
         """Create executive summary section"""
         elements = []
-        summary = data["summary"]
+        summary = data['summary']
 
         # Section title
-        elements.append(
-            Paragraph(
-                "الملخص التنفيذي - Executive Summary", self.styles["BilingualHeading"]
-            )
-        )
+        elements.append(Paragraph(
+            "الملخص التنفيذي - Executive Summary",
+            self.styles['BilingualHeading']
+        ))
 
         # Status indicator
         status_style = {
-            "good": self.styles["StatusGood"],
-            "warning": self.styles["StatusWarning"],
-            "critical": self.styles["StatusCritical"],
-        }.get(summary["status"], self.styles["Normal"])
+            'good': self.styles['StatusGood'],
+            'warning': self.styles['StatusWarning'],
+            'critical': self.styles['StatusCritical']
+        }.get(summary['status'], self.styles['Normal'])
 
-        status_text = (
-            f"<b>الحالة - Status:</b> {summary['status_ar']} / {summary['status_en']}"
-        )
+        status_text = f"<b>الحالة - Status:</b> {summary['status_ar']} / {summary['status_en']}"
         elements.append(Paragraph(status_text, status_style))
-        elements.append(Spacer(1, 0.1 * inch))
+        elements.append(Spacer(1, 0.1*inch))
 
         # Summary text
         summary_table_data = [
-            ["عربي", summary["summary_ar"]],
-            ["English", summary["summary_en"]],
+            ["عربي", summary['summary_ar']],
+            ["English", summary['summary_en']]
         ]
-        summary_table = Table(summary_table_data, colWidths=[1.5 * cm, 14 * cm])
-        summary_table.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#e8f4f8")),
-                    ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
-                    ("ALIGN", (0, 0), (0, -1), "CENTER"),
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
-                    ("FONTSIZE", (0, 0), (-1, -1), 10),
-                    ("GRID", (0, 0), (-1, -1), 1, colors.grey),
-                    ("PADDING", (0, 0), (-1, -1), 8),
-                ]
-            )
-        )
+        summary_table = Table(summary_table_data, colWidths=[1.5*cm, 14*cm])
+        summary_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e8f4f8')),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (0, -1), 'CENTER'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+            ('PADDING', (0, 0), (-1, -1), 8),
+        ]))
         elements.append(summary_table)
-        elements.append(Spacer(1, 0.2 * inch))
+        elements.append(Spacer(1, 0.2*inch))
 
         # Alerts if any
-        if data.get("alerts"):
-            elements.append(
-                Paragraph("تنبيهات - Alerts", self.styles["BilingualHeading"])
-            )
-            for alert in data["alerts"]:
+        if data.get('alerts'):
+            elements.append(Paragraph(
+                "تنبيهات - Alerts",
+                self.styles['BilingualHeading']
+            ))
+            for alert in data['alerts']:
                 alert_text = f"⚠ {alert['message_ar']} / {alert['message_en']}"
-                elements.append(Paragraph(alert_text, self.styles["StatusWarning"]))
-            elements.append(Spacer(1, 0.2 * inch))
+                elements.append(Paragraph(alert_text, self.styles['StatusWarning']))
+            elements.append(Spacer(1, 0.2*inch))
 
         return elements
 
     def _create_field_info(self, data: dict) -> list:
         """Create field information section"""
         elements = []
-        metadata = data["metadata"]
+        metadata = data['metadata']
 
-        elements.append(
-            Paragraph(
-                "معلومات الحقل - Field Information", self.styles["BilingualHeading"]
-            )
-        )
+        elements.append(Paragraph(
+            "معلومات الحقل - Field Information",
+            self.styles['BilingualHeading']
+        ))
 
         # Field info table
         field_data = [
             ["Field", "القيمة / Value"],
-            [
-                "الاسم / Name",
-                f"{metadata.get('name', '')} / {metadata.get('name_en', '')}",
-            ],
-            [
-                "المساحة / Area",
-                f"{metadata.get('area_hectares', 0):.2f} هكتار / hectares",
-            ],
-            [
-                "المحصول / Crop",
-                f"{metadata.get('crop_type', '')} / {metadata.get('crop_type_en', '')}",
-            ],
-            ["نوع التربة / Soil", metadata.get("soil_type", "N/A")],
-            [
-                "الموقع / Location",
-                f"{metadata.get('location', {}).get('region', '')} - {metadata.get('location', {}).get('district', '')}",
-            ],
+            ["الاسم / Name", f"{metadata.get('name', '')} / {metadata.get('name_en', '')}"],
+            ["المساحة / Area", f"{metadata.get('area_hectares', 0):.2f} هكتار / hectares"],
+            ["المحصول / Crop", f"{metadata.get('crop_type', '')} / {metadata.get('crop_type_en', '')}"],
+            ["نوع التربة / Soil", metadata.get('soil_type', 'N/A')],
+            ["الموقع / Location", f"{metadata.get('location', {}).get('region', '')} - {metadata.get('location', {}).get('district', '')}"],
         ]
 
-        field_table = Table(field_data, colWidths=[5 * cm, 10 * cm])
+        field_table = Table(field_data, colWidths=[5*cm, 10*cm])
         field_table.setStyle(self._get_table_style())
         elements.append(field_table)
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Spacer(1, 0.3*inch))
 
         return elements
 
@@ -475,16 +435,14 @@ class DailySummaryReport:
         """Create NDVI section with trend analysis"""
         elements = []
 
-        elements.append(
-            Paragraph(
-                "تحليل NDVI - Vegetation Health Analysis",
-                self.styles["BilingualHeading"],
-            )
-        )
+        elements.append(Paragraph(
+            "تحليل NDVI - Vegetation Health Analysis",
+            self.styles['BilingualHeading']
+        ))
 
         # Today's NDVI
-        if data.get("ndvi_today"):
-            ndvi = data["ndvi_today"]
+        if data.get('ndvi_today'):
+            ndvi = data['ndvi_today']
             ndvi_data = [
                 ["المؤشر / Metric", "القيمة / Value"],
                 ["المتوسط / Mean", f"{ndvi.get('mean', 0):.3f}"],
@@ -493,82 +451,74 @@ class DailySummaryReport:
                 ["الغطاء السحابي / Cloud Cover", f"{ndvi.get('cloud_cover', 0):.1f}%"],
             ]
 
-            ndvi_table = Table(ndvi_data, colWidths=[7 * cm, 8 * cm])
+            ndvi_table = Table(ndvi_data, colWidths=[7*cm, 8*cm])
             ndvi_table.setStyle(self._get_table_style())
             elements.append(ndvi_table)
-            elements.append(Spacer(1, 0.2 * inch))
+            elements.append(Spacer(1, 0.2*inch))
 
             # NDVI interpretation
-            mean_ndvi = ndvi.get("mean", 0)
+            mean_ndvi = ndvi.get('mean', 0)
             if mean_ndvi > 0.6:
                 interpretation = "صحة نباتية ممتازة / Excellent vegetation health"
-                interp_style = self.styles["StatusGood"]
+                interp_style = self.styles['StatusGood']
             elif mean_ndvi > 0.4:
                 interpretation = "صحة نباتية جيدة / Good vegetation health"
-                interp_style = self.styles["StatusGood"]
+                interp_style = self.styles['StatusGood']
             elif mean_ndvi > 0.2:
                 interpretation = "صحة نباتية متوسطة / Moderate vegetation health"
-                interp_style = self.styles["StatusWarning"]
+                interp_style = self.styles['StatusWarning']
             else:
                 interpretation = "صحة نباتية ضعيفة / Poor vegetation health"
-                interp_style = self.styles["StatusCritical"]
+                interp_style = self.styles['StatusCritical']
 
-            elements.append(
-                Paragraph(
-                    f"<b>التفسير / Interpretation:</b> {interpretation}", interp_style
-                )
-            )
-            elements.append(Spacer(1, 0.2 * inch))
+            elements.append(Paragraph(f"<b>التفسير / Interpretation:</b> {interpretation}", interp_style))
+            elements.append(Spacer(1, 0.2*inch))
 
         # Weekly trend
-        if data.get("ndvi_week") and len(data["ndvi_week"]) > 1:
-            elements.append(
-                Paragraph("اتجاه أسبوعي / Weekly Trend", self.styles["EnglishHeading"])
-            )
+        if data.get('ndvi_week') and len(data['ndvi_week']) > 1:
+            elements.append(Paragraph(
+                "اتجاه أسبوعي / Weekly Trend",
+                self.styles['EnglishHeading']
+            ))
 
             trend_data = [["التاريخ / Date", "NDVI"]]
-            for record in data["ndvi_week"][-7:]:
-                trend_data.append([record["date"], f"{record.get('mean', 0):.3f}"])
+            for record in data['ndvi_week'][-7:]:
+                trend_data.append([record['date'], f"{record.get('mean', 0):.3f}"])
 
-            trend_table = Table(trend_data, colWidths=[7 * cm, 8 * cm])
+            trend_table = Table(trend_data, colWidths=[7*cm, 8*cm])
             trend_table.setStyle(self._get_table_style())
             elements.append(trend_table)
 
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Spacer(1, 0.3*inch))
         return elements
 
     def _create_sensors_section(self, data: dict) -> list:
         """Create sensor readings section"""
         elements = []
-        sensors = data.get("sensors_today", [])
+        sensors = data.get('sensors_today', [])
 
         if not sensors:
             return elements
 
-        elements.append(
-            Paragraph(
-                "قراءات المستشعرات - Sensor Readings", self.styles["BilingualHeading"]
-            )
-        )
+        elements.append(Paragraph(
+            "قراءات المستشعرات - Sensor Readings",
+            self.styles['BilingualHeading']
+        ))
 
-        sensor_data = [
-            ["النوع / Type", "القيمة / Value", "الوحدة / Unit", "الموقع / Location"]
-        ]
+        sensor_data = [["النوع / Type", "القيمة / Value", "الوحدة / Unit", "الموقع / Location"]]
 
         for sensor in sensors:
-            sensor_data.append(
-                [
-                    f"{sensor.get('sensor_type', '')} / {sensor.get('sensor_type_en', '')}",
-                    f"{sensor.get('value', 0):.2f}",
-                    sensor.get("unit", ""),
-                    sensor.get("location", "N/A"),
-                ]
-            )
+            sensor_data.append([
+                f"{sensor.get('sensor_type', '')} / {sensor.get('sensor_type_en', '')}",
+                f"{sensor.get('value', 0):.2f}",
+                sensor.get('unit', ''),
+                sensor.get('location', 'N/A')
+            ])
 
-        sensor_table = Table(sensor_data, colWidths=[5 * cm, 3 * cm, 3 * cm, 4 * cm])
+        sensor_table = Table(sensor_data, colWidths=[5*cm, 3*cm, 3*cm, 4*cm])
         sensor_table.setStyle(self._get_table_style())
         elements.append(sensor_table)
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Spacer(1, 0.3*inch))
 
         return elements
 
@@ -576,11 +526,14 @@ class DailySummaryReport:
         """Create weather section"""
         elements = []
 
-        elements.append(Paragraph("الطقس - Weather", self.styles["BilingualHeading"]))
+        elements.append(Paragraph(
+            "الطقس - Weather",
+            self.styles['BilingualHeading']
+        ))
 
         # Today's weather
-        if data.get("weather_today"):
-            weather = data["weather_today"]
+        if data.get('weather_today'):
+            weather = data['weather_today']
             weather_data = [
                 ["المؤشر / Metric", "القيمة / Value"],
                 ["الحرارة القصوى / Max Temp", f"{weather.get('temp_max', 0):.1f}°C"],
@@ -590,107 +543,90 @@ class DailySummaryReport:
                 ["سرعة الرياح / Wind Speed", f"{weather.get('wind_speed', 0):.1f} m/s"],
             ]
 
-            weather_table = Table(weather_data, colWidths=[7 * cm, 8 * cm])
+            weather_table = Table(weather_data, colWidths=[7*cm, 8*cm])
             weather_table.setStyle(self._get_table_style())
             elements.append(weather_table)
-            elements.append(Spacer(1, 0.2 * inch))
+            elements.append(Spacer(1, 0.2*inch))
 
         # Forecast
-        if data.get("weather_forecast"):
-            elements.append(
-                Paragraph(
-                    "توقعات الطقس / Weather Forecast (3 days)",
-                    self.styles["EnglishHeading"],
-                )
-            )
+        if data.get('weather_forecast'):
+            elements.append(Paragraph(
+                "توقعات الطقس / Weather Forecast (3 days)",
+                self.styles['EnglishHeading']
+            ))
 
-            forecast_data = [
-                [
-                    "التاريخ / Date",
-                    "الحرارة / Temp",
-                    "احتمال المطر / Rain %",
-                    "الحالة / Conditions",
-                ]
-            ]
+            forecast_data = [["التاريخ / Date", "الحرارة / Temp", "احتمال المطر / Rain %", "الحالة / Conditions"]]
 
-            for forecast in data["weather_forecast"]:
-                forecast_data.append(
-                    [
-                        forecast["date"],
-                        f"{forecast['temp_max']:.0f}°/{forecast['temp_min']:.0f}°",
-                        f"{forecast['rainfall_prob']:.0f}%",
-                        forecast["conditions"],
-                    ]
-                )
+            for forecast in data['weather_forecast']:
+                forecast_data.append([
+                    forecast['date'],
+                    f"{forecast['temp_max']:.0f}°/{forecast['temp_min']:.0f}°",
+                    f"{forecast['rainfall_prob']:.0f}%",
+                    forecast['conditions']
+                ])
 
-            forecast_table = Table(
-                forecast_data, colWidths=[3.5 * cm, 3.5 * cm, 4 * cm, 4 * cm]
-            )
+            forecast_table = Table(forecast_data, colWidths=[3.5*cm, 3.5*cm, 4*cm, 4*cm])
             forecast_table.setStyle(self._get_table_style())
             elements.append(forecast_table)
 
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Spacer(1, 0.3*inch))
         return elements
 
     def _create_recommendations_section(self, data: dict) -> list:
         """Create recommendations section"""
         elements = []
-        recommendations = data.get("recommendations", [])
+        recommendations = data.get('recommendations', [])
 
         if not recommendations:
             return elements
 
-        elements.append(
-            Paragraph("التوصيات - Recommendations", self.styles["BilingualHeading"])
-        )
+        elements.append(Paragraph(
+            "التوصيات - Recommendations",
+            self.styles['BilingualHeading']
+        ))
 
         rec_data = [["النوع / Type", "التوصية / Recommendation", "الأولوية / Priority"]]
 
         for rec in recommendations:
-            rec_data.append(
-                [
-                    f"{rec.get('type_ar', '')} / {rec.get('type', '')}",
-                    rec.get("recommendation", ""),
-                    rec.get("priority", "medium"),
-                ]
-            )
+            rec_data.append([
+                f"{rec.get('type_ar', '')} / {rec.get('type', '')}",
+                rec.get('recommendation', ''),
+                rec.get('priority', 'medium')
+            ])
 
-        rec_table = Table(rec_data, colWidths=[4 * cm, 8 * cm, 3 * cm])
+        rec_table = Table(rec_data, colWidths=[4*cm, 8*cm, 3*cm])
         rec_table.setStyle(self._get_table_style())
         elements.append(rec_table)
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Spacer(1, 0.3*inch))
 
         return elements
 
     def _create_actions_section(self, data: dict) -> list:
         """Create actions taken section"""
         elements = []
-        actions = data.get("actions", [])
+        actions = data.get('actions', [])
 
         if not actions:
             return elements
 
-        elements.append(
-            Paragraph(
-                "الإجراءات المتخذة - Actions Taken", self.styles["BilingualHeading"]
-            )
-        )
+        elements.append(Paragraph(
+            "الإجراءات المتخذة - Actions Taken",
+            self.styles['BilingualHeading']
+        ))
 
         action_data = [["النوع / Type", "الوصف / Description", "الكمية / Amount"]]
 
         for action in actions:
-            action_data.append(
-                [
-                    f"{action.get('action_type_ar', '')} / {action.get('action_type', '')}",
-                    f"{action.get('description', '')} / {action.get('description_en', '')}",
-                    action.get("amount", "N/A"),
-                ]
-            )
+            action_data.append([
+                f"{action.get('action_type_ar', '')} / {action.get('action_type', '')}",
+                f"{action.get('description', '')} / {action.get('description_en', '')}",
+                action.get('amount', 'N/A')
+            ])
 
-        action_table = Table(action_data, colWidths=[4 * cm, 8 * cm, 3 * cm])
+        action_table = Table(action_data, colWidths=[4*cm, 8*cm, 3*cm])
         action_table.setStyle(self._get_table_style())
         elements.append(action_table)
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Spacer(1, 0.3*inch))
 
         return elements
 
@@ -699,7 +635,7 @@ class DailySummaryReport:
         elements = []
 
         elements.append(self._create_separator())
-        elements.append(Spacer(1, 0.1 * inch))
+        elements.append(Spacer(1, 0.1*inch))
 
         footer_text = f"""
         <para align=center>
@@ -710,36 +646,27 @@ class DailySummaryReport:
         </font>
         </para>
         """
-        elements.append(Paragraph(footer_text, self.styles["Normal"]))
+        elements.append(Paragraph(footer_text, self.styles['Normal']))
 
         return elements
 
     def _get_table_style(self):
         """Get standard table style"""
-        return TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#366092")),
-                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
-                ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                ("FONTSIZE", (0, 0), (-1, 0), 11),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
-                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("PADDING", (0, 0), (-1, -1), 6),
-            ]
-        )
+        return TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 11),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('PADDING', (0, 0), (-1, -1), 6),
+        ])
 
     def _create_separator(self):
         """Create a horizontal separator line"""
-        return Table(
-            [[""]],
-            colWidths=[17 * cm],
-            rowHeights=[0.05 * cm],
-            style=TableStyle(
-                [
-                    ("LINEABOVE", (0, 0), (-1, 0), 2, colors.HexColor("#366092")),
-                ]
-            ),
-        )
+        return Table([[""]], colWidths=[17*cm], rowHeights=[0.05*cm], style=TableStyle([
+            ('LINEABOVE', (0, 0), (-1, 0), 2, colors.HexColor('#366092')),
+        ]))

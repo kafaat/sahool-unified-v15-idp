@@ -139,7 +139,7 @@ def compute_linear_trend(
 
     # Calculate R-squared
     y_pred = [slope * i + (y_mean - slope * x_mean) for i in range(n)]
-    ss_res = sum((v - p) ** 2 for v, p in zip(values, y_pred))
+    ss_res = sum((v - p) ** 2 for v, p in zip(values, y_pred, strict=False))
     ss_tot = sum((v - y_mean) ** 2 for v in values)
 
     r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
@@ -366,10 +366,7 @@ def compare_to_historical_mean(
     Returns:
         Comparison dictionary with z-score and interpretation
     """
-    if historical_std == 0:
-        z_score = 0.0
-    else:
-        z_score = (current_value - historical_mean) / historical_std
+    z_score = 0.0 if historical_std == 0 else (current_value - historical_mean) / historical_std
 
     deviation_pct = (
         ((current_value - historical_mean) / historical_mean * 100)

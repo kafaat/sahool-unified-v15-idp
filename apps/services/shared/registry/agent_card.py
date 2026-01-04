@@ -221,7 +221,9 @@ class AgentCard(BaseModel):
 
     # Endpoints / نقاط النهاية
     endpoint: AgentEndpoint = Field(..., description="Primary agent endpoint")
-    health_endpoint: HttpUrl | None = Field(None, description="Health check endpoint")
+    health_endpoint: HttpUrl | None = Field(
+        None, description="Health check endpoint"
+    )
 
     # Security / الأمان
     security_scheme: SecurityScheme = Field(
@@ -247,7 +249,7 @@ class AgentCard(BaseModel):
     )
 
     @validator("version")
-    def validate_version(cls, v):
+    def validate_version(self, v):
         """Validate semantic versioning format"""
         parts = v.split(".")
         if len(parts) != 3:
@@ -259,7 +261,7 @@ class AgentCard(BaseModel):
         return v
 
     @validator("agent_id")
-    def validate_agent_id(cls, v):
+    def validate_agent_id(self, v):
         """Validate agent ID format"""
         if not v.replace("-", "").replace("_", "").isalnum():
             raise ValueError(

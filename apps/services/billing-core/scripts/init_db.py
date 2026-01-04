@@ -119,7 +119,7 @@ async def seed_sample_data():
         # Create sample usage records
         logger.info("Creating sample usage records...")
 
-        for i in range(5):
+        for _i in range(5):
             await repo.usage_records.create(
                 subscription_id=subscription1.id,
                 tenant_id="tenant-001",

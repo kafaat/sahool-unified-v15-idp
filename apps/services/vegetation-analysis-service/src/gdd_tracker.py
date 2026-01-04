@@ -1515,9 +1515,7 @@ class GDDTracker:
             normal_gdd = sum(gdd_samples) / len(gdd_samples)
 
             # Calculate percent difference
-            percent_diff = (
-                (current_gdd - normal_gdd) / normal_gdd * 100 if normal_gdd > 0 else 0.0
-            )
+            percent_diff = (current_gdd - normal_gdd) / normal_gdd * 100 if normal_gdd > 0 else 0.0
 
             # Generate descriptions
             if percent_diff > 10:

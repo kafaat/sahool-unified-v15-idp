@@ -129,10 +129,7 @@ class DatasetValidator:
             return False
 
         # Validate evaluation criteria
-        if not self._validate_criteria(test_case["evaluation_criteria"], idx):
-            return False
-
-        return True
+        return self._validate_criteria(test_case["evaluation_criteria"], idx)
 
     def _validate_input(self, input_data: dict[str, Any], idx: int) -> bool:
         """Validate input section"""

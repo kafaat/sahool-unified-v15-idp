@@ -74,30 +74,22 @@ class DevelopmentSeeder(BaseSeeder):
                 session.commit()
 
                 end_time = datetime.utcnow()
-                results["execution_time_ms"] = (
-                    end_time - start_time
-                ).total_seconds() * 1000
+                results["execution_time_ms"] = (end_time - start_time).total_seconds() * 1000
 
-                self._log(
-                    "Development data seeding completed successfully!",
-                    "اكتملت تعبئة بيانات التطوير بنجاح!",
-                )
-                self._log(
-                    f"Created: {results['tenants']} tenants, {results['users']} users, "
-                    f"{results['farms']} farms, {results['fields']} fields, "
-                    f"{results['crops']} crops, {results['sensors']} sensors",
-                    f"تم إنشاء: {results['tenants']} مستأجر، {results['users']} مستخدم، "
-                    f"{results['farms']} مزرعة، {results['fields']} حقل، "
-                    f"{results['crops']} محصول، {results['sensors']} جهاز استشعار",
-                )
+                self._log("Development data seeding completed successfully!",
+                         "اكتملت تعبئة بيانات التطوير بنجاح!")
+                self._log(f"Created: {results['tenants']} tenants, {results['users']} users, "
+                         f"{results['farms']} farms, {results['fields']} fields, "
+                         f"{results['crops']} crops, {results['sensors']} sensors",
+                         f"تم إنشاء: {results['tenants']} مستأجر، {results['users']} مستخدم، "
+                         f"{results['farms']} مزرعة، {results['fields']} حقل، "
+                         f"{results['crops']} محصول، {results['sensors']} جهاز استشعار")
 
             except Exception as e:
                 session.rollback()
                 results["success"] = False
                 results["error"] = str(e)
-                self._log(
-                    f"Error during seeding: {str(e)}", f"خطأ أثناء التعبئة: {str(e)}"
-                )
+                self._log(f"Error during seeding: {str(e)}", f"خطأ أثناء التعبئة: {str(e)}")
 
         return results
 
@@ -141,8 +133,7 @@ class DevelopmentSeeder(BaseSeeder):
 
         for tenant_data in tenants:
             session.execute(
-                text(
-                    """
+                text("""
                     INSERT INTO tenants (
                         id, code, name, name_ar, description, description_ar,
                         contact_email, contact_phone, governorate, country,
@@ -152,9 +143,8 @@ class DevelopmentSeeder(BaseSeeder):
                         :contact_email, :contact_phone, :governorate, :country,
                         :is_active, :subscription_tier, NOW(), NOW()
                     )
-                """
-                ),
-                tenant_data,
+                """),
+                tenant_data
             )
 
         return tenants
@@ -209,8 +199,7 @@ class DevelopmentSeeder(BaseSeeder):
 
             for user_data in tenant_users:
                 session.execute(
-                    text(
-                        """
+                    text("""
                         INSERT INTO users (
                             id, tenant_id, username, email, password_hash,
                             first_name, last_name, first_name_ar, last_name_ar,
@@ -222,17 +211,14 @@ class DevelopmentSeeder(BaseSeeder):
                             :phone, :role, :language, :timezone,
                             :is_active, :is_verified, NOW(), NOW()
                         )
-                    """
-                    ),
-                    user_data,
+                    """),
+                    user_data
                 )
                 users.append(user_data)
 
         return users
 
-    def _seed_farms(
-        self, session: Session, tenants: list[dict], users: list[dict]
-    ) -> list[dict]:
+    def _seed_farms(self, session: Session, tenants: list[dict], users: list[dict]) -> list[dict]:
         """
         تعبئة المزارع
         Seed farms
@@ -272,11 +258,7 @@ class DevelopmentSeeder(BaseSeeder):
 
         for tenant in tenants:
             # العثور على مزارع لهذا المستأجر / Find farmers for this tenant
-            tenant_farmers = [
-                u
-                for u in users
-                if u["tenant_id"] == tenant["id"] and u["role"] == "farmer"
-            ]
+            tenant_farmers = [u for u in users if u["tenant_id"] == tenant["id"] and u["role"] == "farmer"]
 
             for i, farm_template in enumerate(farm_templates):
                 if i < len(tenant_farmers):
@@ -287,8 +269,7 @@ class DevelopmentSeeder(BaseSeeder):
                         **farm_template,
                     }
                     session.execute(
-                        text(
-                            """
+                        text("""
                             INSERT INTO farms (
                                 id, tenant_id, owner_id, name, name_ar,
                                 governorate, district, village, total_area_hectares,
@@ -298,17 +279,14 @@ class DevelopmentSeeder(BaseSeeder):
                                 :governorate, :district, :village, :total_area_hectares,
                                 NOW(), NOW()
                             )
-                        """
-                        ),
-                        farm_data,
+                        """),
+                        farm_data
                     )
                     farms.append(farm_data)
 
         return farms
 
-    def _seed_fields(
-        self, session: Session, tenants: list[dict], farms: list[dict]
-    ) -> list[dict]:
+    def _seed_fields(self, session: Session, tenants: list[dict], farms: list[dict]) -> list[dict]:
         """
         تعبئة الحقول
         Seed fields with Yemen locations
@@ -345,15 +323,13 @@ class DevelopmentSeeder(BaseSeeder):
                 offset = 0.005  # حوالي 500 متر / About 500 meters
                 {
                     "type": "Polygon",
-                    "coordinates": [
-                        [
-                            [location["lon"] - offset, location["lat"] - offset],
-                            [location["lon"] + offset, location["lat"] - offset],
-                            [location["lon"] + offset, location["lat"] + offset],
-                            [location["lon"] - offset, location["lat"] + offset],
-                            [location["lon"] - offset, location["lat"] - offset],
-                        ]
-                    ],
+                    "coordinates": [[
+                        [location["lon"] - offset, location["lat"] - offset],
+                        [location["lon"] + offset, location["lat"] - offset],
+                        [location["lon"] + offset, location["lat"] + offset],
+                        [location["lon"] - offset, location["lat"] + offset],
+                        [location["lon"] - offset, location["lat"] - offset],
+                    ]]
                 }
 
                 field_data = {
@@ -371,8 +347,7 @@ class DevelopmentSeeder(BaseSeeder):
                 }
 
                 session.execute(
-                    text(
-                        """
+                    text("""
                         INSERT INTO fields (
                             id, tenant_id, farm_id, name, name_ar,
                             center_latitude, center_longitude, area_hectares,
@@ -384,17 +359,14 @@ class DevelopmentSeeder(BaseSeeder):
                             :soil_type, :irrigation_type, :status,
                             NOW(), NOW()
                         )
-                    """
-                    ),
-                    field_data,
+                    """),
+                    field_data
                 )
                 fields.append(field_data)
 
         return fields
 
-    def _seed_crops(
-        self, session: Session, tenants: list[dict], fields: list[dict]
-    ) -> list[dict]:
+    def _seed_crops(self, session: Session, tenants: list[dict], fields: list[dict]) -> list[dict]:
         """
         تعبئة المحاصيل
         Seed crops
@@ -405,29 +377,15 @@ class DevelopmentSeeder(BaseSeeder):
 
         # محاصيل شائعة في اليمن / Common crops in Yemen
         crop_types = [
-            {
-                "type": "wheat",
-                "variety": "Yemen Red",
-                "variety_ar": "القمح اليمني الأحمر",
-            },
-            {
-                "type": "coffee",
-                "variety": "Yemen Mokha",
-                "variety_ar": "البن اليمني المخا",
-            },
+            {"type": "wheat", "variety": "Yemen Red", "variety_ar": "القمح اليمني الأحمر"},
+            {"type": "coffee", "variety": "Yemen Mokha", "variety_ar": "البن اليمني المخا"},
             {"type": "qaat", "variety": "Wadi Hadramaut", "variety_ar": "وادي حضرموت"},
             {"type": "mango", "variety": "Alphonso", "variety_ar": "ألفونسو"},
             {"type": "date_palm", "variety": "Medjool", "variety_ar": "المجهول"},
             {"type": "tomato", "variety": "Roma", "variety_ar": "روما"},
         ]
 
-        growth_stages = [
-            "planting",
-            "germination",
-            "vegetative",
-            "flowering",
-            "fruiting",
-        ]
+        growth_stages = ["planting", "germination", "vegetative", "flowering", "fruiting"]
 
         for field in fields:
             # حوالي 70% من الحقول لديها محاصيل / About 70% of fields have crops
@@ -435,9 +393,7 @@ class DevelopmentSeeder(BaseSeeder):
                 crop_template = random.choice(crop_types)
 
                 planting_date = date.today() - timedelta(days=random.randint(30, 180))
-                expected_harvest = planting_date + timedelta(
-                    days=random.randint(90, 180)
-                )
+                expected_harvest = planting_date + timedelta(days=random.randint(90, 180))
 
                 crop_data = {
                     "id": uuid.uuid4(),
@@ -453,8 +409,7 @@ class DevelopmentSeeder(BaseSeeder):
                 }
 
                 session.execute(
-                    text(
-                        """
+                    text("""
                         INSERT INTO crops (
                             id, tenant_id, field_id, crop_type, variety, variety_ar,
                             planting_date, expected_harvest_date, growth_stage,
@@ -464,25 +419,20 @@ class DevelopmentSeeder(BaseSeeder):
                             :planting_date, :expected_harvest_date, :growth_stage,
                             :yield_estimate_kg, NOW(), NOW()
                         )
-                    """
-                    ),
-                    crop_data,
+                    """),
+                    crop_data
                 )
                 crops.append(crop_data)
 
                 # تحديث current_crop_id في الحقل / Update current_crop_id in field
                 session.execute(
-                    text(
-                        "UPDATE fields SET current_crop_id = :crop_id WHERE id = :field_id"
-                    ),
-                    {"crop_id": crop_data["id"], "field_id": field["id"]},
+                    text("UPDATE fields SET current_crop_id = :crop_id WHERE id = :field_id"),
+                    {"crop_id": crop_data["id"], "field_id": field["id"]}
                 )
 
         return crops
 
-    def _seed_sensors(
-        self, session: Session, tenants: list[dict], fields: list[dict]
-    ) -> list[dict]:
+    def _seed_sensors(self, session: Session, tenants: list[dict], fields: list[dict]) -> list[dict]:
         """
         تعبئة أجهزة الاستشعار
         Seed sensors
@@ -492,26 +442,10 @@ class DevelopmentSeeder(BaseSeeder):
         sensors = []
 
         device_types = [
-            {
-                "type": "soil_moisture",
-                "name": "Soil Moisture Sensor",
-                "name_ar": "مستشعر رطوبة التربة",
-            },
-            {
-                "type": "temperature",
-                "name": "Temperature Sensor",
-                "name_ar": "مستشعر درجة الحرارة",
-            },
-            {
-                "type": "humidity",
-                "name": "Humidity Sensor",
-                "name_ar": "مستشعر الرطوبة",
-            },
-            {
-                "type": "weather_station",
-                "name": "Weather Station",
-                "name_ar": "محطة الطقس",
-            },
+            {"type": "soil_moisture", "name": "Soil Moisture Sensor", "name_ar": "مستشعر رطوبة التربة"},
+            {"type": "temperature", "name": "Temperature Sensor", "name_ar": "مستشعر درجة الحرارة"},
+            {"type": "humidity", "name": "Humidity Sensor", "name_ar": "مستشعر الرطوبة"},
+            {"type": "weather_station", "name": "Weather Station", "name_ar": "محطة الطقس"},
         ]
 
         for field in fields:
@@ -541,8 +475,7 @@ class DevelopmentSeeder(BaseSeeder):
                     }
 
                     session.execute(
-                        text(
-                            """
+                        text("""
                             INSERT INTO sensors (
                                 id, tenant_id, field_id, device_id, device_type,
                                 name, name_ar, latitude, longitude,
@@ -554,9 +487,8 @@ class DevelopmentSeeder(BaseSeeder):
                                 :is_active, :battery_level, NOW(),
                                 NOW(), NOW()
                             )
-                        """
-                        ),
-                        sensor_data,
+                        """),
+                        sensor_data
                     )
                     sensors.append(sensor_data)
 

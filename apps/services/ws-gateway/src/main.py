@@ -278,10 +278,7 @@ async def broadcast_message(
     # Extract token from Authorization header
     token = None
     if authorization:
-        if authorization.startswith("Bearer "):
-            token = authorization[7:]
-        else:
-            token = authorization
+        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
 
     if not token:
         raise HTTPException(

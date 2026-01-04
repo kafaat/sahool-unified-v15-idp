@@ -16,6 +16,9 @@ import hashlib
 import hmac
 import logging
 import os
+
+# Authentication imports
+import sys
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
@@ -44,13 +47,6 @@ from . import models as db_models
 # Database imports
 from .database import check_db_connection, close_db, db_health_check, get_db, init_db
 from .repository import BillingRepository
-
-# Configure logging early - needed for import error handling
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sahool-billing")
-
-# Authentication imports
-import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
 try:
@@ -101,6 +97,10 @@ except ImportError:
             )
         return None
 
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("sahool-billing")
 
 # =============================================================================
 # NATS Configuration - تكوين الرسائل
@@ -545,15 +545,6 @@ class CreatePaymentRequest(BaseModel):
 # INVOICE_COUNTER: Global counter for invoice numbers
 # Will be replaced with database sequence in production
 INVOICE_COUNTER: int = 0
-
-# In-memory caches for webhook handlers (legacy support)
-# These are used by webhook handlers that haven't been migrated to database
-# TODO: Migrate webhook handlers to use database repository
-PLANS: dict[str, Any] = {}
-TENANTS: dict[str, Any] = {}
-SUBSCRIPTIONS: dict[str, Any] = {}
-INVOICES: dict[str, Any] = {}
-PAYMENTS: dict[str, Any] = {}
 
 
 async def init_default_plans_in_db():
@@ -1791,7 +1782,7 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
             # Security: Don't expose internal error details to client
             raise HTTPException(
                 502, "Payment gateway temporarily unavailable. Please try again."
-            ) from e
+            )
 
 
 async def call_stripe_api(payment: Any, token: str) -> dict:
@@ -1818,7 +1809,7 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
         # Security: Don't expose internal error details to client
         raise HTTPException(
             502, "Payment processing failed. Please try again or contact support."
-        ) from e
+        )
 
 
 @app.post("/v1/payments")
@@ -2073,7 +2064,7 @@ async def tharwatt_webhook(
         payload = TharwattWebhookPayload(**payload_dict)
     except Exception as e:
         logger.error(f"Tharwatt webhook: Invalid payload: {e}")
-        raise HTTPException(400, "Invalid payload format") from e
+        raise HTTPException(400, "Invalid payload format")
 
     # Find payment by reference
     payment = None

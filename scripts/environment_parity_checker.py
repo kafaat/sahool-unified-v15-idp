@@ -237,7 +237,7 @@ class EnvironmentParityChecker:
         env_prefix = env.upper() + "_"
         result = configs.get(env, {})
 
-        for key in result.keys():
+        for key in result:
             env_value = os.getenv(env_prefix + key) or os.getenv(key)
             if env_value:
                 result[key] = env_value

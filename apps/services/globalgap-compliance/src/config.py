@@ -6,6 +6,7 @@ This module manages all environment variables and service configuration.
 تدير هذه الوحدة جميع متغيرات البيئة وإعدادات الخدمة.
 """
 
+
 from pydantic_settings import BaseSettings
 
 

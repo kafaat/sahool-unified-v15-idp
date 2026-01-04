@@ -37,7 +37,7 @@ class TestFieldAnalystAgent:
             )
 
             assert result is not None
-            assert isinstance(result, (dict, str))
+            assert isinstance(result, dict | str)
 
     @pytest.mark.asyncio
     async def test_analyze_field_with_invalid_data(self, mock_knowledge_retriever):

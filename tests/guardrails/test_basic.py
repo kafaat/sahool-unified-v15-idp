@@ -52,7 +52,7 @@ test_cases = [
     ("My email is farmer@sahool.sa", True, "email"),
 ]
 
-for text, has_pii, pii_type in test_cases:
+for text, has_pii, _pii_type in test_cases:
     email_found = bool(email_pattern.search(text))
     phone_found = bool(phone_pattern.search(text))
     detected = email_found or phone_found
@@ -86,7 +86,7 @@ test_cases = [
     ("ما هو أفضل وقت لزراعة القمح؟", True, False),
 ]
 
-for text, should_allow, should_block in test_cases:
+for text, _should_allow, should_block in test_cases:
     text_lower = text.lower()
     is_allowed = any(topic.lower() in text_lower for topic in allowed_topics)
     is_blocked = any(topic.lower() in text_lower for topic in blocked_topics)

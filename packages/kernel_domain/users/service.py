@@ -66,9 +66,8 @@ class UserService:
     def verify_user_password(self, email: str, password: str) -> User | None:
         """Verify user credentials and return user if valid"""
         user = self.get_user_by_email(email)
-        if user and user.password_hash:
-            if verify_password(password, user.password_hash):
-                return user
+        if user and user.password_hash and verify_password(password, user.password_hash):
+            return user
         return None
 
     def update_last_login(self, user_id: str) -> User | None:

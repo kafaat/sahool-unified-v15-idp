@@ -51,7 +51,9 @@ class DiagnosisResult(BaseModel):
 
     # Expert review
     needs_expert_review: bool = Field(description="يحتاج مراجعة خبير")
-    expert_review_reason: str | None = Field(None, description="سبب طلب مراجعة الخبير")
+    expert_review_reason: str | None = Field(
+        None, description="سبب طلب مراجعة الخبير"
+    )
 
     # Additional metadata
     weather_consideration: str | None = Field(None, description="اعتبارات الطقس")

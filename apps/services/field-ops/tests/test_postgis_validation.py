@@ -393,8 +393,8 @@ class TestCoordinateReferenceSystems:
 
         # Verify coordinates are in decimal degrees format
         for lon, lat in coords:
-            assert isinstance(lon, (int, float)), "Longitude should be numeric"
-            assert isinstance(lat, (int, float)), "Latitude should be numeric"
+            assert isinstance(lon, int | float), "Longitude should be numeric"
+            assert isinstance(lat, int | float), "Latitude should be numeric"
 
     def test_coordinate_transformation(self):
         """

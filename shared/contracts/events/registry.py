@@ -93,9 +93,8 @@ def _register_all_events():
                 isinstance(obj, type)
                 and issubclass(obj, BaseEvent)
                 and obj != BaseEvent
-            ):
-                if hasattr(obj, "EVENT_TYPE") and obj.EVENT_TYPE:
-                    EventRegistry.register(obj)
+            ) and hasattr(obj, "EVENT_TYPE") and obj.EVENT_TYPE:
+                EventRegistry.register(obj)
 
 
 _register_all_events()

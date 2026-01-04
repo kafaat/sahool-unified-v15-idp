@@ -18,9 +18,9 @@ class Base(DeclarativeBase):
 
     # Generate __tablename__ automatically from class name
     @declared_attr.directive
-    def __tablename__(cls) -> str:
+    def __tablename__(self) -> str:
         # Convert CamelCase to snake_case
-        name = cls.__name__
+        name = self.__name__
         return "".join(["_" + c.lower() if c.isupper() else c for c in name]).lstrip(
             "_"
         )
@@ -58,7 +58,7 @@ class TenantMixin:
     """Mixin for multi-tenant support"""
 
     @declared_attr
-    def tenant_id(cls) -> Mapped[str]:
+    def tenant_id(self) -> Mapped[str]:
         return mapped_column(
             String(50),
             nullable=False,

@@ -469,7 +469,7 @@ class FallbackManager:
         """
         return {
             service: self.get_circuit_status(service)
-            for service in self._circuit_breakers.keys()
+            for service in self._circuit_breakers
         }
 
 

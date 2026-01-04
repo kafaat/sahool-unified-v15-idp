@@ -278,7 +278,7 @@ class ComplianceService:
         """
         # In real implementation, query and update database
         # في التطبيق الفعلي، الاستعلام والتحديث في قاعدة البيانات
-        for key, ncs in self.non_conformities.items():
+        for _key, ncs in self.non_conformities.items():
             for nc in ncs:
                 if nc.id == non_conformity_id:
                     nc.corrective_action_plan = action_plan

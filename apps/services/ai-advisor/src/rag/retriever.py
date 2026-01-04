@@ -161,7 +161,7 @@ class KnowledgeRetriever:
                     },
                 )
                 for doc_id, document, embedding, metadata in zip(
-                    ids, documents, embeddings, metadatas
+                    ids, documents, embeddings, metadatas, strict=False
                 )
             ]
 

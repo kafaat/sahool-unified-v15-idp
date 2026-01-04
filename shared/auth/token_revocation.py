@@ -503,9 +503,8 @@ class RedisTokenRevocationStore:
             return True, "token_revoked"
 
         # Check user revocation
-        if user_id and issued_at:
-            if await self.is_user_token_revoked(user_id, issued_at):
-                return True, "user_tokens_revoked"
+        if user_id and issued_at and await self.is_user_token_revoked(user_id, issued_at):
+            return True, "user_tokens_revoked"
 
         # Check tenant revocation
         if tenant_id and issued_at:

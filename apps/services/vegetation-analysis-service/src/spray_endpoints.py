@@ -138,7 +138,7 @@ def register_spray_endpoints(app):
             logger.error(f"Failed to get spray forecast: {e}")
             raise HTTPException(
                 status_code=500, detail=f"Spray advisor error: {str(e)}"
-            ) from e
+            )
 
     @app.get("/v1/spray/best-time")
     async def get_best_spray_time(
@@ -223,7 +223,7 @@ def register_spray_endpoints(app):
             logger.error(f"Failed to find best spray time: {e}")
             raise HTTPException(
                 status_code=500, detail=f"Spray advisor error: {str(e)}"
-            ) from e
+            )
 
     @app.post("/v1/spray/evaluate")
     async def evaluate_spray_time(
@@ -232,7 +232,9 @@ def register_spray_endpoints(app):
         target_datetime: str = Query(
             ..., description="Target spray time (ISO 8601 format)"
         ),
-        product_type: str | None = Query(None, description="Product type (optional)"),
+        product_type: str | None = Query(
+            None, description="Product type (optional)"
+        ),
     ):
         """
         تقييم وقت محدد للرش | Evaluate Specific Spray Time
@@ -332,7 +334,7 @@ def register_spray_endpoints(app):
             logger.error(f"Failed to evaluate spray time: {e}")
             raise HTTPException(
                 status_code=500, detail=f"Spray advisor error: {str(e)}"
-            ) from e
+            )
 
     @app.get("/v1/spray/conditions")
     async def get_spray_conditions_info():

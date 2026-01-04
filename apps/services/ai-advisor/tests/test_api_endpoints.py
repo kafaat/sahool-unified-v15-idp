@@ -89,22 +89,20 @@ def mock_all_dependencies():
                                         mocks["agro_tool"] = mock_agro_tool
 
                                         # Mock RAG components
-                                        with (
-                                            patch(
-                                                "src.main.EmbeddingsManager"
-                                            ) as mock_emb,
-                                            patch(
-                                                "src.main.KnowledgeRetriever"
-                                            ) as mock_ret,
-                                            patch("src.main.Supervisor") as mock_sup,
-                                        ):
+                                        with patch(
+                                            "src.main.EmbeddingsManager"
+                                        ) as mock_emb, patch(
+                                            "src.main.KnowledgeRetriever"
+                                        ) as mock_ret, patch(
+                                            "src.main.Supervisor"
+                                        ) as mock_sup:
 
                                             emb_instance = Mock()
                                             mock_emb.return_value = emb_instance
 
                                             ret_instance = Mock()
-                                            ret_instance.get_collection_info = Mock(
-                                                return_value={"docs": 100}
+                                            ret_instance.get_collection_info = (
+                                                Mock(return_value={"docs": 100})
                                             )
                                             mock_ret.return_value = ret_instance
 
@@ -112,7 +110,9 @@ def mock_all_dependencies():
                                             sup_instance.coordinate = AsyncMock(
                                                 return_value={
                                                     "answer": "Agricultural advice here",
-                                                    "agents_used": ["field_analyst"],
+                                                    "agents_used": [
+                                                        "field_analyst"
+                                                    ],
                                                 }
                                             )
                                             sup_instance.get_available_agents = Mock(

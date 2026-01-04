@@ -124,15 +124,12 @@ class TestMultiProviderLLM:
             "Anthropic API Error"
         )
 
-        with (
-            patch(
-                "src.llm.multi_provider.anthropic.AsyncAnthropic",
-                return_value=mock_failing_client,
-            ),
-            patch(
-                "src.llm.multi_provider.openai.AsyncOpenAI",
-                return_value=mock_openai_client,
-            ),
+        with patch(
+            "src.llm.multi_provider.anthropic.AsyncAnthropic",
+            return_value=mock_failing_client,
+        ), patch(
+            "src.llm.multi_provider.openai.AsyncOpenAI",
+            return_value=mock_openai_client,
         ):
             llm = MultiProviderLLM(
                 default_provider="anthropic", fallback_providers=["openai"]

@@ -956,7 +956,7 @@ def to_dict(obj):
             value = getattr(obj, field_name)
             if isinstance(value, Enum):
                 result[field_name] = value.value
-            elif isinstance(value, (date, datetime)):
+            elif isinstance(value, date | datetime):
                 result[field_name] = value.isoformat()
             elif isinstance(value, list):
                 result[field_name] = [

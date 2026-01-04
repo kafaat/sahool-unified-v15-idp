@@ -139,7 +139,8 @@ export class TokenRevocationGuard implements CanActivate {
       }
 
       // Log error but allow access (fail open)
-      this.logger.error(`Error checking token revocation: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Error checking token revocation: ${errorMessage}`);
       return true;
     }
   }
@@ -242,7 +243,8 @@ export class TokenRevocationInterceptor implements NestInterceptor {
         }
 
         // Log error but continue (fail open)
-        this.logger.error(`Error checking token revocation: ${error.message}`);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        this.logger.error(`Error checking token revocation: ${errorMessage}`);
       }
     }
 

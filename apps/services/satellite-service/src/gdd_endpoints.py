@@ -343,7 +343,7 @@ def register_gdd_endpoints(app):
 
             return requirements.to_dict()
 
-        except ValueError as e:
+        except ValueError:
             tracker = get_gdd_tracker()
             available_crops = tracker.get_all_crops()
             crop_codes = [c["crop_code"] for c in available_crops]
@@ -484,7 +484,7 @@ def register_gdd_endpoints(app):
                 "total_gdd_required": round(total_gdd, 1),
             }
 
-        except ValueError as e:
+        except ValueError:
             tracker = get_gdd_tracker()
             available_crops = tracker.get_all_crops()
             crop_codes = [c["crop_code"] for c in available_crops]

@@ -10,7 +10,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class SentinelHubConfig:
     request_timeout: int = 120
 
     # Yemen-specific defaults (SAHOOL focus area)
-    yemen_bbox: Dict[str, float] = field(
+    yemen_bbox: dict[str, float] = field(
         default_factory=lambda: {
             "min_lon": 42.5,
             "max_lon": 54.0,
@@ -156,9 +156,7 @@ class SentinelHubConfig:
         """Validate configuration"""
         if not self.client_id or not self.client_secret:
             return False
-        if len(self.client_id) < 10 or len(self.client_secret) < 10:
-            return False
-        return True
+        return not (len(self.client_id) < 10 or len(self.client_secret) < 10)
 
 
 # =============================================================================
@@ -342,7 +340,7 @@ class SahoolEOClient:
         time_interval: tuple,
         data_source: SatelliteDataSource = SatelliteDataSource.SENTINEL2_L2A,
         max_cloud_coverage: Optional[float] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Search for available satellite data
 
@@ -382,7 +380,7 @@ class SahoolEOClient:
 
         return list(search_results)
 
-    def get_yemen_governorates_bbox(self) -> Dict[str, Any]:
+    def get_yemen_governorates_bbox(self) -> dict[str, Any]:
         """
         Get bounding boxes for all Yemen governorates
 

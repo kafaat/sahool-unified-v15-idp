@@ -149,7 +149,7 @@ async def main():
         )
         print("   " + "-" * 76)
 
-        for i, day in enumerate(daily[:7]):
+        for _i, day in enumerate(daily[:7]):
             # Get corresponding hourly data if available
             # الحصول على البيانات الساعية المقابلة إن وجدت
             day_hourly = None

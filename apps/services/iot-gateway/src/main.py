@@ -147,7 +147,8 @@ async def check_offline_devices():
                     device_id=device.device_id,
                     field_id=device.field_id,
                     status=DeviceStatus.OFFLINE.value,
-                    last_seen=device.last_seen or datetime.now(UTC).isoformat(),
+                    last_seen=device.last_seen
+                    or datetime.now(UTC).isoformat(),
                 )
 
                 # Also publish alert
@@ -285,7 +286,7 @@ class SensorReadingRequest(BaseModel):
     metadata: dict | None = None
 
     @validator("sensor_type")
-    def validate_sensor_type(cls, v):
+    def validate_sensor_type(self, v):
         """Validate sensor type is known"""
         v = v.lower()
         if v not in SENSOR_RANGES and not v.startswith("custom_"):
@@ -293,7 +294,7 @@ class SensorReadingRequest(BaseModel):
         return v
 
     @validator("value")
-    def validate_value_range(cls, v, values):
+    def validate_value_range(self, v, values):
         """Validate sensor value is within expected range"""
         if "sensor_type" in values:
             sensor_type = values["sensor_type"].lower()
@@ -541,7 +542,7 @@ async def post_batch_readings(req: BatchReadingRequest):
             )
             raise HTTPException(
                 status_code=400, detail=f"Error processing reading {idx}: {str(e)}"
-            ) from e
+            )
 
     # Update device status
     registry.update_status(device_id=req.device_id)

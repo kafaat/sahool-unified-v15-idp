@@ -6,7 +6,7 @@ Port: 8090
 
 import json
 import os
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 from uuid import uuid4
 
@@ -97,10 +97,8 @@ class ConnectionManager:
 
     async def send_personal(self, connection_id: str, message: dict):
         if connection_id in self.active_connections:
-            try:
+            with suppress(Exception):
                 await self.active_connections[connection_id].send_json(message)
-            except Exception:
-                pass
 
     async def broadcast_to_tenant(self, tenant_id: str, message: dict):
         if tenant_id in self.tenant_connections:

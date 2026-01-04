@@ -2,6 +2,7 @@
 Configuration settings for Code Review Service
 """
 
+
 from pydantic_settings import BaseSettings
 
 

@@ -276,6 +276,6 @@ npm run build:packages
 
 ---
 
-**آخر تحديث:** 2026-01-04  
+**آخر تحديث:** See VERSION file  
 **الإصدار:** 16.0.0  
 **الحالة:** ✅ Stable & Ready

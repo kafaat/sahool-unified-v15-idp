@@ -308,7 +308,18 @@ def _get_cors_settings() -> dict:
     Get CORS settings dictionary for backward compatibility.
     
     Returns:
-        dict: CORS middleware settings
+        dict: CORS middleware settings with keys:
+            - allow_origins: List of allowed origin URLs
+            - allow_credentials: Whether to allow credentials
+            - allow_methods: List of allowed HTTP methods
+            - allow_headers: List of allowed request headers
+            - expose_headers: List of headers to expose
+            - max_age: Preflight cache duration in seconds
+    
+    Example:
+        >>> settings = _get_cors_settings()
+        >>> print(settings['allow_origins'])
+        ['https://sahool.app', 'http://localhost:3000']
     """
     return {
         "allow_origins": get_allowed_origins(),
@@ -341,39 +352,50 @@ def _get_cors_settings() -> dict:
 
 # Lazy-loaded CORS_SETTINGS - only evaluated when accessed
 class _CORSSettings:
-    """Lazy loader for CORS settings to avoid expensive operations at import time."""
+    """
+    Lazy loader for CORS settings to avoid expensive operations at import time.
     
-    _settings = None
+    This class implements the dict-like interface and loads settings only when first accessed.
+    Thread-safe singleton pattern ensures consistent behavior across the application.
     
-    def __getitem__(self, key):
+    Example:
+        >>> from apps.services.shared.config.cors_config import CORS_SETTINGS
+        >>> app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
+    """
+    
+    def __init__(self):
+        """Initialize with None settings - will be loaded on first access."""
+        self._settings = None
+    
+    def _ensure_settings_loaded(self):
+        """Load settings if not already loaded."""
         if self._settings is None:
             self._settings = _get_cors_settings()
+    
+    def __getitem__(self, key):
+        self._ensure_settings_loaded()
         return self._settings[key]
     
     def __iter__(self):
-        if self._settings is None:
-            self._settings = _get_cors_settings()
+        self._ensure_settings_loaded()
         return iter(self._settings)
     
     def keys(self):
-        if self._settings is None:
-            self._settings = _get_cors_settings()
+        self._ensure_settings_loaded()
         return self._settings.keys()
     
     def values(self):
-        if self._settings is None:
-            self._settings = _get_cors_settings()
+        self._ensure_settings_loaded()
         return self._settings.values()
     
     def items(self):
-        if self._settings is None:
-            self._settings = _get_cors_settings()
+        self._ensure_settings_loaded()
         return self._settings.items()
     
     def get(self, key, default=None):
-        if self._settings is None:
-            self._settings = _get_cors_settings()
+        self._ensure_settings_loaded()
         return self._settings.get(key, default)
 
 
+# Singleton instance
 CORS_SETTINGS = _CORSSettings()

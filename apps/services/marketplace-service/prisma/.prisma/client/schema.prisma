@@ -1,0 +1,650 @@
+// SAHOOL Marketplace & FinTech Schema
+// مخطط قاعدة بيانات سوق سهول والخدمات المالية
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = ".prisma/client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1. المنتجات - Products
+// يشمل بيع المحاصيل (B2B) ومستلزمات الزراعة (B2C)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Product {
+  id            String          @id @default(uuid())
+  name          String
+  nameAr        String          @map("name_ar")
+  category      ProductCategory
+  price         Float
+  stock         Float // بالطن أو بالعدد
+  unit          String // 'ton', 'kg', 'unit'
+  description   String?
+  descriptionAr String?         @map("description_ar")
+  imageUrl      String?         @map("image_url")
+
+  // البائع
+  sellerId   String     @map("seller_id")
+  sellerType SellerType @map("seller_type")
+  sellerName String?    @map("seller_name")
+
+  // الموقع (للمحاصيل)
+  governorate String?
+  district    String?
+
+  // البيانات الزراعية (للمحاصيل)
+  cropType     String?   @map("crop_type")
+  harvestDate  DateTime? @map("harvest_date")
+  qualityGrade String?   @map("quality_grade") // A, B, C
+
+  // الحالة
+  status   ProductStatus @default(AVAILABLE)
+  featured Boolean       @default(false)
+
+  // Soft Delete Fields
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  orderItems OrderItem[]
+
+  @@index([sellerId, status]) // Optimize seller product queries
+  @@index([category, status]) // Optimize category filtering
+  @@index([status, featured]) // Optimize featured product queries
+  @@index([id, stock]) // Optimize stock check queries
+  @@index([deletedAt]) // Optimize soft delete queries
+  @@map("products")
+}
+
+enum ProductCategory {
+  HARVEST // محصول للبيع
+  SEEDS // بذور
+  FERTILIZER // أسمدة
+  PESTICIDE // مبيدات
+  EQUIPMENT // معدات
+  IRRIGATION // أدوات ري
+  OTHER // أخرى
+}
+
+enum SellerType {
+  FARMER // مزارع
+  COMPANY // شركة
+  COOPERATIVE // تعاونية
+}
+
+enum ProductStatus {
+  AVAILABLE // متاح
+  SOLD_OUT // نفذ
+  RESERVED // محجوز
+  PENDING // قيد المراجعة
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2. الطلبات - Orders
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Order {
+  id          String @id @default(uuid())
+  orderNumber String @unique @map("order_number")
+
+  // المشتري
+  buyerId    String  @map("buyer_id")
+  buyerName  String? @map("buyer_name")
+  buyerPhone String? @map("buyer_phone")
+
+  // المبالغ
+  subtotal    Float
+  deliveryFee Float @default(0) @map("delivery_fee")
+  serviceFee  Float @default(0) @map("service_fee")
+  totalAmount Float @map("total_amount")
+
+  // الحالة
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID) @map("payment_status")
+  paymentMethod String?       @map("payment_method") // wallet, cash, bank_transfer
+
+  // التوصيل
+  deliveryAddress String?   @map("delivery_address")
+  deliveryDate    DateTime? @map("delivery_date")
+  deliveryNotes   String?   @map("delivery_notes")
+
+  // Soft Delete Fields
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items        OrderItem[]
+  transactions Transaction[]
+
+  @@index([buyerId, status]) // Optimize buyer order queries
+  @@index([status, createdAt]) // Optimize order filtering and sorting
+  @@index([createdAt]) // Optimize time-based queries
+  @@index([deletedAt]) // Optimize soft delete queries
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String @map("order_id")
+  productId String @map("product_id")
+
+  quantity   Float
+  unitPrice  Float @map("unit_price")
+  totalPrice Float @map("total_price")
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING // قيد الانتظار
+  CONFIRMED // مؤكد
+  PROCESSING // جاري التجهيز
+  SHIPPED // تم الشحن
+  DELIVERED // تم التسليم
+  CANCELLED // ملغي
+}
+
+enum PaymentStatus {
+  UNPAID // غير مدفوع
+  PARTIAL // جزئي
+  PAID // مدفوع
+  REFUNDED // مسترد
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3. المحفظة المالية - Wallet (FinTech Core)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Wallet {
+  id       String @id @default(uuid())
+  userId   String @unique @map("user_id")
+  userType String @map("user_type") // farmer, company, buyer
+
+  // الرصيد
+  balance       Float  @default(0.0)
+  escrowBalance Float  @default(0.0) @map("escrow_balance") // المبلغ المحجوز في الإسكرو
+  currency      String @default("YER") // ريال يمني
+
+  // التصنيف الائتماني
+  creditScore Int        @default(300) @map("credit_score") // 300-850
+  creditTier  CreditTier @default(BRONZE) @map("credit_tier")
+
+  // حدود التمويل
+  loanLimit   Float @default(0.0) @map("loan_limit")
+  currentLoan Float @default(0.0) @map("current_loan")
+
+  // حدود الأمان والمحفظة
+  dailyWithdrawLimit     Float     @default(10000.0) @map("daily_withdraw_limit") // حد السحب اليومي
+  singleTransactionLimit Float     @default(50000.0) @map("single_transaction_limit") // حد المعاملة الواحدة
+  requiresPinForAmount   Float     @default(5000.0) @map("requires_pin_for_amount") // يتطلب رمز PIN للمبالغ الأكبر
+  dailyWithdrawnToday    Float     @default(0.0) @map("daily_withdrawn_today") // إجمالي السحوبات اليوم
+  lastWithdrawReset      DateTime? @map("last_withdraw_reset") // آخر إعادة تعيين للحد اليومي
+
+  // Optimistic locking version for double-spend prevention
+  version Int @default(0)
+
+  // بيانات إضافية
+  isVerified Boolean @default(false) @map("is_verified")
+  kycStatus  String? @map("kyc_status") // pending, approved, rejected
+  pin        String? // رمز PIN مشفر (للمعاملات الكبيرة)
+
+  // Soft Delete Fields
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  transactions      Transaction[]
+  loans             Loan[]
+  creditEvents      CreditEvent[]
+  buyerEscrows      Escrow[]           @relation("BuyerEscrows")
+  sellerEscrows     Escrow[]           @relation("SellerEscrows")
+  scheduledPayments ScheduledPayment[]
+  auditLogs         WalletAuditLog[]
+
+  @@index([deletedAt]) // Optimize soft delete queries
+  @@map("wallets")
+}
+
+enum CreditTier {
+  BRONZE // 300-499
+  SILVER // 500-649
+  GOLD // 650-749
+  PLATINUM // 750-850
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 4. المعاملات المالية - Transactions
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Transaction {
+  id       String @id @default(uuid())
+  walletId String @map("wallet_id")
+
+  type          TransactionType
+  amount        Float
+  balanceAfter  Float           @map("balance_after")
+  balanceBefore Float?          @map("balance_before") // الرصيد قبل المعاملة
+
+  // المرجع
+  referenceId   String? @map("reference_id") // order_id, loan_id, etc.
+  referenceType String? @map("reference_type")
+
+  description   String?
+  descriptionAr String? @map("description_ar")
+
+  status TransactionStatus @default(COMPLETED)
+
+  // Idempotency and audit fields
+  idempotencyKey String? @unique @map("idempotency_key") // مفتاح منع التكرار
+  userId         String? @map("user_id") // المستخدم الذي نفذ المعاملة
+  ipAddress      String? @map("ip_address") // عنوان IP
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  wallet    Wallet           @relation(fields: [walletId], references: [id])
+  order     Order?           @relation(fields: [referenceId], references: [id])
+  auditLogs WalletAuditLog[]
+
+  @@index([idempotencyKey])
+  @@map("transactions")
+}
+
+enum TransactionType {
+  DEPOSIT // إيداع
+  WITHDRAWAL // سحب
+  PURCHASE // شراء
+  SALE // بيع
+  LOAN // قرض
+  REPAYMENT // سداد قرض
+  FEE // رسوم
+  REFUND // استرداد
+  MARKETPLACE_SALE // بيع في السوق
+  MARKETPLACE_PURCHASE // شراء من السوق
+  LOAN_DISBURSEMENT // صرف قرض
+  LOAN_REPAYMENT // سداد قرض
+  ESCROW_HOLD // حجز في الإسكرو
+  ESCROW_RELEASE // إطلاق من الإسكرو
+  ESCROW_REFUND // استرداد من الإسكرو
+  SCHEDULED_PAYMENT // دفعة مجدولة
+  TRANSFER_IN // تحويل وارد
+  TRANSFER_OUT // تحويل صادر
+}
+
+enum TransactionStatus {
+  PENDING // قيد الانتظار
+  COMPLETED // مكتمل
+  FAILED // فاشل
+  CANCELLED // ملغي
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 5. القروض - Loans (التمويل الزراعي)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Loan {
+  id       String @id @default(uuid())
+  walletId String @map("wallet_id")
+
+  amount       Float
+  interestRate Float @default(0) @map("interest_rate") // نسبة الفائدة (0 للإسلامي)
+  totalDue     Float @map("total_due")
+  paidAmount   Float @default(0) @map("paid_amount")
+
+  // المدة
+  termMonths Int      @map("term_months")
+  startDate  DateTime @map("start_date")
+  dueDate    DateTime @map("due_date")
+
+  // الغرض
+  purpose        LoanPurpose
+  purposeDetails String?     @map("purpose_details")
+
+  // الضمان
+  collateralType  String? @map("collateral_type") // crop, equipment, land
+  collateralValue Float?  @map("collateral_value")
+
+  status LoanStatus @default(PENDING)
+
+  // Soft Delete Fields
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy String?   @map("deleted_by")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
+
+  @@index([deletedAt]) // Optimize soft delete queries
+  @@map("loans")
+}
+
+enum LoanPurpose {
+  SEEDS // شراء بذور
+  FERTILIZER // شراء أسمدة
+  EQUIPMENT // شراء معدات
+  IRRIGATION // نظام ري
+  EXPANSION // توسيع المزرعة
+  EMERGENCY // طوارئ
+  OTHER // أخرى
+}
+
+enum LoanStatus {
+  PENDING // قيد المراجعة
+  APPROVED // موافق عليه
+  ACTIVE // نشط
+  PAID // مسدد
+  DEFAULTED // متعثر
+  REJECTED // مرفوض
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 6. سجل الأحداث الائتمانية - Credit Events (للتصنيف الائتماني المتقدم)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model CreditEvent {
+  id       String @id @default(uuid())
+  walletId String @map("wallet_id")
+
+  eventType   CreditEventType @map("event_type")
+  amount      Float?
+  impact      Int // Score impact (-50 to +50)
+  description String
+  metadata    Json? // Additional data
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+  @@index([eventType])
+  @@map("credit_events")
+}
+
+enum CreditEventType {
+  LOAN_REPAID_ONTIME // سداد قرض في الموعد
+  LOAN_REPAID_LATE // سداد قرض متأخر
+  LOAN_DEFAULTED // تعثر في سداد قرض
+  ORDER_COMPLETED // إتمام طلب
+  ORDER_CANCELLED // إلغاء طلب
+  VERIFICATION_UPGRADE // ترقية التحقق
+  FARM_VERIFIED // التحقق من المزرعة
+  COOPERATIVE_JOINED // الانضمام لتعاونية
+  LAND_VERIFIED // التحقق من ملكية الأرض
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 7. الإسكرو - Escrow (لحماية المعاملات)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Escrow {
+  id      String @id @default(uuid())
+  orderId String @unique @map("order_id")
+
+  // المحافظ
+  buyerWalletId  String @map("buyer_wallet_id")
+  sellerWalletId String @map("seller_wallet_id")
+
+  // المبلغ
+  amount Float
+
+  // الحالة
+  status EscrowStatus @default(HELD)
+
+  // ملاحظات
+  notes         String?
+  disputeReason String? @map("dispute_reason")
+
+  // التواريخ
+  createdAt  DateTime  @default(now()) @map("created_at")
+  releasedAt DateTime? @map("released_at")
+  refundedAt DateTime? @map("refunded_at")
+
+  buyerWallet  Wallet @relation("BuyerEscrows", fields: [buyerWalletId], references: [id])
+  sellerWallet Wallet @relation("SellerEscrows", fields: [sellerWalletId], references: [id])
+
+  @@index([buyerWalletId])
+  @@index([sellerWalletId])
+  @@index([status])
+  @@map("escrows")
+}
+
+enum EscrowStatus {
+  HELD // محجوز
+  RELEASED // تم الإطلاق للبائع
+  REFUNDED // تم الاسترداد للمشتري
+  DISPUTED // متنازع عليه
+  CANCELLED // ملغي
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 8. الدفعات المجدولة - Scheduled Payments (للقروض والاشتراكات)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ScheduledPayment {
+  id       String @id @default(uuid())
+  walletId String @map("wallet_id")
+
+  // المبلغ والتكرار
+  amount          Float
+  frequency       PaymentFrequency
+  nextPaymentDate DateTime         @map("next_payment_date")
+
+  // المرجع (اختياري)
+  loanId        String? @map("loan_id")
+  description   String?
+  descriptionAr String? @map("description_ar")
+
+  // الحالة
+  isActive          Boolean   @default(true) @map("is_active")
+  failedAttempts    Int       @default(0) @map("failed_attempts")
+  lastPaymentDate   DateTime? @map("last_payment_date")
+  lastFailureReason String?   @map("last_failure_reason")
+
+  // التواريخ
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  wallet Wallet @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+  @@index([nextPaymentDate])
+  @@index([isActive])
+  @@map("scheduled_payments")
+}
+
+enum PaymentFrequency {
+  DAILY // يومي
+  WEEKLY // أسبوعي
+  BIWEEKLY // كل أسبوعين
+  MONTHLY // شهري
+  QUARTERLY // ربع سنوي
+  YEARLY // سنوي
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 9. سجل التدقيق للمحفظة - Wallet Audit Log (للحماية من الصرف المزدوج)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model WalletAuditLog {
+  id            String  @id @default(uuid())
+  walletId      String  @map("wallet_id")
+  transactionId String? @map("transaction_id")
+
+  // معلومات العملية
+  userId    String? @map("user_id")
+  operation String // DEPOSIT, WITHDRAWAL, ESCROW_HOLD, ESCROW_RELEASE, etc.
+
+  // الأرصدة قبل وبعد
+  balanceBefore Float @map("balance_before")
+  balanceAfter  Float @map("balance_after")
+  amount        Float
+
+  // رصيد الإسكرو (اختياري)
+  escrowBalanceBefore Float? @map("escrow_balance_before")
+  escrowBalanceAfter  Float? @map("escrow_balance_after")
+
+  // التحكم في الإصدار للقفل المتفائل
+  versionBefore Int? @map("version_before")
+  versionAfter  Int? @map("version_after")
+
+  // معلومات إضافية
+  idempotencyKey String? @map("idempotency_key")
+  ipAddress      String? @map("ip_address")
+  metadata       Json?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  wallet      Wallet       @relation(fields: [walletId], references: [id])
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([walletId])
+  @@index([transactionId])
+  @@index([createdAt])
+  @@index([idempotencyKey])
+  @@map("wallet_audit_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 10. ملفات البائع والمشتري - Seller & Buyer Profiles
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model SellerProfile {
+  id       String @id @default(uuid())
+  userId   String @unique @map("user_id")
+  tenantId String @map("tenant_id")
+
+  // معلومات العمل
+  businessName String       @map("business_name")
+  businessType BusinessType @map("business_type")
+  taxId        String?      @map("tax_id")
+
+  // التقييم والإحصائيات
+  rating       Float @default(0.0) // متوسط التقييم (0-5)
+  totalSales   Int   @default(0) @map("total_sales")
+  totalRevenue Float @default(0.0) @map("total_revenue")
+
+  // التحقق
+  verified   Boolean   @default(false)
+  verifiedAt DateTime? @map("verified_at")
+
+  // معلومات الدفع
+  bankAccount       Json? @map("bank_account") // معلومات الحساب البنكي
+  payoutPreferences Json? @map("payout_preferences") // تفضيلات الدفع
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  reviewResponses ReviewResponse[]
+
+  @@index([userId])
+  @@index([tenantId])
+  @@index([businessType])
+  @@index([verified])
+  @@map("seller_profiles")
+}
+
+enum BusinessType {
+  INDIVIDUAL // فرد
+  FARM // مزرعة
+  COOPERATIVE // تعاونية
+  DISTRIBUTOR // موزع
+  RETAILER // تاجر تجزئة
+}
+
+model BuyerProfile {
+  id       String @id @default(uuid())
+  userId   String @unique @map("user_id")
+  tenantId String @map("tenant_id")
+
+  // عناوين الشحن
+  shippingAddresses Json? @map("shipping_addresses") // قائمة عناوين الشحن
+
+  // طريقة الدفع المفضلة
+  preferredPayment String? @map("preferred_payment") // wallet, cash, bank_transfer
+
+  // الإحصائيات
+  totalPurchases Int   @default(0) @map("total_purchases")
+  totalSpent     Float @default(0.0) @map("total_spent")
+  loyaltyPoints  Int   @default(0) @map("loyalty_points")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  reviews ProductReview[]
+
+  @@index([userId])
+  @@index([tenantId])
+  @@map("buyer_profiles")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 11. نظام التقييمات - Product Review System
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ProductReview {
+  id        String @id @default(uuid())
+  productId String @map("product_id")
+  buyerId   String @map("buyer_id")
+  orderId   String @map("order_id")
+
+  // التقييم والمحتوى
+  rating  Int // 1-5 نجوم
+  title   String
+  comment String? @db.Text
+
+  // الصور
+  photos Json? // قائمة روابط الصور
+
+  // التحقق والحالة
+  verified Boolean @default(false) // تم التحقق من الشراء
+  helpful  Int     @default(0) // عدد التصويتات المفيدة
+  reported Boolean @default(false) // تم الإبلاغ عن التقييم
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  buyer    BuyerProfile    @relation(fields: [buyerId], references: [id])
+  response ReviewResponse?
+
+  @@index([productId])
+  @@index([buyerId])
+  @@index([orderId])
+  @@index([rating])
+  @@index([verified])
+  @@map("product_reviews")
+}
+
+model ReviewResponse {
+  id       String @id @default(uuid())
+  reviewId String @unique @map("review_id")
+  sellerId String @map("seller_id")
+
+  response String @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  review ProductReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  seller SellerProfile @relation(fields: [sellerId], references: [id])
+
+  @@index([reviewId])
+  @@index([sellerId])
+  @@map("review_responses")
+}

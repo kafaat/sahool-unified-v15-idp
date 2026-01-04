@@ -232,7 +232,7 @@ export class PermissionsGuard implements CanActivate {
  */
 @Injectable()
 export class FarmAccessGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private _reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
@@ -287,7 +287,7 @@ export class FarmAccessGuard implements CanActivate {
  */
 @Injectable()
 export class OptionalAuthGuard extends AuthGuard('jwt') {
-  handleRequest(err: any, user: any) {
+  handleRequest(_err: any, user: any) {
     // Return user if authenticated, null otherwise
     return user || null;
   }

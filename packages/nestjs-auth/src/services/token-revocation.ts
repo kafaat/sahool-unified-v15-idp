@@ -130,7 +130,7 @@ export class RedisTokenRevocationStore implements OnModuleInit, OnModuleDestroy 
         url,
         socket: {
           connectTimeout: 5000,
-          keepAlive: true,
+          keepAlive: 5000,
         },
       });
 

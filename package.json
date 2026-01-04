@@ -36,6 +36,8 @@
     "apps/services/yield-prediction-service"
   ],
   "scripts": {
+    "postinstall": "npm run prisma:generate",
+    "prisma:generate": "for dir in apps/services/*/prisma; do [ -d \"$dir\" ] && (cd \"$(dirname \"$dir\")\" && npx prisma generate > /dev/null 2>&1) || true; done",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:admin": "npm run dev --workspace=apps/admin",
     "build:packages": "npm run build --workspace=packages/shared-utils && npm run build --workspace=packages/shared-ui && npm run build --workspace=packages/api-client && npm run build --workspace=packages/shared-hooks",
@@ -57,7 +59,7 @@
   "devDependencies": {
     "typedoc": "^0.27.6",
     "typescript": "5.7.2",
-    "@types/node": "22.10.2",
+    "@types/node": "22.12.0",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "vitest": "3.2.4",

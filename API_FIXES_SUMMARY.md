@@ -64,9 +64,10 @@ if (!API_BASE_URL && typeof window !== 'undefined') {
 }
 ```
 
-The condition `!API_BASE_URL` evaluates to `true` when API_BASE_URL is an empty string,
-but JavaScript considers empty string as falsy, so `!''` is `true`. However, the logical
-AND with other conditions makes the warning never appear when it should.
+The condition `!API_BASE_URL` evaluates to `true` when `API_BASE_URL` is an empty string
+(because JavaScript treats the empty string as falsy, so `!''` is `true`), so the original
+check does allow the warning to appear. The updated condition instead reads the environment
+variable directly, which is clearer and avoids relying on the derived `API_BASE_URL` value.
 
 **Solution:**
 ```typescript

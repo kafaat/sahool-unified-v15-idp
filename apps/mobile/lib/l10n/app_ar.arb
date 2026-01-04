@@ -2,14 +2,12 @@
   "@@locale": "ar",
   "@@context": "SAHOOL - Yemen Agricultural Platform - Arabic Localization",
 
-  "_comment_app": "=== APPLICATION ===",
   "appName": "سهول",
   "appTitle": "سهول - منصة الزراعة الذكية",
   "appDescription": "منصة شاملة لإدارة الحقول الزراعية في اليمن",
   "version": "الإصدار",
   "buildNumber": "رقم البناء",
 
-  "_comment_common": "=== COMMON ===",
   "yes": "نعم",
   "no": "لا",
   "ok": "موافق",
@@ -98,7 +96,6 @@
   "fullScreen": "ملء الشاشة",
   "exitFullScreen": "خروج من ملء الشاشة",
 
-  "_comment_status": "=== STATUS ===",
   "active": "نشط",
   "inactive": "غير نشط",
   "enabled": "مفعّل",
@@ -120,7 +117,6 @@
   "warning": "تحذير",
   "info_": "معلومة",
 
-  "_comment_time": "=== TIME & DATE ===",
   "today": "اليوم",
   "yesterday": "أمس",
   "tomorrow": "غدًا",
@@ -154,7 +150,6 @@
   "am": "ص",
   "pm": "م",
 
-  "_comment_numbers": "=== NUMBERS & UNITS ===",
   "count": "العدد",
   "total": "المجموع",
   "subtotal": "المجموع الفرعي",
@@ -173,7 +168,6 @@
   "unit": "الوحدة",
   "units": "الوحدات",
 
-  "_comment_navigation": "=== NAVIGATION ===",
   "home": "الرئيسية",
   "dashboard": "لوحة التحكم",
   "fields": "الحقول",
@@ -266,7 +260,6 @@
   "sync": "المزامنة",
   "dailyBrief": "الملخص اليومي",
 
-  "_comment_auth": "=== AUTHENTICATION ===",
   "login": "تسجيل الدخول",
   "logout": "تسجيل الخروج",
   "signIn": "تسجيل الدخول",
@@ -308,7 +301,6 @@
   "privacyPolicy": "سياسة الخصوصية",
   "acceptTerms": "قبول الشروط",
 
-  "_comment_fields": "=== FIELDS MANAGEMENT ===",
   "field": "حقل",
   "fieldName": "اسم الحقل",
   "fieldArea": "مساحة الحقل",
@@ -340,7 +332,6 @@
   "altitude": "الارتفاع",
   "accuracy": "الدقة",
 
-  "_comment_soil": "=== SOIL ===",
   "soil": "التربة",
   "soilType": "نوع التربة",
   "soilTexture": "نسيج التربة",
@@ -365,7 +356,6 @@
   "soilComposition": "تركيب التربة",
   "soilProfile": "قطاع التربة",
 
-  "_comment_crops": "=== CROPS ===",
   "crop": "محصول",
   "cropName": "اسم المحصول",
   "cropType": "نوع المحصول",
@@ -399,7 +389,6 @@
   "cropPerformance": "أداء المحصول",
   "cropComparison": "مقارنة المحاصيل",
 
-  "_comment_yemen_crops": "=== YEMEN CROPS ===",
   "wheat": "قمح",
   "barley": "شعير",
   "sorghum": "ذرة رفيعة",
@@ -433,7 +422,6 @@
   "bean": "فاصوليا",
   "pea": "بازلاء",
 
-  "_comment_weather": "=== WEATHER ===",
   "currentWeather": "الطقس الحالي",
   "weatherConditions": "أحوال الطقس",
   "weatherData": "بيانات الطقس",
@@ -508,7 +496,6 @@
   "weatherTrends": "اتجاهات الطقس",
   "weatherComparison": "مقارنة الطقس",
 
-  "_comment_satellite_ndvi": "=== SATELLITE & NDVI ===",
   "satelliteImage": "صورة القمر الصناعي",
   "satelliteData": "بيانات الأقمار الصناعية",
   "satelliteProvider": "مزود الأقمار الصناعية",
@@ -561,7 +548,6 @@
   "blueBand": "النطاق الأزرق",
   "nirBand": "نطاق NIR",
 
-  "_comment_vra": "=== VARIABLE RATE APPLICATION (VRA) ===",
   "variableRateApplication": "التطبيق المتغير المعدل",
   "vraTitle": "خرائط التطبيق المتغير",
   "prescriptionMap": "خريطة الوصفة",
@@ -621,7 +607,6 @@
   "standardDeviation": "الانحراف المعياري",
   "coefficient_of_variation": "معامل التباين",
 
-  "_comment_gdd": "=== GROWING DEGREE DAYS (GDD) ===",
   "growingDegreeDays": "درجات النمو الحراري",
   "gddTitle": "حساب GDD",
   "gddAccumulated": "GDD المتراكم",
@@ -674,7 +659,6 @@
   "chillingHours": "ساعات البرودة",
   "vernalization": "التشتية",
 
-  "_comment_spray": "=== SPRAY RECOMMENDATIONS ===",
   "sprayRecommendation": "توصية الرش",
   "sprayApplication": "تطبيق الرش",
   "sprayDate": "تاريخ الرش",
@@ -768,7 +752,6 @@
   "sprayPending": "رش معلق",
   "sprayCancelled": "ألغي الرش",
 
-  "_comment_rotation": "=== CROP ROTATION ===",
   "cropRotationPlan": "خطة الدورة الزراعية",
   "rotationCycle": "دورة التناوب",
   "rotationSequence": "تسلسل التناوب",
@@ -824,7 +807,6 @@
   "economicImpact": "الأثر الاقتصادي",
   "environmentalImpact": "الأثر البيئي",
 
-  "_comment_profitability": "=== PROFITABILITY ANALYSIS ===",
   "profitabilityReport": "تقرير الربحية",
   "financialAnalysis": "التحليل المالي",
   "economicAnalysis": "التحليل الاقتصادي",
@@ -939,7 +921,6 @@
   "financialHealth": "الصحة المالية",
   "creditScore": "التصنيف الائتماني",
 
-  "_comment_inventory": "=== INVENTORY MANAGEMENT ===",
   "inventoryItem": "صنف المخزون",
   "itemName": "اسم الصنف",
   "itemCode": "رمز الصنف",
@@ -1033,7 +1014,6 @@
   "valuationReport": "تقرير التقييم",
   "agingReport": "تقرير التقادم",
 
-  "_comment_chat": "=== CHAT & MESSAGING ===",
   "message": "رسالة",
   "newMessage": "رسالة جديدة",
   "sendMessage": "إرسال رسالة",
@@ -1099,7 +1079,6 @@
   "groupAdmin": "مسؤول المجموعة",
   "groupSettings": "إعدادات المجموعة",
 
-  "_comment_notifications": "=== NOTIFICATIONS & ALERTS ===",
   "notification": "إشعار",
   "newNotification": "إشعار جديد",
   "notificationList": "قائمة الإشعارات",
@@ -1151,7 +1130,6 @@
   "resolvedAlerts": "التنبيهات المحلولة",
   "dismissedAlerts": "التنبيهات المرفوضة",
 
-  "_comment_tasks": "=== TASKS ===",
   "task": "مهمة",
   "newTask": "مهمة جديدة",
   "createTask": "إنشاء مهمة",
@@ -1237,7 +1215,6 @@
   "completionRate": "معدل الإكمال",
   "taskPerformance": "أداء المهام",
 
-  "_comment_equipment": "=== EQUIPMENT ===",
   "equipmentName": "اسم المعدة",
   "equipmentType": "نوع المعدة",
   "equipmentModel": "طراز المعدة",
@@ -1318,7 +1295,6 @@
   "warrantyPeriod": "فترة الضمان",
   "warrantyExpiry": "انتهاء الضمان",
 
-  "_comment_analytics": "=== ANALYTICS & REPORTS ===",
   "report": "تقرير",
   "generateReport": "إنشاء تقرير",
   "viewReport": "عرض التقرير",
@@ -1390,7 +1366,6 @@
   "recommendation": "توصية",
   "conclusion": "الخلاصة",
 
-  "_comment_profile_account": "=== PROFILE & ACCOUNT ===",
   "myAccount": "حسابي",
   "editProfile": "تعديل الملف الشخصي",
   "viewProfile": "عرض الملف الشخصي",
@@ -1470,7 +1445,6 @@
   "dataProtection": "حماية البيانات",
   "consentSettings": "إعدادات الموافقة",
 
-  "_comment_settings": "=== SETTINGS ===",
   "generalSettings": "الإعدادات العامة",
   "appSettings": "إعدادات التطبيق",
   "displaySettings": "إعدادات العرض",
@@ -1569,7 +1543,6 @@
   "resetToDefaults": "إعادة إلى الافتراضي",
   "factoryReset": "إعادة ضبط المصنع",
 
-  "_comment_errors": "=== ERRORS & VALIDATION ===",
   "error_": "خطأ",
   "errorOccurred": "حدث خطأ",
   "errorMessage": "رسالة الخطأ",
@@ -1649,7 +1622,6 @@
   "unknownError": "خطأ غير معروف",
   "unexpectedError": "خطأ غير متوقع",
 
-  "_comment_confirmations": "=== CONFIRMATIONS & DIALOGS ===",
   "areYouSure": "هل أنت متأكد؟",
   "confirmAction": "تأكيد الإجراء",
   "confirmDelete": "تأكيد الحذف",
@@ -1695,7 +1667,6 @@
   "goodEvening": "مساء الخير",
   "goodNight": "تصبح على خير",
 
-  "_comment_units": "=== UNITS OF MEASUREMENT ===",
   "hectare": "هكتار",
   "hectares": "هكتار",
   "acre": "فدان",
@@ -1749,7 +1720,6 @@
   "dS_m": "dS/m",
   "ec": "EC",
 
-  "_comment_security": "=== SECURITY ===",
   "securityWarning": "تحذير أمني",
   "securityAlert_": "تنبيه أمني",
   "unsafeDevice": "جهاز غير آمن",
@@ -1782,7 +1752,6 @@
   "threatLevelLow": "تحذير أمني بسيط",
   "threatLevelNone": "لا توجد تهديدات أمنية",
 
-  "_comment_misc": "=== MISCELLANEOUS ===",
   "all": "الكل",
   "none": "لا شيء",
   "other": "آخر",

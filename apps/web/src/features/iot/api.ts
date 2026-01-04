@@ -239,7 +239,7 @@ export const sensorsApi = {
       if (filters?.fieldId) params.set('field_id', filters.fieldId);
       if (filters?.search) params.set('search', filters.search);
 
-      const response = await api.get(`/v1/iot/sensors?${params.toString()}`);
+      const response = await api.get(`/api/v1/iot/sensors?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -260,7 +260,7 @@ export const sensorsApi = {
    */
   getSensorById: async (id: string): Promise<Sensor> => {
     try {
-      const response = await api.get(`/v1/iot/sensors/${id}`);
+      const response = await api.get(`/api/v1/iot/sensors/${id}`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -277,7 +277,7 @@ export const sensorsApi = {
    */
   createSensor: async (data: Omit<Sensor, 'id' | 'createdAt' | 'updatedAt'>): Promise<Sensor> => {
     try {
-      const response = await api.post('/v1/iot/sensors', data);
+      const response = await api.post('/api/v1/iot/sensors', data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error('Failed to create sensor:', error);
@@ -291,7 +291,7 @@ export const sensorsApi = {
    */
   updateSensor: async (id: string, data: Partial<Sensor>): Promise<Sensor> => {
     try {
-      const response = await api.put(`/v1/iot/sensors/${id}`, data);
+      const response = await api.put(`/api/v1/iot/sensors/${id}`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update sensor ${id}:`, error);
@@ -305,7 +305,7 @@ export const sensorsApi = {
    */
   deleteSensor: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/v1/iot/sensors/${id}`);
+      await api.delete(`/api/v1/iot/sensors/${id}`);
     } catch (error) {
       logger.error(`Failed to delete sensor ${id}:`, error);
       throw error;
@@ -325,7 +325,7 @@ export const sensorsApi = {
       if (query.interval) params.set('interval', query.interval);
       if (query.limit) params.set('limit', query.limit.toString());
 
-      const response = await api.get(`/v1/iot/sensors/readings?${params.toString()}`);
+      const response = await api.get(`/api/v1/iot/sensors/readings?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -346,7 +346,7 @@ export const sensorsApi = {
    */
   getLatestReading: async (sensorId: string): Promise<SensorReading> => {
     try {
-      const response = await api.get(`/v1/iot/sensors/${sensorId}/latest`);
+      const response = await api.get(`/api/v1/iot/sensors/${sensorId}/latest`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -366,7 +366,7 @@ export const sensorsApi = {
     byStatus: Record<string, number>;
   }> => {
     try {
-      const response = await api.get('/v1/iot/sensors/stats');
+      const response = await api.get('/api/v1/iot/sensors/stats');
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -393,7 +393,7 @@ export const sensorsApi = {
    */
   getStreamUrl: (sensorId?: string): string => {
     const params = sensorId ? `?sensor_id=${sensorId}` : '';
-    return `${api.defaults.baseURL}/v1/iot/sensors/stream${params}`;
+    return `${api.defaults.baseURL}/api/v1/iot/sensors/stream${params}`;
   },
 };
 
@@ -406,7 +406,7 @@ export const actuatorsApi = {
   getActuators: async (fieldId?: string): Promise<Actuator[]> => {
     try {
       const params = fieldId ? `?field_id=${fieldId}` : '';
-      const response = await api.get(`/v1/iot/actuators${params}`);
+      const response = await api.get(`/api/v1/iot/actuators${params}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -427,7 +427,7 @@ export const actuatorsApi = {
    */
   getActuatorById: async (id: string): Promise<Actuator> => {
     try {
-      const response = await api.get(`/v1/iot/actuators/${id}`);
+      const response = await api.get(`/api/v1/iot/actuators/${id}`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -444,7 +444,7 @@ export const actuatorsApi = {
    */
   createActuator: async (data: Omit<Actuator, 'id' | 'createdAt' | 'updatedAt'>): Promise<Actuator> => {
     try {
-      const response = await api.post('/v1/iot/actuators', data);
+      const response = await api.post('/api/v1/iot/actuators', data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error('Failed to create actuator:', error);
@@ -458,7 +458,7 @@ export const actuatorsApi = {
    */
   updateActuator: async (id: string, data: Partial<Actuator>): Promise<Actuator> => {
     try {
-      const response = await api.put(`/v1/iot/actuators/${id}`, data);
+      const response = await api.put(`/api/v1/iot/actuators/${id}`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update actuator ${id}:`, error);
@@ -472,7 +472,7 @@ export const actuatorsApi = {
    */
   deleteActuator: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/v1/iot/actuators/${id}`);
+      await api.delete(`/api/v1/iot/actuators/${id}`);
     } catch (error) {
       logger.error(`Failed to delete actuator ${id}:`, error);
       throw error;
@@ -485,7 +485,7 @@ export const actuatorsApi = {
    */
   controlActuator: async (data: ActuatorControlData): Promise<Actuator> => {
     try {
-      const response = await api.post(`/v1/iot/actuators/${data.actuatorId}/control`, {
+      const response = await api.post(`/api/v1/iot/actuators/${data.actuatorId}/control`, {
         action: data.action,
         mode: data.mode,
         duration: data.duration,
@@ -503,7 +503,7 @@ export const actuatorsApi = {
    */
   setMode: async (actuatorId: string, mode: 'manual' | 'automatic' | 'scheduled'): Promise<Actuator> => {
     try {
-      const response = await api.patch(`/v1/iot/actuators/${actuatorId}/mode`, { mode });
+      const response = await api.patch(`/api/v1/iot/actuators/${actuatorId}/mode`, { mode });
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to set mode for actuator ${actuatorId}:`, error);
@@ -521,7 +521,7 @@ export const alertRulesApi = {
   getAlertRules: async (sensorId?: string): Promise<AlertRule[]> => {
     try {
       const params = sensorId ? `?sensor_id=${sensorId}` : '';
-      const response = await api.get(`/v1/iot/alert-rules${params}`);
+      const response = await api.get(`/api/v1/iot/alert-rules${params}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -542,7 +542,7 @@ export const alertRulesApi = {
    */
   getAlertRuleById: async (id: string): Promise<AlertRule> => {
     try {
-      const response = await api.get(`/v1/iot/alert-rules/${id}`);
+      const response = await api.get(`/api/v1/iot/alert-rules/${id}`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -559,7 +559,7 @@ export const alertRulesApi = {
    */
   createAlertRule: async (data: AlertRuleFormData): Promise<AlertRule> => {
     try {
-      const response = await api.post('/v1/iot/alert-rules', data);
+      const response = await api.post('/api/v1/iot/alert-rules', data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error('Failed to create alert rule:', error);
@@ -573,7 +573,7 @@ export const alertRulesApi = {
    */
   updateAlertRule: async (id: string, data: Partial<AlertRuleFormData>): Promise<AlertRule> => {
     try {
-      const response = await api.put(`/v1/iot/alert-rules/${id}`, data);
+      const response = await api.put(`/api/v1/iot/alert-rules/${id}`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update alert rule ${id}:`, error);
@@ -587,7 +587,7 @@ export const alertRulesApi = {
    */
   deleteAlertRule: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/v1/iot/alert-rules/${id}`);
+      await api.delete(`/api/v1/iot/alert-rules/${id}`);
     } catch (error) {
       logger.error(`Failed to delete alert rule ${id}:`, error);
       throw error;
@@ -600,7 +600,7 @@ export const alertRulesApi = {
    */
   toggleAlertRule: async (id: string, enabled: boolean): Promise<AlertRule> => {
     try {
-      const response = await api.patch(`/v1/iot/alert-rules/${id}/toggle`, { enabled });
+      const response = await api.patch(`/api/v1/iot/alert-rules/${id}/toggle`, { enabled });
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to toggle alert rule ${id}:`, error);

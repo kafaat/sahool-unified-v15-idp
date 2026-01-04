@@ -328,7 +328,7 @@ export const communityApi = {
       if (filters?.sortBy) params.set('sort_by', filters.sortBy);
       if (filters?.search) params.set('search', filters.search);
 
-      const response = await api.get(`/v1/community/posts?${params.toString()}`);
+      const response = await api.get(`/api/v1/community/posts?${params.toString()}`);
 
       // Handle different response formats
       const posts = response.data.data || response.data;
@@ -350,7 +350,7 @@ export const communityApi = {
    */
   getTrendingPosts: async (): Promise<Post[]> => {
     try {
-      const response = await api.get('/v1/community/posts/trending');
+      const response = await api.get('/api/v1/community/posts/trending');
       const posts = response.data.data || response.data;
 
       if (Array.isArray(posts)) {
@@ -370,7 +370,7 @@ export const communityApi = {
    */
   getSavedPosts: async (): Promise<Post[]> => {
     try {
-      const response = await api.get('/v1/community/posts/saved');
+      const response = await api.get('/api/v1/community/posts/saved');
       const posts = response.data.data || response.data;
 
       if (Array.isArray(posts)) {
@@ -390,7 +390,7 @@ export const communityApi = {
    */
   getMyPosts: async (): Promise<Post[]> => {
     try {
-      const response = await api.get('/v1/community/posts/my-posts');
+      const response = await api.get('/api/v1/community/posts/my-posts');
       const posts = response.data.data || response.data;
 
       if (Array.isArray(posts)) {
@@ -410,7 +410,7 @@ export const communityApi = {
    */
   getPostById: async (id: string): Promise<Post> => {
     try {
-      const response = await api.get(`/v1/community/posts/${id}`);
+      const response = await api.get(`/api/v1/community/posts/${id}`);
       const post = response.data.data || response.data;
       return post;
     } catch (error) {
@@ -431,7 +431,7 @@ export const communityApi = {
    */
   createPost: async (data: Partial<Post>): Promise<Post> => {
     try {
-      const response = await api.post('/v1/community/posts', data);
+      const response = await api.post('/api/v1/community/posts', data);
       const post = response.data.data || response.data;
       return post;
     } catch (error) {
@@ -453,7 +453,7 @@ export const communityApi = {
    */
   updatePost: async (id: string, data: Partial<Post>): Promise<Post> => {
     try {
-      const response = await api.put(`/v1/community/posts/${id}`, data);
+      const response = await api.put(`/api/v1/community/posts/${id}`, data);
       const post = response.data.data || response.data;
       return post;
     } catch (error) {
@@ -475,7 +475,7 @@ export const communityApi = {
    */
   deletePost: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/v1/community/posts/${id}`);
+      await api.delete(`/api/v1/community/posts/${id}`);
     } catch (error) {
       logger.error(`Failed to delete post ${id}:`, error);
 
@@ -495,7 +495,7 @@ export const communityApi = {
    */
   likePost: async (postId: string): Promise<void> => {
     try {
-      await api.post(`/v1/community/posts/${postId}/like`);
+      await api.post(`/api/v1/community/posts/${postId}/like`);
     } catch (error) {
       logger.error(`Failed to like post ${postId}:`, error);
       throw error;
@@ -507,7 +507,7 @@ export const communityApi = {
    */
   savePost: async (postId: string): Promise<void> => {
     try {
-      await api.post(`/v1/community/posts/${postId}/save`);
+      await api.post(`/api/v1/community/posts/${postId}/save`);
     } catch (error) {
       logger.error(`Failed to save post ${postId}:`, error);
       throw error;
@@ -519,7 +519,7 @@ export const communityApi = {
    */
   sharePost: async (postId: string): Promise<void> => {
     try {
-      await api.post(`/v1/community/posts/${postId}/share`);
+      await api.post(`/api/v1/community/posts/${postId}/share`);
     } catch (error) {
       logger.error(`Failed to share post ${postId}:`, error);
       throw error;
@@ -536,7 +536,7 @@ export const communityApi = {
    */
   getComments: async (postId: string): Promise<Comment[]> => {
     try {
-      const response = await api.get(`/v1/community/posts/${postId}/comments`);
+      const response = await api.get(`/api/v1/community/posts/${postId}/comments`);
       const comments = response.data.data || response.data;
 
       if (Array.isArray(comments)) {
@@ -556,7 +556,7 @@ export const communityApi = {
    */
   addComment: async (postId: string, content: string, parentId?: string): Promise<Comment> => {
     try {
-      const response = await api.post(`/v1/community/posts/${postId}/comments`, {
+      const response = await api.post(`/api/v1/community/posts/${postId}/comments`, {
         content,
         parentId,
       });
@@ -581,7 +581,7 @@ export const communityApi = {
    */
   likeComment: async (postId: string, commentId: string): Promise<void> => {
     try {
-      await api.post(`/v1/community/posts/${postId}/comments/${commentId}/like`);
+      await api.post(`/api/v1/community/posts/${postId}/comments/${commentId}/like`);
     } catch (error) {
       logger.error(`Failed to like comment ${commentId}:`, error);
       throw error;
@@ -605,7 +605,7 @@ export const communityApi = {
       if (filters?.sortBy) params.set('sort_by', filters.sortBy);
       if (filters?.search) params.set('search', filters.search);
 
-      const response = await api.get(`/v1/community/groups?${params.toString()}`);
+      const response = await api.get(`/api/v1/community/groups?${params.toString()}`);
 
       // Handle different response formats
       const groups = response.data.data || response.data;
@@ -627,7 +627,7 @@ export const communityApi = {
    */
   getGroupById: async (id: string): Promise<Group> => {
     try {
-      const response = await api.get(`/v1/community/groups/${id}`);
+      const response = await api.get(`/api/v1/community/groups/${id}`);
       const group = response.data.data || response.data;
       return group;
     } catch (error) {
@@ -648,7 +648,7 @@ export const communityApi = {
    */
   getMyGroups: async (): Promise<Group[]> => {
     try {
-      const response = await api.get('/v1/community/groups/my-groups');
+      const response = await api.get('/api/v1/community/groups/my-groups');
       const groups = response.data.data || response.data;
 
       if (Array.isArray(groups)) {
@@ -668,7 +668,7 @@ export const communityApi = {
    */
   createGroup: async (data: Partial<Group>): Promise<Group> => {
     try {
-      const response = await api.post('/v1/community/groups', data);
+      const response = await api.post('/api/v1/community/groups', data);
       const group = response.data.data || response.data;
       return group;
     } catch (error) {
@@ -690,7 +690,7 @@ export const communityApi = {
    */
   joinGroup: async (groupId: string): Promise<void> => {
     try {
-      await api.post(`/v1/community/groups/${groupId}/join`);
+      await api.post(`/api/v1/community/groups/${groupId}/join`);
     } catch (error) {
       logger.error(`Failed to join group ${groupId}:`, error);
 
@@ -710,7 +710,7 @@ export const communityApi = {
    */
   leaveGroup: async (groupId: string): Promise<void> => {
     try {
-      await api.post(`/v1/community/groups/${groupId}/leave`);
+      await api.post(`/api/v1/community/groups/${groupId}/leave`);
     } catch (error) {
       logger.error(`Failed to leave group ${groupId}:`, error);
 
@@ -730,7 +730,7 @@ export const communityApi = {
    */
   getGroupMembers: async (groupId: string): Promise<GroupMember[]> => {
     try {
-      const response = await api.get(`/v1/community/groups/${groupId}/members`);
+      const response = await api.get(`/api/v1/community/groups/${groupId}/members`);
       const members = response.data.data || response.data;
 
       if (Array.isArray(members)) {
@@ -755,7 +755,7 @@ export const communityApi = {
    */
   getGroupMessages: async (groupId: string): Promise<ChatMessage[]> => {
     try {
-      const response = await api.get(`/v1/community/groups/${groupId}/messages`);
+      const response = await api.get(`/api/v1/community/groups/${groupId}/messages`);
       const messages = response.data.data || response.data;
 
       if (Array.isArray(messages)) {
@@ -779,7 +779,7 @@ export const communityApi = {
     type: 'text' | 'image' | 'file' | 'voice' = 'text'
   ): Promise<ChatMessage> => {
     try {
-      const response = await api.post(`/v1/community/groups/${groupId}/messages`, {
+      const response = await api.post(`/api/v1/community/groups/${groupId}/messages`, {
         content,
         type,
       });
@@ -809,7 +809,7 @@ export const communityApi = {
    */
   getExperts: async (): Promise<Expert[]> => {
     try {
-      const response = await api.get('/v1/community/experts');
+      const response = await api.get('/api/v1/community/experts');
       const experts = response.data.data || response.data;
 
       if (Array.isArray(experts)) {
@@ -829,7 +829,7 @@ export const communityApi = {
    */
   askExpert: async (data: Partial<ExpertQuestion>): Promise<ExpertQuestion> => {
     try {
-      const response = await api.post('/v1/community/expert-questions', data);
+      const response = await api.post('/api/v1/community/expert-questions', data);
       const question = response.data.data || response.data;
       return question;
     } catch (error) {
@@ -851,7 +851,7 @@ export const communityApi = {
    */
   getExpertQuestions: async (): Promise<ExpertQuestion[]> => {
     try {
-      const response = await api.get('/v1/community/expert-questions');
+      const response = await api.get('/api/v1/community/expert-questions');
       const questions = response.data.data || response.data;
 
       if (Array.isArray(questions)) {
@@ -871,7 +871,7 @@ export const communityApi = {
    */
   rateExpertAnswer: async (questionId: string, helpful: boolean): Promise<void> => {
     try {
-      await api.post(`/v1/community/expert-questions/${questionId}/rate`, { helpful });
+      await api.post(`/api/v1/community/expert-questions/${questionId}/rate`, { helpful });
     } catch (error) {
       logger.error(`Failed to rate expert answer ${questionId}:`, error);
       throw error;

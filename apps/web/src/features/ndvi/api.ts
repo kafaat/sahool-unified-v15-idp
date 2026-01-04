@@ -73,7 +73,7 @@ export const ndviApi = {
     if (filters?.minNdvi) params.set('min_ndvi', filters.minNdvi.toString());
     if (filters?.maxNdvi) params.set('max_ndvi', filters.maxNdvi.toString());
 
-    const response = await api.get(`/v1/ndvi/latest?${params.toString()}`);
+    const response = await api.get(`/api/v1/ndvi/latest?${params.toString()}`);
     return response.data;
   },
 
@@ -81,7 +81,7 @@ export const ndviApi = {
    * Get NDVI data for specific field
    */
   getFieldNDVI: async (fieldId: string): Promise<NDVIData> => {
-    const response = await api.get(`/v1/ndvi/fields/${fieldId}`);
+    const response = await api.get(`/api/v1/ndvi/fields/${fieldId}`);
     return response.data;
   },
 
@@ -97,7 +97,7 @@ export const ndviApi = {
     if (startDate) params.set('start_date', startDate);
     if (endDate) params.set('end_date', endDate);
 
-    const response = await api.get(`/v1/ndvi/fields/${fieldId}/timeseries?${params.toString()}`);
+    const response = await api.get(`/api/v1/ndvi/fields/${fieldId}/timeseries?${params.toString()}`);
     return response.data;
   },
 
@@ -106,7 +106,7 @@ export const ndviApi = {
    */
   getNDVIMap: async (fieldId: string, date?: string): Promise<NDVIMapData> => {
     const params = date ? `?date=${date}` : '';
-    const response = await api.get(`/v1/ndvi/fields/${fieldId}/map${params}`);
+    const response = await api.get(`/api/v1/ndvi/fields/${fieldId}/map${params}`);
     return response.data;
   },
 
@@ -114,7 +114,7 @@ export const ndviApi = {
    * Request new NDVI analysis
    */
   requestNDVIAnalysis: async (fieldId: string): Promise<{ jobId: string; status: string }> => {
-    const response = await api.post(`/v1/ndvi/fields/${fieldId}/analyze`);
+    const response = await api.post(`/api/v1/ndvi/fields/${fieldId}/analyze`);
     return response.data;
   },
 
@@ -133,7 +133,7 @@ export const ndviApi = {
     interpretation: string;
   }> => {
     const response = await api.get(
-      `/v1/ndvi/fields/${fieldId}/compare?date1=${date1}&date2=${date2}`
+      `/api/v1/ndvi/fields/${fieldId}/compare?date1=${date1}&date2=${date2}`
     );
     return response.data;
   },
@@ -148,7 +148,7 @@ export const ndviApi = {
     bottomFields: Array<{ fieldId: string; name: string; ndvi: number }>;
   }> => {
     const params = governorate ? `?governorate=${governorate}` : '';
-    const response = await api.get(`/v1/ndvi/stats/regional${params}`);
+    const response = await api.get(`/api/v1/ndvi/stats/regional${params}`);
     return response.data;
   },
 };

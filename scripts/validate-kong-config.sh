@@ -6,7 +6,10 @@
 
 set -euo pipefail
 
-KONG_CONFIG="/home/user/sahool-unified-v15-idp/infra/kong/kong.yml"
+# Get script directory and find kong.yml
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+KONG_CONFIG="$PROJECT_ROOT/infra/kong/kong.yml"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

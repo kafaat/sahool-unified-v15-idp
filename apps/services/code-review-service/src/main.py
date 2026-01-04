@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Dict
 from datetime import datetime
+from contextlib import asynccontextmanager
 
 import aiohttp
 from fastapi import FastAPI, HTTPException, status
@@ -426,17 +427,10 @@ def get_service() -> CodeReviewService:
     return _service_instance
 
 
-# Create FastAPI app
-app = FastAPI(
-    title="Code Review Service",
-    description="Real-time code review service using Ollama + DeepSeek",
-    version="1.0.0"
-)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize service on startup"""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown"""
+    # Startup
     service = get_service()
     await service.initialize()
     
@@ -446,13 +440,20 @@ async def startup_event():
         watch_thread = threading.Thread(target=service.start_watching, daemon=True)
         watch_thread.start()
         logger.info("File watcher started")
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown"""
-    service = get_service()
+    
+    yield
+    
+    # Shutdown
     await service.close()
+
+
+# Create FastAPI app with lifespan
+app = FastAPI(
+    title="Code Review Service",
+    description="Real-time code review service using Ollama + DeepSeek",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 
 @app.get("/health", response_model=HealthResponse)

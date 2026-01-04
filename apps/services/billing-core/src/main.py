@@ -1025,12 +1025,15 @@ async def health_check(db: AsyncSession = Depends(get_db)):
     except Exception:
         pass
 
+    db_ok = db_status.get("status") == "healthy"
+    nats_ok = nats_client is not None
+
     return {
-        "status": "ok" if db_status.get("status") == "healthy" else "degraded",
+        "status": "healthy" if db_ok else "degraded",
         "service": "billing-core",
-        "version": "15.6.0",
+        "version": "16.0.0",
         "database": db_status,
-        "nats": "connected" if nats_client else "disconnected",
+        "nats_connected": nats_ok,
         "plans_count": plans_count,
     }
 

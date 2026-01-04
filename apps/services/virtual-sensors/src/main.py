@@ -1006,11 +1006,14 @@ app.add_middleware(
 
 @app.get("/healthz")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint with dependency status"""
+    nats_connected = hasattr(app.state, "nats_client") and app.state.nats_client is not None
+
     return {
-        "status": "healthy",
+        "status": "healthy" if nats_connected else "degraded",
         "service": SERVICE_NAME,
         "version": SERVICE_VERSION,
+        "nats_connected": nats_connected,
         "timestamp": datetime.utcnow().isoformat(),
     }
 

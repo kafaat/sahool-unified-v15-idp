@@ -999,16 +999,20 @@ async def health_check():
         db_health = {"status": "unavailable", "connected": False, "error": str(e)}
         db_stats = {}
 
-    # Always return "ok" for container health - report degraded status in response body
+    # Determine health status based on critical dependencies
+    nats_ok = _nats_available and _nats_subscriber is not None
+    db_ok = db_health.get("connected", False)
+    is_healthy = nats_ok or db_ok  # At least one critical dependency should work
+
     return {
-        "status": "ok",  # Container is healthy even if DB is down
+        "status": "healthy" if is_healthy else "degraded",
         "service": "notification-service",
-        "version": "15.4.0",
-        "mode": "normal" if db_health.get("connected") else "degraded",
-        "nats_connected": _nats_available and _nats_subscriber is not None,
+        "version": "16.0.0",
+        "mode": "normal" if db_ok else "degraded",
+        "nats_connected": nats_ok,
         "database": db_health,
         "stats": db_stats,
-        "registered_farmers": len(FARMER_PROFILES),  # In-memory cache
+        "registered_farmers": len(FARMER_PROFILES),
     }
 
 

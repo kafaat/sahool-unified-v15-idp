@@ -11,12 +11,17 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import datetime
+from contextlib import asynccontextmanager
 
 import aiohttp
+from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileSystemEvent
+import uvicorn
 
 from config.settings import Settings
 
@@ -30,6 +35,39 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# API Models
+# ═══════════════════════════════════════════════════════════════════════════
+
+class CodeReviewRequest(BaseModel):
+    """Request model for code review"""
+    code: str = Field(..., description="Code content to review")
+    language: Optional[str] = Field(None, description="Programming language (e.g., python, typescript)")
+    filename: Optional[str] = Field(None, description="Optional filename for context")
+
+
+class FileReviewRequest(BaseModel):
+    """Request model for file review"""
+    file_path: str = Field(..., description="Relative or absolute path to file in codebase")
+
+
+class ReviewResponse(BaseModel):
+    """Response model for code review"""
+    summary: str = Field(..., description="Summary of the review")
+    critical_issues: List[str] = Field(default_factory=list, description="List of critical issues")
+    suggestions: List[str] = Field(default_factory=list, description="List of suggestions")
+    security_concerns: List[str] = Field(default_factory=list, description="List of security concerns")
+    score: int = Field(..., ge=0, le=100, description="Review score (0-100)")
+
+
+class HealthResponse(BaseModel):
+    """Health check response"""
+    status: str
+    service: str
+    ollama_connected: bool
+    version: str = "1.0.0"
 
 
 class CodeReviewHandler(FileSystemEventHandler):
@@ -116,6 +154,17 @@ class CodeReviewService:
         logger.info(f"Ollama URL: {self.settings.ollama_url}")
         logger.info(f"Model: {self.settings.ollama_model}")
         logger.info(f"Watch paths: {self.settings.watch_paths}")
+        logger.info(f"API Server: {self.settings.api_host}:{self.settings.api_port}")
+    
+    async def check_ollama_health(self) -> bool:
+        """Check if Ollama service is available"""
+        try:
+            url = f"{self.settings.ollama_url}/api/tags"
+            async with self.session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as response:
+                return response.status == 200
+        except Exception as e:
+            logger.error(f"Ollama health check failed: {e}")
+            return False
         
     async def close(self):
         """Close the service"""
@@ -147,25 +196,70 @@ class CodeReviewService:
         except Exception as e:
             logger.error(f"Error reviewing {file_path}: {e}")
     
-    def _create_review_prompt(self, file_path: Path, content: str) -> str:
+    async def review_code(self, code: str, language: Optional[str] = None, filename: Optional[str] = None) -> Dict:
+        """Review code content directly using Ollama"""
+        try:
+            if not code.strip():
+                raise ValueError("Code content cannot be empty")
+            
+            # Create a pseudo file path for context
+            if filename:
+                file_path = Path(filename)
+            elif language:
+                file_path = Path(f"code.{language}")
+            else:
+                file_path = Path("code.txt")
+            
+            # Create review prompt
+            prompt = self._create_review_prompt(file_path, code, language)
+            
+            # Get review from Ollama
+            review = await self._get_ollama_review(prompt)
+            
+            if "error" in review:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"Review failed: {review.get('error')}"
+                )
+            
+            return review
+            
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
+        except Exception as e:
+            logger.error(f"Error reviewing code: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"An error occurred during review: {str(e)}"
+            )
+    
+    def _create_review_prompt(self, file_path: Path, content: str, language: Optional[str] = None) -> str:
         """Create a review prompt for Ollama"""
         file_ext = file_path.suffix
-        file_type = {
-            '.py': 'Python',
-            '.ts': 'TypeScript',
-            '.tsx': 'TypeScript React',
-            '.js': 'JavaScript',
-            '.jsx': 'JavaScript React',
-            '.yml': 'YAML',
-            '.yaml': 'YAML',
-            '.json': 'JSON',
-            '.md': 'Markdown',
-            '.sh': 'Bash',
-            '.dockerfile': 'Dockerfile',
-            '.tf': 'Terraform',
-            '.go': 'Go',
-            '.rs': 'Rust'
-        }.get(file_ext, 'Code')
+        
+        # Determine file type
+        if language:
+            file_type = language.capitalize()
+        else:
+            file_type = {
+                '.py': 'Python',
+                '.ts': 'TypeScript',
+                '.tsx': 'TypeScript React',
+                '.js': 'JavaScript',
+                '.jsx': 'JavaScript React',
+                '.yml': 'YAML',
+                '.yaml': 'YAML',
+                '.json': 'JSON',
+                '.md': 'Markdown',
+                '.sh': 'Bash',
+                '.dockerfile': 'Dockerfile',
+                '.tf': 'Terraform',
+                '.go': 'Go',
+                '.rs': 'Rust'
+            }.get(file_ext, 'Code')
         
         prompt = f"""You are an expert code reviewer. Review the following {file_type} file for:
 1. Code quality and best practices
@@ -318,20 +412,159 @@ Format your response as JSON:
             self.observer.join()
 
 
-async def main():
-    """Main entry point"""
-    service = CodeReviewService()
+# ═══════════════════════════════════════════════════════════════════════════
+# FastAPI Application
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Global service instance
+_service_instance = None
+
+def get_service() -> CodeReviewService:
+    """Get or create the service instance"""
+    global _service_instance
+    if _service_instance is None:
+        _service_instance = CodeReviewService()
+    return _service_instance
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for startup and shutdown"""
+    # Startup
+    service = get_service()
     await service.initialize()
     
-    try:
-        # Start watching in a separate thread
+    # Start file watcher in background if enabled
+    if service.settings.review_on_change:
         import threading
         watch_thread = threading.Thread(target=service.start_watching, daemon=True)
         watch_thread.start()
+        logger.info("File watcher started")
+    
+    yield
+    
+    # Shutdown
+    await service.close()
+
+
+# Create FastAPI app with lifespan
+app = FastAPI(
+    title="Code Review Service",
+    description="Real-time code review service using Ollama + DeepSeek",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+
+@app.get("/health", response_model=HealthResponse)
+async def health_check():
+    """Health check endpoint"""
+    service = get_service()
+    ollama_ok = await service.check_ollama_health()
+    return HealthResponse(
+        status="healthy" if ollama_ok else "degraded",
+        service="code-review-service",
+        ollama_connected=ollama_ok
+    )
+
+
+@app.post("/review", response_model=ReviewResponse)
+async def review_code_endpoint(request: CodeReviewRequest):
+    """
+    Review code content
+    
+    - **code**: Code content to review
+    - **language**: Optional programming language hint
+    - **filename**: Optional filename for context
+    """
+    service = get_service()
+    review = await service.review_code(
+        code=request.code,
+        language=request.language,
+        filename=request.filename
+    )
+    return ReviewResponse(**review)
+
+
+@app.post("/review/file", response_model=ReviewResponse)
+async def review_file_endpoint(request: FileReviewRequest):
+    """
+    Review a file from the codebase
+    
+    - **file_path**: Relative or absolute path to file in codebase
+    """
+    service = get_service()
+    
+    # Resolve file path
+    base_path = Path('/app/codebase')
+    file_path = Path(request.file_path)
+    
+    # Handle relative paths
+    if not file_path.is_absolute():
+        file_path = base_path / file_path
+    
+    # Verify file exists
+    if not file_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"File not found: {request.file_path}"
+        )
+    
+    # Verify file is within codebase
+    try:
+        file_path.relative_to(base_path)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="File must be within the codebase directory"
+        )
+    
+    # Check file size
+    if file_path.stat().st_size > service.settings.max_file_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File too large. Maximum size: {service.settings.max_file_size} bytes"
+        )
+    
+    # Read and review file
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to read file: {str(e)}"
+        )
+    
+    review = await service.review_code(
+        code=content,
+        filename=str(file_path.name)
+    )
+    return ReviewResponse(**review)
+
+
+async def main():
+    """Main entry point"""
+    service = get_service()
+    await service.initialize()
+    
+    try:
+        # Start file watcher in background if enabled
+        if service.settings.review_on_change:
+            import threading
+            watch_thread = threading.Thread(target=service.start_watching, daemon=True)
+            watch_thread.start()
+            logger.info("File watcher started")
         
-        # Keep main thread alive
-        while True:
-            await asyncio.sleep(1)
+        # Start API server
+        config = uvicorn.Config(
+            app,
+            host=service.settings.api_host,
+            port=service.settings.api_port,
+            log_level=service.settings.log_level.lower()
+        )
+        server = uvicorn.Server(config)
+        await server.serve()
             
     except KeyboardInterrupt:
         logger.info("Shutting down...")
@@ -341,4 +574,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 

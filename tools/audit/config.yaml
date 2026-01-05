@@ -1,0 +1,64 @@
+# SAHOOL Audit Engine Configuration
+# ===================================
+
+project:
+  name: "SAHOOL"
+  version: "16.0.0"
+  type: "agricultural-platform"
+
+# Severity levels and their weights
+severity_weights:
+  CRITICAL: 10
+  HIGH: 7
+  MEDIUM: 4
+  LOW: 1
+
+# Score thresholds
+thresholds:
+  production_ready: 8.0
+  staging_ready: 6.0
+  development_ready: 4.0
+
+# Rule categories to run
+categories:
+  - build
+  - runtime
+  - connectivity
+  - geo_ndvi
+  - security
+  - observability
+  - performance
+
+# Paths to scan
+scan_paths:
+  services: "apps/services"
+  shared: "shared"
+  packages: "packages"
+  docker: "docker"
+  infrastructure: "infrastructure"
+
+# Files to check
+required_files:
+  - "docker-compose.yml"
+  - "pyproject.toml"
+  - "README.md"
+
+# Health check patterns
+health_patterns:
+  - "/healthz"
+  - "/health"
+  - "/readyz"
+
+# Database patterns (PostGIS, etc.)
+geo_patterns:
+  - "postgis"
+  - "geometry"
+  - "ST_"
+  - "SRID"
+
+# Security patterns to flag
+security_antipatterns:
+  - "password.*=.*['\"]"
+  - "secret.*=.*['\"]"
+  - "api_key.*=.*['\"]"
+  - "localhost"

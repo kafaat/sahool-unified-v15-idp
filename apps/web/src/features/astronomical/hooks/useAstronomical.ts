@@ -4,18 +4,6 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import type { UseQueryOptions } from '@tanstack/react-query';
-import type {
-  DailyAstronomicalData,
-  WeeklyForecast,
-  MoonPhase,
-  LunarMansion,
-  CropCalendar,
-  BestDaysResult,
-  AllProverbs,
-  ProverbOfTheDay,
-  DailyWisdom,
-} from '../types';
 import {
   getToday,
   getWeeklyForecast,

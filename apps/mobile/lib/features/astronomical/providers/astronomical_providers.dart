@@ -5,6 +5,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
+import '../../../core/config/env_config.dart' as env;
 import '../data/remote/astronomical_api.dart';
 import '../models/astronomical_models.dart';
 
@@ -15,19 +16,16 @@ import '../models/astronomical_models.dart';
 /// مزود خدمة API للتقويم الفلكي
 final astronomicalApiProvider = Provider<AstronomicalApi>((ref) {
   final dio = Dio(BaseOptions(
-    connectTimeout: const Duration(seconds: 30),
-    receiveTimeout: const Duration(seconds: 30),
+    connectTimeout: env.EnvConfig.connectTimeout,
+    receiveTimeout: env.EnvConfig.receiveTimeout,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
   ));
 
-  // استخدام URL من البيئة أو القيمة الافتراضية
-  const baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8000',
-  );
+  // استخدام EnvConfig للحصول على URL الديناميكي
+  final baseUrl = env.EnvConfig.apiBaseUrl;
 
   return AstronomicalApi(dio: dio, baseUrl: baseUrl);
 });

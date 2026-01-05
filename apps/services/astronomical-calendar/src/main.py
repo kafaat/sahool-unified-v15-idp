@@ -54,6 +54,12 @@ CORS_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS",
     "http://localhost:3000,http://localhost:3001,http://localhost:8080",
 ).split(",")
+
+# Weather service URL - configurable via environment variable
+WEATHER_SERVICE_URL = os.getenv(
+    "WEATHER_SERVICE_URL",
+    "http://weather-service:8092",
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -3809,7 +3815,7 @@ async def get_integrated_data(
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"http://sahool-weather-advanced:8092/v1/current/{location_id}",
+                f"{WEATHER_SERVICE_URL}/v1/current/{location_id}",
                 timeout=5.0,
             )
             if response.status_code == 200:

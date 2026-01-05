@@ -1883,48 +1883,6 @@ services:
     networks:
       - sahool-network
 
-  # Field Intelligence Service - خدمة ذكاء الحقل
-  field-intelligence:
-    build:
-      context: ./apps/services/field-intelligence
-      dockerfile: Dockerfile
-    container_name: sahool-field-intelligence
-    environment:
-      - PORT=8119
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - TASK_SERVICE_URL=http://task-service:8103
-      - ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
-      - NOTIFICATION_SERVICE_URL=http://notification-service:8110
-      - WEATHER_SERVICE_URL=http://weather-service:8092
-      - NDVI_SERVICE_URL=http://vegetation-analysis-service:8090
-    ports:
-      - "8119:8119"
-    depends_on:
-      task-service:
-        condition: service_healthy
-      astronomical-calendar:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8119/healthz')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    networks:
-      - sahool-network
-
   # AI Advisor Service
   ai-advisor:
     build:

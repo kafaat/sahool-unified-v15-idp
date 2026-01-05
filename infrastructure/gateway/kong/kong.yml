@@ -289,6 +289,7 @@ services:
     routes:
       - name: astronomical-calendar-route
         paths:
+          - /api/v1/astronomical
           - /api/v1/calendar
         strip_path: false
     plugins:

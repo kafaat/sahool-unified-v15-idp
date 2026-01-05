@@ -872,6 +872,62 @@ class SahoolApiClient {
       params: { region },
     });
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Field Intelligence API
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getLivingFieldScore(fieldId: string) {
+    return this.request<any>(`/api/v1/fields/${fieldId}/intelligence/score`);
+  }
+
+  async getFieldZones(fieldId: string) {
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/zones`);
+  }
+
+  async getFieldIntelligenceAlerts(fieldId: string) {
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/alerts`, {
+      params: { status: 'active' },
+    });
+  }
+
+  async createTaskFromAlert(alertId: string, taskData: {
+    title: string;
+    titleAr: string;
+    description?: string;
+    descriptionAr?: string;
+    priority: 'urgent' | 'high' | 'medium' | 'low';
+    dueDate?: string;
+    assigneeId?: string;
+  }) {
+    return this.request<any>(`/api/v1/intelligence/alerts/${alertId}/create-task`, {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
+  }
+
+  async getBestDaysForActivity(activity: string, days: number = 14) {
+    return this.request<any[]>('/api/v1/intelligence/best-days', {
+      params: {
+        activity: activity.toLowerCase(),
+        days: String(Math.max(1, Math.min(days, 30))),
+      },
+    });
+  }
+
+  async validateTaskDate(date: string, activity: string) {
+    return this.request<any>('/api/v1/intelligence/validate-date', {
+      method: 'POST',
+      body: JSON.stringify({
+        date: new Date(date).toISOString(),
+        activity: activity.toLowerCase(),
+      }),
+    });
+  }
+
+  async getFieldRecommendations(fieldId: string) {
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/recommendations`);
+  }
 }
 
 // Singleton instance

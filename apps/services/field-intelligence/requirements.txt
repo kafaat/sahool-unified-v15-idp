@@ -1,0 +1,40 @@
+# SAHOOL Field Intelligence Service Dependencies
+# متطلبات خدمة ذكاء الحقول والقواعد الآلية
+# Updated: January 2026
+# Version: 16.0.0
+
+# Web Framework (matching shared versions)
+fastapi==0.115.5
+uvicorn[standard]>=0.30.0,<1.0.0
+pydantic==2.9.2
+
+# HTTP Client
+httpx==0.28.1
+
+# Database & ORM (للنسخة المستقبلية مع PostgreSQL)
+# Database support for future PostgreSQL migration
+sqlalchemy==2.0.23
+alembic==1.13.1
+psycopg2-binary==2.9.9
+asyncpg==0.30.0
+
+# NATS Messaging (للتكامل مع الخدمات الأخرى)
+# NATS for inter-service communication
+nats-py==2.9.0
+
+# Redis (للتخزين المؤقت وإدارة الحالة)
+# Redis for caching and state management
+redis==5.2.1
+
+# Utilities
+python-dotenv==1.0.1
+python-dateutil==2.8.2
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==4.1.0
+
+# Optional: للتحليلات والمراقبة
+# Optional: For analytics and monitoring
+# prometheus-client==0.20.0

@@ -101,7 +101,7 @@ upstreams:
   - name: virtual-sensors-upstream
     algorithm: round-robin
     targets:
-      - target: virtual-sensors:8096
+      - target: virtual-sensors:8119
         weight: 100
     healthchecks:
       active:
@@ -242,16 +242,6 @@ upstreams:
     algorithm: round-robin
     targets:
       - target: disaster-assessment:3020
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-
-  - name: field-intelligence-upstream
-    algorithm: round-robin
-    targets:
-      - target: field-intelligence:8119
         weight: 100
     healthchecks:
       active:
@@ -703,37 +693,6 @@ services:
       - name: inventory-route
         paths:
           - /api/v1/inventory
-        strip_path: false
-    plugins:
-      - name: jwt
-      - name: acl
-        config:
-          allow:
-            - professional-users
-            - enterprise-users
-      - name: rate-limiting
-        config:
-          minute: 1000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
-
-  # ============================================================================
-  # Field Intelligence Service - خدمة ذكاء الحقل
-  # ============================================================================
-  - name: field-intelligence
-    url: http://field-intelligence:8119
-    tags:
-      - professional
-      - intelligence
-    routes:
-      - name: field-intelligence-route
-        paths:
-          - /api/v1/field-intelligence
         strip_path: false
     plugins:
       - name: jwt

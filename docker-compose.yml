@@ -1395,20 +1395,20 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-virtual-sensors
     environment:
-      - PORT=8096
+      - PORT=8119
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8096:8096"
+      - "8119:8119"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8119/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

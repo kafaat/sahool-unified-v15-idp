@@ -79,6 +79,9 @@ class NavigationConstants {
   static const String scanner = '/scanner';
   static const String scouting = '/scouting';
 
+  // Astronomical Calendar - التقويم الفلكي
+  static const String astronomical = '/astronomical';
+
   // Utility Routes
   static const String help = '/help';
   static const String about = '/about';
@@ -121,6 +124,10 @@ class NavigationConstants {
     'about': 'حول التطبيق',
     'logout': 'تسجيل الخروج',
     'sync': 'المزامنة',
+
+    // Astronomical Calendar
+    'astronomical': 'التقويم الفلكي',
+    'astronomical_desc': 'التقويم الفلكي اليمني للزراعة',
 
     // Feature Categories
     'precision_agriculture': 'الزراعة الدقيقة',
@@ -191,6 +198,7 @@ class NavigationConstants {
     'scanner': Icons.qr_code_scanner_rounded,
     'advisor': Icons.psychology_rounded,
     'scouting': Icons.visibility_rounded,
+    'astronomical': Icons.nightlight_round,
   };
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -209,6 +217,7 @@ class NavigationConstants {
     'weather': Color(0xFFFFC107), // Amber
     'tasks': Color(0xFFE91E63), // Pink
     'crop_health': Color(0xFF8BC34A), // Light Green
+    'astronomical': Color(0xFF5C6BC0), // Indigo (Moon/Stars)
   };
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -229,7 +238,7 @@ class NavigationConstants {
     FeatureGroup(
       title: 'monitoring',
       icon: Icons.monitoring_rounded,
-      features: ['weather', 'alerts', 'map'],
+      features: ['weather', 'alerts', 'map', 'astronomical'],
     ),
     FeatureGroup(
       title: 'resources',

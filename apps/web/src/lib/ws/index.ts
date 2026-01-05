@@ -5,16 +5,23 @@
 
 import { logger } from '../logger';
 
+// Default WebSocket URL for CI/build environments
+const DEFAULT_WS_URL = 'ws://localhost:8081';
+
 // Determine WebSocket URL from environment variable
 const getWebSocketUrl = (): string => {
   const wsUrl = process.env.NEXT_PUBLIC_WS_URL;
 
   if (!wsUrl) {
-    if (process.env.NODE_ENV === 'development') {
-      logger.warn('NEXT_PUBLIC_WS_URL not set, using default ws://localhost:8081');
-      return 'ws://localhost:8081';
+    // Use default URL in development or CI/build environments
+    // In production with proper deployment, NEXT_PUBLIC_WS_URL should always be set
+    if (process.env.NODE_ENV === 'development' || typeof window === 'undefined') {
+      logger.warn(`NEXT_PUBLIC_WS_URL not set, using default ${DEFAULT_WS_URL}`);
+      return DEFAULT_WS_URL;
     }
-    throw new Error('NEXT_PUBLIC_WS_URL environment variable is required');
+    // In browser production environment without WS_URL, use default but warn
+    logger.warn(`NEXT_PUBLIC_WS_URL not configured, WebSocket features may not work`);
+    return DEFAULT_WS_URL;
   }
 
   return wsUrl;

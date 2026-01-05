@@ -64,6 +64,9 @@ import '../../features/crop_health/presentation/screens/crop_health_dashboard.da
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/marketplace/marketplace_screen.dart';
 
+// Features - Astronomical Calendar
+import '../../features/astronomical/presentation/screens/astronomical_screen.dart';
+
 /// SAHOOL App Router Configuration
 /// تكوين مسارات التطبيق باستخدام go_router
 class AppRouter {
@@ -449,6 +452,16 @@ class AppRouter {
         path: '/sync',
         name: 'sync',
         builder: (context, state) => const SyncScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Astronomical Calendar Route - التقويم الفلكي
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/astronomical',
+        name: 'astronomical',
+        builder: (context, state) => const AstronomicalScreen(),
       ),
     ],
 

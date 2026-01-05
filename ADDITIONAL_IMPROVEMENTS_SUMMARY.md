@@ -220,7 +220,10 @@ From **GAPS_AND_RECOMMENDATIONS.md**:
 ### Phase 3: Medium Priority (Completed) ✅
 - [x] Create deployment documentation (6 hours estimated, actual 3 hours)
 - [x] Document rate limiting (2 hours estimated, actual 2 hours)
-- [ ] Fix ESLint warnings (3 hours estimated) - **Deferred** (requires dependency installation, non-critical)
+- [ ] Fix ESLint warnings (3 hours estimated) - **Deferred**
+  - Reason: Requires installing all development dependencies (`npm install`) which would add ~2GB of node_modules
+  - Impact: Non-critical - warnings don't affect build or runtime
+  - Recommendation: Address in a dedicated code quality sprint
 
 ### Phase 4: Low Priority (Not Started)
 - [ ] Add integration tests (12 hours)

@@ -124,8 +124,8 @@ REDIS_SENTINEL_MASTER="sahool-master"
 ```bash
 # MinIO Configuration
 MINIO_ENDPOINT="minio:9000"
-MINIO_ACCESS_KEY="MINIO_ACCESS_KEY_MIN_20_CHARS"
-MINIO_SECRET_KEY="MINIO_SECRET_KEY_MIN_40_CHARS"
+MINIO_ACCESS_KEY="MINIO_ACCESS_KEY_MIN_24_CHARS"  # Recommended: 24+ chars (192 bits)
+MINIO_SECRET_KEY="MINIO_SECRET_KEY_MIN_48_CHARS"  # Recommended: 48+ chars (384 bits)
 MINIO_BUCKET="sahool-storage"
 MINIO_USE_SSL=true
 MINIO_REGION="us-east-1"
@@ -226,13 +226,13 @@ ORDER BY tablename, indexname;
 # Create production namespace (Kubernetes)
 kubectl create namespace sahool-prod
 
-# Create secrets
+# Create secrets with enhanced security
 kubectl create secret generic sahool-secrets \
   --from-literal=jwt-secret=$(openssl rand -hex 32) \
   --from-literal=db-password=$(openssl rand -base64 32) \
   --from-literal=redis-password=$(openssl rand -base64 32) \
-  --from-literal=minio-access-key=$(openssl rand -hex 20) \
-  --from-literal=minio-secret-key=$(openssl rand -hex 40) \
+  --from-literal=minio-access-key=$(openssl rand -hex 24) \
+  --from-literal=minio-secret-key=$(openssl rand -hex 48) \
   -n sahool-prod
 ```
 

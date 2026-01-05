@@ -137,8 +137,8 @@ BEGIN
     END IF;
 END $$;
 
--- Add composite index on sensors (tenant_id, is_active, device_type)
--- Optimizes queries for active sensors by type
+-- Add composite index on sensors (tenant_id, is_active)
+-- Optimizes queries for active sensors by tenant
 DO $$
 BEGIN
     IF EXISTS (
@@ -160,14 +160,15 @@ BEGIN
                 AND table_name = 'sensors' 
                 AND column_name = 'is_active'
             ) THEN
-                CREATE INDEX IF NOT EXISTS idx_sensors_active_by_tenant 
+                -- Partial index optimized for active sensor queries
+                CREATE INDEX IF NOT EXISTS idx_sensors_tenant_active 
                 ON sensors(tenant_id, is_active) 
                 WHERE is_active = true;
                 
-                COMMENT ON INDEX idx_sensors_active_by_tenant IS 
-                'Partial index for active sensors by tenant';
+                COMMENT ON INDEX idx_sensors_tenant_active IS 
+                'Partial composite index for active sensors by tenant - optimizes WHERE tenant_id = ? AND is_active = true queries';
                 
-                RAISE NOTICE '✅ Added partial index: sensors(tenant_id, is_active) WHERE is_active = true';
+                RAISE NOTICE '✅ Added partial composite index: sensors(tenant_id, is_active) WHERE is_active = true';
             END IF;
         END IF;
     END IF;

@@ -85,8 +85,12 @@ RATE_LIMIT_HEADERS_ENABLED=true
 
 # Ban on Excessive Violations
 RATE_LIMIT_BAN_ENABLED=true
-RATE_LIMIT_BAN_THRESHOLD=10  # violations before ban
-RATE_LIMIT_BAN_DURATION=3600  # ban duration in seconds
+RATE_LIMIT_BAN_THRESHOLD=10  # violations before ban (adjustable based on tier)
+RATE_LIMIT_BAN_DURATION=3600  # ban duration in seconds (1 hour)
+
+# Note: Ban threshold of 10 is conservative to avoid false positives from legitimate
+# traffic spikes or network issues. For stricter control, reduce to 5-7 violations.
+# Consider implementing tier-based thresholds (e.g., Free: 5, Pro: 15).
 ```
 
 ---

@@ -16,6 +16,7 @@ try:
         MigrationManager,
         PostGISMigrationHelper,
     )
+
     __all__ = ["MigrationManager", "MigrationInfo", "PostGISMigrationHelper"]
 except ImportError:
     # Parent module not available, exports will be empty

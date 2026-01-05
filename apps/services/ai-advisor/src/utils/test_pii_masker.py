@@ -67,8 +67,8 @@ def test_dict_masking():
         "phone": "+966-555-1234",
         "nested": {
             "credit_card": "4532-1234-5678-9010",
-            "authorization": "Bearer token123"
-        }
+            "authorization": "Bearer token123",
+        },
     }
 
     print("Original dict:")
@@ -100,7 +100,7 @@ def test_safe_log_helper():
     sensitive_data = {
         "user": "john@example.com",
         "token": "abc123xyz",
-        "action": "login"
+        "action": "login",
     }
     safe = safe_log(sensitive_data)
     print(f"Safe log (dict): {safe}\n")

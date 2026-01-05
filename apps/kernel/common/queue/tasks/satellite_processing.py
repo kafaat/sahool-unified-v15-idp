@@ -72,10 +72,10 @@ def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]
                 "bands": bands,
                 "resolution": "10m",
                 "cloud_coverage": 5.2,
-                "processing_level": payload.get("processing_level", "L2A")
+                "processing_level": payload.get("processing_level", "L2A"),
             },
             "processing_time": 45.3,
-            "status": "success"
+            "status": "success",
         }
 
         logger.info(f"Satellite image processed successfully for field: {field_id}")

@@ -56,4 +56,4 @@ class BaseSeeder(ABC):
             print(f"[تعبئة] {message_ar}")
 
 
-__all__ = ['BaseSeeder']
+__all__ = ["BaseSeeder"]

@@ -48,23 +48,19 @@ __all__ = [
     "AgentAction",
     "AgentPercept",
     "AgentState",
-
     # Edge Layer
     "MobileAgent",
     "IoTAgent",
     "DroneAgent",
-
     # Specialist Layer
     "DiseaseExpertAgent",
     "YieldPredictorAgent",
     "IrrigationAdvisorAgent",
     "WeatherAnalystAgent",
-
     # Coordinator Layer
     "MasterCoordinatorAgent",
-
     # Learning Layer
     "FeedbackLearnerAgent",
     "ModelUpdaterAgent",
-    "KnowledgeMinerAgent"
+    "KnowledgeMinerAgent",
 ]

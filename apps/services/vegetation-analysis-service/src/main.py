@@ -707,6 +707,7 @@ def generate_recommendations(
 
 @app.get("/healthz")
 async def health():
+    """Health check endpoint with comprehensive dependency status"""
     providers_info = None
     if _multi_provider:
         providers = _multi_provider.get_available_providers()
@@ -719,10 +720,13 @@ async def health():
 
     cache_status = _cache_available and await is_cache_available()
 
+    # Determine overall health status
+    is_healthy = _nats_available or (providers_info and providers_info["configured"] > 0)
+
     return {
-        "status": "ok",
-        "service": "satellite-service",
-        "version": "15.7.0",
+        "status": "healthy" if is_healthy else "degraded",
+        "service": "vegetation-analysis-service",
+        "version": "16.0.0",
         "satellites": list(SATELLITE_CONFIGS.keys()),
         "multi_provider": providers_info,
         "eo_learn": get_data_source_status(),
@@ -1307,7 +1311,7 @@ async def get_phenology(
             planting_date=planting_dt,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
     return {
         "field_id": result.field_id,
@@ -1378,7 +1382,7 @@ async def get_phenology_timeline(
             field_id=field_id, crop_type=crop_type, planting_date=planting_dt
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
     return {
         "field_id": timeline.field_id,
@@ -1521,7 +1525,7 @@ async def analyze_phenology_with_action(
             planting_date=planting_dt,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
     # Create ActionTemplate based on growth stage
     action_template = _create_phenology_action_template(
@@ -2883,7 +2887,7 @@ async def get_cloud_cover(
 
     except Exception as e:
         logger.error(f"Cloud cover analysis failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/clear-observations/{field_id}")
@@ -2949,7 +2953,7 @@ async def find_clear_observations(
         raise
     except Exception as e:
         logger.error(f"Clear observations search failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/best-observation/{field_id}")
@@ -3020,7 +3024,7 @@ async def get_best_observation(
         raise
     except Exception as e:
         logger.error(f"Best observation search failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/v1/interpolate-cloudy")
@@ -3090,7 +3094,7 @@ async def interpolate_cloudy_pixels(
         raise
     except Exception as e:
         logger.error(f"Interpolation failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # =============================================================================
@@ -3151,7 +3155,7 @@ async def export_analysis(
         )
     except Exception as e:
         logger.error(f"Export analysis error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/timeseries/{field_id}")
@@ -3243,7 +3247,7 @@ async def export_timeseries(
         )
     except Exception as e:
         logger.error(f"Export timeseries error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/boundaries")
@@ -3325,7 +3329,7 @@ async def export_boundaries(
         )
     except Exception as e:
         logger.error(f"Export boundaries error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/report/{field_id}")
@@ -3444,7 +3448,7 @@ async def export_report(
         )
     except Exception as e:
         logger.error(f"Export report error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 async def _perform_analysis(
@@ -3597,12 +3601,14 @@ async def detect_changes(
         return ChangeReportResponse(**report.to_dict())
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}")
+        raise HTTPException(
+            status_code=400, detail=f"Invalid date format: {str(e)}"
+        ) from e
     except Exception as e:
         logger.error(f"Error detecting changes: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Change detection failed: {str(e)}"
-        )
+        ) from e
 
 
 @app.get("/v1/changes/{field_id}/compare", response_model=ChangeEventResponse)
@@ -3659,10 +3665,14 @@ async def compare_dates(
         return ChangeEventResponse(**event.to_dict())
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}")
+        raise HTTPException(
+            status_code=400, detail=f"Invalid date format: {str(e)}"
+        ) from e
     except Exception as e:
         logger.error(f"Error comparing dates: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Date comparison failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Date comparison failed: {str(e)}"
+        ) from e
 
 
 @app.get("/v1/changes/{field_id}/anomalies")
@@ -3761,7 +3771,7 @@ async def get_anomalies(
         logger.error(f"Error detecting anomalies: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Anomaly detection failed: {str(e)}"
-        )
+        ) from e
 
 
 # =============================================================================

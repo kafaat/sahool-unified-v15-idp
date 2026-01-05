@@ -48,7 +48,7 @@ USER sahool
 EXPOSE 8120
 
 # Health check using Python | فحص الصحة باستخدام Python
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8120/health/live')" || exit 1
 
 # Run application | تشغيل التطبيق

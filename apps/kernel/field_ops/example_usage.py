@@ -8,8 +8,6 @@ This example demonstrates how to use the irrigation scheduling system for Yemen 
 
 from datetime import date, timedelta
 
-from services.irrigation_scheduler import IrrigationScheduler
-
 from models.irrigation import (
     CropType,
     GrowthStage,
@@ -18,6 +16,7 @@ from models.irrigation import (
     SoilType,
     WeatherData,
 )
+from services.irrigation_scheduler import IrrigationScheduler
 
 
 def main():

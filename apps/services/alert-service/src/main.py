@@ -325,11 +325,16 @@ def health():
 
 @app.get("/healthz", tags=["Health"])
 def healthz():
-    """فحص صحة الخدمة - Kubernetes liveness probe"""
+    """فحص صحة الخدمة - Kubernetes liveness probe with dependency check"""
+    publisher_ok = getattr(app.state, "publisher", None) is not None
+    subscriber_ok = getattr(app.state, "subscriber", None) is not None
+
     return {
-        "status": "healthy",
+        "status": "healthy" if (publisher_ok and subscriber_ok) else "degraded",
         "service": "alert-service",
         "version": "16.0.0",
+        "nats_publisher": publisher_ok,
+        "nats_subscriber": subscriber_ok,
         "timestamp": datetime.now(UTC).isoformat(),
     }
 

@@ -58,7 +58,7 @@ async def export_analysis(
         )
     except Exception as e:
         logger.error(f"Export analysis error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/timeseries/{field_id}")
@@ -145,7 +145,7 @@ async def export_timeseries(
         )
     except Exception as e:
         logger.error(f"Export timeseries error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/boundaries")
@@ -224,7 +224,7 @@ async def export_boundaries(
         )
     except Exception as e:
         logger.error(f"Export boundaries error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/report/{field_id}")
@@ -331,7 +331,7 @@ async def export_report(
         )
     except Exception as e:
         logger.error(f"Export report error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 async def _perform_analysis(field_id: str, lat: float, lon: float, analysis_date: date = None) -> Dict:

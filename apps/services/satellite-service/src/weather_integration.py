@@ -308,7 +308,7 @@ class WeatherIntegration:
 
         except httpx.HTTPError as e:
             logger.error(f"Failed to fetch forecast: {e}")
-            raise Exception(f"Weather API error: {str(e)}")
+            raise Exception(f"Weather API error: {str(e)}") from e
 
     async def get_historical(
         self, latitude: float, longitude: float, start_date: date, end_date: date
@@ -410,7 +410,7 @@ class WeatherIntegration:
 
         except httpx.HTTPError as e:
             logger.error(f"Failed to fetch historical data: {e}")
-            raise Exception(f"Weather API error: {str(e)}")
+            raise Exception(f"Weather API error: {str(e)}") from e
 
     async def get_growing_degree_days(
         self,

@@ -64,7 +64,7 @@ USER sahool
 EXPOSE 8115
 
 # Health check using Python
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8115/healthz')" || exit 1
 
 # Run application

@@ -3,11 +3,48 @@ Yield Prediction API Endpoints
 To be integrated into main.py
 """
 
-# Add these imports at the top of main.py:
+import logging
+import uuid
+from datetime import date, timedelta
+
+from fastapi import FastAPI, HTTPException, Path, Query
+from pydantic import BaseModel, Field
+
+# These should be imported when this module is integrated into main.py:
 # from .yield_predictor import YieldPredictor, YieldPrediction
 
-# Add this global variable after _sar_processor:
-# _yield_predictor = YieldPredictor()
+# Placeholder logger - will be overridden when integrated into main.py
+logger = logging.getLogger(__name__)
+
+# Placeholder app - will be overridden when integrated into main.py
+app = FastAPI()
+
+# Placeholders for objects defined in main.py
+# These will be replaced when integrated
+_yield_predictor = None
+_sar_processor = None
+SatelliteSource = None  # Enum defined in main.py
+
+
+# Placeholder function - defined in main.py
+async def get_timeseries(field_id: str, days: int, satellite) -> dict:
+    """Placeholder - this function is defined in main.py"""
+    return {"timeseries": []}
+
+
+# Yemen regions data
+YEMEN_REGIONS = {
+    "ibb": {"name_ar": "إب", "region": "highland"},
+    "taiz": {"name_ar": "تعز", "region": "highland"},
+    "sanaa": {"name_ar": "صنعاء", "region": "highland"},
+    "aden": {"name_ar": "عدن", "region": "coastal"},
+    "hodeidah": {"name_ar": "الحديدة", "region": "coastal"},
+    "hadramaut": {"name_ar": "حضرموت", "region": "desert"},
+    "marib": {"name_ar": "مأرب", "region": "desert"},
+    "dhamar": {"name_ar": "ذمار", "region": "highland"},
+    "lahj": {"name_ar": "لحج", "region": "coastal"},
+    "shabwah": {"name_ar": "شبوة", "region": "desert"},
+}
 
 # Add these request/response models after existing models:
 
@@ -19,28 +56,28 @@ class YieldPredictionRequest(BaseModel):
     crop_code: str = Field(..., description="رمز المحصول (WHEAT, TOMATO, etc.)")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
-    planting_date: Optional[date] = Field(None, description="تاريخ الزراعة")
+    planting_date: date | None = Field(None, description="تاريخ الزراعة")
     field_area_ha: float = Field(
         default=1.0, ge=0.01, description="مساحة الحقل بالهكتار"
     )
 
     # Optional: provide NDVI time series (if available)
-    ndvi_series: Optional[List[float]] = Field(
+    ndvi_series: list[float] | None = Field(
         None,
         description="سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا لم تقدم)",
     )
 
     # Weather data (optional - will be estimated if not provided)
-    precipitation_mm: Optional[float] = Field(None, description="الأمطار الكلية (مم)")
-    avg_temp_min: Optional[float] = Field(
+    precipitation_mm: float | None = Field(None, description="الأمطار الكلية (مم)")
+    avg_temp_min: float | None = Field(
         None, description="متوسط درجة الحرارة الصغرى (°س)"
     )
-    avg_temp_max: Optional[float] = Field(
+    avg_temp_max: float | None = Field(
         None, description="متوسط درجة الحرارة الكبرى (°س)"
     )
 
     # Optional: soil moisture from SAR
-    soil_moisture: Optional[float] = Field(
+    soil_moisture: float | None = Field(
         None, ge=0, le=1, description="رطوبة التربة (0-1)"
     )
 
@@ -57,15 +94,15 @@ class YieldPredictionResponse(BaseModel):
     yield_range_min: float
     yield_range_max: float
     confidence: float
-    factors: Dict[str, float]
+    factors: dict[str, float]
     comparison_to_average: float
     comparison_to_base: float
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
     prediction_date: str
     growth_stage: str
-    days_to_harvest: Optional[int]
-    data_sources_used: List[str]
+    days_to_harvest: int | None
+    data_sources_used: list[str]
 
 
 class YieldHistoryItem(BaseModel):
@@ -76,7 +113,7 @@ class YieldHistoryItem(BaseModel):
     crop_code: str
     crop_name_ar: str
     predicted_yield_ton_ha: float
-    actual_yield_ton_ha: Optional[float]
+    actual_yield_ton_ha: float | None
     confidence: float
     growth_stage: str
 
@@ -242,7 +279,7 @@ async def get_yield_history(
     seasons: int = Query(
         default=5, ge=1, le=20, description="Number of past seasons to retrieve"
     ),
-    crop_code: Optional[str] = Query(None, description="Filter by crop code"),
+    crop_code: str | None = Query(None, description="Filter by crop code"),
 ):
     """
     الحصول على سجل التنبؤات السابقة | Get Yield Prediction History
@@ -343,7 +380,7 @@ async def get_regional_yields(
     governorate: str = Path(
         ..., description="Yemen governorate (e.g., 'ibb', 'taiz', 'hodeidah')"
     ),
-    crop: Optional[str] = Query(
+    crop: str | None = Query(
         None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"
     ),
 ):

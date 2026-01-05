@@ -73,7 +73,7 @@ async def validate_jwt_token(token: str) -> dict:
         payload = jwt.decode(token, JWT_SECRET, algorithms=ALLOWED_ALGORITHMS)
         return payload
     except JWTError as e:
-        raise ValueError(f"Invalid token: {str(e)}")
+        raise ValueError(f"Invalid token: {str(e)}") from e
 
 
 # Initialize managers
@@ -123,12 +123,20 @@ app = FastAPI(
 
 @app.get("/healthz")
 def health():
-    return {
-        "status": "healthy",
+    """Health check endpoint with dependency validation"""
+    nats_connected = nats_bridge.is_connected if nats_bridge else False
+
+    response = {
+        "status": "healthy" if nats_connected else "degraded",
         "service": "ws-gateway",
         "version": "16.0.0",
+        "nats_connected": nats_connected,
+        "connections": room_manager.get_stats() if room_manager else {},
         "timestamp": datetime.utcnow().isoformat(),
     }
+
+    # Allow degraded mode - NATS is optional for basic WebSocket functionality
+    return response
 
 
 @app.get("/readyz")
@@ -302,7 +310,7 @@ async def broadcast_message(
         logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")
 
     except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise HTTPException(status_code=401, detail=str(e)) from e
 
     ws_message = {
         "type": "broadcast",

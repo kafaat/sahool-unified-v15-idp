@@ -34,7 +34,7 @@ USER sahool
 EXPOSE 8200
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import httpx; httpx.get('http://localhost:8200/health')" || exit 1
 
 # Run server

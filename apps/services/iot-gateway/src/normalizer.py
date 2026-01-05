@@ -131,7 +131,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
     try:
         raw = json.loads(payload)
     except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON payload: {e}")
+        raise ValueError(f"Invalid JSON payload: {e}") from e
 
     # Extract device_id (try multiple field names)
     device_id = (
@@ -235,7 +235,7 @@ def normalize_batch(payload: str, topic: str = None) -> list[NormalizedReading]:
     try:
         raw = json.loads(payload)
     except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON payload: {e}")
+        raise ValueError(f"Invalid JSON payload: {e}") from e
 
     # Find readings array
     if isinstance(raw, list):

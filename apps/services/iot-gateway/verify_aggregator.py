@@ -19,6 +19,7 @@ def verify_imports():
 
     try:
         from src.sensor_aggregator import SensorAggregator, create_sample_readings
+
         print("✓ SensorAggregator imported successfully")
     except ImportError as e:
         print(f"✗ Failed to import SensorAggregator: {e}")
@@ -35,6 +36,7 @@ def verify_imports():
             check_value_in_range,
             get_threshold,
         )
+
         print("✓ All models imported successfully")
     except ImportError as e:
         print(f"✗ Failed to import models: {e}")

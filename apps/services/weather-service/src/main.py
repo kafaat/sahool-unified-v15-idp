@@ -99,7 +99,15 @@ add_request_id_middleware(app)
 
 @app.get("/healthz")
 def health():
-    return {"status": "healthy", "service": "weather-core", "version": "15.3.3"}
+    """Health check endpoint with service info"""
+    from datetime import datetime
+
+    return {
+        "status": "healthy",
+        "service": "weather-service",
+        "version": "16.0.0",
+        "timestamp": datetime.utcnow().isoformat(),
+    }
 
 
 # ============== Request Models ==============
@@ -255,7 +263,7 @@ async def get_current_weather(req: LocationRequest):
     except (ExternalServiceException, InternalServerException):
         raise
     except Exception as e:
-        raise ExternalServiceException.weather_service(e)
+        raise ExternalServiceException.weather_service(e) from e
 
 
 @app.post("/weather/forecast")
@@ -314,7 +322,7 @@ async def get_forecast(req: LocationRequest, days: int = 7):
     except (ExternalServiceException, InternalServerException):
         raise
     except Exception as e:
-        raise ExternalServiceException.weather_service(e)
+        raise ExternalServiceException.weather_service(e) from e
 
 
 @app.post("/weather/irrigation")

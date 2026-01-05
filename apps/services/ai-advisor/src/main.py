@@ -6,6 +6,9 @@ Multi-agent AI system for agricultural advisory.
 نظام ذكاء اصطناعي متعدد الوكلاء للاستشارات الزراعية.
 """
 
+# Import shared CORS configuration | استيراد تكوين CORS المشترك
+import os
+import sys
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -31,10 +34,6 @@ from .rag import EmbeddingsManager, KnowledgeRetriever
 from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
-
-# Import shared CORS configuration | استيراد تكوين CORS المشترك
-import os
-import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
 try:
@@ -276,13 +275,22 @@ if A2A_AVAILABLE:
 @app.get("/healthz", tags=["Health"])
 async def health_check():
     """
-    Health check endpoint
-    نقطة فحص الصحة
+    Health check endpoint with dependency validation
+    نقطة فحص الصحة مع التحقق من التبعيات
     """
+    embeddings_ok = embeddings_manager is not None
+    retriever_ok = knowledge_retriever is not None
+    agents_count = len([a for a in [field_analyst, disease_expert, irrigation_advisor, yield_predictor] if a])
+
+    is_healthy = embeddings_ok or retriever_ok or agents_count > 0
+
     return {
-        "status": "healthy",
+        "status": "healthy" if is_healthy else "degraded",
         "service": settings.service_name,
         "version": "1.0.0",
+        "embeddings_ready": embeddings_ok,
+        "retriever_ready": retriever_ok,
+        "agents_available": agents_count,
     }
 
 

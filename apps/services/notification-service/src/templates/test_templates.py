@@ -66,7 +66,7 @@ def test_arabic_rendering():
         "disease_name": "البياض الدقيقي",
         "field_name": "حقل القمح",
         "field_id": "field_123",
-        "confidence": 92
+        "confidence": 92,
     }
 
     rendered = manager.render_template("disease_detected", context, language="ar")
@@ -76,8 +76,8 @@ def test_arabic_rendering():
     print(f"✓ Priority: {rendered['priority']}")
 
     # Check placeholders were replaced
-    assert "{disease_name}" not in rendered['body'], "Placeholder not replaced!"
-    assert "البياض الدقيقي" in rendered['body'], "Context value not found!"
+    assert "{disease_name}" not in rendered["body"], "Placeholder not replaced!"
+    assert "البياض الدقيقي" in rendered["body"], "Context value not found!"
 
     return True
 
@@ -93,7 +93,7 @@ def test_english_rendering():
     context = {
         "field_name": "Wheat Field North",
         "field_id": "field_456",
-        "water_amount": 5000
+        "water_amount": 5000,
     }
 
     rendered = manager.render_template("irrigation_reminder", context, language="en")
@@ -101,8 +101,8 @@ def test_english_rendering():
     print(f"✓ Title: {rendered['title']}")
     print(f"✓ Body: {rendered['body']}")
 
-    assert "Wheat Field North" in rendered['body']
-    assert "5000" in rendered['body']
+    assert "Wheat Field North" in rendered["body"]
+    assert "5000" in rendered["body"]
 
     return True
 
@@ -120,7 +120,7 @@ def test_push_formatting():
         "field_name": "الحقل الأول",
         "field_id": "field_789",
         "estimated_yield": 2500,
-        "days_remaining": 3
+        "days_remaining": 3,
     }
 
     push = manager.format_for_push("harvest_ready", context, language="ar")
@@ -131,9 +131,9 @@ def test_push_formatting():
     print(f"✓ Priority: {push['data']['priority']}")
     print(f"✓ Action URL: {push['data']['action_url']}")
 
-    assert 'notification' in push
-    assert 'data' in push
-    assert push['notification']['icon'] == "🌾"
+    assert "notification" in push
+    assert "data" in push
+    assert push["notification"]["icon"] == "🌾"
 
     return True
 
@@ -150,10 +150,12 @@ def test_sms_formatting():
         "disease_name": "البياض الدقيقي",
         "field_name": "حقل القمح الشمالي",
         "field_id": "field_123",
-        "confidence": 92
+        "confidence": 92,
     }
 
-    sms = manager.format_for_sms("disease_detected", context, language="ar", max_length=160)
+    sms = manager.format_for_sms(
+        "disease_detected", context, language="ar", max_length=160
+    )
 
     print(f"✓ SMS Text ({len(sms)} chars): {sms}")
 
@@ -175,7 +177,7 @@ def test_email_formatting():
     context = {
         "field_name": "حقل الطماطم",
         "field_id": "field_456",
-        "water_amount": 5000
+        "water_amount": 5000,
     }
 
     email = manager.format_for_email("irrigation_reminder", context, language="ar")
@@ -184,11 +186,11 @@ def test_email_formatting():
     print(f"✓ HTML Body length: {len(email['html_body'])} chars")
     print(f"✓ Text Body length: {len(email['text_body'])} chars")
 
-    assert 'subject' in email
-    assert 'html_body' in email
-    assert 'text_body' in email
-    assert '<html' in email['html_body']
-    assert 'dir="rtl"' in email['html_body'], "RTL not set for Arabic"
+    assert "subject" in email
+    assert "html_body" in email
+    assert "text_body" in email
+    assert "<html" in email["html_body"]
+    assert 'dir="rtl"' in email["html_body"], "RTL not set for Arabic"
 
     return True
 
@@ -206,7 +208,7 @@ def test_whatsapp_formatting():
         "weather_description": "أمطار غزيرة ورياح قوية",
         "location": "صنعاء",
         "temperature": 18,
-        "humidity": 85
+        "humidity": 85,
     }
 
     whatsapp = manager.format_for_whatsapp("weather_alert", context, language="ar")
@@ -251,12 +253,16 @@ def test_convenience_function():
     context = {
         "field_name": "حقل الخضروات",
         "field_id": "field_101",
-        "water_amount": 3000
+        "water_amount": 3000,
     }
 
     # Test different channels
-    push = render_notification("irrigation_reminder", context, "ar", NotificationChannel.PUSH)
-    sms = render_notification("irrigation_reminder", context, "ar", NotificationChannel.SMS)
+    push = render_notification(
+        "irrigation_reminder", context, "ar", NotificationChannel.PUSH
+    )
+    sms = render_notification(
+        "irrigation_reminder", context, "ar", NotificationChannel.SMS
+    )
 
     print(f"✓ Push: {push['notification']['title']}")
     print(f"✓ SMS: {sms[:50]}...")
@@ -267,10 +273,18 @@ def test_convenience_function():
 def run_all_tests():
     """Run all tests"""
     print("\n")
-    print("╔════════════════════════════════════════════════════════════════════════════╗")
-    print("║  SAHOOL Notification Template System - Test Suite                         ║")
-    print("║  نظام قوالب الإشعارات - مجموعة الاختبارات                                ║")
-    print("╚════════════════════════════════════════════════════════════════════════════╝")
+    print(
+        "╔════════════════════════════════════════════════════════════════════════════╗"
+    )
+    print(
+        "║  SAHOOL Notification Template System - Test Suite                         ║"
+    )
+    print(
+        "║  نظام قوالب الإشعارات - مجموعة الاختبارات                                ║"
+    )
+    print(
+        "╚════════════════════════════════════════════════════════════════════════════╝"
+    )
     print()
 
     tests = [
@@ -283,7 +297,7 @@ def run_all_tests():
         test_email_formatting,
         test_whatsapp_formatting,
         test_missing_context,
-        test_convenience_function
+        test_convenience_function,
     ]
 
     results = []
@@ -295,6 +309,7 @@ def run_all_tests():
             results.append((test.__name__, False, str(e)))
             print(f"\n❌ Test failed with error: {e}")
             import traceback
+
             traceback.print_exc()
 
     # Summary

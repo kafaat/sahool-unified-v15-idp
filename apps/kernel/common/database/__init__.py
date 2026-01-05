@@ -9,8 +9,8 @@ Provides database migration and seeding utilities for SAHOOL platform.
 from .migrations import MigrationManager, PostGISMigrationHelper
 
 __all__ = [
-    'MigrationManager',
-    'PostGISMigrationHelper',
+    "MigrationManager",
+    "PostGISMigrationHelper",
 ]
 
 __version__ = "1.0.0"

@@ -1,4 +1,4 @@
-# Merge Conflict Resolution for PR #388
+# Merge Conflict Resolution for PR #388 & PR #390
 
 ## Summary
 Successfully resolved all merge conflicts between PR branch `claude/create-auto-audit-tools-qTNzb` and `main` branch.
@@ -63,47 +63,16 @@ paths:
 
 **Rationale:** Consistency with infra/kong/kong.yml and backward compatibility.
 
-## How to Apply These Changes
-
-Since I cannot push directly to the `claude/create-auto-audit-tools-qTNzb` branch, you have two options:
-
-### Option 1: Apply the changes manually
-1. Checkout the PR branch locally:
-   ```bash
-   git checkout claude/create-auto-audit-tools-qTNzb
-   ```
-
-2. Merge main with unrelated histories:
-   ```bash
-   git merge main --allow-unrelated-histories
-   ```
-
-3. Apply the resolutions from this document to each conflicted file
-
-4. Stage and commit:
-   ```bash
-   git add .
-   git commit -m "Resolve merge conflicts with main"
-   git push origin claude/create-auto-audit-tools-qTNzb
-   ```
-
-### Option 2: Use the copilot branch content
-The resolved changes are already available in the `copilot/fix-pull-request-conflicts` branch. You can:
-
-1. Cherry-pick the merge commit:
-   ```bash
-   git checkout claude/create-auto-audit-tools-qTNzb
-   git cherry-pick 50669afe  # The merge commit
-   git push origin claude/create-auto-audit-tools-qTNzb
-   ```
+## Resolution Strategy
+All conflicts were resolved by keeping the **HEAD** (PR branch) version, which uses the modern `EnvConfig` approach instead of the deprecated `AppConfig`.
 
 ## Verification
 
 After applying the changes:
-1. No conflict markers remain in any files
-2. All imports are consistent (using EnvConfig)
-3. Both API paths are supported in Kong configuration
-4. Weather service URL is configurable via environment variable
+1. ✅ No conflict markers remain in any files
+2. ✅ All imports are consistent (using EnvConfig)
+3. ✅ Both API paths are supported in Kong configuration
+4. ✅ Weather service URL is configurable via environment variable
 
 ## Testing Recommendations
 
@@ -111,6 +80,7 @@ After applying the changes:
 2. **Astronomical Service**: Test that the weather integration works with the configurable URL
 3. **API Gateway**: Verify both `/api/v1/astronomical` and `/api/v1/calendar` routes work
 
-## Commit Hash
-Merge commit: `50669afe` on branch `claude/create-auto-audit-tools-qTNzb`
-Applied to copilot branch: `03baec57` on branch `copilot/fix-pull-request-conflicts`
+## Merge History
+- Original PR: #388 (claude/create-auto-audit-tools-qTNzb)
+- Conflict Resolution PR: #390 (copilot/fix-pull-request-conflicts)
+- Final merge into: main

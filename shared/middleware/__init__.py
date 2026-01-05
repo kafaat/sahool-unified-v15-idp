@@ -8,9 +8,15 @@ Available middlewares:
 - Request Size: Payload size validation
 - Tenant Context: Multi-tenancy isolation
 - Request Logging: Structured JSON logging with correlation ID tracking
+- Security Headers: Essential HTTP security headers
 """
 
 from .cors import get_cors_config, get_cors_origins, setup_cors
+from .security_headers import (
+    SecurityHeadersMiddleware,
+    get_security_headers_config,
+    setup_security_headers,
+)
 from .rate_limit import (
     RateLimitConfig,
     RateLimiter,
@@ -59,4 +65,8 @@ __all__ = [
     "RequestLoggingMiddleware",
     "get_correlation_id",
     "get_request_context",
+    # Security Headers
+    "setup_security_headers",
+    "SecurityHeadersMiddleware",
+    "get_security_headers_config",
 ]

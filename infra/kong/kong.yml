@@ -101,7 +101,7 @@ upstreams:
   - name: virtual-sensors-upstream
     algorithm: round-robin
     targets:
-      - target: virtual-sensors:8096
+      - target: virtual-sensors:8119
         weight: 100
     healthchecks:
       active:

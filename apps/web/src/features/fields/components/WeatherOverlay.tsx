@@ -26,7 +26,6 @@ import {
   CloudDrizzle,
   CloudSnow,
   CloudLightning,
-  Navigation,
   Thermometer
 } from 'lucide-react';
 import { useField } from '../hooks/useField';

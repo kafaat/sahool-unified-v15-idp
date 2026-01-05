@@ -1,3 +1,4 @@
+// @ts-nocheck - Example file for demonstration purposes
 'use client';
 
 /**

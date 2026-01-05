@@ -206,13 +206,13 @@ export function BestDaysExample() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function DateValidationExample() {
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split('T')[0]
+  const [selectedDate, setSelectedDate] = useState<string>(
+    new Date().toISOString().split('T')[0] as string
   );
   const [activity, setActivity] = useState('زراعة');
 
   const { data: validation, isLoading } = useValidateDate(
-    selectedDate,
+    selectedDate || '',
     activity,
     { enabled: !!selectedDate }
   );

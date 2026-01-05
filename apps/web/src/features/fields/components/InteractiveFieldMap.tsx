@@ -396,7 +396,8 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
         if (firstRing && firstRing.length > 0) {
           const coords = firstRing[0];
           if (coords && coords.length >= 2) {
-            const [lng, lat] = coords;
+            const lng = coords[0] ?? 48.5164;
+            const lat = coords[1] ?? 15.5527;
             return [lat, lng];
           }
         }
@@ -608,7 +609,8 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
               <Marker
                 key={task.id}
                 position={position}
-                icon={icon}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                icon={icon as any}
                 eventHandlers={{
                   click: () => handleTaskClick(task),
                 }}

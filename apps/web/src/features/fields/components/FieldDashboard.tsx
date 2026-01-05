@@ -97,14 +97,14 @@ interface ZoneSummary {
 /**
  * Calculate NDVI trend from time series data
  */
-function calculateNDVITrend(timeSeriesData?: Array<{ date: string; value: number }>): NDVITrendData {
+function calculateNDVITrend(timeSeriesData?: Array<{ date: string; ndvi: number }>): NDVITrendData {
   if (!timeSeriesData || timeSeriesData.length < 2) {
     return { current: 0, previous: 0, trend: 'stable', change: 0 };
   }
 
-  const current = timeSeriesData[timeSeriesData.length - 1]?.value ?? 0;
-  const previous = timeSeriesData[timeSeriesData.length - 2]?.value ?? 0;
-  const change = ((current - previous) / previous) * 100;
+  const current = timeSeriesData[timeSeriesData.length - 1]?.ndvi ?? 0;
+  const previous = timeSeriesData[timeSeriesData.length - 2]?.ndvi ?? 0;
+  const change = previous !== 0 ? ((current - previous) / previous) * 100 : 0;
 
   let trend: 'up' | 'down' | 'stable' = 'stable';
   if (change > 2) trend = 'up';
@@ -311,16 +311,16 @@ export const FieldDashboard: React.FC<FieldDashboardProps> = ({
   const { data: astronomical, isLoading: astroLoading, refetch: refetchAstro } = useAstronomicalToday();
 
   // Computed values
-  const ndviTrend = calculateNDVITrend(ndviTimeSeries);
+  const ndviTrend = calculateNDVITrend(ndviTimeSeries?.data);
   const irrigation = calculateIrrigationRecommendation(
-    ndviData?.value,
+    ndviData?.ndviMean,
     weather?.temperature,
     weather?.humidity
   );
   const weatherRisk = assessWeatherRisk(weather?.temperature, weather?.windSpeed, alerts);
   const todayTasks = getTodayTasksCount(tasks);
   const activeAlerts = alerts?.filter((a) => a.status === 'active') ?? [];
-  const zoneSummary = calculateZoneSummary(ndviData?.value);
+  const zoneSummary = calculateZoneSummary(ndviData?.ndviMean);
 
   // Handlers
   const handleRefreshAll = () => {
@@ -644,19 +644,19 @@ export const FieldDashboard: React.FC<FieldDashboardProps> = ({
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold text-gray-900">
-                        {isArabic ? astronomical.lunarMansion?.nameAr : astronomical.lunarMansion?.name}
+                        {isArabic ? astronomical.lunar_mansion?.name : astronomical.lunar_mansion?.name_en}
                       </p>
                       <p className="text-xs text-gray-500">
                         {isArabic ? 'المنزلة القمرية' : 'Lunar Mansion'}
                       </p>
                     </div>
                     <Badge variant="info">
-                      {isArabic ? astronomical.moonPhase?.nameAr : astronomical.moonPhase?.name}
+                      {isArabic ? astronomical.moon_phase?.name : astronomical.moon_phase?.name_en}
                     </Badge>
                   </div>
-                  {astronomical.recommendation && (
+                  {astronomical.recommendations?.[0] && (
                     <p className="text-sm text-gray-600">
-                      {isArabic ? astronomical.recommendation.ar : astronomical.recommendation.en}
+                      {isArabic ? astronomical.recommendations[0].reason : astronomical.recommendations[0].activity}
                     </p>
                   )}
                 </div>

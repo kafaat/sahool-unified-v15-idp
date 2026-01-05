@@ -312,7 +312,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
 }) => {
   const formatDateForInput = (date: Date | null): string => {
     if (!date) return '';
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split('T')[0] ?? '';
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

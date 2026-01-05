@@ -235,7 +235,7 @@ export function FieldStatsExample() {
  */
 export function AstralFieldWidgetExample({ fieldId }: { fieldId: string }) {
   const { data: field } = useField(fieldId);
-  const createField = useCreateField();
+  // createField hook available via useCreateField() when needed for task creation
 
   const handleCreateTask = async (taskData: {
     title: string;

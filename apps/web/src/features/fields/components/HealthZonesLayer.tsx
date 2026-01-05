@@ -19,6 +19,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { AlertCircle } from 'lucide-react';
+import type { LeafletMouseEvent } from 'leaflet';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types - الأنواع
@@ -300,7 +301,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
             }}
             eventHandlers={{
               click: () => handleZoneClick(zone),
-              mouseover: (e) => {
+              mouseover: (e: LeafletMouseEvent) => {
                 // تمييز عند المرور - Highlight on hover
                 const layer = e.target;
                 if (!isSelected) {
@@ -310,7 +311,7 @@ export const HealthZonesLayer: React.FC<HealthZonesLayerProps> = ({
                   });
                 }
               },
-              mouseout: (e) => {
+              mouseout: (e: LeafletMouseEvent) => {
                 // إعادة التعيين عند المغادرة - Reset on mouse out
                 const layer = e.target;
                 if (!isSelected) {

@@ -156,19 +156,27 @@ setup_security_headers(app)
 #### Custom Configuration | تكوين مخصص:
 
 ```python
-# Custom CSP policy
+# Custom CSP policy for web apps with inline scripts
+# Use nonces or hashes instead of 'unsafe-inline' when possible
 setup_security_headers(
     app,
     enable_hsts=True,  # Force HTTPS
     enable_csp=True,
-    csp_policy="default-src 'self'; img-src 'self' https://cdn.example.com"
+    csp_policy=(
+        "default-src 'self'; "
+        "script-src 'self' 'nonce-{random}'; "  # Use nonces for inline scripts
+        "style-src 'self' 'nonce-{random}'; "
+        "img-src 'self' https://cdn.example.com"
+    )
 )
 
 # Using environment variables
 # ENABLE_HSTS=true
 # ENABLE_CSP=true
-# CSP_POLICY="default-src 'self'"
+# CSP_POLICY="default-src 'self'; script-src 'self'"
 ```
+
+**Security Note:** The default CSP policy does NOT include `unsafe-inline` or `unsafe-eval` for maximum security. If your application requires inline scripts or styles, use CSP nonces or hashes instead.
 
 ---
 

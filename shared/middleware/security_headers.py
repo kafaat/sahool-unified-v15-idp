@@ -61,19 +61,25 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         """
         Get default Content Security Policy.
         
-        This is a restrictive policy that should work for most APIs.
-        For web applications serving HTML, you may need to customize this.
+        This is a restrictive policy optimized for API services.
+        For web applications serving HTML/JS, customize via CSP_POLICY env var.
+        
+        Security Note: This default policy does NOT use 'unsafe-inline' or
+        'unsafe-eval' to maintain strong XSS protection. If your app requires
+        inline scripts/styles, use nonces or hashes instead.
         """
         return (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data: https:; "
-            "font-src 'self' data:; "
-            "connect-src 'self'; "
-            "frame-ancestors 'none'; "
-            "base-uri 'self'; "
-            "form-action 'self'"
+            "script-src 'self'; "  # No unsafe-inline or unsafe-eval
+            "style-src 'self'; "  # No unsafe-inline
+            "img-src 'self' data: https:; "  # Allow images from self, data URIs, and HTTPS
+            "font-src 'self' data:; "  # Allow fonts from self and data URIs
+            "connect-src 'self'; "  # API calls only to same origin
+            "frame-ancestors 'none'; "  # Cannot be embedded in frames
+            "base-uri 'self'; "  # Restrict base tag URLs
+            "form-action 'self'; "  # Forms can only submit to same origin
+            "object-src 'none'; "  # Block plugins (Flash, etc.)
+            "upgrade-insecure-requests"  # Upgrade HTTP to HTTPS
         )
 
     async def dispatch(

@@ -64,7 +64,14 @@ def test_csp_header_applied(client_with_headers):
     response = client_with_headers.get("/test")
 
     assert "Content-Security-Policy" in response.headers
-    assert "default-src 'self'" in response.headers["Content-Security-Policy"]
+    csp = response.headers["Content-Security-Policy"]
+    assert "default-src 'self'" in csp
+    # Verify no unsafe directives in default policy
+    assert "unsafe-inline" not in csp
+    assert "unsafe-eval" not in csp
+    # Verify security directives are present
+    assert "frame-ancestors 'none'" in csp
+    assert "object-src 'none'" in csp
 
 
 def test_permissions_policy_applied(client_with_headers):

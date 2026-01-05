@@ -43,6 +43,10 @@ categories:
     description: "Monitoring and assessment agents / وكلاء المراقبة والتقييم"
     description_ar: "وكلاء المراقبة والتقييم"
 
+  security:
+    description: "Security, audit, and compliance agents / وكلاء الأمان والتدقيق"
+    description_ar: "وكلاء الأمان والتدقيق والامتثال"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # SAHOOL AI Agents
 # ─────────────────────────────────────────────────────────────────────────────
@@ -627,6 +631,163 @@ agents:
 
     status: "active"
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AUDIT AGENT - وكيل التدقيق والأمان
+  # ═══════════════════════════════════════════════════════════════════════════
+  audit-agent:
+    name: "Audit Agent"
+    name_ar: "وكيل التدقيق والأمان"
+    version: "1.0.0"
+    category: security
+    description: "Intelligent audit analysis, compliance monitoring, anomaly detection, and self-healing"
+    description_ar: "تحليل التدقيق الذكي ومراقبة الامتثال وكشف الأنماط الشاذة والإصلاح التلقائي"
+
+    capabilities:
+      - name: "analyze_audit_logs"
+        description: "Comprehensive audit log analysis with pattern detection and risk indicators"
+        description_ar: "تحليل شامل لسجلات التدقيق مع كشف الأنماط ومؤشرات المخاطر"
+        input_schema:
+          type: object
+          required: ["tenant_id"]
+          properties:
+            tenant_id: { type: string }
+            audit_data: { type: array }
+            start_date: { type: string, format: date-time }
+            end_date: { type: string, format: date-time }
+        output_schema:
+          type: object
+          properties:
+            total_events: { type: integer }
+            risk_indicators: { type: array }
+            anomalies: { type: array }
+
+      - name: "validate_integrity"
+        description: "Hash chain validation for tamper detection"
+        description_ar: "التحقق من سلسلة التجزئة لكشف التلاعب"
+        input_schema:
+          type: object
+          required: ["tenant_id"]
+          properties:
+            tenant_id: { type: string }
+            generate_recovery: { type: boolean }
+        output_schema:
+          type: object
+          properties:
+            is_valid: { type: boolean }
+            chain_integrity: { type: number }
+            recovery_suggestions: { type: array }
+
+      - name: "assess_compliance"
+        description: "Multi-framework compliance assessment (GDPR, SOC2, ISO27001)"
+        description_ar: "تقييم الامتثال متعدد الأطر (GDPR, SOC2, ISO27001)"
+        input_schema:
+          type: object
+          required: ["tenant_id", "framework"]
+          properties:
+            tenant_id: { type: string }
+            framework: { type: string, enum: ["gdpr", "soc2", "iso27001", "all"] }
+        output_schema:
+          type: object
+          properties:
+            overall_score: { type: number }
+            risk_level: { type: string }
+            recommendations: { type: array }
+
+      - name: "detect_anomalies"
+        description: "ML-based anomaly and threat detection"
+        description_ar: "كشف الأنماط الشاذة والتهديدات بالتعلم الآلي"
+        input_schema:
+          type: object
+          required: ["tenant_id"]
+          properties:
+            tenant_id: { type: string }
+            window_hours: { type: integer, default: 24 }
+        output_schema:
+          type: object
+          properties:
+            threat_score: { type: number }
+            threat_level: { type: string }
+            anomalies: { type: array }
+
+      - name: "recommend_fixes"
+        description: "Generate self-healing recommendations"
+        description_ar: "توليد توصيات الإصلاح التلقائي"
+        input_schema:
+          type: object
+          required: ["tenant_id", "issues"]
+          properties:
+            tenant_id: { type: string }
+            issues: { type: array }
+        output_schema:
+          type: object
+          properties:
+            recommendations: { type: array }
+            auto_fixable: { type: array }
+
+      - name: "run_full_audit"
+        description: "Execute complete audit analysis suite"
+        description_ar: "تنفيذ مجموعة التدقيق الكاملة"
+        input_schema:
+          type: object
+          required: ["tenant_id"]
+        output_schema:
+          type: object
+          properties:
+            overall_health: { type: string }
+            analysis_report: { type: object }
+            integrity_report: { type: object }
+            compliance_report: { type: object }
+            anomaly_report: { type: object }
+
+    skills:
+      - skill_id: "security_analysis"
+        name: "Security Analysis"
+        name_ar: "تحليل الأمان"
+        level: "expert"
+        keywords: ["security", "audit", "compliance", "threat"]
+
+      - skill_id: "anomaly_detection"
+        name: "Anomaly Detection"
+        name_ar: "كشف الأنماط الشاذة"
+        level: "expert"
+        keywords: ["anomaly", "ml", "detection", "behavioral"]
+
+      - skill_id: "compliance_assessment"
+        name: "Compliance Assessment"
+        name_ar: "تقييم الامتثال"
+        level: "expert"
+        keywords: ["gdpr", "soc2", "iso27001", "compliance"]
+
+      - skill_id: "self_healing"
+        name: "Self-Healing"
+        name_ar: "الإصلاح التلقائي"
+        level: "advanced"
+        keywords: ["remediation", "auto-fix", "healing"]
+
+    dependencies:
+      - audit-service
+      - notification-service
+      - alert-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/audit-agent/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/audit-agent/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+      requires_admin: true
+
+    metadata:
+      tags: ["security", "audit", "compliance", "threat-detection", "self-healing"]
+      organization: "SAHOOL"
+      license: "MIT"
+      priority: "high"
+
+    status: "active"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Agent Orchestration Rules
 # ─────────────────────────────────────────────────────────────────────────────
@@ -662,6 +823,66 @@ orchestration:
         - irrigation-advisor-agent
         - crop-growth-monitor-agent
       execution: "parallel"
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # Security & Audit Workflows - سير عمل الأمان والتدقيق
+    # ═══════════════════════════════════════════════════════════════════════
+
+    security_audit:
+      description: "Complete security audit workflow / سير عمل التدقيق الأمني الكامل"
+      description_ar: "سير عمل التدقيق الأمني الشامل"
+      agents:
+        - audit-agent
+      execution: "sequential"
+      tasks:
+        - validate_integrity
+        - analyze_audit_logs
+        - detect_anomalies
+        - assess_compliance
+        - recommend_fixes
+      trigger: "scheduled"
+      schedule: "0 2 * * *"  # Daily at 2 AM
+
+    threat_response:
+      description: "Threat detection and response / كشف التهديدات والاستجابة"
+      description_ar: "كشف التهديدات والاستجابة الفورية"
+      agents:
+        - audit-agent
+      execution: "sequential"
+      tasks:
+        - detect_anomalies
+        - recommend_fixes
+      trigger: "event"
+      event_types:
+        - security_alert
+        - anomaly_detected
+        - integrity_violation
+
+    compliance_check:
+      description: "Periodic compliance assessment / تقييم الامتثال الدوري"
+      description_ar: "فحص الامتثال الدوري"
+      agents:
+        - audit-agent
+      execution: "sequential"
+      tasks:
+        - assess_compliance
+      trigger: "scheduled"
+      schedule: "0 0 * * 0"  # Weekly on Sunday
+
+    cross_agent_audit:
+      description: "Audit all agent activities / تدقيق جميع أنشطة الوكلاء"
+      description_ar: "تدقيق أنشطة جميع وكلاء النظام"
+      agents:
+        - audit-agent
+        - field-analyst-agent
+        - disease-expert-agent
+        - yield-predictor-agent
+      execution: "parallel"
+      coordinator: "audit-agent"
+      tasks:
+        - collect_agent_logs
+        - analyze_agent_behavior
+        - detect_agent_anomalies
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Service Level Objectives (SLOs)

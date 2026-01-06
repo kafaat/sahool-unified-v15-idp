@@ -24,6 +24,34 @@ END
 $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
+-- Grant pg_monitor to main database user for auth_query support
+-- The main DB user (POSTGRES_USER, defaults to 'sahool') is used as auth_user
+-- by PgBouncer to run auth_query against pg_shadow
+-- ═══════════════════════════════════════════════════════════════════════════════
+DO $$
+DECLARE
+    main_user TEXT;
+BEGIN
+    -- Get the main database user (the user running this script)
+    main_user := current_user;
+
+    -- Grant pg_monitor role to main user for auth_query access to pg_shadow
+    -- This allows PgBouncer to authenticate users via auth_query
+    IF main_user IS NOT NULL AND main_user != 'postgres' THEN
+        EXECUTE format('GRANT pg_monitor TO %I', main_user);
+        RAISE NOTICE 'Granted pg_monitor to main database user: %', main_user;
+    END IF;
+
+    -- Also grant to 'sahool' user explicitly (default POSTGRES_USER)
+    -- This ensures compatibility even when script runs as a different user
+    IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'sahool') THEN
+        GRANT pg_monitor TO sahool;
+        RAISE NOTICE 'Granted pg_monitor to sahool user';
+    END IF;
+END
+$$;
+
+-- ═══════════════════════════════════════════════════════════════════════════════
 -- Create the pgbouncer schema first (needed for function creation)
 -- ═══════════════════════════════════════════════════════════════════════════════
 CREATE SCHEMA IF NOT EXISTS pgbouncer AUTHORIZATION pgbouncer;

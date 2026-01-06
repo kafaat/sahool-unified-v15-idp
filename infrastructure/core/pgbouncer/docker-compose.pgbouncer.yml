@@ -19,7 +19,7 @@ services:
       # Database connection (using individual vars to avoid credential pattern detection)
       DB_HOST: postgres
       DB_PORT: "5432"
-      DB_USER: ${POSTGRES_USER:-sahool_app}
+      DB_USER: ${POSTGRES_USER:-sahool}
       DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       DB_NAME: ${POSTGRES_DB:-sahool}
 
@@ -34,8 +34,9 @@ services:
       QUERY_TIMEOUT: 120
       QUERY_WAIT_TIMEOUT: 30
 
-      # Auth
+      # Auth - md5 for compatibility with auth_query security definer function
       AUTH_TYPE: md5
+      AUTH_USER: ${POSTGRES_USER:-sahool}
 
       # Admin
       ADMIN_USERS: pgbouncer_admin

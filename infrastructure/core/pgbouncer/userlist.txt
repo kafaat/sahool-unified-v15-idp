@@ -1,29 +1,21 @@
 ;; PGBouncer User List
 ;; Format: "username" "password_hash"
 ;;
-;; Generate MD5 hash: echo -n "password${username}" | md5sum
-;; Or use: SELECT concat('md5', md5(concat('password', 'username')));
+;; IMPORTANT: This file is NOT used when auth_query is configured with auth_user.
+;; PgBouncer will authenticate users by querying PostgreSQL via auth_query using
+;; the auth_user (sahool) credentials specified in docker-compose environment variables.
 ;;
-;; IMPORTANT: Replace these with actual credentials in production!
-;; Use environment variables or secrets management.
-
-;; Main application user
-"sahool_app" "md5_REPLACE_WITH_ACTUAL_HASH"
-
-;; Read-only user for reporting
-"sahool_readonly" "md5_REPLACE_WITH_ACTUAL_HASH"
-
-;; Service-specific users (optional, for isolation)
-"satellite_service" "md5_REPLACE_WITH_ACTUAL_HASH"
-"field_service" "md5_REPLACE_WITH_ACTUAL_HASH"
-"weather_service" "md5_REPLACE_WITH_ACTUAL_HASH"
-"notification_service" "md5_REPLACE_WITH_ACTUAL_HASH"
-
-;; PGBouncer admin (for SHOW commands)
-"pgbouncer_admin" "md5_REPLACE_WITH_ACTUAL_HASH"
-
-;; Stats user (for SHOW STATS only)
-"pgbouncer_stats" "md5_REPLACE_WITH_ACTUAL_HASH"
-
-;; Auth query user (connects to postgres to verify passwords)
-"pgbouncer" "md5_REPLACE_WITH_ACTUAL_HASH"
+;; The auth_user (sahool) connects to PostgreSQL and runs the auth_query to retrieve
+;; password hashes for any user trying to connect through PgBouncer.
+;;
+;; This approach:
+;; 1. Eliminates the need to maintain this userlist.txt file
+;; 2. Ensures passwords are always synchronized with PostgreSQL
+;; 3. Supports SCRAM-SHA-256 authentication (PostgreSQL 16 default)
+;;
+;; For this to work:
+;; - The auth_user (sahool) must have pg_monitor role (granted in 02-pgbouncer-user.sql)
+;; - The auth_query uses pgbouncer.get_auth() security definer function
+;; - The auth_user password is provided via POSTGRES_PASSWORD environment variable
+;;
+;; No entries needed below - kept for reference only

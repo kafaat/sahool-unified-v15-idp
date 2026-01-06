@@ -121,6 +121,57 @@ POST /api/v1/tasks/{task_id}/evidence?evidence_type=photo&content=https://...&la
 # أنواع الأدلة: photo, note, voice, measurement
 ```
 
+### المهام الفلكية | Astronomical Tasks
+
+```http
+# الحصول على أفضل الأيام لنشاط زراعي
+GET /api/v1/tasks/best-days/{activity}?days=30&min_score=7
+
+# الأنشطة المدعومة: زراعة، ري، حصاد، تسميد، تقليم، غرس
+# Supported activities: planting, irrigation, harvest, fertilization, pruning, transplanting
+
+# إنشاء مهمة مع توصية فلكية
+POST /api/v1/tasks/create-with-astronomical
+{
+    "field_id": "field_001",
+    "task_type": "planting",
+    "title": "Plant tomatoes in east field",
+    "title_ar": "زراعة الطماطم في الحقل الشرقي",
+    "description": "Plant tomato seedlings",
+    "description_ar": "زراعة شتلات الطماطم",
+    "activity": "زراعة",
+    "use_best_date": true,
+    "assigned_to": "user_ahmed",
+    "priority": "medium",
+    "estimated_duration_minutes": 180,
+    "search_days": 30
+}
+
+# التحقق من ملاءمة تاريخ للنشاط
+POST /api/v1/tasks/validate-date
+{
+    "date": "2024-03-15",
+    "activity": "زراعة"
+}
+
+# الرد | Response:
+{
+    "date": "2024-03-15",
+    "activity": "planting",
+    "activity_ar": "زراعة",
+    "is_suitable": true,
+    "score": 9,
+    "moon_phase": "Waxing Crescent",
+    "moon_phase_ar": "الهلال المتزايد",
+    "lunar_mansion": "Al-Thurayya",
+    "lunar_mansion_ar": "الثريا",
+    "recommendation": "Excellent day for planting",
+    "recommendation_ar": "يوم ممتاز للزراعة",
+    "best_time": "morning",
+    "alternative_dates": []
+}
+```
+
 ---
 
 ## نماذج البيانات | Data Models
@@ -216,6 +267,9 @@ DATABASE_URL=postgresql://...
 
 # CORS
 CORS_ORIGINS=https://sahool.io,https://admin.sahool.io
+
+# Astronomical Service
+ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
 ```
 
 ---

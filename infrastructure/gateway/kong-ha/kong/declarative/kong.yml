@@ -23,7 +23,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
-          policy: local
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
           hide_client_headers: false
       - name: request-transformer
         config:
@@ -70,7 +77,15 @@ services:
       - name: rate-limiting
         config:
           minute: 500
-          policy: local
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
       - name: request-transformer
         config:
           add:
@@ -93,7 +108,15 @@ services:
       - name: rate-limiting
         config:
           minute: 2000
-          policy: local
+          hour: 100000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   # Yield Prediction Service
   - name: yield-prediction
@@ -110,7 +133,15 @@ services:
       - name: rate-limiting
         config:
           minute: 300
-          policy: local
+          hour: 15000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   # LAI Estimation Service
   - name: lai-estimation
@@ -127,7 +158,15 @@ services:
       - name: rate-limiting
         config:
           minute: 500
-          policy: local
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   # Irrigation Smart Service
   - name: irrigation-smart
@@ -144,7 +183,15 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
-          policy: local
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   # Notification Service
   - name: notification-service
@@ -161,7 +208,15 @@ services:
       - name: rate-limiting
         config:
           minute: 5000
-          policy: local
+          hour: 250000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   # Crop Growth Timing Service
   - name: crop-growth-timing
@@ -179,7 +234,15 @@ services:
       - name: rate-limiting
         config:
           minute: 500
-          policy: local
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   # Weather Service
   - name: weather-service
@@ -196,7 +259,15 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
-          policy: local
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
 # Global plugins
 plugins:

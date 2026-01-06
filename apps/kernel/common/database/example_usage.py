@@ -37,7 +37,8 @@ def example_migration_status():
 
     # الحصول على عنوان URL من البيئة
     # Get database URL from environment
-    database_url = os.getenv('DATABASE_URL', 'postgresql://sahool:password@localhost/sahool')
+    # Security: No fallback credentials in example code
+    database_url = os.getenv('DATABASE_URL', 'postgresql://localhost/sahool')
 
     # إنشاء مدير الهجرة
     # Create migration manager

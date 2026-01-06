@@ -13,6 +13,16 @@ import os
 
 import httpx
 from fastapi import FastAPI, HTTPException, Depends
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -27,11 +37,16 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
 # CORS - Secure configuration
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from errors_py import setup_exception_handlers, add_request_id_middleware
 try:
     from shared.cors_config import CORS_SETTINGS
 
@@ -666,10 +681,11 @@ async def startup_event():
     global database, cache_manager, config_service
 
     # Get configuration from environment
+    # Security: No fallback credentials - require env vars to be set
     database_url = os.getenv(
-        "DATABASE_URL", "postgresql://sahool:sahool@pgbouncer:6432/sahool"
+        "DATABASE_URL", "postgresql://pgbouncer:6432/sahool"
     )
-    redis_url = os.getenv("REDIS_URL", "redis://:password@redis:6379/0")
+    redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
 
     # Initialize database
     try:

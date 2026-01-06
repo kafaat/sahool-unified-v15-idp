@@ -11,8 +11,19 @@ from datetime import UTC, datetime
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Response
 
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
+
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../shared/config"))
+from errors_py import setup_exception_handlers, add_request_id_middleware
 try:
     from cors_config import setup_cors_middleware
 except ImportError:
@@ -91,6 +102,10 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS - Use centralized secure configuration
 if setup_cors_middleware:

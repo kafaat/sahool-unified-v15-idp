@@ -20,7 +20,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python dependencies
-COPY requirements.txt .
+COPY apps/services/virtual-sensors/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
@@ -47,8 +47,11 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Copy shared modules
+COPY apps/services/shared ./shared/
+
 # Copy application code
-COPY src/ ./src/
+COPY apps/services/virtual-sensors/src/ ./src/
 
 # Create non-root user for security (consistent with other services)
 RUN useradd --create-home --shell /bin/bash --uid 1000 sahool && \

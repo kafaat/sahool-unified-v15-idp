@@ -21,6 +21,16 @@ from typing import Optional
 
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -29,6 +39,21 @@ from sqlalchemy.orm import Session
 from database import init_database, close_database, get_db, init_demo_data_if_needed
 from repository import TaskRepository
 from models import Task as TaskModel, TaskEvidence as TaskEvidenceModel
+
+# Import authentication dependencies
+try:
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    User = None
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
 
 # Configure logging
 logging.basicConfig(
@@ -54,6 +79,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS - Secure configuration
 # In production, use explicit origins from environment or CORS_SETTINGS
@@ -395,11 +424,14 @@ async def shutdown_event():
 
 
 def get_tenant_id(
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
     x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
 ) -> str:
-    """Extract tenant ID from X-Tenant-Id header"""
+    """Extract tenant ID from authenticated user or X-Tenant-Id header (fallback)"""
+    if AUTH_AVAILABLE and user:
+        return user.tenant_id
     if not x_tenant_id:
-        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required or authentication required")
     return x_tenant_id
 
 
@@ -1000,6 +1032,7 @@ async def list_tasks(
     due_after: datetime | None = Query(None, description="Due after date"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -1141,6 +1174,7 @@ async def get_task(
 @app.post("/api/v1/tasks", response_model=Task, status_code=201)
 async def create_task(
     data: TaskCreate,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
     tenant_id: str = Depends(get_tenant_id),
 ):
     """Create a new task"""

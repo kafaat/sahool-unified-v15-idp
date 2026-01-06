@@ -23,10 +23,25 @@ from enum import Enum
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+# Add shared modules to path
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
+from errors_py import setup_exception_handlers, add_request_id_middleware
 
 # Multi-provider service
 USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
@@ -275,6 +290,10 @@ app = FastAPI(
     description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops.",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # Register weather endpoints
 from .weather_endpoints import register_weather_endpoints

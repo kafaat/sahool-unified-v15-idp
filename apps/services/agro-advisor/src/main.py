@@ -10,6 +10,16 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from pydantic import BaseModel, Field
 
 # Add shared modules to path
@@ -20,6 +30,7 @@ if not SHARED_PATH.exists():
     SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
+from errors_py import setup_exception_handlers, add_request_id_middleware
 
 # Import shared crop catalogs
 from crops import (
@@ -84,6 +95,10 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 
 # ============== Health Check ==============

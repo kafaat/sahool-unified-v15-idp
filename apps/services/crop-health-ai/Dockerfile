@@ -43,7 +43,7 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install Python dependencies
-COPY requirements.txt .
+COPY apps/services/crop-health-ai/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # ───────────────────────────────────────────────────────────────────────────────
@@ -78,8 +78,11 @@ RUN apt-get update && \
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Copy shared modules
+COPY apps/services/shared ./shared/
+
 # Copy application code
-COPY src/ ./src/
+COPY apps/services/crop-health-ai/src/ ./src/
 
 # Create directories for uploads and models
 RUN mkdir -p /app/static/uploads /app/models

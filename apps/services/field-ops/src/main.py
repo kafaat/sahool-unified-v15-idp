@@ -10,8 +10,34 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from pydantic import BaseModel, Field
+
+# Import authentication dependencies
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    User = None
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
 
 # Import API routers - استيراد موجهات الواجهة البرمجية
 from .api.v1.field_health import router as field_health_router
@@ -82,6 +108,10 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # ============== Register API Routers ==============
 # تسجيل موجهات الواجهة البرمجية
@@ -175,7 +205,10 @@ _operations: dict = {}
 
 
 @app.post("/fields", response_model=FieldResponse)
-async def create_field(field: FieldCreate):
+async def create_field(
+    field: FieldCreate,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """Create a new agricultural field"""
     field_id = str(uuid4())
     now = datetime.now(UTC).isoformat()
@@ -213,7 +246,10 @@ async def create_field(field: FieldCreate):
 
 
 @app.get("/fields/{field_id}", response_model=FieldResponse)
-async def get_field(field_id: str):
+async def get_field(
+    field_id: str,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """Get field by ID"""
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="Field not found")
@@ -225,6 +261,7 @@ async def list_fields(
     tenant_id: str = Query(...),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """List fields for a tenant"""
     tenant_fields = [f for f in _fields.values() if f["tenant_id"] == tenant_id]

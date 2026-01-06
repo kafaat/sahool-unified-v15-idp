@@ -10,6 +10,16 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 
 from fastapi import FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from pydantic import BaseModel, Field
 
 # Add shared middleware to path
@@ -17,6 +27,7 @@ shared_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "shared")
 )
 sys.path.insert(0, shared_path)
+from errors_py import setup_exception_handlers, add_request_id_middleware
 
 import logging
 
@@ -93,6 +104,10 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # Setup rate limiting middleware
 try:

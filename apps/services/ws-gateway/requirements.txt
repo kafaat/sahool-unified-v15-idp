@@ -20,3 +20,5 @@ passlib[bcrypt]==1.7.4
 # Service-specific dependencies
 websockets==14.1
 python-dateutil==2.8.2
+
+structlog>=24.1.0

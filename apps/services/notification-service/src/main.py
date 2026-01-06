@@ -25,7 +25,17 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from pydantic import BaseModel
 
 # Add shared middleware to path
@@ -33,6 +43,23 @@ shared_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "shared")
 )
 sys.path.insert(0, shared_path)
+from errors_py import setup_exception_handlers, add_request_id_middleware
+
+# Import authentication dependencies
+try:
+    from auth.dependencies import get_current_user, get_optional_user
+    from auth.models import User
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    User = None
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
+    def get_optional_user():
+        """Placeholder when auth not available"""
+        return None
 
 # Database imports
 # Multi-channel support
@@ -967,6 +994,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
 # Include routers for multi-channel support
 app.include_router(channels_router)
 app.include_router(preferences_router)
@@ -1017,7 +1048,10 @@ async def health_check():
 
 
 @app.post("/v1/notifications")
-async def create_custom_notification(request: CreateNotificationRequest):
+async def create_custom_notification(
+    request: CreateNotificationRequest,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """إنشاء إشعار مخصص"""
     notification = await create_notification(
         type=request.type,
@@ -1176,6 +1210,7 @@ async def get_farmer_notifications(
     type: NotificationType | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """الحصول على إشعارات مزارع معين"""
     # Get notifications from database

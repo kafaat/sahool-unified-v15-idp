@@ -38,3 +38,5 @@ pytest-cov==4.1.0
 # Optional: للتحليلات والمراقبة
 # Optional: For analytics and monitoring
 # prometheus-client==0.20.0
+
+structlog>=24.1.0

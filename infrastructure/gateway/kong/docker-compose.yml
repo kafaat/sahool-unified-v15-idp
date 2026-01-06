@@ -133,17 +133,51 @@ services:
       KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
       KONG_ADMIN_LISTEN: 127.0.0.1:8001, 127.0.0.1:8444 ssl
 
-      # DNS Configuration
-      KONG_DNS_RESOLVER: 8.8.8.8:53
-      KONG_DNS_ORDER: LAST,A,CNAME
+      # DNS Configuration for Docker/Kubernetes service discovery
+      # Using Docker's embedded DNS for service discovery within Docker networks
+      KONG_DNS_RESOLVER: 127.0.0.11:53
+      KONG_DNS_HOSTSFILE: /etc/hosts
+      # SRV records support for Kubernetes service discovery
+      KONG_DNS_ORDER: LAST,SRV,A,CNAME
+      # DNS TTL settings for better resilience
+      KONG_DNS_STALE_TTL: 4        # Use stale DNS for 4 seconds during failures
+      KONG_DNS_NOT_FOUND_TTL: 1    # Cache negative responses for 1 second
+      KONG_DNS_ERROR_TTL: 1        # Cache DNS errors for 1 second
 
-      # Plugins
-      KONG_PLUGINS: bundled,prometheus,rate-limiting,jwt,acl,cors,request-transformer,response-transformer,ip-restriction,bot-detection,request-size-limiting,response-ratelimiting,correlation-id,file-log,proxy-cache
+      # Plugins - Optimized execution order for performance
+      # Order: CORS first, then rate-limiting, auth (JWT), ACL, then others
+      KONG_PLUGINS: bundled,cors,rate-limiting,jwt,acl,request-transformer,response-transformer,ip-restriction,bot-detection,request-size-limiting,response-ratelimiting,correlation-id,proxy-cache,prometheus,file-log
 
-      # Performance
+      # Performance Optimization - Worker Processes
       KONG_NGINX_WORKER_PROCESSES: auto
+      KONG_NGINX_WORKER_CONNECTIONS: 4096
       KONG_NGINX_HTTP_CLIENT_BODY_BUFFER_SIZE: 8m
       KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
+
+      # Nginx Keepalive Settings
+      KONG_NGINX_KEEPALIVE_TIMEOUT: 60s
+      KONG_NGINX_KEEPALIVE_REQUESTS: 1000
+
+      # Proxy Buffering Configuration
+      KONG_NGINX_PROXY_BUFFER_SIZE: 128k
+      KONG_NGINX_PROXY_BUFFERS: 4 256k
+
+      # Upstream Keepalive Configuration
+      # Maintain persistent connections to upstream services to reduce connection overhead
+      KONG_UPSTREAM_KEEPALIVE_POOL_SIZE: 60
+      KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS: 100
+      KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT: 60
+
+      # Nginx Keepalive Configuration
+      # Configure nginx-level keepalive settings for optimal connection pooling
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE: 60
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_REQUESTS: 100
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_TIMEOUT: 60s
+
+      # Memory and Cache Optimization
+      KONG_MEM_CACHE_SIZE: 128m
+      KONG_DB_UPDATE_FREQUENCY: 5
+      KONG_DB_CACHE_TTL: 0
 
       # Security
       KONG_HEADERS: server_tokens=off

@@ -8,11 +8,20 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { HttpExceptionFilter } from '../../shared/errors';
+import { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Global exception filter for unified error handling
+  app.useGlobalFilters(new HttpExceptionFilter());
+
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  // ============== Middleware Setup ==============
+  // Global request logging interceptor with correlation IDs
+  app.useGlobalInterceptors(new RequestLoggingInterceptor('yield-prediction'));
 
   // CORS
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [

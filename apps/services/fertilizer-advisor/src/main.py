@@ -15,9 +15,20 @@ from enum import Enum
 from typing import Any
 
 from fastapi import FastAPI
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from pydantic import BaseModel, Field
 
 sys.path.insert(0, "/app")
+from errors_py import setup_exception_handlers, add_request_id_middleware
 try:
     from shared.contracts.actions import (
         ActionTemplate,
@@ -36,6 +47,10 @@ app = FastAPI(
     version="15.3.0",
     description="Comprehensive NPK recommendations, soil analysis, and fertilization scheduling",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 
 # =============================================================================

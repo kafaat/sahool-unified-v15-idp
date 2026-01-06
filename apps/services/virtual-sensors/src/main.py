@@ -25,6 +25,16 @@ from enum import Enum
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -36,6 +46,7 @@ try:
     import sys
 
     sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+from errors_py import setup_exception_handlers, add_request_id_middleware
     from shared.libs.events.nats_publisher import publish_analysis_completed_sync
 
     _nats_available = True
@@ -984,6 +995,10 @@ app = FastAPI(
     version=SERVICE_VERSION,
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS middleware - secure origins from environment
 CORS_ORIGINS = os.getenv(

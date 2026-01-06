@@ -17,3 +17,5 @@ tensorflow-cpu==2.18.0
 # Service-specific dependencies
 nats-py==2.9.0
 python-dateutil==2.8.2
+
+structlog>=24.1.0

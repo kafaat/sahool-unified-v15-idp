@@ -119,15 +119,22 @@ model UserSession {
 model RefreshToken {
   id          String   @id @default(uuid())
   userId      String   @map("user_id")
+  jti         String   @unique
+  family      String   // Token family for rotation tracking
   token       String   @unique
   expiresAt   DateTime @map("expires_at")
   revoked     Boolean  @default(false)
+  used        Boolean  @default(false)
+  usedAt      DateTime? @map("used_at")
+  replacedBy  String?  @map("replaced_by") // JTI of the token that replaced this one
   createdAt   DateTime @default(now()) @map("created_at")
 
   // Relations
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@index([jti])
+  @@index([family])
   @@index([token])
   @@index([expiresAt])
   @@map("refresh_tokens")

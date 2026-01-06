@@ -23,3 +23,5 @@ python-dateutil==2.8.2
 # For PDF export (optional)
 # reportlab==4.0.9
 # pillow==10.1.0
+
+structlog>=24.1.0

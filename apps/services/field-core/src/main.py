@@ -4,23 +4,26 @@ Crop profitability analysis and financial insights
 Port: 8090
 """
 
-import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 
 from fastapi import FastAPI, HTTPException, Query
+from errors_py import setup_exception_handlers, add_request_id_middleware
 from profitability_analyzer import (
     CostCategory,
     ProfitabilityAnalyzer,
 )
 from pydantic import BaseModel, Field
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Import shared logging configuration
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from shared.logging_config import setup_logging, get_logger, RequestLoggingMiddleware
+
+# Setup structured logging
+setup_logging(service_name="field-core")
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
@@ -84,6 +87,13 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
+# Add request logging middleware
+app.add_middleware(RequestLoggingMiddleware, service_name="field-core")
 
 
 # ============== Health Check ==============

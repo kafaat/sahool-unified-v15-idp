@@ -30,6 +30,16 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 
 from fastapi import FastAPI, Request, Response
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from prometheus_client import Counter, Histogram, generate_latest
@@ -37,6 +47,7 @@ from prometheus_client import Counter, Histogram, generate_latest
 # Add parent directories to path for imports
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+from errors_py import setup_exception_handlers, add_request_id_middleware
 )
 
 from shared.mcp.server import MCPServer
@@ -114,6 +125,10 @@ app = FastAPI(
     description="Model Context Protocol server for SAHOOL agricultural platform",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # Store MCP server in app state
 app.state.mcp_server = mcp_server

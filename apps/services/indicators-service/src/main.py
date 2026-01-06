@@ -9,6 +9,17 @@ from enum import Enum
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
+from errors_py import setup_exception_handlers, add_request_id_middleware
 from pydantic import BaseModel
 
 app = FastAPI(
@@ -16,6 +27,10 @@ app = FastAPI(
     version="15.3.0",
     description="Comprehensive agricultural indicators dashboard - KPIs, trends, alerts",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 
 # =============================================================================

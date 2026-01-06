@@ -569,8 +569,10 @@ services:
       # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
       # KONG_SSL_CERT: /etc/kong/ssl/server.crt
       # KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
-      KONG_PLUGINS: "bundled,prometheus"
+      # Plugins - Optimized execution order for performance
+      KONG_PLUGINS: "bundled,cors,rate-limiting,jwt,acl,prometheus"
       REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+
       # DNS Configuration for Docker internal DNS resolution
       # Use Docker's internal DNS resolver (127.0.0.11) for service discovery
       KONG_DNS_RESOLVER: 127.0.0.11:53
@@ -585,6 +587,33 @@ services:
       KONG_DNS_NO_SYNC: "off"
       # DNS not-found TTL: Cache "not found" responses to reduce repeated queries
       KONG_DNS_NOT_FOUND_TTL: 30
+
+      # Performance Optimization - Worker Processes
+      KONG_NGINX_WORKER_PROCESSES: auto
+      KONG_NGINX_WORKER_CONNECTIONS: 4096
+
+      # Nginx Keepalive Settings
+      KONG_NGINX_KEEPALIVE_TIMEOUT: 60s
+      KONG_NGINX_KEEPALIVE_REQUESTS: 1000
+
+      # Proxy Buffering Configuration
+      KONG_NGINX_PROXY_BUFFER_SIZE: 128k
+      KONG_NGINX_PROXY_BUFFERS: 4 256k
+
+      # Upstream Keepalive Configuration
+      # Maintain persistent connections to upstream services to reduce connection overhead
+      KONG_UPSTREAM_KEEPALIVE_POOL_SIZE: 60
+      KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS: 100
+      KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT: 60
+
+      # Nginx Keepalive Configuration
+      # Configure nginx-level keepalive settings for optimal connection pooling
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE: 60
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_REQUESTS: 100
+      KONG_NGINX_HTTP_UPSTREAM_KEEPALIVE_TIMEOUT: 60s
+
+      # Memory and Cache Optimization
+      KONG_MEM_CACHE_SIZE: 128m
     ports:
       - "8000:8000"
       # SSL port disabled for development

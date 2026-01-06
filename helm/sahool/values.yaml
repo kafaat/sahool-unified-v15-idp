@@ -143,9 +143,10 @@ infrastructure:
       tag: "3.4"
     database: postgres
     admin:
-      enabled: true
+      # SECURITY: Admin API disabled - access via kubectl exec or port-forward only
+      enabled: false
       http:
-        enabled: true
+        enabled: false
         servicePort: 8001
     proxy:
       enabled: true

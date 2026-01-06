@@ -14,6 +14,16 @@ from pathlib import Path as PathLib
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from sqlalchemy.orm import Session
 
 # Add path to shared modules
@@ -30,6 +40,7 @@ except ImportError:
     # Fallback if shared module not available
     def setup_cors_middleware(app):
         pass
+from errors_py import setup_exception_handlers, add_request_id_middleware
 
 
 from .database import SessionLocal, check_db_connection, get_db
@@ -286,6 +297,10 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS - Use centralized secure configuration
 setup_cors_middleware(app)

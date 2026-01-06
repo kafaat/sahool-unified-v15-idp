@@ -1,0 +1,321 @@
+/**
+ * Example: main.ts with API Versioning Configuration
+ * Demonstrates how to configure NestJS with multiple versioning strategies
+ */
+
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+import { DeprecationInterceptor } from '@sahool/versioning';
+import { Reflector } from '@nestjs/core';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  // ============================================================================
+  // Global Pipes
+  // ============================================================================
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
+  // ============================================================================
+  // Global Interceptors - Add Deprecation Interceptor
+  // ============================================================================
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(new DeprecationInterceptor(reflector));
+
+  // ============================================================================
+  // API Versioning Configuration
+  // ============================================================================
+  // Option 1: URI-based versioning (Primary method)
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '2', // Default to v2
+  });
+
+  // Option 2: Header-based versioning
+  // app.enableVersioning({
+  //   type: VersioningType.HEADER,
+  //   header: 'X-API-Version',
+  //   defaultVersion: '2',
+  // });
+
+  // Option 3: Custom versioning (Multiple sources with priority)
+  // app.enableVersioning({
+  //   type: VersioningType.CUSTOM,
+  //   extractor: (request) => {
+  //     // Priority 1: URI version
+  //     const uriMatch = request.url.match(/\/api\/v(\d+)\//);
+  //     if (uriMatch) {
+  //       return uriMatch[1];
+  //     }
+  //
+  //     // Priority 2: X-API-Version header
+  //     if (request.headers['x-api-version']) {
+  //       return request.headers['x-api-version'];
+  //     }
+  //
+  //     // Priority 3: Accept header (vnd.sahool.vX+json)
+  //     const acceptHeader = request.headers['accept'];
+  //     if (acceptHeader?.includes('vnd.sahool.v')) {
+  //       const acceptMatch = acceptHeader.match(/vnd\.sahool\.v(\d+)/);
+  //       if (acceptMatch) {
+  //         return acceptMatch[1];
+  //       }
+  //     }
+  //
+  //     // Priority 4: Default version
+  //     return '2';
+  //   },
+  // });
+
+  // ============================================================================
+  // CORS Configuration
+  // ============================================================================
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
+    'https://sahool.app',
+    'https://api.sahool.app',
+    'http://localhost:3000',
+  ];
+
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-API-Version',
+      'X-Request-ID',
+      'X-Tenant-ID',
+    ],
+    exposedHeaders: [
+      'X-API-Version',
+      'X-Request-ID',
+      'X-API-Deprecated',
+      'X-API-Deprecation-Date',
+      'X-API-Sunset-Date',
+      'Link',
+    ],
+    credentials: true,
+  });
+
+  // ============================================================================
+  // Swagger/OpenAPI Documentation
+  // ============================================================================
+
+  // V1 Documentation (Deprecated)
+  const configV1 = new DocumentBuilder()
+    .setTitle('SAHOOL API v1 (Deprecated)')
+    .setDescription(`
+      ⚠️ API v1 is DEPRECATED and will be removed on 2026-06-30
+
+      Please migrate to v2: /docs-v2
+
+      ## Deprecation Notice
+      - Deprecation Date: 2025-06-30
+      - Sunset Date: 2026-06-30
+      - Migration Guide: https://docs.sahool.app/api/v2/migration
+    `)
+    .setVersion('1.0.0')
+    .addTag('Deprecated')
+    .addBearerAuth()
+    .addApiKey(
+      { type: 'apiKey', name: 'X-API-Version', in: 'header' },
+      'api-version',
+    )
+    .build();
+
+  const documentV1 = SwaggerModule.createDocument(app, configV1, {
+    include: [], // Include only v1 controllers
+    deepScanRoutes: true,
+  });
+
+  SwaggerModule.setup('docs-v1', app, documentV1, {
+    customSiteTitle: 'SAHOOL API v1 (Deprecated)',
+    customCss: `
+      .swagger-ui .topbar { background-color: #ff9800; }
+      .information-container::before {
+        content: "⚠️ DEPRECATED - This API version will be removed on 2026-06-30";
+        display: block;
+        padding: 10px;
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        font-weight: bold;
+        color: #856404;
+      }
+    `,
+  });
+
+  // V2 Documentation (Current)
+  const configV2 = new DocumentBuilder()
+    .setTitle('SAHOOL API v2')
+    .setDescription(`
+      # SAHOOL Agricultural Platform API v2
+
+      ## Features
+      - Enhanced response format with metadata
+      - Improved pagination (page-based instead of skip/take)
+      - Better error handling with error codes
+      - Request tracking with request IDs
+      - Sorting and filtering capabilities
+
+      ## Response Format
+      All v2 endpoints return responses in the following format:
+      \`\`\`json
+      {
+        "success": true,
+        "data": {...},
+        "message": "Operation completed",
+        "version": "2",
+        "timestamp": "2026-01-06T10:30:00Z",
+        "meta": {
+          "requestId": "req_123456",
+          "pagination": {...}
+        }
+      }
+      \`\`\`
+
+      ## Pagination
+      - Use \`page\` and \`limit\` query parameters
+      - Default: page=1, limit=20
+      - Maximum limit: 100
+
+      ## Error Format
+      \`\`\`json
+      {
+        "success": false,
+        "error": {
+          "code": "ERROR_CODE",
+          "message": "Error message",
+          "details": "Detailed description",
+          "timestamp": "2026-01-06T10:30:00Z"
+        },
+        "version": "2",
+        "meta": {
+          "requestId": "req_123456",
+          "documentation": "https://docs.sahool.app/errors/ERROR_CODE"
+        }
+      }
+      \`\`\`
+    `)
+    .setVersion('2.0.0')
+    .addTag('Users', 'User management operations')
+    .addTag('Fields', 'Field management operations')
+    .addTag('Weather', 'Weather and climate data')
+    .addBearerAuth()
+    .addApiKey(
+      { type: 'apiKey', name: 'X-API-Version', in: 'header' },
+      'api-version',
+    )
+    .addApiKey(
+      { type: 'apiKey', name: 'X-Request-ID', in: 'header' },
+      'request-id',
+    )
+    .build();
+
+  const documentV2 = SwaggerModule.createDocument(app, configV2, {
+    include: [], // Include only v2 controllers
+    deepScanRoutes: true,
+  });
+
+  SwaggerModule.setup('docs-v2', app, documentV2, {
+    customSiteTitle: 'SAHOOL API v2',
+  });
+
+  // Default documentation (redirects to v2)
+  SwaggerModule.setup('docs', app, documentV2, {
+    customSiteTitle: 'SAHOOL API Documentation',
+  });
+
+  // ============================================================================
+  // Server Startup
+  // ============================================================================
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+
+  console.log(`
+  ╔═══════════════════════════════════════════════════════════════╗
+  ║   🌾 SAHOOL Platform API Gateway                              ║
+  ║   بوابة API لمنصة سهول الزراعية                               ║
+  ╠═══════════════════════════════════════════════════════════════╣
+  ║   Server:              http://localhost:${port}                  ║
+  ║                                                               ║
+  ║   📚 Documentation:                                           ║
+  ║   • API v2 (Current):  http://localhost:${port}/docs-v2        ║
+  ║   • API v1 (Deprecated): http://localhost:${port}/docs-v1      ║
+  ║   • Default (v2):      http://localhost:${port}/docs           ║
+  ║                                                               ║
+  ║   🔗 API Endpoints:                                           ║
+  ║   • v1 (Deprecated):   http://localhost:${port}/api/v1         ║
+  ║   • v2 (Current):      http://localhost:${port}/api/v2         ║
+  ║                                                               ║
+  ║   ⚙️  Configuration:                                          ║
+  ║   • Default Version:   v2                                     ║
+  ║   • Versioning Type:   URI-based                              ║
+  ║   • Deprecation Warnings: Enabled                             ║
+  ║                                                               ║
+  ║   ⚠️  Deprecation Notice:                                     ║
+  ║   • v1 Deprecation Date: 2025-06-30                           ║
+  ║   • v1 Sunset Date:      2026-06-30                           ║
+  ║   • Migration Guide:     https://docs.sahool.app/api/v2       ║
+  ╚═══════════════════════════════════════════════════════════════╝
+  `);
+
+  // ============================================================================
+  // Graceful Shutdown
+  // ============================================================================
+  let isShuttingDown = false;
+
+  async function gracefulShutdown(signal: string) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+
+    console.log(`\nReceived ${signal}, starting graceful shutdown...`);
+
+    try {
+      await app.close();
+      console.log('Server shutdown complete');
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+      process.exit(1);
+    }
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+}
+
+bootstrap();
+
+/**
+ * Testing API Versioning:
+ *
+ * 1. URI-based (Primary):
+ *    curl http://localhost:3000/api/v2/users
+ *    curl http://localhost:3000/api/v1/users  # Returns deprecation headers
+ *
+ * 2. Header-based:
+ *    curl -H "X-API-Version: 2" http://localhost:3000/api/users
+ *    curl -H "X-API-Version: 1" http://localhost:3000/api/users
+ *
+ * 3. Accept header:
+ *    curl -H "Accept: application/vnd.sahool.v2+json" http://localhost:3000/api/users
+ *
+ * 4. Check deprecation headers:
+ *    curl -I http://localhost:3000/api/v1/users
+ *    # Returns:
+ *    # X-API-Version: 1
+ *    # X-API-Deprecated: true
+ *    # X-API-Deprecation-Date: 2025-06-30
+ *    # X-API-Sunset-Date: 2026-06-30
+ *    # Link: </api/v2/users>; rel="successor-version"
+ */

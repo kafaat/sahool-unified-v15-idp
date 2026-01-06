@@ -17,6 +17,17 @@ from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query, Request
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
+from errors_py import setup_exception_handlers, add_request_id_middleware
 from pydantic import BaseModel
 
 # Configure logging
@@ -38,6 +49,10 @@ app = FastAPI(
     version="15.4.0",
     description="⚠️ DEPRECATED - Use weather-service instead. 7-day forecasting with real weather APIs, agricultural weather alerts, and crop-specific recommendations",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 
 @app.on_event("startup")

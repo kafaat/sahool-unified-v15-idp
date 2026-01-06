@@ -25,10 +25,35 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, "../../../../shared")
+from errors_py import setup_exception_handlers, add_request_id_middleware
 sys.path.insert(0, "/app")
+
+# Import file validation utilities
+try:
+    from shared.file_validation import (
+        FileValidator,
+        FileValidationConfig,
+        FileValidationError,
+        ALLOWED_IMAGE_TYPES,
+        get_virus_scanner,
+    )
+    FILE_VALIDATION_AVAILABLE = True
+except ImportError:
+    FILE_VALIDATION_AVAILABLE = False
+    logger.warning("File validation module not available")
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
@@ -86,6 +111,10 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
 # CORS - Use centralized secure configuration
 setup_cors_middleware(app)
 
@@ -109,6 +138,34 @@ async def startup_event():
     logger.warning("Deprecation date: 2025-01-01")
     logger.warning("=" * 80)
     prediction_service.load_model()
+
+    # Initialize file validator
+    if FILE_VALIDATION_AVAILABLE:
+        virus_scanner_type = os.getenv("VIRUS_SCANNER", "noop")
+        clamav_host = os.getenv("CLAMAV_HOST", "localhost")
+        clamav_port = int(os.getenv("CLAMAV_PORT", "3310"))
+
+        app.state.virus_scanner = get_virus_scanner(
+            virus_scanner_type,
+            host=clamav_host,
+            port=clamav_port
+        )
+
+        app.state.file_validator = FileValidator(
+            config=FileValidationConfig(
+                max_file_size=10 * 1024 * 1024,  # 10MB
+                allowed_mime_types=ALLOWED_IMAGE_TYPES,
+                check_magic_bytes=True,
+                strict_mime_check=True,
+                scan_for_viruses=virus_scanner_type != "noop",
+                allow_executable=False,
+                sanitize_filename=True,
+            ),
+            virus_scanner=app.state.virus_scanner
+        )
+        logger.info(f"✅ File validation enabled with {virus_scanner_type} scanner")
+    else:
+        logger.warning("⚠️  File validation module not available, using basic validation")
 
 
 @app.middleware("http")
@@ -172,16 +229,30 @@ async def diagnose_plant_disease(
 
     AI-powered plant disease diagnosis from image.
     """
-    # Validate image
-    if not image.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="الملف المرفوع ليس صورة صالحة")
-
+    # Read image bytes
     image_bytes = await image.read()
 
-    if len(image_bytes) > 10 * 1024 * 1024:  # 10MB limit
-        raise HTTPException(
-            status_code=400, detail="حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت)"
-        )
+    # Enhanced validation using FileValidator
+    if FILE_VALIDATION_AVAILABLE and hasattr(app.state, "file_validator"):
+        try:
+            validation_result = await app.state.file_validator.validate(
+                file_content=image_bytes,
+                filename=image.filename,
+                declared_mime_type=image.content_type,
+            )
+            logger.info(f"File validation passed: {validation_result['safe_filename']}")
+        except FileValidationError as e:
+            logger.warning(f"File validation failed: {e.message}")
+            raise HTTPException(status_code=400, detail=e.message)
+    else:
+        # Fallback to basic validation
+        if not image.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="الملف المرفوع ليس صورة صالحة")
+
+        if len(image_bytes) > 10 * 1024 * 1024:  # 10MB limit
+            raise HTTPException(
+                status_code=400, detail="حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت)"
+            )
 
     # Delegate to service
     return diagnosis_service.diagnose(
@@ -210,9 +281,31 @@ async def batch_diagnose(
 
     image_data = []
     for img in images:
-        if img.content_type.startswith("image/"):
-            image_bytes = await img.read()
-            image_data.append((image_bytes, img.filename))
+        image_bytes = await img.read()
+
+        # Enhanced validation for each image
+        if FILE_VALIDATION_AVAILABLE and hasattr(app.state, "file_validator"):
+            try:
+                await app.state.file_validator.validate(
+                    file_content=image_bytes,
+                    filename=img.filename,
+                    declared_mime_type=img.content_type,
+                )
+            except FileValidationError as e:
+                logger.warning(f"File validation failed for {img.filename}: {e.message}")
+                # Skip invalid files in batch processing
+                continue
+        else:
+            # Fallback to basic validation
+            if not img.content_type.startswith("image/"):
+                continue
+
+        image_data.append((image_bytes, img.filename))
+
+    if not image_data:
+        raise HTTPException(
+            status_code=400, detail="لم يتم العثور على صور صالحة / No valid images found"
+        )
 
     return diagnosis_service.batch_diagnose(image_data, field_id)
 
@@ -259,6 +352,19 @@ async def request_expert_review(
 ):
     """👨‍🔬 طلب مراجعة خبير"""
     import uuid
+
+    # Read and validate image
+    image_bytes = await image.read()
+
+    if FILE_VALIDATION_AVAILABLE and hasattr(app.state, "file_validator"):
+        try:
+            await app.state.file_validator.validate(
+                file_content=image_bytes,
+                filename=image.filename,
+                declared_mime_type=image.content_type,
+            )
+        except FileValidationError as e:
+            raise HTTPException(status_code=400, detail=e.message)
 
     return {
         "review_id": str(uuid.uuid4()),

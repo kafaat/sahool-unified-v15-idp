@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      body: JSON.stringify({ refreshToken: refreshToken }),
     });
 
     const data = await response.json();
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    // Update refresh token if provided
+    // Update refresh token (always rotated now)
     if (data.refresh_token) {
       cookieStore.set('sahool_admin_refresh_token', data.refresh_token, {
         httpOnly: true,

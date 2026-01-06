@@ -12,6 +12,16 @@ from contextlib import asynccontextmanager
 
 import structlog
 from fastapi import Depends, FastAPI, Header, HTTPException, status
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -21,6 +31,7 @@ from .storage import InMemoryStorage, RedisStorage
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from registry.agent_card import AgentCard
 from registry.registry import AgentRegistry, RegistryConfig
+from errors_py import setup_exception_handlers, add_request_id_middleware
 
 # Configure structured logging
 structlog.configure(
@@ -145,6 +156,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # Add CORS middleware
 cors_origins = settings.cors_origins.split(",") if settings.cors_origins else []

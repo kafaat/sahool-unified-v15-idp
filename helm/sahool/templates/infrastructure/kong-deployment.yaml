@@ -21,23 +21,9 @@ spec:
     app.kubernetes.io/name: {{ include "sahool.name" . }}
     app.kubernetes.io/component: kong
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "sahool.fullname" . }}-kong-admin
-  labels:
-    {{- include "sahool.labels" . | nindent 4 }}
-    app.kubernetes.io/component: kong-admin
-spec:
-  type: ClusterIP
-  ports:
-    - name: admin
-      port: 8001
-      targetPort: 8001
-      protocol: TCP
-  selector:
-    app.kubernetes.io/name: {{ include "sahool.name" . }}
-    app.kubernetes.io/component: kong
+# Kong Admin Service removed for security - Admin API is localhost-only
+# Access admin API using: kubectl exec -it <kong-pod> -- kong config <command>
+# or: kubectl port-forward <kong-pod> 8001:8001
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -87,7 +73,9 @@ spec:
             - name: KONG_ADMIN_ERROR_LOG
               value: /dev/stderr
             - name: KONG_ADMIN_LISTEN
-              value: "0.0.0.0:8001"
+              value: "127.0.0.1:8001"
+            - name: KONG_STATUS_LISTEN
+              value: "0.0.0.0:8100"
           ports:
             - name: proxy
               containerPort: 8000
@@ -95,13 +83,13 @@ spec:
             - name: proxy-ssl
               containerPort: 8443
               protocol: TCP
-            - name: admin
-              containerPort: 8001
+            - name: status
+              containerPort: 8100
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /status
-              port: 8001
+              port: 8100
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -109,7 +97,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /status
-              port: 8001
+              port: 8100
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 3

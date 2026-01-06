@@ -53,6 +53,6 @@ jobs:
     - name: Build the Docker image
       if: steps.check_dockerfile.outputs.exists == 'true'
       run: |
-        docker build ${{ matrix.service.path }} \
+        docker build . \
           --file ${{ matrix.service.path }}/Dockerfile \
           --tag sahool/${{ matrix.service.name }}:${{ github.sha }}

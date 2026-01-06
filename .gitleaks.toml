@@ -1,0 +1,271 @@
+# Gitleaks Configuration for SAHOOL Unified Platform
+# Version: 16.0.0
+# This configuration prevents false positives while ensuring security
+
+title = "SAHOOL Gitleaks Configuration"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ALLOWLIST - Files and patterns to ignore
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[allowlist]
+description = "Global allowlist for false positives"
+
+# Paths to ignore
+paths = [
+    # Documentation and examples
+    '''\.md$''',
+    '''\.txt$''',
+    '''CHANGELOG''',
+    '''README''',
+    
+    # Lock files and dependencies
+    '''package-lock\.json$''',
+    '''yarn\.lock$''',
+    '''poetry\.lock$''',
+    '''Pipfile\.lock$''',
+    '''go\.sum$''',
+    
+    # Build artifacts and generated files
+    '''/node_modules/''',
+    '''/dist/''',
+    '''/build/''',
+    '''/coverage/''',
+    '''\.next/''',
+    '''\.nuxt/''',
+    '''\.output/''',
+    
+    # Test files and fixtures
+    '''/test/''',
+    '''/tests/''',
+    '''/__tests__/''',
+    '''\.test\.''',
+    '''\.spec\.''',
+    '''/fixtures/''',
+    '''/mocks/''',
+    '''/mock-data/''',
+    
+    # Git and version control
+    '''\.git/''',
+    '''\.gitkeep$''',
+    
+    # Archives and backups
+    '''/archive/''',
+    '''\.backup''',
+    
+    # IDE and editor files
+    '''\.vscode/''',
+    '''\.idea/''',
+    
+    # Example and template files
+    '''\.example$''',
+    '''\.template$''',
+    '''env\.example$''',
+    
+    # Configuration baselines
+    '''\.secrets\.baseline$''',
+    '''\.gitleaks\.toml$''',
+    
+    # Prisma generated files
+    '''\.prisma/client/''',
+]
+
+# Regexes to ignore
+regexes = [
+    # Example/placeholder values
+    '''(example|sample|test|demo|placeholder|dummy)''',
+    
+    # Common false positives
+    '''client_id''',
+    '''client_secret_placeholder''',
+    
+    # JWT tokens in test files
+    '''eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*''',
+]
+
+# Stop words - patterns that indicate false positives
+stopwords = [
+    "example",
+    "test",
+    "placeholder",
+    "dummy",
+    "sample",
+    "fake",
+    "mock",
+    "your-",
+    "insert-",
+    "replace-",
+]
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# RULES - Custom detection rules
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# AWS Access Key
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key ID"
+regex = '''(?i)(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'''
+tags = ["key", "AWS"]
+
+# AWS Secret Key
+[[rules]]
+id = "aws-secret-key"
+description = "AWS Secret Access Key"
+regex = '''(?i)aws(.{0,20})?['\"][0-9a-zA-Z\/+]{40}['\"]'''
+tags = ["key", "AWS"]
+
+# GitHub Token
+[[rules]]
+id = "github-token"
+description = "GitHub Personal Access Token"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+tags = ["key", "GitHub"]
+
+# GitHub OAuth Token
+[[rules]]
+id = "github-oauth"
+description = "GitHub OAuth Access Token"
+regex = '''gho_[0-9a-zA-Z]{36}'''
+tags = ["key", "GitHub"]
+
+# Generic API Key
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(api_key|apikey|api-key)(.{0,20})?['\"]([0-9a-zA-Z\-_]{32,})['\"]'''
+tags = ["key", "API"]
+
+# Generic Secret
+[[rules]]
+id = "generic-secret"
+description = "Generic Secret"
+regex = '''(?i)(secret|password|passwd|pwd)(.{0,20})?['\"]([0-9a-zA-Z\-_!@#$%^&*()+=]{8,})['\"]'''
+tags = ["secret"]
+
+# Private Key
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN (RSA|DSA|EC|OPENSSH|PGP) PRIVATE KEY-----'''
+tags = ["key", "private"]
+
+# Slack Token
+[[rules]]
+id = "slack-token"
+description = "Slack Token"
+regex = '''xox[baprs]-([0-9a-zA-Z]{10,48})'''
+tags = ["key", "Slack"]
+
+# Stripe API Key
+[[rules]]
+id = "stripe-key"
+description = "Stripe API Key"
+regex = '''(?i)sk_live_[0-9a-zA-Z]{24}'''
+tags = ["key", "Stripe"]
+
+# Google API Key
+[[rules]]
+id = "google-api-key"
+description = "Google API Key"
+regex = '''AIza[0-9A-Za-z\-_]{35}'''
+tags = ["key", "Google"]
+
+# Heroku API Key
+[[rules]]
+id = "heroku-api-key"
+description = "Heroku API Key"
+regex = '''(?i)heroku(.{0,20})?['\"]([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})['\"]'''
+tags = ["key", "Heroku"]
+
+# Mailgun API Key
+[[rules]]
+id = "mailgun-api-key"
+description = "Mailgun API Key"
+regex = '''(?i)key-[0-9a-zA-Z]{32}'''
+tags = ["key", "Mailgun"]
+
+# Mailchimp API Key
+[[rules]]
+id = "mailchimp-api-key"
+description = "Mailchimp API Key"
+regex = '''(?i)[0-9a-f]{32}-us[0-9]{1,2}'''
+tags = ["key", "Mailchimp"]
+
+# NPM Token
+[[rules]]
+id = "npm-token"
+description = "NPM Token"
+regex = '''npm_[0-9a-zA-Z]{36}'''
+tags = ["key", "NPM"]
+
+# PyPI Token
+[[rules]]
+id = "pypi-token"
+description = "PyPI Token"
+regex = '''pypi-AgEIcHlwaS5vcmc[A-Za-z0-9\-_]{50,}'''
+tags = ["key", "PyPI"]
+
+# Database Connection String
+[[rules]]
+id = "database-url"
+description = "Database Connection String"
+regex = '''(?i)(postgres|mysql|mongodb|redis):\/\/[^\s'"]+:[^\s'"]+@[^\s'"]+'''
+tags = ["connection", "database"]
+
+# JWT Token (only in non-test files)
+[[rules]]
+id = "jwt-token"
+description = "JWT Token"
+regex = '''eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*'''
+tags = ["token", "JWT"]
+
+[rules.allowlist]
+paths = [
+    '''test''',
+    '''spec''',
+    '''fixture''',
+    '''mock''',
+    '''example''',
+]
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ENTROPY CHECKS - Detect high entropy strings (potential secrets)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+[[rules]]
+id = "high-entropy-base64"
+description = "High Entropy Base64 String"
+regex = '''[A-Za-z0-9+/]{40,}={0,2}'''
+entropy = 4.5
+tags = ["entropy", "base64"]
+
+[rules.allowlist]
+paths = [
+    '''test''',
+    '''spec''',
+    '''fixture''',
+    '''mock''',
+    '''\.png$''',
+    '''\.jpg$''',
+    '''\.jpeg$''',
+    '''\.gif$''',
+    '''\.svg$''',
+]
+
+[[rules]]
+id = "high-entropy-hex"
+description = "High Entropy Hex String"
+regex = '''[0-9a-fA-F]{40,}'''
+entropy = 3.5
+tags = ["entropy", "hex"]
+
+[rules.allowlist]
+paths = [
+    '''test''',
+    '''spec''',
+    '''fixture''',
+    '''mock''',
+    '''package-lock\.json$''',
+    '''\.sum$''',
+]

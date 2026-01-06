@@ -2,7 +2,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Platform Validation Script - سكريبت التحقق من منصة سهول
 # Validates all recommendations have been implemented
-# التحقق من تنفيذ جميع التوصيات
+# https://github.com/kafaat/sahool-unified-v15-idp/pull/394/conflict?name=validate.sh&base_oid=ba58a9c969554d3015d09bd432fd80eab7d0223f&head_oid=0bfc6f6cc202d519ac77610d1992cf2995b645c9التحقق من تنفيذ جميع التوصيات
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Disable exit-on-error to allow all validation checks to run and display complete results

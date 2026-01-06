@@ -27,8 +27,9 @@ class TwoFAConfig:
     """Two-Factor Authentication configuration"""
 
     # Enforcement settings
-    enforcement_level: TwoFAEnforcementLevel = TwoFAEnforcementLevel.OPTIONAL
-    grace_period_days: int = 30  # Days to set up 2FA before enforcement
+    # CRITICAL: MFA required for admin/supervisor users (OWASP ASVS compliance)
+    enforcement_level: TwoFAEnforcementLevel = TwoFAEnforcementLevel.REQUIRED_FOR_ADMIN
+    grace_period_days: int = 7  # Days to set up 2FA before enforcement
 
     # TOTP settings
     totp_issuer: str = "SAHOOL Agricultural Platform"

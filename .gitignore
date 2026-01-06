@@ -28,6 +28,7 @@
 *.key
 *.crt
 secrets/
+!shared/secrets/
 credentials.json
 credentials.yaml
 !credentials.template.yaml

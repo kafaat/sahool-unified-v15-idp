@@ -8,6 +8,7 @@ Available middlewares:
 - Request Size: Payload size validation
 - Tenant Context: Multi-tenancy isolation
 - Request Logging: Structured JSON logging with correlation ID tracking
+- API Versioning: URL-based API versioning (/api/v1/, /api/v2/, etc.)
 """
 
 from .cors import get_cors_config, get_cors_origins, setup_cors
@@ -33,6 +34,16 @@ from .request_size import (
     request_size_middleware,
 )
 from .tenant_context import TenantContextMiddleware
+from .api_versioning import (
+    APIVersion,
+    APIVersionMiddleware,
+    VersionedRouter,
+    create_versioned_routers,
+    get_api_version,
+    get_version_info,
+    require_version,
+    version_router,
+)
 
 __all__ = [
     # CORS
@@ -59,4 +70,13 @@ __all__ = [
     "RequestLoggingMiddleware",
     "get_correlation_id",
     "get_request_context",
+    # API Versioning
+    "APIVersion",
+    "APIVersionMiddleware",
+    "VersionedRouter",
+    "create_versioned_routers",
+    "get_api_version",
+    "get_version_info",
+    "require_version",
+    "version_router",
 ]

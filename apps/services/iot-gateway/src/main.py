@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ValidationInfo
 
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
@@ -315,19 +315,21 @@ class SensorReadingRequest(BaseModel):
     timestamp: str | None = None
     metadata: dict | None = None
 
-    @validator("sensor_type")
-    def validate_sensor_type(self, v):
+    @field_validator("sensor_type")
+    @classmethod
+    def validate_sensor_type(cls, v):
         """Validate sensor type is known"""
         v = v.lower()
         if v not in SENSOR_RANGES and not v.startswith("custom_"):
             logger.warning(f"Unknown sensor type: {v}")
         return v
 
-    @validator("value")
-    def validate_value_range(self, v, values):
+    @field_validator("value")
+    @classmethod
+    def validate_value_range(cls, v, info: ValidationInfo):
         """Validate sensor value is within expected range"""
-        if "sensor_type" in values:
-            sensor_type = values["sensor_type"].lower()
+        if info.data and 'sensor_type' in info.data:
+            sensor_type = info.data['sensor_type'].lower()
             if sensor_type in SENSOR_RANGES:
                 range_config = SENSOR_RANGES[sensor_type]
                 if v < range_config["min"] or v > range_config["max"]:

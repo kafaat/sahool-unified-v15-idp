@@ -315,6 +315,7 @@ services:
       - name: field-core-route
         paths:
           - /api/v1/fields
+          - /api/v1/field-core
         strip_path: false
         methods:
           - GET
@@ -438,6 +439,7 @@ services:
       - name: agro-advisor-route
         paths:
           - /api/v1/advice
+          - /api/v1/agro-advisor
         strip_path: false
     plugins:
       - name: jwt
@@ -668,7 +670,7 @@ services:
   # محرك توقع الإنتاجية - Yield Engine
   # ============================================================================
   - name: yield-engine
-    url: http://yield-prediction-service:3021
+    url: http://yield-prediction-service:8098
     tags:
       - professional
       - analytics
@@ -730,7 +732,7 @@ services:
   # خدمة المخزون - Inventory Service
   # ============================================================================
   - name: inventory-service
-    url: http://inventory-service:8115
+    url: http://inventory-service:8116
     tags:
       - professional
       - inventory
@@ -769,6 +771,7 @@ services:
       - name: field-intelligence-route
         paths:
           - /api/v1/field-intelligence
+          - /api/v1/intelligence
         strip_path: false
     plugins:
       - name: jwt
@@ -843,6 +846,7 @@ services:
       - name: iot-gateway-route
         paths:
           - /api/v1/iot
+          - /api/v1/agro-rules
         strip_path: false
     plugins:
       - name: jwt
@@ -990,6 +994,7 @@ services:
       - name: disaster-route
         paths:
           - /api/v1/disaster
+          - /api/v1/disasters
         strip_path: false
     plugins:
       - name: jwt
@@ -1246,6 +1251,7 @@ services:
       - name: field-chat-route
         paths:
           - /api/v1/field/chat
+          - /api/v1/field-chat
         strip_path: false
     plugins:
       - name: jwt

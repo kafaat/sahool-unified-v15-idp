@@ -73,7 +73,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog
 
       - name: Run unified tests with coverage (parallel)
         run: |
@@ -84,8 +84,13 @@ jobs:
           # Run shared module tests
           pytest tests/smoke/ tests/integration/test_health.py -v --tb=short \
             --cov-append --cov=shared --cov-report=xml --cov-report=term-missing || true
+
+          # Run unit tests for shared modules
+          pytest tests/unit/ -v --tb=short \
+            --cov-append --cov=shared --cov-report=xml --cov-report=term-missing || true
         env:
           ENVIRONMENT: test
+          PYTHONPATH: .
           JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
           JWT_ALGORITHM: HS256
           DATABASE_URL: ""

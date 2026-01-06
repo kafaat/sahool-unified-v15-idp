@@ -250,7 +250,7 @@ async function sendPerformanceMetric(metric: PerformanceMetric): Promise<void> {
         url: typeof window !== 'undefined' ? window.location.href : '',
       }),
     });
-  } catch (e) {
+  } catch {
     // Silent fail
   }
 }

@@ -7,8 +7,7 @@
  */
 
 import { getNonce, createInlineScript, createInlineStyle } from './nonce';
-// Logger is used dynamically in the inline script example below
-import { logger as _logger } from '@/lib/logger';
+// Note: Logger would be used in production inline scripts for error reporting
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Example 1: Server Component with Inline Script

@@ -156,7 +156,7 @@ function generateMockWeatherConditions(days: number): WeatherCondition[] {
   const now = new Date();
 
   for (let day = 0; day < days; day++) {
-    for (let hour of [6, 9, 12, 15, 18]) {
+    for (const hour of [6, 9, 12, 15, 18]) {
       const timestamp = new Date(now);
       timestamp.setDate(timestamp.getDate() + day);
       timestamp.setHours(hour, 0, 0, 0);
@@ -209,7 +209,7 @@ export async function getSprayWindows(
       if (response.data?.success && response.data?.data) {
         return response.data;
       }
-    } catch (apiError) {
+    } catch {
       // Backend not available, fall through to client-side calculation
       logger.info('Action windows API not available, calculating client-side');
     }
@@ -309,7 +309,7 @@ export async function getIrrigationWindows(
       if (response.data?.success && response.data?.data) {
         return response.data;
       }
-    } catch (apiError) {
+    } catch {
       logger.info('Action windows API not available, calculating client-side');
     }
 
@@ -473,7 +473,7 @@ export async function getActionRecommendations(
       if (response.data?.success && response.data?.data) {
         return response.data;
       }
-    } catch (apiError) {
+    } catch {
       logger.info('Action windows API not available, generating client-side');
     }
 

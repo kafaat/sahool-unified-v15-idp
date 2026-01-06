@@ -229,7 +229,22 @@ jobs:
           echo "🔍 Running Semgrep SAST..."
           # Check if directories exist
           if [ -d "apps/services" ] || [ -d "shared" ]; then
-            semgrep --config=auto --sarif -o semgrep-results.sarif apps/services/ shared/ 2>/dev/null || true
+            # Use specific rulesets instead of auto for faster execution
+            # Focus on security-critical rules only
+            semgrep --config=p/python \
+                    --config=p/security-audit \
+                    --config=p/secrets \
+                    --severity=ERROR \
+                    --severity=WARNING \
+                    --exclude="**/test_*.py" \
+                    --exclude="**/*_test.py" \
+                    --exclude="**/tests/**" \
+                    --exclude="**/node_modules/**" \
+                    --exclude="**/__pycache__/**" \
+                    --timeout=300 \
+                    --jobs=4 \
+                    --sarif -o semgrep-results.sarif \
+                    apps/services/ shared/ 2>/dev/null || true
           fi
           # Create empty SARIF if file doesn't exist
           if [ ! -f "semgrep-results.sarif" ]; then

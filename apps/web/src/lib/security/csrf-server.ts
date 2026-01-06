@@ -7,7 +7,22 @@
  */
 
 import type { NextRequest } from 'next/server';
-import { timingSafeEqual } from 'crypto';
+
+/**
+ * Timing-safe string comparison for Edge Runtime
+ * Compares two strings in constant time to prevent timing attacks
+ */
+function timingSafeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
 
 /**
  * State-changing HTTP methods that require CSRF protection
@@ -71,10 +86,8 @@ export function validateCsrfToken(
 
   try {
     // Use timing-safe comparison to prevent timing attacks
-    const cookieBuffer = Buffer.from(cookieToken, 'utf-8');
-    const headerBuffer = Buffer.from(headerToken, 'utf-8');
-
-    return timingSafeEqual(cookieBuffer, headerBuffer);
+    // This implementation works in Edge Runtime (no Node.js crypto dependency)
+    return timingSafeCompare(cookieToken, headerToken);
   } catch (error) {
     // If comparison fails (e.g., encoding issues), reject the request
     return false;

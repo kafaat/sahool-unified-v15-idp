@@ -11,7 +11,6 @@ import { useFields, useField, useCreateField, useUpdateField, useDeleteField, us
 import { useAuth } from '@/stores/auth.store';
 import type { FieldFormData } from '../types';
 import { logger } from '@/lib/logger';
-import { AstralFieldWidget } from '../components/AstralFieldWidget';
 
 /**
  * Example 1: Fetching all fields
@@ -231,44 +230,7 @@ export function FieldStatsExample() {
 }
 
 /**
- * Example 8: Using Astral Field Widget
- */
-export function AstralFieldWidgetExample({ fieldId }: { fieldId: string }) {
-  const { data: field } = useField(fieldId);
-  // createField hook available via useCreateField() when needed for task creation
-
-  const handleCreateTask = async (taskData: {
-    title: string;
-    title_ar: string;
-    description: string;
-    description_ar: string;
-    due_date: string;
-    field_id: string;
-    priority: 'high' | 'medium' | 'low';
-  }) => {
-    logger.info('Creating task from astronomical recommendation:', taskData);
-    // Here you would call your task creation API
-    alert(`مهمة جديدة: ${taskData.title_ar}\nNew task: ${taskData.title}\nموعد التنفيذ: ${taskData.due_date}`);
-  };
-
-  if (!field) return <div>جاري التحميل...</div>;
-
-  return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">
-        التقويم الفلكي للحقل: {field.nameAr}
-      </h2>
-      <AstralFieldWidget
-        field={field}
-        onCreateTask={handleCreateTask}
-        compact={false}
-      />
-    </div>
-  );
-}
-
-/**
- * Example 9: Complete CRUD example with error handling
+ * Example 8: Complete CRUD example with error handling
  */
 export function FieldsCRUDExample() {
   const { user } = useAuth();

@@ -267,6 +267,9 @@ DATABASE_URL=postgresql://...
 
 # CORS
 CORS_ORIGINS=https://sahool.io,https://admin.sahool.io
+
+# Astronomical Service
+ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
 ```
 
 ---

@@ -1,0 +1,545 @@
+name: Container Testing & Security
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '**/Dockerfile*'
+      - 'docker-compose*.yml'
+      - '.github/workflows/container-tests.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - '**/Dockerfile*'
+      - 'docker-compose*.yml'
+      - '.github/workflows/container-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: sahool
+
+jobs:
+  # Job 1: Lint all Dockerfiles with hadolint
+  dockerfile-lint:
+    name: Hadolint - Dockerfile Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run hadolint on all Dockerfiles
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "Dockerfile*"
+          recursive: true
+          failure-threshold: warning
+          format: sarif
+          output-file: hadolint-results.sarif
+
+      - name: Upload hadolint SARIF results
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: hadolint-results.sarif
+          category: hadolint
+
+      - name: Generate hadolint report
+        if: always()
+        run: |
+          echo "## 🐳 Dockerfile Linting Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          DOCKERFILE_COUNT=$(find . -name "Dockerfile*" -type f | wc -l)
+          echo "**Total Dockerfiles scanned:** $DOCKERFILE_COUNT" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f hadolint-results.sarif ]; then
+            ISSUES=$(cat hadolint-results.sarif | jq -r '.runs[0].results | length' 2>/dev/null || echo "0")
+            echo "**Issues found:** $ISSUES" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$ISSUES" != "0" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ Please review the Security tab for detailed findings." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ All Dockerfiles passed linting checks!" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+  # Job 2: Check for secrets using gitleaks
+  secrets-scan:
+    name: GitLeaks - Secrets Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_SUMMARY: true
+
+      - name: Upload gitleaks report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+          retention-days: 30
+
+  # Job 3: Build and test containers in parallel using matrix
+  build-and-test:
+    name: Build & Test - ${{ matrix.service.name }}
+    runs-on: ubuntu-latest
+    needs: [dockerfile-lint, secrets-scan]
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - name: satellite-service
+            path: apps/services/satellite-service
+            port: 8001
+          - name: crop-growth-model
+            path: apps/services/crop-growth-model
+            port: 8002
+          - name: indicators-service
+            path: apps/services/indicators-service
+            port: 8003
+          - name: weather-advanced
+            path: apps/services/weather-advanced
+            port: 8004
+          - name: crop-health-ai
+            path: apps/services/crop-health-ai
+            port: 8005
+          - name: fertilizer-advisor
+            path: apps/services/fertilizer-advisor
+            port: 8006
+          - name: irrigation-smart
+            path: apps/services/irrigation-smart
+            port: 8007
+          - name: yield-engine
+            path: apps/services/yield-engine
+            port: 8008
+          - name: notification-service
+            path: apps/services/notification-service
+            port: 8009
+          - name: marketplace-service
+            path: apps/services/marketplace-service
+            port: 8010
+          - name: iot-service
+            path: apps/services/iot-service
+            port: 8011
+          - name: virtual-sensors
+            path: apps/services/virtual-sensors
+            port: 8012
+          - name: advisory-service
+            path: apps/services/advisory-service
+            port: 8013
+          - name: agent-registry
+            path: apps/services/agent-registry
+            port: 8014
+          - name: agro-advisor
+            path: apps/services/agro-advisor
+            port: 8015
+          - name: ai-advisor
+            path: apps/services/ai-advisor
+            port: 8016
+          - name: alert-service
+            path: apps/services/alert-service
+            port: 8017
+          - name: chat-service
+            path: apps/services/chat-service
+            port: 8018
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check if Dockerfile exists
+        id: check_dockerfile
+        run: |
+          if [ -f "${{ matrix.service.path }}/Dockerfile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Dockerfile found for ${{ matrix.service.name }}"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Dockerfile not found for ${{ matrix.service.name }}"
+          fi
+
+      - name: Build Docker image
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.service.path }}
+          file: ${{ matrix.service.path }}/Dockerfile
+          push: false
+          load: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ github.event.repository.updated_at }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ github.ref_name }}
+
+      - name: Run Trivy vulnerability scanner
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-${{ matrix.service.name }}.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '0'
+
+      - name: Upload Trivy results
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-${{ matrix.service.name }}.sarif
+          category: trivy-${{ matrix.service.name }}
+
+      - name: Generate Trivy JSON report
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }}
+          format: 'json'
+          output: 'trivy-${{ matrix.service.name }}.json'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Check vulnerability threshold
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          if [ -f "trivy-${{ matrix.service.name }}.json" ]; then
+            CRITICAL=$(cat trivy-${{ matrix.service.name }}.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL")] | length')
+            HIGH=$(cat trivy-${{ matrix.service.name }}.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH")] | length')
+            MEDIUM=$(cat trivy-${{ matrix.service.name }}.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="MEDIUM")] | length')
+
+            echo "## 🔍 Vulnerability Scan - ${{ matrix.service.name }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Severity | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Critical | $CRITICAL |" >> $GITHUB_STEP_SUMMARY
+            echo "| High | $HIGH |" >> $GITHUB_STEP_SUMMARY
+            echo "| Medium | $MEDIUM |" >> $GITHUB_STEP_SUMMARY
+
+            if [ "$CRITICAL" -gt 10 ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "⚠️ **Warning:** More than 10 critical vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
+              echo "::warning::${{ matrix.service.name }} has $CRITICAL critical vulnerabilities"
+            fi
+          fi
+
+      - name: Container smoke test - Start container
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        id: start_container
+        run: |
+          echo "🚀 Starting container for ${{ matrix.service.name }}..."
+
+          # Start container in detached mode
+          CONTAINER_ID=$(docker run -d \
+            --name test-${{ matrix.service.name }} \
+            -p ${{ matrix.service.port }}:8000 \
+            -e ENVIRONMENT=test \
+            -e LOG_LEVEL=INFO \
+            ${{ env.IMAGE_PREFIX }}/${{ matrix.service.name }}:${{ github.sha }})
+
+          echo "container_id=$CONTAINER_ID" >> $GITHUB_OUTPUT
+          echo "✅ Container started: $CONTAINER_ID"
+
+          # Give container time to start
+          sleep 10
+
+      - name: Check container is running
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          RUNNING=$(docker ps -q -f name=test-${{ matrix.service.name }})
+          if [ -z "$RUNNING" ]; then
+            echo "❌ Container failed to start or crashed"
+            docker logs test-${{ matrix.service.name }}
+            exit 1
+          fi
+          echo "✅ Container is running"
+
+      - name: Health check test
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        continue-on-error: true
+        run: |
+          echo "🏥 Performing health check..."
+
+          # Try multiple health endpoints
+          ENDPOINTS=("/health" "/healthz" "/api/health" "/")
+          HEALTH_OK=false
+
+          for endpoint in "${ENDPOINTS[@]}"; do
+            echo "Trying endpoint: $endpoint"
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              --max-time 5 \
+              http://localhost:${{ matrix.service.port }}$endpoint || echo "000")
+
+            echo "Response code: $HTTP_CODE"
+
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+              echo "✅ Health check passed on $endpoint"
+              HEALTH_OK=true
+              break
+            fi
+          done
+
+          if [ "$HEALTH_OK" = false ]; then
+            echo "⚠️ Warning: No health endpoint responded successfully"
+            echo "::warning::${{ matrix.service.name }} health check did not pass"
+          fi
+
+      - name: Container logs
+        if: always() && steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          echo "📋 Container logs for ${{ matrix.service.name }}:"
+          docker logs test-${{ matrix.service.name }} 2>&1 | tail -50
+
+      - name: Inspect container
+        if: steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          echo "🔍 Container inspection:"
+          docker inspect test-${{ matrix.service.name }}
+
+      - name: Stop and remove container
+        if: always() && steps.check_dockerfile.outputs.exists == 'true'
+        run: |
+          docker stop test-${{ matrix.service.name }} || true
+          docker rm test-${{ matrix.service.name }} || true
+
+      - name: Upload vulnerability report
+        if: always() && steps.check_dockerfile.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report-${{ matrix.service.name }}
+          path: |
+            trivy-${{ matrix.service.name }}.json
+            trivy-${{ matrix.service.name }}.sarif
+          retention-days: 30
+
+  # Job 4: Test docker-compose configurations
+  docker-compose-test:
+    name: Docker Compose Tests
+    runs-on: ubuntu-latest
+    needs: [dockerfile-lint, secrets-scan]
+    strategy:
+      fail-fast: false
+      matrix:
+        compose-file:
+          - name: test
+            file: docker-compose.test.yml
+          - name: telemetry
+            file: docker-compose.telemetry.yml
+          - name: infra
+            file: docker/docker-compose.infra.yml
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Check if compose file exists
+        id: check_compose
+        run: |
+          if [ -f "${{ matrix.compose-file.file }}" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Compose file found: ${{ matrix.compose-file.file }}"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Compose file not found: ${{ matrix.compose-file.file }}"
+          fi
+
+      - name: Validate docker-compose file
+        if: steps.check_compose.outputs.exists == 'true'
+        run: |
+          echo "🔍 Validating docker-compose configuration..."
+          docker compose -f ${{ matrix.compose-file.file }} config > /dev/null
+          echo "✅ Docker compose configuration is valid"
+
+      - name: Pull required images
+        if: steps.check_compose.outputs.exists == 'true'
+        run: |
+          echo "⬇️ Pulling images defined in compose file..."
+          docker compose -f ${{ matrix.compose-file.file }} pull --ignore-pull-failures || true
+
+      - name: Start docker-compose services
+        if: steps.check_compose.outputs.exists == 'true'
+        timeout-minutes: 5
+        run: |
+          echo "🚀 Starting docker-compose services..."
+          docker compose -f ${{ matrix.compose-file.file }} up -d --wait --wait-timeout 120 || {
+            echo "❌ Failed to start services"
+            docker compose -f ${{ matrix.compose-file.file }} logs
+            exit 1
+          }
+
+      - name: Check running services
+        if: steps.check_compose.outputs.exists == 'true'
+        run: |
+          echo "📊 Checking service status..."
+          docker compose -f ${{ matrix.compose-file.file }} ps
+
+          # Count running services
+          RUNNING=$(docker compose -f ${{ matrix.compose-file.file }} ps --services --filter "status=running" | wc -l)
+          TOTAL=$(docker compose -f ${{ matrix.compose-file.file }} ps --services | wc -l)
+
+          echo "## 🐳 Docker Compose - ${{ matrix.compose-file.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Services running:** $RUNNING / $TOTAL" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$RUNNING" -lt "$TOTAL" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ Not all services started successfully" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::Only $RUNNING/$TOTAL services running in ${{ matrix.compose-file.name }}"
+          fi
+
+      - name: Test service connectivity
+        if: steps.check_compose.outputs.exists == 'true'
+        continue-on-error: true
+        run: |
+          echo "🔗 Testing service connectivity..."
+
+          # Get list of services
+          SERVICES=$(docker compose -f ${{ matrix.compose-file.file }} ps --services --filter "status=running")
+
+          for service in $SERVICES; do
+            echo "Testing $service..."
+
+            # Try to exec a simple command in the container
+            docker compose -f ${{ matrix.compose-file.file }} exec -T $service echo "OK" || {
+              echo "⚠️ Could not connect to $service"
+            }
+          done
+
+      - name: Collect logs
+        if: always() && steps.check_compose.outputs.exists == 'true'
+        run: |
+          echo "📋 Collecting service logs..."
+          docker compose -f ${{ matrix.compose-file.file }} logs --tail=100 > compose-${{ matrix.compose-file.name }}-logs.txt
+
+      - name: Stop docker-compose
+        if: always() && steps.check_compose.outputs.exists == 'true'
+        run: |
+          echo "🛑 Stopping docker-compose services..."
+          docker compose -f ${{ matrix.compose-file.file }} down -v --remove-orphans
+
+      - name: Upload compose logs
+        if: always() && steps.check_compose.outputs.exists == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-logs-${{ matrix.compose-file.name }}
+          path: compose-${{ matrix.compose-file.name }}-logs.txt
+          retention-days: 7
+
+  # Job 5: Generate comprehensive test report
+  test-report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [dockerfile-lint, secrets-scan, build-and-test, docker-compose-test]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-artifacts
+
+      - name: Generate comprehensive report
+        run: |
+          echo "# 🐳 Container Testing Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Run:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## 📊 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Dockerfile Linting | ${{ needs.dockerfile-lint.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets Scan | ${{ needs.secrets-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build & Test | ${{ needs.build-and-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Compose | ${{ needs.docker-compose-test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Overall status
+          if [ "${{ needs.dockerfile-lint.result }}" == "success" ] && \
+             [ "${{ needs.secrets-scan.result }}" == "success" ] && \
+             [ "${{ needs.build-and-test.result }}" == "success" ] && \
+             [ "${{ needs.docker-compose-test.result }}" == "success" ]; then
+            echo "## ✅ All Tests Passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ⚠️ Some Tests Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please review the failed jobs above for details." >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The following test artifacts are available:" >> $GITHUB_STEP_SUMMARY
+          echo "- Trivy vulnerability reports (per service)" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker Compose logs" >> $GITHUB_STEP_SUMMARY
+          echo "- GitLeaks secrets scan report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the **Artifacts** section at the bottom of this workflow run." >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for critical failures
+        run: |
+          if [ "${{ needs.secrets-scan.result }}" == "failure" ]; then
+            echo "::error::Secrets detected in repository!"
+            exit 1
+          fi
+
+          # Other failures are warnings, not hard failures
+          if [ "${{ needs.dockerfile-lint.result }}" == "failure" ]; then
+            echo "::warning::Dockerfile linting found issues"
+          fi
+
+      - name: Create test summary file
+        run: |
+          cat << EOF > test-summary.json
+          {
+            "workflow_run": "${{ github.run_number }}",
+            "commit": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "results": {
+              "dockerfile_lint": "${{ needs.dockerfile-lint.result }}",
+              "secrets_scan": "${{ needs.secrets-scan.result }}",
+              "build_and_test": "${{ needs.build-and-test.result }}",
+              "docker_compose": "${{ needs.docker-compose-test.result }}"
+            }
+          }
+          EOF
+
+          cat test-summary.json
+
+      - name: Upload test summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-summary
+          path: test-summary.json
+          retention-days: 90

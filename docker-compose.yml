@@ -61,10 +61,11 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       DB_NAME: ${POSTGRES_DB:-sahool}
       # PgBouncer auth_query user (for SCRAM authentication)
-      # Using the main database user for auth_query (simpler and more reliable)
-      # The edoburu/pgbouncer image uses DB_PASSWORD for auth_user when AUTH_USER matches DB_USER
+      # Using the main database user for auth_query with security definer function
+      # The security definer function pgbouncer.get_auth() provides secure access to pg_shadow
       AUTH_USER: ${POSTGRES_USER:-sahool}
-      AUTH_QUERY: SELECT usename, passwd FROM pg_shadow WHERE usename=$1
+      AUTH_TYPE: md5
+      AUTH_QUERY: SELECT usename, passwd FROM pgbouncer.get_auth($1)
       # Pool settings
       POOL_MODE: transaction
       MAX_DB_CONNECTIONS: 100
@@ -74,7 +75,6 @@ services:
       # Timeouts
       QUERY_TIMEOUT: 120
       QUERY_WAIT_TIMEOUT: 30
-      # Auth (handled by pgbouncer.ini with auth_query for SCRAM support)
       # Admin
       ADMIN_USERS: pgbouncer_admin
       STATS_USERS: pgbouncer_stats

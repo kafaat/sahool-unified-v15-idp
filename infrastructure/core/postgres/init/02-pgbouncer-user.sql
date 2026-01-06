@@ -5,20 +5,22 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Create pgbouncer user if it doesn't exist
--- Password will be set to match POSTGRES_PASSWORD for compatibility with edoburu/pgbouncer image
--- Note: The password must be set manually after creation using the same password as POSTGRES_PASSWORD
--- This is done via the shell script 03-set-pgbouncer-password.sh
+-- Note: This user is NOT used for auth_query in the current configuration.
+-- The auth_user (POSTGRES_USER, defaults to 'sahool') is used instead.
+-- This pgbouncer user is kept for backwards compatibility and future use.
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'pgbouncer') THEN
         -- Create user with a temporary password
-        -- The password will be updated by 03-set-pgbouncer-password.sh to match POSTGRES_PASSWORD
-        CREATE USER pgbouncer WITH PASSWORD 'temp_password_will_be_updated';
-        -- Grant necessary permissions for auth_query to read pg_shadow
+        -- Note: This user is not actively used in the current PgBouncer configuration
+        CREATE USER pgbouncer WITH PASSWORD 'temp_password_not_used';
+        -- Grant necessary permissions (for potential future use)
         GRANT pg_monitor TO pgbouncer;
+        RAISE NOTICE 'Created pgbouncer user (not actively used - auth_user is sahool)';
     ELSE
         -- If user exists, ensure it has the correct permissions
         GRANT pg_monitor TO pgbouncer;
+        RAISE NOTICE 'Pgbouncer user already exists (not actively used - auth_user is sahool)';
     END IF;
 END
 $$;

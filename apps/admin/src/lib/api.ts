@@ -57,13 +57,19 @@ export const API_URLS = {
 };
 
 // Helper function to get token from cookies
+// NOTE: This will return undefined since tokens are now stored in httpOnly cookies
+// and are not accessible from client-side JavaScript for security reasons.
+// TODO: Refactor to use Next.js API routes as proxies for backend service calls
+// so that tokens can be injected server-side from httpOnly cookies.
 function getToken(): string | undefined {
   return Cookies.get('sahool_admin_token');
 }
 
 // Axios instance with defaults
+// NOTE: withCredentials is set to true to send httpOnly cookies with requests
 export const apiClient = axios.create({
   timeout: 30000,
+  withCredentials: true, // Send cookies with cross-origin requests
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -72,6 +78,10 @@ export const apiClient = axios.create({
 });
 
 // Add auth token interceptor - uses centralized token management
+// NOTE: With httpOnly cookies, this interceptor may not be able to add the
+// Authorization header. Backend services should be configured to accept
+// cookie-based authentication, OR these API calls should be proxied through
+// Next.js API routes where tokens can be injected server-side.
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getToken();
   if (token) {
@@ -83,10 +93,18 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 // Add response interceptor for auth errors - consistent with auth store
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
-  (error: AxiosError) => {
+  async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Clear token and redirect to login on unauthorized
-      Cookies.remove('sahool_admin_token');
+      // Clear session via logout endpoint
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'same-origin',
+        });
+      } catch (logoutError) {
+        logger.error('Logout error:', logoutError);
+      }
+
       authApiClient.clearToken();
       if (typeof window !== 'undefined') {
         window.location.href = '/login';

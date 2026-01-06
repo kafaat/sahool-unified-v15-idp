@@ -165,7 +165,7 @@ def get_stats():
 async def websocket_endpoint(
     websocket: WebSocket,
     tenant_id: str = Query(...),
-    token: str = Query(...),
+    token: str = Query(None),  # DEPRECATED: Keep for backward compatibility
 ):
     """
     Main WebSocket endpoint for real-time communication
@@ -173,10 +173,20 @@ async def websocket_endpoint(
 
     Query params:
     - tenant_id: Required tenant identifier
-    - token: JWT token for authentication (REQUIRED)
+    - token: JWT token for authentication (DEPRECATED: Use Authorization header instead)
+
+    Headers:
+    - Authorization: Bearer token (PREFERRED for security)
     """
     connection_id = str(uuid4())
     user_id = None
+
+    # SECURITY FIX: Accept token from Authorization header (preferred) or query param (deprecated)
+    auth_header = websocket.headers.get("authorization") or websocket.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header[7:]  # Remove "Bearer " prefix
+    elif auth_header:
+        token = auth_header
 
     # JWT authentication is always required
     if not token:

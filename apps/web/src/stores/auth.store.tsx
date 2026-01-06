@@ -3,6 +3,24 @@ import * as React from 'react';
 import Cookies from 'js-cookie';
 import { apiClient } from '@/lib/api/client';
 
+/**
+ * Fetch CSRF token from the server
+ * جلب رمز CSRF من الخادم
+ */
+async function fetchCsrfToken(): Promise<void> {
+  try {
+    const response = await fetch('/api/csrf-token');
+    if (response.ok) {
+      // Token is automatically set in cookie by the API route
+      // No need to manually set it here
+    }
+  } catch (error) {
+    console.warn('Failed to fetch CSRF token:', error);
+    // Non-fatal error - continue without CSRF token
+    // The middleware will generate one on next authenticated request
+  }
+}
+
 interface User {
   id: string;
   email: string;
@@ -17,7 +35,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
 
@@ -30,42 +48,109 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = React.useCallback(async (email: string, password: string) => {
     const response = await apiClient.login(email, password);
     if (response.success && response.data) {
-      const { access_token, user } = response.data;
-      // Set cookie with security flags
-      // Note: httpOnly cannot be set from client-side JS - server should set this
-      Cookies.set('access_token', access_token, {
-        expires: 7,
-        secure: true, // Only send over HTTPS
-        sameSite: 'strict' // CSRF protection
+      const { access_token, refresh_token, user } = response.data;
+
+      // Set cookies via secure server-side API route
+      // This ensures httpOnly flag is set, preventing XSS attacks
+      const sessionResponse = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          access_token,
+          refresh_token
+        }),
       });
+
+      if (!sessionResponse.ok) {
+        throw new Error('Failed to create secure session');
+      }
+
+      // Set token in API client for immediate use
+      // Note: Subsequent requests will use the httpOnly cookie automatically
       apiClient.setToken(access_token);
+
       // User type from API matches our User interface
       setUser(user);
+
+      // Fetch CSRF token for subsequent requests
+      await fetchCsrfToken();
     } else {
       throw new Error(response.error || 'Login failed');
     }
   }, []);
 
-  const logout = React.useCallback(() => {
-    Cookies.remove('access_token');
+  const logout = React.useCallback(async () => {
+    // Remove cookies via secure server-side API route
+    try {
+      await fetch('/api/auth/session', {
+        method: 'DELETE',
+      });
+    } catch (error) {
+      // Continue with logout even if API call fails
+      console.error('Failed to clear session cookies:', error);
+    }
+
+    // Clear CSRF token
+    Cookies.remove('csrf_token');
+
+    // Clear client-side state
     apiClient.clearToken();
     setUser(null);
   }, []);
 
   const checkAuth = React.useCallback(async () => {
     try {
-      const token = Cookies.get('access_token');
-      if (!token) {
+      // Check if session exists via server-side API
+      // Note: We can't read httpOnly cookies from client-side JS
+      const sessionCheck = await fetch('/api/auth/session');
+      const sessionData = await sessionCheck.json();
+
+      if (!sessionData.hasSession) {
         setIsLoading(false);
         return;
       }
-      apiClient.setToken(token);
+
+      // Attempt to get current user - httpOnly cookie will be sent automatically
       const response = await apiClient.getCurrentUser();
       if (response.success && response.data) {
         // User type from API matches our User interface
         setUser(response.data);
       } else {
-        // Check for mock user session (used in E2E tests)
+        // SECURITY: Mock authentication bypass for E2E tests
+        // This MUST only be enabled in development environments
+        // WARNING: Allowing mock sessions in production is a critical security vulnerability
+        // that would allow anyone to bypass authentication by setting a cookie
+        if (process.env.NODE_ENV === 'development') {
+          const mockSession = Cookies.get('user_session');
+          if (mockSession) {
+            try {
+              const mockUser = JSON.parse(mockSession);
+              setUser({
+                id: mockUser.id || 'test-user',
+                email: mockUser.email || 'test@sahool.com',
+                name: mockUser.name || 'Test User',
+                name_ar: mockUser.nameAr || 'مستخدم اختباري',
+                role: mockUser.role || 'user',
+              });
+              return;
+            } catch {
+              // Invalid mock session
+            }
+          }
+        }
+        setUser(null);
+        apiClient.clearToken();
+        // Clear session via API
+        await fetch('/api/auth/session', { method: 'DELETE' });
+      }
+    } catch {
+      // SECURITY: Mock authentication bypass for E2E tests
+      // This MUST only be enabled in development environments
+      // WARNING: Allowing mock sessions in production is a critical security vulnerability
+      // that would allow anyone to bypass authentication by setting a cookie
+      if (process.env.NODE_ENV === 'development') {
         const mockSession = Cookies.get('user_session');
         if (mockSession) {
           try {
@@ -82,31 +167,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Invalid mock session
           }
         }
-        setUser(null);
-        Cookies.remove('access_token');
-        apiClient.clearToken();
-      }
-    } catch {
-      // Check for mock user session (used in E2E tests)
-      const mockSession = Cookies.get('user_session');
-      if (mockSession) {
-        try {
-          const mockUser = JSON.parse(mockSession);
-          setUser({
-            id: mockUser.id || 'test-user',
-            email: mockUser.email || 'test@sahool.com',
-            name: mockUser.name || 'Test User',
-            name_ar: mockUser.nameAr || 'مستخدم اختباري',
-            role: mockUser.role || 'user',
-          });
-          return;
-        } catch {
-          // Invalid mock session
-        }
       }
       setUser(null);
-      Cookies.remove('access_token');
       apiClient.clearToken();
+      // Clear session via API
+      try {
+        await fetch('/api/auth/session', { method: 'DELETE' });
+      } catch {
+        // Ignore cleanup errors
+      }
     } finally {
       setIsLoading(false);
     }

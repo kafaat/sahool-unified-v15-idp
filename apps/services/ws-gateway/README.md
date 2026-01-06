@@ -27,20 +27,34 @@ Real-time communication hub for the SAHOOL platform with room-based messaging an
 ### WebSocket URL
 
 ```
-ws://localhost:8081/ws?tenant_id={tenant_id}&token={jwt_token}
+ws://localhost:8081/ws?tenant_id={tenant_id}
 ```
 
 ### Parameters
 
 - `tenant_id` (required): Tenant identifier
-- `token` (required): JWT authentication token
+
+### Headers
+
+- `Authorization: Bearer {jwt_token}` (required): JWT authentication token
+
+**SECURITY NOTE**: As of v16.0.0, tokens should be passed via the Authorization header for enhanced security. Passing tokens in URL query parameters (deprecated) exposes them in logs and proxies.
 
 ### Example Connection (JavaScript)
 
 ```javascript
 const token = "your_jwt_token";
 const tenantId = "tenant_123";
-const ws = new WebSocket(`ws://localhost:8081/ws?tenant_id=${tenantId}&token=${token}`);
+
+// Modern approach (RECOMMENDED)
+const ws = new WebSocket(`ws://localhost:8081/ws?tenant_id=${tenantId}`, {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+
+// DEPRECATED: Query parameter approach (less secure)
+// const ws = new WebSocket(`ws://localhost:8081/ws?tenant_id=${tenantId}&token=${token}`);
 
 ws.onopen = () => {
   console.log('Connected to WebSocket');
@@ -69,6 +83,8 @@ wsService.events.listen((event) {
   print('Event: ${event.eventType}');
 });
 ```
+
+**Note**: The Flutter WebSocketService automatically passes the token via the Authorization header for enhanced security (v16.0.0+).
 
 ## Room Types
 
@@ -564,8 +580,11 @@ alerts.when(
 # Install wscat
 npm install -g wscat
 
-# Connect to WebSocket
-wscat -c "ws://localhost:8081/ws?tenant_id=test&token=your_jwt_token"
+# Connect to WebSocket with Authorization header (RECOMMENDED)
+wscat -c "ws://localhost:8081/ws?tenant_id=test" -H "Authorization: Bearer your_jwt_token"
+
+# For backward compatibility, query parameter still works (DEPRECATED)
+# wscat -c "ws://localhost:8081/ws?tenant_id=test&token=your_jwt_token"
 
 # Subscribe to topics
 > {"type":"subscribe","topics":["weather","alerts"]}
@@ -599,10 +618,12 @@ curl http://localhost:8081/healthz
 ## Security Considerations
 
 1. **Always use WSS (WebSocket Secure) in production**
-2. **JWT tokens should have short expiration times**
-3. **Validate tenant permissions server-side**
-4. **Rate limit connections per IP/tenant**
-5. **Monitor for abnormal connection patterns**
+2. **Pass JWT tokens via Authorization header** - Never pass tokens in URL query parameters as they are visible in logs, proxy servers, and browser history
+3. **JWT tokens should have short expiration times**
+4. **Validate tenant permissions server-side**
+5. **Rate limit connections per IP/tenant**
+6. **Monitor for abnormal connection patterns**
+7. **Use hardcoded algorithm whitelists** - The gateway uses a hardcoded list of allowed JWT algorithms to prevent algorithm confusion attacks
 
 ## Troubleshooting
 

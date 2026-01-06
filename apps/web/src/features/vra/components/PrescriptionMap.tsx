@@ -185,16 +185,19 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
           className="rounded-lg border-2 border-gray-200 overflow-hidden relative"
           style={{ height }}
         >
+          {/* TODO: react-leaflet 4.2.1 types incompatible with React 19 - using type assertion */}
           <MapContainer
             center={mapConfig.center}
             zoom={mapConfig.zoom}
             style={{ height: '100%', width: '100%' }}
             className="z-0"
+            {...({} as any)}
           >
             {/* OpenStreetMap Tile Layer */}
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              {...({} as any)}
             />
 
             {/* Prescription Zones GeoJSON Layer */}
@@ -203,6 +206,7 @@ export const PrescriptionMap: React.FC<PrescriptionMapProps> = ({
               data={geoJsonData}
               style={getGeoJsonStyle}
               onEachFeature={onEachFeature}
+              {...({} as any)}
             />
           </MapContainer>
 

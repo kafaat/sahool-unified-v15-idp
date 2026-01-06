@@ -6,6 +6,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { useCostAnalysis } from '../hooks/useAnalytics';
 import type { AnalyticsFilters } from '../types';
@@ -24,18 +25,20 @@ const COLORS = {
   other: '#6b7280',
 };
 
-const categoryLabels = {
-  seeds: 'البذور',
-  fertilizers: 'الأسمدة',
-  pesticides: 'المبيدات',
-  irrigation: 'الري',
-  labor: 'العمالة',
-  equipment: 'المعدات',
-  other: 'أخرى',
-};
-
 export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
+  const t = useTranslations('analytics');
+  const tCost = useTranslations('costCategories');
   const { data: costData, isLoading } = useCostAnalysis(filters);
+
+  const categoryLabels = {
+    seeds: tCost('seeds'),
+    fertilizers: tCost('fertilizers'),
+    pesticides: tCost('pesticides'),
+    irrigation: tCost('irrigation'),
+    labor: tCost('labor'),
+    equipment: tCost('equipment'),
+    other: tCost('other'),
+  };
 
   if (isLoading) {
     return (
@@ -48,8 +51,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
   if (!costData || costData.length === 0) {
     return (
       <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
-        <p className="text-gray-600">لا توجد بيانات تكاليف متاحة</p>
-        <p className="text-sm text-gray-500 mt-1">No cost data available</p>
+        <p className="text-gray-600">{t('noCostData')}</p>
       </div>
     );
   }
@@ -79,25 +81,25 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
       {/* Overview */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          ملخص التكاليف
+          {t('costSummary')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <p className="text-sm text-gray-600">إجمالي التكاليف</p>
+            <p className="text-sm text-gray-600">{t('totalCosts')}</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
-              {totalCost.toLocaleString('ar-SA')} ريال
+              {totalCost.toLocaleString('ar-SA')} {t('sar')}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">عدد الحقول</p>
+            <p className="text-sm text-gray-600">{t('fieldsCount')}</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
               {costData.length}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">متوسط التكلفة للحقل</p>
+            <p className="text-sm text-gray-600">{t('averageCostPerField')}</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
-              {(totalCost / costData.length).toLocaleString('ar-SA', { maximumFractionDigits: 0 })} ريال
+              {(totalCost / costData.length).toLocaleString('ar-SA', { maximumFractionDigits: 0 })} {t('sar')}
             </p>
           </div>
         </div>
@@ -106,7 +108,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
       {/* Pie Chart */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          توزيع التكاليف
+          {t('costDistribution')}
         </h3>
         <div style={{ height: '400px' }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -141,7 +143,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
           >
             <h4 className="font-semibold text-gray-900 mb-1">{field.fieldNameAr}</h4>
             <p className="text-sm text-gray-600 mb-4">
-              {field.costPerHectare.toLocaleString('ar-SA')} ريال/هكتار
+              {field.costPerHectare.toLocaleString('ar-SA')} {t('sar')}/{t('hectare')}
             </p>
 
             <div className="space-y-2">
@@ -155,7 +157,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-gray-700">{label}</span>
                       <span className="font-medium text-gray-900">
-                        {value.toLocaleString('ar-SA')} ريال
+                        {value.toLocaleString('ar-SA')} {t('sar')}
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -174,9 +176,9 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
 
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">المجموع</span>
+                <span className="text-sm font-medium text-gray-700">{t('total')}</span>
                 <span className="text-lg font-bold text-gray-900">
-                  {field.totalCost.toLocaleString('ar-SA')} ريال
+                  {field.totalCost.toLocaleString('ar-SA')} {t('sar')}
                 </span>
               </div>
             </div>

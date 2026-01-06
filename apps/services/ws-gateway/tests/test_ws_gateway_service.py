@@ -53,7 +53,7 @@ class TestWebSocketConnection:
 
     @patch("src.main.validate_jwt_token")
     def test_websocket_connection_success(self, mock_validate, client):
-        """Test successful WebSocket connection"""
+        """Test successful WebSocket connection (query param - deprecated)"""
         mock_validate.return_value = AsyncMock(
             return_value={"sub": "user_123", "tenant_id": "tenant_123"}
         )
@@ -66,6 +66,29 @@ class TestWebSocketConnection:
             assert data["type"] == "connected"
             assert "connection_id" in data
             assert data["tenant_id"] == "tenant_123"
+
+    @patch("src.main.validate_jwt_token")
+    def test_websocket_connection_with_auth_header(self, mock_validate, client):
+        """Test successful WebSocket connection with Authorization header (preferred)"""
+        mock_validate.return_value = AsyncMock(
+            return_value={"sub": "user_123", "tenant_id": "tenant_123"}
+        )
+
+        # Note: TestClient may not support custom headers for websocket_connect
+        # This is a placeholder for the expected behavior
+        try:
+            with client.websocket_connect(
+                "/ws?tenant_id=tenant_123",
+                headers={"Authorization": "Bearer valid_token"}
+            ) as websocket:
+                data = websocket.receive_json()
+
+                assert data["type"] == "connected"
+                assert "connection_id" in data
+                assert data["tenant_id"] == "tenant_123"
+        except TypeError:
+            # TestClient might not support headers for WebSocket, skip this test
+            pytest.skip("TestClient does not support WebSocket headers")
 
     def test_websocket_connection_without_token(self, client):
         """Test WebSocket connection without token"""

@@ -50,10 +50,21 @@
 		<!-- Global settings -->
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
+
+		<!-- ============================================ -->
+		<!-- CERTIFICATE PINNING - PRODUCTION DOMAINS     -->
+		<!-- ============================================ -->
+		<!-- CRITICAL: Replace placeholder SPKI hashes before production deployment -->
+		<!-- Use scripts/generate_cert_pins.sh to generate real certificate pins -->
+		<!-- iOS uses SPKI (public key) hashes, NOT full certificate fingerprints -->
+		<!-- Always configure at least 2 pins per domain for certificate rotation -->
+
 		<!-- Pinned domains configuration -->
 		<key>NSPinnedDomains</key>
 		<dict>
 			<!-- Production API domain: api.sahool.io -->
+			<!-- TODO: REPLACE PLACEHOLDER SPKI HASHES BEFORE PRODUCTION -->
+			<!-- Generate using: ./scripts/generate_cert_pins.sh api.sahool.io -->
 			<key>api.sahool.io</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
@@ -61,19 +72,24 @@
 				<key>NSPinnedLeafIdentities</key>
 				<array>
 					<dict>
-						<!-- Primary SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<!-- Primary SPKI hash - PLACEHOLDER -->
+						<!-- TODO: Replace AAAA... with actual SPKI hash from production certificate -->
 						<!-- Get using: openssl s_client -connect api.sahool.io:443 | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64 -->
 						<key>SPKI-SHA256-BASE64</key>
 						<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
 					</dict>
 					<dict>
-						<!-- Backup SPKI hash for rotation - REPLACE WITH ACTUAL VALUE -->
+						<!-- Backup SPKI hash for rotation - PLACEHOLDER -->
+						<!-- TODO: Replace BBBB... with actual backup SPKI hash -->
 						<key>SPKI-SHA256-BASE64</key>
 						<string>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</string>
 					</dict>
 				</array>
 			</dict>
+
 			<!-- Production API domain: api.sahool.app -->
+			<!-- TODO: REPLACE PLACEHOLDER SPKI HASHES BEFORE PRODUCTION -->
+			<!-- Generate using: ./scripts/generate_cert_pins.sh api.sahool.app -->
 			<key>api.sahool.app</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
@@ -81,18 +97,23 @@
 				<key>NSPinnedLeafIdentities</key>
 				<array>
 					<dict>
-						<!-- Primary SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<!-- Primary SPKI hash - PLACEHOLDER -->
+						<!-- TODO: Replace AAAA... with actual SPKI hash from production certificate -->
 						<key>SPKI-SHA256-BASE64</key>
 						<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
 					</dict>
 					<dict>
-						<!-- Backup SPKI hash for rotation - REPLACE WITH ACTUAL VALUE -->
+						<!-- Backup SPKI hash for rotation - PLACEHOLDER -->
+						<!-- TODO: Replace BBBB... with actual backup SPKI hash -->
 						<key>SPKI-SHA256-BASE64</key>
 						<string>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</string>
 					</dict>
 				</array>
 			</dict>
+
 			<!-- Staging API domain: api-staging.sahool.app -->
+			<!-- TODO: REPLACE PLACEHOLDER SPKI HASH BEFORE STAGING DEPLOYMENT -->
+			<!-- Generate using: ./scripts/generate_cert_pins.sh api-staging.sahool.app -->
 			<key>api-staging.sahool.app</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
@@ -100,13 +121,17 @@
 				<key>NSPinnedLeafIdentities</key>
 				<array>
 					<dict>
-						<!-- Staging SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<!-- Staging SPKI hash - PLACEHOLDER -->
+						<!-- TODO: Replace EEEE... with actual SPKI hash from staging certificate -->
 						<key>SPKI-SHA256-BASE64</key>
 						<string>EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE=</string>
 					</dict>
 				</array>
 			</dict>
+
 			<!-- WebSocket production: ws.sahool.app -->
+			<!-- TODO: REPLACE PLACEHOLDER SPKI HASH BEFORE PRODUCTION -->
+			<!-- Generate using: ./scripts/generate_cert_pins.sh ws.sahool.app -->
 			<key>ws.sahool.app</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
@@ -114,13 +139,17 @@
 				<key>NSPinnedLeafIdentities</key>
 				<array>
 					<dict>
-						<!-- WebSocket SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<!-- WebSocket SPKI hash - PLACEHOLDER -->
+						<!-- TODO: Replace CCCC... with actual SPKI hash from WebSocket certificate -->
 						<key>SPKI-SHA256-BASE64</key>
 						<string>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=</string>
 					</dict>
 				</array>
 			</dict>
+
 			<!-- WebSocket staging: ws-staging.sahool.app -->
+			<!-- TODO: REPLACE PLACEHOLDER SPKI HASH BEFORE STAGING DEPLOYMENT -->
+			<!-- Generate using: ./scripts/generate_cert_pins.sh ws-staging.sahool.app -->
 			<key>ws-staging.sahool.app</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
@@ -128,13 +157,15 @@
 				<key>NSPinnedLeafIdentities</key>
 				<array>
 					<dict>
-						<!-- Staging WebSocket SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<!-- Staging WebSocket SPKI hash - PLACEHOLDER -->
+						<!-- TODO: Replace FFFF... with actual SPKI hash from staging WebSocket certificate -->
 						<key>SPKI-SHA256-BASE64</key>
 						<string>FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF=</string>
 					</dict>
 				</array>
 			</dict>
 		</dict>
+
 		<!-- Exception for localhost in development -->
 		<key>NSExceptionDomains</key>
 		<dict>
@@ -149,6 +180,50 @@
 				<true/>
 			</dict>
 		</dict>
+
+		<!-- ============================================ -->
+		<!-- CERTIFICATE PINNING INSTRUCTIONS             -->
+		<!-- ============================================ -->
+		<!--
+		To generate SPKI hashes for iOS:
+
+		1. Run the certificate pin generation script:
+		   cd /apps/mobile
+		   ./scripts/generate_cert_pins.sh api.sahool.app
+
+		2. Copy the SPKI-SHA256-BASE64 value from the iOS section
+
+		3. Replace the placeholder hashes (AAAA..., BBBB..., etc.) above
+
+		4. Repeat for all domains:
+		   - api.sahool.app
+		   - api.sahool.io
+		   - ws.sahool.app
+		   - api-staging.sahool.app
+		   - ws-staging.sahool.app
+
+		5. IMPORTANT: iOS uses SPKI (public key) hashes, NOT certificate fingerprints
+		   - Android: SHA256 of full certificate
+		   - iOS: SHA256 of SPKI (public key only)
+
+		6. Always configure at least 2 pins per domain for rotation
+
+		7. Test on iOS simulator and device before production deployment
+
+		For more information:
+		- See /apps/mobile/ios/README_CERTIFICATE_PINNING.md
+		- See /apps/mobile/CERTIFICATE_ROTATION_IOS.md
+		-->
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>يحتاج التطبيق للوصول إلى الكاميرا لالتقاط صور المحاصيل والحقول</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>يحتاج التطبيق للوصول إلى مكتبة الصور لاختيار صور المحاصيل</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>يحتاج التطبيق لحفظ الصور في مكتبة الصور</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يحتاج التطبيق لموقعك لتحديد موقع الحقول على الخريطة</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>يحتاج التطبيق لموقعك لتتبع مواقع الحقول وتقديم توصيات محلية</string>
 </dict>
 </plist>

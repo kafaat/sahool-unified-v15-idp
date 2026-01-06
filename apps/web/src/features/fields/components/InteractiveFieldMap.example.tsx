@@ -7,7 +7,7 @@
  */
 
 import React from 'react';
-import { InteractiveFieldMap } from './InteractiveFieldMap';
+import { InteractiveFieldMap } from './InteractiveFieldMap.dynamic';
 import type {
   Field,
   GeoPolygon,

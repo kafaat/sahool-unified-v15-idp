@@ -149,7 +149,7 @@ jobs:
           echo "Dart version:"
           dart --version
           echo "Starting build..."
-          flutter build apk --release --no-shrink --verbose 2>&1 | tee build.log || {
+          flutter build apk --release --verbose 2>&1 | tee build.log || {
             echo "❌ Build failed! Last 100 lines of log:"
             tail -100 build.log
             exit 1
@@ -160,7 +160,7 @@ jobs:
         if: ${{ github.event.inputs.build_type == 'debug' }}
         run: |
           echo "🔨 Building Debug APK..."
-          flutter build apk --debug --no-shrink --verbose 2>&1 | tee build.log || {
+          flutter build apk --debug --verbose 2>&1 | tee build.log || {
             echo "❌ Build failed! Last 100 lines of log:"
             tail -100 build.log
             exit 1

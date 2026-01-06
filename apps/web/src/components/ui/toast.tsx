@@ -79,7 +79,11 @@ function ToastContainer({ toasts, onClose }: ToastContainerProps) {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed top-4 end-4 z-50 flex flex-col gap-2 max-w-md">
+    <div
+      className="fixed top-4 end-4 z-50 flex flex-col gap-2 max-w-md"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onClose={onClose} />
       ))}
@@ -126,6 +130,7 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
       <button
         onClick={() => onClose(toast.id)}
         className="flex-shrink-0 text-current opacity-50 hover:opacity-100 transition-opacity"
+        aria-label="Close notification"
       >
         <X className="w-4 h-4" />
       </button>

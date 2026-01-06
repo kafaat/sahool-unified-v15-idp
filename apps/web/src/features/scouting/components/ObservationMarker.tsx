@@ -113,8 +113,8 @@ export const ObservationMarker: React.FC<ObservationMarkerProps> = ({
   const markerIcon: any = createMarkerIcon(observation.category, observation.severity);
 
   return (
-    <Marker position={position} icon={markerIcon}>
-      <Popup maxWidth={300} className="observation-popup">
+    <Marker position={position} icon={markerIcon} {...({} as any)}>
+      <Popup maxWidth={300} className="observation-popup" {...({} as any)}>
         <div className="p-2 min-w-[280px]">
           {/* Header */}
           <div className="flex items-start justify-between mb-3">

@@ -18,6 +18,9 @@ import {
 // Routes that don't require authentication
 const publicRoutes = ['/login', '/api/auth'];
 
+// Idle timeout: 30 minutes in milliseconds
+const IDLE_TIMEOUT = 30 * 60 * 1000;
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -43,6 +46,28 @@ export function middleware(request: NextRequest) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('returnTo', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Check for idle timeout
+  const lastActivityStr = request.cookies.get('sahool_admin_last_activity')?.value;
+  if (lastActivityStr) {
+    const lastActivity = parseInt(lastActivityStr, 10);
+    const now = Date.now();
+    const timeSinceLastActivity = now - lastActivity;
+
+    if (timeSinceLastActivity >= IDLE_TIMEOUT) {
+      // Session expired due to inactivity - clear cookies and redirect
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('returnTo', pathname);
+      loginUrl.searchParams.set('reason', 'session_expired');
+
+      const response = NextResponse.redirect(loginUrl);
+      response.cookies.delete('sahool_admin_token');
+      response.cookies.delete('sahool_admin_refresh_token');
+      response.cookies.delete('sahool_admin_last_activity');
+
+      return response;
+    }
   }
 
   // Token exists - add security headers

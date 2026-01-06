@@ -6,15 +6,17 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { BarChart3, TrendingUp, DollarSign, Download } from 'lucide-react';
 import { useAnalyticsSummary, useKPIMetrics } from '../hooks/useAnalytics';
 import type { AnalyticsFilters } from '../types';
 import { KPICards } from './KPICards';
-import { YieldAnalysis } from './YieldAnalysis';
-import { CostAnalysis } from './CostAnalysis';
+import { YieldAnalysis } from './YieldAnalysis.dynamic';
+import { CostAnalysis } from './CostAnalysis.dynamic';
 import { ReportGenerator } from './ReportGenerator';
 
 export const AnalyticsDashboard: React.FC = () => {
+  const t = useTranslations('analytics');
   const [filters, setFilters] = useState<AnalyticsFilters>({
     period: 'month',
   });
@@ -24,18 +26,32 @@ export const AnalyticsDashboard: React.FC = () => {
   const { data: kpis } = useKPIMetrics(filters);
 
   const tabs = [
-    { id: 'overview', label: 'Overview', labelAr: 'نظرة عامة', icon: BarChart3 },
-    { id: 'yield', label: 'Yield Analysis', labelAr: 'تحليل المحصول', icon: TrendingUp },
-    { id: 'cost', label: 'Cost Analysis', labelAr: 'تحليل التكاليف', icon: DollarSign },
-    { id: 'reports', label: 'Reports', labelAr: 'التقارير', icon: Download },
+    { id: 'overview', icon: BarChart3 },
+    { id: 'yield', icon: TrendingUp },
+    { id: 'cost', icon: DollarSign },
+    { id: 'reports', icon: Download },
   ] as const;
 
+  const tabLabels = {
+    overview: t('overview'),
+    yield: t('yieldAnalysis'),
+    cost: t('costAnalysis'),
+    reports: t('reports'),
+  };
+
   const periods = [
-    { value: 'week', label: 'This Week', labelAr: 'هذا الأسبوع' },
-    { value: 'month', label: 'This Month', labelAr: 'هذا الشهر' },
-    { value: 'season', label: 'This Season', labelAr: 'هذا الموسم' },
-    { value: 'year', label: 'This Year', labelAr: 'هذا العام' },
+    { value: 'week' },
+    { value: 'month' },
+    { value: 'season' },
+    { value: 'year' },
   ] as const;
+
+  const periodLabels = {
+    week: t('thisWeek'),
+    month: t('thisMonth'),
+    season: t('thisSeason'),
+    year: t('thisYear'),
+  };
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
@@ -45,16 +61,16 @@ export const AnalyticsDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                التحليلات والتقارير
+                {t('title')}
               </h1>
               <p className="mt-1 text-sm text-gray-500">
-                Analytics & Reports
+                {t('subtitle')}
               </p>
             </div>
 
             {/* Period Selector */}
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-gray-700">الفترة:</label>
+              <label className="text-sm font-medium text-gray-700">{t('period')}:</label>
               <select
                 value={filters.period || 'month'}
                 onChange={(e) =>
@@ -64,7 +80,7 @@ export const AnalyticsDashboard: React.FC = () => {
               >
                 {periods.map((period) => (
                   <option key={period.value} value={period.value}>
-                    {period.labelAr}
+                    {periodLabels[period.value]}
                   </option>
                 ))}
               </select>
@@ -89,7 +105,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   `}
                 >
                   <Icon className="w-5 h-5" />
-                  <span>{tab.labelAr}</span>
+                  <span>{tabLabels[tab.id]}</span>
                 </button>
               );
             })}
@@ -109,35 +125,35 @@ export const AnalyticsDashboard: React.FC = () => {
             {summary && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                  <p className="text-sm text-gray-600">إجمالي المساحة</p>
+                  <p className="text-sm text-gray-600">{t('totalArea')}</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.totalArea.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">هكتار</p>
+                  <p className="text-sm text-gray-500 mt-1">{t('hectare')}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                  <p className="text-sm text-gray-600">إجمالي المحصول</p>
+                  <p className="text-sm text-gray-600">{t('totalYield')}</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.totalYield.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">كجم</p>
+                  <p className="text-sm text-gray-500 mt-1">{t('kg')}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                  <p className="text-sm text-gray-600">صافي الربح</p>
+                  <p className="text-sm text-gray-600">{t('netProfit')}</p>
                   <p className="text-3xl font-bold text-green-600 mt-2">
                     {summary.totalProfit.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">ريال</p>
+                  <p className="text-sm text-gray-500 mt-1">{t('sar')}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                  <p className="text-sm text-gray-600">متوسط الإنتاجية</p>
+                  <p className="text-sm text-gray-600">{t('averageProductivity')}</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.averageYieldPerHectare.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">كجم/هكتار</p>
+                  <p className="text-sm text-gray-500 mt-1">{t('kgPerHectare')}</p>
                 </div>
               </div>
             )}

@@ -42,53 +42,7 @@ trustedRegistries:
   - quay.io
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# RULE OVERRIDES
-# ═══════════════════════════════════════════════════════════════════════════════
-override:
-  # Treat warnings as informational only
-  warning: info
-  
-  # Treat style issues as informational only  
-  style: info
-  
-  # Keep errors as errors
-  error: error
-
-# ═══════════════════════════════════════════════════════════════════════════════
 # STRICTNESS LEVEL
 # ═══════════════════════════════════════════════════════════════════════════════
 # Options: error, warning, info, style, ignore, none
 failure-threshold: warning
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# LABEL SCHEMA
-# ═══════════════════════════════════════════════════════════════════════════════
-# Enforce label schema for better image metadata
-label-schema:
-  # Author labels
-  maintainer: text
-  author: text
-  
-  # Service metadata
-  service: text
-  version: regex:^[0-9]+\.[0-9]+\.[0-9]+$
-  description: text
-  
-  # OCI labels (optional)
-  org.opencontainers.image.title: text
-  org.opencontainers.image.version: text
-  org.opencontainers.image.description: text
-  org.opencontainers.image.authors: text
-  org.opencontainers.image.source: url
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# STRICT LABELS (NOT REQUIRED BUT RECOMMENDED)
-# ═══════════════════════════════════════════════════════════════════════════════
-strict-labels: false
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# DISABLE SPECIFIC CHECKS
-# ═══════════════════════════════════════════════════════════════════════════════
-# Additional granular control over specific checks
-no-fail: false
-no-color: false

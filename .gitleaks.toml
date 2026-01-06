@@ -143,6 +143,21 @@ description = "Generic Secret"
 regex = '''(?i)(secret|password|passwd|pwd)(.{0,20})?['\"]([0-9a-zA-Z\-_!@#$%^&*()+=]{8,})['\"]'''
 tags = ["secret"]
 
+[rules.allowlist]
+paths = [
+    '''\.github/workflows/''',
+    '''\.yml$''',
+    '''\.yaml$''',
+    '''test''',
+    '''spec''',
+    '''example''',
+]
+regexes = [
+    '''secrets\.\w+''',
+    '''env\.\w+''',
+    '''\$\{\{\s*secrets\.\w+\s*\}\}''',
+]
+
 # Private Key
 [[rules]]
 id = "private-key"

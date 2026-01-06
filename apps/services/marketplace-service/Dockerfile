@@ -11,21 +11,24 @@ LABEL version="15.3.0"
 WORKDIR /app
 
 # Install dependencies (with retries for network resilience)
-COPY package.json package-lock.json* ./
+COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./
 RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and generate client
 # Add retry logic for network resilience
 # Set env to ignore checksum errors in CI environments
-COPY prisma ./prisma/
+COPY apps/services/marketplace-service/prisma ./prisma/
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
     (sleep 10 && npx prisma generate) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
+# Copy shared modules (required for imports from ../../shared/)
+COPY apps/services/shared ./shared/
+
 # Copy source code
-COPY . .
+COPY apps/services/marketplace-service/. .
 
 # Build the application
 RUN npm run build
@@ -39,7 +42,7 @@ WORKDIR /app
 RUN apk add --no-cache curl openssl
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./
 # Install with increased retries and timeout for network resilience
 # Using --omit=dev instead of deprecated --only=production
 RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000

@@ -681,10 +681,11 @@ async def startup_event():
     global database, cache_manager, config_service
 
     # Get configuration from environment
+    # Security: No fallback credentials - require env vars to be set
     database_url = os.getenv(
-        "DATABASE_URL", "postgresql://sahool:sahool@pgbouncer:6432/sahool"
+        "DATABASE_URL", "postgresql://pgbouncer:6432/sahool"
     )
-    redis_url = os.getenv("REDIS_URL", "redis://:password@redis:6379/0")
+    redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
 
     # Initialize database
     try:

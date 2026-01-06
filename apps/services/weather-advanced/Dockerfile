@@ -18,11 +18,14 @@ RUN groupadd --system --gid 1000 sahool && \
 RUN pip install --no-cache-dir --upgrade pip
 
 # Install dependencies
-COPY requirements.txt .
+COPY apps/services/weather-advanced/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared modules
+COPY apps/services/shared ./shared/
+
 # Copy source code
-COPY src/ ./src/
+COPY apps/services/weather-advanced/src/ ./src/
 
 # Set ownership and switch to non-root user
 RUN chown -R sahool:sahool /app

@@ -35,8 +35,9 @@ logger = logging.getLogger("globalgap-compliance")
 
 # Database connection URL from environment
 # عنوان URL للاتصال بقاعدة البيانات من البيئة
+# Security: No fallback credentials - require DATABASE_URL to be set
 DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://sahool:sahool@postgres:5432/sahool_globalgap"
+    "DATABASE_URL", "postgresql://postgres:5432/sahool_globalgap"
 )
 
 # Connection pool settings

@@ -14,11 +14,14 @@ WORKDIR /app
 RUN pip install --no-cache-dir --upgrade pip
 
 # Install dependencies
-COPY requirements.txt .
+COPY apps/services/fertilizer-advisor/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared modules
+COPY apps/services/shared ./shared/
+
 # Copy source code
-COPY src/ ./src/
+COPY apps/services/fertilizer-advisor/src/ ./src/
 
 # Create non-root user for security
 RUN useradd --create-home --shell /bin/bash --uid 1000 appuser && \

@@ -149,7 +149,7 @@ function Start-Infrastructure {
         Write-Host ""
         Write-Info "Access points:"
         Write-Host "  - Grafana: http://localhost:3031 (admin/admin)"
-        Write-Host "  - InfluxDB: http://localhost:8087 (admin/adminpassword123)"
+        Write-Host "  - InfluxDB: http://localhost:8087 (see .env.influxdb.secret for credentials)"
         Write-Host "  - PostgreSQL: localhost:5433"
         Write-Host "  - Redis: localhost:6380"
         Write-Host ""

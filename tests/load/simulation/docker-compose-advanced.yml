@@ -34,23 +34,23 @@ x-app-common: &app-common
 x-app-env: &app-env
   NODE_ENV: production
   LOG_LEVEL: info
-  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-advanced_pass_123}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_advanced}
+  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_advanced}
   DB_HOST: sahool-pgbouncer
   DB_PORT: "6432"
   DB_USER: ${POSTGRES_USER:-sahool_admin}
-  DB_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
   DB_NAME: ${POSTGRES_DB:-sahool_advanced}
-  REDIS_URL: redis://:${REDIS_PASSWORD:-advanced_redis_123}@sahool-redis:6379
+  REDIS_URL: redis://:${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}@sahool-redis:6379
   REDIS_HOST: sahool-redis
   REDIS_PORT: "6379"
-  REDIS_PASSWORD: ${REDIS_PASSWORD:-advanced_redis_123}
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}
   SESSION_STORE_TYPE: redis
-  SESSION_SECRET: advanced_session_secret_key_456
+  SESSION_SECRET: CHANGE_THIS_SESSION_SECRET
   DB_POOL_MIN: "10"
   DB_POOL_MAX: "50"
   SERVER_MAX_THREADS: "400"
   SERVER_MAX_CONNECTIONS: "20000"
-  JWT_SECRET: advanced_jwt_secret_key_789
+  JWT_SECRET: CHANGE_THIS_JWT_SECRET_MIN_32_CHARS
   JWT_EXPIRY: "7200"
   DEFAULT_TENANT_ID: tenant_advanced
 
@@ -88,7 +88,7 @@ services:
     container_name: sahool_db_advanced
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sahool_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-sahool_advanced}
     command: >
       postgres
@@ -130,7 +130,7 @@ services:
       DB_HOST: sahool-db
       DB_PORT: "5432"
       DB_USER: ${POSTGRES_USER:-sahool_admin}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB:-sahool_advanced}
       POOL_MODE: transaction
       MAX_DB_CONNECTIONS: 300
@@ -157,7 +157,7 @@ services:
     command: >
       redis-server
       --appendonly yes
-      --requirepass ${REDIS_PASSWORD:-advanced_redis_123}
+      --requirepass ${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}
       --maxmemory 1gb
       --maxmemory-policy allkeys-lru
       --tcp-keepalive 60
@@ -170,7 +170,7 @@ services:
       sahool-advanced-network:
         ipv4_address: 172.31.0.12
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-advanced_redis_123}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5

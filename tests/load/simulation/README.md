@@ -305,9 +305,9 @@ route:
 |--------|---------|----------|
 | App (LB) | http://localhost:8080 | - |
 | Grafana | http://localhost:3031 | admin/admin |
-| InfluxDB | http://localhost:8087 | admin/adminpassword123 |
-| PostgreSQL | localhost:5433 | sahool_admin |
-| Redis | localhost:6380 | sim_redis_pass_123 |
+| InfluxDB | http://localhost:8087 | See .env.influxdb.secret |
+| PostgreSQL | localhost:5433 | See .env |
+| Redis | localhost:6380 | See .env |
 
 ### الإصدار المتقدم
 

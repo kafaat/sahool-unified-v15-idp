@@ -24,20 +24,20 @@ x-app-common-env: &app-common-env
   NODE_ENV: production
   LOG_LEVEL: info
   # Database - through PgBouncer
-  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-simulation_password_123}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_sim}?pool_timeout=60
+  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_sim}?pool_timeout=60
   DB_HOST: sahool-pgbouncer
   DB_PORT: "6432"
   DB_USER: ${POSTGRES_USER:-sahool_admin}
-  DB_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
   DB_NAME: ${POSTGRES_DB:-sahool_sim}
   # Redis session store
-  REDIS_URL: redis://:${REDIS_PASSWORD:-sim_redis_pass_123}@sahool-redis:6379
+  REDIS_URL: redis://:${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}@sahool-redis:6379
   REDIS_HOST: sahool-redis
   REDIS_PORT: "6379"
-  REDIS_PASSWORD: ${REDIS_PASSWORD:-sim_redis_pass_123}
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}
   # Session configuration
   SESSION_STORE_TYPE: redis
-  SESSION_SECRET: simulation_session_secret_key_123
+  SESSION_SECRET: CHANGE_THIS_SESSION_SECRET
   # Connection pool settings (HikariCP equivalent for Node.js)
   DB_POOL_MIN: "5"
   DB_POOL_MAX: "20"
@@ -49,7 +49,7 @@ x-app-common-env: &app-common-env
   SERVER_MIN_SPARE_THREADS: "10"
   SERVER_MAX_CONNECTIONS: "10000"
   # JWT configuration
-  JWT_SECRET: simulation_jwt_secret_key_for_testing_only
+  JWT_SECRET: CHANGE_THIS_JWT_SECRET_MIN_32_CHARS
   JWT_EXPIRY: "3600"
   # Tenant
   DEFAULT_TENANT_ID: tenant_simulation
@@ -83,7 +83,7 @@ services:
     container_name: sahool_db_sim
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sahool_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-sahool_sim}
       # Performance tuning for simulation
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
@@ -137,7 +137,7 @@ services:
       DB_HOST: sahool-db
       DB_PORT: "5432"
       DB_USER: ${POSTGRES_USER:-sahool_admin}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB:-sahool_sim}
       # Pool mode: transaction for better concurrency
       POOL_MODE: transaction
@@ -178,7 +178,7 @@ services:
     command: >
       redis-server
       --appendonly yes
-      --requirepass ${REDIS_PASSWORD:-sim_redis_pass_123}
+      --requirepass ${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}
       --maxmemory 512mb
       --maxmemory-policy allkeys-lru
       --tcp-keepalive 60
@@ -193,7 +193,7 @@ services:
       sahool-sim-network:
         ipv4_address: 172.30.0.12
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-sim_redis_pass_123}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -482,7 +482,7 @@ services:
 #    Open http://localhost:3031 (admin/admin)
 #
 # 5. View InfluxDB:
-#    Open http://localhost:8087 (admin/adminpassword123)
+#    Open http://localhost:8087 (credentials in .env.influxdb.secret)
 #
 # 6. Stop everything:
 #    docker-compose -f docker-compose-sim.yml down

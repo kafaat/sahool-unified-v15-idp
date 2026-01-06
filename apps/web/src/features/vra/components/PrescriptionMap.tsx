@@ -11,8 +11,7 @@ import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { Map as MapIcon, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { PrescriptionResponse, ZoneResult } from '../types/vra';
-import { ZONE_LEVEL_NAMES } from '../types/vra';
+import type { PrescriptionResponse } from '../types/vra';
 
 // Dynamically import Leaflet components to avoid SSR issues
 const MapContainer = dynamic(
@@ -25,10 +24,6 @@ const TileLayer = dynamic(
 );
 const GeoJSON = dynamic(
   () => import('react-leaflet').then((mod) => mod.GeoJSON),
-  { ssr: false }
-);
-const Popup = dynamic(
-  () => import('react-leaflet').then((mod) => mod.Popup),
   { ssr: false }
 );
 

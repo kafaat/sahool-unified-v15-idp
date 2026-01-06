@@ -15,12 +15,6 @@ import { Marker, Popup } from 'react-leaflet';
 import { useLocale } from 'next-intl';
 import L from 'leaflet';
 import {
-  Bug,
-  Activity,
-  Sprout,
-  Leaf,
-  Droplets,
-  AlertCircle,
   Edit2,
   Trash2,
   CheckCircle,
@@ -29,7 +23,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { Observation } from '../types/scouting';
 import { CATEGORY_OPTIONS, SEVERITY_LABELS } from '../types/scouting';
-import { clsx } from 'clsx';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -115,7 +108,9 @@ export const ObservationMarker: React.FC<ObservationMarkerProps> = ({
   const categoryOption = CATEGORY_OPTIONS.find((opt) => opt.value === observation.category);
   const severityInfo = SEVERITY_LABELS[observation.severity];
 
-  const markerIcon = createMarkerIcon(observation.category, observation.severity);
+  // Cast to any due to incompatible Leaflet types between leaflet and react-leaflet packages
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const markerIcon: any = createMarkerIcon(observation.category, observation.severity);
 
   return (
     <Marker position={position} icon={markerIcon}>

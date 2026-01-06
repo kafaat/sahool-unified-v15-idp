@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { User, Mail, Phone, Clock, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Mail, Phone, Clock, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { TeamMember, ROLE_CONFIGS } from '../types/team';
 

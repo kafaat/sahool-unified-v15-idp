@@ -9,7 +9,6 @@ import React, { useState } from 'react';
 import { FileText, Calendar, CheckCircle, Settings } from 'lucide-react';
 import { useGenerateFieldReport, useGenerateSeasonReport } from '../hooks/useReports';
 import type {
-  ReportType,
   ReportSection,
   ReportFormat,
   GenerateFieldReportRequest,

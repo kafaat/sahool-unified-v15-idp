@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { useReport, useDownloadReport, useShareReport, useReportStatus } from '../hooks/useReports';
 import type { ShareMethod } from '../types/reports';
-import { generateShareLink, generateEmailShareContent } from '../utils/pdf-generator';
+import { generateEmailShareContent } from '../utils/pdf-generator';
 import { logger } from '@/lib/logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -39,7 +39,7 @@ interface ReportPreviewProps {
 export const ReportPreview: React.FC<ReportPreviewProps> = ({
   reportId,
   showNavigation = true,
-  onClose,
+  onClose: _onClose,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showShareMenu, setShowShareMenu] = useState(false);
@@ -56,6 +56,29 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
   const activeReport = statusData || report;
 
   const totalPages = activeReport?.pageCount || 1;
+
+  // Helper to safely access properties (handles both Report and GeneratedReport types)
+  const r = (activeReport as unknown as Record<string, unknown>) || {};
+
+  const getReportName = () => {
+    return (r.titleAr as string) || (r.nameAr as string) || (r.title as string) || (r.name as string) || 'SAHOOL Report';
+  };
+
+  const getReportNameEn = () => {
+    return (r.title as string) || (r.name as string) || 'SAHOOL Report';
+  };
+
+  const getFieldName = () => {
+    return (r.fieldNameAr as string) || (r.fieldName as string) || '';
+  };
+
+  const getSections = () => {
+    return (r.sections as string[]) || [];
+  };
+
+  const getLanguage = () => {
+    return (r.language as string) || 'ar';
+  };
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -91,7 +114,7 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
         alert('تم نسخ الرابط إلى الحافظة!\nLink copied to clipboard!');
       } else if (method === 'email' && shareResult.shareUrl) {
         const emailContent = generateEmailShareContent(
-          activeReport?.title || 'SAHOOL Report',
+          getReportNameEn(),
           shareResult.shareUrl,
           'ar'
         );
@@ -165,7 +188,7 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{activeReport.titleAr}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{getReportName()}</h2>
             <div className="flex flex-wrap gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <FileText className="w-4 h-4" />
@@ -254,12 +277,12 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
                 Report Preview - Page {currentPage} of {totalPages}
               </p>
               <div className="mt-6 text-left">
-                <h3 className="font-bold text-lg mb-2">{activeReport.titleAr}</h3>
+                <h3 className="font-bold text-lg mb-2">{getReportName()}</h3>
                 <p className="text-sm text-gray-600">
-                  {activeReport.fieldNameAr} • {activeReport.format.toUpperCase()}
+                  {getFieldName()} • {activeReport.format.toUpperCase()}
                 </p>
                 <div className="mt-4 space-y-2">
-                  {activeReport.sections.map((section) => (
+                  {getSections().map((section) => (
                     <div key={section} className="text-sm text-gray-700">
                       ✓ {section}
                     </div>
@@ -315,7 +338,7 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
           )}
           <div>
             <span className="font-medium">اللغة:</span>{' '}
-            {activeReport.language === 'both' ? 'عربي + English' : activeReport.language === 'ar' ? 'عربي' : 'English'}
+            {getLanguage() === 'both' ? 'عربي + English' : getLanguage() === 'ar' ? 'عربي' : 'English'}
           </div>
         </div>
       </div>

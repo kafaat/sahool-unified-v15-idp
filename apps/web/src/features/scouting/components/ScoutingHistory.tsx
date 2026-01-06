@@ -28,19 +28,17 @@ import {
   Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Loading } from '@/components/ui/loading';
 import { useScoutingHistory, useScoutingStatistics, useGenerateReport } from '../hooks/useScouting';
 import type {
   ScoutingHistoryFilter,
-  ScoutingSession,
   ObservationCategory,
   Severity,
 } from '../types/scouting';
 import { CATEGORY_OPTIONS, SEVERITY_LABELS } from '../types/scouting';
-import { clsx } from 'clsx';
 import { format } from 'date-fns';
 
 // ═══════════════════════════════════════════════════════════════════════════

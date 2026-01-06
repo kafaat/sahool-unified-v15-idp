@@ -166,7 +166,7 @@ function generateMockWeatherConditions(days: number): WeatherCondition[] {
         temperature: 20 + Math.random() * 15,
         humidity: 50 + Math.random() * 30,
         windSpeed: 5 + Math.random() * 15,
-        windDirection: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.floor(Math.random() * 8)],
+        windDirection: (['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'] as const)[Math.floor(Math.random() * 8)] ?? 'N',
         rainProbability: Math.random() * 30,
         precipitation: Math.random() < 0.2 ? Math.random() * 5 : 0,
         cloudCover: Math.random() * 100,

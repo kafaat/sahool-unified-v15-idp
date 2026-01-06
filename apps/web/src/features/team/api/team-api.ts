@@ -6,16 +6,13 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { logger } from '@/lib/logger';
-import type {
-  TeamMember,
-  InviteRequest,
-  RoleUpdate,
+import {
   Role,
-  TeamStats,
-  ApiResponse,
-  TeamFilters,
-  Permission,
-  ROLE_CONFIGS,
+  type TeamMember,
+  type InviteRequest,
+  type TeamStats,
+  type TeamFilters,
+  type Permission,
 } from '../types/team';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';

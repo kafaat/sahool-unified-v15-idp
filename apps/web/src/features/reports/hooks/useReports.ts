@@ -250,7 +250,7 @@ export function useShareReport() {
 
   return useMutation({
     mutationFn: (request: ShareReportRequest) => fieldReportsApi.shareReport(request),
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: REPORTS_KEYS.detail(variables.reportId) });
       logger.info('Report shared successfully:', variables.reportId);
     },

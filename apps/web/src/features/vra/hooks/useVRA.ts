@@ -223,7 +223,7 @@ export function useExportPrescription() {
         error
       );
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       logger.info(
         `Prescription ${variables.prescriptionId} exported successfully as ${variables.format}`
       );
@@ -283,7 +283,7 @@ export function useDeletePrescription() {
 
       logger.error(`Failed to delete prescription ${prescriptionId}:`, error);
     },
-    onSuccess: (data, prescriptionId) => {
+    onSuccess: (_data, prescriptionId) => {
       // Remove prescription from cache
       queryClient.removeQueries({
         queryKey: vraKeys.prescription(prescriptionId),

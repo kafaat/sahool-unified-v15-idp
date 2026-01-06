@@ -10,7 +10,6 @@ import {
   Users,
   UserPlus,
   Search,
-  Filter,
   LayoutGrid,
   LayoutList,
   Shield,

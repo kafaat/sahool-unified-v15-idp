@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from 'react';
-import { UserPlus, Send, X } from 'lucide-react';
+import { Send, X } from 'lucide-react';
 import { Modal, ModalFooter } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { RoleSelector } from './RoleSelector';

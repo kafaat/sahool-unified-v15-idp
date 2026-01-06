@@ -5,7 +5,6 @@
  * API client for VRA prescription maps and variable rate application features.
  */
 
-import { apiClient } from '@/lib/api';
 import type { ApiResponse } from '@/lib/api/types';
 import { logger } from '@/lib/logger';
 import type {

@@ -22,13 +22,11 @@ import {
   Square,
   Plus,
   List,
-  MapIcon,
   AlertCircle,
-  CheckCircle,
   Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
 import { ObservationForm } from './ObservationForm';
@@ -79,7 +77,7 @@ const MapClickHandler: React.FC<MapClickHandlerProps> = ({ onMapClick, enabled }
 
 export const ScoutingMode: React.FC<ScoutingModeProps> = ({
   fieldId,
-  fieldBoundary,
+  fieldBoundary: _fieldBoundary,
   center = [24.7136, 46.6753], // Default to Riyadh
   zoom = 15,
 }) => {
@@ -90,8 +88,6 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
   const {
     session,
     observations,
-    summary,
-    isLoading,
     startSession,
     endSession,
     addObservation,
@@ -422,7 +418,12 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
               setEditingObservation(null);
             }}
             isSubmitting={isSaving}
-            initialData={editingObservation || undefined}
+            initialData={editingObservation ? {
+              category: editingObservation.category,
+              severity: editingObservation.severity,
+              notes: editingObservation.notes,
+              // photos are not pre-filled when editing (different types)
+            } : undefined}
           />
         )}
       </Modal>

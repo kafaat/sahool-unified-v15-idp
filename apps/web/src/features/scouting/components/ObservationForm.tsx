@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import type {
   ObservationFormData,
   ObservationCategory,
@@ -135,7 +134,7 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
     const newPhotos: PhotoPreview[] = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      if (file.type.startsWith('image/')) {
+      if (file && file.type.startsWith('image/')) {
         newPhotos.push({
           file,
           url: URL.createObjectURL(file),
@@ -149,7 +148,10 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
   const handleRemovePhoto = useCallback((index: number) => {
     setPhotos((prev) => {
       const updated = [...prev];
-      URL.revokeObjectURL(updated[index].url);
+      const photo = updated[index];
+      if (photo) {
+        URL.revokeObjectURL(photo.url);
+      }
       updated.splice(index, 1);
       return updated;
     });
@@ -331,7 +333,6 @@ export const ObservationForm: React.FC<ObservationFormProps> = ({
                     style={{
                       backgroundColor: SEVERITY_LABELS[val as Severity].color,
                       color: 'white',
-                      ringColor: SEVERITY_LABELS[val as Severity].color,
                     }}
                   >
                     {val}

@@ -8,7 +8,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { History, Eye, Trash2, Download, Calendar, TrendingDown, Loader2 } from 'lucide-react';
+import { History, Eye, Trash2, Calendar, TrendingDown, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -16,7 +16,6 @@ import {
   usePrescriptionDetails,
   useDeletePrescription,
 } from '../hooks/useVRA';
-import type { PrescriptionSummary } from '../types/vra';
 import { VRA_TYPES } from '../types/vra';
 import { PrescriptionMap } from './PrescriptionMap';
 import { PrescriptionTable } from './PrescriptionTable';
@@ -194,7 +193,7 @@ export const VRAHistory: React.FC<VRAHistoryProps> = ({
                       {/* Right Section - Actions */}
                       <div className="flex flex-col gap-2">
                         <Button
-                          variant={selectedPrescriptionId === prescription.id ? 'default' : 'outline'}
+                          variant={selectedPrescriptionId === prescription.id ? 'primary' : 'outline'}
                           size="sm"
                           onClick={() =>
                             selectedPrescriptionId === prescription.id

@@ -6,12 +6,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { scoutingApi } from '../api/scouting-api';
 import type {
-  ScoutingSession,
   Observation,
   ObservationFormData,
   ScoutingHistoryFilter,
-  ScoutingStatistics,
-  SessionSummary,
 } from '../types/scouting';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -187,7 +184,7 @@ export function useUpdateObservation() {
   return useMutation({
     mutationFn: ({
       observationId,
-      sessionId,
+      sessionId: _sessionId,
       data,
     }: {
       observationId: string;
@@ -216,7 +213,7 @@ export function useDeleteObservation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ observationId, sessionId }: { observationId: string; sessionId: string }) =>
+    mutationFn: ({ observationId, sessionId: _sessionId }: { observationId: string; sessionId: string }) =>
       scoutingApi.deleteObservation(observationId),
     onSuccess: (_data, { observationId, sessionId }) => {
       // Update observations cache

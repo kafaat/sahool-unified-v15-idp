@@ -8,12 +8,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Table, Download, FileJson, FileText, Loader2 } from 'lucide-react';
+import { Table, FileJson, FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useExportPrescription } from '../hooks/useVRA';
 import type { PrescriptionResponse, ExportFormat } from '../types/vra';
-import { EXPORT_FORMAT_LABELS } from '../types/vra';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Component Props

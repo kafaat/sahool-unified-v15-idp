@@ -125,3 +125,36 @@ The infrastructure sync workflow (`.github/workflows/infra-sync.yml`) validates 
 - Service Registry: `/governance/services.yaml`
 - Docker Compose: `/docker-compose.yml`
 - Validation Script: `/scripts/validate-kong-config.sh`
+
+---
+
+## Future Enhancement Recommendations
+
+Based on code review feedback, consider the following enhancements in future PRs:
+
+### IP Restriction Implementation
+For `billing-core` and `marketplace-service`, implement specific IP restrictions:
+- **Production**: Whitelist specific datacenter/office IP ranges
+- **Staging**: More permissive for testing, but still restricted to internal networks
+- **Development**: Consider allowing broader access for development workflows
+- **Recommendation**: Start with internal network ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) and refine based on actual usage patterns
+
+### Port Mapping Rationale
+The Kong vs container port differences exist to:
+- Maintain consistent API endpoints across different deployment environments (dev, staging, prod)
+- Allow for blue-green deployments without changing external routing
+- Support gradual service migration without breaking existing integrations
+- Enable port changes in containers without affecting API consumers
+
+### NDVI Service Migration Timeline
+Proposed migration path for deprecated NDVI services:
+1. **Phase 1** (Current): Both `ndvi-processor` and `ndvi-engine` operational, Kong routes to `ndvi-processor`
+2. **Phase 2** (Q1 2026): Consolidate into `vegetation-analysis-service`, add compatibility layer
+3. **Phase 3** (Q2 2026): Update all clients to use `vegetation-analysis-service` directly
+4. **Phase 4** (Q3 2026): Deprecate and remove `ndvi-processor` and `ndvi-engine`
+
+---
+
+*Document Version: 1.1*  
+*Last Updated: 2026-01-06*  
+*Status: Active*

@@ -117,9 +117,8 @@ jobs:
           - name: weather-advanced
             path: apps/services/weather-advanced
             port: 8004
-          - name: crop-health-ai
-            path: apps/services/crop-health-ai
-            port: 8005
+          # crop-health-ai removed - DEPRECATED (see docs/DEPRECATED_SERVICES.md)
+          # Use crop-intelligence-service instead
           - name: fertilizer-advisor
             path: apps/services/fertilizer-advisor
             port: 8006

@@ -10,6 +10,7 @@ import '../utils/app_logger.dart';
 import 'rate_limiter.dart';
 import 'request_signing_interceptor.dart';
 import 'security_headers_interceptor.dart';
+import 'retry_interceptor.dart';
 
 /// SAHOOL API Client with offline handling and certificate pinning
 class ApiClient {
@@ -80,6 +81,13 @@ class ApiClient {
       rateLimiter: _rateLimiter,
       queueExceededRequests: true,
     ));
+
+    // Add retry interceptor for automatic retry on network errors
+    _dio.interceptors.add(RetryInterceptor(
+      maxRetries: 3,
+      initialDelay: const Duration(seconds: 1),
+    ));
+
     _dio.interceptors.add(_AuthInterceptor(this));
 
     // Add request signing interceptor after auth

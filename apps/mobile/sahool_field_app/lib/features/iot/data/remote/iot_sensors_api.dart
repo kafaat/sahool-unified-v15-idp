@@ -291,8 +291,12 @@ class IoTSensorsApi {
 
   /// Get WebSocket URL for field
   /// جلب رابط WebSocket للحقل
-  String getWebSocketUrl(String fieldId, String token) {
-    return '$_wsUrl/fields/$fieldId?token=$token';
+  ///
+  /// Security Note: Token should be passed via Authorization header when connecting,
+  /// not in the URL. Use: headers: {'Authorization': 'Bearer $token'}
+  /// ملاحظة أمنية: يجب تمرير الرمز عبر رأس التفويض وليس في عنوان URL
+  String getWebSocketUrl(String fieldId) {
+    return '$_wsUrl/fields/$fieldId';
   }
 
   // ─────────────────────────────────────────────────────────────────────────

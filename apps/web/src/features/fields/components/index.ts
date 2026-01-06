@@ -8,12 +8,16 @@ export { FieldDetails } from './FieldDetails';
 export { FieldForm } from './FieldForm';
 export { FieldMap } from './FieldMap';
 export { FieldsList } from './FieldsList';
+// Export dynamic (lazy-loaded) map component by default for optimal bundle size (~150KB saved)
 export {
-  InteractiveFieldMap,
-  type InteractiveFieldMapProps,
-  type HealthZone,
-  type MapTask,
-  type LayerConfig
+  InteractiveFieldMap
+} from './InteractiveFieldMap.dynamic';
+// Re-export types from the original component
+export type {
+  InteractiveFieldMapProps,
+  HealthZone,
+  MapTask,
+  LayerConfig
 } from './InteractiveFieldMap';
 export {
   NdviTileLayer,

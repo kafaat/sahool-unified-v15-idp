@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { FileText, Download, CheckCircle } from 'lucide-react';
 import { useGenerateReport, useDownloadReport } from '../hooks/useAnalytics';
 import type { AnalyticsFilters, ReportConfig, ReportSectionType } from '../types';
@@ -15,54 +16,42 @@ interface ReportGeneratorProps {
   filters?: AnalyticsFilters;
 }
 
-const reportSections: Array<{
-  type: ReportSectionType;
-  label: string;
-  labelAr: string;
-  description: string;
-}> = [
-  {
-    type: 'summary',
-    label: 'Summary',
-    labelAr: 'الملخص',
-    description: 'Overview of key metrics and statistics',
-  },
-  {
-    type: 'yield_analysis',
-    label: 'Yield Analysis',
-    labelAr: 'تحليل المحصول',
-    description: 'Detailed yield analysis with charts',
-  },
-  {
-    type: 'cost_analysis',
-    label: 'Cost Analysis',
-    labelAr: 'تحليل التكاليف',
-    description: 'Cost breakdown and analysis',
-  },
-  {
-    type: 'revenue_analysis',
-    label: 'Revenue Analysis',
-    labelAr: 'تحليل الإيرادات',
-    description: 'Revenue and profit analysis',
-  },
-  {
-    type: 'comparison',
-    label: 'Comparison',
-    labelAr: 'المقارنة',
-    description: 'Field and season comparisons',
-  },
-  {
-    type: 'recommendations',
-    label: 'Recommendations',
-    labelAr: 'التوصيات',
-    description: 'AI-powered recommendations',
-  },
-];
-
 export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
+  const t = useTranslations('analytics');
+  const tSections = useTranslations('reportSections');
+
+  const reportSections: Array<{
+    type: ReportSectionType;
+  }> = [
+    { type: 'summary' },
+    { type: 'yield_analysis' },
+    { type: 'cost_analysis' },
+    { type: 'revenue_analysis' },
+    { type: 'comparison' },
+    { type: 'recommendations' },
+  ];
+
+  const getSectionLabel = (type: ReportSectionType): string => {
+    const typeKey = type === 'yield_analysis' ? 'yieldAnalysis' :
+                    type === 'cost_analysis' ? 'costAnalysis' :
+                    type === 'revenue_analysis' ? 'revenueAnalysis' :
+                    type;
+    return tSections(typeKey);
+  };
+
+  const getSectionDescription = (type: ReportSectionType): string => {
+    const typeKey = type === 'yield_analysis' ? 'yieldAnalysisDesc' :
+                    type === 'cost_analysis' ? 'costAnalysisDesc' :
+                    type === 'revenue_analysis' ? 'revenueAnalysisDesc' :
+                    type === 'summary' ? 'summaryDesc' :
+                    type === 'comparison' ? 'comparisonDesc' :
+                    'recommendationsDesc';
+    return tSections(typeKey);
+  };
+  const defaultTitle = t('reportTitle');
   const [config, setConfig] = useState<ReportConfig>({
-    title: 'تقرير التحليلات الزراعية',
-    titleAr: 'تقرير التحليلات الزراعية',
+    title: defaultTitle,
+    titleAr: defaultTitle,
     period: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!,
       end: new Date().toISOString().split('T')[0]!,
@@ -113,14 +102,14 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
       {/* Report Configuration */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">
-          إعدادات التقرير
+          {t('reportSettings')}
         </h3>
 
         <div className="space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              عنوان التقرير
+              {t('reportTitle')}
             </label>
             <input
               type="text"
@@ -135,7 +124,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                من تاريخ
+                {t('fromDate')}
               </label>
               <input
                 type="date"
@@ -151,7 +140,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                إلى تاريخ
+                {t('toDate')}
               </label>
               <input
                 type="date"
@@ -171,7 +160,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                صيغة التقرير
+                {t('reportFormat')}
               </label>
               <select
                 value={config.format}
@@ -187,7 +176,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                اللغة
+                {t('language')}
               </label>
               <select
                 value={config.language}
@@ -196,9 +185,9 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
-                <option value="both">كلاهما</option>
+                <option value="ar">{t('arabic')}</option>
+                <option value="en">{t('english')}</option>
+                <option value="both">{t('both')}</option>
               </select>
             </div>
             <div className="flex items-end">
@@ -211,7 +200,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
                   }
                   className="w-5 h-5 text-green-500 rounded focus:ring-green-500"
                 />
-                <span className="text-sm font-medium text-gray-700">تضمين الرسوم البيانية</span>
+                <span className="text-sm font-medium text-gray-700">{t('includeCharts')}</span>
               </label>
             </div>
           </div>
@@ -221,7 +210,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
       {/* Sections Selection */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          أقسام التقرير
+          {t('reportSections')}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {reportSections.map((section) => {
@@ -239,10 +228,10 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-gray-900">{section.labelAr}</h4>
+                      <h4 className="font-medium text-gray-900">{getSectionLabel(section.type)}</h4>
                       {enabled && <CheckCircle className="w-5 h-5 text-green-500" />}
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">{section.description}</p>
+                    <p className="text-sm text-gray-600 mt-1">{getSectionDescription(section.type)}</p>
                   </div>
                 </div>
               </div>
@@ -261,12 +250,12 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
           {generateMutation.isPending || downloadMutation.isPending ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              <span>جاري إنشاء التقرير...</span>
+              <span>{t('generatingReport')}</span>
             </>
           ) : (
             <>
               <FileText className="w-6 h-6" />
-              <span>إنشاء التقرير</span>
+              <span>{t('generateReport')}</span>
               <Download className="w-5 h-5" />
             </>
           )}
@@ -277,10 +266,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
       {generateMutation.isSuccess && !downloadMutation.isPending && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
           <p className="text-green-800 font-medium">
-            تم إنشاء التقرير بنجاح!
-          </p>
-          <p className="text-sm text-green-600 mt-1">
-            Report generated successfully!
+            {t('reportGeneratedSuccess')}
           </p>
         </div>
       )}
@@ -289,10 +275,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
       {(generateMutation.isError || downloadMutation.isError) && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
           <p className="text-red-800 font-medium">
-            فشل في إنشاء التقرير
-          </p>
-          <p className="text-sm text-red-600 mt-1">
-            Failed to generate report
+            {t('reportGeneratedFailed')}
           </p>
         </div>
       )}

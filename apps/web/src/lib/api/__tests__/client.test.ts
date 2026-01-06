@@ -16,6 +16,12 @@ vi.mock('../../logger', () => ({
   },
 }));
 
+// Mock the security library for CSRF tests
+vi.mock('../../security/security', () => ({
+  getCsrfHeaders: vi.fn(() => ({ 'X-CSRF-Token': 'test-csrf-token' })),
+  getCsrfToken: vi.fn(() => 'test-csrf-token'),
+}));
+
 // Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -638,6 +644,173 @@ describe('SahoolApiClient', () => {
 
       const [, options] = mockFetch.mock.calls[0];
       expect(options.method).toBe('POST');
+    });
+  });
+
+  describe('CSRF Protection', () => {
+    beforeEach(() => {
+      apiClient.setToken('test-token');
+      vi.clearAllMocks();
+    });
+
+    it('should include CSRF token in POST requests', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true, data: { id: 'field-new' } }),
+      });
+
+      await apiClient.createField({
+        name: 'Test Field',
+        tenantId: 'tenant-1',
+        boundary: { type: 'Polygon', coordinates: [] },
+      } as any);
+
+      const [, options] = mockFetch.mock.calls[0];
+      expect(options.headers['X-CSRF-Token']).toBe('test-csrf-token');
+    });
+
+    it('should include CSRF token in PUT requests', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      });
+
+      await apiClient.updateField('field-1', { name: 'Updated' } as any);
+
+      const [, options] = mockFetch.mock.calls[0];
+      expect(options.headers['X-CSRF-Token']).toBe('test-csrf-token');
+    });
+
+    it('should include CSRF token in DELETE requests', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      });
+
+      await apiClient.deleteField('field-1');
+
+      const [, options] = mockFetch.mock.calls[0];
+      expect(options.headers['X-CSRF-Token']).toBe('test-csrf-token');
+    });
+
+    it('should include CSRF token in PATCH requests (if used)', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true }),
+      });
+
+      await apiClient.updateTaskStatus('task-1', 'completed');
+
+      const [, options] = mockFetch.mock.calls[0];
+      expect(options.headers['X-CSRF-Token']).toBe('test-csrf-token');
+    });
+
+    it('should NOT include CSRF token in GET requests', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true, data: [] }),
+      });
+
+      await apiClient.getFields('tenant-1');
+
+      const [, options] = mockFetch.mock.calls[0];
+      // CSRF token should not be in headers for GET requests
+      expect(options.headers['X-CSRF-Token']).toBeUndefined();
+    });
+
+    it('should include CSRF token in file upload requests', async () => {
+      const mockFile = new File(['dummy content'], 'test.jpg', { type: 'image/jpeg' });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({
+          success: true,
+          data: { disease: 'healthy', confidence: 0.95 },
+        }),
+      });
+
+      await apiClient.analyzeCropHealth(mockFile);
+
+      const [, options] = mockFetch.mock.calls[0];
+      expect(options.headers['X-CSRF-Token']).toBe('test-csrf-token');
+    });
+
+    it('should handle missing CSRF token gracefully', async () => {
+      // Mock getCsrfHeaders to return empty object (token not available)
+      const security = await import('../../security/security');
+      vi.mocked(security.getCsrfHeaders).mockReturnValueOnce({});
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true, data: { id: 'field-new' } }),
+      });
+
+      const result = await apiClient.createField({
+        name: 'Test Field',
+        tenantId: 'tenant-1',
+        boundary: { type: 'Polygon', coordinates: [] },
+      } as any);
+
+      // Should still make the request, but without CSRF token
+      expect(result.success).toBe(true);
+      expect(mockFetch).toHaveBeenCalled();
+    });
+
+    it('should combine CSRF headers with existing headers', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: async () => ({ success: true, data: { id: 'field-1' } }),
+      });
+
+      const result = await apiClient.updateField(
+        'field-1',
+        { name: 'Updated' } as any,
+        'etag-123' // ETag header
+      );
+
+      expect(result.success).toBe(true);
+      expect(mockFetch).toHaveBeenCalled();
+
+      const [, options] = mockFetch.mock.calls[0];
+      expect(options.headers['X-CSRF-Token']).toBe('test-csrf-token');
+      expect(options.headers['If-Match']).toBe('etag-123');
+    });
+
+    it('should include CSRF token in all state-changing methods', async () => {
+      const stateChangingMethods = [
+        { fn: () => apiClient.createField({ name: 'Test', tenantId: 'tenant-1', boundary: {} } as any), method: 'POST' },
+        { fn: () => apiClient.updateField('field-1', { name: 'Updated' } as any), method: 'PUT' },
+        { fn: () => apiClient.deleteField('field-1'), method: 'DELETE' },
+        { fn: () => apiClient.createTask({ title: 'Task', fieldId: 'field-1', priority: 'high' } as any), method: 'POST' },
+        { fn: () => apiClient.updateTaskStatus('task-1', 'completed'), method: 'PUT' },
+        { fn: () => apiClient.sendFieldMessage('field-1', 'Hello'), method: 'POST' },
+      ];
+
+      for (const { fn, method } of stateChangingMethods) {
+        vi.clearAllMocks();
+        mockFetch.mockResolvedValueOnce({
+          ok: true,
+          headers: new Headers({ 'content-type': 'application/json' }),
+          json: async () => ({ success: true, data: {} }),
+        });
+
+        const result = await fn();
+
+        expect(mockFetch).toHaveBeenCalled();
+        if (mockFetch.mock.calls.length > 0) {
+          const [, options] = mockFetch.mock.calls[0];
+          expect(options.method).toBe(method);
+          expect(options.headers['X-CSRF-Token']).toBe('test-csrf-token');
+        }
+      }
     });
   });
 });

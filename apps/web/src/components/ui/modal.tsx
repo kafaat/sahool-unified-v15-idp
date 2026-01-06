@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { clsx } from 'clsx';
 import { X } from 'lucide-react';
+import FocusLock from 'react-focus-lock';
 
 export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
@@ -66,53 +67,55 @@ export function Modal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-      onClick={handleOverlayClick}
-      aria-hidden="true"
-    >
+    <FocusLock returnFocus>
       <div
-        ref={modalRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={(title || titleAr) ? titleId : undefined}
-        aria-describedby={descriptionId}
-        className={clsx(
-          'relative bg-white rounded-lg shadow-xl w-full',
-          sizes[size],
-          'max-h-[90vh] flex flex-col',
-          className
-        )}
-        {...props}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+        onClick={handleOverlayClick}
+        aria-hidden="true"
       >
-        {/* Header */}
-        {(title || titleAr || showCloseButton) && (
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            {(title || titleAr) && (
-              <h2 id={titleId} className="text-xl font-bold text-gray-900">
-                <span className="text-gray-900">{titleAr}</span>
-                {titleAr && title && <span className="mx-2">•</span>}
-                {title && <span className="text-gray-600 text-base">{title}</span>}
-              </h2>
-            )}
-            {showCloseButton && (
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
-                aria-label="Close"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        )}
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={(title || titleAr) ? titleId : undefined}
+          aria-describedby={descriptionId}
+          className={clsx(
+            'relative bg-white rounded-lg shadow-xl w-full',
+            sizes[size],
+            'max-h-[90vh] flex flex-col',
+            className
+          )}
+          {...props}
+        >
+          {/* Header */}
+          {(title || titleAr || showCloseButton) && (
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              {(title || titleAr) && (
+                <h2 id={titleId} className="text-xl font-bold text-gray-900">
+                  <span className="text-gray-900">{titleAr}</span>
+                  {titleAr && title && <span className="mx-2">•</span>}
+                  {title && <span className="text-gray-600 text-base">{title}</span>}
+                </h2>
+              )}
+              {showCloseButton && (
+                <button
+                  onClick={onClose}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+          )}
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {children}
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </FocusLock>
   );
 }
 

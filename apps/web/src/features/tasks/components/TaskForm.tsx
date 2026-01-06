@@ -22,6 +22,16 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   onCancel,
   isSubmitting = false,
 }) => {
+  // Generate unique IDs for form fields
+  const titleArId = React.useId();
+  const titleId = React.useId();
+  const dueDateId = React.useId();
+  const priorityId = React.useId();
+  const statusId = React.useId();
+  const fieldIdId = React.useId();
+  const descriptionArId = React.useId();
+  const descriptionId = React.useId();
+
   const [formData, setFormData] = useState<TaskFormData>({
     title: task?.title || '',
     title_ar: task?.title || '', // Use title as fallback
@@ -54,10 +64,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       <div className="space-y-6">
         {/* Title (Arabic) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor={titleArId} className="block text-sm font-medium text-gray-700 mb-2">
             العنوان (بالعربية) *
           </label>
           <input
+            id={titleArId}
             type="text"
             required
             value={formData.title_ar}
@@ -69,10 +80,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
         {/* Title (English) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor={titleId} className="block text-sm font-medium text-gray-700 mb-2">
             Title (English) *
           </label>
           <input
+            id={titleId}
             type="text"
             required
             value={formData.title}
@@ -87,10 +99,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Due Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor={dueDateId} className="block text-sm font-medium text-gray-700 mb-2">
               تاريخ الاستحقاق *
             </label>
             <input
+              id={dueDateId}
               type="date"
               required
               value={formData.due_date}
@@ -101,10 +114,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
           {/* Priority */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor={priorityId} className="block text-sm font-medium text-gray-700 mb-2">
               الأولوية *
             </label>
             <select
+              id={priorityId}
               required
               value={formData.priority}
               onChange={(e) => handleChange('priority', e.target.value as Priority)}
@@ -121,10 +135,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Status */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor={statusId} className="block text-sm font-medium text-gray-700 mb-2">
               الحالة
             </label>
             <select
+              id={statusId}
               value={formData.status}
               onChange={(e) => handleChange('status', e.target.value as TaskStatus)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
@@ -138,10 +153,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
           {/* Field ID */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor={fieldIdId} className="block text-sm font-medium text-gray-700 mb-2">
               الحقل (اختياري)
             </label>
             <input
+              id={fieldIdId}
               type="text"
               value={formData.field_id}
               onChange={(e) => handleChange('field_id', e.target.value)}
@@ -153,10 +169,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
         {/* Description (Arabic) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor={descriptionArId} className="block text-sm font-medium text-gray-700 mb-2">
             الوصف (بالعربية)
           </label>
           <textarea
+            id={descriptionArId}
             value={formData.description_ar}
             onChange={(e) => handleChange('description_ar', e.target.value)}
             rows={4}
@@ -167,10 +184,11 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 
         {/* Description (English) */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor={descriptionId} className="block text-sm font-medium text-gray-700 mb-2">
             Description (English)
           </label>
           <textarea
+            id={descriptionId}
             value={formData.description}
             onChange={(e) => handleChange('description', e.target.value)}
             rows={4}

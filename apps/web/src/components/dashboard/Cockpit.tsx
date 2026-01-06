@@ -6,7 +6,6 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
-import dynamic from 'next/dynamic';
 import { StatsCards } from './StatsCards';
 import { TaskList } from './TaskList';
 import { EventTimeline } from './EventTimeline';
@@ -14,20 +13,8 @@ import { AlertPanel } from './AlertPanel';
 import { QuickActions } from './QuickActions';
 import { useAlerts } from '../../hooks/useAlerts';
 import { ErrorTracking } from '@/lib/monitoring/error-tracking';
+import { MapView } from './MapView.dynamic';
 // import type { KPI } from '@/types';
-
-// Dynamic import for MapView (client-side only, requires maplibre-gl)
-const MapView = dynamic(() => import('./MapView'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <span className="text-4xl">🗺️</span>
-        <p className="text-gray-500 mt-2">جاري تحميل الخريطة...</p>
-      </div>
-    </div>
-  ),
-});
 
 interface CockpitProps {
   tenantId?: string;

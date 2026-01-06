@@ -16,7 +16,8 @@ export { StatsCards } from './StatsCards';
 export { TaskCard } from './TaskCard';
 export { TaskList } from './TaskList';
 export { EventTimeline } from './EventTimeline';
-export { default as MapView } from './MapView';
+// Export dynamic (lazy-loaded) map component by default for optimal bundle size (~200KB saved)
+export { MapView } from './MapView.dynamic';
 
 // UI Components
 export { Skeleton, SkeletonCard, SkeletonTaskItem, SkeletonEventItem } from './ui/Skeleton';

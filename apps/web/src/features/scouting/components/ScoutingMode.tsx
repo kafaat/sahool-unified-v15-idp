@@ -62,7 +62,8 @@ interface MapClickHandlerProps {
 
 const MapClickHandler: React.FC<MapClickHandlerProps> = ({ onMapClick, enabled }) => {
   useMapEvents({
-    click: (e) => {
+    // @ts-ignore - TODO: react-leaflet 4.2.1 types incompatible with React 19
+    click: (e: any) => {
       if (enabled) {
         onMapClick([e.latlng.lat, e.latlng.lng]);
       }
@@ -301,15 +302,18 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
       <div className="flex-1 flex overflow-hidden">
         {/* Map */}
         <div className={clsx('flex-1 relative', isScoutingMode && 'cursor-crosshair')}>
+          {/* TODO: react-leaflet 4.2.1 types incompatible with React 19 - using type assertion */}
           <MapContainer
             center={center}
             zoom={zoom}
             style={{ width: '100%', height: '100%' }}
             className="z-0"
+            {...({} as any)}
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              {...({} as any)}
             />
 
             {/* Map click handler */}
@@ -326,6 +330,7 @@ export const ScoutingMode: React.FC<ScoutingModeProps> = ({
                 }}
                 onDelete={handleDeleteObservation}
                 editable={isSessionActive}
+                {...({} as any)}
               />
             ))}
           </MapContainer>

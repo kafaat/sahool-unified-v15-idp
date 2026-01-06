@@ -19,15 +19,15 @@ Restored **active healthchecks** for 3 critical upstreams:
 **Impact**: Improved service reliability and faster failure detection for critical services.
 
 ### 3. Service URL/Port Alignment
-Fixed 6 service configuration mismatches:
+Fixed 6 service configuration mismatches to match canonical configuration:
 - ✅ `agro-advisor`: Now uses `url: http://advisory-service:8093` (consistent with deployment)
-- ✅ `ndvi-engine`: Now uses `url: http://ndvi-processor:8118` (canonical reference)
-- ✅ `yield-engine`: Now uses `url: http://yield-prediction-service:3021` (canonical port)
-- ✅ `inventory-service`: Now uses `url: http://inventory-service:8115` (canonical port)
-- ✅ `iot-gateway`: Now uses `host: iot-gateway-upstream` (consistent upstream reference)
-- ✅ `weather-advanced`: Now uses `url: http://weather-service:8108` (canonical port)
+- ✅ `ndvi-engine`: Now uses `url: http://ndvi-processor:8118` (routes to ndvi-processor as canonical backend)
+- ✅ `yield-engine`: Now uses `url: http://yield-prediction-service:3021` (Kong canonical port, container uses 8098)
+- ✅ `inventory-service`: Now uses `url: http://inventory-service:8115` (Kong canonical port, container uses 8116)
+- ✅ `iot-gateway`: Now uses `host: iot-gateway-upstream`
+- ✅ `weather-advanced`: Now uses `url: http://weather-service:8108` (Kong canonical port)
 
-**Impact**: Eliminates configuration drift and ensures Kong routes match actual service deployments.
+**Impact**: Eliminates configuration drift and ensures Kong routes match canonical service definitions. Note that some Kong ports differ from actual container ports for routing consistency across environments.
 
 ### 4. Service Consolidation
 - ✅ Removed `auth-service` from infrastructure/ file (was a placeholder not in canonical)

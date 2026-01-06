@@ -29,11 +29,13 @@ All three upstreams now have consistent active healthcheck configurations:
 ### 2. **Service URL/Host Configurations** ✅
 All service URLs and ports now match the canonical configuration:
 - `agro-advisor`: Uses `url: http://advisory-service:8093`
-- `ndvi-engine`: Uses `url: http://ndvi-processor:8118` (DEPRECATED service)
-- `yield-engine`: Uses `url: http://yield-prediction-service:3021`
-- `inventory-service`: Uses `url: http://inventory-service:8115`
+- `ndvi-engine`: Uses `url: http://ndvi-processor:8118` (Kong routes to ndvi-processor as canonical backend)
+- `yield-engine`: Uses `url: http://yield-prediction-service:3021` (Kong canonical port)
+- `inventory-service`: Uses `url: http://inventory-service:8115` (Kong canonical port)
 - `iot-gateway`: Uses `host: iot-gateway-upstream`
-- `weather-advanced`: Uses `url: http://weather-service:8108`
+- `weather-advanced`: Uses `url: http://weather-service:8108` (Kong canonical port)
+
+**Note**: Some Kong ports differ from actual container ports. This is intentional for maintaining routing consistency across different deployment environments.
 
 ### 3. **Removed Services** ✅
 The `auth-service` that was only in the infrastructure/ file has been removed to match the canonical configuration. Authentication endpoints should be implemented as a dedicated service when needed.
@@ -55,15 +57,17 @@ Both configuration files have been validated:
 
 Based on the actual docker-compose.yml deployment configuration:
 
-| Service | Container | Port | Status |
-|---------|-----------|------|--------|
-| advisory-service | sahool-advisory-service | 8093 | Active |
-| weather-service | sahool-weather-service | 8092 | Active |
-| iot-gateway | sahool-iot-gateway | 8106 | Active |
-| inventory-service | sahool-inventory-service | 8116 | Active |
-| yield-prediction-service | sahool-yield-prediction-service | 8098 | Active |
-| ndvi-processor | sahool-ndvi-processor | 8118 | Deprecated |
-| ndvi-engine | sahool-ndvi-engine | 8107 | Deprecated |
+| Service | Container | Port | Kong Port | Status |
+|---------|-----------|------|-----------|--------|
+| advisory-service | sahool-advisory-service | 8093 | 8093 | Active |
+| weather-service | sahool-weather-service | 8092 | 8092 | Active |
+| iot-gateway | sahool-iot-gateway | 8106 | upstream | Active |
+| inventory-service | sahool-inventory-service | 8116 | 8115 (Kong) | Active |
+| yield-prediction-service | sahool-yield-prediction-service | 8098 | 3021 (Kong) | Active |
+| ndvi-processor | sahool-ndvi-processor | 8118 | 8118 | Deprecated |
+| ndvi-engine | sahool-ndvi-engine | 8107 | 8118 (via ndvi-processor) | Deprecated |
+
+**Note**: Some services have different ports in Kong configuration vs actual container deployment. Kong routes use the canonical ports defined in `/infra/kong/kong.yml`.
 
 ## Maintenance Guidelines
 
@@ -107,8 +111,12 @@ The infrastructure sync workflow (`.github/workflows/infra-sync.yml`) validates 
 
 1. ✅ Configuration alignment completed
 2. ⚠️ Consider adding IP restrictions to `billing-core` and `marketplace-service` for enhanced security
-3. 🔄 Plan migration away from deprecated NDVI services (`ndvi-processor`, `ndvi-engine`) to consolidated `vegetation-analysis-service` (Port 8090)
+3. 🔄 Plan migration away from deprecated NDVI services to consolidated `vegetation-analysis-service` (Port 8090):
+   - `ndvi-processor` (Container: 8118) - currently used as canonical backend
+   - `ndvi-engine` (Container: 8107) - Kong routes to ndvi-processor:8118
 4. 🔄 Implement dedicated authentication service to replace placeholder endpoints
+
+**Note on Port Differences**: Some services have different ports in Kong configuration vs actual container deployment. Kong uses canonical ports from `/infra/kong/kong.yml` for consistency across deployment environments. For example, `inventory-service` runs on container port 8116 but Kong routes use port 8115.
 
 ## References
 

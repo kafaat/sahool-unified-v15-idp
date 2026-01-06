@@ -2281,6 +2281,48 @@ services:
     networks:
       - sahool-network
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Demo Data Service - Simulates API data flow
+  # خدمة البيانات التجريبية - تحاكي تدفق البيانات عبر واجهات API
+  # ─────────────────────────────────────────────────────────────────────────────
+  demo-data:
+    build:
+      context: ./apps/services/demo-data
+      dockerfile: Dockerfile
+    container_name: sahool-demo-data
+    environment:
+      - KONG_URL=http://kong:8000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DEMO_MODE=${DEMO_MODE:-continuous}
+      - INTERVAL_SECONDS=${DEMO_INTERVAL_SECONDS:-30}
+      - TENANT_ID=${DEMO_TENANT_ID:-a0000000-0000-0000-0000-000000000001}
+      - USER_ID=${DEMO_USER_ID:-b0000000-0000-0000-0000-000000000001}
+      - BATCH_COUNT=${DEMO_BATCH_COUNT:-100}
+    depends_on:
+      kong:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    profiles:
+      - demo
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Networks
 # ─────────────────────────────────────────────────────────────────────────────

@@ -9,11 +9,17 @@ Port: 8104
 from datetime import datetime
 from enum import Enum
 from typing import Any
+import os
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
+
+# Import database models and services
+from models import Database, ProviderConfig as DBProviderConfig
+from database_service import CacheManager, ProviderConfigService
 
 app = FastAPI(
     title="SAHOOL Provider Configuration Service",
@@ -634,11 +640,67 @@ class ProvidersListResponse(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# IN-MEMORY STORAGE (Replace with database in production)
+# DATABASE & CACHE INITIALIZATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
-tenant_configs: dict[str, TenantProviderConfig] = {}
-provider_status_cache: dict[str, ProviderStatusResponse] = {}
+# Database and cache instances (initialized on startup)
+database: Database | None = None
+cache_manager: CacheManager | None = None
+config_service: ProviderConfigService | None = None
+
+
+def get_db_session():
+    """Get database session dependency"""
+    if not database:
+        raise HTTPException(status_code=503, detail="Database not initialized")
+    session = next(database.get_session())
+    try:
+        yield session
+    finally:
+        session.close()
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database and cache on startup"""
+    global database, cache_manager, config_service
+
+    # Get configuration from environment
+    database_url = os.getenv(
+        "DATABASE_URL", "postgresql://sahool:sahool@pgbouncer:6432/sahool"
+    )
+    redis_url = os.getenv("REDIS_URL", "redis://:password@redis:6379/0")
+
+    # Initialize database
+    try:
+        database = Database(database_url)
+        database.create_tables()
+        print("✓ Database initialized successfully")
+    except Exception as e:
+        print(f"✗ Database initialization failed: {e}")
+        raise
+
+    # Initialize cache
+    try:
+        cache_manager = CacheManager(redis_url, cache_ttl=300)
+        print("✓ Cache initialized successfully")
+    except Exception as e:
+        print(f"⚠ Cache initialization failed: {e} (continuing without cache)")
+        # Create a dummy cache manager that doesn't actually cache
+        cache_manager = CacheManager(redis_url, cache_ttl=0)
+
+    # Initialize config service
+    config_service = ProviderConfigService(database, cache_manager)
+    print("✓ Provider Config Service initialized")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    global database, cache_manager
+    if cache_manager and cache_manager.redis_client:
+        cache_manager.redis_client.close()
+    print("✓ Service shutdown complete")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1132,10 +1194,23 @@ async def check_all_free_providers():
 
 
 @app.get("/config/{tenant_id}")
-async def get_tenant_config(tenant_id: str):
+async def get_tenant_config(tenant_id: str, session: Session = Depends(get_db_session)):
     """Get provider configuration for a tenant"""
-    if tenant_id not in tenant_configs:
-        # Return default config
+    if not config_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+
+    # Get configs from database
+    map_configs = config_service.get_tenant_configs(session, tenant_id, "map")
+    weather_configs = config_service.get_tenant_configs(session, tenant_id, "weather")
+    satellite_configs = config_service.get_tenant_configs(session, tenant_id, "satellite")
+    payment_configs = config_service.get_tenant_configs(session, tenant_id, "payment")
+    sms_configs = config_service.get_tenant_configs(session, tenant_id, "sms")
+    notification_configs = config_service.get_tenant_configs(
+        session, tenant_id, "notification"
+    )
+
+    # If no configs exist, return defaults
+    if not (map_configs or weather_configs or satellite_configs):
         return {
             "tenant_id": tenant_id,
             "map_providers": [
@@ -1154,26 +1229,207 @@ async def get_tenant_config(tenant_id: str):
                 {"provider_name": "open_meteo", "priority": "primary", "enabled": True},
             ],
             "satellite_providers": [],
+            "payment_providers": [],
+            "sms_providers": [],
+            "notification_providers": [],
             "is_default": True,
         }
 
-    return tenant_configs[tenant_id]
+    # Return stored configs
+    return {
+        "tenant_id": tenant_id,
+        "map_providers": [c.to_dict() for c in map_configs] if map_configs else [],
+        "weather_providers": [c.to_dict() for c in weather_configs]
+        if weather_configs
+        else [],
+        "satellite_providers": [c.to_dict() for c in satellite_configs]
+        if satellite_configs
+        else [],
+        "payment_providers": [c.to_dict() for c in payment_configs]
+        if payment_configs
+        else [],
+        "sms_providers": [c.to_dict() for c in sms_configs] if sms_configs else [],
+        "notification_providers": [c.to_dict() for c in notification_configs]
+        if notification_configs
+        else [],
+        "is_default": False,
+    }
 
 
 @app.post("/config/{tenant_id}")
-async def update_tenant_config(tenant_id: str, config: TenantProviderConfig):
+async def update_tenant_config(
+    tenant_id: str, config: TenantProviderConfig, session: Session = Depends(get_db_session)
+):
     """Update provider configuration for a tenant"""
-    config.tenant_id = tenant_id
-    tenant_configs[tenant_id] = config
-    return {"success": True, "config": config}
+    if not config_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+
+    try:
+        # Update map providers
+        for provider in config.map_providers:
+            existing = config_service.get_config_by_name(
+                session, tenant_id, "map", provider.provider_name
+            )
+            if existing:
+                config_service.update_config(
+                    session,
+                    tenant_id,
+                    "map",
+                    provider.provider_name,
+                    api_key=provider.api_key,
+                    priority=provider.priority,
+                    enabled=provider.enabled,
+                )
+            else:
+                config_service.create_config(
+                    session,
+                    tenant_id,
+                    "map",
+                    provider.provider_name,
+                    api_key=provider.api_key,
+                    priority=provider.priority,
+                    enabled=provider.enabled,
+                )
+
+        # Update weather providers
+        for provider in config.weather_providers:
+            existing = config_service.get_config_by_name(
+                session, tenant_id, "weather", provider.provider_name
+            )
+            if existing:
+                config_service.update_config(
+                    session,
+                    tenant_id,
+                    "weather",
+                    provider.provider_name,
+                    api_key=provider.api_key,
+                    priority=provider.priority,
+                    enabled=provider.enabled,
+                )
+            else:
+                config_service.create_config(
+                    session,
+                    tenant_id,
+                    "weather",
+                    provider.provider_name,
+                    api_key=provider.api_key,
+                    priority=provider.priority,
+                    enabled=provider.enabled,
+                )
+
+        # Update satellite providers
+        for provider in config.satellite_providers:
+            existing = config_service.get_config_by_name(
+                session, tenant_id, "satellite", provider.provider_name
+            )
+            if existing:
+                config_service.update_config(
+                    session,
+                    tenant_id,
+                    "satellite",
+                    provider.provider_name,
+                    api_key=provider.api_key,
+                    priority=provider.priority,
+                    enabled=provider.enabled,
+                )
+            else:
+                config_service.create_config(
+                    session,
+                    tenant_id,
+                    "satellite",
+                    provider.provider_name,
+                    api_key=provider.api_key,
+                    priority=provider.priority,
+                    enabled=provider.enabled,
+                )
+
+        return {"success": True, "message": "Configuration updated successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update config: {str(e)}")
 
 
 @app.delete("/config/{tenant_id}")
-async def reset_tenant_config(tenant_id: str):
+async def reset_tenant_config(tenant_id: str, session: Session = Depends(get_db_session)):
     """Reset tenant configuration to defaults"""
-    if tenant_id in tenant_configs:
-        del tenant_configs[tenant_id]
-    return {"success": True, "message": "Configuration reset to defaults"}
+    if not config_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+
+    try:
+        # Get all configs for tenant
+        all_configs = config_service.get_tenant_configs(session, tenant_id)
+
+        # Delete all configs
+        for config in all_configs:
+            config_service.delete_config(
+                session, tenant_id, config.provider_type, config.provider_name
+            )
+
+        return {"success": True, "message": "Configuration reset to defaults"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to reset config: {str(e)}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VERSION HISTORY
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@app.get("/config/{tenant_id}/history")
+async def get_config_history(
+    tenant_id: str,
+    provider_type: str | None = None,
+    limit: int = 100,
+    session: Session = Depends(get_db_session),
+):
+    """Get configuration change history for a tenant"""
+    if not config_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+
+    try:
+        history = config_service.get_config_history(
+            session, tenant_id, provider_type, limit
+        )
+        return {
+            "tenant_id": tenant_id,
+            "provider_type": provider_type,
+            "history": [h.to_dict() for h in history],
+            "total": len(history),
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get history: {str(e)}"
+        )
+
+
+@app.post("/config/{tenant_id}/rollback")
+async def rollback_config(
+    tenant_id: str,
+    config_id: str,
+    version: int,
+    session: Session = Depends(get_db_session),
+):
+    """Rollback configuration to a specific version"""
+    if not config_service:
+        raise HTTPException(status_code=503, detail="Service not initialized")
+
+    try:
+        config = config_service.rollback_to_version(session, config_id, version)
+        if not config:
+            raise HTTPException(status_code=404, detail="Configuration or version not found")
+
+        return {
+            "success": True,
+            "message": f"Configuration rolled back to version {version}",
+            "config": config.to_dict(),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to rollback: {str(e)}"
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

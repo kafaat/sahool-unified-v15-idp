@@ -40,7 +40,7 @@ def example_create_alert():
                 "Stay in a safe place",
             ],
             metadata={"wind_speed": 80, "precipitation": "heavy"},
-            source_service="weather-core",
+            source_service="weather-service",
             expires_at=datetime.now(UTC) + timedelta(hours=24),
         )
 

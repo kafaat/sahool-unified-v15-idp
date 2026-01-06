@@ -1,0 +1,80 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL MQTT Access Control List (ACL)
+# قائمة التحكم بالوصول لـ MQTT
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ACL Syntax:
+# - topic [read|write|readwrite] <topic>
+# - pattern [read|write|readwrite] <pattern>
+# - user <username>
+#
+# Topic wildcards:
+# - # (multi-level wildcard): matches any number of levels
+# - + (single-level wildcard): matches exactly one level
+#
+# Priority: Rules are processed top-to-bottom, first match wins
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Admin User - Full Access
+# ─────────────────────────────────────────────────────────────────────────────
+user admin
+topic readwrite #
+
+# ─────────────────────────────────────────────────────────────────────────────
+# IoT Service User (sahool_iot) - Backend Services
+# Used by: iot-service, iot-gateway
+# ─────────────────────────────────────────────────────────────────────────────
+user sahool_iot
+
+# Sensor data ingestion - Read from all sensor topics
+topic read sahool/+/farm/+/field/+/sensor/#
+topic read sahool/sensors/#
+
+# Actuator status - Read actuator feedback
+topic read sahool/+/farm/+/field/+/actuator/#
+
+# Device status - Read device health and status
+topic read sahool/+/farm/+/device/status
+
+# Actuator commands - Write to control pumps, valves, etc.
+topic write sahool/+/farm/+/field/+/actuator/+/command
+topic write sahool/+/farm/+/field/+/actuator/pump/command
+topic write sahool/+/farm/+/field/+/actuator/valve/+/command
+
+# Irrigation schedules - Write irrigation schedules
+topic write sahool/+/farm/+/field/+/irrigation/schedule
+
+# System topics - Read/write system status
+topic readwrite sahool/system/#
+
+# ─────────────────────────────────────────────────────────────────────────────
+# IoT Devices - Sensor Publishers
+# Pattern allows device-specific authentication in future
+# ─────────────────────────────────────────────────────────────────────────────
+# user sensor_device_001
+# topic write sahool/+/farm/+/field/+/sensor/#
+# topic read sahool/+/farm/+/field/+/actuator/+/command
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Test/Simulation Users
+# ─────────────────────────────────────────────────────────────────────────────
+user test_sensor
+topic write sahool/test/#
+topic read sahool/test/#
+
+user simulator
+topic readwrite sahool/simulation/#
+topic write sahool/sensors/#
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Monitoring & Debugging
+# ─────────────────────────────────────────────────────────────────────────────
+user monitor
+topic read $SYS/#
+topic read sahool/#
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Default Deny - All other users have no access
+# ─────────────────────────────────────────────────────────────────────────────
+# (Implicit deny - users not listed above have no permissions)

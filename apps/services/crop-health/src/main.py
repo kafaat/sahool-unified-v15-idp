@@ -1,7 +1,15 @@
 """
+⚠️ DEPRECATED: This service is deprecated and will be removed in a future release.
+Please use 'crop-intelligence-service' instead.
+
 SAHOOL Crop Health Service
 خدمة صحة المحاصيل - تشخيص ذكي للحقول الزراعية
 Port: 8100
+
+Migration Path:
+- Replacement: crop-intelligence-service (Port 8095)
+- Deprecation Date: 2026-01-06
+- Sunset Date: 2026-06-01
 """
 
 from __future__ import annotations
@@ -174,6 +182,16 @@ ZONES: dict[str, dict[str, dict[str, Any]]] = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("=" * 80)
+    print("⚠️  DEPRECATION WARNING")
+    print("=" * 80)
+    print("This service (crop-health) is DEPRECATED and will be removed in a future release.")
+    print("Please migrate to 'crop-intelligence-service' instead.")
+    print("Replacement service: crop-intelligence-service (Port 8095)")
+    print("Deprecation date: 2026-01-06")
+    print("Sunset date: 2026-06-01")
+    print("=" * 80)
+
     print("🌱 Starting Crop Health Service...")
 
     # Initialize sample data for demo
@@ -247,11 +265,27 @@ def _init_sample_data():
 
 
 app = FastAPI(
-    title="SAHOOL Crop Health Service",
-    description="خدمة تشخيص صحة المحاصيل - Intelligent crop health diagnostics with decision support",
+    title="SAHOOL Crop Health Service (DEPRECATED)",
+    description="⚠️ DEPRECATED - Use crop-intelligence-service instead. خدمة تشخيص صحة المحاصيل - Intelligent crop health diagnostics with decision support",
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Add deprecation headers middleware
+from fastapi import Request
+
+
+@app.middleware("http")
+async def add_deprecation_header(request: Request, call_next):
+    """Add deprecation headers to all responses"""
+    response = await call_next(request)
+    response.headers["X-API-Deprecated"] = "true"
+    response.headers["X-API-Deprecation-Date"] = "2026-01-06"
+    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use crop-intelligence-service instead."
+    response.headers["X-API-Sunset"] = "2026-06-01"
+    response.headers["Link"] = '<http://crop-intelligence-service:8095>; rel="successor-version"'
+    response.headers["Deprecation"] = "true"
+    return response
 
 # CORS - Secure configuration
 import sys

@@ -55,7 +55,9 @@ services:
   nats_test:
     image: nats:2.10.24-alpine
     container_name: sahool-nats-test
-    command: ["--jetstream", "--store_dir=/data", "-m", "8222"]
+    command: ["-c", "/etc/nats/nats-test.conf"]
+    volumes:
+      - ./config/nats/nats-test.conf:/etc/nats/nats-test.conf:ro
     ports:
       - "4223:4222"  # Different port
       - "8223:8222"
@@ -94,7 +96,7 @@ services:
     container_name: sahool-field-ops-test
     environment:
       - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
-      - NATS_URL=nats://nats_test:4222
+      - NATS_URL=nats://test_user:test_password@nats_test:4222
       - REDIS_URL=redis://:test_redis_pass@redis_test:6379/0
       - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
       - JWT_ALGORITHM=HS256
@@ -124,7 +126,7 @@ services:
     container_name: sahool-ndvi-engine-test
     environment:
       - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
-      - NATS_URL=nats://nats_test:4222
+      - NATS_URL=nats://test_user:test_password@nats_test:4222
       - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
       - JWT_ALGORITHM=HS256
       - LOG_LEVEL=DEBUG
@@ -152,7 +154,7 @@ services:
     container_name: sahool-weather-core-test
     environment:
       - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
-      - NATS_URL=nats://nats_test:4222
+      - NATS_URL=nats://test_user:test_password@nats_test:4222
       - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
       - JWT_ALGORITHM=HS256
       - LOG_LEVEL=DEBUG
@@ -221,7 +223,7 @@ services:
       - QDRANT_HOST=qdrant_test
       - QDRANT_PORT=6333
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
-      - NATS_URL=nats://nats_test:4222
+      - NATS_URL=nats://test_user:test_password@nats_test:4222
     ports:
       - "8212:8112"
     depends_on:

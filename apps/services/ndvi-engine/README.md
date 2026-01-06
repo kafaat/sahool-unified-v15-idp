@@ -3,6 +3,10 @@
 This service has been deprecated and merged into `vegetation-analysis-service`.
 Please update your references to use `vegetation-analysis-service` on port 8090.
 
+**Deprecation Date**: 2026-01-06
+**Sunset Date**: 2026-06-01
+**Replacement**: `vegetation-analysis-service` (Port 8090)
+
 ---
 
 

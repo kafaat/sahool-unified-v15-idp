@@ -37,7 +37,7 @@ services:
       - "8090:8090"
     environment:
       # NATS connection
-      NATS_URL: nats://nats:4222
+      NATS_URL: nats://${NATS_USER:-sahool_app}:${NATS_PASSWORD:-changeme}@nats:4222
 
       # DLQ configuration
       DLQ_ENABLED: "true"
@@ -91,7 +91,7 @@ services:
       "
     environment:
       # NATS connection
-      NATS_URL: nats://nats:4222
+      NATS_URL: nats://${NATS_USER:-sahool_app}:${NATS_PASSWORD:-changeme}@nats:4222
 
       # DLQ configuration
       DLQ_ENABLED: "true"

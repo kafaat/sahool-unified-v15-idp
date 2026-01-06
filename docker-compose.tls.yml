@@ -1,0 +1,115 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Docker Compose TLS Configuration Override
+# Adds TLS/SSL encryption for internal service communication
+#
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.tls.yml up
+#
+# Or set in .env:
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.tls.yml
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PostgreSQL with TLS
+  # ─────────────────────────────────────────────────────────────────────────────
+  postgres:
+    command: >
+      postgres
+      -c ssl=on
+      -c ssl_cert_file=/var/lib/postgresql/certs/server.crt
+      -c ssl_key_file=/var/lib/postgresql/certs/server.key
+      -c ssl_ca_file=/var/lib/postgresql/certs/ca.crt
+      -c ssl_min_protocol_version=TLSv1.2
+      -c ssl_prefer_server_ciphers=on
+    volumes:
+      - ./config/certs/postgres:/var/lib/postgresql/certs:ro
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PgBouncer with TLS
+  # ─────────────────────────────────────────────────────────────────────────────
+  pgbouncer:
+    volumes:
+      - ./config/certs/pgbouncer:/etc/pgbouncer/certs:ro
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Redis with TLS
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis:
+    command: [
+      "redis-server",
+      "--appendonly", "yes",
+      "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
+      "--maxmemory", "512mb",
+      "--maxmemory-policy", "allkeys-lru",
+      "--tcp-keepalive", "60",
+      # TLS Configuration
+      "--tls-port", "6379",
+      "--port", "0",
+      "--tls-cert-file", "/etc/redis/certs/server.crt",
+      "--tls-key-file", "/etc/redis/certs/server.key",
+      "--tls-ca-cert-file", "/etc/redis/certs/ca.crt",
+      "--tls-auth-clients", "optional",
+      "--tls-protocols", "TLSv1.2 TLSv1.3",
+      "--tls-prefer-server-ciphers", "yes",
+      "--tls-session-caching", "yes"
+    ]
+    volumes:
+      - ./config/certs/redis:/etc/redis/certs:ro
+    environment:
+      - REDIS_TLS_ENABLED=yes
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS with TLS
+  # ─────────────────────────────────────────────────────────────────────────────
+  nats:
+    volumes:
+      - ./config/certs/nats:/etc/nats/certs:ro
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Kong with TLS
+  # ─────────────────────────────────────────────────────────────────────────────
+  kong:
+    environment:
+      # Enable SSL for proxy
+      KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
+      KONG_SSL_CERT: /etc/kong/certs/server.crt
+      KONG_SSL_CERT_KEY: /etc/kong/certs/server.key
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./config/certs/kong:/etc/kong/certs:ro
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Notes:
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 1. Certificate Generation:
+#    Before using this configuration, generate certificates:
+#    ./config/certs/generate-internal-tls.sh
+#
+# 2. Service Connection Updates:
+#    Application services need to be updated to use TLS connections:
+#    - PostgreSQL: sslmode=prefer or sslmode=require in connection string
+#    - Redis: Use rediss:// instead of redis:// (TLS port)
+#    - NATS: Use nats+tls:// or configure TLS in client
+#    - Kong: Access via https://kong:8443 for TLS
+#
+# 3. Client Certificates:
+#    For full mTLS (mutual TLS), clients need:
+#    - CA certificate to verify server
+#    - Client certificate and key for authentication
+#    All certificates are in config/certs/<service>/ directory
+#
+# 4. Development vs Production:
+#    - Development: Use ssl_mode=prefer (allows fallback to non-TLS)
+#    - Production: Use ssl_mode=require or ssl_mode=verify-full
+#
+# 5. Certificate Rotation:
+#    Certificates expire after 825 days (~2.25 years)
+#    Regenerate before expiration:
+#    ./config/certs/generate-internal-tls.sh --force
+#
+# ═══════════════════════════════════════════════════════════════════════════════

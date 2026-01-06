@@ -1,6 +1,6 @@
 # Service Deprecation Implementation Summary
 
-This document summarizes the deprecation notices added to three services in the SAHOOL platform.
+This document summarizes the deprecation notices added to services in the SAHOOL platform.
 
 ## Deprecated Services
 
@@ -24,6 +24,22 @@ This document summarizes the deprecation notices added to three services in the 
 - **Replacement**: `vegetation-analysis-service` (port 8090)
 - **Deprecation Date**: 2025-01-01
 - **Sunset Date**: 2025-06-01
+
+### 4. crop-health → crop-intelligence-service
+- **Service Path**: `/home/user/sahool-unified-v15-idp/apps/services/crop-health`
+- **Port**: 8100
+- **Replacement**: `crop-intelligence-service` (port 8095)
+- **Deprecation Date**: 2026-01-06
+- **Sunset Date**: 2026-06-01
+- **Features Migrated**: Zone-based health monitoring, vegetation indices (NDVI, EVI, NDRE, LCI, NDWI, SAVI), VRT export
+
+### 5. ndvi-engine → vegetation-analysis-service
+- **Service Path**: `/home/user/sahool-unified-v15-idp/apps/services/ndvi-engine`
+- **Port**: 8107
+- **Replacement**: `vegetation-analysis-service` (port 8090)
+- **Deprecation Date**: 2026-01-06
+- **Sunset Date**: 2026-06-01
+- **Features Migrated**: NDVI computation, vegetation indices, zone analysis, anomaly detection
 
 ## Changes Implemented
 

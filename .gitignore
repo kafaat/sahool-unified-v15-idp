@@ -203,3 +203,9 @@ tls.key
 .env.tmp
 .credentials_reference.txt
 .env.backup.*
+
+# TLS Certificates - Never commit private keys
+config/certs/*.key
+config/certs/ca/ca.key
+config/certs/*/server.key
+config/certs/ca/ca.srl

@@ -1,6 +1,8 @@
 """
 FieldOps Client - SAHOOL Agro Rules
-HTTP client for creating tasks in FieldOps service
+HTTP client for creating tasks in field-management-service (migrated from field-ops)
+
+MIGRATION NOTE: This service now calls field-management-service:3000 instead of field-ops:8080
 """
 
 import os
@@ -8,7 +10,8 @@ from datetime import UTC, datetime, timedelta
 
 import httpx
 
-FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://fieldops:8080")
+# Updated to use field-management-service (migrated from field-ops)
+FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://field-management-service:3000")
 
 
 class FieldOpsClient:
@@ -90,7 +93,8 @@ class FieldOpsClient:
             payload["metadata"] = metadata
 
         try:
-            response = await client.post("/tasks", json=payload)
+            # Updated endpoint path for field-management-service
+            response = await client.post("/api/v1/operations", json=payload)
 
             if response.status_code in (200, 201):
                 print(f"✅ Created task: {title} (field: {field_id})")
@@ -118,8 +122,9 @@ class FieldOpsClient:
         client = await self._get_client()
 
         try:
+            # Updated endpoint path for field-management-service
             response = await client.patch(
-                f"/tasks/{task_id}",
+                f"/api/v1/operations/{task_id}",
                 json={"status": status},
             )
             return response.json()
@@ -132,7 +137,8 @@ class FieldOpsClient:
         client = await self._get_client()
 
         try:
-            response = await client.get(f"/tasks/{task_id}")
+            # Updated endpoint path for field-management-service
+            response = await client.get(f"/api/v1/operations/{task_id}")
             if response.status_code == 200:
                 return response.json()
             return None
@@ -159,9 +165,12 @@ class FieldOpsClient:
             params["status"] = status
 
         try:
-            response = await client.get("/tasks", params=params)
+            # Updated endpoint path for field-management-service
+            response = await client.get("/api/v1/operations", params=params)
             if response.status_code == 200:
-                return response.json().get("tasks", [])
+                result = response.json()
+                # Handle both old and new response formats
+                return result.get("data", result.get("tasks", []))
             return []
         except Exception as e:
             print(f"❌ List tasks failed: {e}")

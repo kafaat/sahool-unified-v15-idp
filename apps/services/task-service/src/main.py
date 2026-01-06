@@ -23,6 +23,12 @@ import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+# Database imports
+from database import init_database, close_database, get_db, init_demo_data_if_needed
+from repository import TaskRepository
+from models import Task as TaskModel, TaskEvidence as TaskEvidenceModel
 
 # Configure logging
 logging.basicConfig(
@@ -353,53 +359,8 @@ class DateValidationResponse(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# In-Memory Storage (Replace with PostgreSQL in production)
+# PostgreSQL Database Storage - تخزين قاعدة بيانات PostgreSQL
 # ═══════════════════════════════════════════════════════════════════════════
-
-# TODO: MIGRATE TO POSTGRESQL
-# Current: tasks_db and evidence_db stored in-memory (lost on restart)
-# Issues:
-#   - No persistence across service restarts
-#   - No multi-instance support (distributed deployment)
-#   - No transaction support for task + evidence updates
-#   - No audit trail for task status changes
-# Required:
-#   1. Create PostgreSQL tables:
-#      a) 'tasks' table:
-#         - task_id (UUID, PK)
-#         - tenant_id (VARCHAR, indexed)
-#         - title, title_ar (VARCHAR)
-#         - description, description_ar (TEXT)
-#         - task_type (VARCHAR)
-#         - priority (VARCHAR)
-#         - status (VARCHAR, indexed)
-#         - field_id (VARCHAR, indexed)
-#         - zone_id (VARCHAR)
-#         - assigned_to (VARCHAR, indexed)
-#         - created_by (VARCHAR)
-#         - due_date (TIMESTAMP, indexed)
-#         - scheduled_time (TIME)
-#         - estimated_duration_minutes (INTEGER)
-#         - actual_duration_minutes (INTEGER)
-#         - created_at (TIMESTAMP)
-#         - updated_at (TIMESTAMP)
-#         - completed_at (TIMESTAMP)
-#         - completion_notes (TEXT)
-#         - metadata (JSONB)
-#      b) 'task_evidence' table:
-#         - evidence_id (UUID, PK)
-#         - task_id (UUID, FK -> tasks.task_id)
-#         - type (VARCHAR)
-#         - content (TEXT)
-#         - captured_at (TIMESTAMP)
-#         - location (GEOGRAPHY POINT)
-#   2. Create Tortoise ORM models: Task, TaskEvidence
-#   3. Create repository: TaskRepository with methods similar to current functions
-#   4. Add indexes: (tenant_id, status), (assigned_to, status), (field_id, status)
-#   5. Add task status history table for audit trail
-# Migration Priority: HIGH - Task management is core functionality
-tasks_db: dict[str, Task] = {}
-evidence_db: dict[str, Evidence] = {}
 
 # Astronomical data cache - التخزين المؤقت للبيانات الفلكية
 # Cache format: {(activity, days): (data, timestamp)}
@@ -407,138 +368,25 @@ astronomical_cache: dict[tuple[str, int], tuple[dict, datetime]] = {}
 CACHE_TTL_MINUTES = 60  # Cache for 1 hour
 
 
-def seed_demo_data():
-    """Seed demo tasks for testing"""
-    now = datetime.utcnow()
-    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-    demo_tasks = [
-        Task(
-            task_id="task_001",
-            tenant_id="tenant_demo",
-            title="Irrigate North Field",
-            title_ar="ري الحقل الشمالي",
-            description="Sector C needs irrigation using pump #2",
-            description_ar="القطاع C يحتاج ري باستخدام مضخة رقم 2",
-            task_type=TaskType.IRRIGATION,
-            priority=TaskPriority.HIGH,
-            status=TaskStatus.PENDING,
-            field_id="field_north",
-            assigned_to="user_ahmed",
-            created_by="user_admin",
-            due_date=today + timedelta(hours=10),
-            scheduled_time="08:00",
-            estimated_duration_minutes=120,
-            created_at=now - timedelta(days=1),
-            updated_at=now - timedelta(days=1),
-            metadata={"pump_id": "pump_2", "water_volume_m3": 500},
-        ),
-        Task(
-            task_id="task_002",
-            tenant_id="tenant_demo",
-            title="Pest Inspection",
-            title_ar="فحص الحشرات",
-            description="Weekly pest inspection for tomato greenhouse",
-            description_ar="فحص أسبوعي للحشرات في بيت الطماطم المحمي",
-            task_type=TaskType.SCOUTING,
-            priority=TaskPriority.MEDIUM,
-            status=TaskStatus.COMPLETED,
-            field_id="field_greenhouse",
-            assigned_to="user_ahmed",
-            created_by="user_admin",
-            due_date=today + timedelta(hours=12),
-            scheduled_time="10:30",
-            estimated_duration_minutes=60,
-            actual_duration_minutes=45,
-            created_at=now - timedelta(days=2),
-            updated_at=now - timedelta(hours=2),
-            completed_at=now - timedelta(hours=2),
-            completion_notes="No pests found. Healthy plants.",
-        ),
-        Task(
-            task_id="task_003",
-            tenant_id="tenant_demo",
-            title="Collect Soil Samples",
-            title_ar="جمع عينات التربة",
-            description="Collect samples for nutrient analysis",
-            description_ar="جمع عينات لتحليل المغذيات",
-            task_type=TaskType.SAMPLING,
-            priority=TaskPriority.MEDIUM,
-            status=TaskStatus.PENDING,
-            field_id="field_south",
-            assigned_to="user_ahmed",
-            created_by="user_admin",
-            due_date=today + timedelta(hours=16),
-            scheduled_time="14:00",
-            estimated_duration_minutes=90,
-            created_at=now - timedelta(hours=12),
-            updated_at=now - timedelta(hours=12),
-        ),
-        Task(
-            task_id="task_004",
-            tenant_id="tenant_demo",
-            title="Apply NPK Fertilizer",
-            title_ar="تسميد التربة (NPK)",
-            description="Apply 50kg/ha NPK to south field",
-            description_ar="تطبيق 50 كجم/هكتار NPK للحقل الجنوبي",
-            task_type=TaskType.FERTILIZATION,
-            priority=TaskPriority.LOW,
-            status=TaskStatus.PENDING,
-            field_id="field_south",
-            assigned_to="user_mohammed",
-            created_by="user_admin",
-            due_date=today + timedelta(days=1),
-            scheduled_time="07:00",
-            estimated_duration_minutes=180,
-            created_at=now - timedelta(hours=6),
-            updated_at=now - timedelta(hours=6),
-            metadata={"fertilizer_type": "NPK 20-20-20", "rate_kg_ha": 50},
-        ),
-        Task(
-            task_id="task_005",
-            tenant_id="tenant_demo",
-            title="Irrigation System Maintenance",
-            title_ar="صيانة نظام الري",
-            description="Check filters and valves",
-            description_ar="فحص الفلاتر والصمامات",
-            task_type=TaskType.MAINTENANCE,
-            priority=TaskPriority.MEDIUM,
-            status=TaskStatus.PENDING,
-            field_id="field_north",
-            assigned_to="user_tech",
-            created_by="user_admin",
-            due_date=today + timedelta(days=2),
-            created_at=now - timedelta(hours=3),
-            updated_at=now - timedelta(hours=3),
-        ),
-        Task(
-            task_id="task_006",
-            tenant_id="tenant_demo",
-            title="Fungicide Spray",
-            title_ar="رش مبيد فطري",
-            description="Preventive spray for east field",
-            description_ar="رش وقائي للحقل الشرقي",
-            task_type=TaskType.SPRAYING,
-            priority=TaskPriority.HIGH,
-            status=TaskStatus.PENDING,
-            field_id="field_east",
-            assigned_to="user_ahmed",
-            created_by="user_admin",
-            due_date=today + timedelta(days=3),
-            scheduled_time="06:00",
-            estimated_duration_minutes=150,
-            created_at=now - timedelta(hours=1),
-            updated_at=now - timedelta(hours=1),
-            metadata={"chemical": "Mancozeb", "rate_ml_ha": 2500},
-        ),
-    ]
-
-    for task in demo_tasks:
-        tasks_db[task.task_id] = task
+# Database initialization on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database connection and create tables"""
+    logger.info("Initializing task-service database...")
+    try:
+        init_database(create_tables=True)
+        init_demo_data_if_needed()
+        logger.info("Task-service database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}", exc_info=True)
+        # Don't raise - allow service to start even if DB fails
 
 
-# Seed on startup
-seed_demo_data()
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Close database connections"""
+    logger.info("Closing task-service database connections...")
+    close_database()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -553,6 +401,52 @@ def get_tenant_id(
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
     return x_tenant_id
+
+
+def db_task_to_dict(task: TaskModel) -> dict:
+    """Convert SQLAlchemy Task model to dictionary"""
+    return {
+        "task_id": task.task_id,
+        "tenant_id": task.tenant_id,
+        "title": task.title,
+        "title_ar": task.title_ar,
+        "description": task.description,
+        "description_ar": task.description_ar,
+        "task_type": task.task_type,
+        "priority": task.priority,
+        "status": task.status,
+        "field_id": task.field_id,
+        "zone_id": task.zone_id,
+        "assigned_to": task.assigned_to,
+        "created_by": task.created_by,
+        "due_date": task.due_date,
+        "scheduled_time": task.scheduled_time,
+        "estimated_duration_minutes": task.estimated_duration_minutes,
+        "actual_duration_minutes": task.actual_duration_minutes,
+        "created_at": task.created_at,
+        "updated_at": task.updated_at,
+        "completed_at": task.completed_at,
+        "completion_notes": task.completion_notes,
+        "metadata": task.metadata,
+        "astronomical_score": task.astronomical_score,
+        "moon_phase_at_due_date": task.moon_phase_at_due_date,
+        "lunar_mansion_at_due_date": task.lunar_mansion_at_due_date,
+        "optimal_time_of_day": task.optimal_time_of_day,
+        "suggested_by_calendar": task.suggested_by_calendar,
+        "astronomical_recommendation": task.astronomical_recommendation,
+        "astronomical_warnings": task.astronomical_warnings or [],
+        "evidence": [
+            {
+                "evidence_id": e.evidence_id,
+                "task_id": e.task_id,
+                "type": e.type,
+                "content": e.content,
+                "captured_at": e.captured_at,
+                "location": e.location,
+            }
+            for e in task.evidence
+        ],
+    }
 
 
 def calculate_ndvi_priority(
@@ -1107,41 +1001,26 @@ async def list_tasks(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """List tasks with optional filters"""
-    filtered = [t for t in tasks_db.values() if t.tenant_id == tenant_id]
+    repo = TaskRepository(db)
 
-    if field_id:
-        filtered = [t for t in filtered if t.field_id == field_id]
-    if status:
-        filtered = [t for t in filtered if t.status == status]
-    if task_type:
-        filtered = [t for t in filtered if t.task_type == task_type]
-    if priority:
-        filtered = [t for t in filtered if t.priority == priority]
-    if assigned_to:
-        filtered = [t for t in filtered if t.assigned_to == assigned_to]
-    if due_before:
-        filtered = [t for t in filtered if t.due_date and t.due_date <= due_before]
-    if due_after:
-        filtered = [t for t in filtered if t.due_date and t.due_date >= due_after]
-
-    # Sort by due_date (urgent first), then priority
-    priority_order = {
-        TaskPriority.URGENT: 0,
-        TaskPriority.HIGH: 1,
-        TaskPriority.MEDIUM: 2,
-        TaskPriority.LOW: 3,
-    }
-    filtered.sort(
-        key=lambda t: (t.due_date or datetime.max, priority_order.get(t.priority, 99))
+    tasks, total = repo.list_tasks(
+        tenant_id=tenant_id,
+        field_id=field_id,
+        status=status.value if status else None,
+        task_type=task_type.value if task_type else None,
+        priority=priority.value if priority else None,
+        assigned_to=assigned_to,
+        due_before=due_before,
+        due_after=due_after,
+        limit=limit,
+        offset=offset,
     )
 
-    total = len(filtered)
-    paginated = filtered[offset : offset + limit]
-
     return {
-        "tasks": [t.model_dump() for t in paginated],
+        "tasks": [db_task_to_dict(t) for t in tasks],
         "total": total,
         "limit": limit,
         "offset": offset,

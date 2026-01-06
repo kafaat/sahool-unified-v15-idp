@@ -2,8 +2,8 @@
 Weather Tool
 أداة الطقس
 
-Tool for calling the weather-core service.
-أداة لاستدعاء خدمة الطقس الأساسية.
+Tool for calling the weather-service.
+أداة لاستدعاء خدمة الطقس.
 """
 
 from typing import Any
@@ -18,8 +18,8 @@ logger = structlog.get_logger()
 
 class WeatherTool:
     """
-    Tool to interact with weather-core service
-    أداة للتفاعل مع خدمة الطقس الأساسية
+    Tool to interact with weather-service
+    أداة للتفاعل مع خدمة الطقس
     """
 
     def __init__(self):

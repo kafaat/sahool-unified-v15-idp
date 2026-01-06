@@ -1886,8 +1886,8 @@ services:
   # Field Intelligence Service - خدمة ذكاء الحقل
   field-intelligence:
     build:
-      context: ./apps/services/field-intelligence
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/services/field-intelligence/Dockerfile
     container_name: sahool-field-intelligence
     environment:
       - PORT=8119

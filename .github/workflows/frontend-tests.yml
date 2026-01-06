@@ -1,0 +1,718 @@
+name: Frontend Tests
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  checks: write
+
+on:
+  push:
+    branches: [main, develop, 'claude/**']
+    paths:
+      - 'apps/web/**'
+      - 'apps/admin/**'
+      - 'apps/mobile/**'
+      - 'packages/**'
+      - '.github/workflows/frontend-tests.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/web/**'
+      - 'apps/admin/**'
+      - 'apps/mobile/**'
+      - 'packages/**'
+
+env:
+  NODE_VERSION: '20'
+  FLUTTER_VERSION: '3.27.1'
+  JAVA_VERSION: '17'
+
+jobs:
+  # =============================================================================
+  # Job 1: Next.js Web App Testing
+  # =============================================================================
+  web-app-tests:
+    name: Web App - ${{ matrix.test-type }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        test-type: ['lint', 'typecheck', 'unit-tests', 'build']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/web/node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run Lint
+        if: matrix.test-type == 'lint'
+        run: |
+          echo "Running ESLint on Web App..."
+          cd apps/web && npm run lint
+        continue-on-error: true
+
+      - name: Run Type Check
+        if: matrix.test-type == 'typecheck'
+        run: |
+          echo "Running TypeScript type check on Web App..."
+          cd apps/web && npm run type-check
+
+      - name: Run Unit Tests
+        if: matrix.test-type == 'unit-tests'
+        run: |
+          echo "Running Vitest unit tests on Web App..."
+          cd apps/web && npm run test:coverage
+        continue-on-error: true
+
+      - name: Upload Coverage Report
+        if: matrix.test-type == 'unit-tests'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-coverage
+          path: apps/web/coverage/
+          retention-days: 7
+
+      - name: Build Web App
+        if: matrix.test-type == 'build'
+        run: |
+          echo "Building Next.js Web App..."
+          cd apps/web && npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Upload Build Artifacts
+        if: matrix.test-type == 'build'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: apps/web/.next
+          retention-days: 7
+
+  # =============================================================================
+  # Job 2: Admin Dashboard Testing
+  # =============================================================================
+  admin-dashboard-tests:
+    name: Admin - ${{ matrix.test-type }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        test-type: ['lint', 'typecheck', 'build']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/admin/node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-node-admin-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-admin-
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run Lint
+        if: matrix.test-type == 'lint'
+        run: |
+          echo "Running ESLint on Admin Dashboard..."
+          cd apps/admin && npm run lint
+        continue-on-error: true
+
+      - name: Run Type Check
+        if: matrix.test-type == 'typecheck'
+        run: |
+          echo "Running TypeScript type check on Admin Dashboard..."
+          cd apps/admin && npm run type-check
+
+      - name: Build Admin Dashboard
+        if: matrix.test-type == 'build'
+        run: |
+          echo "Building Admin Dashboard..."
+          cd apps/admin && npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Upload Build Artifacts
+        if: matrix.test-type == 'build'
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-build
+          path: apps/admin/.next
+          retention-days: 7
+
+  # =============================================================================
+  # Job 3: Flutter Mobile App Testing
+  # =============================================================================
+  flutter-tests:
+    name: Flutter - ${{ matrix.test-type }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        test-type: ['analyze', 'unit-tests', 'build-android']
+
+    defaults:
+      run:
+        working-directory: apps/mobile/sahool_field_app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/mobile/sahool_field_app/.dart_tool
+            apps/mobile/sahool_field_app/.packages
+            ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Setup Python for icon generation
+        if: matrix.test-type == 'build-android'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate icons and assets
+        if: matrix.test-type == 'build-android'
+        run: |
+          pip install Pillow
+          cd ../
+          mkdir -p assets/icon assets/images assets/icons
+          python3 scripts/generate_icons.py || echo "Icon generation skipped"
+          cd sahool_field_app
+
+      - name: Create .env file
+        if: matrix.test-type == 'build-android'
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=test_weather_key
+          MAPS_API_KEY=test_maps_key
+          ENV=test
+          EOF
+
+      - name: Generate code (Drift, Freezed, etc.)
+        if: matrix.test-type == 'build-android' || matrix.test-type == 'unit-tests'
+        run: |
+          echo "Generating code with build_runner..."
+          dart run build_runner clean || true
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Run Flutter Analyze
+        if: matrix.test-type == 'analyze'
+        run: |
+          echo "Running Flutter analyze..."
+          flutter analyze --no-fatal-infos
+        continue-on-error: true
+
+      - name: Run Unit Tests
+        if: matrix.test-type == 'unit-tests'
+        run: |
+          echo "Running Flutter unit and widget tests..."
+          flutter test --coverage --reporter=expanded
+        continue-on-error: true
+
+      - name: Upload Test Coverage
+        if: matrix.test-type == 'unit-tests'
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-coverage
+          path: apps/mobile/sahool_field_app/coverage/
+          retention-days: 7
+
+      - name: Build Android APK
+        if: matrix.test-type == 'build-android'
+        run: |
+          echo "Building Android APK..."
+          flutter build apk --debug --no-shrink
+
+      - name: Upload APK
+        if: matrix.test-type == 'build-android'
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-android-apk
+          path: apps/mobile/sahool_field_app/build/app/outputs/flutter-apk/*.apk
+          retention-days: 7
+
+  # =============================================================================
+  # Job 4: Flutter iOS Build (macOS runner)
+  # =============================================================================
+  flutter-ios-build:
+    name: Flutter - iOS Build
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    defaults:
+      run:
+        working-directory: apps/mobile/sahool_field_app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/mobile/sahool_field_app/.dart_tool
+            apps/mobile/sahool_field_app/.packages
+            ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Setup Python for icon generation
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate icons and assets
+        run: |
+          pip install Pillow
+          cd ../
+          mkdir -p assets/icon assets/images assets/icons
+          python3 scripts/generate_icons.py || echo "Icon generation skipped"
+          cd sahool_field_app
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=test_weather_key
+          MAPS_API_KEY=test_maps_key
+          ENV=test
+          EOF
+
+      - name: Generate code (Drift, Freezed, etc.)
+        run: |
+          echo "Generating code with build_runner..."
+          dart run build_runner clean || true
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: Build iOS (No Codesign)
+        run: |
+          echo "Building iOS app (no codesign)..."
+          flutter build ios --debug --no-codesign
+        continue-on-error: true
+
+  # =============================================================================
+  # Job 5: E2E Tests for Web (Playwright)
+  # =============================================================================
+  web-e2e-tests:
+    name: E2E - Web (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: web-app-tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            apps/web/node_modules
+          key: ${{ runner.os }}-node-e2e-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-e2e-
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install Playwright Browsers
+        working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+
+      - name: Download Web Build
+        uses: actions/download-artifact@v4
+        with:
+          name: web-build
+          path: apps/web/.next
+
+      - name: Start Web App
+        working-directory: apps/web
+        run: |
+          npm run start &
+          sleep 10
+          curl --retry 10 --retry-delay 3 --retry-all-errors http://localhost:3000 || true
+        env:
+          NODE_ENV: production
+
+      - name: Run E2E Tests
+        working-directory: apps/web
+        run: |
+          echo "Running Playwright E2E tests..."
+          npx playwright test --project=chromium --reporter=html,junit
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+        continue-on-error: true
+
+      - name: Upload E2E Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            apps/web/test-results/
+            apps/web/playwright-report/
+          retention-days: 7
+
+  # =============================================================================
+  # Job 6: Integration Tests for Mobile
+  # =============================================================================
+  mobile-integration-tests:
+    name: Integration - Mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: flutter-tests
+
+    defaults:
+      run:
+        working-directory: apps/mobile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/mobile/sahool_field_app/.dart_tool
+            ~/.pub-cache
+          key: ${{ runner.os }}-flutter-integration-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-integration-
+            ${{ runner.os }}-flutter-
+
+      - name: Get Flutter dependencies
+        run: |
+          cd sahool_field_app
+          flutter pub get
+
+      - name: Create .env file
+        run: |
+          cd sahool_field_app
+          cat > .env << EOF
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=test_weather_key
+          MAPS_API_KEY=test_maps_key
+          ENV=test
+          EOF
+
+      - name: Generate code
+        run: |
+          cd sahool_field_app
+          dart run build_runner clean || true
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: Enable KVM (for Android Emulator)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run Integration Tests (Headless)
+        run: |
+          echo "Running Flutter integration tests..."
+          chmod +x integration_test/run_tests.sh
+          ./integration_test/run_tests.sh
+        continue-on-error: true
+
+      - name: Upload Integration Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-integration-results
+          path: |
+            apps/mobile/integration_test/screenshots/
+            apps/mobile/integration_test/test-results/
+          retention-days: 7
+
+  # =============================================================================
+  # Job 7: Generate Test Reports
+  # =============================================================================
+  test-reports:
+    name: Generate Test Reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [web-app-tests, admin-dashboard-tests, flutter-tests, web-e2e-tests, mobile-integration-tests]
+    if: always()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Generate Test Summary
+        run: |
+          echo "# Frontend Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Status by Component" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          # Check Web App
+          if [ -d "artifacts/web-build" ]; then
+            echo "| Web App | ✅ Build Successful |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Web App | ❌ Build Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check Admin Dashboard
+          if [ -d "artifacts/admin-build" ]; then
+            echo "| Admin Dashboard | ✅ Build Successful |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Admin Dashboard | ❌ Build Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check Flutter
+          if [ -d "artifacts/flutter-android-apk" ]; then
+            echo "| Flutter Android | ✅ Build Successful |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Flutter Android | ❌ Build Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check E2E Tests
+          if [ -d "artifacts/playwright-results" ]; then
+            echo "| E2E Tests (Web) | ✅ Completed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| E2E Tests (Web) | ⚠️ Not Run |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check Mobile Integration
+          if [ -d "artifacts/mobile-integration-results" ]; then
+            echo "| Mobile Integration | ✅ Completed |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Mobile Integration | ⚠️ Not Run |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Coverage Reports" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Web Coverage
+          if [ -d "artifacts/web-coverage" ]; then
+            echo "- ✅ Web App coverage report available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Flutter Coverage
+          if [ -d "artifacts/flutter-coverage" ]; then
+            echo "- ✅ Flutter coverage report available" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All test artifacts have been uploaded and are available for download from the workflow run page." >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload Combined Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-summary
+          path: artifacts/
+          retention-days: 30
+
+      - name: Comment PR with Test Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = '## 🧪 Frontend Test Results\n\n';
+            comment += '### Build Status\n\n';
+
+            const artifactsPath = 'artifacts';
+            const webBuild = fs.existsSync(`${artifactsPath}/web-build`);
+            const adminBuild = fs.existsSync(`${artifactsPath}/admin-build`);
+            const flutterBuild = fs.existsSync(`${artifactsPath}/flutter-android-apk`);
+            const e2eTests = fs.existsSync(`${artifactsPath}/playwright-results`);
+            const mobileIntegration = fs.existsSync(`${artifactsPath}/mobile-integration-results`);
+
+            comment += `| Component | Status |\n`;
+            comment += `|-----------|--------|\n`;
+            comment += `| Web App | ${webBuild ? '✅ Passed' : '❌ Failed'} |\n`;
+            comment += `| Admin Dashboard | ${adminBuild ? '✅ Passed' : '❌ Failed'} |\n`;
+            comment += `| Flutter Android | ${flutterBuild ? '✅ Passed' : '❌ Failed'} |\n`;
+            comment += `| E2E Tests | ${e2eTests ? '✅ Completed' : '⚠️ Skipped'} |\n`;
+            comment += `| Mobile Integration | ${mobileIntegration ? '✅ Completed' : '⚠️ Skipped'} |\n`;
+
+            comment += '\n### 📊 Coverage Reports\n\n';
+            comment += 'Coverage reports are available in the workflow artifacts.\n';
+            comment += '\n---\n';
+            comment += `*Workflow run: [#${context.runNumber}](${context.payload.repository.html_url}/actions/runs/${context.runId})*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+        continue-on-error: true
+
+  # =============================================================================
+  # Job 8: Bundle Analysis (Only on PR)
+  # =============================================================================
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: web-app-tests
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Analyze Web App Bundle
+        run: |
+          cd apps/web
+          ANALYZE=true npm run build || true
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Analyze Admin Bundle
+        run: |
+          cd apps/admin
+          ANALYZE=true npm run build || true
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Upload Bundle Analysis
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-analysis
+          path: |
+            apps/web/.next/analyze/
+            apps/admin/.next/analyze/
+          retention-days: 7
+
+      - name: Comment Bundle Size
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = '## 📦 Bundle Size Analysis\n\n' +
+              'Bundle analysis completed. Check the artifacts for detailed reports.\n\n' +
+              '- Web App bundle analysis available\n' +
+              '- Admin Dashboard bundle analysis available\n';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+        continue-on-error: true

@@ -914,7 +914,7 @@ services:
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
       - MQTT_USER=${MQTT_USER:-sahool_iot}
-      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
@@ -1674,7 +1674,7 @@ services:
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
       - MQTT_USER=${MQTT_USER:-sahool_iot}
-      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
       - MQTT_TOPIC=sahool/sensors/#
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}

@@ -5,6 +5,8 @@
 # التحقق من تنفيذ جميع التوصيات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Disable exit-on-error to allow all validation checks to run and display complete results
+# We want to see the full validation summary, not stop at the first failure
 set +e
 
 # Colors

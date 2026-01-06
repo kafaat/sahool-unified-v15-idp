@@ -1,28 +1,40 @@
 {
   "name": "@sahool/cache",
-  "version": "16.0.0",
-  "description": "Redis Sentinel client with high availability for Sahool platform",
-  "main": "redis-sentinel.ts",
-  "types": "redis-sentinel.ts",
+  "version": "2.0.0",
+  "description": "Advanced caching utilities for SAHOOL Platform with Redis Sentinel, stampede protection, and cache warming",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "test": "jest",
-    "lint": "eslint . --ext .ts",
-    "format": "prettier --write \"**/*.ts\""
+    "lint": "eslint . --ext .ts"
   },
   "keywords": [
+    "cache",
     "redis",
     "sentinel",
-    "high-availability",
-    "cache",
-    "sahool"
+    "caching",
+    "stampede-protection",
+    "cache-warming",
+    "metrics"
   ],
-  "author": "Sahool Platform Team",
+  "author": "SAHOOL Platform Team",
   "license": "MIT",
   "dependencies": {
-    "ioredis": "^5.3.2"
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/schedule": "^4.0.0",
+    "@liaoliaots/nestjs-redis": "^9.0.0",
+    "ioredis": "^5.3.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "typescript": "^5.3.0"
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "exports": {
+    "./cache-manager": "./dist/cache-manager.js",
+    "./cache-metrics.service": "./dist/cache-metrics.service.js",
+    "./cache-warming.service": "./dist/cache-warming.service.js",
+    "./redis-sentinel": "./dist/redis-sentinel.js",
+    "./usage-examples": "./dist/usage-examples.js"
   }
 }

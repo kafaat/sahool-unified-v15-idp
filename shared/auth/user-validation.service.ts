@@ -192,21 +192,39 @@ export class UserValidationService {
 
   /**
    * Clear all cached user data
+   * Uses SCAN instead of KEYS for production safety (non-blocking)
    *
    * @returns Number of keys deleted
    */
   async clearAll(): Promise<number> {
     try {
       const pattern = `${this.cacheKeyPrefix}*`;
-      const keys = await this.redis.keys(pattern);
+      let cursor = '0';
+      let totalDeleted = 0;
+      const batchSize = 100;
 
-      if (keys.length > 0) {
-        const count = await this.redis.del(...keys);
-        this.logger.log(`Cleared ${count} cached users`);
-        return count;
-      }
+      // Use SCAN instead of KEYS to avoid blocking Redis
+      do {
+        const result = await this.redis.scan(
+          cursor,
+          'MATCH',
+          pattern,
+          'COUNT',
+          batchSize,
+        );
 
-      return 0;
+        cursor = result[0];
+        const keys = result[1];
+
+        if (keys.length > 0) {
+          const deleted = await this.redis.del(...keys);
+          totalDeleted += deleted;
+          this.logger.debug(`Deleted ${deleted} keys in batch`);
+        }
+      } while (cursor !== '0');
+
+      this.logger.log(`Cleared ${totalDeleted} cached users using SCAN`);
+      return totalDeleted;
     } catch (error) {
       this.logger.error(`Cache clear error: ${error.message}`);
       return 0;

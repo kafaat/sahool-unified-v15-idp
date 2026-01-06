@@ -615,3 +615,16 @@ scrape_configs:
           description: 'Grafana Dashboards'
           description_ar: 'لوحات المراقبة Grafana'
     metrics_path: /metrics
+
+  # Pushgateway - بوابة دفع المقاييس
+  - job_name: 'pushgateway'
+    honor_labels: true
+    static_configs:
+      - targets: ['pushgateway:9091']
+        labels:
+          tier: 'monitoring'
+          component: 'pushgateway'
+          service: 'pushgateway'
+          description: 'Prometheus Pushgateway'
+          description_ar: 'بوابة دفع المقاييس'
+    metrics_path: /metrics

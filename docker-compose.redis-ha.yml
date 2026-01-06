@@ -26,28 +26,24 @@ services:
     container_name: sahool-redis-master
     command: >
       redis-server
+      /usr/local/etc/redis/redis.conf
       --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       --masterauth ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
-      --appendonly yes
-      --appendfilename "appendonly.aof"
-      --appendfsync everysec
       --maxmemory 1gb
-      --maxmemory-policy allkeys-lru
-      --tcp-keepalive 60
-      --timeout 300
-      --tcp-backlog 511
-      --databases 16
-      --save 900 1
-      --save 300 10
-      --save 60 10000
-      --stop-writes-on-bgsave-error yes
-      --rdbcompression yes
-      --rdbchecksum yes
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       - REDIS_REPLICATION_MODE=master
+      # ACL User Passwords (set these for enhanced security)
+      - REDIS_APP_PASSWORD=${REDIS_APP_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_ADMIN_PASSWORD=${REDIS_ADMIN_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_KONG_PASSWORD=${REDIS_KONG_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_READONLY_PASSWORD=${REDIS_READONLY_PASSWORD:-${REDIS_PASSWORD}}
     volumes:
       - redis_master_data:/data
+      # Use secure configuration with TLS and ACL support
+      - ./infrastructure/redis/redis-secure.conf:/usr/local/etc/redis/redis.conf:ro
+      # TLS Certificates (uncomment to enable TLS):
+      # - ./config/redis/certs:/etc/redis/certs:ro
     ports:
       - "127.0.0.1:6379:6379"
     healthcheck:
@@ -80,16 +76,11 @@ services:
     container_name: sahool-redis-replica-1
     command: >
       redis-server
+      /usr/local/etc/redis/redis.conf
       --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       --masterauth ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       --replicaof redis-master 6379
-      --appendonly yes
-      --appendfilename "appendonly.aof"
-      --appendfsync everysec
       --maxmemory 1gb
-      --maxmemory-policy allkeys-lru
-      --tcp-keepalive 60
-      --timeout 300
       --replica-read-only yes
       --replica-serve-stale-data yes
       --replica-priority 100
@@ -98,8 +89,17 @@ services:
       - REDIS_REPLICATION_MODE=slave
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PORT_NUMBER=6379
+      # ACL User Passwords (set these for enhanced security)
+      - REDIS_APP_PASSWORD=${REDIS_APP_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_ADMIN_PASSWORD=${REDIS_ADMIN_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_KONG_PASSWORD=${REDIS_KONG_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_READONLY_PASSWORD=${REDIS_READONLY_PASSWORD:-${REDIS_PASSWORD}}
     volumes:
       - redis_replica_1_data:/data
+      # Use secure configuration with TLS and ACL support
+      - ./infrastructure/redis/redis-secure.conf:/usr/local/etc/redis/redis.conf:ro
+      # TLS Certificates (uncomment to enable TLS):
+      # - ./config/redis/certs:/etc/redis/certs:ro
     ports:
       - "127.0.0.1:6380:6379"
     healthcheck:
@@ -135,16 +135,11 @@ services:
     container_name: sahool-redis-replica-2
     command: >
       redis-server
+      /usr/local/etc/redis/redis.conf
       --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       --masterauth ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
       --replicaof redis-master 6379
-      --appendonly yes
-      --appendfilename "appendonly.aof"
-      --appendfsync everysec
       --maxmemory 1gb
-      --maxmemory-policy allkeys-lru
-      --tcp-keepalive 60
-      --timeout 300
       --replica-read-only yes
       --replica-serve-stale-data yes
       --replica-priority 100
@@ -153,8 +148,17 @@ services:
       - REDIS_REPLICATION_MODE=slave
       - REDIS_MASTER_HOST=redis-master
       - REDIS_MASTER_PORT_NUMBER=6379
+      # ACL User Passwords (set these for enhanced security)
+      - REDIS_APP_PASSWORD=${REDIS_APP_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_ADMIN_PASSWORD=${REDIS_ADMIN_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_KONG_PASSWORD=${REDIS_KONG_PASSWORD:-${REDIS_PASSWORD}}
+      - REDIS_READONLY_PASSWORD=${REDIS_READONLY_PASSWORD:-${REDIS_PASSWORD}}
     volumes:
       - redis_replica_2_data:/data
+      # Use secure configuration with TLS and ACL support
+      - ./infrastructure/redis/redis-secure.conf:/usr/local/etc/redis/redis.conf:ro
+      # TLS Certificates (uncomment to enable TLS):
+      # - ./config/redis/certs:/etc/redis/certs:ro
     ports:
       - "127.0.0.1:6381:6379"
     healthcheck:

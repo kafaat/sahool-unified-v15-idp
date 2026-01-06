@@ -340,15 +340,37 @@ services:
     image: influxdb:2.7-alpine
     container_name: sahool_influxdb_sim
     environment:
+      # Setup mode
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword123
-      DOCKER_INFLUXDB_INIT_ORG: sahool
-      DOCKER_INFLUXDB_INIT_BUCKET: k6
-      DOCKER_INFLUXDB_INIT_RETENTION: 7d
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: sahool-sim-k6-token
+      # Admin credentials - MUST use secrets from .env file
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_ADMIN_USERNAME:-admin}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+      # Organization and bucket
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-sahool}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      DOCKER_INFLUXDB_INIT_RETENTION: ${INFLUXDB_RETENTION:-7d}
+      # TLS Configuration (uncomment when certificates are generated)
+      # INFLUXD_TLS_CERT: ${INFLUXDB_TLS_CERT_PATH:-/etc/ssl/influxdb-cert.pem}
+      # INFLUXD_TLS_KEY: ${INFLUXDB_TLS_KEY_PATH:-/etc/ssl/influxdb-key.pem}
+      # Performance and security settings
+      INFLUXD_STORAGE_CACHE_MAX_MEMORY_SIZE: "1073741824"  # 1GB cache
+      INFLUXD_STORAGE_CACHE_SNAPSHOT_MEMORY_SIZE: "26214400"  # 25MB
+      INFLUXD_HTTP_READ_TIMEOUT: "30s"
+      INFLUXD_HTTP_WRITE_TIMEOUT: "30s"
+      INFLUXD_HTTP_IDLE_TIMEOUT: "120s"
+      INFLUXD_QUERY_CONCURRENCY: "100"
+      INFLUXD_LOG_LEVEL: "info"
+      # Enable metrics endpoint for Prometheus
+      INFLUXD_METRICS_DISABLED: "false"
     volumes:
       - sim_influxdb_data:/var/lib/influxdb2
+      # Mount TLS certificates (uncomment when certificates are generated)
+      # - ../ssl/influxdb-sim-cert.pem:/etc/ssl/influxdb-cert.pem:ro
+      # - ../ssl/influxdb-sim-key.pem:/etc/ssl/influxdb-key.pem:ro
+    env_file:
+      # Load secrets from environment file (NOT committed to git)
+      - .env.influxdb.secret
     ports:
       - "127.0.0.1:8087:8086"
     networks:
@@ -359,7 +381,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
 
   # Grafana for metrics visualization
   sahool-grafana:
@@ -399,11 +430,14 @@ services:
     image: grafana/k6:0.48.0
     container_name: sahool_k6_sim
     environment:
+      # InfluxDB output configuration
+      # Use HTTPS when TLS is enabled: influxdb=https://sahool-influxdb:8086/k6
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_INSECURE: "false"
-      K6_INFLUXDB_TOKEN: sahool-sim-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_INSECURE: "false"  # Set to true only for self-signed certs
+      # Use write-only token from secrets file
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       # Simulation endpoints
       BASE_URL: http://sahool-nginx:80
       AUTH_URL: http://sahool-nginx:80

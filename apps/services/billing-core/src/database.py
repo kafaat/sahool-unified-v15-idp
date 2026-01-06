@@ -31,6 +31,8 @@ logger = logging.getLogger("sahool-billing")
 # =============================================================================
 
 # Database URL from environment
+# TLS/SSL: DATABASE_URL must include sslmode=require for production
+# Example: postgresql+asyncpg://user:pass@host:5432/db?sslmode=require
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_billing",

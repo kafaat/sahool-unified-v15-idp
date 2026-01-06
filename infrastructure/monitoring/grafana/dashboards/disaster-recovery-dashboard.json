@@ -1,0 +1,276 @@
+{
+  "dashboard": {
+    "title": "SAHOOL Platform - Disaster Recovery Monitoring",
+    "tags": ["disaster-recovery", "dr", "backup", "rto", "rpo"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "RTO/RPO Status Overview",
+        "type": "stat",
+        "gridPos": {"x": 0, "y": 0, "w": 24, "h": 4},
+        "targets": [
+          {
+            "expr": "sahool_rto_compliance_status",
+            "legendFormat": "RTO Compliance",
+            "refId": "A"
+          },
+          {
+            "expr": "sahool_rpo_compliance_status",
+            "legendFormat": "RPO Compliance",
+            "refId": "B"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 1, "color": "green"}
+              ]
+            },
+            "mappings": [
+              {"value": 0, "text": "NON-COMPLIANT"},
+              {"value": 1, "text": "COMPLIANT"}
+            ]
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "PostgreSQL Replication Status",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "pg_stat_replication_count",
+            "legendFormat": "Active Replicas",
+            "refId": "A"
+          },
+          {
+            "expr": "pg_replication_lag_bytes",
+            "legendFormat": "Replication Lag (bytes) - {{ $labels.instance }}",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          {"label": "Count / Bytes", "format": "short"}
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [0], "type": "lt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"params": [], "type": "last"},
+              "type": "query"
+            }
+          ],
+          "name": "No PostgreSQL Replicas"
+        }
+      },
+      {
+        "id": 3,
+        "title": "Backup Freshness",
+        "type": "graph",
+        "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
+        "targets": [
+          {
+            "expr": "time() - sahool_backup_last_success_timestamp{service=\"postgresql\"}",
+            "legendFormat": "PostgreSQL Backup Age (seconds)",
+            "refId": "A"
+          },
+          {
+            "expr": "time() - sahool_backup_last_success_timestamp{service=\"redis\"}",
+            "legendFormat": "Redis Backup Age (seconds)",
+            "refId": "B"
+          },
+          {
+            "expr": "time() - sahool_backup_last_success_timestamp{service=\"minio\"}",
+            "legendFormat": "MinIO Backup Age (seconds)",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"label": "Age (seconds)", "format": "s"}
+        ],
+        "thresholds": [
+          {"value": 86400, "colorMode": "critical"}
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Failover Events (Last 24h)",
+        "type": "table",
+        "gridPos": {"x": 0, "y": 12, "w": 12, "h": 6},
+        "targets": [
+          {
+            "expr": "increase(patroni_failover_total[24h])",
+            "legendFormat": "PostgreSQL Failovers",
+            "refId": "A",
+            "format": "table"
+          },
+          {
+            "expr": "increase(redis_sentinel_failover_total[24h])",
+            "legendFormat": "Redis Failovers",
+            "refId": "B",
+            "format": "table"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Cross-Region Replication Status",
+        "type": "stat",
+        "gridPos": {"x": 12, "y": 12, "w": 12, "h": 6},
+        "targets": [
+          {
+            "expr": "sahool_s3_replication_status",
+            "legendFormat": "S3 Replication",
+            "refId": "A"
+          },
+          {
+            "expr": "sahool_db_cross_region_lag_seconds",
+            "legendFormat": "DB Cross-Region Lag (seconds)",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "WAL Archive Status",
+        "type": "graph",
+        "gridPos": {"x": 0, "y": 18, "w": 12, "h": 6},
+        "targets": [
+          {
+            "expr": "rate(sahool_wal_archived_total[5m])",
+            "legendFormat": "WAL Archive Rate (files/sec)",
+            "refId": "A"
+          },
+          {
+            "expr": "sahool_wal_archive_size_bytes",
+            "legendFormat": "WAL Archive Size (bytes)",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "DR Test Results",
+        "type": "table",
+        "gridPos": {"x": 12, "y": 18, "w": 12, "h": 6},
+        "targets": [
+          {
+            "expr": "sahool_dr_test_last_result",
+            "format": "table",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "test_name": 0,
+                "status": 1,
+                "timestamp": 2,
+                "duration": 3
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Backup Storage Utilization",
+        "type": "gauge",
+        "gridPos": {"x": 0, "y": 24, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "(sahool_backup_storage_used_bytes / sahool_backup_storage_total_bytes) * 100",
+            "legendFormat": "Storage Used %",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 70, "color": "yellow"},
+                {"value": 85, "color": "red"}
+              ]
+            },
+            "unit": "percent"
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "Current RPO (Worst Case)",
+        "type": "stat",
+        "gridPos": {"x": 8, "y": 24, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "max(time() - sahool_backup_last_success_timestamp)",
+            "legendFormat": "Current RPO",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 3600, "color": "yellow"},
+                {"value": 86400, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Last DR Drill",
+        "type": "stat",
+        "gridPos": {"x": 16, "y": 24, "w": 8, "h": 6},
+        "targets": [
+          {
+            "expr": "time() - sahool_dr_drill_last_success_timestamp",
+            "legendFormat": "Days Since Last Drill",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 5184000, "color": "yellow"},
+                {"value": 7776000, "color": "red"}
+              ]
+            },
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "0": {"text": "Never"}
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

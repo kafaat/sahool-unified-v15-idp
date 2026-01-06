@@ -10,9 +10,15 @@ generator client {
 }
 
 datasource db {
-  url      = env("DATABASE_URL")
   provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer connection pooler)
+  directUrl  = env("DATABASE_URL_DIRECT")
   extensions = [postgis]
+  // TLS/SSL enforcement for secure connections
+  // Requires DATABASE_URL to include sslmode=require parameter
+  // Connection pooling parameters are configured in DATABASE_URL
+  // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=8&pool_timeout=20&connect_timeout=10
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -60,6 +66,8 @@ model Farm {
   @@index([tenantId], name: "idx_farm_tenant")
   @@index([ownerId], name: "idx_farm_owner")
   @@index([serverUpdatedAt], name: "idx_farm_sync")
+  @@index([isDeleted], name: "idx_farm_deleted")
+  @@index([isDeleted, serverUpdatedAt], name: "idx_farm_deleted_sync")
   @@map("farms")
 }
 
@@ -123,9 +131,14 @@ model Field {
 
   // Indexes
   @@index([tenantId], name: "idx_field_tenant")
+  @@index([farmId], name: "idx_field_farm")
+  @@index([ownerId], name: "idx_field_owner")
   @@index([serverUpdatedAt], name: "idx_field_sync")
   @@index([status], name: "idx_field_status")
   @@index([cropType], name: "idx_field_crop")
+  @@index([isDeleted], name: "idx_field_deleted")
+  @@index([tenantId, status, cropType], name: "idx_field_tenant_status_crop")
+  @@index([isDeleted, serverUpdatedAt], name: "idx_field_deleted_sync")
   @@map("fields")
 }
 
@@ -328,6 +341,7 @@ model PestIncident {
   @@index([tenantId], name: "idx_pest_incident_tenant")
   @@index([status], name: "idx_pest_incident_status")
   @@index([detectedAt], name: "idx_pest_incident_date")
+  @@index([tenantId, status, detectedAt], name: "idx_pest_tenant_status_date")
   @@map("pest_incidents")
 }
 

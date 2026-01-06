@@ -7,6 +7,10 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
+import {
+  GENERAL_TRANSACTION_CONFIG,
+  READ_TRANSACTION_CONFIG,
+} from '@sahool/shared-db';
 
 // Define ParticipantRole locally to avoid Prisma client generation dependency
 type ParticipantRole = 'BUYER' | 'SELLER' | 'ADMIN';
@@ -214,7 +218,7 @@ export class ChatService {
         throw new BadRequestException('User is not a participant in this conversation');
       }
 
-      // Use transaction to ensure atomicity
+      // Use transaction with timeout to ensure atomicity
       const message = await this.prisma.$transaction(async (tx) => {
         // Create message
         const newMessage = await tx.message.create({
@@ -251,7 +255,7 @@ export class ChatService {
         });
 
         return newMessage;
-      });
+      }, GENERAL_TRANSACTION_CONFIG);
 
       return message;
     } catch (error) {

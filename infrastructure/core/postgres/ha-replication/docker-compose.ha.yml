@@ -1,0 +1,239 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - PostgreSQL High Availability Docker Compose
+# إعداد Docker Compose للتوفر العالي لقاعدة البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Description: 3-node PostgreSQL cluster with Patroni and automated failover
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+networks:
+  sahool-ha-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/24
+
+volumes:
+  postgres-primary-data:
+  postgres-replica1-data:
+  postgres-replica2-data:
+  etcd-data:
+  wal-archive:
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # ETCD - Distributed Configuration Store
+  # ─────────────────────────────────────────────────────────────────────────────
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.11
+    container_name: sahool-etcd
+    hostname: etcd
+    networks:
+      sahool-ha-network:
+        ipv4_address: 172.25.0.10
+    environment:
+      ETCD_NAME: etcd
+      ETCD_DATA_DIR: /etcd-data
+      ETCD_LISTEN_CLIENT_URLS: http://0.0.0.0:2379
+      ETCD_ADVERTISE_CLIENT_URLS: http://etcd:2379
+      ETCD_LISTEN_PEER_URLS: http://0.0.0.0:2380
+      ETCD_INITIAL_ADVERTISE_PEER_URLS: http://etcd:2380
+      ETCD_INITIAL_CLUSTER: etcd=http://etcd:2380
+      ETCD_INITIAL_CLUSTER_STATE: new
+      ETCD_INITIAL_CLUSTER_TOKEN: sahool-postgres-cluster
+    volumes:
+      - etcd-data:/etcd-data
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # HAProxy - Load Balancer for PostgreSQL
+  # ─────────────────────────────────────────────────────────────────────────────
+  haproxy:
+    image: haproxy:2.9-alpine
+    container_name: sahool-postgres-haproxy
+    hostname: haproxy
+    networks:
+      sahool-ha-network:
+        ipv4_address: 172.25.0.11
+    ports:
+      - "5432:5432"    # Primary (write) connection
+      - "5433:5433"    # Replica (read) connections
+      - "7000:7000"    # HAProxy stats
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - etcd
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "5432"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PostgreSQL Primary Node with Patroni
+  # ─────────────────────────────────────────────────────────────────────────────
+  postgres-primary:
+    image: patroni/patroni:3.2.2
+    container_name: sahool-postgres-primary
+    hostname: postgres-primary
+    networks:
+      sahool-ha-network:
+        ipv4_address: 172.25.0.20
+    environment:
+      PATRONI_NAME: postgres-primary
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres-primary:8008
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres-primary:5432
+      ETCD_HOSTS: etcd:2379
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      PATRONI_SUPERUSER_PASSWORD: ${POSTGRES_PASSWORD}
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+    volumes:
+      - postgres-primary-data:/var/lib/postgresql/data
+      - wal-archive:/var/lib/postgresql/wal-archive
+      - ./patroni-config.yml:/etc/patroni/patroni.yml:ro
+      - ./scripts:/usr/local/bin:ro
+    depends_on:
+      etcd:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PostgreSQL Replica 1 with Patroni
+  # ─────────────────────────────────────────────────────────────────────────────
+  postgres-replica1:
+    image: patroni/patroni:3.2.2
+    container_name: sahool-postgres-replica1
+    hostname: postgres-replica1
+    networks:
+      sahool-ha-network:
+        ipv4_address: 172.25.0.21
+    environment:
+      PATRONI_NAME: postgres-replica1
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres-replica1:8008
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres-replica1:5432
+      ETCD_HOSTS: etcd:2379
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      PATRONI_SUPERUSER_PASSWORD: ${POSTGRES_PASSWORD}
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+    volumes:
+      - postgres-replica1-data:/var/lib/postgresql/data
+      - wal-archive:/var/lib/postgresql/wal-archive
+      - ./patroni-config.yml:/etc/patroni/patroni.yml:ro
+      - ./scripts:/usr/local/bin:ro
+    depends_on:
+      etcd:
+        condition: service_healthy
+      postgres-primary:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PostgreSQL Replica 2 with Patroni
+  # ─────────────────────────────────────────────────────────────────────────────
+  postgres-replica2:
+    image: patroni/patroni:3.2.2
+    container_name: sahool-postgres-replica2
+    hostname: postgres-replica2
+    networks:
+      sahool-ha-network:
+        ipv4_address: 172.25.0.22
+    environment:
+      PATRONI_NAME: postgres-replica2
+      PATRONI_RESTAPI_CONNECT_ADDRESS: postgres-replica2:8008
+      PATRONI_POSTGRESQL_CONNECT_ADDRESS: postgres-replica2:5432
+      ETCD_HOSTS: etcd:2379
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+      PATRONI_SUPERUSER_PASSWORD: ${POSTGRES_PASSWORD}
+      PATRONI_REPLICATION_USERNAME: replicator
+      PATRONI_REPLICATION_PASSWORD: ${REPLICATION_PASSWORD}
+    volumes:
+      - postgres-replica2-data:/var/lib/postgresql/data
+      - wal-archive:/var/lib/postgresql/wal-archive
+      - ./patroni-config.yml:/etc/patroni/patroni.yml:ro
+      - ./scripts:/usr/local/bin:ro
+    depends_on:
+      etcd:
+        condition: service_healthy
+      postgres-primary:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # WAL-G - Continuous WAL Archiving to S3
+  # ─────────────────────────────────────────────────────────────────────────────
+  wal-archiver:
+    image: wal-g/wal-g:latest-alpine
+    container_name: sahool-wal-archiver
+    hostname: wal-archiver
+    networks:
+      - sahool-ha-network
+    environment:
+      WALG_S3_PREFIX: s3://sahool-wal-archive
+      AWS_ENDPOINT: ${S3_ENDPOINT:-http://minio:9000}
+      AWS_ACCESS_KEY_ID: ${S3_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+      AWS_REGION: us-east-1
+      AWS_S3_FORCE_PATH_STYLE: "true"
+      PGHOST: haproxy
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - wal-archive:/var/lib/postgresql/wal-archive
+      - ./scripts/wal-archiver.sh:/usr/local/bin/wal-archiver.sh:ro
+    command: /usr/local/bin/wal-archiver.sh
+    depends_on:
+      - postgres-primary
+    restart: unless-stopped

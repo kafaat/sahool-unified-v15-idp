@@ -7,8 +7,14 @@ generator client {
 }
 
 datasource db {
-  url      = env("DATABASE_URL")
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer connection pooler)
+  directUrl = env("DATABASE_URL_DIRECT")
+  // TLS/SSL enforcement for secure connections
+  // Requires DATABASE_URL to include sslmode=require parameter
+  // Connection pooling parameters are configured in DATABASE_URL
+  // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=10&pool_timeout=20&connect_timeout=10
 }
 
 // User Role Enum
@@ -55,6 +61,8 @@ model User {
   @@index([email])
   @@index([status])
   @@index([role])
+  @@index([lastLoginAt], name: "idx_user_last_login")
+  @@index([tenantId, status], name: "idx_user_tenant_status")
   @@map("users")
 }
 
@@ -112,6 +120,7 @@ model UserSession {
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
+  @@index([userId, expiresAt], name: "idx_session_user_expiry")
   @@map("user_sessions")
 }
 

@@ -15,6 +15,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { UserRole, UserStatus } from '@prisma/client';
+import { IsYemeniPhone, IsStrongPassword, SanitizePlainText } from '../../../shared/validation';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -32,19 +33,18 @@ export class CreateUserDto {
   email: string;
 
   @ApiPropertyOptional({
-    description: 'User phone number',
-    example: '+966501234567',
+    description: 'User phone number (Yemen format: +967XXXXXXXX or 7XXXXXXXX)',
+    example: '+967712345678',
   })
   @IsOptional()
-  @IsString()
+  @IsYemeniPhone()
   phone?: string;
 
   @ApiProperty({
-    description: 'User password (min 8 characters)',
+    description: 'User password (min 8 characters, must contain uppercase, lowercase, number, and special character)',
     example: 'SecurePassword123!',
   })
-  @IsString()
-  @MinLength(8)
+  @IsStrongPassword(8)
   password: string;
 
   @ApiProperty({
@@ -54,6 +54,7 @@ export class CreateUserDto {
   @IsString()
   @MinLength(2)
   @MaxLength(50)
+  @SanitizePlainText()
   firstName: string;
 
   @ApiProperty({
@@ -63,6 +64,7 @@ export class CreateUserDto {
   @IsString()
   @MinLength(2)
   @MaxLength(50)
+  @SanitizePlainText()
   lastName: string;
 
   @ApiPropertyOptional({

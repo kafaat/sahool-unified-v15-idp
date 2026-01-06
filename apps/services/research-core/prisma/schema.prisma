@@ -7,8 +7,14 @@ generator client {
 }
 
 datasource db {
-  url      = env("DATABASE_URL")
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer connection pooler)
+  directUrl = env("DATABASE_URL_DIRECT")
+  // TLS/SSL enforcement for secure connections
+  // Requires DATABASE_URL to include sslmode=require parameter
+  // Connection pooling parameters are configured in DATABASE_URL
+  // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=8&pool_timeout=20&connect_timeout=10
 }
 
 enum ExperimentStatus {
@@ -124,6 +130,9 @@ model Germplasm {
   seedLots              SeedLot[]
   plantings             Planting[]
 
+  @@index([isAvailable], name: "idx_germplasm_available")
+  @@index([type], name: "idx_germplasm_type")
+  @@index([commonName], name: "idx_germplasm_common_name")
   @@map("germplasm")
 }
 
@@ -182,6 +191,10 @@ model SeedLot {
   germplasm             Germplasm         @relation(fields: [germplasmId], references: [id], onDelete: Cascade)
   plantings             Planting[]
 
+  @@index([germplasmId], name: "idx_seed_lot_germplasm")
+  @@index([qualityGrade], name: "idx_seed_lot_quality")
+  @@index([expiryDate], name: "idx_seed_lot_expiry")
+  @@index([productionDate], name: "idx_seed_lot_production")
   @@map("seed_lots")
 }
 
@@ -236,6 +249,12 @@ model Planting {
   germplasm             Germplasm         @relation(fields: [germplasmId], references: [id])
   seedLot               SeedLot?          @relation(fields: [seedLotId], references: [id])
 
+  @@index([experimentId], name: "idx_planting_experiment")
+  @@index([plotId], name: "idx_planting_plot")
+  @@index([germplasmId], name: "idx_planting_germplasm")
+  @@index([seedLotId], name: "idx_planting_seed_lot")
+  @@index([plantingDate], name: "idx_planting_date")
+  @@index([experimentId, plantingDate], name: "idx_planting_exp_date")
   @@map("plantings")
 }
 
@@ -270,6 +289,13 @@ model Experiment {
   auditLogs     ExperimentAuditLog[]
   plantings     Planting[]
 
+  @@index([status], name: "idx_experiment_status")
+  @@index([principalResearcherId], name: "idx_experiment_pi")
+  @@index([organizationId], name: "idx_experiment_org")
+  @@index([farmId], name: "idx_experiment_farm")
+  @@index([startDate], name: "idx_experiment_start_date")
+  @@index([endDate], name: "idx_experiment_end_date")
+  @@index([status, startDate], name: "idx_experiment_status_date")
   @@map("experiments")
 }
 
@@ -294,6 +320,7 @@ model ResearchProtocol {
 
   experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
 
+  @@index([experimentId], name: "idx_protocol_experiment")
   @@map("research_protocols")
 }
 
@@ -349,6 +376,10 @@ model Treatment {
   plot       ResearchPlot?      @relation(fields: [plotId], references: [id], onDelete: SetNull)
   logs       ResearchDailyLog[]
 
+  @@index([experimentId], name: "idx_treatment_experiment")
+  @@index([plotId], name: "idx_treatment_plot")
+  @@index([type], name: "idx_treatment_type")
+  @@index([isControl], name: "idx_treatment_control")
   @@map("treatments")
 }
 
@@ -381,6 +412,13 @@ model ResearchDailyLog {
   treatment  Treatment?    @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
   samples    LabSample[]
 
+  @@index([experimentId], name: "idx_daily_log_experiment")
+  @@index([plotId], name: "idx_daily_log_plot")
+  @@index([treatmentId], name: "idx_daily_log_treatment")
+  @@index([logDate], name: "idx_daily_log_date")
+  @@index([category], name: "idx_daily_log_category")
+  @@index([experimentId, logDate], name: "idx_daily_log_exp_date")
+  @@index([recordedBy], name: "idx_daily_log_recorder")
   @@map("research_daily_logs")
 }
 
@@ -413,6 +451,13 @@ model LabSample {
   plot       ResearchPlot?     @relation(fields: [plotId], references: [id], onDelete: SetNull)
   log        ResearchDailyLog? @relation(fields: [logId], references: [id], onDelete: SetNull)
 
+  @@index([experimentId], name: "idx_lab_sample_experiment")
+  @@index([plotId], name: "idx_lab_sample_plot")
+  @@index([logId], name: "idx_lab_sample_log")
+  @@index([type], name: "idx_lab_sample_type")
+  @@index([analysisStatus], name: "idx_lab_sample_status")
+  @@index([collectionDate], name: "idx_lab_sample_collection_date")
+  @@index([experimentId, collectionDate], name: "idx_lab_sample_exp_date")
   @@map("lab_samples")
 }
 
@@ -434,6 +479,9 @@ model DigitalSignature {
   createdAt          DateTime  @default(now()) @map("created_at")
 
   @@unique([entityType, entityId, signerId, purpose])
+  @@index([entityType, entityId], name: "idx_signature_entity")
+  @@index([signerId], name: "idx_signature_signer")
+  @@index([isValid], name: "idx_signature_valid")
   @@map("digital_signatures")
 }
 
@@ -468,5 +516,10 @@ model ExperimentAuditLog {
 
   experiment Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
 
+  @@index([experimentId], name: "idx_audit_log_experiment")
+  @@index([entityType, entityId], name: "idx_audit_log_entity")
+  @@index([changedBy], name: "idx_audit_log_user")
+  @@index([changedAt], name: "idx_audit_log_date")
+  @@index([action], name: "idx_audit_log_action")
   @@map("experiment_audit_log")
 }

@@ -256,12 +256,42 @@ upstreams:
   - name: field-intelligence-upstream
     algorithm: round-robin
     targets:
-      - target: field-intelligence:8119
+      - target: field-intelligence:8120
         weight: 100
     healthchecks:
       active:
         type: http
         http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          interval: 10
+          http_failures: 3
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
 
 # ============================================================================
 # الخدمات الأساسية - Starter Package Services
@@ -731,7 +761,7 @@ services:
   # Field Intelligence Service - خدمة ذكاء الحقل
   # ============================================================================
   - name: field-intelligence
-    url: http://field-intelligence:8119
+    url: http://field-intelligence:8120
     tags:
       - professional
       - intelligence

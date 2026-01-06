@@ -340,52 +340,49 @@ export class ReviewsService {
 
   /**
    * تحديث تقييم البائع (داخلي)
+   * Optimized to prevent N+1 queries using a single aggregation query
    */
   private async updateProductSellerRating(productId: string) {
-    // Get the product to find the seller
-    const product = await this.prisma.product.findUnique({
-      where: { id: productId },
-    });
+    // Use raw SQL for optimal performance with a single query
+    // This query:
+    // 1. Joins product to find seller
+    // 2. Gets all products by this seller
+    // 3. Aggregates all reviews for those products
+    // 4. Returns seller info and average rating
+    const result = await this.prisma.$queryRaw<
+      Array<{
+        seller_id: string;
+        seller_profile_id: string | null;
+        avg_rating: number | null;
+        review_count: number;
+      }>
+    >`
+      SELECT
+        p.seller_id,
+        sp.id as seller_profile_id,
+        AVG(pr.rating) as avg_rating,
+        COUNT(pr.id)::int as review_count
+      FROM products p
+      LEFT JOIN seller_profiles sp ON sp.user_id = p.seller_id
+      LEFT JOIN products seller_products ON seller_products.seller_id = p.seller_id
+      LEFT JOIN product_reviews pr ON pr.product_id = seller_products.id
+      WHERE p.id = ${productId}::uuid
+      GROUP BY p.seller_id, sp.id
+    `;
 
-    if (!product) {
+    if (result.length === 0 || !result[0].seller_profile_id) {
       return;
     }
 
-    // Find the seller profile by userId
-    const sellerProfile = await this.prisma.sellerProfile.findUnique({
-      where: { userId: product.sellerId },
-    });
+    const { seller_profile_id, avg_rating, review_count } = result[0];
 
-    if (!sellerProfile) {
-      return;
+    // Only update if there are reviews
+    if (review_count > 0 && avg_rating !== null) {
+      await this.prisma.sellerProfile.update({
+        where: { id: seller_profile_id },
+        data: { rating: Math.round(avg_rating * 10) / 10 },
+      });
     }
-
-    // Get all products by this seller
-    const sellerProducts = await this.prisma.product.findMany({
-      where: { sellerId: product.sellerId },
-      select: { id: true },
-    });
-
-    const productIds = sellerProducts.map((p) => p.id);
-
-    // Get all reviews for all seller's products
-    const allReviews = await this.prisma.productReview.findMany({
-      where: { productId: { in: productIds } },
-      select: { rating: true },
-    });
-
-    if (allReviews.length === 0) {
-      return;
-    }
-
-    const averageRating =
-      allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
-
-    // Update seller profile rating
-    await this.prisma.sellerProfile.update({
-      where: { id: sellerProfile.id },
-      data: { rating: Math.round(averageRating * 10) / 10 },
-    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -9,6 +9,7 @@ import logging
 import time
 import uuid
 from collections.abc import Callable
+from typing import Any, Optional
 
 from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -46,7 +47,7 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         self,
         app: FastAPI,
         service_name: str,
-        metrics_collector: any | None = None,
+        metrics_collector: Optional[Any] = None,
         exclude_paths: list[str] | None = None,
     ):
         super().__init__(app)
@@ -361,7 +362,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 def setup_observability_middleware(
     app: FastAPI,
     service_name: str,
-    metrics_collector: any | None = None,
+    metrics_collector: Optional[Any] = None,
     enable_request_logging: bool = False,
     log_request_body: bool = False,
     log_response_body: bool = False,

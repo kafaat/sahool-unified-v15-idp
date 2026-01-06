@@ -179,9 +179,13 @@ services:
     restart: unless-stopped
     ports:
       - "9187:9187"
+    volumes:
+      # Custom queries configuration - استعلامات مخصصة
+      - ./postgres-exporter-queries.yaml:/etc/postgres-exporter/queries.yaml:ro
     environment:
       - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/sahool?sslmode=disable
       - PG_EXPORTER_EXTEND_QUERY_PATH=/etc/postgres-exporter/queries.yaml
+      - PG_EXPORTER_AUTO_DISCOVER_DATABASES=true
     networks:
       - sahool-network
       - monitoring-network
@@ -196,8 +200,8 @@ services:
     labels:
       com.sahool.service: "postgres-exporter"
       com.sahool.tier: "monitoring"
-      com.sahool.description: "PostgreSQL Metrics Exporter"
-      com.sahool.description_ar: "مُصدِّر مقاييس قاعدة البيانات"
+      com.sahool.description: "PostgreSQL Metrics Exporter with Custom Queries"
+      com.sahool.description_ar: "مُصدِّر مقاييس قاعدة البيانات مع استعلامات مخصصة"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Optional: Redis Exporter - Cache Metrics
@@ -262,6 +266,39 @@ services:
       com.sahool.description: "Node/System Metrics Exporter"
       com.sahool.description_ar: "مُصدِّر مقاييس النظام"
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Prometheus Pushgateway - بوابة دفع المقاييس
+  # For pushing metrics from batch jobs and scripts
+  # ─────────────────────────────────────────────────────────────────────────────
+  pushgateway:
+    image: prom/pushgateway:v1.6.2
+    container_name: sahool-monitoring-pushgateway
+    restart: unless-stopped
+    ports:
+      - "9091:9091"
+    command:
+      - '--web.listen-address=:9091'
+      - '--web.telemetry-path=/metrics'
+      - '--persistence.file=/var/lib/pushgateway/metrics'
+      - '--persistence.interval=5m'
+    volumes:
+      # Data persistence - استمرارية البيانات
+      - pushgateway_data:/var/lib/pushgateway
+    networks:
+      - monitoring-network
+      - sahool-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9091/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      com.sahool.service: "pushgateway"
+      com.sahool.tier: "monitoring"
+      com.sahool.description: "Prometheus Pushgateway for Batch Jobs"
+      com.sahool.description_ar: "بوابة دفع المقاييس للوظائف الدفعية"
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Networks - الشبكات
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -298,4 +335,9 @@ volumes:
   # Alertmanager data - بيانات Alertmanager
   alertmanager_data:
     name: sahool-monitoring-alertmanager-data
+    driver: local
+
+  # Pushgateway data - بيانات Pushgateway
+  pushgateway_data:
+    name: sahool-monitoring-pushgateway-data
     driver: local

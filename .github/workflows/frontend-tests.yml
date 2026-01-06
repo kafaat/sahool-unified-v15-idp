@@ -235,10 +235,15 @@ jobs:
         if: matrix.test-type == 'build-android'
         run: |
           pip install Pillow
-          cd ../
+          # Create required asset directories
           mkdir -p assets/icon assets/images assets/icons
-          python3 scripts/generate_icons.py || echo "Icon generation skipped"
-          cd sahool_field_app
+          # Generate icons from parent directory script
+          if [ -f "../scripts/generate_icons.py" ]; then
+            cd ../ && python3 scripts/generate_icons.py && cd sahool_field_app
+          else
+            echo "⚠️ Icon generation script not found - using existing assets"
+          fi
+        continue-on-error: true
 
       - name: Create .env file
         if: matrix.test-type == 'build-android'
@@ -338,10 +343,15 @@ jobs:
       - name: Generate icons and assets
         run: |
           pip install Pillow
-          cd ../
+          # Create required asset directories
           mkdir -p assets/icon assets/images assets/icons
-          python3 scripts/generate_icons.py || echo "Icon generation skipped"
-          cd sahool_field_app
+          # Generate icons from parent directory script
+          if [ -f "../scripts/generate_icons.py" ]; then
+            cd ../ && python3 scripts/generate_icons.py && cd sahool_field_app
+          else
+            echo "⚠️ Icon generation script not found - using existing assets"
+          fi
+        continue-on-error: true
 
       - name: Create .env file
         run: |

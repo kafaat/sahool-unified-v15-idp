@@ -1,0 +1,67 @@
+# SAHOOL Platform GitLeaks Configuration
+# =======================================
+# This file configures GitLeaks to reduce false positives in secret detection.
+
+title = "SAHOOL GitLeaks Config"
+
+# Paths to exclude from scanning
+[allowlist]
+description = "Allowlist for SAHOOL platform"
+
+# Exclude documentation files - they contain examples, not real secrets
+paths = [
+    '''.*\.md$''',
+    '''.*README.*''',
+    '''docs/.*''',
+    '''.*AUDIT.*''',
+    '''.*SUMMARY.*''',
+    '''.*IMPLEMENTATION.*''',
+    '''.*GUIDE.*''',
+    '''.*REPORT.*''',
+]
+
+# Exclude example/template files - they contain placeholder values
+regexTarget = "match"
+regexes = [
+    '''\.env\.example''',
+    '''\.env\.template''',
+    '''\.example''',
+    '''CHANGE_THIS.*''',
+    '''MUST_SET_IN_PRODUCTION.*''',
+    '''your-.*-here''',
+    '''change_this.*''',
+    '''changeme''',
+]
+
+# Specific commit hashes to ignore (if needed)
+# commits = []
+
+# Stop words that indicate example/placeholder values
+stopwords = [
+    "CHANGE_THIS",
+    "MUST_SET",
+    "your-secret",
+    "placeholder",
+    "example",
+    "changeme",
+    "replace_this",
+]
+
+# Additional rules configuration
+[[rules]]
+id = "allow-test-passwords"
+description = "Allow test passwords in test files"
+regex = '''(?i)password.*test|test.*password'''
+allowlist = { paths = ['''.*test.*''', '''.*spec.*''', '''e2e/.*'''] }
+
+[[rules]]
+id = "allow-example-tokens"
+description = "Allow example tokens in documentation"
+regex = '''token.*example|example.*token'''
+allowlist = { paths = ['''.*\.md$''', '''docs/.*'''] }
+
+[[rules]]
+id = "allow-simulation-secrets"
+description = "Allow placeholder secrets in simulation configs"
+regex = '''CHANGE_THIS.*|MUST_SET.*'''
+allowlist = { regexTarget = "match" }

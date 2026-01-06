@@ -149,13 +149,14 @@ try:
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
+    trace = None  # Placeholder when OpenTelemetry not available
 
 
 def setup_opentelemetry(
     service_name: str,
     service_version: str,
     otlp_endpoint: str | None = None,
-) -> trace.Tracer | None:
+) -> Optional[object]:
     """
     Setup OpenTelemetry tracing.
     إعداد تتبع OpenTelemetry.
@@ -276,7 +277,7 @@ def inject_trace_headers(headers: dict) -> dict:
     return carrier
 
 
-def extract_trace_from_headers(headers: dict) -> trace.SpanContext | None:
+def extract_trace_from_headers(headers: dict) -> Optional[object]:
     """
     Extract trace context from HTTP headers.
     استخراج سياق التتبع من رؤوس HTTP.

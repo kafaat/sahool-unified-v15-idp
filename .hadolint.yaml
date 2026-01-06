@@ -1,0 +1,49 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform Hadolint Configuration
+# تكوين Hadolint لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This configuration customizes Dockerfile linting rules for the SAHOOL platform.
+# Reference: https://github.com/hadolint/hadolint#configure
+#
+
+# Failure threshold (error, warning, info, style, ignore, none)
+failure-threshold: warning
+
+# Ignore specific rules that don't apply to our architecture
+ignored:
+  # DL3008: Pin versions in apt-get install
+  # We use stable base images and accept latest packages for security updates
+  - DL3008
+
+  # DL3013: Pin versions in pip install
+  # We use requirements.txt with pinned versions instead
+  - DL3013
+
+  # DL3018: Pin versions in apk add
+  # Alpine packages are versioned with base image
+  - DL3018
+
+  # DL3059: Multiple consecutive RUN instructions
+  # Sometimes preferred for layer caching
+  - DL3059
+
+# Trusted registries for FROM instructions
+trustedRegistries:
+  - docker.io
+  - ghcr.io
+  - gcr.io
+  - quay.io
+  - registry.hub.docker.com
+  - public.ecr.aws
+  - mcr.microsoft.com
+
+# Strict labels requirement (disabled for flexibility)
+strict-labels: false
+
+# Override specific rules per file pattern
+override:
+  # Development Dockerfiles can be less strict
+  warning:
+    - DL3003  # Use WORKDIR instead of cd
+    - DL3006  # Always tag the version of an image explicitly

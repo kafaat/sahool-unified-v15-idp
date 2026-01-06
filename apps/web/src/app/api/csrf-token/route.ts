@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 
 /**
  * Generate a cryptographically secure CSRF token

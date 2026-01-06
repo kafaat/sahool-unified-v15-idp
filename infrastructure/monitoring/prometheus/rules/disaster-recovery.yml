@@ -1,0 +1,375 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Disaster Recovery Prometheus Rules
+# قواعد Prometheus للتعافي من الكوارث
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Purpose: Monitoring rules for RTO/RPO compliance and DR readiness
+# ═══════════════════════════════════════════════════════════════════════════════
+
+groups:
+  # ═════════════════════════════════════════════════════════════════════════════
+  # PostgreSQL Replication and HA
+  # ═════════════════════════════════════════════════════════════════════════════
+  - name: postgresql_dr
+    interval: 30s
+    rules:
+      # PostgreSQL is down
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: postgresql
+        annotations:
+          summary: "PostgreSQL instance is down"
+          description: "PostgreSQL instance {{ $labels.instance }} has been down for more than 1 minute. Immediate action required."
+          impact: "Complete platform outage"
+          rto_impact: "HIGH"
+          runbook: "https://docs.sahool.sa/dr/postgresql-down"
+
+      # No replicas available
+      - alert: PostgreSQLNoReplicas
+        expr: pg_stat_replication_count == 0
+        for: 5m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: postgresql
+        annotations:
+          summary: "No PostgreSQL replicas available"
+          description: "PostgreSQL primary has no active replicas. RPO at risk!"
+          impact: "RPO increased to backup frequency (24 hours)"
+          rpo_impact: "CRITICAL"
+          runbook: "https://docs.sahool.sa/dr/no-replicas"
+
+      # Replication lag is high
+      - alert: PostgreSQLReplicationLagHigh
+        expr: pg_replication_lag_bytes > 104857600  # 100MB
+        for: 5m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: postgresql
+        annotations:
+          summary: "PostgreSQL replication lag is high"
+          description: "Replication lag on {{ $labels.instance }} is {{ $value }} bytes (>100MB)"
+          impact: "RPO at risk if primary fails"
+          rpo_impact: "MEDIUM"
+          action: "Investigate network or replica performance issues"
+
+      # Replication lag is critical
+      - alert: PostgreSQLReplicationLagCritical
+        expr: pg_replication_lag_bytes > 1073741824  # 1GB
+        for: 2m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: postgresql
+        annotations:
+          summary: "PostgreSQL replication lag is CRITICAL"
+          description: "Replication lag on {{ $labels.instance }} is {{ $value }} bytes (>1GB)"
+          impact: "Severe RPO risk - potential data loss exceeds target"
+          rpo_impact: "CRITICAL"
+          action: "Immediate investigation required"
+
+      # Patroni cluster has no leader
+      - alert: PatroniNoLeader
+        expr: patroni_cluster_leader_info == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: patroni
+        annotations:
+          summary: "Patroni cluster has no leader"
+          description: "Patroni cluster {{ $labels.cluster }} has no elected leader"
+          impact: "Database unavailable - RTO clock started"
+          rto_impact: "CRITICAL"
+          action: "Check Patroni logs and ETCD cluster health"
+
+      # Patroni failover in progress
+      - alert: PatroniFailoverInProgress
+        expr: increase(patroni_failover_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: patroni
+        annotations:
+          summary: "Patroni failover in progress"
+          description: "Patroni is executing a failover for cluster {{ $labels.cluster }}"
+          impact: "Brief write downtime expected (<30 seconds)"
+          rto_impact: "LOW"
+          action: "Monitor failover completion"
+
+      # Excessive failovers
+      - alert: PatroniExcessiveFailovers
+        expr: increase(patroni_failover_total[1h]) > 3
+        for: 0m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: patroni
+        annotations:
+          summary: "Excessive PostgreSQL failovers detected"
+          description: "{{ $value }} failovers in the last hour for cluster {{ $labels.cluster }}"
+          impact: "Cluster instability - investigate root cause"
+          action: "Check infrastructure health, network, and node resources"
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  # Backup Health and RPO Compliance
+  # ═════════════════════════════════════════════════════════════════════════════
+  - name: backup_health
+    interval: 5m
+    rules:
+      # No recent PostgreSQL backup
+      - alert: PostgreSQLBackupTooOld
+        expr: time() - sahool_backup_last_success_timestamp{service="postgresql"} > 86400  # 24 hours
+        for: 1h
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: backup
+        annotations:
+          summary: "PostgreSQL backup is too old"
+          description: "Last successful PostgreSQL backup was {{ $value | humanizeDuration }} ago"
+          impact: "RPO at risk - no recent recovery point"
+          rpo_impact: "CRITICAL"
+          action: "Check backup job logs and storage availability"
+
+      # Backup failed
+      - alert: BackupJobFailed
+        expr: sahool_backup_last_status{service=~"postgresql|redis|minio"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: backup
+        annotations:
+          summary: "Backup job failed for {{ $labels.service }}"
+          description: "Last backup attempt for {{ $labels.service }} failed"
+          impact: "RPO at risk if no retry succeeds"
+          rpo_impact: "HIGH"
+          action: "Check backup script logs at /var/log/sahool/backups/"
+
+      # WAL archive not updating
+      - alert: WALArchiveStale
+        expr: time() - sahool_wal_archive_last_timestamp > 3600  # 1 hour
+        for: 10m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: wal_archive
+        annotations:
+          summary: "WAL archive is not updating"
+          description: "No WAL files archived in the last hour"
+          impact: "PITR capability degraded"
+          rpo_impact: "MEDIUM"
+          action: "Check WAL archiving configuration and S3 connectivity"
+
+      # Backup storage space low
+      - alert: BackupStorageLow
+        expr: |
+          (
+            sahool_backup_storage_used_bytes /
+            sahool_backup_storage_total_bytes
+          ) > 0.85
+        for: 30m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: backup
+        annotations:
+          summary: "Backup storage space is low"
+          description: "Backup storage is {{ $value | humanizePercentage }} full"
+          impact: "Future backups may fail"
+          action: "Clean old backups or increase storage capacity"
+
+      # Cross-region replication lag
+      - alert: CrossRegionReplicationLag
+        expr: |
+          time() - sahool_s3_replication_last_sync_timestamp > 1800  # 30 minutes
+        for: 15m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: replication
+        annotations:
+          summary: "Cross-region replication is lagging"
+          description: "Last S3 replication sync was {{ $value | humanizeDuration }} ago"
+          impact: "Secondary region may not have latest backups"
+          action: "Check S3 replication configuration and bandwidth"
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  # RTO Compliance
+  # ═════════════════════════════════════════════════════════════════════════════
+  - name: rto_compliance
+    interval: 1m
+    rules:
+      # Service down exceeds RTO
+      - alert: ServiceDownExceedsRTO
+        expr: |
+          (time() - sahool_service_last_available_timestamp) > 7200  # 2 hours
+        for: 0m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: rto
+        annotations:
+          summary: "Service {{ $labels.service }} down exceeds RTO target"
+          description: "Service has been unavailable for {{ $value | humanizeDuration }} (RTO: 2 hours)"
+          impact: "RTO SLA breach"
+          rto_impact: "BREACH"
+          action: "Escalate to DR team immediately"
+
+      # Multiple availability zones down
+      - alert: MultipleAZsDown
+        expr: count(up{job="node"} == 0) by (availability_zone) >= 2
+        for: 5m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: infrastructure
+        annotations:
+          summary: "Multiple availability zones are down"
+          description: "{{ $value }} availability zones are currently unavailable"
+          impact: "Multi-AZ failure - potential region failover required"
+          rto_impact: "CRITICAL"
+          action: "Initiate multi-region failover procedure"
+
+      # Database restore taking too long
+      - alert: DatabaseRestoreSlow
+        expr: |
+          sahool_database_restore_duration_seconds > 3600  # 1 hour
+          and
+          sahool_database_restore_status == 1  # in progress
+        for: 0m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: restore
+        annotations:
+          summary: "Database restore is taking longer than expected"
+          description: "Database restore has been running for {{ $value | humanizeDuration }}"
+          impact: "RTO at risk"
+          rto_impact: "MEDIUM"
+          action: "Monitor restore progress and investigate if stalled"
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  # DR Test and Drill Compliance
+  # ═════════════════════════════════════════════════════════════════════════════
+  - name: dr_drill_compliance
+    interval: 1h
+    rules:
+      # No DR drill in last 90 days
+      - alert: DRDrillOverdue
+        expr: |
+          time() - sahool_dr_drill_last_success_timestamp > 7776000  # 90 days
+        for: 1d
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: compliance
+        annotations:
+          summary: "DR drill is overdue"
+          description: "Last successful DR drill was {{ $value | humanizeDuration }} ago"
+          impact: "DR procedures may be untested"
+          action: "Schedule and execute DR drill"
+
+      # Backup verification failed
+      - alert: BackupVerificationFailed
+        expr: sahool_backup_verification_status == 0
+        for: 1h
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: verification
+        annotations:
+          summary: "Backup verification failed"
+          description: "Backup verification for {{ $labels.backup_type }} has failed"
+          impact: "Backup integrity uncertain - restore may fail"
+          action: "Investigate verification failure and re-run backup if needed"
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  # Redis HA
+  # ═════════════════════════════════════════════════════════════════════════════
+  - name: redis_dr
+    interval: 30s
+    rules:
+      # Redis master down
+      - alert: RedisMasterDown
+        expr: redis_master_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: redis
+        annotations:
+          summary: "Redis master is down"
+          description: "Redis master instance is unavailable"
+          impact: "Cache unavailable - sentinel should trigger failover"
+          rto_impact: "MEDIUM"
+          expected_recovery: "15 seconds (automated)"
+
+      # No Redis replicas
+      - alert: RedisNoReplicas
+        expr: redis_connected_slaves == 0
+        for: 5m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: redis
+        annotations:
+          summary: "Redis has no replicas"
+          description: "Redis master has no connected replicas"
+          impact: "No failover capability - data loss risk"
+          action: "Check replica instances and network connectivity"
+
+      # Redis failover occurred
+      - alert: RedisFailoverOccurred
+        expr: increase(redis_sentinel_failover_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: redis
+        annotations:
+          summary: "Redis failover occurred"
+          description: "Redis Sentinel triggered a failover"
+          impact: "Brief cache unavailability"
+          action: "Verify new master is healthy and all replicas reconnected"
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  # ETCD Health (for Patroni)
+  # ═════════════════════════════════════════════════════════════════════════════
+  - name: etcd_dr
+    interval: 30s
+    rules:
+      # ETCD cluster unhealthy
+      - alert: ETCDClusterUnhealthy
+        expr: etcd_server_has_leader == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: disaster_recovery
+          component: etcd
+        annotations:
+          summary: "ETCD cluster has no leader"
+          description: "ETCD cluster is unhealthy - no leader elected"
+          impact: "Patroni cannot make failover decisions"
+          action: "Check ETCD cluster health and quorum"
+
+      # ETCD member down
+      - alert: ETCDMemberDown
+        expr: up{job="etcd"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          category: disaster_recovery
+          component: etcd
+        annotations:
+          summary: "ETCD member is down"
+          description: "ETCD member {{ $labels.instance }} is unavailable"
+          impact: "Reduced cluster redundancy"
+          action: "Investigate and restore ETCD member"

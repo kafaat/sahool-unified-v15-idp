@@ -10,6 +10,8 @@
  */
 
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 import * as mqtt from 'mqtt';
 
 // =============================================================================
@@ -75,10 +77,12 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(IotService.name);
   private client: mqtt.MqttClient;
 
-  // In-memory cache for latest readings (in production, use Redis)
-  private sensorReadings: Map<string, SensorReading> = new Map();
-  private deviceStatuses: Map<string, DeviceStatus> = new Map();
-  private actuatorStates: Map<string, boolean> = new Map();
+  // Redis cache for distributed sensor data storage
+  private readonly SENSOR_READING_TTL = 300; // 5 minutes
+  private readonly DEVICE_STATUS_TTL = 600; // 10 minutes
+  private readonly ACTUATOR_STATE_TTL = 3600; // 1 hour
+
+  constructor(@InjectRedis() private readonly redis: Redis) {}
 
   // ==========================================================================
   // Lifecycle
@@ -201,9 +205,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       quality: this.assessReadingQuality(sensorType, data.value),
     };
 
-    // Cache latest reading
-    const key = `${fieldId}:${sensorType}`;
-    this.sensorReadings.set(key, reading);
+    // Cache latest reading in Redis
+    const key = `sensor:${fieldId}:${sensorType}`;
+    await this.cacheSensorReading(key, reading);
 
     this.logger.debug(
       `📊 Sensor ${sensorType} @ ${fieldId}: ${reading.value}${reading.unit}`,
@@ -213,21 +217,21 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     this.checkSensorAlerts(reading);
   }
 
-  private handleActuatorStatus(topicParts: string[], payload: string): void {
+  private async handleActuatorStatus(topicParts: string[], payload: string): Promise<void> {
     const fieldId = topicParts[5];
     const actuatorType = topicParts[7];
 
     const data = JSON.parse(payload);
-    const key = `${fieldId}:${actuatorType}`;
+    const key = `actuator:${fieldId}:${actuatorType}`;
 
-    this.actuatorStates.set(key, data.status === 'ON');
+    await this.cacheActuatorState(key, data.status === 'ON');
 
     this.logger.debug(
       `🔌 Actuator ${actuatorType} @ ${fieldId}: ${data.status}`,
     );
   }
 
-  private handleDeviceStatus(topicParts: string[], payload: string): void {
+  private async handleDeviceStatus(topicParts: string[], payload: string): Promise<void> {
     const data = JSON.parse(payload);
 
     const status: DeviceStatus = {
@@ -240,7 +244,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       batteryLevel: data.battery,
     };
 
-    this.deviceStatuses.set(status.deviceId, status);
+    await this.cacheDeviceStatus(status);
 
     if (status.batteryLevel && status.batteryLevel < 20) {
       this.logger.warn(
@@ -273,8 +277,8 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
 
     this.client.publish(topic, JSON.stringify(payload), { qos: 1 });
 
-    // Update local state
-    this.actuatorStates.set(`${fieldId}:pump`, status === 'ON');
+    // Update Redis state
+    await this.cacheActuatorState(`actuator:${fieldId}:pump`, status === 'ON');
 
     const message =
       status === 'ON'
@@ -347,14 +351,32 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get latest sensor readings for a field
    */
-  getFieldSensorData(fieldId: string): SensorReading[] {
+  async getFieldSensorData(fieldId: string): Promise<SensorReading[]> {
     const readings: SensorReading[] = [];
+    const pattern = `sensor:${fieldId}:*`;
 
-    this.sensorReadings.forEach((reading, key) => {
-      if (key.startsWith(fieldId)) {
-        readings.push(reading);
-      }
-    });
+    try {
+      let cursor = '0';
+      do {
+        const [newCursor, keys] = await this.redis.scan(
+          cursor,
+          'MATCH',
+          pattern,
+          'COUNT',
+          100,
+        );
+        cursor = newCursor;
+
+        for (const key of keys) {
+          const data = await this.redis.get(key);
+          if (data) {
+            readings.push(JSON.parse(data));
+          }
+        }
+      } while (cursor !== '0');
+    } catch (error) {
+      this.logger.error(`Error fetching field sensor data: ${error.message}`);
+    }
 
     return readings;
   }
@@ -362,23 +384,51 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get specific sensor reading
    */
-  getSensorReading(fieldId: string, sensorType: SensorType): SensorReading | null {
-    const key = `${fieldId}:${sensorType}`;
-    return this.sensorReadings.get(key) || null;
+  async getSensorReading(
+    fieldId: string,
+    sensorType: SensorType,
+  ): Promise<SensorReading | null> {
+    const key = `sensor:${fieldId}:${sensorType}`;
+
+    try {
+      const data = await this.redis.get(key);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      this.logger.error(`Error fetching sensor reading: ${error.message}`);
+      return null;
+    }
   }
 
   /**
    * Get actuator states for a field
    */
-  getFieldActuatorStates(fieldId: string): Record<string, boolean> {
+  async getFieldActuatorStates(fieldId: string): Promise<Record<string, boolean>> {
     const states: Record<string, boolean> = {};
+    const pattern = `actuator:${fieldId}:*`;
 
-    this.actuatorStates.forEach((isOn, key) => {
-      if (key.startsWith(fieldId)) {
-        const actuatorType = key.split(':')[1];
-        states[actuatorType] = isOn;
-      }
-    });
+    try {
+      let cursor = '0';
+      do {
+        const [newCursor, keys] = await this.redis.scan(
+          cursor,
+          'MATCH',
+          pattern,
+          'COUNT',
+          100,
+        );
+        cursor = newCursor;
+
+        for (const key of keys) {
+          const data = await this.redis.get(key);
+          if (data !== null) {
+            const actuatorType = key.split(':')[2];
+            states[actuatorType] = data === 'true';
+          }
+        }
+      } while (cursor !== '0');
+    } catch (error) {
+      this.logger.error(`Error fetching actuator states: ${error.message}`);
+    }
 
     return states;
   }
@@ -386,25 +436,94 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get all connected devices
    */
-  getConnectedDevices(): DeviceStatus[] {
-    return Array.from(this.deviceStatuses.values());
+  async getConnectedDevices(): Promise<DeviceStatus[]> {
+    const devices: DeviceStatus[] = [];
+    const pattern = 'device:*';
+
+    try {
+      let cursor = '0';
+      do {
+        const [newCursor, keys] = await this.redis.scan(
+          cursor,
+          'MATCH',
+          pattern,
+          'COUNT',
+          100,
+        );
+        cursor = newCursor;
+
+        for (const key of keys) {
+          const data = await this.redis.get(key);
+          if (data) {
+            devices.push(JSON.parse(data));
+          }
+        }
+      } while (cursor !== '0');
+    } catch (error) {
+      this.logger.error(`Error fetching connected devices: ${error.message}`);
+    }
+
+    return devices;
   }
 
   /**
    * Get device count by status
    */
-  getDeviceStats(): { online: number; offline: number; error: number } {
+  async getDeviceStats(): Promise<{ online: number; offline: number; error: number }> {
     let online = 0,
       offline = 0,
       error = 0;
 
-    this.deviceStatuses.forEach((device) => {
-      if (device.status === 'online') online++;
-      else if (device.status === 'offline') offline++;
-      else error++;
-    });
+    try {
+      const devices = await this.getConnectedDevices();
+      devices.forEach((device) => {
+        if (device.status === 'online') online++;
+        else if (device.status === 'offline') offline++;
+        else error++;
+      });
+    } catch (err) {
+      this.logger.error(`Error calculating device stats: ${err.message}`);
+    }
 
     return { online, offline, error };
+  }
+
+  // ===========================================================================
+  // Redis Cache Helper Methods
+  // ===========================================================================
+
+  /**
+   * Cache sensor reading in Redis
+   */
+  private async cacheSensorReading(key: string, reading: SensorReading): Promise<void> {
+    try {
+      await this.redis.setex(key, this.SENSOR_READING_TTL, JSON.stringify(reading));
+    } catch (error) {
+      this.logger.error(`Failed to cache sensor reading: ${error.message}`);
+    }
+  }
+
+  /**
+   * Cache device status in Redis
+   */
+  private async cacheDeviceStatus(status: DeviceStatus): Promise<void> {
+    try {
+      const key = `device:${status.deviceId}`;
+      await this.redis.setex(key, this.DEVICE_STATUS_TTL, JSON.stringify(status));
+    } catch (error) {
+      this.logger.error(`Failed to cache device status: ${error.message}`);
+    }
+  }
+
+  /**
+   * Cache actuator state in Redis
+   */
+  private async cacheActuatorState(key: string, isOn: boolean): Promise<void> {
+    try {
+      await this.redis.setex(key, this.ACTUATOR_STATE_TTL, isOn.toString());
+    } catch (error) {
+      this.logger.error(`Failed to cache actuator state: ${error.message}`);
+    }
   }
 
   // ==========================================================================

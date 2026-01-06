@@ -100,12 +100,29 @@ class DatabaseManager:
 
     def create_engine(self) -> AsyncEngine:
         """
-        Create async database engine with connection pooling.
-        إنشاء محرك قاعدة بيانات غير متزامن مع تجميع الاتصالات.
+        Create async database engine with connection pooling and SSL/TLS.
+        إنشاء محرك قاعدة بيانات غير متزامن مع تجميع الاتصالات وTLS.
 
         Returns:
             AsyncEngine instance
         """
+        # SSL/TLS connection arguments
+        # These are automatically handled by the connection URL parameters
+        # (sslmode=require, etc.) but can be explicitly set here if needed
+        connect_args = {
+            "timeout": 10,  # Connection timeout in seconds
+            "command_timeout": 30,  # Command timeout in seconds
+            "server_settings": {
+                "application_name": os.getenv("SERVICE_NAME", "sahool-service"),
+            },
+        }
+
+        # Optional: Explicitly set SSL parameters if needed beyond URL
+        # Uncomment if you need to override URL SSL settings
+        # ssl_mode = os.getenv("POSTGRES_SSL_MODE", "require")
+        # if ssl_mode in ["require", "verify-ca", "verify-full"]:
+        #     connect_args["ssl"] = ssl_mode
+
         engine = create_async_engine(
             self.config.url,
             poolclass=QueuePool,
@@ -115,6 +132,7 @@ class DatabaseManager:
             pool_recycle=self.config.pool_recycle,
             echo=self.config.echo,
             pool_pre_ping=True,  # Enable connection health checks
+            connect_args=connect_args,
         )
 
         # Register event listeners

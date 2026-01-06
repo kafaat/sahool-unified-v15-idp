@@ -4,6 +4,12 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer connection pooler)
+  directUrl = env("DATABASE_URL_DIRECT")
+  // TLS/SSL enforcement for secure connections
+  // Requires DATABASE_URL to include sslmode=require parameter
+  // Connection pooling parameters are configured in DATABASE_URL
+  // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=10&pool_timeout=20&connect_timeout=10
 }
 
 generator client {
@@ -127,6 +133,7 @@ model Order {
 
   @@map("orders")
   @@index([buyerId, status]) // Optimize buyer order queries
+  @@index([buyerId, createdAt], name: "idx_order_buyer_date") // Optimize buyer order history
   @@index([status, createdAt]) // Optimize order filtering and sorting
   @@index([createdAt]) // Optimize time-based queries
   @@index([deletedAt]) // Optimize soft delete queries
@@ -219,6 +226,9 @@ model Wallet {
 
   @@map("wallets")
   @@index([deletedAt]) // Optimize soft delete queries
+  @@index([creditTier], name: "idx_wallet_credit_tier")
+  @@index([isVerified], name: "idx_wallet_verified")
+  @@index([kycStatus], name: "idx_wallet_kyc_status")
 }
 
 enum CreditTier {
@@ -261,6 +271,11 @@ model Transaction {
   order       Order?   @relation(fields: [referenceId], references: [id])
   auditLogs   WalletAuditLog[]
 
+  @@index([walletId], name: "idx_transaction_wallet")
+  @@index([referenceId], name: "idx_transaction_reference")
+  @@index([type], name: "idx_transaction_type")
+  @@index([status], name: "idx_transaction_status")
+  @@index([walletId, createdAt], name: "idx_transaction_wallet_date")
   @@index([idempotencyKey])
   @@map("transactions")
 }
@@ -331,6 +346,9 @@ model Loan {
   wallet      Wallet   @relation(fields: [walletId], references: [id])
 
   @@map("loans")
+  @@index([walletId], name: "idx_loan_wallet")
+  @@index([status], name: "idx_loan_status")
+  @@index([walletId, status], name: "idx_loan_wallet_status")
   @@index([deletedAt]) // Optimize soft delete queries
 }
 

@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/config/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateExperimentDto, UpdateExperimentDto } from './dto/experiment.dto';
+import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from '@sahool/shared-db';
 
 @Injectable()
 export class ExperimentsService {
@@ -33,7 +34,8 @@ export class ExperimentsService {
     limit?: number;
   }) {
     const page = filters?.page || 1;
-    const limit = filters?.limit || 20;
+    // Enforce maximum page size to prevent memory exhaustion
+    const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
     const skip = (page - 1) * limit;
 
     const where: any = {};

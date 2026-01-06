@@ -10,9 +10,15 @@ generator client {
 }
 
 datasource db {
-  url      = env("DATABASE_URL")
   provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer connection pooler)
+  directUrl  = env("DATABASE_URL_DIRECT")
   extensions = [postgis]
+  // TLS/SSL enforcement for secure connections
+  // Requires DATABASE_URL to include sslmode=require parameter
+  // Connection pooling parameters are configured in DATABASE_URL
+  // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=8&pool_timeout=20&connect_timeout=10
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

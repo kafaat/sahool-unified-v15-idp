@@ -6,6 +6,7 @@ Port: 8080
 
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from uuid import uuid4
@@ -25,9 +26,8 @@ from pydantic import BaseModel, Field
 
 # Import authentication dependencies
 try:
-    import sys
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+    from errors_py import setup_exception_handlers, add_request_id_middleware
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
     AUTH_AVAILABLE = True

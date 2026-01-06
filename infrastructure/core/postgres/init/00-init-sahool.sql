@@ -1505,6 +1505,13 @@ BEGIN
     EXECUTE format('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO %I', current_user);
     EXECUTE format('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO %I', current_user);
     EXECUTE format('GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO %I', current_user);
+
+    -- Grant pg_monitor role for PgBouncer auth_query access to pg_shadow
+    -- This is required for PgBouncer to authenticate users via SCRAM-SHA-256
+    IF current_user != 'postgres' THEN
+        EXECUTE format('GRANT pg_monitor TO %I', current_user);
+        RAISE NOTICE 'Granted pg_monitor to % for PgBouncer auth_query support', current_user;
+    END IF;
 END;
 $$;
 

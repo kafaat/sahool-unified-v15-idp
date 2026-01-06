@@ -20,9 +20,37 @@ from datetime import date, datetime
 from typing import Any, Literal
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+# Import authentication dependencies
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+    from errors_py import setup_exception_handlers, add_request_id_middleware
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    # Fallback error handling
+    from errors_py import setup_exception_handlers, add_request_id_middleware
+    User = None
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
 
 from .decision_engine import (
     GrowthStage,
@@ -271,6 +299,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
 # Add deprecation headers middleware
 from fastapi import Request
 
@@ -410,7 +442,12 @@ def get_zones_geojson(field_id: str):
     "/api/v1/fields/{field_id}/zones/{zone_id}/observations",
     response_model=ObservationOut,
 )
-def ingest_observation(field_id: str, zone_id: str, body: ObservationIn):
+def ingest_observation(
+    field_id: str,
+    zone_id: str,
+    body: ObservationIn,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """
     تسجيل رصد جديد لمؤشرات الغطاء النباتي
 
@@ -461,6 +498,7 @@ def list_observations(
 def get_field_diagnosis(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """
     تشخيص كامل للحقل - "الطبيب الزراعي"

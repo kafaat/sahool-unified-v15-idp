@@ -16,3 +16,5 @@ python-multipart==0.0.18
 SQLAlchemy==2.0.23
 alembic==1.13.1
 psycopg2-binary==2.9.9
+
+structlog>=24.1.0

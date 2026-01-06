@@ -20,6 +20,17 @@ from datetime import datetime, timedelta
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
+from errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -35,6 +46,10 @@ app = FastAPI(
     ## المميزات:
     - 🌙 حساب مراحل القمر بدقة عالية
     - ⭐ منازل النجوم الـ 28 (المنازل القمرية)
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
     - 📅 التقويم الهجري
     - 🌱 توقيتات الزراعة التقليدية
     - ♈ الأبراج الزراعية

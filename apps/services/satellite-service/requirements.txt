@@ -15,3 +15,5 @@ python-dotenv==1.0.1
 
 # ML/Scientific Computing
 numpy==1.26.4
+
+structlog>=24.1.0

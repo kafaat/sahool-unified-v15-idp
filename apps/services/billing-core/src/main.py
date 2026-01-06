@@ -30,6 +30,16 @@ from typing import Any
 import httpx
 import nats
 from fastapi import (
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
     BackgroundTasks,
     Depends,
     FastAPI,
@@ -49,6 +59,7 @@ from .database import check_db_connection, close_db, db_health_check, get_db, in
 from .repository import BillingRepository
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+from errors_py import setup_exception_handlers, add_request_id_middleware
 try:
     from auth.dependencies import (
         api_key_auth,
@@ -195,6 +206,10 @@ app = FastAPI(
     description="Complete billing, subscription, and payment management for SAHOOL platform",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # Rate Limiting - Security measure for payment endpoints
 try:

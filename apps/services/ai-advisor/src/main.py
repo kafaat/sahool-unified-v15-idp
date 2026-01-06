@@ -25,7 +25,6 @@ from .agents import (
 from .config import settings
 from .middleware import (
     InputValidationMiddleware,
-    RateLimitMiddleware,
     rate_limiter,
 )
 from .monitoring import cost_tracker
@@ -35,12 +34,15 @@ from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
-try:
-    from config.cors_config import setup_cors_middleware
-except ImportError:
-    # Fallback: define secure origins locally if shared module not available
-    setup_cors_middleware = None
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from errors_py import setup_exception_handlers
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+    rate_limit_middleware,
+)
+from shared.observability.middleware import ObservabilityMiddleware
 
 # Configure structured logging with PII masking | تكوين السجلات المنظمة مع إخفاء المعلومات الشخصية
 structlog.configure(
@@ -219,42 +221,42 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Add CORS middleware with secure configuration | إضافة middleware CORS بتكوين آمن
-# Security: No wildcard origins - uses environment-based whitelist
-if setup_cors_middleware:
-    setup_cors_middleware(app)
-else:
-    # Fallback: Secure origins list when shared module unavailable
-    from fastapi.middleware.cors import CORSMiddleware
+# Setup unified error handling
+setup_exception_handlers(app)
 
-    SECURE_ORIGINS = [
-        "https://sahool.app",
-        "https://admin.sahool.app",
-        "https://api.sahool.app",
-        "http://localhost:3000",
-        "http://localhost:5173",
-    ]
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=SECURE_ORIGINS,
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=[
-            "Accept",
-            "Authorization",
-            "Content-Type",
-            "X-Request-ID",
-            "X-Tenant-ID",
-        ],
-    )
+# ============== Middleware Setup ==============
+# Middleware order: Last added = First executed
 
-# Add input validation middleware | إضافة middleware التحقق من المدخلات
-# Security: Validate and sanitize all incoming requests
+# 1. CORS - Secure cross-origin configuration
+setup_cors(app)
+
+# 2. Observability - Tracing, metrics, and monitoring (with cost tracking)
+app.add_middleware(
+    ObservabilityMiddleware,
+    service_name="ai-advisor",
+    metrics_collector=cost_tracker,  # Use cost tracker for metrics
+)
+
+# 3. Request Logging - Correlation IDs and structured logging
+app.add_middleware(
+    RequestLoggingMiddleware,
+    service_name="ai-advisor",
+    log_request_body=os.getenv("LOG_REQUEST_BODY", "false").lower() == "true",
+    log_response_body=False,
+)
+
+# 4. Tenant Context - Multi-tenancy isolation
+app.add_middleware(
+    TenantContextMiddleware,
+    require_tenant=False,  # Some endpoints don't require tenant
+    exempt_paths=["/healthz", "/docs", "/redoc", "/openapi.json"],
+)
+
+# 5. Input validation middleware - Security validation
 app.add_middleware(InputValidationMiddleware)
 
-# Add rate limiting middleware | إضافة middleware تحديد المعدل
-# Security: Rate limiting to prevent abuse of AI endpoints
-app.add_middleware(RateLimitMiddleware, rate_limiter=rate_limiter)
+# 6. Rate limiting middleware - Prevent abuse of AI endpoints
+app.add_middleware(rate_limit_middleware, rate_limiter=rate_limiter)
 
 # Add A2A router if available | إضافة موجه A2A إذا كان متاحاً
 if A2A_AVAILABLE:

@@ -11,6 +11,17 @@ from datetime import datetime
 from uuid import uuid4
 
 from fastapi import (
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
+from errors_py import setup_exception_handlers, add_request_id_middleware
     FastAPI,
     Header,
     HTTPException,
@@ -116,6 +127,10 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 
 # ============== Health Check ==============

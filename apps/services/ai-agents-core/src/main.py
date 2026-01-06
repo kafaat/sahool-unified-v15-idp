@@ -20,6 +20,17 @@ from agents import (
     MobileAgent,
 )
 from fastapi import FastAPI, HTTPException
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
+from errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -33,6 +44,10 @@ app = FastAPI(
     description="Hierarchical Multi-Agent System for Smart Agriculture",
     version="1.0.0",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS - Configure allowed origins from environment
 CORS_ORIGINS = os.getenv(

@@ -2,8 +2,8 @@
  * SAHOOL Admin Authentication Utilities
  * أدوات التوثيق للوحة الإدارة
  *
- * ⚠️ DEPRECATED: This file is kept for backward compatibility only.
- * New code MUST use the AuthProvider context from @/stores/auth.store
+ * UPDATED: This file now exports server-side authorization utilities
+ * as well as legacy client-side utilities for backward compatibility.
  *
  * SECURITY NOTE: Auth tokens are now stored in httpOnly cookies via server-side
  * API routes (/api/auth/*) for enhanced security. Direct cookie manipulation
@@ -11,6 +11,11 @@
  */
 
 import { logger } from './logger';
+
+// Re-export server-side authorization utilities
+export * from './auth/jwt-verify';
+export * from './auth/route-protection';
+export * from './auth/api-middleware';
 
 const AUTH_USER_KEY = 'sahool_admin_user';
 

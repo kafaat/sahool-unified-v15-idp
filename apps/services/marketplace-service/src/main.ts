@@ -11,37 +11,11 @@
 
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-
-// Local HttpExceptionFilter for unified error handling
-@Catch()
-class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
-
-    const status = exception instanceof HttpException
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const message = exception instanceof HttpException
-      ? exception.message
-      : 'خطأ داخلي في الخادم';
-
-    response.status(status).json({
-      success: false,
-      error: {
-        code: `ERR_${status}`,
-        message,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      },
-    });
-  }
-}
+import { HttpExceptionFilter } from '../../shared/errors';
+import { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -56,6 +30,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // ============== Middleware Setup ==============
+  // Global request logging interceptor with correlation IDs
+  app.useGlobalInterceptors(new RequestLoggingInterceptor('marketplace-service'));
 
   // CORS - Secure configuration using environment variable
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [

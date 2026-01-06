@@ -8,6 +8,16 @@ import os
 from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
 
 from .api import router
@@ -87,10 +97,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
 # CORS middleware - Secure configuration
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from errors_py import setup_exception_handlers, add_request_id_middleware
 try:
     from shared.cors_config import CORS_SETTINGS
 

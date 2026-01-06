@@ -15,6 +15,16 @@ from datetime import datetime, timedelta
 from enum import Enum
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -22,6 +32,21 @@ from sqlalchemy.orm import Session
 from .database import get_db, init_db, check_db_connection
 from . import repository
 from .db_models import Equipment as DBEquipment, MaintenanceRecord as DBMaintenanceRecord, MaintenanceAlert as DBMaintenanceAlert
+
+# Import authentication dependencies
+try:
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    User = None
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Configuration
@@ -37,6 +62,10 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS - Secure configuration
 import sys
@@ -381,9 +410,12 @@ def seed_demo_data(db: Session):
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def get_tenant_id(x_tenant_id: str = "tenant_demo") -> str:
-    """Extract tenant ID from header (simplified)"""
-    return x_tenant_id
+def get_tenant_id(user: User = Depends(get_current_user) if AUTH_AVAILABLE else None) -> str:
+    """Extract tenant ID from authenticated user or header (fallback)"""
+    if AUTH_AVAILABLE and user:
+        return user.tenant_id
+    # Fallback to demo tenant for backward compatibility
+    return "tenant_demo"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -416,6 +448,7 @@ async def list_equipment(
     field_id: str | None = Query(None, description="Filter by field"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -608,6 +641,7 @@ async def get_equipment_by_qr(
 @app.post("/api/v1/equipment", response_model=Equipment, status_code=201)
 async def create_equipment(
     data: EquipmentCreate,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):

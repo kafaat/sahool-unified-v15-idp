@@ -17,6 +17,17 @@ import aiohttp
 import uvicorn
 from config.settings import Settings
 from fastapi import FastAPI, HTTPException, status
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
+from errors_py import setup_exception_handlers, add_request_id_middleware
 from pydantic import BaseModel, Field
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
@@ -450,6 +461,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 
 @app.get("/health", response_model=HealthResponse)

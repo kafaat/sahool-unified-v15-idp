@@ -15,8 +15,36 @@ Migration Path:
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import ObservabilityMiddleware
+
 from pydantic import BaseModel, Field
+
+# Import authentication dependencies
+try:
+    import sys
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+    from errors_py import setup_exception_handlers, add_request_id_middleware
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    # Fallback error handling
+    from errors_py import setup_exception_handlers, add_request_id_middleware
+    User = None
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
 
 from .compute import (
     analyze_ndvi_zones,
@@ -61,6 +89,10 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # Add deprecation headers middleware
 from fastapi import Request
@@ -124,7 +156,10 @@ class AnomalyRequest(BaseModel):
 
 
 @app.post("/ndvi/compute")
-async def compute_ndvi(req: NdviComputeRequest):
+async def compute_ndvi(
+    req: NdviComputeRequest,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """
     Compute NDVI for a field
 
@@ -181,7 +216,10 @@ async def compute_ndvi(req: NdviComputeRequest):
 
 
 @app.post("/ndvi/zones")
-async def get_ndvi_zones(req: NdviZonesRequest):
+async def get_ndvi_zones(
+    req: NdviZonesRequest,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """Analyze NDVI zones within a field"""
     zones = analyze_ndvi_zones(req.field_id)
 
@@ -226,7 +264,10 @@ def calculate_indices(req: IndicesRequest):
 
 
 @app.post("/ndvi/anomaly")
-async def check_anomaly(req: AnomalyRequest):
+async def check_anomaly(
+    req: AnomalyRequest,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """Check for NDVI anomalies"""
     anomaly = detect_anomalies(
         current_ndvi=req.current_ndvi,

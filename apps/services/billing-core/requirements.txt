@@ -31,3 +31,5 @@ python-dotenv==1.0.1
 
 # Scheduling (for recurring billing)
 apscheduler==3.10.4
+
+structlog>=24.1.0

@@ -1,7 +1,15 @@
 """
+⚠️ DEPRECATED: This service is deprecated and will be removed in a future release.
+Please use 'vegetation-analysis-service' instead.
+
 SAHOOL NDVI Engine - Main API Service
 Remote sensing NDVI computation and analysis
-Port: 8097
+Port: 8107
+
+Migration Path:
+- Replacement: vegetation-analysis-service (Port 8090)
+- Deprecation Date: 2026-01-06
+- Sunset Date: 2026-06-01
 """
 
 import os
@@ -23,11 +31,21 @@ from .events import get_publisher
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("=" * 80)
+    print("⚠️  DEPRECATION WARNING")
+    print("=" * 80)
+    print("This service (ndvi-engine) is DEPRECATED and will be removed in a future release.")
+    print("Please migrate to 'vegetation-analysis-service' instead.")
+    print("Replacement service: vegetation-analysis-service (Port 8090)")
+    print("Deprecation date: 2026-01-06")
+    print("Sunset date: 2026-06-01")
+    print("=" * 80)
+
     print("🛰️ Starting NDVI Engine Service...")
     try:
         publisher = await get_publisher()
         app.state.publisher = publisher
-        print("✅ NDVI Engine ready on port 8097")
+        print("✅ NDVI Engine ready on port 8107")
     except Exception as e:
         print(f"⚠️ NATS connection failed: {e}")
         app.state.publisher = None
@@ -38,11 +56,27 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="SAHOOL NDVI Engine",
-    description="Remote sensing NDVI computation and vegetation analysis",
+    title="SAHOOL NDVI Engine (DEPRECATED)",
+    description="⚠️ DEPRECATED - Use vegetation-analysis-service instead. Remote sensing NDVI computation and vegetation analysis",
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Add deprecation headers middleware
+from fastapi import Request
+
+
+@app.middleware("http")
+async def add_deprecation_header(request: Request, call_next):
+    """Add deprecation headers to all responses"""
+    response = await call_next(request)
+    response.headers["X-API-Deprecated"] = "true"
+    response.headers["X-API-Deprecation-Date"] = "2026-01-06"
+    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use vegetation-analysis-service instead."
+    response.headers["X-API-Sunset"] = "2026-06-01"
+    response.headers["Link"] = '<http://vegetation-analysis-service:8090>; rel="successor-version"'
+    response.headers["Deprecation"] = "true"
+    return response
 
 
 # ============== Health Check ==============

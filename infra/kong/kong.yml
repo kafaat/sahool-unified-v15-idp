@@ -1,3 +1,8 @@
+# ============================================================================
+# NOTE: This file should mirror /infra/kong/kong.yml
+# The canonical configuration is in /infra/kong/kong.yml
+# ============================================================================
+
 _format_version: "3.0"
 _transform: true
 
@@ -288,6 +293,26 @@ upstreams:
             - 504
           tcp_failures: 3
 
+  - name: mcp-server-upstream
+    algorithm: round-robin
+    targets:
+      - target: mcp-server:8200
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+
+  - name: code-review-upstream
+    algorithm: round-robin
+    targets:
+      - target: code-review-service:8096
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+
 # ============================================================================
 # الخدمات الأساسية - Starter Package Services
 # للمزارعين الصغار وملاك الأراضي الجدد
@@ -351,14 +376,14 @@ services:
   # ============================================================================
   # خدمة الطقس - Weather Service
   # ============================================================================
-  - name: weather-core
+  - name: weather-service
     host: weather-service-upstream
     tags:
       - starter
       - weather
     retries: 3
     routes:
-      - name: weather-core-route
+      - name: weather-service-route
         paths:
           - /api/v1/weather
         strip_path: false
@@ -387,7 +412,7 @@ services:
         config:
           add:
             headers:
-              - "X-Service: weather-core"
+              - "X-Service: weather-service"
 
   # ============================================================================
   # التقويم الفلكي اليمني - Astronomical Calendar
@@ -423,18 +448,21 @@ services:
           fault_tolerant: true
 
   # ============================================================================
-  # المستشار الزراعي - Agro Advisor
+  # خدمة الاستشارات الزراعية - Advisory Service (Unified)
+  # Consolidates: agro-advisor (deprecated), fertilizer-advisor (deprecated)
+  # المستشار الزراعي - Agricultural Advisory
   # ============================================================================
-  - name: agro-advisor
+  - name: advisory-service
     url: http://advisory-service:8093
     tags:
       - starter
       - advisory
     routes:
-      - name: agro-advisor-route
+      - name: advisory-route
         paths:
           - /api/v1/advice
-          - /api/v1/agro-advisor
+          - /api/v1/advisory
+          - /api/v1/agro-advisor  # Legacy path for backwards compatibility
         strip_path: false
     plugins:
       - name: jwt
@@ -1134,6 +1162,12 @@ services:
           - https
     plugins:
       - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 5000
@@ -1178,10 +1212,10 @@ services:
           fault_tolerant: true
 
   # ============================================================================
-  # الطقس المتقدم - Advanced Weather
+  # الطقس المتقدم - Advanced Weather (Consolidated into weather-service)
   # ============================================================================
   - name: weather-advanced
-    url: http://weather-service:8108
+    url: http://weather-service:8092
     tags:
       - professional
       - weather
@@ -1223,6 +1257,12 @@ services:
         strip_path: false
     plugins:
       - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 2000
@@ -1250,6 +1290,12 @@ services:
         strip_path: false
     plugins:
       - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 2000
@@ -1307,6 +1353,12 @@ services:
         strip_path: false
     plugins:
       - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 1000
@@ -1433,6 +1485,12 @@ services:
         strip_path: false
     plugins:
       - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 1000
@@ -1459,6 +1517,12 @@ services:
         strip_path: false
     plugins:
       - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 2000
@@ -1485,6 +1549,12 @@ services:
         strip_path: false
     plugins:
       - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 1000
@@ -1549,6 +1619,75 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ============================================================================
+  # MCP Server - Model Context Protocol Integration
+  # خادم بروتوكول سياق النموذج - تكامل مع مساعدي الذكاء الاصطناعي
+  # ============================================================================
+  - name: mcp-server
+    host: mcp-server-upstream
+    tags:
+      - shared
+      - integration
+      - ai
+    routes:
+      - name: mcp-server-route
+        paths:
+          - /api/v1/mcp
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # ============================================================================
+  # Code Review Service - AI-Powered Code Analysis
+  # خدمة مراجعة الكود - تحليل الكود بالذكاء الاصطناعي
+  # ============================================================================
+  - name: code-review-service
+    host: code-review-upstream
+    tags:
+      - shared
+      - development
+      - ai
+    routes:
+      - name: code-review-route
+        paths:
+          - /api/v1/code-review
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 10000
           policy: redis
           redis_host: redis
           redis_port: 6379

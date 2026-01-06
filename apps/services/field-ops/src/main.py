@@ -25,7 +25,14 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting Field Operations Service...")
+    logger.warning("=" * 80)
+    logger.warning("⚠️  DEPRECATION WARNING: field-ops service is DEPRECATED")
+    logger.warning("=" * 80)
+    logger.warning("This service has been migrated to field-management-service:3000")
+    logger.warning("Please update your applications to use field-management-service")
+    logger.warning("This service will be removed in a future release")
+    logger.warning("=" * 80)
+    logger.info("Starting Field Operations Service (DEPRECATED)...")
     # Initialize connections
     app.state.db_connected = False
     app.state.nats_connected = False

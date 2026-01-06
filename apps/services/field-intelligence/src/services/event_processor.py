@@ -224,7 +224,7 @@ class EventProcessor:
             title_ar=weather_data.alert_type_ar or f"تنبيه طقس: {weather_data.alert_type}",
             description=weather_data.weather_condition,
             description_ar=weather_data.weather_condition,
-            source_service="weather-core",
+            source_service="weather-service",
             metadata={
                 "alert_type": weather_data.alert_type,
                 "weather_condition": weather_data.weather_condition,

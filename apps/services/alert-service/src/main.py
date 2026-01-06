@@ -14,6 +14,7 @@ from pathlib import Path as PathLib
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
+from sqlalchemy.orm import Session
 
 # Add path to shared modules
 # In Docker, shared is at /app/shared
@@ -31,6 +32,9 @@ except ImportError:
         pass
 
 
+from .database import SessionLocal, check_db_connection, get_db
+from .db_models import Alert as DBAlert
+from .db_models import AlertRule as DBAlertRule
 from .events import AlertTopics, get_publisher, get_subscriber
 from .models import (
     AlertCreate,
@@ -43,6 +47,17 @@ from .models import (
     AlertType,
     AlertUpdate,
     PaginatedResponse,
+)
+from .repository import (
+    create_alert,
+    create_alert_rule,
+    delete_alert,
+    delete_alert_rule,
+    get_alert,
+    get_alert_statistics,
+    get_alerts_by_field,
+    get_alert_rules_by_field,
+    update_alert_status,
 )
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -71,52 +86,16 @@ def get_tenant_id(
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# In-Memory Storage (Replace with Database in Production)
+# Database Storage
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# TODO: MIGRATE TO POSTGRESQL
-# Current: _alerts and _rules stored in-memory (lost on restart)
-# Issues:
-#   - Alert history lost on restart (critical for compliance/auditing)
-#   - Rules lost on restart (requires manual reconfiguration)
-#   - No multi-instance support
-#   - No complex time-series queries for analytics
-# Required:
-#   1. Create PostgreSQL tables:
-#      a) 'alerts' table:
-#         - alert_id (UUID, PK)
-#         - tenant_id (VARCHAR, indexed)
-#         - type (VARCHAR, indexed)
-#         - severity (VARCHAR, indexed)
-#         - status (VARCHAR, indexed)
-#         - title, title_ar (VARCHAR)
-#         - message, message_ar (TEXT)
-#         - source (VARCHAR)
-#         - field_ids (VARCHAR[])
-#         - governorate (VARCHAR, indexed)
-#         - location (GEOGRAPHY POINT)
-#         - created_at (TIMESTAMP, indexed)
-#         - acknowledged_at (TIMESTAMP)
-#         - acknowledged_by (VARCHAR)
-#         - resolved_at (TIMESTAMP)
-#         - expires_at (TIMESTAMP)
-#         - metadata (JSONB)
-#      b) 'alert_rules' table:
-#         - rule_id (UUID, PK)
-#         - tenant_id (VARCHAR, indexed)
-#         - name (VARCHAR)
-#         - alert_type (VARCHAR)
-#         - conditions (JSONB)
-#         - enabled (BOOLEAN, indexed)
-#         - created_at (TIMESTAMP)
-#         - updated_at (TIMESTAMP)
-#   2. Create Tortoise ORM models: Alert, AlertRule
-#   3. Create repositories: AlertRepository, AlertRuleRepository
-#   4. Add time-series indexes for analytics: (created_at DESC), (tenant_id, type, created_at)
-#   5. Add partitioning by created_at for long-term storage
-# Migration Priority: HIGH - Alert history critical for decision making
-_alerts: dict[str, dict] = {}
-_rules: dict[str, dict] = {}
+# ✅ MIGRATED TO POSTGRESQL
+# - Alerts stored in 'alerts' table
+# - Alert rules stored in 'alert_rules' table
+# - Multi-tenancy support
+# - Persistent storage with full audit trail
+# - Support for complex time-series queries
+# - Multi-instance support via shared database
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -128,6 +107,18 @@ _rules: dict[str, dict] = {}
 async def lifespan(app: FastAPI):
     """إدارة دورة حياة التطبيق"""
     logger.info("Starting Alert Service...")
+
+    # Check database connection
+    try:
+        db_ok = check_db_connection()
+        if db_ok:
+            logger.info("Database connection verified")
+        else:
+            logger.error("Database connection failed")
+            raise RuntimeError("Database connection failed")
+    except Exception as e:
+        logger.error(f"Database connection error: {e}")
+        raise
 
     # Initialize NATS publisher
     try:
@@ -228,7 +219,7 @@ async def handle_weather_alert(data: dict):
                 recommendations=data.get("recommendations", []),
                 recommendations_en=data.get("recommendations_en", []),
                 metadata=data,
-                source_service="weather-core",
+                source_service="weather-service",
                 expires_at=(
                     datetime.fromisoformat(data["expires_at"])
                     if data.get("expires_at")
@@ -342,12 +333,33 @@ def healthz():
 @app.get("/readyz", tags=["Health"])
 def readiness():
     """فحص جاهزية الخدمة - Kubernetes readiness probe"""
+    db_ok = check_db_connection()
+
+    # Get counts from database if connected
+    alerts_count = 0
+    rules_count = 0
+    if db_ok:
+        try:
+            db = SessionLocal()
+            from sqlalchemy import func, select
+
+            alerts_count = db.execute(
+                select(func.count()).select_from(DBAlert)
+            ).scalar() or 0
+            rules_count = db.execute(
+                select(func.count()).select_from(DBAlertRule)
+            ).scalar() or 0
+            db.close()
+        except Exception:
+            pass
+
     return {
-        "status": "ready",
+        "status": "ready" if db_ok else "degraded",
+        "database": db_ok,
         "nats_publisher": getattr(app.state, "publisher", None) is not None,
         "nats_subscriber": getattr(app.state, "subscriber", None) is not None,
-        "alerts_count": len(_alerts),
-        "rules_count": len(_rules),
+        "alerts_count": alerts_count,
+        "rules_count": rules_count,
     }
 
 
@@ -358,53 +370,50 @@ def readiness():
 
 async def create_alert_internal(alert_data: AlertCreate) -> dict:
     """إنشاء تنبيه داخلياً"""
-    alert_id = str(uuid4())
-    now = datetime.now(UTC)
-
-    alert = {
-        "id": alert_id,
-        "field_id": alert_data.field_id,
-        "tenant_id": alert_data.tenant_id,
-        "type": alert_data.type.value,
-        "severity": alert_data.severity.value,
-        "status": AlertStatus.ACTIVE.value,
-        "title": alert_data.title,
-        "title_en": alert_data.title_en,
-        "message": alert_data.message,
-        "message_en": alert_data.message_en,
-        "recommendations": alert_data.recommendations or [],
-        "recommendations_en": alert_data.recommendations_en or [],
-        "metadata": alert_data.metadata or {},
-        "source_service": alert_data.source_service,
-        "correlation_id": alert_data.correlation_id,
-        "created_at": now.isoformat(),
-        "expires_at": (
-            alert_data.expires_at.isoformat() if alert_data.expires_at else None
-        ),
-        "acknowledged_at": None,
-        "acknowledged_by": None,
-        "dismissed_at": None,
-        "dismissed_by": None,
-        "resolved_at": None,
-        "resolved_by": None,
-        "resolution_note": None,
-    }
-
-    _alerts[alert_id] = alert
-
-    # Publish event
-    if hasattr(app.state, "publisher") and app.state.publisher:
-        await app.state.publisher.publish_alert_created(
-            alert_id=alert_id,
+    db = SessionLocal()
+    try:
+        # Create database alert object
+        db_alert = DBAlert(
             field_id=alert_data.field_id,
             tenant_id=alert_data.tenant_id,
-            alert_type=alert_data.type.value,
+            type=alert_data.type.value,
             severity=alert_data.severity.value,
+            status=AlertStatus.ACTIVE.value,
             title=alert_data.title,
+            title_en=alert_data.title_en,
+            message=alert_data.message,
+            message_en=alert_data.message_en,
+            recommendations=alert_data.recommendations or [],
+            recommendations_en=alert_data.recommendations_en or [],
+            metadata=alert_data.metadata or {},
+            source_service=alert_data.source_service,
             correlation_id=alert_data.correlation_id,
+            expires_at=alert_data.expires_at,
         )
 
-    return alert
+        # Save to database
+        alert = create_alert(db, db_alert)
+        db.commit()
+        db.refresh(alert)
+
+        # Convert to dict for API response
+        alert_dict = alert.to_dict()
+
+        # Publish event
+        if hasattr(app.state, "publisher") and app.state.publisher:
+            await app.state.publisher.publish_alert_created(
+                alert_id=str(alert.id),
+                field_id=alert_data.field_id,
+                tenant_id=alert_data.tenant_id,
+                alert_type=alert_data.type.value,
+                severity=alert_data.severity.value,
+                title=alert_data.title,
+                correlation_id=alert_data.correlation_id,
+            )
+
+        return alert_dict
+    finally:
+        db.close()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -413,7 +422,7 @@ async def create_alert_internal(alert_data: AlertCreate) -> dict:
 
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
-async def create_alert(
+async def create_alert_endpoint(
     alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id)
 ):
     """
@@ -430,25 +439,29 @@ async def create_alert(
 
 
 @app.get("/alerts/{alert_id}", response_model=AlertResponse, tags=["Alerts"])
-async def get_alert(
+async def get_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     جلب تنبيه محدد
     Get a specific alert
     """
-    if alert_id not in _alerts:
+    from uuid import UUID
+    try:
+        alert_uuid = UUID(alert_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
+    if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
-    alert = _alerts[alert_id]
-    # Validate tenant access
-    if alert["tenant_id"] != tenant_id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    return alert
+    return alert.to_dict()
 
 
 @app.get("/alerts/field/{field_id}", response_model=PaginatedResponse, tags=["Alerts"])
-async def get_alerts_by_field(
+async def get_alerts_by_field_endpoint(
     field_id: str = Path(..., description="معرف الحقل"),
     status: AlertStatus | None = Query(None, description="تصفية حسب الحالة"),
     severity: AlertSeverity | None = Query(None, description="تصفية حسب الخطورة"),
@@ -458,31 +471,24 @@ async def get_alerts_by_field(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     جلب تنبيهات حقل معين
     Get alerts for a specific field
     """
-    # Filter alerts by field AND tenant
-    filtered = [
-        a
-        for a in _alerts.values()
-        if a["field_id"] == field_id and a["tenant_id"] == tenant_id
-    ]
+    alerts, total = get_alerts_by_field(
+        db,
+        field_id=field_id,
+        tenant_id=tenant_id,
+        status=status.value if status else None,
+        alert_type=alert_type.value if alert_type else None,
+        severity=severity.value if severity else None,
+        skip=skip,
+        limit=limit,
+    )
 
-    if status:
-        filtered = [a for a in filtered if a["status"] == status.value]
-    if severity:
-        filtered = [a for a in filtered if a["severity"] == severity.value]
-    if alert_type:
-        filtered = [a for a in filtered if a["type"] == alert_type.value]
-
-    # Sort by created_at descending
-    filtered.sort(key=lambda x: x["created_at"], reverse=True)
-
-    # Paginate
-    total = len(filtered)
-    items = filtered[skip : skip + limit]
+    items = [alert.to_dict() for alert in alerts]
 
     return {
         "items": items,
@@ -494,75 +500,93 @@ async def get_alerts_by_field(
 
 
 @app.patch("/alerts/{alert_id}", response_model=AlertResponse, tags=["Alerts"])
-async def update_alert(
+async def update_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
     update_data: AlertUpdate = None,
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     تحديث حالة تنبيه
     Update alert status
     """
-    if alert_id not in _alerts:
+    from uuid import UUID
+    try:
+        alert_uuid = UUID(alert_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    # Get alert first to check tenant access
+    alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
+    if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
 
-    alert = _alerts[alert_id]
-    # Validate tenant access
-    if alert["tenant_id"] != tenant_id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    old_status = alert["status"]
-    now = datetime.now(UTC)
+    old_status = alert.status
 
     if update_data.status:
-        alert["status"] = update_data.status.value
-
-        if update_data.status == AlertStatus.ACKNOWLEDGED:
-            alert["acknowledged_at"] = now.isoformat()
-            alert["acknowledged_by"] = update_data.acknowledged_by
-        elif update_data.status == AlertStatus.DISMISSED:
-            alert["dismissed_at"] = now.isoformat()
-            alert["dismissed_by"] = update_data.dismissed_by
-        elif update_data.status == AlertStatus.RESOLVED:
-            alert["resolved_at"] = now.isoformat()
-            alert["resolved_by"] = update_data.resolved_by
-            alert["resolution_note"] = update_data.resolution_note
-
-    _alerts[alert_id] = alert
-
-    # Publish event
-    if hasattr(app.state, "publisher") and app.state.publisher:
-        await app.state.publisher.publish_alert_updated(
-            alert_id=alert_id,
-            field_id=alert["field_id"],
-            old_status=old_status,
-            new_status=alert["status"],
-            updated_by=update_data.acknowledged_by
+        user_id = (
+            update_data.acknowledged_by
             or update_data.dismissed_by
-            or update_data.resolved_by,
+            or update_data.resolved_by
         )
 
-    logger.info(f"Updated alert {alert_id}: {old_status} -> {alert['status']}")
-    return alert
+        updated_alert = update_alert_status(
+            db,
+            alert_id=alert_uuid,
+            status=update_data.status.value,
+            user_id=user_id,
+            note=update_data.resolution_note,
+        )
+
+        if not updated_alert:
+            raise HTTPException(status_code=404, detail="Alert not found")
+
+        db.commit()
+        db.refresh(updated_alert)
+
+        # Publish event
+        if hasattr(app.state, "publisher") and app.state.publisher:
+            await app.state.publisher.publish_alert_updated(
+                alert_id=str(alert_uuid),
+                field_id=updated_alert.field_id,
+                old_status=old_status,
+                new_status=updated_alert.status,
+                updated_by=user_id,
+            )
+
+        logger.info(f"Updated alert {alert_id}: {old_status} -> {updated_alert.status}")
+        return updated_alert.to_dict()
+
+    return alert.to_dict()
 
 
 @app.delete("/alerts/{alert_id}", tags=["Alerts"])
-async def delete_alert(
+async def delete_alert_endpoint(
     alert_id: str = Path(..., description="معرف التنبيه"),
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     حذف تنبيه
     Delete an alert
     """
-    if alert_id not in _alerts:
+    from uuid import UUID
+    try:
+        alert_uuid = UUID(alert_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    # Get alert first to check tenant access
+    alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
+    if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
 
-    alert = _alerts[alert_id]
-    # Validate tenant access
-    if alert["tenant_id"] != tenant_id:
-        raise HTTPException(status_code=403, detail="Access denied")
+    # Delete the alert
+    deleted = delete_alert(db, alert_uuid)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Alert not found")
 
-    del _alerts[alert_id]
+    db.commit()
     logger.info(f"Deleted alert {alert_id}")
     return {"status": "deleted", "alert_id": alert_id}
 
@@ -581,34 +605,44 @@ async def acknowledge_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
     user_id: str = Query(..., description="معرف المستخدم"),
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     الإقرار بتنبيه
     Acknowledge an alert
     """
-    if alert_id not in _alerts:
+    from uuid import UUID
+    try:
+        alert_uuid = UUID(alert_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
+    if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
 
-    alert = _alerts[alert_id]
-    # Validate tenant access
-    if alert["tenant_id"] != tenant_id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    if alert["status"] != AlertStatus.ACTIVE.value:
+    if alert.status != AlertStatus.ACTIVE.value:
         raise HTTPException(
             status_code=400,
-            detail=f"Cannot acknowledge alert with status: {alert['status']}",
+            detail=f"Cannot acknowledge alert with status: {alert.status}",
         )
 
-    alert["status"] = AlertStatus.ACKNOWLEDGED.value
-    alert["acknowledged_at"] = datetime.now(UTC).isoformat()
-    alert["acknowledged_by"] = user_id
+    updated_alert = update_alert_status(
+        db, alert_id=alert_uuid, status=AlertStatus.ACKNOWLEDGED.value, user_id=user_id
+    )
+
+    if not updated_alert:
+        raise HTTPException(status_code=404, detail="Alert not found")
+
+    db.commit()
+    db.refresh(updated_alert)
 
     if hasattr(app.state, "publisher") and app.state.publisher:
         await app.state.publisher.publish_alert_acknowledged(
-            alert_id, alert["field_id"], user_id
+            str(alert_uuid), updated_alert.field_id, user_id
         )
 
-    return alert
+    return updated_alert.to_dict()
 
 
 @app.post(
@@ -619,32 +653,45 @@ async def resolve_alert(
     user_id: str = Query(..., description="معرف المستخدم"),
     note: str | None = Query(None, description="ملاحظة الحل"),
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     حل تنبيه
     Resolve an alert
     """
-    if alert_id not in _alerts:
+    from uuid import UUID
+    try:
+        alert_uuid = UUID(alert_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
+    if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
 
-    alert = _alerts[alert_id]
-    # Validate tenant access
-    if alert["tenant_id"] != tenant_id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    if alert["status"] == AlertStatus.RESOLVED.value:
+    if alert.status == AlertStatus.RESOLVED.value:
         raise HTTPException(status_code=400, detail="Alert is already resolved")
 
-    alert["status"] = AlertStatus.RESOLVED.value
-    alert["resolved_at"] = datetime.now(UTC).isoformat()
-    alert["resolved_by"] = user_id
-    alert["resolution_note"] = note
+    updated_alert = update_alert_status(
+        db,
+        alert_id=alert_uuid,
+        status=AlertStatus.RESOLVED.value,
+        user_id=user_id,
+        note=note,
+    )
+
+    if not updated_alert:
+        raise HTTPException(status_code=404, detail="Alert not found")
+
+    db.commit()
+    db.refresh(updated_alert)
 
     if hasattr(app.state, "publisher") and app.state.publisher:
         await app.state.publisher.publish_alert_resolved(
-            alert_id, alert["field_id"], user_id, note
+            str(alert_uuid), updated_alert.field_id, user_id, note
         )
 
-    return alert
+    return updated_alert.to_dict()
 
 
 @app.post(
@@ -654,26 +701,36 @@ async def dismiss_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
     user_id: str = Query(..., description="معرف المستخدم"),
     tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     رفض تنبيه
     Dismiss an alert
     """
-    if alert_id not in _alerts:
+    from uuid import UUID
+    try:
+        alert_uuid = UUID(alert_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
+    if not alert:
         raise HTTPException(status_code=404, detail="Alert not found")
 
-    alert = _alerts[alert_id]
-    # Validate tenant access
-    if alert["tenant_id"] != tenant_id:
-        raise HTTPException(status_code=403, detail="Access denied")
-    if alert["status"] == AlertStatus.DISMISSED.value:
+    if alert.status == AlertStatus.DISMISSED.value:
         raise HTTPException(status_code=400, detail="Alert is already dismissed")
 
-    alert["status"] = AlertStatus.DISMISSED.value
-    alert["dismissed_at"] = datetime.now(UTC).isoformat()
-    alert["dismissed_by"] = user_id
+    updated_alert = update_alert_status(
+        db, alert_id=alert_uuid, status=AlertStatus.DISMISSED.value, user_id=user_id
+    )
 
-    return alert
+    if not updated_alert:
+        raise HTTPException(status_code=404, detail="Alert not found")
+
+    db.commit()
+    db.refresh(updated_alert)
+
+    return updated_alert.to_dict()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -682,63 +739,76 @@ async def dismiss_alert(
 
 
 @app.post("/alerts/rules", response_model=AlertRuleResponse, tags=["Alert Rules"])
-async def create_rule(rule_data: AlertRuleCreate):
+async def create_rule(rule_data: AlertRuleCreate, db: Session = Depends(get_db)):
     """
     إنشاء قاعدة تنبيه
     Create an alert rule
     """
-    rule_id = str(uuid4())
-    now = datetime.now(UTC)
+    db_rule = DBAlertRule(
+        field_id=rule_data.field_id,
+        tenant_id=rule_data.tenant_id,
+        name=rule_data.name,
+        name_en=rule_data.name_en,
+        enabled=rule_data.enabled,
+        condition=rule_data.condition.model_dump(),
+        alert_config=rule_data.alert_config.model_dump(),
+        cooldown_hours=rule_data.cooldown_hours,
+    )
 
-    rule = {
-        "id": rule_id,
-        "field_id": rule_data.field_id,
-        "tenant_id": rule_data.tenant_id,
-        "name": rule_data.name,
-        "name_en": rule_data.name_en,
-        "enabled": rule_data.enabled,
-        "condition": rule_data.condition.model_dump(),
-        "alert_config": rule_data.alert_config.model_dump(),
-        "cooldown_hours": rule_data.cooldown_hours,
-        "last_triggered_at": None,
-        "created_at": now.isoformat(),
-        "updated_at": now.isoformat(),
-    }
+    rule = create_alert_rule(db, db_rule)
+    db.commit()
+    db.refresh(rule)
 
-    _rules[rule_id] = rule
-    logger.info(f"Created alert rule {rule_id} for field {rule_data.field_id}")
-    return rule
+    logger.info(f"Created alert rule {rule.id} for field {rule_data.field_id}")
+    return rule.to_dict()
 
 
 @app.get("/alerts/rules", response_model=list[AlertRuleResponse], tags=["Alert Rules"])
 async def get_rules(
     field_id: str | None = Query(None, description="تصفية حسب الحقل"),
     enabled: bool | None = Query(None, description="تصفية حسب الحالة"),
+    db: Session = Depends(get_db),
 ):
     """
     جلب قواعد التنبيه
     Get alert rules
     """
-    rules = list(_rules.values())
-
     if field_id:
-        rules = [r for r in rules if r["field_id"] == field_id]
-    if enabled is not None:
-        rules = [r for r in rules if r["enabled"] == enabled]
+        rules = get_alert_rules_by_field(
+            db, field_id=field_id, enabled_only=(enabled if enabled else False)
+        )
+    else:
+        # Get all rules, then filter by enabled status if specified
+        from sqlalchemy import select
+        from .db_models import AlertRule
 
-    return rules
+        query = select(AlertRule)
+        if enabled is not None:
+            query = query.where(AlertRule.enabled == enabled)
+        rules = list(db.execute(query).scalars())
+
+    return [rule.to_dict() for rule in rules]
 
 
 @app.delete("/alerts/rules/{rule_id}", tags=["Alert Rules"])
-async def delete_rule(rule_id: str = Path(..., description="معرف القاعدة")):
+async def delete_rule(
+    rule_id: str = Path(..., description="معرف القاعدة"), db: Session = Depends(get_db)
+):
     """
     حذف قاعدة تنبيه
     Delete an alert rule
     """
-    if rule_id not in _rules:
+    from uuid import UUID
+    try:
+        rule_uuid = UUID(rule_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid rule ID format")
+
+    deleted = delete_alert_rule(db, rule_uuid)
+    if not deleted:
         raise HTTPException(status_code=404, detail="Rule not found")
 
-    del _rules[rule_id]
+    db.commit()
     logger.info(f"Deleted alert rule {rule_id}")
     return {"status": "deleted", "rule_id": rule_id}
 
@@ -752,6 +822,8 @@ async def delete_rule(rule_id: str = Path(..., description="معرف القاع�
 async def get_stats(
     field_id: str | None = Query(None, description="تصفية حسب الحقل"),
     period: str = Query("30d", description="الفترة الزمنية (7d, 30d, 90d)"),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     إحصائيات التنبيهات
@@ -759,65 +831,29 @@ async def get_stats(
     """
     # Parse period
     days = int(period.replace("d", ""))
-    cutoff = datetime.now(UTC) - timedelta(days=days)
 
-    # Filter alerts
-    filtered = list(_alerts.values())
-    if field_id:
-        filtered = [a for a in filtered if a["field_id"] == field_id]
-
-    # Filter by date
-    filtered = [
-        a
-        for a in filtered
-        if datetime.fromisoformat(a["created_at"].replace("Z", "+00:00")) >= cutoff
-    ]
-
-    # Calculate stats
-    total = len(filtered)
-    active = len([a for a in filtered if a["status"] == AlertStatus.ACTIVE.value])
-    acknowledged = len(
-        [a for a in filtered if a["status"] == AlertStatus.ACKNOWLEDGED.value]
+    # Get statistics from repository
+    stats = get_alert_statistics(
+        db, tenant_id=tenant_id, field_id=field_id, days=days
     )
-    resolved = len([a for a in filtered if a["status"] == AlertStatus.RESOLVED.value])
-
-    by_type = {}
-    by_severity = {}
-    by_status = {}
-
-    for alert in filtered:
-        by_type[alert["type"]] = by_type.get(alert["type"], 0) + 1
-        by_severity[alert["severity"]] = by_severity.get(alert["severity"], 0) + 1
-        by_status[alert["status"]] = by_status.get(alert["status"], 0) + 1
 
     # Calculate rates
-    acknowledged_rate = (acknowledged / total * 100) if total > 0 else 0
-    resolved_rate = (resolved / total * 100) if total > 0 else 0
+    total = stats["total_alerts"]
+    acknowledged_count = stats.get("acknowledged_count", 0)
+    resolved_count = stats.get("resolved_count", 0)
 
-    # Calculate average resolution time
-    resolution_times = []
-    for alert in filtered:
-        if alert["resolved_at"] and alert["created_at"]:
-            created = datetime.fromisoformat(alert["created_at"].replace("Z", "+00:00"))
-            resolved_at = datetime.fromisoformat(
-                alert["resolved_at"].replace("Z", "+00:00")
-            )
-            hours = (resolved_at - created).total_seconds() / 3600
-            resolution_times.append(hours)
-
-    avg_resolution = (
-        sum(resolution_times) / len(resolution_times) if resolution_times else None
-    )
+    acknowledged_rate = (acknowledged_count / total * 100) if total > 0 else 0
+    resolved_rate = (resolved_count / total * 100) if total > 0 else 0
 
     return AlertStats(
-        total_alerts=total,
-        active_alerts=active,
-        by_type=by_type,
-        by_severity=by_severity,
-        by_status=by_status,
+        total_alerts=stats["total_alerts"],
+        active_alerts=stats["active_alerts"],
+        by_type=stats["by_type"],
+        by_severity=stats["by_severity"],
+        by_status=stats["by_status"],
         acknowledged_rate=round(acknowledged_rate, 2),
         resolved_rate=round(resolved_rate, 2),
-        average_resolution_hours=round(avg_resolution, 2) if avg_resolution else None,
+        average_resolution_hours=stats.get("average_resolution_hours"),
     )
 
 

@@ -170,17 +170,17 @@ scrape_configs:
           description_ar: 'محرك مؤشر الغطاء النباتي NDVI'
     metrics_path: /metrics
 
-  # Weather Core - خدمة الطقس
-  - job_name: 'weather-core'
+  # Weather Service - خدمة الطقس (Unified)
+  - job_name: 'weather-service'
     static_configs:
-      - targets: ['weather_core:8108']
+      - targets: ['weather-service:8092']
         labels:
           tier: 'application'
           component: 'weather'
-          service: 'weather-core'
+          service: 'weather-service'
           language: 'python'
-          description: 'Weather Service Multi-Provider'
-          description_ar: 'خدمة الطقس متعددة المزودين'
+          description: 'Unified Weather Service Multi-Provider'
+          description_ar: 'خدمة الطقس الموحدة متعددة المزودين'
     metrics_path: /metrics
 
   # Field Chat - دردشة الحقول

@@ -48,7 +48,7 @@ services:
       - MQTT_BROKER=mqtt-broker-test
       - MQTT_PORT=1883
       - MQTT_TOPIC=sahool/sensors/#
-      - NATS_URL=nats://nats-test:4222
+      - NATS_URL=nats://test_user:test_password@nats-test:4222
       - DEFAULT_TENANT=default
       - LOG_LEVEL=INFO
     depends_on:
@@ -72,7 +72,7 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-iot-rules-test
     environment:
-      - NATS_URL=nats://nats-test:4222
+      - NATS_URL=nats://test_user:test_password@nats-test:4222
       - FIELDOPS_URL=http://fieldops:8080
       - LOG_LEVEL=INFO
     depends_on:
@@ -87,16 +87,17 @@ services:
       - sahool-network
     restart: unless-stopped
 
-  # NATS for standalone testing
+  # NATS for standalone testing (with authentication)
   nats-test:
     image: nats:2.10.24-alpine
     container_name: sahool-nats-test
     ports:
       - "14222:4222"   # Different port to avoid conflict
       - "18222:8222"   # Different port to avoid conflict
-    command: ["--jetstream", "--store_dir=/data", "-m", "8222"]
+    command: ["-c", "/etc/nats/nats-test.conf"]
     volumes:
       - nats-test-data:/data
+      - ../config/nats/nats-test.conf:/etc/nats/nats-test.conf:ro
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
       interval: 10s
@@ -111,6 +112,8 @@ volumes:
     name: sahool-mqtt-test-data
   mqtt-test-log:
     name: sahool-mqtt-test-log
+  nats-test-data:
+    name: sahool-nats-test-data
 
 networks:
   sahool-network:

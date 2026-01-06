@@ -111,12 +111,16 @@ class SensorSimulator:
         tenant: str = DEFAULT_TENANT,
         farm_id: str = DEFAULT_FARM_ID,
         field_id: str = DEFAULT_FIELD_ID,
+        username: str = None,
+        password: str = None,
     ):
         self.broker = broker
         self.port = port
         self.tenant = tenant
         self.farm_id = farm_id
         self.field_id = field_id
+        self.username = username
+        self.password = password
         self.client: mqtt.Client | None = None
         self.running = False
         self.sensor_states: dict[str, float] = {}
@@ -133,9 +137,16 @@ class SensorSimulator:
                 client_id=f"simulator-{self.field_id}-{int(time.time())}"
             )
 
+            # Set authentication if credentials provided
+            if self.username and self.password:
+                self.client.username_pw_set(self.username, self.password)
+                print(f"🔐 Using authentication: {self.username}")
+
             def on_connect(client, userdata, flags, rc):
                 if rc == 0:
                     print(f"✅ Connected to MQTT broker at {self.broker}:{self.port}")
+                elif rc == 5:
+                    print(f"❌ Connection failed: Authentication error (code {rc})")
                 else:
                     print(f"❌ Connection failed with code {rc}")
 
@@ -310,13 +321,15 @@ class SensorSimulator:
 class MultiFarmSimulator:
     """Simulate multiple fields at once"""
 
-    def __init__(self, broker: str, port: int, fields: list):
+    def __init__(self, broker: str, port: int, fields: list, username: str = None, password: str = None):
         self.simulators = []
         for field_id in fields:
             sim = SensorSimulator(
                 broker=broker,
                 port=port,
                 field_id=field_id,
+                username=username,
+                password=password,
             )
             self.simulators.append(sim)
 
@@ -382,6 +395,18 @@ def main():
         nargs="+",
         help="Simulate multiple fields (e.g., --multi field-1 field-2 field-3)",
     )
+    parser.add_argument(
+        "--username",
+        "-u",
+        default=None,
+        help="MQTT username for authentication",
+    )
+    parser.add_argument(
+        "--password",
+        "-P",
+        default=None,
+        help="MQTT password for authentication",
+    )
 
     args = parser.parse_args()
 
@@ -399,12 +424,16 @@ def main():
             broker=args.broker,
             port=args.port,
             fields=args.multi,
+            username=args.username,
+            password=args.password,
         )
     else:
         simulator = SensorSimulator(
             broker=args.broker,
             port=args.port,
             field_id=args.field,
+            username=args.username,
+            password=args.password,
         )
 
     simulator.run(interval=args.interval)

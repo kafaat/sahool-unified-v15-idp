@@ -1,0 +1,9 @@
+# NEVER commit private keys to version control
+*.key
+*.pem
+ca.srl
+
+# Keep structure files
+!.gitignore
+!*.sh
+!README.md

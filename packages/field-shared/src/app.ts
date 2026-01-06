@@ -20,6 +20,8 @@ import {
 } from "./middleware/validation";
 import { pestRoutes } from "./api/pest-routes";
 import { geoRoutes } from "./geo/geo-routes";
+import { fieldHealthRoutes } from "./api/field-health-routes";
+import { taskRoutes } from "./api/task-routes";
 
 /**
  * Create and configure the field management Express application
@@ -1270,6 +1272,18 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
     app.use("/api/v1/geo", geoRoutes);
 
     // ─────────────────────────────────────────────────────────────────────────────
+    // Field Health API Routes (migrated from field-ops)
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    app.use("/api/v1", fieldHealthRoutes);
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Task and Operations API Routes (migrated from field-ops)
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    app.use("/api/v1", taskRoutes);
+
+    // ─────────────────────────────────────────────────────────────────────────────
     // Error Handler
     // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1361,6 +1375,18 @@ export async function startFieldService(serviceName: string, port: number = 3000
         console.log("    POST /api/v1/geo/fields                 - Create field with boundary");
         console.log("    PUT  /api/v1/geo/fields/:id/boundary    - Update field boundary");
         console.log("    POST /api/v1/geo/farms                  - Create farm with location");
+        console.log("");
+        console.log("  🏥 Field Health Analysis (migrated from field-ops):");
+        console.log("    POST /api/v1/field-health               - Comprehensive health analysis");
+        console.log("");
+        console.log("  📋 Operations & Tasks (migrated from field-ops):");
+        console.log("    GET  /api/v1/operations                 - List operations");
+        console.log("    POST /api/v1/operations                 - Create operation");
+        console.log("    GET  /api/v1/operations/:id             - Get operation");
+        console.log("    PATCH /api/v1/operations/:id            - Update operation");
+        console.log("    POST /api/v1/operations/:id/complete    - Mark complete");
+        console.log("    DELETE /api/v1/operations/:id           - Delete operation");
+        console.log("    GET  /api/v1/stats/tenant/:id           - Tenant statistics");
         console.log("");
         console.log("  🔐 Conflict Resolution:");
         console.log("    • GET returns ETag header + body.etag + server_version");

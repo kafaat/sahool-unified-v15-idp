@@ -1,7 +1,63 @@
-# ⚠️ DEPRECATED - Use field-management-service instead
+# ⚠️ DEPRECATED - MIGRATION COMPLETE
 
-This service has been deprecated and merged into `field-management-service`.
-Please update your references to use `field-management-service` on port 3000.
+**This service is DEPRECATED and has been fully migrated to `field-management-service`.**
+
+## Migration Status: COMPLETE ✅
+
+All functionality from field-ops has been migrated to **field-management-service:3000**
+
+### What was migrated:
+
+1. **Field Health API** (`POST /api/v1/field-health`)
+   - Comprehensive health analysis with NDVI, sensor data, and weather
+   - Now available at: `http://field-management-service:3000/api/v1/field-health`
+
+2. **Operations & Tasks API** (`/api/v1/operations`)
+   - Operation creation, tracking, and completion
+   - Tenant statistics
+   - Now available at: `http://field-management-service:3000/api/v1/operations`
+
+3. **Basic Field CRUD** (already existed in field-management-service)
+   - Field creation, updates, deletion
+   - Available at: `http://field-management-service:3000/api/v1/fields`
+
+### Migration Actions Taken:
+
+- ✅ Field Health API ported to TypeScript
+- ✅ Operations/Tasks API ported to TypeScript
+- ✅ Kong routes updated to point to field-management-service
+- ✅ agro-rules service updated to call field-management-service
+- ✅ Docker Compose updated with `deprecated` profile
+- ✅ All references updated
+
+### How to Use:
+
+**Default (Recommended):** field-ops will NOT run
+```bash
+docker-compose up  # field-ops excluded by default
+```
+
+**Legacy Mode (Not Recommended):** Enable deprecated service
+```bash
+docker-compose --profile deprecated up  # Includes field-ops on port 8080
+```
+
+### Service Endpoints Migration:
+
+| Old (field-ops:8080) | New (field-management-service:3000) | Status |
+|---------------------|-------------------------------------|--------|
+| `POST /api/v1/field-health` | `POST /api/v1/field-health` | ✅ Migrated |
+| `GET /operations` | `GET /api/v1/operations` | ✅ Migrated |
+| `POST /operations` | `POST /api/v1/operations` | ✅ Migrated |
+| `GET /fields` | `GET /api/v1/fields` | ✅ Already exists |
+| `POST /fields` | `POST /api/v1/fields` | ✅ Already exists |
+
+### Need Help?
+
+- New service port: **3000** (was 8080)
+- New service name: **field-management-service**
+- Kong routes: Automatically redirect to new service
+- Health check: `GET http://field-management-service:3000/healthz`
 
 ---
 

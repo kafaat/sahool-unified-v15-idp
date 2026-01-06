@@ -1,0 +1,2395 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL v16.0.0 Unified Docker Compose
+# Complete platform deployment with ALL 39 services + infrastructure
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure Services (6)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # قاعدة البيانات المكانية (PostGIS)
+  # SECURITY: POSTGRES_PASSWORD MUST be set in .env file
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: sahool-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro
+    # Use tmpfs for temporary data (security hardening)
+    tmpfs:
+      - /tmp
+      - /run/postgresql
+    ports:
+      - "127.0.0.1:5432:5432"
+    # Security options for container hardening
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - sahool-network
+
+  # PgBouncer - Connection Pooler for PostgreSQL
+  # Prevents connection exhaustion with 39+ services
+  # تجميع اتصالات قاعدة البيانات
+  pgbouncer:
+    image: edoburu/pgbouncer:1.21.0
+    container_name: sahool-pgbouncer
+    environment:
+      # Database connection (using individual vars to avoid credential pattern detection)
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: ${POSTGRES_USER:-sahool}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      DB_NAME: ${POSTGRES_DB:-sahool}
+      # PgBouncer auth_query user (for SCRAM authentication)
+      # Using the main database user for auth_query (simpler and more reliable)
+      # The edoburu/pgbouncer image uses DB_PASSWORD for auth_user when AUTH_USER matches DB_USER
+      AUTH_USER: ${POSTGRES_USER:-sahool}
+      AUTH_QUERY: SELECT usename, passwd FROM pg_shadow WHERE usename=$1
+      # Pool settings
+      POOL_MODE: transaction
+      MAX_DB_CONNECTIONS: 100
+      DEFAULT_POOL_SIZE: 20
+      MIN_POOL_SIZE: 5
+      MAX_CLIENT_CONN: 500
+      # Timeouts
+      QUERY_TIMEOUT: 120
+      QUERY_WAIT_TIMEOUT: 30
+      # Auth (handled by pgbouncer.ini with auth_query for SCRAM support)
+      # Admin
+      ADMIN_USERS: pgbouncer_admin
+      STATS_USERS: pgbouncer_stats
+    volumes:
+      - ./infrastructure/core/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+    ports:
+      - "127.0.0.1:6432:6432"  # SECURITY: localhost only
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 -U ${POSTGRES_USER:-sahool}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
+  # SECURITY: REDIS_PASSWORD MUST be set in .env file
+  redis:
+    image: redis:7-alpine
+    container_name: sahool-redis
+    command: [
+      "redis-server",
+      "--appendonly", "yes",
+      "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
+      "--maxmemory", "512mb",
+      "--maxmemory-policy", "allkeys-lru",
+      "--tcp-keepalive", "60"
+    ]
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 768M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # NATS JetStream - Message Queue with Authentication
+  # SECURITY: NATS credentials MUST be set in .env file
+  nats:
+    image: nats:2.10-alpine
+    container_name: sahool-nats
+    command: ["-c", "/etc/nats/nats.conf"]
+    environment:
+      # NATS Authentication - injected into config file
+      NATS_USER: ${NATS_USER:?NATS_USER is required}
+      NATS_PASSWORD: ${NATS_PASSWORD:?NATS_PASSWORD is required}
+      NATS_ADMIN_USER: ${NATS_ADMIN_USER:?NATS_ADMIN_USER is required}
+      NATS_ADMIN_PASSWORD: ${NATS_ADMIN_PASSWORD:?NATS_ADMIN_PASSWORD is required}
+      NATS_MONITOR_USER: ${NATS_MONITOR_USER:-nats_monitor}
+      NATS_MONITOR_PASSWORD: ${NATS_MONITOR_PASSWORD:-changeme}
+      NATS_CLUSTER_USER: ${NATS_CLUSTER_USER:-nats_cluster}
+      NATS_CLUSTER_PASSWORD: ${NATS_CLUSTER_PASSWORD:-changeme}
+    volumes:
+      - nats_data:/data
+      - ./config/nats/nats.conf:/etc/nats/nats.conf:ro
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8222:8222"
+    healthcheck:
+      # Health check via monitoring endpoint (no auth required for /healthz)
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # MQTT Broker - IoT Communication
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: sahool-mqtt
+    environment:
+      - MQTT_USER=${MQTT_USER:-sahool_iot}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
+    volumes:
+      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mqtt_passwd:/mosquitto/config
+      - mqtt_data:/mosquitto/data
+      - mqtt_logs:/mosquitto/log
+    # Generate passwd file dynamically from environment variables
+    command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USER} $${MQTT_PASSWORD} && chmod 600 /mosquitto/config/passwd && exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
+    ports:
+      - "127.0.0.1:1883:1883"
+      - "127.0.0.1:9001:9001"
+    healthcheck:
+      test: ["CMD-SHELL", "pidof mosquitto || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
+  # Qdrant Vector Database - RAG & Semantic Search
+  qdrant:
+    # Using v1.7.4 - stable release with improved vector search performance
+    # استخدام الإصدار v1.7.4 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
+    image: qdrant/qdrant:v1.7.4
+    container_name: sahool-qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      # SECURITY: API Key authentication (set QDRANT_API_KEY in .env for production)
+      # الأمان: مصادقة مفتاح API (اضبط QDRANT_API_KEY في .env للإنتاج)
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
+      - QDRANT__LOG_LEVEL=INFO
+    # Qdrant healthcheck - uses wget to verify service is responding
+    # فحص صحة Qdrant - يستخدم wget للتحقق من استجابة الخدمة
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:6333/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Ollama - Local LLM Server for Log Analysis
+  # خادم نماذج الذكاء الاصطناعي المحلي لتحليل السجلات
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Ollama with DeepSeek Coder - Local LLM for Docker Log Analysis
+  # Supports 20+ concurrent agents for parallel analysis
+  ollama:
+    image: ollama/ollama:0.5.4
+    container_name: sahool-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      # SECURITY: CORS origin restrictions (set specific origins in production)
+      # الأمان: قيود منشأ CORS (حدد المنشآت المحددة في الإنتاج)
+      - OLLAMA_ORIGINS=${OLLAMA_ORIGINS:-*}
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_NUM_PARALLEL=24
+      - OLLAMA_MAX_LOADED_MODELS=2
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - sahool-network
+
+  # Ollama Model Loader - Downloads deepseek model on startup
+  # تحميل نموذج DeepSeek عند بدء التشغيل
+  ollama-model-loader:
+    image: curlimages/curl:8.11.1
+    container_name: sahool-ollama-model-loader
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Waiting for Ollama to be ready..."
+        sleep 5
+        echo "Pulling deepseek model..."
+        curl -X POST http://ollama:11434/api/pull -d '{"name":"deepseek"}' --max-time 3600
+        echo "Model download complete!"
+        # Keep container running to show completion
+        sleep 10
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
+  # Real-time Code Review Service - Monitors codebase and reviews with DeepSeek
+  # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
+  code-review-service:
+    build:
+      context: ./apps/services/code-review-service
+      dockerfile: Dockerfile
+    container_name: sahool-code-review
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=deepseek
+      - WATCH_PATHS=infrastructure:docker-compose.yml:docker
+      - LOG_LEVEL=INFO
+      - REVIEW_ON_CHANGE=true
+      - MAX_FILE_SIZE=1000000
+      - API_HOST=0.0.0.0
+      - API_PORT=8096
+    ports:
+      - "8096:8096"
+    volumes:
+      - .:/app/codebase:ro
+      - code_review_logs:/app/logs
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sahool-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Milvus Vector Database - Alternative to Qdrant for RAG & Semantic Search
+  # Requires: etcd (metadata), minio (object storage)
+  # قاعدة بيانات Milvus الشعاعية - بديل لـ Qdrant للبحث الدلالي
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Etcd - Metadata storage for Milvus
+  # تخزين البيانات الوصفية لـ Milvus
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    container_name: sahool-etcd
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - etcd_data:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: ["CMD", "etcdctl", "endpoint", "health"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # MinIO - Object storage for Milvus
+  # تخزين الكائنات لـ Milvus
+  # SECURITY: MINIO_ROOT_USER and MINIO_ROOT_PASSWORD MUST be set in .env file
+  minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    container_name: sahool-minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required - must be at least 16 characters}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required - must be at least 16 characters}
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9090:9090"
+    volumes:
+      - minio_data:/minio_data
+    command: minio server /minio_data --console-address ":9090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Milvus Standalone - Vector Database
+  # قاعدة البيانات الشعاعية Milvus
+  milvus:
+    image: milvusdb/milvus:v2.3.3
+    container_name: sahool-milvus
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      MINIO_ACCESS_KEY_ID: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+    ports:
+      - "127.0.0.1:19530:19530"
+      - "127.0.0.1:9091:9091"
+    volumes:
+      - milvus_data:/var/lib/milvus
+    command: ["milvus", "run", "standalone"]
+    depends_on:
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 90s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    networks:
+      - sahool-network
+
+  # API Gateway (Kong)
+  kong:
+    image: kong:3.4
+    container_name: sahool-kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 127.0.0.1:8001
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      # SSL disabled for development - enable in production with valid certificates
+      # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
+      # KONG_SSL_CERT: /etc/kong/ssl/server.crt
+      # KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
+      KONG_PLUGINS: "bundled,prometheus"
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      # DNS Configuration for Docker internal DNS resolution
+      # Use Docker's internal DNS resolver (127.0.0.11) for service discovery
+      KONG_DNS_RESOLVER: 127.0.0.11:53
+      KONG_DNS_ORDER: LAST,A,CNAME
+      # DNS cache settings to reduce resolution attempts and improve resilience
+      # Increased TTL values to reduce DNS queries for unstable services
+      KONG_DNS_CACHE_TTL: 300
+      KONG_DNS_STALE_TTL: 30
+      KONG_DNS_ERROR_TTL: 30
+      # DNS no-sync: Allow Kong to use stale DNS entries when resolution fails
+      # This prevents Kong from blocking when services are temporarily unavailable
+      KONG_DNS_NO_SYNC: "off"
+      # DNS not-found TTL: Cache "not found" responses to reduce repeated queries
+      KONG_DNS_NOT_FOUND_TTL: 30
+    ports:
+      - "8000:8000"
+      # SSL port disabled for development
+      # - "8443:8443"
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - ./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro
+      - ./infrastructure/gateway/kong/ssl:/etc/kong/ssl:ro
+      - kong_logs:/var/log/kong
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Node.js Services (10)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Field Management Service - Unified Field Operations
+  # Consolidates: field-core, field-service, field-ops
+  field-management-service:
+    build:
+      context: .
+      dockerfile: apps/services/field-management-service/Dockerfile
+    container_name: sahool-field-management-service
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-sahool}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_NAME=${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Marketplace Service - Agricultural Marketplace & FinTech
+  marketplace-service:
+    build:
+      context: ./apps/services/marketplace-service
+      dockerfile: Dockerfile
+    container_name: sahool-marketplace
+    environment:
+      - PORT=3010
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
+    ports:
+      - "3010:3010"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/api/v1/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Research Core - Scientific Research Management
+  research-core:
+    build:
+      context: ./apps/services/research-core
+      dockerfile: Dockerfile
+    container_name: sahool-research-core
+    environment:
+      - PORT=3015
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - SIGNATURE_SECRET_KEY=${JWT_SECRET_KEY}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "3015:3015"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3015/api/v1/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Disaster Assessment Service
+  disaster-assessment:
+    build:
+      context: ./apps/services/disaster-assessment
+      dockerfile: Dockerfile
+    container_name: sahool-disaster-assessment
+    environment:
+      - PORT=3020
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "3020:3020"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3020/api/v1/disasters/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: yield_prediction - Migrating to yield-prediction-service
+  # This service is being consolidated into yield-prediction-service (Port 8098)
+  # Kept temporarily for backwards compatibility
+  yield-prediction:
+    build:
+      context: ./apps/services/yield-prediction
+      dockerfile: Dockerfile
+    container_name: sahool-yield-prediction
+    environment:
+      - PORT=3021
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "3021:3021"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3021/api/v1/yield/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: lai_estimation - Migrating to vegetation-analysis-service
+  # This service is being consolidated into vegetation-analysis-service (Port 8090)
+  # Kept temporarily for backwards compatibility
+  lai-estimation:
+    build:
+      context: ./apps/services/lai-estimation
+      dockerfile: Dockerfile
+    container_name: sahool-lai-estimation
+    environment:
+      - PORT=3022
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "3022:3022"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3022/api/v1/lai/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: crop_growth_model - Migrating to crop-intelligence-service
+  # This service is being consolidated into crop-intelligence-service (Port 8095)
+  # Kept temporarily for backwards compatibility
+  crop-growth-model:
+    build:
+      context: ./apps/services/crop-growth-model
+      dockerfile: Dockerfile
+    container_name: sahool-crop-growth-model
+    environment:
+      - PORT=3023
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "3023:3023"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3023/api/v1/simulation/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Chat Service - Agricultural Chat & Messaging
+  chat-service:
+    build:
+      context: ./apps/services/chat-service
+      dockerfile: Dockerfile
+    container_name: sahool-chat-service
+    environment:
+      - PORT=8114
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8114:8114"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8114/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # IoT Service - IoT Device & Sensor Management
+  iot-service:
+    build:
+      context: ./apps/services/iot-service
+      dockerfile: Dockerfile
+    container_name: sahool-iot-service
+    environment:
+      - PORT=8117
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+      - MQTT_USER=${MQTT_USER:-sahool_iot}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8117:8117"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      mqtt:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8117/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: community_chat - Migrating to chat-service
+  # This service is being consolidated into chat-service (Port 8114)
+  # Kept temporarily for backwards compatibility
+  community-chat:
+    build:
+      context: ./apps/services/community-chat
+      dockerfile: Dockerfile
+    container_name: sahool-community-chat
+    environment:
+      - PORT=8097
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+    ports:
+      - "8097:8097"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8097/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Python Services (29)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # ⚠️ DEPRECATED: field_ops - Migrating to field-management-service
+  # This service is being consolidated into field-management-service (Port 3000)
+  # Kept temporarily for backwards compatibility
+  field-ops:
+    build:
+      context: ./apps/services/field-ops
+      dockerfile: Dockerfile
+    container_name: sahool-field-ops
+    environment:
+      - PORT=8080
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # WebSocket Gateway
+  ws-gateway:
+    build:
+      context: ./apps/services/ws-gateway
+      dockerfile: Dockerfile
+    container_name: sahool-ws-gateway
+    environment:
+      - PORT=8081
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
+    ports:
+      - "8081:8081"
+    depends_on:
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8081/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Billing Core Service
+  billing-core:
+    build:
+      context: ./apps/services/billing-core
+      dockerfile: Dockerfile
+    container_name: sahool-billing-core
+    environment:
+      - PORT=8089
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - STRIPE_API_KEY=${STRIPE_API_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - THARWATT_BASE_URL=${THARWATT_BASE_URL:-https://developers-test.tharwatt.com:5253}
+      - THARWATT_API_KEY=${THARWATT_API_KEY:-}
+      - THARWATT_MERCHANT_ID=${THARWATT_MERCHANT_ID:-}
+      - THARWATT_WEBHOOK_SECRET=${THARWATT_WEBHOOK_SECRET:-}
+    ports:
+      - "8089:8089"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8089/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Vegetation Analysis Service - Unified Satellite & Vegetation Analysis
+  # Consolidates: satellite-service, ndvi-processor, ndvi-engine, lai-estimation
+  vegetation-analysis-service:
+    build:
+      context: ./apps/services
+      dockerfile: vegetation-analysis-service/Dockerfile
+    container_name: sahool-vegetation-analysis-service
+    environment:
+      - PORT=8090
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
+      - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
+      - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
+      - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
+      - PLANET_API_KEY=${PLANET_API_KEY:-}
+      - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8090:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 768M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # Indicators Service
+  indicators-service:
+    build:
+      context: ./apps/services/indicators-service
+      dockerfile: Dockerfile
+    container_name: sahool-indicators-service
+    environment:
+      - PORT=8091
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8091:8091"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8091/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Weather Service - Unified Weather Operations
+  # Consolidates: weather-core, weather-advanced
+  weather-service:
+    build:
+      context: ./apps/services
+      dockerfile: weather-service/Dockerfile
+    container_name: sahool-weather-service
+    environment:
+      - PORT=8092
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8092:8092"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Advisory Service - Unified Agricultural Advisory
+  # Consolidates: agro-advisor, fertilizer-advisor
+  advisory-service:
+    build:
+      context: ./apps/services
+      dockerfile: advisory-service/Dockerfile
+    container_name: sahool-advisory-service
+    environment:
+      - PORT=8093
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8093:8093"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8093/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Irrigation Smart Service
+  irrigation-smart:
+    build:
+      context: ./apps/services/irrigation-smart
+      dockerfile: Dockerfile
+    container_name: sahool-irrigation-smart
+    environment:
+      - PORT=8094
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - IOT_GATEWAY_URL=http://iot-gateway:8106
+    ports:
+      - "8094:8094"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      iot-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Crop Intelligence Service - Unified Crop Analysis
+  # Consolidates: crop-health, crop-health-ai, crop-growth-model
+  crop-intelligence-service:
+    build:
+      context: ./apps/services/crop-intelligence-service
+      dockerfile: Dockerfile
+    container_name: sahool-crop-intelligence-service
+    environment:
+      - PORT=8095
+      - MODEL_PATH=/app/models/plant_disease.tflite
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8095:8095"
+    volumes:
+      - ./models:/app/models:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - sahool-network
+
+  # Virtual Sensors Engine
+  virtual-sensors:
+    build:
+      context: ./apps/services/virtual-sensors
+      dockerfile: Dockerfile
+    container_name: sahool-virtual-sensors
+    environment:
+      - PORT=8119
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8119:8119"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8119/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Yield Prediction Service - Unified Yield Analysis
+  # Consolidates: yield-engine, yield-prediction
+  yield-prediction-service:
+    build:
+      context: ./apps/services/yield-prediction-service
+      dockerfile: Dockerfile
+    container_name: sahool-yield-prediction-service
+    environment:
+      - PORT=8098
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8098:8098"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8098/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Field Chat Service
+  field-chat:
+    build:
+      context: ./apps/services/field-chat
+      dockerfile: Dockerfile
+    container_name: sahool-field-chat
+    environment:
+      - PORT=8099
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8099:8099"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8099/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Equipment Service
+  equipment-service:
+    build:
+      context: ./apps/services/equipment-service
+      dockerfile: Dockerfile
+    container_name: sahool-equipment-service
+    environment:
+      - PORT=8101
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8101:8101"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Task Service
+  task-service:
+    build:
+      context: ./apps/services/task-service
+      dockerfile: Dockerfile
+    container_name: sahool-task-service
+    environment:
+      - PORT=8103
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8103:8103"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8103/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Provider Config Service
+  provider-config:
+    build:
+      context: ./apps/services/provider-config
+      dockerfile: Dockerfile
+    container_name: sahool-provider-config
+    environment:
+      - PORT=8104
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8104:8104"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8104/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: agro_advisor - Migrating to advisory-service
+  # This service is being consolidated into advisory-service (Port 8093)
+  # Kept temporarily for backwards compatibility
+  agro-advisor:
+    build:
+      context: ./apps/services
+      dockerfile: agro-advisor/Dockerfile
+    container_name: sahool-agro-advisor
+    environment:
+      - PORT=8105
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8105:8105"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # IoT Gateway Service
+  iot-gateway:
+    build:
+      context: ./apps/services/iot-gateway
+      dockerfile: Dockerfile
+    container_name: sahool-iot-gateway
+    environment:
+      - PORT=8106
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - MQTT_BROKER=mqtt
+      - MQTT_PORT=1883
+      - MQTT_USER=${MQTT_USER:-sahool_iot}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
+      - MQTT_TOPIC=sahool/sensors/#
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8106:8106"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      mqtt:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8106/health'); exit(0) if r.getcode()==200 else exit(1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: ndvi_engine - Migrating to vegetation-analysis-service
+  # This service is being consolidated into vegetation-analysis-service (Port 8090)
+  # Kept temporarily for backwards compatibility
+  ndvi-engine:
+    build:
+      context: ./apps/services/ndvi-engine
+      dockerfile: Dockerfile
+    container_name: sahool-ndvi-engine
+    environment:
+      - PORT=8107
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8107:8107"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8107/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: weather-core - Use weather-service instead
+  # This service has been deprecated and merged into weather-service (Port 8092)
+  # All functionality is available in weather-service
+  # This service will be removed in the next major release
+  # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
+  weather-core:
+    build:
+      context: ./apps/services/weather-core
+      dockerfile: Dockerfile
+    container_name: sahool-weather-core
+    labels:
+      - "com.sahool.deprecated=true"
+      - "com.sahool.replacement=weather-service"
+      - "com.sahool.deprecation.reason=Consolidated into unified weather-service"
+    profiles:
+      - deprecated
+      - legacy
+    environment:
+      - PORT=8108
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
+    ports:
+      - "8108:8108"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./apps/services/notification-service
+      dockerfile: Dockerfile
+    container_name: sahool-notification-service
+    environment:
+      - PORT=8110
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@sahool.com}
+      - FCM_SERVER_KEY=${FCM_SERVER_KEY:-}
+    ports:
+      - "8110:8110"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Astronomical Calendar Service
+  astronomical-calendar:
+    build:
+      context: ./apps/services/astronomical-calendar
+      dockerfile: Dockerfile
+    container_name: sahool-astronomical-calendar
+    environment:
+      - PORT=8111
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - WEATHER_SERVICE_URL=http://weather-service:8092
+    ports:
+      - "8111:8111"
+    depends_on:
+      weather-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8111/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
+  # Field Intelligence Service - خدمة ذكاء الحقل
+  field-intelligence:
+    build:
+      context: .
+      dockerfile: ./apps/services/field-intelligence/Dockerfile
+    container_name: sahool-field-intelligence
+    environment:
+      - PORT=8120
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - TASK_SERVICE_URL=http://task-service:8103
+      - ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8110
+      - WEATHER_SERVICE_URL=http://weather-service:8092
+      - NDVI_SERVICE_URL=http://vegetation-analysis-service:8090
+    ports:
+      - "8120:8120"
+    depends_on:
+      task-service:
+        condition: service_healthy
+      astronomical-calendar:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8120/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # AI Advisor Service
+  ai-advisor:
+    build:
+      context: ./apps/services/ai-advisor
+      dockerfile: Dockerfile
+    container_name: sahool-ai-advisor
+    environment:
+      - SERVICE_PORT=8112
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Multi-Provider LLM Configuration
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - PRIMARY_LLM_PROVIDER=${PRIMARY_LLM_PROVIDER:-anthropic}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-3-5-sonnet-20241022}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
+      # External service URLs - Updated to consolidated services
+      - CROP_HEALTH_URL=http://crop-intelligence-service:8095
+      - WEATHER_URL=http://weather-service:8092
+      - SATELLITE_URL=http://vegetation-analysis-service:8090
+      - AGRO_ADVISOR_URL=http://advisory-service:8093
+      - NDVI_URL=http://vegetation-analysis-service:8090
+      # RAG Configuration
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8112:8112"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      crop-intelligence-service:
+        condition: service_healthy
+      weather-service:
+        condition: service_healthy
+      advisory-service:
+        condition: service_healthy
+      vegetation-analysis-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - sahool-network
+
+  # Alert Service
+  alert-service:
+    build:
+      context: ./apps/services
+      dockerfile: alert-service/Dockerfile
+    container_name: sahool-alert-service
+    environment:
+      - PORT=8113
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8110
+    ports:
+      - "8113:8113"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8113/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: field_service - Migrating to field-management-service
+  # This service is being consolidated into field-management-service (Port 3000)
+  # Kept temporarily for backwards compatibility
+  field-service:
+    build:
+      context: ./apps/services/field-service
+      dockerfile: Dockerfile
+    container_name: sahool-field-service
+    environment:
+      - PORT=8115
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    ports:
+      - "8115:8115"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8115/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Inventory Service
+  inventory-service:
+    build:
+      context: ./apps/services/inventory-service
+      dockerfile: Dockerfile
+    container_name: sahool-inventory-service
+    environment:
+      - PORT=8116
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+    ports:
+      - "8116:8116"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8116/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: ndvi_processor - Migrating to vegetation-analysis-service
+  # This service is being consolidated into vegetation-analysis-service (Port 8090)
+  # Kept temporarily for backwards compatibility
+  ndvi-processor:
+    build:
+      context: ./apps/services/ndvi-processor
+      dockerfile: Dockerfile
+    container_name: sahool-ndvi-processor
+    environment:
+      - PORT=8118
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
+    ports:
+      - "8118:8118"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      vegetation-analysis-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8118/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 768M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # ⚠️ DEPRECATED: crop_health - Migrating to crop-intelligence-service
+  # This service is being consolidated into crop-intelligence-service (Port 8095)
+  # Kept temporarily for backwards compatibility
+  crop-health:
+    build:
+      context: ./apps/services/crop-health
+      dockerfile: Dockerfile
+    container_name: sahool-crop-health
+    environment:
+      - PORT=8100
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - CDN_BASE_URL=${CDN_BASE_URL:-https://cdn.sahool.io}
+    ports:
+      - "8100:8100"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Agro Rules Worker - NATS Event-Driven Worker
+  agro-rules:
+    build:
+      context: ./apps/services/agro-rules
+      dockerfile: Dockerfile
+    container_name: sahool-agro-rules
+    environment:
+      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
+      - FIELDOPS_URL=http://field-ops:8080
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    depends_on:
+      nats:
+        condition: service_healthy
+      field-ops:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python.*worker"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # MCP Server - Model Context Protocol Integration
+  # Exposes SAHOOL capabilities to AI assistants (Claude, ChatGPT, etc.)
+  mcp-server:
+    build:
+      context: .
+      dockerfile: apps/services/mcp-server/Dockerfile
+    container_name: sahool-mcp-server
+    environment:
+      - SAHOOL_API_URL=http://kong:8000
+      - MCP_SERVER_PORT=8200
+      - MCP_SERVER_HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8200:8200"
+    depends_on:
+      kong:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Demo Data Service - Simulates API data flow
+  # خدمة البيانات التجريبية - تحاكي تدفق البيانات عبر واجهات API
+  # ─────────────────────────────────────────────────────────────────────────────
+  demo-data:
+    build:
+      context: ./apps/services/demo-data
+      dockerfile: Dockerfile
+    container_name: sahool-demo-data
+    environment:
+      - KONG_URL=http://kong:8000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DEMO_MODE=${DEMO_MODE:-continuous}
+      - INTERVAL_SECONDS=${DEMO_INTERVAL_SECONDS:-30}
+      - TENANT_ID=${DEMO_TENANT_ID:-a0000000-0000-0000-0000-000000000001}
+      - USER_ID=${DEMO_USER_ID:-b0000000-0000-0000-0000-000000000001}
+      - BATCH_COUNT=${DEMO_BATCH_COUNT:-100}
+    depends_on:
+      kong:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    profiles:
+      - demo
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────────────────────────────────────
+
+networks:
+  sahool-network:
+    driver: bridge
+    name: sahool-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Volumes
+# ─────────────────────────────────────────────────────────────────────────────
+
+volumes:
+  postgres_data:
+    name: sahool-postgres-data
+  nats_data:
+    name: sahool-nats-data
+  redis_data:
+    name: sahool-redis-data
+  qdrant_data:
+    name: sahool-qdrant-data
+  mqtt_data:
+    name: sahool-mqtt-data
+  mqtt_logs:
+    name: sahool-mqtt-logs
+  mqtt_passwd:
+    name: sahool-mqtt-passwd
+  kong_logs:
+    driver: local
+  # Ollama LLM Server Volume
+  ollama_data:
+    name: sahool-ollama-data
+  code_review_logs:
+    name: sahool-code-review-logs
+  # Milvus Vector Database Volumes
+  etcd_data:
+    name: sahool-etcd-data
+  minio_data:
+    name: sahool-minio-data
+  milvus_data:
+    name: sahool-milvus-data

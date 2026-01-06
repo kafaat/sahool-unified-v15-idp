@@ -38,8 +38,26 @@
  * ```
  */
 
-import { Params } from 'nestjs-pino';
 import { randomUUID } from 'crypto';
+
+// Type definition for nestjs-pino Params (to avoid hard dependency)
+interface PinoHttpOptions {
+  transport?: any;
+  level?: string;
+  serializers?: Record<string, (data: any) => any>;
+  genReqId?: (req: any, res: any) => string;
+  base?: Record<string, any>;
+  customSuccessMessage?: (req: any, res: any) => string;
+  customErrorMessage?: (req: any, res: any, err: any) => string;
+  autoLogging?: { ignore?: (req: any) => boolean };
+  customAttributeKeys?: Record<string, string>;
+  customProps?: (req: any, res: any) => Record<string, any>;
+  redact?: { paths: string[]; remove?: boolean };
+}
+
+interface Params {
+  pinoHttp?: PinoHttpOptions;
+}
 
 /**
  * Create Pino logger configuration for a service

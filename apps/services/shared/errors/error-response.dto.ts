@@ -101,7 +101,7 @@ export class ErrorDetailsDto {
   @ApiProperty({
     description: 'Additional error details',
     required: false,
-    type: 'object',
+    type: Object,
     example: {
       fields: [
         {

@@ -1,0 +1,375 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Database Health Check - Kubernetes Integration Example
+# مثال على دمج فحص صحة قاعدة البيانات مع Kubernetes
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This file demonstrates how to integrate the db_health_check.sh script
+# with Kubernetes deployments for database monitoring
+#
+# يوضح هذا الملف كيفية دمج سكريبت db_health_check.sh
+# مع نشر Kubernetes لمراقبة قاعدة البيانات
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+---
+# ConfigMap for Database Configuration
+# خريطة التكوين لإعدادات قاعدة البيانات
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-health-check-config
+  namespace: sahool
+  labels:
+    app: sahool
+    component: database
+data:
+  POSTGRES_HOST: "postgres.sahool.svc.cluster.local"
+  POSTGRES_PORT: "5432"
+  PGBOUNCER_HOST: "pgbouncer.sahool.svc.cluster.local"
+  PGBOUNCER_PORT: "6432"
+  POSTGRES_USER: "sahool"
+  POSTGRES_DB: "sahool"
+  # Health check thresholds
+  DISK_WARNING_THRESHOLD: "80"
+  DISK_CRITICAL_THRESHOLD: "90"
+  CONN_WARNING_THRESHOLD: "80"
+  CONN_CRITICAL_THRESHOLD: "95"
+  QUERY_TIMEOUT_SECONDS: "30"
+
+---
+# Secret for Database Credentials
+# السر لبيانات اعتماد قاعدة البيانات
+# NOTE: In production, use sealed-secrets, external-secrets, or vault
+# ملاحظة: في الإنتاج، استخدم sealed-secrets أو external-secrets أو vault
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+  namespace: sahool
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: "your-secure-password-here"  # Replace with actual password
+
+---
+# CronJob for Periodic Health Checks
+# مهمة مجدولة لفحوصات الصحة الدورية
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: db-health-check
+  namespace: sahool
+  labels:
+    app: sahool
+    component: monitoring
+spec:
+  # Run every 5 minutes / تشغيل كل 5 دقائق
+  schedule: "*/5 * * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        metadata:
+          labels:
+            app: sahool
+            component: db-health-check
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: db-health-check
+              image: postgres:16-alpine  # Minimal image with psql
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  # Install bc for float calculations
+                  apk add --no-cache bc coreutils
+                  # Run health check
+                  /scripts/db_health_check.sh --json
+              envFrom:
+                - configMapRef:
+                    name: db-health-check-config
+                - secretRef:
+                    name: db-credentials
+              volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: "50m"
+                  memory: "64Mi"
+                limits:
+                  cpu: "200m"
+                  memory: "128Mi"
+          volumes:
+            - name: scripts
+              configMap:
+                name: db-health-check-script
+                defaultMode: 0755
+
+---
+# ConfigMap containing the health check script
+# خريطة التكوين التي تحتوي على سكريبت فحص الصحة
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-health-check-script
+  namespace: sahool
+data:
+  db_health_check.sh: |
+    # The actual script content would go here
+    # Or mount from a persistent volume or git-sync sidecar
+    # يجب وضع محتوى السكريبت الفعلي هنا
+    # أو تركيبه من حجم دائم أو git-sync sidecar
+
+---
+# Example: Service Deployment with Health Probes
+# مثال: نشر الخدمة مع مجسات الصحة
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: sahool
+  labels:
+    app: sahool
+    service: user-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sahool
+      service: user-service
+  template:
+    metadata:
+      labels:
+        app: sahool
+        service: user-service
+    spec:
+      containers:
+        - name: user-service
+          image: sahool/user-service:latest
+          ports:
+            - containerPort: 8002
+              protocol: TCP
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-health-check-config
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-health-check-config
+                  key: POSTGRES_PORT
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: db-health-check-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: db-health-check-config
+                  key: POSTGRES_DB
+
+          # Liveness Probe - Restart container if database is unhealthy
+          # مجس الحيوية - إعادة تشغيل الحاوية إذا كانت قاعدة البيانات غير صحية
+          livenessProbe:
+            exec:
+              command:
+                - /scripts/db_health_check.sh
+                - --json
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+
+          # Readiness Probe - Remove from service if database has warnings
+          # مجس الجاهزية - إزالة من الخدمة إذا كانت قاعدة البيانات لديها تحذيرات
+          readinessProbe:
+            exec:
+              command:
+                - /scripts/db_health_check.sh
+                - --json
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 10
+            failureThreshold: 2
+            successThreshold: 1
+
+          # Startup Probe - Allow more time for initial connection
+          # مجس البدء - السماح بمزيد من الوقت للاتصال الأولي
+          startupProbe:
+            exec:
+              command:
+                - /scripts/db_health_check.sh
+                - --json
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 30  # 5 minutes max startup time
+            successThreshold: 1
+
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+      volumes:
+        - name: scripts
+          configMap:
+            name: db-health-check-script
+            defaultMode: 0755
+
+---
+# ServiceMonitor for Prometheus (if using Prometheus Operator)
+# مراقب الخدمة لـ Prometheus (إذا كنت تستخدم Prometheus Operator)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: db-health-check
+  namespace: sahool
+  labels:
+    app: sahool
+    component: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: sahool
+      component: database
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics
+      scheme: http
+
+---
+# Example: Standalone Pod for Manual Testing
+# مثال: بود مستقل للاختبار اليدوي
+apiVersion: v1
+kind: Pod
+metadata:
+  name: db-health-check-manual
+  namespace: sahool
+  labels:
+    app: sahool
+    component: testing
+spec:
+  restartPolicy: Never
+  containers:
+    - name: health-check
+      image: postgres:16-alpine
+      command:
+        - /bin/sh
+        - -c
+        - |
+          apk add --no-cache bc coreutils
+          /scripts/db_health_check.sh
+      envFrom:
+        - configMapRef:
+            name: db-health-check-config
+        - secretRef:
+            name: db-credentials
+      volumeMounts:
+        - name: scripts
+          mountPath: /scripts
+          readOnly: true
+  volumes:
+    - name: scripts
+      configMap:
+        name: db-health-check-script
+        defaultMode: 0755
+
+---
+# PodDisruptionBudget to ensure availability during health checks
+# ميزانية تعطيل البود لضمان التوافر أثناء فحوصات الصحة
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: user-service-pdb
+  namespace: sahool
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: sahool
+      service: user-service
+
+---
+# Example: Init Container using health check
+# مثال: حاوية التهيئة باستخدام فحص الصحة
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: migration-job
+  namespace: sahool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: migration
+  template:
+    metadata:
+      labels:
+        app: migration
+    spec:
+      # Wait for database to be healthy before running migrations
+      # انتظر حتى تكون قاعدة البيانات صحية قبل تشغيل الترحيلات
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              apk add --no-cache bc coreutils
+              echo "Waiting for database to be healthy..."
+              while true; do
+                if /scripts/db_health_check.sh --json; then
+                  echo "Database is healthy!"
+                  break
+                fi
+                echo "Database not ready, waiting 5 seconds..."
+                sleep 5
+              done
+          envFrom:
+            - configMapRef:
+                name: db-health-check-config
+            - secretRef:
+                name: db-credentials
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+      containers:
+        - name: migration
+          image: sahool/migrations:latest
+          command: ["npm", "run", "migrate"]
+          envFrom:
+            - configMapRef:
+                name: db-health-check-config
+            - secretRef:
+                name: db-credentials
+      volumes:
+        - name: scripts
+          configMap:
+            name: db-health-check-script
+            defaultMode: 0755
+      restartPolicy: OnFailure

@@ -13,6 +13,7 @@ scripts/
 ├── bootstrap.sh                    # Platform bootstrap script
 ├── generate_sahool_all_in_one.sh   # Full platform generator
 ├── generate_sahool_field_enterprise.sh  # Field enterprise generator
+├── db_health_check.sh              # Database health monitoring
 │
 ├── generators/                     # Code generators
 │   ├── generate_design_tokens.py   # Design token generation
@@ -122,6 +123,53 @@ python scripts/generators/generate_infra.py --env staging
 - Docker Compose files
 - Kubernetes manifests
 - Environment files
+
+---
+
+## Monitoring & Operations Scripts
+
+### db_health_check.sh
+
+Comprehensive database health monitoring for PostgreSQL and PgBouncer.
+
+```bash
+# Basic health check
+./scripts/db_health_check.sh
+
+# JSON output for monitoring systems
+./scripts/db_health_check.sh --json
+
+# Check with custom thresholds
+./scripts/db_health_check.sh --disk-warning 85 --conn-critical 90
+
+# Include replication lag check
+./scripts/db_health_check.sh --check-replication
+```
+
+**Checks:**
+- PostgreSQL connectivity
+- PgBouncer pool status
+- Active connections count
+- Long-running queries (>30s)
+- Disk space usage
+- Replication lag (optional)
+- Database size
+
+**Exit Codes:**
+- `0` = Healthy
+- `1` = Warning
+- `2` = Critical
+
+**Kubernetes Integration:**
+```yaml
+livenessProbe:
+  exec:
+    command: ["/scripts/db_health_check.sh", "--json"]
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  timeoutSeconds: 10
+  failureThreshold: 3
+```
 
 ---
 

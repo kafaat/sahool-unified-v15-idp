@@ -1,0 +1,137 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Database Backup Cron Jobs
+# وظائف Cron للنسخ الاحتياطي لقاعدة بيانات SAHOOL
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# INSTALLATION - التثبيت:
+#   crontab -e
+#   Then paste the desired cron jobs below
+#   ثم الصق وظائف cron المطلوبة أدناه
+#
+# LOGGING - التسجيل:
+#   All output is logged to /backups/logs/cron.log
+#   يتم تسجيل جميع المخرجات في /backups/logs/cron.log
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Set environment variables - تعيين متغيرات البيئة
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=admin@example.com
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DAILY BACKUPS - النسخ الاحتياطي اليومي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Full daily backup at 2:00 AM
+# نسخ احتياطي يومي كامل الساعة 2:00 صباحاً
+0 2 * * * /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -t daily -m full >> /backups/logs/cron.log 2>&1
+
+# Incremental backups every 6 hours (6 AM, 12 PM, 6 PM, 12 AM)
+# نسخ احتياطي تدريجي كل 6 ساعات
+# 0 6,12,18,0 * * * /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -t daily -m incremental >> /backups/logs/cron.log 2>&1
+
+# Alternative: Incremental backups every 4 hours during business hours
+# بديل: نسخ احتياطي تدريجي كل 4 ساعات خلال ساعات العمل
+# 0 8,12,16,20 * * * /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -t daily -m incremental >> /backups/logs/cron.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WEEKLY BACKUPS - النسخ الاحتياطي الأسبوعي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Weekly full backup every Sunday at 3:00 AM
+# نسخ احتياطي أسبوعي كامل كل يوم أحد الساعة 3:00 صباحاً
+0 3 * * 0 /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -t weekly -m full >> /backups/logs/cron.log 2>&1
+
+# Alternative: Weekly backup on Saturday
+# بديل: نسخ احتياطي أسبوعي يوم السبت
+# 0 3 * * 6 /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -t weekly -m full >> /backups/logs/cron.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MONTHLY BACKUPS - النسخ الاحتياطي الشهري
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Monthly full backup on the 1st of each month at 4:00 AM
+# نسخ احتياطي شهري كامل في اليوم الأول من كل شهر الساعة 4:00 صباحاً
+0 4 1 * * /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -t monthly -m full >> /backups/logs/cron.log 2>&1
+
+# Alternative: Monthly backup on the last day of the month
+# بديل: نسخ احتياطي شهري في آخر يوم من الشهر
+# 0 4 28-31 * * [ $(date +\%d -d tomorrow) = "01" ] && /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -t monthly -m full >> /backups/logs/cron.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SCHEMA-SPECIFIC BACKUPS - نسخ احتياطي خاص بالمخططات
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Backup geo schema daily at 1:00 AM
+# نسخ احتياطي لمخطط geo يومياً الساعة 1:00 صباحاً
+# 0 1 * * * /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -s geo -t daily >> /backups/logs/cron.log 2>&1
+
+# Backup users schema daily at 1:30 AM
+# نسخ احتياطي لمخطط users يومياً الساعة 1:30 صباحاً
+# 30 1 * * * /home/user/sahool-unified-v15-idp/scripts/backup_database.sh -s users -t daily >> /backups/logs/cron.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VERIFICATION AND MAINTENANCE - التحقق والصيانة
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Verify latest backup every Monday at 1:00 AM
+# التحقق من أحدث نسخة احتياطية كل يوم اثنين الساعة 1:00 صباحاً
+# 0 1 * * 1 /home/user/sahool-unified-v15-idp/scripts/verify-backup.sh latest >> /backups/logs/verify.log 2>&1
+
+# Clean up old logs every Sunday at 5:00 AM
+# تنظيف السجلات القديمة كل يوم أحد الساعة 5:00 صباحاً
+0 5 * * 0 find /backups/logs -name "*.log" -mtime +30 -delete
+
+# Generate monthly backup report on the 1st at 9:00 AM
+# إنشاء تقرير شهري للنسخ الاحتياطي في اليوم الأول الساعة 9:00 صباحاً
+# 0 9 1 * * /home/user/sahool-unified-v15-idp/scripts/generate-backup-report.sh >> /backups/logs/reports.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PGBOUNCER BACKUPS - نسخ احتياطي عبر PgBouncer
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Daily backup via PgBouncer at 3:00 AM (if using PgBouncer)
+# نسخ احتياطي يومي عبر PgBouncer الساعة 3:00 صباحاً
+# 0 3 * * * /home/user/sahool-unified-v15-idp/scripts/backup_database.sh --pgbouncer -t daily -m full >> /backups/logs/cron.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RECOMMENDED PRODUCTION SCHEDULE - الجدول الموصى به للإنتاج
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# For a production environment, we recommend:
+# للبيئة الإنتاجية، نوصي بـ:
+#
+# 1. Full backup once per day at low-traffic hours (2 AM)
+# 2. Incremental backups every 6 hours
+# 3. Weekly full backup on Sunday
+# 4. Monthly full backup on the 1st
+# 5. Weekly backup verification
+# 6. Regular log cleanup
+#
+# 1. نسخ احتياطي كامل مرة واحدة يومياً في ساعات الازدحام المنخفض
+# 2. نسخ احتياطي تدريجي كل 6 ساعات
+# 3. نسخ احتياطي أسبوعي كامل يوم الأحد
+# 4. نسخ احتياطي شهري كامل في اليوم الأول
+# 5. التحقق من النسخ الاحتياطي أسبوعياً
+# 6. تنظيف السجلات بشكل منتظم
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# CRON TIME FORMAT - تنسيق وقت CRON:
+# ┌───────────── minute (0 - 59)
+# │ ┌───────────── hour (0 - 23)
+# │ │ ┌───────────── day of month (1 - 31)
+# │ │ │ ┌───────────── month (1 - 12)
+# │ │ │ │ ┌───────────── day of week (0 - 6) (Sunday to Saturday)
+# │ │ │ │ │
+# │ │ │ │ │
+# * * * * * command to execute
+
+# EXAMPLES - أمثلة:
+# */5 * * * *     - Every 5 minutes (كل 5 دقائق)
+# 0 */2 * * *     - Every 2 hours (كل ساعتين)
+# 0 0 * * *       - Daily at midnight (يومياً في منتصف الليل)
+# 0 0 * * 0       - Weekly on Sunday (أسبوعياً يوم الأحد)
+# 0 0 1 * *       - Monthly on the 1st (شهرياً في اليوم الأول)
+# 0 2 1 1 *       - Yearly on Jan 1st (سنوياً في 1 يناير)

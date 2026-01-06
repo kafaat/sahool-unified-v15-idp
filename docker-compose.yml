@@ -1690,11 +1690,11 @@ services:
       mqtt:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8106/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8106/health'); exit(0) if r.getcode()==200 else exit(1)"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 60s
+      retries: 5
+      start_period: 90s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1890,7 +1890,7 @@ services:
       dockerfile: ./apps/services/field-intelligence/Dockerfile
     container_name: sahool-field-intelligence
     environment:
-      - PORT=8119
+      - PORT=8120
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - TASK_SERVICE_URL=http://task-service:8103
@@ -1899,14 +1899,14 @@ services:
       - WEATHER_SERVICE_URL=http://weather-service:8092
       - NDVI_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
-      - "8119:8119"
+      - "8120:8120"
     depends_on:
       task-service:
         condition: service_healthy
       astronomical-calendar:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8119/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8120/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

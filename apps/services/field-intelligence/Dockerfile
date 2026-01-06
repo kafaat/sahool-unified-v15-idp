@@ -66,13 +66,13 @@ USER sahool
 
 # Expose port
 # فتح المنفذ
-EXPOSE 8119
+EXPOSE 8120
 
 # Health check
 # فحص الصحة
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8119/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8120/healthz')" || exit 1
 
 # Run the application
 # تشغيل التطبيق
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8119"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8120"]

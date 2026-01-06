@@ -663,7 +663,7 @@ services:
   # محرك توقع الإنتاجية - Yield Engine
   # ============================================================================
   - name: yield-engine
-    url: http://yield-prediction-service:3021
+    url: http://yield-prediction-service:8098
     tags:
       - professional
       - analytics
@@ -725,7 +725,7 @@ services:
   # خدمة المخزون - Inventory Service
   # ============================================================================
   - name: inventory-service
-    url: http://inventory-service:8115
+    url: http://inventory-service:8116
     tags:
       - professional
       - inventory

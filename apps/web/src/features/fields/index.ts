@@ -12,14 +12,6 @@ export { FieldCard } from './components/FieldCard';
 export { FieldDetails } from './components/FieldDetails';
 export { FieldForm } from './components/FieldForm';
 export { FieldMap } from './components/FieldMap';
-export { TaskMarkers } from './components/TaskMarkers';
-export { FieldMapWithTasks } from './components/FieldMapWithTasks';
-export { AstralFieldWidget } from './components/AstralFieldWidget';
-export { HealthZonesLayer } from './components/HealthZonesLayer';
-export type { FieldZone } from './components/HealthZonesLayer';
-export { WeatherOverlay } from './components/WeatherOverlay';
-export type { WeatherOverlayProps } from './components/WeatherOverlay';
-export { LivingFieldCard } from './components/LivingFieldCard';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Hooks
@@ -35,60 +27,12 @@ export {
   useFieldMutations,
 } from './hooks/useFieldMutations';
 export { fieldKeys } from './hooks/queryKeys';
-export { useLivingFieldScore } from './hooks/useLivingFieldScore';
-export type {
-  LivingFieldScore,
-  FieldAlert,
-  Recommendation,
-} from './hooks/useLivingFieldScore';
-export {
-  useFieldZones,
-  useFieldAlerts,
-  useBestDays,
-  useValidateDate,
-  useFieldRecommendations,
-  useCreateTaskFromAlert,
-  useFieldIntelligence,
-  useDebouncedDateValidation,
-  fieldIntelligenceKeys,
-} from './hooks/useFieldIntelligence';
-export type {
-  BestDaysOptions,
-  HookOptions,
-} from './hooks/useFieldIntelligence';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // API
 // ═══════════════════════════════════════════════════════════════════════════
 
 export { fieldsApi, ERROR_MESSAGES } from './api';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Field Intelligence API
-// ═══════════════════════════════════════════════════════════════════════════
-
-export {
-  fetchLivingFieldScore,
-  fetchFieldZones,
-  fetchFieldAlerts,
-  createTaskFromAlert,
-  fetchBestDays,
-  validateTaskDate,
-  fetchFieldRecommendations,
-  fieldIntelligenceKeys as intelligenceQueryKeys,
-  INTELLIGENCE_ERROR_MESSAGES,
-} from './api/field-intelligence-api';
-
-export type {
-  LivingFieldScore as ApiLivingFieldScore,
-  FieldZone as ApiFieldZone,
-  FieldAlert as ApiFieldAlert,
-  TaskFromAlertData,
-  CreatedTask,
-  BestDay,
-  DateValidation as ApiDateValidation,
-  FieldRecommendation,
-} from './api/field-intelligence-api';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types - Core

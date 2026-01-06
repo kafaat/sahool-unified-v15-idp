@@ -198,3 +198,8 @@ tls.key
 
 # Prisma generated clients
 **/.prisma/
+
+# Setup script generated files
+.env.tmp
+.credentials_reference.txt
+.env.backup.*

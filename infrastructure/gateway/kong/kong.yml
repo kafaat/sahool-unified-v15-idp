@@ -106,7 +106,7 @@ upstreams:
   - name: virtual-sensors-upstream
     algorithm: round-robin
     targets:
-      - target: virtual-sensors:8096
+      - target: virtual-sensors:8119
         weight: 100
     healthchecks:
       active:
@@ -119,14 +119,39 @@ upstreams:
       - target: marketplace-service:3010
         weight: 100
     healthchecks:
-      passive:
+      active:
         type: http
+        http_path: /healthz
         healthy:
+          interval: 10
           successes: 2
+          http_statuses:
+            - 200
+            - 201
+            - 204
         unhealthy:
+          interval: 10
           http_failures: 3
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
           tcp_failures: 3
           timeouts: 3
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
 
   - name: billing-core-upstream
     algorithm: round-robin
@@ -134,14 +159,39 @@ upstreams:
       - target: billing-core:8089
         weight: 100
     healthchecks:
-      passive:
+      active:
         type: http
+        http_path: /healthz
         healthy:
+          interval: 10
           successes: 2
+          http_statuses:
+            - 200
+            - 201
+            - 204
         unhealthy:
+          interval: 10
           http_failures: 3
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
           tcp_failures: 3
           timeouts: 3
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
 
   - name: notification-service-upstream
     algorithm: round-robin
@@ -159,14 +209,39 @@ upstreams:
       - target: research-core:3015
         weight: 100
     healthchecks:
-      passive:
+      active:
         type: http
+        http_path: /healthz
         healthy:
+          interval: 10
           successes: 2
+          http_statuses:
+            - 200
+            - 201
+            - 204
         unhealthy:
+          interval: 10
           http_failures: 3
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
           tcp_failures: 3
           timeouts: 3
+      passive:
+        healthy:
+          http_statuses:
+            - 200
+            - 201
+            - 204
+        unhealthy:
+          http_statuses:
+            - 500
+            - 502
+            - 503
+            - 504
+          tcp_failures: 3
 
   - name: disaster-assessment-upstream
     algorithm: round-robin
@@ -325,7 +400,7 @@ services:
   # المستشار الزراعي - Agro Advisor
   # ============================================================================
   - name: agro-advisor
-    host: advisory-service-upstream
+    url: http://advisory-service:8093
     tags:
       - starter
       - advisory
@@ -433,7 +508,7 @@ services:
   # محرك NDVI - NDVI Engine
   # ============================================================================
   - name: ndvi-engine
-    url: http://ndvi-engine:8107
+    url: http://ndvi-processor:8118
     tags:
       - professional
       - analytics
@@ -563,7 +638,7 @@ services:
   # محرك توقع الإنتاجية - Yield Engine
   # ============================================================================
   - name: yield-engine
-    url: http://yield-prediction-service:8098
+    url: http://yield-prediction-service:3021
     tags:
       - professional
       - analytics
@@ -625,7 +700,7 @@ services:
   # خدمة المخزون - Inventory Service
   # ============================================================================
   - name: inventory-service
-    url: http://inventory-service:8116
+    url: http://inventory-service:8115
     tags:
       - professional
       - inventory
@@ -730,7 +805,7 @@ services:
   # بوابة إنترنت الأشياء - IoT Gateway
   # ============================================================================
   - name: iot-gateway
-    url: http://iot-gateway:8106
+    host: iot-gateway-upstream
     tags:
       - enterprise
       - iot
@@ -1076,7 +1151,7 @@ services:
   # الطقس المتقدم - Advanced Weather
   # ============================================================================
   - name: weather-advanced
-    url: http://weather-service:8092
+    url: http://weather-service:8108
     tags:
       - professional
       - weather
@@ -1266,8 +1341,7 @@ services:
   #           - admin-users
   #     - name: rate-limiting
   #       config:
-  #         minute: 50
-  #         hour: 2000
+  #         minute: 5000
   #         policy: redis
   #         redis_host: redis
   #         redis_port: 6379
@@ -1275,18 +1349,12 @@ services:
   #         redis_database: 1
   #         redis_timeout: 2000
   #         fault_tolerant: true
-  #         hide_client_headers: false
   #     - name: ip-restriction
   #       config:
   #         allow:
   #           - 10.0.0.0/8
   #           - 172.16.0.0/12
   #           - 192.168.0.0/16
-  #     - name: response-transformer
-  #       config:
-  #         add:
-  #           headers:
-  #             - "X-RateLimit-Limit: 50"
 
   # ============================================================================
   # توقع الإنتاجية - Yield Prediction
@@ -1457,128 +1525,6 @@ services:
           redis_database: 1
           redis_timeout: 2000
           fault_tolerant: true
-
-  # ============================================================================
-  # Authentication & Security Endpoints - نقاط المصادقة والأمان
-  # ============================================================================
-  # TODO: Auth service needs to be implemented or integrated with user-service
-  # Currently pointing to marketplace-service as a placeholder
-  # نقاط المصادقة تحتاج لتنفيذ خدمة مخصصة
-  - name: auth-service
-    url: http://marketplace-service:3010
-    tags:
-      - auth
-      - security
-      - placeholder
-    routes:
-      # Login endpoint - strict rate limiting to prevent brute force
-      - name: auth-login-route
-        paths:
-          - /api/v1/auth/login
-        strip_path: false
-        methods:
-          - POST
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 5
-              hour: 20
-              policy: redis
-              redis_host: redis
-              redis_port: 6379
-              redis_password: ${REDIS_PASSWORD}
-              redis_database: 1
-              redis_timeout: 2000
-              fault_tolerant: true
-              hide_client_headers: false
-          - name: response-transformer
-            config:
-              add:
-                headers:
-                  - "X-RateLimit-Limit: 5"
-                  - "X-Content-Type-Options: nosniff"
-
-      # Password reset - very strict rate limiting
-      - name: auth-password-reset-route
-        paths:
-          - /api/v1/auth/password-reset
-          - /api/v1/auth/forgot-password
-        strip_path: false
-        methods:
-          - POST
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 3
-              hour: 10
-              policy: redis
-              redis_host: redis
-              redis_port: 6379
-              redis_password: ${REDIS_PASSWORD}
-              redis_database: 1
-              redis_timeout: 2000
-              fault_tolerant: true
-              hide_client_headers: false
-          - name: response-transformer
-            config:
-              add:
-                headers:
-                  - "X-RateLimit-Limit: 3"
-                  - "X-Content-Type-Options: nosniff"
-
-      # Registration endpoint - moderate rate limiting
-      - name: auth-register-route
-        paths:
-          - /api/v1/auth/register
-          - /api/v1/auth/signup
-        strip_path: false
-        methods:
-          - POST
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 10
-              hour: 50
-              policy: redis
-              redis_host: redis
-              redis_port: 6379
-              redis_password: ${REDIS_PASSWORD}
-              redis_database: 1
-              redis_timeout: 2000
-              fault_tolerant: true
-              hide_client_headers: false
-          - name: response-transformer
-            config:
-              add:
-                headers:
-                  - "X-RateLimit-Limit: 10"
-                  - "X-Content-Type-Options: nosniff"
-
-      # Token refresh endpoint
-      - name: auth-refresh-route
-        paths:
-          - /api/v1/auth/refresh
-        strip_path: false
-        methods:
-          - POST
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 10
-              hour: 100
-              policy: redis
-              redis_host: redis
-              redis_port: 6379
-              redis_password: ${REDIS_PASSWORD}
-              redis_database: 1
-              redis_timeout: 2000
-              fault_tolerant: true
-              hide_client_headers: false
-          - name: response-transformer
-            config:
-              add:
-                headers:
-                  - "X-RateLimit-Limit: 10"
 
   # ============================================================================
   # نقاط فحص الصحة - Health Check Endpoints

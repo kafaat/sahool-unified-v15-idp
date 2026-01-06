@@ -9,9 +9,15 @@ Available middlewares:
 - Tenant Context: Multi-tenancy isolation
 - Request Logging: Structured JSON logging with correlation ID tracking
 - API Versioning: URL-based API versioning (/api/v1/, /api/v2/, etc.)
+- Security Headers: Essential HTTP security headers
 """
 
 from .cors import get_cors_config, get_cors_origins, setup_cors
+from .security_headers import (
+    SecurityHeadersMiddleware,
+    get_security_headers_config,
+    setup_security_headers,
+)
 from .rate_limit import (
     RateLimitConfig,
     RateLimiter,
@@ -79,4 +85,8 @@ __all__ = [
     "get_version_info",
     "require_version",
     "version_router",
+    # Security Headers
+    "setup_security_headers",
+    "SecurityHeadersMiddleware",
+    "get_security_headers_config",
 ]

@@ -49,7 +49,7 @@ except ImportError:
 
 SERVICE_NAME = "virtual-sensors"
 SERVICE_VERSION = "15.5.0"
-SERVICE_PORT = 8096
+SERVICE_PORT = int(os.getenv("PORT", "8119"))
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -47,16 +47,16 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies
 # تثبيت المتطلبات
-COPY field-intelligence/requirements.txt .
+COPY apps/services/field-intelligence/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared libraries
 # نسخ المكتبات المشتركة
-COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
 
 # Copy source
 # نسخ الكود المصدري
-COPY field-intelligence/src/ ./src/
+COPY apps/services/field-intelligence/src/ ./src/
 
 # Set ownership
 # تعيين الملكية

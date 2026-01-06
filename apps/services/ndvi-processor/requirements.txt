@@ -35,6 +35,9 @@ boto3==1.35.76
 python-dotenv==1.0.1
 python-dateutil==2.8.2
 
+# Logging
+structlog==24.1.0
+
 # Background Tasks
 celery==5.4.0
 kombu==5.4.2

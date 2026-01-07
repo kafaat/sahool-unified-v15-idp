@@ -32,6 +32,11 @@ import { AuthService, LoginDto } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
+// Extend Express Request to include user property set by JWT guard
+interface AuthenticatedRequest extends Request {
+  user?: { id: string; email: string; tenantId?: string };
+}
+
 // DTOs
 class LoginRequestDto implements LoginDto {
   @ApiProperty({
@@ -145,7 +150,7 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
-  async logout(@Req() request: Request) {
+  async logout(@Req() request: AuthenticatedRequest) {
     // Extract token from Authorization header
     const authorization = request.headers.authorization;
     if (!authorization) {
@@ -201,7 +206,7 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async logoutAll(@Req() request: Request) {
+  async logoutAll(@Req() request: AuthenticatedRequest) {
     const user = request.user as any;
     if (!user || !user.id) {
       throw new UnauthorizedException('User not found in request');
@@ -264,7 +269,7 @@ export class AuthController {
     description: 'Current user information',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getCurrentUser(@Req() request: Request) {
+  async getCurrentUser(@Req() request: AuthenticatedRequest) {
     const user = request.user as any;
 
     return {

@@ -17,7 +17,7 @@ from enum import Enum
 from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -36,7 +36,7 @@ from .db_models import Equipment as DBEquipment, MaintenanceRecord as DBMaintena
 # Import authentication dependencies
 try:
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
     AUTH_AVAILABLE = True

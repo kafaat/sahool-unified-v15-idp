@@ -12,7 +12,7 @@ from datetime import UTC, datetime
 from fastapi import FastAPI, HTTPException, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -27,7 +27,7 @@ shared_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "shared")
 )
 sys.path.insert(0, shared_path)
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 
 import logging
 

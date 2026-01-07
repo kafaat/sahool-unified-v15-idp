@@ -14,7 +14,7 @@ import structlog
 from fastapi import Depends, FastAPI, Header, HTTPException, status
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -31,7 +31,7 @@ from .storage import InMemoryStorage, RedisStorage
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from registry.agent_card import AgentCard
 from registry.registry import AgentRegistry, RegistryConfig
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 
 # Configure structured logging
 structlog.configure(

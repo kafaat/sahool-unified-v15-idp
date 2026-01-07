@@ -19,7 +19,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, HTTPException
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -34,13 +34,13 @@ try:
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
-    from errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.errors_py import setup_exception_handlers, add_request_id_middleware
     AUTH_AVAILABLE = True
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
     # Fallback error handling
-    from errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.errors_py import setup_exception_handlers, add_request_id_middleware
     User = None
     def get_current_user():
         """Placeholder when auth not available"""

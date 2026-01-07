@@ -23,7 +23,7 @@ from shared.observability.middleware import (
     ObservabilityMiddleware,
     MetricsMiddleware,
 )
-from errors_py import setup_exception_handlers
+from shared.errors_py import setup_exception_handlers
 
 import logging
 

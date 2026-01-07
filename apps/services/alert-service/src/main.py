@@ -16,7 +16,7 @@ from uuid import uuid4
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -40,7 +40,7 @@ except ImportError:
     # Fallback if shared module not available
     def setup_cors_middleware(app):
         pass
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 
 
 from .database import SessionLocal, check_db_connection, get_db

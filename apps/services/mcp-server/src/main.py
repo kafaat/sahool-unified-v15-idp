@@ -32,7 +32,7 @@ from datetime import datetime
 from fastapi import FastAPI, Request, Response
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -47,7 +47,7 @@ from prometheus_client import Counter, Histogram, generate_latest
 # Add parent directories to path for imports
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 )
 
 from shared.mcp.server import MCPServer

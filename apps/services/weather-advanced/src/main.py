@@ -20,7 +20,7 @@ import httpx
 from fastapi import FastAPI, HTTPException, Query, Request
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -28,7 +28,7 @@ from shared.middleware import (
 )
 from shared.observability.middleware import ObservabilityMiddleware
 
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 from pydantic import BaseModel
 
 # Configure logging

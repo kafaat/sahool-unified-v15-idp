@@ -27,7 +27,7 @@ from pathlib import Path
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -38,7 +38,7 @@ from shared.observability.middleware import ObservabilityMiddleware
 from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, "../../../../shared")
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 sys.path.insert(0, "/app")
 
 # Import file validation utilities

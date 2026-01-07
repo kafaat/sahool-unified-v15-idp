@@ -32,7 +32,7 @@ import nats
 from fastapi import (
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -59,7 +59,7 @@ from .database import check_db_connection, close_db, db_health_check, get_db, in
 from .repository import BillingRepository
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 try:
     from auth.dependencies import (
         api_key_auth,

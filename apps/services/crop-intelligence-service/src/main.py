@@ -15,16 +15,16 @@ from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query
 
-# Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+# Shared middleware imports - add apps/services to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
     setup_cors,
 )
 from shared.observability.middleware import ObservabilityMiddleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 
-from errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 

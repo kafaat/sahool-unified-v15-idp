@@ -237,13 +237,14 @@ jobs:
           if [ -f "${{ matrix.service }}/requirements.txt" ]; then
             pip install -r ${{ matrix.service }}/requirements.txt
           fi
-          pip install pytest pytest-asyncio pytest-cov httpx fastapi pydantic
+          # Pin pytest-asyncio to compatible version (0.23.x for asyncio_mode support)
+          pip install pytest "pytest-asyncio>=0.23.0,<1.0.0" pytest-cov httpx fastapi pydantic
 
       - name: Run tests
         run: |
           if [ -d "${{ matrix.service }}/tests" ]; then
             if find "${{ matrix.service }}/tests" -name "test_*.py" -o -name "*_test.py" | grep -q .; then
-              pytest ${{ matrix.service }}/tests -v --tb=short
+              PYTHONPATH=$PWD pytest ${{ matrix.service }}/tests -v --tb=short
             else
               echo "No test files found in ${{ matrix.service }}/tests - skipping tests"
             fi

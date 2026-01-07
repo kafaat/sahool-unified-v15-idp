@@ -459,6 +459,21 @@ jobs:
           JWT_ALGORITHM=HS256
           MQTT_PASSWORD=test_mqtt_password_ci
           GRAFANA_ADMIN_PASSWORD=test_grafana_password_ci
+          ETCD_ROOT_USERNAME=root
+          ETCD_ROOT_PASSWORD=test_etcd_password_ci_32chars_min
+          NATS_USER=sahool_app
+          NATS_PASSWORD=test_nats_password_ci_32chars_min
+          NATS_ADMIN_USER=nats_admin
+          NATS_ADMIN_PASSWORD=test_nats_admin_password_ci_32chars
+          NATS_MONITOR_USER=nats_monitor
+          NATS_MONITOR_PASSWORD=test_nats_monitor_password_ci_32chars
+          NATS_CLUSTER_USER=nats_cluster
+          NATS_CLUSTER_PASSWORD=test_nats_cluster_password_ci_32chars
+          NATS_SYSTEM_USER=nats_system
+          NATS_SYSTEM_PASSWORD=test_nats_system_password_ci_32chars
+          NATS_JETSTREAM_KEY=test_jetstream_key_ci_32chars_minimum
+          MINIO_ROOT_USER=test_minio_ci_user
+          MINIO_ROOT_PASSWORD=test_minio_ci_password_32chars_minimum
           ENVEOF
 
       - name: Start services

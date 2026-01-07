@@ -166,7 +166,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
   }
 
   private logRequest(
-    request: Request,
+    request: ExtendedRequest,
     correlationId: string,
     tenantId?: string,
     userId?: string,
@@ -180,7 +180,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
         method: request.method,
         path: request.path,
         query: Object.keys(request.query).length > 0 ? request.query : undefined,
-        user_agent: request.headers['user-agent'],
+        user_agent: request.headers['user-agent'] as string | undefined,
       },
       tenant_id: tenantId,
       user_id: userId,
@@ -191,7 +191,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
   }
 
   private logResponse(
-    request: Request,
+    request: ExtendedRequest,
     response: Response,
     correlationId: string,
     tenantId: string | undefined,
@@ -226,7 +226,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
   }
 
   private logError(
-    request: Request,
+    request: ExtendedRequest,
     response: Response,
     error: any,
     correlationId: string,

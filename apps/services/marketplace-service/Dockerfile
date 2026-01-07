@@ -8,6 +8,9 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="marketplace-service"
 LABEL version="16.0.0"
 
+# Install OpenSSL 3.0.x for Prisma compatibility
+RUN apk add --no-cache openssl openssl-dev
+
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
 
@@ -37,8 +40,8 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL for Prisma compatibility
-RUN apk add --no-cache curl openssl
+# Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
+RUN apk add --no-cache curl openssl openssl-dev
 
 # Copy package files
 COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./

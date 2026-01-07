@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "events.field.updated.v1",
+  "title": "FieldUpdatedV1",
+  "description": "Event emitted when a field is updated",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["field_id", "updated_at", "changes"],
+  "properties": {
+    "field_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the field"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the field was updated"
+    },
+    "changes": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Changed fields",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "New field name"
+        },
+        "name_ar": {
+          "type": "string",
+          "description": "New field name in Arabic"
+        },
+        "geometry_wkt": {
+          "type": "string",
+          "description": "New field boundary"
+        },
+        "soil_type": {
+          "type": "string",
+          "description": "New soil type"
+        },
+        "irrigation_type": {
+          "type": "string",
+          "description": "New irrigation type"
+        },
+        "status": {
+          "type": "string",
+          "description": "New field status"
+        }
+      }
+    }
+  }
+}

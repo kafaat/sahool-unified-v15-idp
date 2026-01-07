@@ -68,14 +68,14 @@ jobs:
     strategy:
       matrix:
         service:
-          - field_ops
-          - ndvi_engine
-          - weather_core
-          - field_chat
-          - iot_gateway
-          - agro_advisor
-          - ws_gateway
-          - crop_health
+          - field-ops
+          - ndvi-engine
+          - weather-core
+          - field-chat
+          - iot-gateway
+          - agro-advisor
+          - ws-gateway
+          - crop-health
 
     steps:
       - uses: actions/checkout@v4

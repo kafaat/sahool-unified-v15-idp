@@ -26,7 +26,7 @@ dependencies:
   dio: ^5.7.0
   http: ^1.2.2
   connectivity_plus: ^6.1.1
-  dio_certificate_pinning: ^1.0.0  # SSL Certificate Pinning
+  # Certificate pinning implemented via custom Dio interceptor (see lib/core/security/)
 
   # Background Tasks
   workmanager: ^0.6.0

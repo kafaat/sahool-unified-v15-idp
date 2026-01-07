@@ -20,6 +20,14 @@ export { SkipLink, type SkipLinkProps } from './components/SkipLink';
 export { VisuallyHidden, type VisuallyHiddenProps } from './components/VisuallyHidden';
 export { FocusTrap, type FocusTrapProps } from './components/FocusTrap';
 
+// Form Components
+export { Input, type InputProps } from './components/Input';
+export { Select, type SelectProps, type SelectOption } from './components/Select';
+
+// Layout Components
+export { Modal, ModalFooter, type ModalProps, type ModalFooterProps } from './components/Modal';
+export { Tabs, TabPanel, type TabsProps, type TabPanelProps, type Tab } from './components/Tabs';
+
 // Auth Components
 export { PermissionGate, RoleGate, AdminGate, withPermission, type PermissionGateProps } from './components/auth/PermissionGate';
 

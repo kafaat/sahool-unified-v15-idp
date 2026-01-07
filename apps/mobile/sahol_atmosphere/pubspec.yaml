@@ -60,23 +60,27 @@ flutter:
     - assets/icons/
     - .env
 
-  fonts:
-    - family: SpaceGrotesk
-      fonts:
-        - asset: assets/fonts/SpaceGrotesk-Regular.ttf
-        - asset: assets/fonts/SpaceGrotesk-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/SpaceGrotesk-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/SpaceGrotesk-Bold.ttf
-          weight: 700
-
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Inter-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
-          weight: 700
+  # Note: Using system fonts until custom fonts are available
+  # To add custom fonts, download and place in assets/fonts/ directory:
+  # - SpaceGrotesk: https://fonts.google.com/specimen/Space+Grotesk
+  # - Inter: https://fonts.google.com/specimen/Inter
+  # fonts:
+  #   - family: SpaceGrotesk
+  #     fonts:
+  #       - asset: assets/fonts/SpaceGrotesk-Regular.ttf
+  #       - asset: assets/fonts/SpaceGrotesk-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/SpaceGrotesk-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/SpaceGrotesk-Bold.ttf
+  #         weight: 700
+  #
+  #   - family: Inter
+  #     fonts:
+  #       - asset: assets/fonts/Inter-Regular.ttf
+  #       - asset: assets/fonts/Inter-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/Inter-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/Inter-Bold.ttf
+  #         weight: 700

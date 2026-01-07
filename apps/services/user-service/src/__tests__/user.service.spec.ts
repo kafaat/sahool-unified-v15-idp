@@ -226,15 +226,16 @@ describe('UsersService', () => {
       );
     });
 
-    it('should support pagination with skip and take', async () => {
+    it('should support pagination with page and limit', async () => {
       mockPrismaService.user.findMany.mockResolvedValue([mockUser]);
       mockPrismaService.user.count.mockResolvedValue(100);
 
-      await service.findAll({ skip: 10, take: 20 });
+      // page: 2, limit: 20 results in skip: 20, take: 20
+      await service.findAll({ page: 2, limit: 20 });
 
       expect(mockPrismaService.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          skip: 10,
+          skip: 20,
           take: 20,
         }),
       );
@@ -583,7 +584,7 @@ describe('UsersService', () => {
 
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      jest.spyOn(bcrypt, 'hash').mockRejectedValue(new Error('Hashing failed'));
+      jest.spyOn(bcrypt, 'hash').mockImplementation(() => Promise.reject(new Error('Hashing failed')));
 
       await expect(service.create(createUserDto)).rejects.toThrow('Hashing failed');
     });

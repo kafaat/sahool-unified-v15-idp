@@ -10,7 +10,7 @@ import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UpdateUserDto } from '../users/dto/update-user.dto';
-import { UserStatus } from '../utils/validation';
+import { UserStatus, UserRole } from '../utils/validation';
 import * as bcrypt from 'bcryptjs';
 
 describe('UsersService', () => {
@@ -26,7 +26,7 @@ describe('UsersService', () => {
     passwordHash: 'hashed_password',
     firstName: 'أحمد',
     lastName: 'علي',
-    role: 'FARMER',
+    role: UserRole.OPERATOR,
     status: UserStatus.ACTIVE,
     emailVerified: true,
     phoneVerified: false,
@@ -88,7 +88,7 @@ describe('UsersService', () => {
       password: 'SecurePassword123!',
       firstName: 'محمد',
       lastName: 'حسن',
-      role: 'FARMER' as any,
+      role: UserRole.OPERATOR,
       status: UserStatus.PENDING,
     };
 
@@ -200,12 +200,12 @@ describe('UsersService', () => {
       mockPrismaService.user.findMany.mockResolvedValue([mockUser]);
       mockPrismaService.user.count.mockResolvedValue(1);
 
-      await service.findAll({ role: 'FARMER' });
+      await service.findAll({ role: UserRole.OPERATOR });
 
       expect(mockPrismaService.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            role: 'FARMER',
+            role: UserRole.OPERATOR,
           }),
         }),
       );
@@ -578,7 +578,7 @@ describe('UsersService', () => {
         password: 'password',
         firstName: 'Test',
         lastName: 'User',
-        role: 'FARMER' as any,
+        role: UserRole.OPERATOR,
       };
 
       mockPrismaService.user.findUnique.mockResolvedValue(null);
@@ -628,7 +628,7 @@ describe('UsersService', () => {
         password: 'SecurePass123!',
         firstName: 'Test',
         lastName: 'User',
-        role: 'FARMER' as any,
+        role: UserRole.OPERATOR,
       };
 
       mockPrismaService.user.findUnique.mockResolvedValue(null);

@@ -1,5 +1,5 @@
 # Gitleaks Configuration for SAHOOL Unified Platform
-# Version: 16.0.0
+# Version: v15
 # This configuration prevents false positives while ensuring security
 
 title = "SAHOOL Gitleaks Configuration"

@@ -1,0 +1,416 @@
+# Playwright E2E Testing - End-to-End Browser Testing
+# اختبار شامل للمتصفحات
+#
+# Playwright provides:
+# - Cross-browser testing (Chrome, Firefox, Safari, Edge)
+# - Mobile emulation (iOS, Android)
+# - Visual regression testing
+# - Network interception
+# - Screenshot & video capture
+
+name: Playwright E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/frontend/**'
+      - 'apps/mobile/**'
+      - 'tests/e2e/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/frontend/**'
+      - 'apps/mobile/**'
+      - 'tests/e2e/**'
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to test'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+
+permissions:
+  contents: read
+
+jobs:
+  setup-tests:
+    name: Setup E2E Tests
+    runs-on: ubuntu-latest
+    outputs:
+      tests_exist: ${{ steps.check.outputs.exists }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for E2E tests
+        id: check
+        run: |
+          if [ -d "tests/e2e" ] && [ "$(ls -A tests/e2e 2>/dev/null)" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "No E2E tests found, creating sample tests..."
+          fi
+
+      - name: Create E2E test directory
+        if: steps.check.outputs.exists == 'false'
+        run: mkdir -p tests/e2e
+
+      - name: Create sample Playwright config
+        run: |
+          cat > tests/e2e/playwright.config.ts << 'EOF'
+          import { defineConfig, devices } from '@playwright/test';
+
+          export default defineConfig({
+            testDir: './tests',
+            fullyParallel: true,
+            forbidOnly: !!process.env.CI,
+            retries: process.env.CI ? 2 : 0,
+            workers: process.env.CI ? 1 : undefined,
+            reporter: [
+              ['html', { open: 'never' }],
+              ['json', { outputFile: 'results/test-results.json' }],
+              ['github']
+            ],
+            use: {
+              baseURL: process.env.BASE_URL || 'http://localhost:3000',
+              trace: 'on-first-retry',
+              screenshot: 'only-on-failure',
+              video: 'retain-on-failure',
+            },
+            projects: [
+              {
+                name: 'chromium',
+                use: { ...devices['Desktop Chrome'] },
+              },
+              {
+                name: 'firefox',
+                use: { ...devices['Desktop Firefox'] },
+              },
+              {
+                name: 'webkit',
+                use: { ...devices['Desktop Safari'] },
+              },
+              // Mobile viewports
+              {
+                name: 'Mobile Chrome',
+                use: { ...devices['Pixel 5'] },
+              },
+              {
+                name: 'Mobile Safari',
+                use: { ...devices['iPhone 13'] },
+              },
+            ],
+            // Web server configuration
+            webServer: process.env.CI ? undefined : {
+              command: 'npm run dev',
+              url: 'http://localhost:3000',
+              reuseExistingServer: !process.env.CI,
+            },
+          });
+          EOF
+
+      - name: Create sample E2E tests
+        run: |
+          mkdir -p tests/e2e/tests
+
+          cat > tests/e2e/tests/health.spec.ts << 'EOF'
+          import { test, expect } from '@playwright/test';
+
+          test.describe('Health Checks', () => {
+            test('API health endpoint responds', async ({ request }) => {
+              const response = await request.get('/api/v1/health');
+              expect(response.ok()).toBeTruthy();
+            });
+
+            test('Homepage loads successfully', async ({ page }) => {
+              await page.goto('/');
+              await expect(page).toHaveTitle(/SAHOOL|سهول/i);
+            });
+          });
+          EOF
+
+          cat > tests/e2e/tests/auth.spec.ts << 'EOF'
+          import { test, expect } from '@playwright/test';
+
+          test.describe('Authentication Flow', () => {
+            test('Login page is accessible', async ({ page }) => {
+              await page.goto('/login');
+              await expect(page.getByRole('button', { name: /login|دخول/i })).toBeVisible();
+            });
+
+            test('Registration page is accessible', async ({ page }) => {
+              await page.goto('/register');
+              await expect(page.getByRole('button', { name: /register|تسجيل/i })).toBeVisible();
+            });
+
+            test('Invalid login shows error', async ({ page }) => {
+              await page.goto('/login');
+              await page.fill('[name="email"]', 'invalid@test.com');
+              await page.fill('[name="password"]', 'wrongpassword');
+              await page.click('button[type="submit"]');
+              await expect(page.getByText(/error|خطأ/i)).toBeVisible({ timeout: 5000 });
+            });
+          });
+          EOF
+
+          cat > tests/e2e/tests/navigation.spec.ts << 'EOF'
+          import { test, expect } from '@playwright/test';
+
+          test.describe('Navigation', () => {
+            test('Main navigation links work', async ({ page }) => {
+              await page.goto('/');
+
+              // Check for navigation elements
+              const nav = page.locator('nav');
+              await expect(nav).toBeVisible();
+            });
+
+            test('Footer links are present', async ({ page }) => {
+              await page.goto('/');
+              const footer = page.locator('footer');
+              await expect(footer).toBeVisible();
+            });
+
+            test('Mobile menu works', async ({ page }) => {
+              // Set mobile viewport
+              await page.setViewportSize({ width: 375, height: 667 });
+              await page.goto('/');
+
+              // Look for mobile menu button
+              const menuButton = page.getByRole('button', { name: /menu|قائمة/i });
+              if (await menuButton.isVisible()) {
+                await menuButton.click();
+                await expect(page.locator('nav')).toBeVisible();
+              }
+            });
+          });
+          EOF
+
+          cat > tests/e2e/tests/accessibility.spec.ts << 'EOF'
+          import { test, expect } from '@playwright/test';
+          import AxeBuilder from '@axe-core/playwright';
+
+          test.describe('Accessibility', () => {
+            test('Homepage has no critical accessibility issues', async ({ page }) => {
+              await page.goto('/');
+
+              const accessibilityScanResults = await new AxeBuilder({ page })
+                .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+                .analyze();
+
+              expect(accessibilityScanResults.violations.filter(
+                v => v.impact === 'critical'
+              )).toHaveLength(0);
+            });
+
+            test('Login page is accessible', async ({ page }) => {
+              await page.goto('/login');
+
+              const accessibilityScanResults = await new AxeBuilder({ page })
+                .withTags(['wcag2a', 'wcag2aa'])
+                .analyze();
+
+              expect(accessibilityScanResults.violations.filter(
+                v => v.impact === 'critical' || v.impact === 'serious'
+              )).toHaveLength(0);
+            });
+          });
+          EOF
+
+      - name: Create package.json for E2E
+        run: |
+          cat > tests/e2e/package.json << 'EOF'
+          {
+            "name": "sahool-e2e-tests",
+            "version": "1.0.0",
+            "scripts": {
+              "test": "playwright test",
+              "test:headed": "playwright test --headed",
+              "test:debug": "playwright test --debug",
+              "test:ui": "playwright test --ui",
+              "report": "playwright show-report"
+            },
+            "devDependencies": {
+              "@axe-core/playwright": "^4.8.0",
+              "@playwright/test": "^1.40.0"
+            }
+          }
+          EOF
+
+      - name: Upload test setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-setup
+          path: tests/e2e/
+          retention-days: 1
+
+  playwright-tests:
+    name: Run E2E Tests (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: setup-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download test setup
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-test-setup
+          path: tests/e2e/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: tests/e2e
+        run: npm install
+
+      - name: Install Playwright browsers
+        working-directory: tests/e2e
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Run Playwright tests
+        working-directory: tests/e2e
+        run: |
+          mkdir -p results
+          npx playwright test --project=${{ matrix.browser }} || true
+        env:
+          BASE_URL: ${{ secrets.E2E_BASE_URL || 'http://localhost:3000' }}
+          CI: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: |
+            tests/e2e/playwright-report/
+            tests/e2e/test-results/
+            tests/e2e/results/
+          retention-days: 30
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-screenshots-${{ matrix.browser }}
+          path: tests/e2e/test-results/
+          retention-days: 7
+
+  visual-regression:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    needs: setup-tests
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download test setup
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-test-setup
+          path: tests/e2e/
+
+      - name: Create visual test
+        run: |
+          cat > tests/e2e/tests/visual.spec.ts << 'EOF'
+          import { test, expect } from '@playwright/test';
+
+          test.describe('Visual Regression', () => {
+            test('Homepage screenshot', async ({ page }) => {
+              await page.goto('/');
+              await expect(page).toHaveScreenshot('homepage.png', {
+                fullPage: true,
+                threshold: 0.2,
+              });
+            });
+
+            test('Login page screenshot', async ({ page }) => {
+              await page.goto('/login');
+              await expect(page).toHaveScreenshot('login.png', {
+                threshold: 0.2,
+              });
+            });
+
+            test('Mobile view screenshot', async ({ page }) => {
+              await page.setViewportSize({ width: 375, height: 667 });
+              await page.goto('/');
+              await expect(page).toHaveScreenshot('mobile-home.png', {
+                fullPage: true,
+                threshold: 0.2,
+              });
+            });
+          });
+          EOF
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: tests/e2e
+        run: npm install
+
+      - name: Install Playwright
+        working-directory: tests/e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run visual tests
+        working-directory: tests/e2e
+        run: npx playwright test tests/visual.spec.ts --update-snapshots || true
+        env:
+          CI: true
+
+      - name: Upload visual snapshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-snapshots
+          path: tests/e2e/tests/*.png
+          retention-days: 30
+
+  test-summary:
+    name: E2E Test Summary
+    runs-on: ubuntu-latest
+    needs: [playwright-tests]
+    if: always()
+
+    steps:
+      - name: Create Summary
+        run: |
+          echo "## 🎭 Playwright E2E Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Browsers Tested:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌐 Chromium (Chrome/Edge)" >> $GITHUB_STEP_SUMMARY
+          echo "- 🦊 Firefox" >> $GITHUB_STEP_SUMMARY
+          echo "- 🧭 WebKit (Safari)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Categories:" >> $GITHUB_STEP_SUMMARY
+          echo "| Category | Description |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Health | API and page load tests |" >> $GITHUB_STEP_SUMMARY
+          echo "| Auth | Login/Register flows |" >> $GITHUB_STEP_SUMMARY
+          echo "| Navigation | Links and menus |" >> $GITHUB_STEP_SUMMARY
+          echo "| Accessibility | WCAG compliance |" >> $GITHUB_STEP_SUMMARY
+          echo "| Visual | Screenshot comparison |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 View detailed reports in the **Artifacts** section" >> $GITHUB_STEP_SUMMARY

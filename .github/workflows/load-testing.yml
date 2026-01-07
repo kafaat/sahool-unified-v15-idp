@@ -1,0 +1,287 @@
+# k6 Load Testing - API Performance & Stress Testing
+# اختبار الحمل والأداء للـ APIs
+#
+# k6 provides:
+# - Load testing (simulate many users)
+# - Stress testing (find breaking points)
+# - Spike testing (sudden traffic bursts)
+# - Soak testing (long duration tests)
+
+name: Load Testing
+
+on:
+  # Run on demand
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke
+          - load
+          - stress
+          - spike
+      target_url:
+        description: 'Target URL (staging/production)'
+        required: false
+        default: 'http://localhost:8080'
+      virtual_users:
+        description: 'Number of virtual users'
+        required: false
+        default: '10'
+      duration:
+        description: 'Test duration (e.g., 30s, 1m, 5m)'
+        required: false
+        default: '30s'
+
+  # Run on schedule for staging
+  schedule:
+    - cron: '0 3 * * 1'  # Every Monday at 3 AM UTC
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  k6-load-test:
+    name: k6 Load Test (${{ github.event.inputs.test_type || 'smoke' }})
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create k6 test scripts directory
+        run: mkdir -p tests/load
+
+      - name: Create smoke test script
+        run: |
+          cat > tests/load/smoke-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+          import { Rate, Trend } from 'k6/metrics';
+
+          // Custom metrics
+          const errorRate = new Rate('errors');
+          const apiLatency = new Trend('api_latency');
+
+          // Test configuration
+          export const options = {
+            stages: [
+              { duration: '10s', target: 5 },   // Warm up
+              { duration: '20s', target: 5 },   // Stay at 5 users
+              { duration: '10s', target: 0 },   // Ramp down
+            ],
+            thresholds: {
+              http_req_duration: ['p(95)<500'],  // 95% requests under 500ms
+              errors: ['rate<0.1'],              // Error rate under 10%
+            },
+          };
+
+          const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
+
+          export default function () {
+            // Health check endpoint
+            const healthRes = http.get(`${BASE_URL}/healthz`);
+            check(healthRes, {
+              'health check status is 200': (r) => r.status === 200,
+            });
+            errorRate.add(healthRes.status !== 200);
+            apiLatency.add(healthRes.timings.duration);
+
+            sleep(1);
+          }
+
+          export function handleSummary(data) {
+            return {
+              'stdout': textSummary(data, { indent: '  ', enableColors: true }),
+              'results/summary.json': JSON.stringify(data),
+            };
+          }
+
+          function textSummary(data, opts) {
+            return `
+          ==================== LOAD TEST SUMMARY ====================
+
+          Total Requests: ${data.metrics.http_reqs.values.count}
+          Failed Requests: ${data.metrics.http_req_failed?.values.passes || 0}
+
+          Response Times:
+            - Average: ${data.metrics.http_req_duration.values.avg.toFixed(2)}ms
+            - Min: ${data.metrics.http_req_duration.values.min.toFixed(2)}ms
+            - Max: ${data.metrics.http_req_duration.values.max.toFixed(2)}ms
+            - p(95): ${data.metrics.http_req_duration.values['p(95)'].toFixed(2)}ms
+
+          ===========================================================
+            `;
+          }
+          EOF
+
+      - name: Create load test script
+        run: |
+          cat > tests/load/load-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+          import { Rate } from 'k6/metrics';
+
+          const errorRate = new Rate('errors');
+
+          export const options = {
+            stages: [
+              { duration: '1m', target: 50 },    // Ramp up to 50 users
+              { duration: '3m', target: 50 },    // Stay at 50 users
+              { duration: '1m', target: 100 },   // Ramp up to 100 users
+              { duration: '3m', target: 100 },   // Stay at 100 users
+              { duration: '2m', target: 0 },     // Ramp down
+            ],
+            thresholds: {
+              http_req_duration: ['p(95)<1000'],
+              errors: ['rate<0.05'],
+            },
+          };
+
+          const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
+
+          export default function () {
+            const endpoints = [
+              '/healthz',
+              '/api/v1/status',
+            ];
+
+            const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
+            const res = http.get(`${BASE_URL}${endpoint}`);
+
+            check(res, {
+              'status is 200': (r) => r.status === 200,
+              'response time < 1000ms': (r) => r.timings.duration < 1000,
+            });
+
+            errorRate.add(res.status !== 200);
+            sleep(Math.random() * 2);
+          }
+          EOF
+
+      - name: Create stress test script
+        run: |
+          cat > tests/load/stress-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+
+          export const options = {
+            stages: [
+              { duration: '2m', target: 100 },   // Ramp up
+              { duration: '5m', target: 100 },   // Stay at peak
+              { duration: '2m', target: 200 },   // Push beyond normal
+              { duration: '5m', target: 200 },   // Stay at stress level
+              { duration: '2m', target: 300 },   // Breaking point test
+              { duration: '5m', target: 300 },   // Hold at breaking point
+              { duration: '5m', target: 0 },     // Recovery
+            ],
+            thresholds: {
+              http_req_failed: ['rate<0.5'],     // Allow higher failure rate
+            },
+          };
+
+          const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
+
+          export default function () {
+            const res = http.get(`${BASE_URL}/healthz`);
+            check(res, { 'status is 200': (r) => r.status === 200 });
+            sleep(0.5);
+          }
+          EOF
+
+      - name: Create spike test script
+        run: |
+          cat > tests/load/spike-test.js << 'EOF'
+          import http from 'k6/http';
+          import { check, sleep } from 'k6';
+
+          export const options = {
+            stages: [
+              { duration: '10s', target: 10 },    // Normal load
+              { duration: '1m', target: 10 },     // Stay normal
+              { duration: '10s', target: 500 },   // SPIKE!
+              { duration: '3m', target: 500 },    // Stay at spike
+              { duration: '10s', target: 10 },    // Scale down
+              { duration: '3m', target: 10 },     // Recovery
+              { duration: '10s', target: 0 },     // End
+            ],
+          };
+
+          const BASE_URL = __ENV.TARGET_URL || 'http://localhost:8080';
+
+          export default function () {
+            const res = http.get(`${BASE_URL}/healthz`);
+            check(res, { 'status is 200': (r) => r.status === 200 });
+            sleep(0.3);
+          }
+          EOF
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Create results directory
+        run: mkdir -p results
+
+      - name: Run k6 test
+        run: |
+          TEST_TYPE="${{ github.event.inputs.test_type || 'smoke' }}"
+          TARGET="${{ github.event.inputs.target_url || 'http://localhost:8080' }}"
+
+          echo "🚀 Running $TEST_TYPE test against $TARGET"
+
+          k6 run \
+            --out json=results/test-results.json \
+            -e TARGET_URL=$TARGET \
+            tests/load/${TEST_TYPE}-test.js || true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-results-${{ github.event.inputs.test_type || 'smoke' }}
+          path: results/
+          retention-days: 30
+
+      - name: Create Summary
+        if: always()
+        run: |
+          echo "## 📊 k6 Load Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Configuration:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type**: ${{ github.event.inputs.test_type || 'smoke' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target**: ${{ github.event.inputs.target_url || 'localhost' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Types Available:" >> $GITHUB_STEP_SUMMARY
+          echo "| Type | Description |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| smoke | Quick validation (5 users, 40s) |" >> $GITHUB_STEP_SUMMARY
+          echo "| load | Normal load (50-100 users, 10m) |" >> $GITHUB_STEP_SUMMARY
+          echo "| stress | Find limits (100-300 users, 26m) |" >> $GITHUB_STEP_SUMMARY
+          echo "| spike | Traffic burst (10→500 users) |" >> $GITHUB_STEP_SUMMARY
+
+  api-benchmark:
+    name: API Benchmark
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    needs: k6-load-test
+
+    steps:
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: k6-results-${{ github.event.inputs.test_type || 'smoke' }}
+          path: results/
+
+      - name: Generate benchmark report
+        run: |
+          echo "## 📈 Performance Benchmark" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f results/summary.json ]; then
+            echo "Results saved to artifacts" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No detailed results available" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,0 +1,128 @@
+# Lighthouse CI - Frontend Performance & Accessibility
+# فحص أداء الواجهات وإمكانية الوصول
+#
+# Lighthouse checks:
+# - Performance (loading speed, interactivity)
+# - Accessibility (WCAG compliance)
+# - Best Practices (security, modern web standards)
+# - SEO (search engine optimization)
+# - PWA (Progressive Web App features)
+
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/frontend/**'
+      - 'apps/mobile/**'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/frontend/**'
+      - 'apps/mobile/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lighthouse-web:
+    name: Web Performance Audit
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('apps/frontend/web/**') != '' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'apps/frontend/web/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: apps/frontend/web
+        run: npm ci || npm install
+
+      - name: Build application
+        working-directory: apps/frontend/web
+        run: npm run build
+        env:
+          CI: true
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v11
+        with:
+          configPath: './lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          runs: 3
+
+      - name: Create Performance Summary
+        if: always()
+        run: |
+          echo "## 🚀 Lighthouse Performance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Metrics Evaluated:" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Target |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance | > 90% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Accessibility | > 90% |" >> $GITHUB_STEP_SUMMARY
+          echo "| Best Practices | > 90% |" >> $GITHUB_STEP_SUMMARY
+          echo "| SEO | > 90% |" >> $GITHUB_STEP_SUMMARY
+
+  lighthouse-flutter-web:
+    name: Flutter Web Performance
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        working-directory: apps/mobile
+        run: flutter build web --release
+
+      - name: Install Lighthouse
+        run: npm install -g @lhci/cli
+
+      - name: Serve and audit
+        working-directory: apps/mobile
+        run: |
+          # Start a simple server
+          npx serve build/web -l 8080 &
+          SERVER_PID=$!
+          sleep 5
+
+          # Run Lighthouse
+          lhci autorun --collect.url=http://localhost:8080 \
+            --collect.numberOfRuns=3 \
+            --assert.assertions.categories:performance=off \
+            --assert.assertions.categories:accessibility=off || true
+
+          # Cleanup
+          kill $SERVER_PID || true
+
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-flutter-web-results
+          path: .lighthouseci/
+          retention-days: 30

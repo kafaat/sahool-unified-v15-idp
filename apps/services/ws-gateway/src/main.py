@@ -6,11 +6,19 @@ Port: 8081
 
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 from uuid import uuid4
 
 from fastapi import (
+    FastAPI,
+    Header,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+)
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
@@ -22,13 +30,6 @@ from shared.middleware import (
 from shared.observability.middleware import ObservabilityMiddleware
 
 from errors_py import setup_exception_handlers, add_request_id_middleware
-    FastAPI,
-    Header,
-    HTTPException,
-    Query,
-    WebSocket,
-    WebSocketDisconnect,
-)
 from jose import JWTError, jwt
 from pydantic import BaseModel
 

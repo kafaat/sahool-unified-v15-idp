@@ -133,14 +133,14 @@ jobs:
           ### Services
           | Service | Port | Description |
           |---------|------|-------------|
-          | field_ops | 8080 | Field operations and task management |
-          | ndvi_engine | 8097 | NDVI satellite analysis |
-          | weather_core | 8098 | Weather forecasting |
-          | field_chat | 8099 | Real-time collaboration |
-          | iot_gateway | 8094 | IoT device management |
-          | agro_advisor | 8095 | Disease and fertilizer AI |
-          | ws_gateway | 8090 | WebSocket broadcasting |
-          | crop_health | 8100 | Crop health decision engine |
+          | field-ops | 8080 | Field operations and task management |
+          | ndvi-engine | 8097 | NDVI satellite analysis |
+          | weather-core | 8098 | Weather forecasting |
+          | field-chat | 8099 | Real-time collaboration |
+          | iot-gateway | 8094 | IoT device management |
+          | agro-advisor | 8095 | Disease and fertilizer AI |
+          | ws-gateway | 8090 | WebSocket broadcasting |
+          | crop-health | 8100 | Crop health decision engine |
 
           ### Quick Start
 
@@ -158,7 +158,7 @@ jobs:
           ### Docker Images
 
           \`\`\`bash
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/field_ops:${{ needs.validate.outputs.version }}
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/field-ops:${{ needs.validate.outputs.version }}
           \`\`\`
 
           ### Changes

@@ -276,8 +276,8 @@ jobs:
             path: apps/services/indicators-service
           - name: weather-advanced
             path: apps/services/weather-advanced
-          - name: crop-health-ai
-            path: apps/services/crop-health-ai
+          - name: crop-intelligence-service
+            path: apps/services/crop-intelligence-service
           - name: fertilizer-advisor
             path: apps/services/fertilizer-advisor
           - name: irrigation-smart

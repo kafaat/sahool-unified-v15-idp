@@ -7,6 +7,7 @@ FastAPI service exposing the hierarchical multi-agent system.
 
 import logging
 import os
+import sys
 from datetime import datetime
 from typing import Any
 

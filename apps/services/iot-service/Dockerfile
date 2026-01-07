@@ -9,6 +9,9 @@
 # ───────────────────────────────────────────
 FROM node:20-alpine AS builder
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
 

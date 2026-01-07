@@ -8,6 +8,9 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="chat-service"
 LABEL version="16.0.0"
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
 

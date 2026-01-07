@@ -5,7 +5,7 @@
 
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, IsUrl, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { SanitizePlainText, IsMoneyValue } from '../../../shared/validation';
+import { SanitizePlainText, IsMoneyValue } from '../../utils/validation';
 
 export enum MessageType {
   TEXT = 'TEXT',

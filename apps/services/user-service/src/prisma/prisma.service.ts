@@ -6,7 +6,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { createPrismaEncryptionMiddleware } from '../../../../packages/shared-crypto/src/prisma-encryption';
-import { createQueryLogger } from '@sahool/shared-db';
+import { createQueryLogger } from '../utils/db-utils';
 
 @Injectable()
 export class PrismaService

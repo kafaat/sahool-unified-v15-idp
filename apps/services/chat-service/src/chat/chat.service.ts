@@ -10,7 +10,7 @@ import { SendMessageDto } from './dto/send-message.dto';
 import {
   GENERAL_TRANSACTION_CONFIG,
   READ_TRANSACTION_CONFIG,
-} from '@sahool/shared-db';
+} from '../utils/db-utils';
 
 // Define ParticipantRole locally to avoid Prisma client generation dependency
 type ParticipantRole = 'BUYER' | 'SELLER' | 'ADMIN';

@@ -7,7 +7,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
-import { createPinoLoggerConfig } from '../../shared/logging/pino-logger.config';
+import { createPinoLoggerConfig } from './utils/pino-logger.config';
 import { PrismaService } from './prisma/prisma.service';
 import { ChatGateway } from './chat/chat.gateway';
 import { ChatService } from './chat/chat.service';

@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/config/prisma.service';
 import { Prisma } from '@prisma/client';
 import { CreateExperimentDto, UpdateExperimentDto } from './dto/experiment.dto';
-import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from '@sahool/shared-db';
+import { MAX_PAGE_SIZE, DEFAULT_PAGE_SIZE } from '../../utils/db-utils';
 
 @Injectable()
 export class ExperimentsService {

@@ -12,7 +12,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -43,7 +43,7 @@ from crops import (
 from crops import (
     search_crops as search_crops_catalog,
 )
-from errors_py import (
+from shared.errors_py import (
     ErrorCode,
     NotFoundException,
     ValidationException,

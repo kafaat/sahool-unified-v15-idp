@@ -34,8 +34,8 @@ from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from errors_py import setup_exception_handlers
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+from shared.errors_py import setup_exception_handlers
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,

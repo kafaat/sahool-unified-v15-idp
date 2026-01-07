@@ -19,7 +19,7 @@ from typing import Any
 from fastapi import FastAPI, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -30,7 +30,7 @@ from shared.observability.middleware import ObservabilityMiddleware
 from pydantic import BaseModel, Field
 
 sys.path.insert(0, "/app")
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 try:
     from shared.contracts.actions import (
         ActionTemplate,

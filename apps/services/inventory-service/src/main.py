@@ -13,7 +13,7 @@ from datetime import date
 from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -21,7 +21,7 @@ from shared.middleware import (
 )
 from shared.observability.middleware import ObservabilityMiddleware
 
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import select

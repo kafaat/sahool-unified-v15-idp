@@ -20,7 +20,7 @@ import {
   CommonSelects,
   type PaginationParams,
   type PaginatedResponse,
-} from '@sahool/shared-db';
+} from '../utils/db-utils';
 
 @Injectable()
 export class UsersService {

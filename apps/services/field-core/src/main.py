@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 
 from fastapi import FastAPI, HTTPException, Query
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 from profitability_analyzer import (
     CostCategory,
     ProfitabilityAnalyzer,

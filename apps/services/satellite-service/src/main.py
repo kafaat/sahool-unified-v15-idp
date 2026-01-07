@@ -29,7 +29,7 @@ from typing import Any
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 # Add shared middleware to path
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 shared_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..", "shared")
 )

@@ -16,8 +16,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from '../../shared/errors';
-import { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';
+import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {

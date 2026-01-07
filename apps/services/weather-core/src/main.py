@@ -22,7 +22,7 @@ from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
 
 # Import shared logging configuration
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 from shared.logging_config import setup_logging, get_logger, RequestLoggingMiddleware
 
 # Setup structured logging

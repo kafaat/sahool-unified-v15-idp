@@ -7,7 +7,7 @@
 
 import { IsString, IsNumber, IsOptional, IsPositive, IsArray, ValidateNested, IsBoolean, IsIn, Min, Max, IsNotEmpty, IsEnum, IsDateString, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
-import { IsMoneyValue, SanitizePlainText, IsYemeniPhone, IsAfterDate, IsFutureDate } from '../../../shared/validation';
+import { IsMoneyValue, SanitizePlainText, IsYemeniPhone, IsAfterDate, IsFutureDate } from '../utils/validation';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Market DTOs

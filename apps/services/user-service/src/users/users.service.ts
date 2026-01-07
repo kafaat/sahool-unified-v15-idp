@@ -13,7 +13,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
-import { User, UserStatus } from '@prisma/client';
+import { UserStatus } from '../utils/validation';
+
+// User type - use when Prisma types are generated
+type User = any;
 import {
   calculatePagination,
   createPaginatedResponse,

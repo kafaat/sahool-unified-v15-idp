@@ -3,35 +3,9 @@ Comprehensive Tests for Crop Health Service
 اختبارات شاملة لخدمة صحة المحاصيل
 """
 
-
 import pytest
-from fastapi.testclient import TestClient
-from src.main import app
 
-
-@pytest.fixture
-def client():
-    """Create test client"""
-    return TestClient(app)
-
-
-@pytest.fixture
-def sample_observation_data():
-    """Sample observation data for testing"""
-    return {
-        "captured_at": "2025-12-27T10:00:00Z",
-        "source": "sentinel-2",
-        "growth_stage": "mid",
-        "indices": {
-            "ndvi": 0.75,
-            "evi": 0.60,
-            "ndre": 0.25,
-            "lci": 0.30,
-            "ndwi": -0.05,
-            "savi": 0.65,
-        },
-        "cloud_pct": 5.0,
-    }
+# Fixtures are loaded from conftest.py
 
 
 class TestHealthEndpoints:
@@ -328,7 +302,7 @@ class TestDecisionEngine:
         )
 
         obs = ZoneObservation(
-            zone_id="test_zone", growth_stage=GrowthStage.MID, indices=indices
+            zone_id="test_zone", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -356,7 +330,7 @@ class TestDecisionEngine:
         )
 
         obs = ZoneObservation(
-            zone_id="stressed_zone", growth_stage=GrowthStage.MID, indices=indices
+            zone_id="stressed_zone", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)

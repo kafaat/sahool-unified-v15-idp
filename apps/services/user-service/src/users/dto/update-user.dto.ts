@@ -13,7 +13,7 @@ import {
   MaxLength,
   IsBoolean,
 } from 'class-validator';
-import { UserRole, UserStatus } from '@prisma/client';
+import { UserRole, UserStatus } from '../../utils/validation';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({

@@ -10,7 +10,6 @@
  */
 
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
-import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import Redis from 'ioredis';
 import * as mqtt from 'mqtt';
 
@@ -82,13 +81,25 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private readonly DEVICE_STATUS_TTL = 600; // 10 minutes
   private readonly ACTUATOR_STATE_TTL = 3600; // 1 hour
 
-  constructor(@InjectRedis() private readonly redis: Redis) {}
+  private readonly redis: Redis;
+
+  constructor() {
+    this.redis = new Redis({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      password: process.env.REDIS_PASSWORD || undefined,
+      db: parseInt(process.env.REDIS_DB || '0', 10),
+      lazyConnect: true,
+    });
+  }
 
   // ==========================================================================
   // Lifecycle
   // ==========================================================================
 
   async onModuleInit() {
+    await this.redis.connect();
+    this.logger.log('Connected to Redis');
     await this.connectToMqtt();
   }
 
@@ -97,6 +108,8 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       this.client.end();
       this.logger.log('Disconnected from MQTT broker');
     }
+    await this.redis.quit();
+    this.logger.log('Disconnected from Redis');
   }
 
   // ==========================================================================
@@ -184,7 +197,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private handleSensorData(topicParts: string[], payload: string): void {
+  private async handleSensorData(topicParts: string[], payload: string): Promise<void> {
     const fieldId = topicParts[5];
     const sensorType = topicParts[7] as SensorType;
 
@@ -261,11 +274,11 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Toggle pump on/off
    * تشغيل/إيقاف المضخة
    */
-  togglePump(
+  async togglePump(
     fieldId: string,
     status: 'ON' | 'OFF',
     options?: { duration?: number },
-  ): { success: boolean; message: string } {
+  ): Promise<{ success: boolean; message: string }> {
     const topic = `sahool/default/farm/farm-1/field/${fieldId}/actuator/pump/command`;
 
     const payload = {

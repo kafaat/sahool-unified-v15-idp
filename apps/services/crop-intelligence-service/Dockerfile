@@ -27,12 +27,13 @@ RUN groupadd --system sahool && \
 
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY apps/services/crop-intelligence-service/requirements.txt .
 
 # Copy shared libraries
+COPY apps/services/shared ./shared/
 
 # Copy source
-COPY src/ ./src/
+COPY apps/services/crop-intelligence-service/src/ ./src/
 
 # Upgrade pip, install dependencies, and set ownership
 RUN pip install --upgrade pip || true && \

@@ -21,7 +21,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisTokenRevocationStore } from '../utils/token-revocation';
 import { JWTConfig } from '../utils/jwt.config';
-import { UserStatus } from '@prisma/client';
+import { UserStatus } from '../utils/validation';
 
 export interface LoginDto {
   email: string;

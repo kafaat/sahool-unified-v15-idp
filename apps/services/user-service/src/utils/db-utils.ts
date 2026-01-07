@@ -13,6 +13,7 @@ export interface PaginationParams {
   page?: number;
   limit?: number;
   take?: number;
+  skip?: number;
 }
 
 export interface PaginationMeta {

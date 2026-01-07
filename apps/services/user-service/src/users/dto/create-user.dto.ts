@@ -14,8 +14,7 @@ import {
   IsPhoneNumber,
   IsBoolean,
 } from 'class-validator';
-import { UserRole, UserStatus } from '@prisma/client';
-import { IsYemeniPhone, IsStrongPassword, SanitizePlainText } from '../../../shared/validation';
+import { IsYemeniPhone, IsStrongPassword, SanitizePlainText, UserRole, UserStatus } from '../../utils/validation';
 
 export class CreateUserDto {
   @ApiProperty({

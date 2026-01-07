@@ -105,7 +105,7 @@ export class UsersController {
     @Query('skip') skip?: string,
     @Query('take') take?: string,
   ) {
-    const users = await this.usersService.findAll({
+    const result = await this.usersService.findAll({
       tenantId,
       role,
       status,
@@ -114,7 +114,7 @@ export class UsersController {
     });
 
     // Remove password hashes from response
-    const usersWithoutPasswords = users.map((user) => {
+    const usersWithoutPasswords = result.data.map((user) => {
       const { passwordHash, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
@@ -123,6 +123,7 @@ export class UsersController {
       success: true,
       data: usersWithoutPasswords,
       count: usersWithoutPasswords.length,
+      meta: result.meta,
     };
   }
 

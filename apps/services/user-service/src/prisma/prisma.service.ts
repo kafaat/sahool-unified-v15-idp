@@ -5,8 +5,10 @@
 
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { createPrismaEncryptionMiddleware } from '../../../../packages/shared-crypto/src/prisma-encryption';
 import { createQueryLogger } from '../utils/db-utils';
+
+// TODO: Re-enable encryption middleware when package is available
+// import { createPrismaEncryptionMiddleware } from '../../../../packages/shared-crypto/src/prisma-encryption';
 
 @Injectable()
 export class PrismaService
@@ -32,48 +34,28 @@ export class PrismaService
       },
     });
 
-    // Apply encryption middleware
-    this.enableEncryption();
+    // TODO: Re-enable encryption middleware when package is available
+    // this.enableEncryption();
 
     // Enable query performance logging
     this.enableQueryLogging();
   }
 
-  /**
-   * Enable field-level encryption for sensitive data
-   * تفعيل التشفير على مستوى الحقول للبيانات الحساسة
-   */
-  private enableEncryption() {
-    const encryptionConfig = {
-      // User model - phone is searchable (deterministic encryption)
-      User: {
-        phone: { type: 'deterministic' as const },
-      },
-      // UserProfile model - nationalId and phone are searchable
-      UserProfile: {
-        nationalId: { type: 'deterministic' as const },
-        dateOfBirth: { type: 'standard' as const },
-      },
-    };
-
-    this.$use(
-      createPrismaEncryptionMiddleware(encryptionConfig, {
-        debug: process.env.CRYPTO_DEBUG === 'true',
-        onError: (error, context) => {
-          // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
-          console.error(
-            '[Encryption Error] %s failed for %s.%s: %s',
-            context.operation,
-            context.model,
-            context.field,
-            error.message
-          );
-        },
-      })
-    );
-
-    console.log('Field-level encryption enabled for User Service');
-  }
+  // TODO: Re-enable encryption when shared-crypto package is available
+  // /**
+  //  * Enable field-level encryption for sensitive data
+  //  * تفعيل التشفير على مستوى الحقول للبيانات الحساسة
+  //  */
+  // private enableEncryption() {
+  //   const encryptionConfig = {
+  //     User: { phone: { type: 'deterministic' as const } },
+  //     UserProfile: {
+  //       nationalId: { type: 'deterministic' as const },
+  //       dateOfBirth: { type: 'standard' as const },
+  //     },
+  //   };
+  //   this.$use(createPrismaEncryptionMiddleware(encryptionConfig, { ... }));
+  // }
 
   /**
    * Enable query performance logging for slow queries

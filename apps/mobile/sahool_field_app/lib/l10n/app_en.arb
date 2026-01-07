@@ -1,0 +1,118 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2026-01-07",
+
+  "appTitle": "SAHOOL",
+  "@appTitle": {"description": "Application name"},
+
+  "save": "Save",
+  "@save": {"description": "Save button"},
+
+  "cancel": "Cancel",
+  "@cancel": {"description": "Cancel button"},
+
+  "delete": "Delete",
+  "@delete": {"description": "Delete button"},
+
+  "edit": "Edit",
+  "@edit": {"description": "Edit button"},
+
+  "add": "Add",
+  "@add": {"description": "Add button"},
+
+  "close": "Close",
+  "@close": {"description": "Close button"},
+
+  "confirm": "Confirm",
+  "@confirm": {"description": "Confirm button"},
+
+  "loading": "Loading...",
+  "@loading": {"description": "Loading message"},
+
+  "error": "Error",
+  "@error": {"description": "Error message"},
+
+  "success": "Success",
+  "@success": {"description": "Success message"},
+
+  "warning": "Warning",
+  "@warning": {"description": "Warning message"},
+
+  "login": "Login",
+  "@login": {"description": "Login button"},
+
+  "logout": "Logout",
+  "@logout": {"description": "Logout button"},
+
+  "email": "Email",
+  "@email": {"description": "Email field"},
+
+  "password": "Password",
+  "@password": {"description": "Password field"},
+
+  "forgotPassword": "Forgot Password?",
+  "@forgotPassword": {"description": "Password recovery link"},
+
+  "home": "Home",
+  "@home": {"description": "Home screen"},
+
+  "settings": "Settings",
+  "@settings": {"description": "Settings screen"},
+
+  "profile": "Profile",
+  "@profile": {"description": "Profile screen"},
+
+  "notifications": "Notifications",
+  "@notifications": {"description": "Notifications screen"},
+
+  "fieldName": "Field Name",
+  "@fieldName": {"description": "Agricultural field name"},
+
+  "area": "Area",
+  "@area": {"description": "Field area"},
+
+  "cropType": "Crop Type",
+  "@cropType": {"description": "Type of crop"},
+
+  "status": "Status",
+  "@status": {"description": "Field status"},
+
+  "temperature": "Temperature",
+  "@temperature": {"description": "Temperature"},
+
+  "humidity": "Humidity",
+  "@humidity": {"description": "Humidity percentage"},
+
+  "wind": "Wind",
+  "@wind": {"description": "Wind speed"},
+
+  "rain": "Rain",
+  "@rain": {"description": "Rainfall amount"},
+
+  "retry": "Retry",
+  "@retry": {"description": "Retry button"},
+
+  "noData": "No data available",
+  "@noData": {"description": "No data message"},
+
+  "search": "Search",
+  "@search": {"description": "Search field"},
+
+  "filter": "Filter",
+  "@filter": {"description": "Filter button"},
+
+  "refresh": "Refresh",
+  "@refresh": {"description": "Refresh button"},
+
+  "offline": "Offline",
+  "@offline": {"description": "Offline status"},
+
+  "online": "Online",
+  "@online": {"description": "Online status"},
+
+  "sync": "Sync",
+  "@sync": {"description": "Sync button"},
+
+  "syncing": "Syncing...",
+  "@syncing": {"description": "Syncing message"}
+}

@@ -23,6 +23,7 @@
     "@sahool/shared-ui": "*",
     "@sahool/shared-utils": "*",
     "@sahool/shared-hooks": "*",
+    "@sentry/nextjs": "^8.0.0",
     "next": "15.5.9",
     "react": "19.0.0",
     "react-dom": "19.0.0",

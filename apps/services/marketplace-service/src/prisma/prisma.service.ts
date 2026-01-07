@@ -5,7 +5,6 @@
 
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-import { createQueryLogger } from '../utils/db-utils';
 
 @Injectable()
 export class PrismaService
@@ -17,7 +16,6 @@ export class PrismaService
   constructor() {
     super({
       log: [
-        { level: 'query', emit: 'event' },
         { level: 'error', emit: 'stdout' },
         { level: 'warn', emit: 'stdout' },
         { level: 'info', emit: 'stdout' },
@@ -30,39 +28,11 @@ export class PrismaService
         },
       },
     });
-
-    // Enable query performance logging
-    this.enableQueryLogging();
-
-    // NOTE: Soft delete middleware disabled until shared packages are available
-    // Apply soft delete middleware
-    // Exclude audit tables and logs from soft delete behavior
-    // this.$use(
-    //   createSoftDeleteMiddleware({
-    //     excludedModels: [
-    //       'WalletAuditLog',
-    //       'CreditEvent',
-    //       'Transaction', // Keep transaction history permanent
-    //     ],
-    //     enableLogging: process.env.NODE_ENV === 'development',
-    //   })
-    // );
-  }
-
-  /**
-   * Enable query performance logging for slow queries
-   * تفعيل تسجيل الاستعلامات البطيئة
-   */
-  private enableQueryLogging() {
-    // Log queries that take longer than 1 second
-    this.$on('query', createQueryLogger(this.logger));
-    this.logger.log('Query performance logging enabled (threshold: 1000ms)');
   }
 
   async onModuleInit() {
     await this.$connect();
     this.logger.log('Marketplace Database connected successfully');
-    this.startPoolMetricsLogging();
   }
 
   async onModuleDestroy() {
@@ -71,40 +41,21 @@ export class PrismaService
   }
 
   /**
-   * Start periodic logging of connection pool metrics
+   * Get current connection status
    */
-  private startPoolMetricsLogging() {
-    setInterval(() => {
-      this.$metrics.json()
-        .then((metrics) => {
-          this.logger.debug('Connection Pool Metrics:', {
-            pool: {
-              active: metrics.counters.filter((c) => c.key === 'prisma_client_queries_active')[0]?.value || 0,
-              wait: metrics.counters.filter((c) => c.key === 'prisma_client_queries_wait')[0]?.value || 0,
-              total: metrics.counters.filter((c) => c.key === 'prisma_client_queries_total')[0]?.value || 0,
-            },
-            timestamp: new Date().toISOString(),
-          });
-        })
-        .catch((err) => this.logger.warn('Failed to collect pool metrics:', err.message));
-    }, 300000);
-  }
-
-  /**
-   * Get current connection pool metrics
-   */
-  async getPoolMetrics() {
+  async getConnectionStatus() {
     try {
-      const metrics = await this.$metrics.json();
+      await this.$queryRaw`SELECT 1`;
       return {
-        activeConnections: metrics.counters.filter((c) => c.key === 'prisma_client_queries_active')[0]?.value || 0,
-        waitingConnections: metrics.counters.filter((c) => c.key === 'prisma_client_queries_wait')[0]?.value || 0,
-        totalQueries: metrics.counters.filter((c) => c.key === 'prisma_client_queries_total')[0]?.value || 0,
+        connected: true,
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      this.logger.error('Failed to get pool metrics:', error);
-      return null;
+      this.logger.error('Database connection check failed:', error);
+      return {
+        connected: false,
+        timestamp: new Date().toISOString(),
+      };
     }
   }
 }

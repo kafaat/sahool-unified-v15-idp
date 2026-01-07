@@ -209,3 +209,4 @@ config/certs/*.key
 config/certs/ca/ca.key
 config/certs/*/server.key
 config/certs/ca/ca.srl
+.env.test

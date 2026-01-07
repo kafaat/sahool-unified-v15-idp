@@ -70,17 +70,17 @@
 ```bash
 # NATS Message Queue
 NATS_USER=sahool_nats
-NATS_PASSWORD=your_secure_nats_password_here
+NATS_PASSWORD=CHANGE_ME_secure_password
 NATS_ADMIN_USER=nats_admin
-NATS_ADMIN_PASSWORD=your_secure_nats_admin_password_here
+NATS_ADMIN_PASSWORD=CHANGE_ME_secure_password
 
 # MinIO Object Storage
 MINIO_ROOT_USER=minio_admin
-MINIO_ROOT_PASSWORD=your_secure_minio_password_at_least_8_chars
+MINIO_ROOT_PASSWORD=CHANGE_ME_min_8_characters
 
 # ETCD Configuration Store
 ETCD_ROOT_USERNAME=root
-ETCD_ROOT_PASSWORD=your_secure_etcd_password_here
+ETCD_ROOT_PASSWORD=CHANGE_ME_secure_password
 ```
 
 **الحالة:** جميع الـ 12 متغير المطلوب موثقة الآن ✅

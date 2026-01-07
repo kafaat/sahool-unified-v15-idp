@@ -10,7 +10,7 @@ import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UpdateUserDto } from '../users/dto/update-user.dto';
-import { UserStatus, UserRole } from '../utils/validation';
+import { UserStatus } from '../utils/validation';
 import * as bcrypt from 'bcryptjs';
 
 describe('UsersService', () => {
@@ -26,7 +26,7 @@ describe('UsersService', () => {
     passwordHash: 'hashed_password',
     firstName: 'أحمد',
     lastName: 'علي',
-    role: UserRole.OPERATOR,
+    role: 'FARMER',
     status: UserStatus.ACTIVE,
     emailVerified: true,
     phoneVerified: false,
@@ -88,7 +88,7 @@ describe('UsersService', () => {
       password: 'SecurePassword123!',
       firstName: 'محمد',
       lastName: 'حسن',
-      role: UserRole.OPERATOR,
+      role: 'FARMER' as any,
       status: UserStatus.PENDING,
     };
 
@@ -200,12 +200,12 @@ describe('UsersService', () => {
       mockPrismaService.user.findMany.mockResolvedValue([mockUser]);
       mockPrismaService.user.count.mockResolvedValue(1);
 
-      await service.findAll({ role: UserRole.OPERATOR });
+      await service.findAll({ role: 'FARMER' });
 
       expect(mockPrismaService.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
-            role: UserRole.OPERATOR,
+            role: 'FARMER',
           }),
         }),
       );
@@ -226,16 +226,15 @@ describe('UsersService', () => {
       );
     });
 
-    it('should support pagination with page and limit', async () => {
+    it('should support pagination with skip and take', async () => {
       mockPrismaService.user.findMany.mockResolvedValue([mockUser]);
       mockPrismaService.user.count.mockResolvedValue(100);
 
-      // page: 2, limit: 20 results in skip: 20, take: 20
-      await service.findAll({ page: 2, limit: 20 });
+      await service.findAll({ skip: 10, take: 20 });
 
       expect(mockPrismaService.user.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          skip: 20,
+          skip: 10,
           take: 20,
         }),
       );
@@ -579,12 +578,12 @@ describe('UsersService', () => {
         password: 'password',
         firstName: 'Test',
         lastName: 'User',
-        role: UserRole.OPERATOR,
+        role: 'FARMER' as any,
       };
 
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      jest.spyOn(bcrypt, 'hash').mockImplementation(() => Promise.reject(new Error('Hashing failed')));
+      jest.spyOn(bcrypt, 'hash').mockRejectedValue(new Error('Hashing failed'));
 
       await expect(service.create(createUserDto)).rejects.toThrow('Hashing failed');
     });
@@ -629,7 +628,7 @@ describe('UsersService', () => {
         password: 'SecurePass123!',
         firstName: 'Test',
         lastName: 'User',
-        role: UserRole.OPERATOR,
+        role: 'FARMER' as any,
       };
 
       mockPrismaService.user.findUnique.mockResolvedValue(null);

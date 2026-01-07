@@ -8,27 +8,26 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="marketplace-service"
 LABEL version="15.3.0"
 
-WORKDIR /app
+# Use workspace structure to maintain relative paths for shared imports
+WORKDIR /workspace
+
+# Copy shared modules first (required for imports from ../../shared/)
+COPY apps/services/shared ./shared/
+
+# Copy service to maintain relative path: ../../shared/ from marketplace-service/src/
+COPY apps/services/marketplace-service ./marketplace-service/
+
+WORKDIR /workspace/marketplace-service
 
 # Install dependencies (with retries for network resilience)
-COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./
 RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
-# Copy prisma schema and generate client
-# Add retry logic for network resilience
-# Set env to ignore checksum errors in CI environments
-COPY apps/services/marketplace-service/prisma ./prisma/
+# Generate Prisma client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
     (sleep 10 && npx prisma generate) || \
     (echo "Prisma generate failed after retries" && exit 1)
-
-# Copy shared modules (required for imports from ../../shared/)
-COPY apps/services/shared ./shared/
-
-# Copy source code
-COPY apps/services/marketplace-service/. .
 
 # Build the application
 RUN npm run build
@@ -44,13 +43,10 @@ RUN apk add --no-cache curl openssl
 # Copy package files
 COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./
 # Install with increased retries and timeout for network resilience
-# Using --omit=dev instead of deprecated --only=production
 RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
-# Add retry logic for network resilience
-# Set env to ignore checksum errors in CI environments
-COPY --from=builder /app/prisma ./prisma/
+COPY --from=builder /workspace/marketplace-service/prisma ./prisma/
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
@@ -58,7 +54,7 @@ RUN npx prisma generate || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/marketplace-service/dist ./dist
 
 # Expose port
 EXPOSE 3010

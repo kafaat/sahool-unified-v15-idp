@@ -9,17 +9,19 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="crop-growth-model"
 LABEL version="16.0.0"
 
-WORKDIR /app
+# Use workspace structure to maintain relative paths for shared imports
+WORKDIR /workspace
 
-# Install dependencies with retry for network resilience
-COPY apps/services/crop-growth-model/package.json apps/services/crop-growth-model/package-lock.json* ./
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
-
-# Copy shared modules (required for imports from ../../shared/)
+# Copy shared modules first (required for imports from ../../shared/)
 COPY apps/services/shared ./shared/
 
-# Copy source code
-COPY apps/services/crop-growth-model/. .
+# Copy service to maintain relative path: ../../shared/ from crop-growth-model/src/
+COPY apps/services/crop-growth-model ./crop-growth-model/
+
+WORKDIR /workspace/crop-growth-model
+
+# Install dependencies with retry for network resilience
+RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Build the application
 RUN npm run build
@@ -37,7 +39,7 @@ COPY apps/services/crop-growth-model/package.json apps/services/crop-growth-mode
 RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/crop-growth-model/dist ./dist
 
 # Expose port
 EXPOSE 3023

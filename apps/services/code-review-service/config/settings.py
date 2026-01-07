@@ -13,7 +13,7 @@ from pydantic_settings import BaseSettings
 
 class ModelConfig(BaseSettings):
     """Configuration for a single LLM model"""
-    name: str = "deepseek-coder"
+    name: str = "deepseek-coder-v2"
     endpoint: str = "http://ollama:11434"
     timeout: int = 60
     temperature: float = 0.3
@@ -28,13 +28,13 @@ class Settings(BaseSettings):
     # Multi-Model Configuration (with fallback support)
     # ═══════════════════════════════════════════════════════════════════════════
 
-    # Primary model (deepseek-coder optimized for code review)
+    # Primary model (deepseek-coder-v2 - latest version optimized for code)
     ollama_url: str = "http://ollama:11434"
-    ollama_model: str = "deepseek-coder"
+    ollama_model: str = "deepseek-coder-v2"
 
     # Fallback models (comma-separated: model1@url1,model2@url2)
-    # Priority: deepseek-coder > deepseek > codellama > starcoder > llama2
-    fallback_models: str = "deepseek@http://ollama:11434,codellama@http://ollama:11434,starcoder@http://ollama:11434,llama2@http://ollama:11434"
+    # Priority: deepseek-coder-v2 > deepseek-coder > codellama > starcoder > llama2
+    fallback_models: str = "deepseek-coder@http://ollama:11434,codellama@http://ollama:11434,starcoder@http://ollama:11434,llama2@http://ollama:11434"
 
     # Model selection strategy: "primary_first", "round_robin", "fastest"
     model_strategy: str = "primary_first"

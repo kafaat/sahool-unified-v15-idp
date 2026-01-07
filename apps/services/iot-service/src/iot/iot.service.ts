@@ -184,7 +184,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private handleSensorData(topicParts: string[], payload: string): void {
+  private async handleSensorData(topicParts: string[], payload: string): Promise<void> {
     const fieldId = topicParts[5];
     const sensorType = topicParts[7] as SensorType;
 
@@ -261,11 +261,11 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    * Toggle pump on/off
    * تشغيل/إيقاف المضخة
    */
-  togglePump(
+  async togglePump(
     fieldId: string,
     status: 'ON' | 'OFF',
     options?: { duration?: number },
-  ): { success: boolean; message: string } {
+  ): Promise<{ success: boolean; message: string }> {
     const topic = `sahool/default/farm/farm-1/field/${fieldId}/actuator/pump/command`;
 
     const payload = {

@@ -1,0 +1,80 @@
+# OSSF Scorecard - Security Health Assessment
+# تقييم صحة الأمان للمشروع
+#
+# Scorecard is a tool from the Open Source Security Foundation (OpenSSF)
+# that performs automated security health checks on open source projects.
+
+name: OSSF Scorecard
+
+on:
+  # Run on pushes to main branch
+  push:
+    branches: [main]
+  # Run weekly for continuous monitoring
+  schedule:
+    - cron: '0 2 * * 1'  # Every Monday at 2 AM UTC
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to upload the results to code-scanning dashboard
+      security-events: write
+      # Needed to publish results and get a badge
+      id-token: write
+      # Required for private repos
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run Scorecard analysis
+        uses: ossf/scorecard-action@v2.4.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          # Publish results to OpenSSF REST API for badge generation
+          publish_results: true
+
+      - name: Upload to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+
+      - name: Create Summary
+        if: always()
+        run: |
+          echo "## 🏆 OSSF Scorecard Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### What Scorecard Evaluates:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Description |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Binary-Artifacts | No binary files in repo |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch-Protection | Protected branches configured |" >> $GITHUB_STEP_SUMMARY
+          echo "| CI-Tests | CI tests running on PRs |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code-Review | Code review before merge |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contributors | Multiple contributors |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dangerous-Workflow | No dangerous patterns in workflows |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency-Update-Tool | Using Dependabot/Renovate |" >> $GITHUB_STEP_SUMMARY
+          echo "| Fuzzing | Fuzz testing enabled |" >> $GITHUB_STEP_SUMMARY
+          echo "| License | License file present |" >> $GITHUB_STEP_SUMMARY
+          echo "| Maintained | Project is actively maintained |" >> $GITHUB_STEP_SUMMARY
+          echo "| Pinned-Dependencies | Dependencies are pinned |" >> $GITHUB_STEP_SUMMARY
+          echo "| Packaging | Published as package |" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST | Static analysis enabled |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security-Policy | SECURITY.md present |" >> $GITHUB_STEP_SUMMARY
+          echo "| Signed-Releases | Releases are signed |" >> $GITHUB_STEP_SUMMARY
+          echo "| Token-Permissions | Minimal token permissions |" >> $GITHUB_STEP_SUMMARY
+          echo "| Vulnerabilities | No known vulnerabilities |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 View detailed results in the **Security** tab" >> $GITHUB_STEP_SUMMARY

@@ -184,15 +184,10 @@ class SARProcessor:
                     }
 
                     # Only include scenes with both VV and VH polarization
-                    if (
-                        "VV" in scene["polarizations"]
-                        and "VH" in scene["polarizations"]
-                    ):
+                    if "VV" in scene["polarizations"] and "VH" in scene["polarizations"]:
                         scenes.append(scene)
 
-                logger.info(
-                    f"Found {len(scenes)} Sentinel-1 scenes with VV+VH polarization"
-                )
+                logger.info(f"Found {len(scenes)} Sentinel-1 scenes with VV+VH polarization")
                 return scenes
             else:
                 logger.warning(f"STAC search returned status {response.status_code}")
@@ -338,9 +333,7 @@ class SARProcessor:
         start_date = target_date.date() - timedelta(days=3)
         end_date = target_date.date() + timedelta(days=3)
 
-        scenes = await self._search_sentinel1_scenes(
-            latitude, longitude, start_date, end_date
-        )
+        scenes = await self._search_sentinel1_scenes(latitude, longitude, start_date, end_date)
 
         if scenes:
             # Use most recent scene
@@ -363,9 +356,7 @@ class SARProcessor:
             logger.info("No Sentinel-1 data available, using simulated values")
 
         # Calculate soil moisture
-        sm_percent, vwc, confidence = self._calculate_soil_moisture(
-            vv_db, vh_db, incidence_angle
-        )
+        sm_percent, vwc, confidence = self._calculate_soil_moisture(vv_db, vh_db, incidence_angle)
 
         result = SoilMoistureResult(
             field_id=field_id,
@@ -413,9 +404,7 @@ class SARProcessor:
         num_events = random.randint(0, 2)
 
         for _i in range(num_events):
-            event_date = datetime.utcnow() - timedelta(
-                days=random.randint(2, days_back)
-            )
+            event_date = datetime.utcnow() - timedelta(days=random.randint(2, days_back))
 
             moisture_before = random.uniform(15.0, 30.0)
             moisture_after = moisture_before + random.uniform(12.0, 25.0)
@@ -482,9 +471,7 @@ class SARProcessor:
                 vh_db = random.uniform(-22.0, -16.0)
                 incidence_angle = random.uniform(29.0, 46.0)
 
-            sm_percent, _, _ = self._calculate_soil_moisture(
-                vv_db, vh_db, incidence_angle
-            )
+            sm_percent, _, _ = self._calculate_soil_moisture(vv_db, vh_db, incidence_angle)
 
             # Calculate VV/VH ratio
             vv_linear = 10 ** (vv_db / 10)
@@ -512,9 +499,7 @@ class SARProcessor:
         logger.info(f"Generated SAR timeseries with {len(timeseries)} acquisitions")
         return timeseries
 
-    def get_moisture_interpretation(
-        self, soil_moisture_percent: float
-    ) -> dict[str, str]:
+    def get_moisture_interpretation(self, soil_moisture_percent: float) -> dict[str, str]:
         """
         Get interpretation of soil moisture level
 

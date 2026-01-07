@@ -428,15 +428,9 @@ def downgrade() -> None:
     # =========================================================================
     # إزالة القيود / Drop Constraints
     # =========================================================================
-    conn.execute(
-        text("ALTER TABLE fields DROP CONSTRAINT IF EXISTS chk_fields_boundary_valid")
-    )
-    conn.execute(
-        text("ALTER TABLE fields DROP CONSTRAINT IF EXISTS chk_fields_location_valid")
-    )
-    conn.execute(
-        text("ALTER TABLE sensors DROP CONSTRAINT IF EXISTS chk_sensors_location_valid")
-    )
+    conn.execute(text("ALTER TABLE fields DROP CONSTRAINT IF EXISTS chk_fields_boundary_valid"))
+    conn.execute(text("ALTER TABLE fields DROP CONSTRAINT IF EXISTS chk_fields_location_valid"))
+    conn.execute(text("ALTER TABLE sensors DROP CONSTRAINT IF EXISTS chk_sensors_location_valid"))
 
     # =========================================================================
     # إزالة الدوال المساعدة / Drop Helper Functions

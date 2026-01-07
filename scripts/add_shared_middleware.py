@@ -15,7 +15,7 @@ BASE_DIR = Path("/home/user/sahool-unified-v15-idp")
 SERVICES_DIR = BASE_DIR / "apps" / "services"
 
 
-def find_python_services() -> List[Path]:
+def find_python_services() -> list[Path]:
     """Find all FastAPI Python services"""
     services = []
     for main_py in SERVICES_DIR.glob("*/src/main.py"):
@@ -24,7 +24,7 @@ def find_python_services() -> List[Path]:
     return services
 
 
-def find_typescript_services() -> List[Path]:
+def find_typescript_services() -> list[Path]:
     """Find all NestJS TypeScript services"""
     services = []
     for main_ts in SERVICES_DIR.glob("*/src/main.ts"):
@@ -33,7 +33,7 @@ def find_typescript_services() -> List[Path]:
     return services
 
 
-def check_has_shared_middleware(file_path: Path) -> Tuple[bool, str]:
+def check_has_shared_middleware(file_path: Path) -> tuple[bool, str]:
     """Check if service already has shared middleware"""
     content = file_path.read_text()
 
@@ -63,14 +63,14 @@ def update_python_service(file_path: Path, dry_run: bool = True) -> bool:
 
     # Check if it's a FastAPI service
     if "FastAPI" not in content:
-        print(f"  ⚠ Not a FastAPI service, skipping")
+        print("  ⚠ Not a FastAPI service, skipping")
         return False
 
     service_name = file_path.parent.parent.name
 
     # Add imports at the top after existing imports
     import_pattern = r"(from fastapi import.*?\n)"
-    import_addition = f"""
+    import_addition = """
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 from shared.middleware import (
@@ -125,10 +125,10 @@ app.add_middleware(
 
     if not dry_run:
         file_path.write_text(content)
-        print(f"  ✓ Updated with shared middleware")
+        print("  ✓ Updated with shared middleware")
         return True
     else:
-        print(f"  ○ Would add shared middleware (dry run)")
+        print("  ○ Would add shared middleware (dry run)")
         return True
 
 
@@ -147,7 +147,9 @@ def update_typescript_service(file_path: Path, dry_run: bool = True) -> bool:
     # Add import
     if "RequestLoggingInterceptor" not in content:
         import_pattern = r"(import.*?from.*?errors.*?;)"
-        import_addition = "\nimport { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';"
+        import_addition = (
+            "\nimport { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';"
+        )
         content = re.sub(import_pattern, r"\1" + import_addition, content, count=1)
 
     # Add interceptor
@@ -164,10 +166,10 @@ def update_typescript_service(file_path: Path, dry_run: bool = True) -> bool:
 
     if not dry_run:
         file_path.write_text(content)
-        print(f"  ✓ Updated with shared middleware")
+        print("  ✓ Updated with shared middleware")
         return True
     else:
-        print(f"  ○ Would add shared middleware (dry run)")
+        print("  ○ Would add shared middleware (dry run)")
         return True
 
 

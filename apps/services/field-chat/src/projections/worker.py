@@ -161,9 +161,7 @@ class ChatProjectionWorker:
             payload = data.get("payload", {})
             thread_id = payload.get("thread_id")
 
-            logger.info(
-                f"Message edited: {payload.get('message_id')} in thread {thread_id}"
-            )
+            logger.info(f"Message edited: {payload.get('message_id')} in thread {thread_id}")
 
             await self._broadcast(
                 thread_id,
@@ -187,9 +185,7 @@ class ChatProjectionWorker:
             payload = data.get("payload", {})
             thread_id = payload.get("thread_id")
 
-            logger.info(
-                f"Participant joined: {payload.get('user_id')} in thread {thread_id}"
-            )
+            logger.info(f"Participant joined: {payload.get('user_id')} in thread {thread_id}")
 
             await self._broadcast(
                 thread_id,
@@ -212,9 +208,7 @@ class ChatProjectionWorker:
             payload = data.get("payload", {})
             thread_id = payload.get("thread_id")
 
-            logger.info(
-                f"Participant left: {payload.get('user_id')} from thread {thread_id}"
-            )
+            logger.info(f"Participant left: {payload.get('user_id')} from thread {thread_id}")
 
             await self._broadcast(
                 thread_id,
@@ -236,9 +230,7 @@ class ChatProjectionWorker:
             payload = data.get("payload", {})
             thread_id = payload.get("thread_id")
 
-            logger.info(
-                f"Messages read by: {payload.get('user_id')} in thread {thread_id}"
-            )
+            logger.info(f"Messages read by: {payload.get('user_id')} in thread {thread_id}")
 
             # Broadcast read receipt
             await self._broadcast(

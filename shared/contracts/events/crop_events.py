@@ -34,9 +34,7 @@ class CropPlantedEvent(BaseEvent):
             "field_id": str(self.field_id),
             "crop_type": self.crop_type,
             "variety": self.variety,
-            "planting_date": (
-                self.planting_date.isoformat() if self.planting_date else None
-            ),
+            "planting_date": (self.planting_date.isoformat() if self.planting_date else None),
         }
         if self.expected_harvest_date:
             payload["expected_harvest_date"] = self.expected_harvest_date.isoformat()
@@ -112,9 +110,7 @@ class CropHarvestedEvent(BaseEvent):
         payload = {
             "field_id": str(self.field_id),
             "crop_id": str(self.crop_id),
-            "harvest_date": (
-                self.harvest_date.isoformat() if self.harvest_date else None
-            ),
+            "harvest_date": (self.harvest_date.isoformat() if self.harvest_date else None),
             "yield_kg": self.yield_kg,
             "area_harvested_hectares": self.area_harvested_hectares,
         }

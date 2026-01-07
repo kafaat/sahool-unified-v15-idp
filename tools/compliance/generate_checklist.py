@@ -34,9 +34,7 @@ class ComplianceCheck:
 class ComplianceReport:
     """Full compliance report"""
 
-    timestamp: str = field(
-        default_factory=lambda: datetime.now(UTC).isoformat()
-    )
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
     checks: list[ComplianceCheck] = field(default_factory=list)
     summary: dict = field(default_factory=dict)
 
@@ -231,10 +229,7 @@ class ComplianceChecker:
         # Look for permission/role patterns
         for py_file in self._find_python_files():
             content = py_file.read_text()
-            if any(
-                pattern in content
-                for pattern in ["Permission", "Role", "RBAC", "authorize"]
-            ):
+            if any(pattern in content for pattern in ["Permission", "Role", "RBAC", "authorize"]):
                 self.report.add_check(
                     ComplianceCheck(
                         category="Security",
@@ -667,9 +662,7 @@ def generate_markdown(report: ComplianceReport) -> str:
             if check.file_path:
                 file_ref = f" (`{Path(check.file_path).name}`)"
 
-            lines.append(
-                f"| {check.name} | {status_icon} | {check.details}{file_ref} |"
-            )
+            lines.append(f"| {check.name} | {status_icon} | {check.details}{file_ref} |")
 
         lines.append("")
 

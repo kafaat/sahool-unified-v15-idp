@@ -27,12 +27,8 @@ class AgentInvocationRequest(BaseModel):
 
     capability: str = Field(..., description="Capability to invoke")
     input_data: dict[str, Any] = Field(..., description="Input data for the agent")
-    context: dict[str, Any] | None = Field(
-        default=None, description="Additional context"
-    )
-    timeout_seconds: int = Field(
-        default=30, description="Request timeout", ge=1, le=300
-    )
+    context: dict[str, Any] | None = Field(default=None, description="Additional context")
+    timeout_seconds: int = Field(default=30, description="Request timeout", ge=1, le=300)
 
     class Config:
         json_schema_extra = {
@@ -57,19 +53,11 @@ class AgentInvocationResponse(BaseModel):
     status: str = Field(..., description="Response status (success/error)")
     agent_id: str = Field(..., description="ID of the agent that processed the request")
     capability: str = Field(..., description="Capability that was invoked")
-    output_data: dict[str, Any] | None = Field(
-        None, description="Output data from the agent"
-    )
+    output_data: dict[str, Any] | None = Field(None, description="Output data from the agent")
     error: str | None = Field(None, description="Error message if failed")
-    metadata: dict[str, Any] = Field(
-        default_factory=dict, description="Response metadata"
-    )
-    timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Response timestamp"
-    )
-    response_time_ms: float | None = Field(
-        None, description="Response time in milliseconds"
-    )
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Response metadata")
+    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
+    response_time_ms: float | None = Field(None, description="Response time in milliseconds")
 
     class Config:
         json_schema_extra = {
@@ -275,9 +263,7 @@ class RegistryClient:
             List of matching agents
         """
         try:
-            response = await self._client.post(
-                "/v1/registry/discover/tags", json={"tags": tags}
-            )
+            response = await self._client.post("/v1/registry/discover/tags", json={"tags": tags})
             response.raise_for_status()
 
             data = response.json()
@@ -306,9 +292,7 @@ class RegistryClient:
             return HealthCheckResult(**data)
 
         except Exception as e:
-            self._logger.error(
-                "check_agent_health_error", agent_id=agent_id, error=str(e)
-            )
+            self._logger.error("check_agent_health_error", agent_id=agent_id, error=str(e))
             raise
 
     async def invoke_agent(
@@ -340,9 +324,7 @@ class RegistryClient:
             # Verify capability exists
             capability_names = [c.name for c in agent_card.capabilities]
             if request.capability not in capability_names:
-                raise ValueError(
-                    f"Agent {agent_id} does not have capability: {request.capability}"
-                )
+                raise ValueError(f"Agent {agent_id} does not have capability: {request.capability}")
 
             # Prepare headers
             headers = {"Content-Type": "application/json"}

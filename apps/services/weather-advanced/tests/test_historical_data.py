@@ -3,10 +3,11 @@ Comprehensive Historical Weather Data Tests
 Tests for historical weather data retrieval, analysis, and trend detection
 """
 
-import pytest
-from datetime import datetime, date, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
 import statistics
+from datetime import date, datetime, timedelta
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 
 @pytest.fixture
@@ -62,7 +63,8 @@ class TestHistoricalDataRetrieval:
         end_date = date(2025, 12, 30)
 
         filtered_data = [
-            d for d in sample_historical_data
+            d
+            for d in sample_historical_data
             if start_date.isoformat() <= d["date"] <= end_date.isoformat()
         ]
 
@@ -75,8 +77,13 @@ class TestHistoricalDataRetrieval:
         record = sample_historical_data[0]
 
         required_fields = [
-            "date", "temp_max_c", "temp_min_c", "temp_avg_c",
-            "precipitation_mm", "humidity_avg", "wind_speed_avg_kmh"
+            "date",
+            "temp_max_c",
+            "temp_min_c",
+            "temp_avg_c",
+            "precipitation_mm",
+            "humidity_avg",
+            "wind_speed_avg_kmh",
         ]
 
         for field in required_fields:
@@ -183,10 +190,7 @@ class TestMonthlyAggregation:
     def test_calculate_monthly_averages(self, sample_historical_data):
         """Test calculating monthly averages"""
         # Calculate averages for December 2025
-        december_data = [
-            d for d in sample_historical_data
-            if d["date"].startswith("2025-12")
-        ]
+        december_data = [d for d in sample_historical_data if d["date"].startswith("2025-12")]
 
         if december_data:
             avg_temp = statistics.mean(d["temp_avg_c"] for d in december_data)
@@ -202,9 +206,13 @@ class TestMonthlyAggregation:
         month_stats = sample_monthly_statistics["2025-12"]
 
         required_fields = [
-            "temp_max_avg", "temp_min_avg", "temp_avg",
-            "precipitation_total", "precipitation_days",
-            "humidity_avg", "wind_speed_avg"
+            "temp_max_avg",
+            "temp_min_avg",
+            "temp_avg",
+            "precipitation_total",
+            "precipitation_days",
+            "humidity_avg",
+            "wind_speed_avg",
         ]
 
         for field in required_fields:
@@ -222,7 +230,7 @@ class TestTrendAnalysis:
 
         moving_avgs = []
         for i in range(len(temps) - window_size + 1):
-            window = temps[i:i + window_size]
+            window = temps[i : i + window_size]
             moving_avgs.append(statistics.mean(window))
 
         assert len(moving_avgs) > 0
@@ -287,6 +295,7 @@ class TestSeasonalAnalysis:
 
     def test_identify_season_from_date(self):
         """Test season identification from date"""
+
         def get_season(month: int) -> str:
             """Get season for Yemen climate"""
             if month in [12, 1, 2]:
@@ -376,8 +385,7 @@ class TestComparativeAnalysis:
 
             # Identify anomalies (values > 2 standard deviations from mean)
             anomalies = [
-                d for d in sample_historical_data
-                if abs(d["temp_avg_c"] - mean_temp) > 2 * std_dev
+                d for d in sample_historical_data if abs(d["temp_avg_c"] - mean_temp) > 2 * std_dev
             ]
 
             # Should be a list (may be empty)
@@ -403,18 +411,22 @@ class TestExtremeEventsDetection:
                 consecutive_hot_days += 1
             else:
                 if consecutive_hot_days >= min_consecutive_days:
-                    heat_waves.append({
-                        "start": start_date,
-                        "duration": consecutive_hot_days,
-                    })
+                    heat_waves.append(
+                        {
+                            "start": start_date,
+                            "duration": consecutive_hot_days,
+                        }
+                    )
                 consecutive_hot_days = 0
 
         # Check final sequence
         if consecutive_hot_days >= min_consecutive_days:
-            heat_waves.append({
-                "start": start_date,
-                "duration": consecutive_hot_days,
-            })
+            heat_waves.append(
+                {
+                    "start": start_date,
+                    "duration": consecutive_hot_days,
+                }
+            )
 
         assert isinstance(heat_waves, list)
 
@@ -423,8 +435,7 @@ class TestExtremeEventsDetection:
         heavy_rain_threshold = 50.0
 
         heavy_rain_days = [
-            d for d in sample_historical_data
-            if d["precipitation_mm"] >= heavy_rain_threshold
+            d for d in sample_historical_data if d["precipitation_mm"] >= heavy_rain_threshold
         ]
 
         assert isinstance(heavy_rain_days, list)
@@ -445,10 +456,12 @@ class TestExtremeEventsDetection:
                 consecutive_dry_days += 1
             else:
                 if consecutive_dry_days >= drought_threshold_days:
-                    drought_periods.append({
-                        "start": start_date,
-                        "duration": consecutive_dry_days,
-                    })
+                    drought_periods.append(
+                        {
+                            "start": start_date,
+                            "duration": consecutive_dry_days,
+                        }
+                    )
                 consecutive_dry_days = 0
 
         assert isinstance(drought_periods, list)
@@ -490,8 +503,13 @@ class TestHistoricalDataQuality:
     def test_check_data_completeness(self, sample_historical_data):
         """Test data has no missing required fields"""
         required_fields = [
-            "date", "temp_max_c", "temp_min_c", "temp_avg_c",
-            "precipitation_mm", "humidity_avg", "wind_speed_avg_kmh"
+            "date",
+            "temp_max_c",
+            "temp_min_c",
+            "temp_avg_c",
+            "precipitation_mm",
+            "humidity_avg",
+            "wind_speed_avg_kmh",
         ]
 
         for record in sample_historical_data:
@@ -523,11 +541,13 @@ class TestHistoricalDataAggregation:
                 weekly_avg_temp = statistics.mean(d["temp_avg_c"] for d in week)
                 weekly_precip = sum(d["precipitation_mm"] for d in week)
 
-                weekly_data.append({
-                    "week_start": week[0]["date"],
-                    "avg_temp": weekly_avg_temp,
-                    "total_precip": weekly_precip,
-                })
+                weekly_data.append(
+                    {
+                        "week_start": week[0]["date"],
+                        "avg_temp": weekly_avg_temp,
+                        "total_precip": weekly_precip,
+                    }
+                )
                 week = []
 
         assert len(weekly_data) > 0
@@ -629,7 +649,9 @@ class TestDataExportFormats:
             },
             "precipitation": {
                 "total": sum(d["precipitation_mm"] for d in sample_historical_data),
-                "days_with_rain": sum(1 for d in sample_historical_data if d["precipitation_mm"] > 0),
+                "days_with_rain": sum(
+                    1 for d in sample_historical_data if d["precipitation_mm"] > 0
+                ),
             },
         }
 

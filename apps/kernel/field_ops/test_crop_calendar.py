@@ -22,9 +22,9 @@ def test_get_calendar():
     اختبار الحصول على تقويم المحصول
     Test getting crop calendar
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("1. اختبار الحصول على تقويم المحصول - Get Crop Calendar Test")
-    print("="*70)
+    print("=" * 70)
 
     service = CropCalendarService()
 
@@ -59,8 +59,10 @@ def test_get_calendar():
     print(f"المحصول / Crop: {calendar.name_ar} / {calendar.name_en}")
     print("مراحل النمو / Growth stages:")
     for stage_name, stage_data in calendar.growth_stages.items():
-        print(f"  {stage_data['order']}. {stage_data['name_ar']} ({stage_name}): "
-              f"{stage_data['duration_days']} يوم")
+        print(
+            f"  {stage_data['order']}. {stage_data['name_ar']} ({stage_name}): "
+            f"{stage_data['duration_days']} يوم"
+        )
         print(f"     احتياج مائي / Water: {stage_data['water_requirement']}")
 
 
@@ -69,9 +71,9 @@ def test_get_current_stage():
     اختبار الحصول على المرحلة الحالية
     Test getting current growth stage
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("2. اختبار المرحلة الحالية - Get Current Stage Test")
-    print("="*70)
+    print("=" * 70)
 
     service = CropCalendarService()
 
@@ -107,9 +109,9 @@ def test_get_upcoming_tasks():
     اختبار الحصول على المهام القادمة
     Test getting upcoming tasks
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("3. اختبار المهام القادمة - Get Upcoming Tasks Test")
-    print("="*70)
+    print("=" * 70)
 
     service = CropCalendarService()
 
@@ -123,7 +125,7 @@ def test_get_upcoming_tasks():
         crop_type="tomato",
         planting_date=planting_date,
         region="tihama",
-        days=14
+        days=14,
     )
 
     print(f"عدد المهام القادمة / Total upcoming tasks: {len(tasks)}")
@@ -143,9 +145,9 @@ def test_suggest_planting_window():
     اختبار اقتراح نافذة الزراعة
     Test suggesting planting windows
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("4. اختبار اقتراح نافذة الزراعة - Suggest Planting Window Test")
-    print("="*70)
+    print("=" * 70)
 
     service = CropCalendarService()
 
@@ -184,9 +186,9 @@ def test_task_scheduling():
     اختبار جدولة المهام
     Test task scheduling functions
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("5. اختبار جدولة المهام - Task Scheduling Test")
-    print("="*70)
+    print("=" * 70)
 
     service = CropCalendarService()
 
@@ -226,9 +228,9 @@ def test_additional_features():
     اختبار الميزات الإضافية
     Test additional features
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("6. اختبار الميزات الإضافية - Additional Features Test")
-    print("="*70)
+    print("=" * 70)
 
     service = CropCalendarService()
 
@@ -243,7 +245,7 @@ def test_additional_features():
     # Categorize by type
     by_category = {}
     for crop in crops:
-        category = crop['category']
+        category = crop["category"]
         if category not in by_category:
             by_category[category] = []
         by_category[category].append(crop)
@@ -251,7 +253,7 @@ def test_additional_features():
     for category, category_crops in by_category.items():
         print(f"\n{category.upper()} ({len(category_crops)} محاصيل):")
         for crop in category_crops:
-            perennial = " (معمر)" if crop['is_perennial'] else ""
+            perennial = " (معمر)" if crop["is_perennial"] else ""
             print(f"  - {crop['name_ar']} ({crop['name_en']}){perennial}")
 
     # 2. معلومات المناخ الإقليمي
@@ -262,8 +264,10 @@ def test_additional_features():
         info = service.get_regional_climate_info(region)
         print(f"\n{info['name_ar']} ({info['name_en']}):")
         print(f"  المناخ / Climate: {info['climate']}")
-        print(f"  درجة الحرارة / Temperature: {info['average_temp_range']['min']}-"
-              f"{info['average_temp_range']['max']}°C")
+        print(
+            f"  درجة الحرارة / Temperature: {info['average_temp_range']['min']}-"
+            f"{info['average_temp_range']['max']}°C"
+        )
         print(f"  نمط الأمطار / Rainfall: {info['rainfall_pattern']}")
         print(f"  الخصائص / Characteristics: {', '.join(info['characteristics'])}")
 
@@ -273,9 +277,9 @@ def test_comprehensive_scenario():
     سيناريو شامل: إدارة حقل طماطم
     Comprehensive scenario: Managing a tomato field
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("7. سيناريو شامل: إدارة حقل طماطم (Comprehensive Tomato Field Scenario)")
-    print("="*70)
+    print("=" * 70)
 
     service = CropCalendarService()
 
@@ -300,8 +304,9 @@ def test_comprehensive_scenario():
     print(f"\nدورة الحياة / Life cycle: {calendar.total_cycle_days} يوم")
     print("مراحل النمو / Growth stages:")
     for stage_name, stage_data in calendar.growth_stages.items():
-        print(f"  {stage_data['order']}. {stage_data['name_ar']}: "
-              f"{stage_data['duration_days']} يوم")
+        print(
+            f"  {stage_data['order']}. {stage_data['name_ar']}: {stage_data['duration_days']} يوم"
+        )
 
     # 3. افترض أن أحمد زرع قبل 50 يوم
     # 3. Assume Ahmed planted 50 days ago
@@ -323,7 +328,7 @@ def test_comprehensive_scenario():
         crop_type="tomato",
         planting_date=planting_date,
         region="tihama",
-        days=14
+        days=14,
     )
 
     print(f"\nإجمالي المهام / Total tasks: {len(tasks)}\n")
@@ -374,12 +379,12 @@ def main():
     Run all tests
     """
     print("\n")
-    print("="*70)
+    print("=" * 70)
     print("   اختبارات خدمة التقويم الزراعي - SAHOOL CROP CALENDAR SERVICE TESTS")
-    print("="*70)
+    print("=" * 70)
     print("   18 محصول يمني × 3 مناطق × 6 مراحل نمو")
     print("   18 Yemen crops × 3 regions × 6 growth stages")
-    print("="*70)
+    print("=" * 70)
 
     try:
         test_get_calendar()
@@ -390,13 +395,14 @@ def main():
         test_additional_features()
         test_comprehensive_scenario()
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("✓ جميع الاختبارات نجحت! All tests passed!")
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
 
     except Exception as e:
         print(f"\n✗ خطأ في الاختبار / Test error: {e}")
         import traceback
+
         traceback.print_exc()
 
 

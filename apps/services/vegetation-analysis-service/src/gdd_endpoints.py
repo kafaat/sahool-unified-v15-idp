@@ -34,9 +34,7 @@ def register_gdd_endpoints(app):
         lat: float = Query(..., description="Field latitude", ge=-90, le=90),
         lon: float = Query(..., description="Field longitude", ge=-180, le=180),
         end_date: str | None = Query(None, description="End date (default: today)"),
-        method: str = Query(
-            "simple", description="Calculation method: simple, modified, sine"
-        ),
+        method: str = Query("simple", description="Calculation method: simple, modified, sine"),
     ):
         """
         مخطط وحدات الحرارة النامية | Get GDD Accumulation Chart
@@ -114,20 +112,14 @@ def register_gdd_endpoints(app):
         try:
             # Parse dates
             plant_date = date_class.fromisoformat(planting_date)
-            end_dt = (
-                date_class.fromisoformat(end_date) if end_date else date_class.today()
-            )
+            end_dt = date_class.fromisoformat(end_date) if end_date else date_class.today()
 
             # Validate dates
             if plant_date > end_dt:
-                raise HTTPException(
-                    status_code=400, detail="planting_date must be before end_date"
-                )
+                raise HTTPException(status_code=400, detail="planting_date must be before end_date")
 
             if plant_date > date_class.today():
-                raise HTTPException(
-                    status_code=400, detail="planting_date cannot be in the future"
-                )
+                raise HTTPException(status_code=400, detail="planting_date cannot be in the future")
 
             # Validate method
             valid_methods = ["simple", "modified", "sine"]
@@ -165,9 +157,7 @@ def register_gdd_endpoints(app):
             raise HTTPException(status_code=400, detail=str(e)) from e
         except Exception as e:
             logger.error(f"Failed to generate GDD chart: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"GDD calculation error: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=500, detail=f"GDD calculation error: {str(e)}") from e
 
     @app.get("/v1/gdd/forecast")
     async def get_gdd_forecast(
@@ -175,15 +165,9 @@ def register_gdd_endpoints(app):
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         current_gdd: float = Query(..., description="Current accumulated GDD", ge=0),
         target_gdd: float = Query(..., description="Target GDD to reach", ge=0),
-        base_temp: float = Query(
-            10.0, description="Base temperature (°C)", ge=0, le=20
-        ),
-        upper_temp: float | None = Query(
-            None, description="Upper cutoff temp (°C)", ge=20, le=45
-        ),
-        method: str = Query(
-            "simple", description="Calculation method: simple, modified, sine"
-        ),
+        base_temp: float = Query(10.0, description="Base temperature (°C)", ge=0, le=20),
+        upper_temp: float | None = Query(None, description="Upper cutoff temp (°C)", ge=20, le=45),
+        method: str = Query("simple", description="Calculation method: simple, modified, sine"),
     ):
         """
         توقع وحدات الحرارة النامية | Forecast GDD Accumulation
@@ -268,9 +252,7 @@ def register_gdd_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to generate GDD forecast: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Forecast error: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=500, detail=f"Forecast error: {str(e)}") from e
 
     @app.get("/v1/gdd/requirements/{crop_code}")
     async def get_crop_gdd_requirements(
@@ -413,8 +395,8 @@ def register_gdd_endpoints(app):
             requirements = await tracker.get_crop_requirements(crop_code_upper)
 
             # Get current stage
-            current_en, current_ar, next_en, next_ar, gdd_to_next = (
-                tracker.get_current_stage(crop_code_upper, gdd)
+            current_en, current_ar, next_en, next_ar, gdd_to_next = tracker.get_current_stage(
+                crop_code_upper, gdd
             )
 
             # Find stage details
@@ -441,21 +423,13 @@ def register_gdd_endpoints(app):
                     {
                         "name_en": current_en,
                         "name_ar": current_ar,
-                        "gdd_start": (
-                            current_stage_info["gdd_start"] if current_stage_info else 0
-                        ),
-                        "gdd_end": (
-                            current_stage_info["gdd_end"] if current_stage_info else 0
-                        ),
+                        "gdd_start": (current_stage_info["gdd_start"] if current_stage_info else 0),
+                        "gdd_end": (current_stage_info["gdd_end"] if current_stage_info else 0),
                         "description_ar": (
-                            current_stage_info["description_ar"]
-                            if current_stage_info
-                            else ""
+                            current_stage_info["description_ar"] if current_stage_info else ""
                         ),
                         "description_en": (
-                            current_stage_info["description_en"]
-                            if current_stage_info
-                            else ""
+                            current_stage_info["description_en"] if current_stage_info else ""
                         ),
                     }
                     if current_stage_info
@@ -465,9 +439,7 @@ def register_gdd_endpoints(app):
                     {
                         "name_en": next_en,
                         "name_ar": next_ar,
-                        "gdd_start": (
-                            next_stage_info["gdd_start"] if next_stage_info else 0
-                        ),
+                        "gdd_start": (next_stage_info["gdd_start"] if next_stage_info else 0),
                         "gdd_end": next_stage_info["gdd_end"] if next_stage_info else 0,
                         "description_ar": (
                             next_stage_info["description_ar"] if next_stage_info else ""

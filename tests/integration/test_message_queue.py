@@ -99,9 +99,7 @@ async def test_nats_connection_info(nats_client, test_config):
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_publish_subscribe_basic(
-    nats_client,
-    test_subject_prefix: str,
-    sample_event_payload: dict[str, Any]
+    nats_client, test_subject_prefix: str, sample_event_payload: dict[str, Any]
 ):
     """
     Test basic publish/subscribe messaging
@@ -125,10 +123,7 @@ async def test_publish_subscribe_basic(
     await asyncio.sleep(0.1)
 
     # Publish message
-    await nats_client.publish(
-        subject,
-        json.dumps(sample_event_payload).encode()
-    )
+    await nats_client.publish(subject, json.dumps(sample_event_payload).encode())
 
     # Wait for message to be received
     await asyncio.sleep(0.5)
@@ -144,9 +139,7 @@ async def test_publish_subscribe_basic(
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_publish_multiple_subscribers(
-    nats_client,
-    test_subject_prefix: str,
-    sample_event_payload: dict[str, Any]
+    nats_client, test_subject_prefix: str, sample_event_payload: dict[str, Any]
 ):
     """
     Test message delivery to multiple subscribers
@@ -174,10 +167,7 @@ async def test_publish_multiple_subscribers(
     await asyncio.sleep(0.1)
 
     # Publish message
-    await nats_client.publish(
-        subject,
-        json.dumps(sample_event_payload).encode()
-    )
+    await nats_client.publish(subject, json.dumps(sample_event_payload).encode())
 
     await asyncio.sleep(0.5)
 
@@ -192,10 +182,7 @@ async def test_publish_multiple_subscribers(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_publish_to_wildcard_subject(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_publish_to_wildcard_subject(nats_client, test_subject_prefix: str):
     """
     Test wildcard subscriptions
     اختبار الاشتراكات باستخدام حروف بدل
@@ -232,10 +219,7 @@ async def test_publish_to_wildcard_subject(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_message_ordering(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_message_ordering(nats_client, test_subject_prefix: str):
     """
     Test messages are delivered in order
     اختبار تسليم الرسائل بالترتيب
@@ -274,10 +258,7 @@ async def test_message_ordering(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_request_reply_basic(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_request_reply_basic(nats_client, test_subject_prefix: str):
     """
     Test request/reply messaging pattern
     اختبار نمط الرسائل الطلب/الرد
@@ -293,7 +274,7 @@ async def test_request_reply_basic(
         response = {
             "status": "success",
             "request_id": request_data["request_id"],
-            "result": request_data["value"] * 2
+            "result": request_data["value"] * 2,
         }
         await nats_client.publish(msg.reply, json.dumps(response).encode())
 
@@ -305,11 +286,7 @@ async def test_request_reply_basic(
     request_id = str(uuid.uuid4())
     request = {"request_id": request_id, "value": 21}
 
-    response = await nats_client.request(
-        subject,
-        json.dumps(request).encode(),
-        timeout=2.0
-    )
+    response = await nats_client.request(subject, json.dumps(request).encode(), timeout=2.0)
 
     # Parse response
     response_data = json.loads(response.data.decode())
@@ -323,10 +300,7 @@ async def test_request_reply_basic(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_request_timeout(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_request_timeout(nats_client, test_subject_prefix: str):
     """
     Test request timeout when no reply
     اختبار انتهاء مهلة الطلب عند عدم وجود رد
@@ -344,7 +318,7 @@ async def test_request_timeout(
             await nats_client.request(
                 subject,
                 b"request_data",
-                timeout=0.5  # Short timeout
+                timeout=0.5,  # Short timeout
             )
     except ImportError:
         # NATS library not available or different version
@@ -358,10 +332,7 @@ async def test_request_timeout(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_queue_group_load_balancing(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_queue_group_load_balancing(nats_client, test_subject_prefix: str):
     """
     Test queue groups distribute messages among workers
     اختبار توزيع مجموعات الانتظار للرسائل بين العاملين
@@ -413,10 +384,7 @@ async def test_queue_group_load_balancing(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_event_driven_field_created_flow(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_event_driven_field_created_flow(nats_client, test_subject_prefix: str):
     """
     Test event-driven flow when field is created
     اختبار التدفق المستند إلى الأحداث عند إنشاء حقل
@@ -455,13 +423,10 @@ async def test_event_driven_field_created_flow(
         "field_id": str(uuid.uuid4()),
         "tenant_id": str(uuid.uuid4()),
         "field_name": "New Field",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
-    await nats_client.publish(
-        field_created_subject,
-        json.dumps(event).encode()
-    )
+    await nats_client.publish(field_created_subject, json.dumps(event).encode())
 
     await asyncio.sleep(0.5)
 
@@ -477,10 +442,7 @@ async def test_event_driven_field_created_flow(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_event_chaining(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_event_chaining(nats_client, test_subject_prefix: str):
     """
     Test chaining of events (one event triggers another)
     اختبار تسلسل الأحداث (حدث واحد يطلق آخر)
@@ -497,11 +459,7 @@ async def test_event_chaining(
     async def step1_handler(msg):
         data = json.loads(msg.data.decode())
         # Process and publish to step 2
-        next_event = {
-            "source_event_id": data["event_id"],
-            "step": 2,
-            "data": data["data"]
-        }
+        next_event = {"source_event_id": data["event_id"], "step": 2, "data": data["data"]}
         await nats_client.publish(event2_subject, json.dumps(next_event).encode())
 
     # Step 2 handler
@@ -516,11 +474,7 @@ async def test_event_chaining(
     await asyncio.sleep(0.1)
 
     # Trigger step 1
-    initial_event = {
-        "event_id": str(uuid.uuid4()),
-        "step": 1,
-        "data": {"value": 100}
-    }
+    initial_event = {"event_id": str(uuid.uuid4()), "step": 1, "data": {"value": 100}}
 
     await nats_client.publish(event1_subject, json.dumps(initial_event).encode())
 
@@ -542,10 +496,7 @@ async def test_event_chaining(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_message_delivery_guarantee(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_message_delivery_guarantee(nats_client, test_subject_prefix: str):
     """
     Test message delivery guarantees
     اختبار ضمانات توصيل الرسائل
@@ -580,10 +531,7 @@ async def test_message_delivery_guarantee(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_message_acknowledgment(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_message_acknowledgment(nats_client, test_subject_prefix: str):
     """
     Test message acknowledgment patterns
     اختبار أنماط إقرار الرسائل
@@ -625,10 +573,7 @@ async def test_message_acknowledgment(
 @pytest.mark.integration
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_high_throughput_publishing(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_high_throughput_publishing(nats_client, test_subject_prefix: str):
     """
     Test high-throughput message publishing
     اختبار نشر الرسائل بإنتاجية عالية
@@ -659,18 +604,16 @@ async def test_high_throughput_publishing(
     success_rate = received / message_count
 
     # Expect at least 95% delivery rate
-    assert success_rate >= 0.95, \
+    assert success_rate >= 0.95, (
         f"Only received {received}/{message_count} messages ({success_rate:.1%})"
+    )
 
     await subscription.unsubscribe()
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_concurrent_publishers(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_concurrent_publishers(nats_client, test_subject_prefix: str):
     """
     Test multiple concurrent publishers
     اختبار ناشرين متزامنين متعددين
@@ -690,10 +633,7 @@ async def test_concurrent_publishers(
     # Create multiple publisher tasks
     async def publish_task(publisher_id: int, count: int):
         for i in range(count):
-            await nats_client.publish(
-                subject,
-                f"publisher_{publisher_id}_msg_{i}".encode()
-            )
+            await nats_client.publish(subject, f"publisher_{publisher_id}_msg_{i}".encode())
 
     # Run 5 concurrent publishers
     tasks = [publish_task(i, 10) for i in range(5)]
@@ -735,10 +675,7 @@ async def test_invalid_subject_handling(nats_client):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_large_message_handling(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_large_message_handling(nats_client, test_subject_prefix: str):
     """
     Test handling of large messages
     اختبار معالجة الرسائل الكبيرة
@@ -775,10 +712,7 @@ async def test_large_message_handling(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_subscriber_error_handling(
-    nats_client,
-    test_subject_prefix: str
-):
+async def test_subscriber_error_handling(nats_client, test_subject_prefix: str):
     """
     Test error handling in subscriber callbacks
     اختبار معالجة الأخطاء في استدعاءات المشترك
@@ -799,18 +733,9 @@ async def test_subscriber_error_handling(
     await asyncio.sleep(0.1)
 
     # Send messages, some should error
-    await nats_client.publish(
-        subject,
-        json.dumps({"id": 1, "should_error": False}).encode()
-    )
-    await nats_client.publish(
-        subject,
-        json.dumps({"id": 2, "should_error": True}).encode()
-    )
-    await nats_client.publish(
-        subject,
-        json.dumps({"id": 3, "should_error": False}).encode()
-    )
+    await nats_client.publish(subject, json.dumps({"id": 1, "should_error": False}).encode())
+    await nats_client.publish(subject, json.dumps({"id": 2, "should_error": True}).encode())
+    await nats_client.publish(subject, json.dumps({"id": 3, "should_error": False}).encode())
 
     await asyncio.sleep(0.5)
 

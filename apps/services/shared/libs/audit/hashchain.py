@@ -100,8 +100,7 @@ def verify_chain(entries: Iterator[dict]) -> tuple[bool, list[str]]:
         # Check prev_hash matches expected
         if stored_prev_hash != prev_hash:
             errors.append(
-                f"Entry {i}: prev_hash mismatch. "
-                f"Expected {prev_hash}, got {stored_prev_hash}"
+                f"Entry {i}: prev_hash mismatch. Expected {prev_hash}, got {stored_prev_hash}"
             )
 
         # Recompute entry hash
@@ -116,14 +115,11 @@ def verify_chain(entries: Iterator[dict]) -> tuple[bool, list[str]]:
             details_json=entry["details_json"],
             created_at_iso=entry["created_at"],
         )
-        computed_hash = compute_entry_hash(
-            prev_hash=stored_prev_hash, canonical=canonical
-        )
+        computed_hash = compute_entry_hash(prev_hash=stored_prev_hash, canonical=canonical)
 
         if computed_hash != stored_entry_hash:
             errors.append(
-                f"Entry {i}: entry_hash mismatch. "
-                f"Expected {computed_hash}, got {stored_entry_hash}"
+                f"Entry {i}: entry_hash mismatch. Expected {computed_hash}, got {stored_entry_hash}"
             )
 
         prev_hash = stored_entry_hash

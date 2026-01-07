@@ -39,14 +39,14 @@ from comprehensive_simulator import ComprehensiveSimulator
 from iot_simulator import IoTSimulator
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("sahool-simulation-runner")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN RUNNER
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class SimulationRunner:
     """Main runner that orchestrates all simulators."""
@@ -237,7 +237,7 @@ class SimulationRunner:
                     "services": self.run_services,
                     "agents": self.run_agents,
                     "iot": self.run_iot,
-                }
+                },
             },
             "results": self.results,
         }
@@ -248,9 +248,11 @@ class SimulationRunner:
 
         logger.info(f"  Results saved to: {filename}")
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -269,28 +271,31 @@ Examples:
 
   # Run against production
   python run_simulation.py --all --gateway https://api.sahool.app
-        """
+        """,
     )
 
     # Simulator selection
-    parser.add_argument("--all", "-a", action="store_true",
-                       help="Run all simulators")
-    parser.add_argument("--services", "-s", action="store_true",
-                       help="Run services simulator")
-    parser.add_argument("--agents", action="store_true",
-                       help="Run AI agents simulator")
-    parser.add_argument("--iot", "-i", action="store_true",
-                       help="Run IoT simulator")
+    parser.add_argument("--all", "-a", action="store_true", help="Run all simulators")
+    parser.add_argument("--services", "-s", action="store_true", help="Run services simulator")
+    parser.add_argument("--agents", action="store_true", help="Run AI agents simulator")
+    parser.add_argument("--iot", "-i", action="store_true", help="Run IoT simulator")
 
     # Configuration
-    parser.add_argument("--gateway", "-g", default="http://localhost:8081",
-                       help="Kong Gateway URL (default: http://localhost:8081)")
-    parser.add_argument("--users", "-u", type=int, default=10,
-                       help="Number of virtual users (default: 10)")
-    parser.add_argument("--iot-devices", type=int, default=50,
-                       help="Number of IoT devices (default: 50)")
-    parser.add_argument("--duration", "-d", type=int, default=60,
-                       help="Duration in seconds (default: 60)")
+    parser.add_argument(
+        "--gateway",
+        "-g",
+        default="http://localhost:8081",
+        help="Kong Gateway URL (default: http://localhost:8081)",
+    )
+    parser.add_argument(
+        "--users", "-u", type=int, default=10, help="Number of virtual users (default: 10)"
+    )
+    parser.add_argument(
+        "--iot-devices", type=int, default=50, help="Number of IoT devices (default: 50)"
+    )
+    parser.add_argument(
+        "--duration", "-d", type=int, default=60, help="Duration in seconds (default: 60)"
+    )
 
     args = parser.parse_args()
 
@@ -320,6 +325,7 @@ Examples:
         asyncio.run(runner.run())
     except KeyboardInterrupt:
         logger.info("\nSimulation stopped by user")
+
 
 if __name__ == "__main__":
     main()

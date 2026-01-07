@@ -343,9 +343,7 @@ class ProfitabilityAnalyzer:
             total_costs = sum(item.total_cost for item in cost_items)
         else:
             # Use regional estimates
-            regional_costs = self.REGIONAL_COSTS.get(
-                crop_code, self.REGIONAL_COSTS["wheat"]
-            )
+            regional_costs = self.REGIONAL_COSTS.get(crop_code, self.REGIONAL_COSTS["wheat"])
             for category, cost_per_ha in regional_costs.items():
                 cost = cost_per_ha * area_ha
                 cost_items.append(
@@ -402,9 +400,7 @@ class ProfitabilityAnalyzer:
         revenue_per_ha = total_revenue / area_ha if area_ha > 0 else 0
 
         gross_profit = total_revenue - total_costs
-        gross_margin_percent = (
-            (gross_profit / total_revenue * 100) if total_revenue > 0 else 0
-        )
+        gross_margin_percent = (gross_profit / total_revenue * 100) if total_revenue > 0 else 0
 
         # For this simple model, net profit = gross profit (no separate overhead)
         net_profit = gross_profit
@@ -425,9 +421,9 @@ class ProfitabilityAnalyzer:
         roi = (net_profit / total_costs * 100) if total_costs > 0 else 0
 
         # Compare to regional average
-        regional_revenue = self.REGIONAL_YIELDS.get(
-            crop_code, 2000
-        ) * self.REGIONAL_PRICES.get(crop_code, 400)
+        regional_revenue = self.REGIONAL_YIELDS.get(crop_code, 2000) * self.REGIONAL_PRICES.get(
+            crop_code, 400
+        )
         regional_costs_total = sum(self.REGIONAL_COSTS.get(crop_code, {}).values())
         regional_profit = regional_revenue - regional_costs_total
 
@@ -483,9 +479,7 @@ class ProfitabilityAnalyzer:
             crop_analyses.append(analysis)
 
         # Rank crops by profit per hectare
-        sorted_crops = sorted(
-            crop_analyses, key=lambda x: x.profit_per_ha, reverse=True
-        )
+        sorted_crops = sorted(crop_analyses, key=lambda x: x.profit_per_ha, reverse=True)
         for idx, crop in enumerate(sorted_crops, 1):
             crop.rank_in_portfolio = idx
 
@@ -494,9 +488,7 @@ class ProfitabilityAnalyzer:
         total_costs = sum(c.total_costs for c in crop_analyses)
         total_revenue = sum(c.total_revenue for c in crop_analyses)
         total_profit = total_revenue - total_costs
-        overall_margin = (
-            (total_profit / total_revenue * 100) if total_revenue > 0 else 0
-        )
+        overall_margin = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
 
         best_crop = sorted_crops[0].crop_name_en if sorted_crops else "None"
         worst_crop = sorted_crops[-1].crop_name_en if sorted_crops else "None"
@@ -615,9 +607,7 @@ class ProfitabilityAnalyzer:
             ),
         }
 
-    async def get_cost_breakdown(
-        self, crop_code: str, area_ha: float = 1.0
-    ) -> dict[str, float]:
+    async def get_cost_breakdown(self, crop_code: str, area_ha: float = 1.0) -> dict[str, float]:
         """Get cost breakdown by category"""
         logger.info(f"Getting cost breakdown for {crop_code}")
 
@@ -625,9 +615,7 @@ class ProfitabilityAnalyzer:
             return {}
 
         regional_costs = self.REGIONAL_COSTS[crop_code]
-        breakdown = {
-            category: cost * area_ha for category, cost in regional_costs.items()
-        }
+        breakdown = {category: cost * area_ha for category, cost in regional_costs.items()}
         breakdown["total"] = sum(breakdown.values())
 
         # Add percentages
@@ -647,9 +635,7 @@ class ProfitabilityAnalyzer:
         """Get historical profitability for a crop on a field"""
         # This would query the database in production
         # For now, return mock data
-        logger.info(
-            f"Getting historical profitability for {crop_code} on field {field_id}"
-        )
+        logger.info(f"Getting historical profitability for {crop_code} on field {field_id}")
 
         historical = []
         current_year = datetime.now().year
@@ -679,9 +665,7 @@ class ProfitabilityAnalyzer:
 
         return historical
 
-    async def get_regional_benchmarks(
-        self, crop_code: str, region: str = "sanaa"
-    ) -> dict:
+    async def get_regional_benchmarks(self, crop_code: str, region: str = "sanaa") -> dict:
         """Get regional benchmark costs and revenues"""
         logger.info(f"Getting regional benchmarks for {crop_code} in {region}")
 
@@ -711,9 +695,7 @@ class ProfitabilityAnalyzer:
             },
         }
 
-    def generate_recommendations(
-        self, analysis: CropProfitability
-    ) -> dict[str, list[str]]:
+    def generate_recommendations(self, analysis: CropProfitability) -> dict[str, list[str]]:
         """Generate improvement recommendations"""
         recommendations_en = []
         recommendations_ar = []
@@ -787,9 +769,7 @@ class ProfitabilityAnalyzer:
             return recommendations_en, recommendations_ar
 
         # Find best and worst performing crops
-        sorted_crops = sorted(
-            crop_analyses, key=lambda x: x.profit_per_ha, reverse=True
-        )
+        sorted_crops = sorted(crop_analyses, key=lambda x: x.profit_per_ha, reverse=True)
         best = sorted_crops[0]
         worst = sorted_crops[-1]
 
@@ -846,9 +826,7 @@ class ProfitabilityAnalyzer:
 
         return recommendations_en, recommendations_ar
 
-    async def export_report(
-        self, analysis: CropProfitability, format: str = "pdf"
-    ) -> str:
+    async def export_report(self, analysis: CropProfitability, format: str = "pdf") -> str:
         """Export profitability report"""
         # This would generate actual PDF/Excel in production
         logger.info(f"Exporting report for {analysis.crop_code} in {format} format")

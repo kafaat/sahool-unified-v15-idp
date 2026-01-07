@@ -343,9 +343,7 @@ def evaluate_combined_rules(
         threshold = get_threshold("soil_moisture", crop)
         temp_threshold = get_threshold("air_temperature", crop)
 
-        if air_temp >= temp_threshold.get("high", 35) and soil_moisture < threshold.get(
-            "low", 25
-        ):
+        if air_temp >= temp_threshold.get("high", 35) and soil_moisture < threshold.get("low", 25):
             recommendations.append(
                 TaskRecommendation(
                     title_ar="ري + حرارة عالية - حالة طارئة",

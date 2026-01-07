@@ -94,9 +94,7 @@ class BaseEvent:
             "event_version": self.event_version,
             "timestamp": self.timestamp.isoformat(),
             "tenant_id": str(self.tenant_id),
-            "correlation_id": (
-                str(self.metadata.correlation_id) if self.metadata else None
-            ),
+            "correlation_id": (str(self.metadata.correlation_id) if self.metadata else None),
             "source": self.source.to_dict() if self.source else None,
             "metadata": self.metadata.to_dict() if self.metadata else None,
             "payload": self._payload_to_dict(),

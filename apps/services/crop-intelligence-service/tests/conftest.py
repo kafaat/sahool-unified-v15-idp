@@ -5,7 +5,7 @@ Test Configuration and Fixtures
 
 import pytest
 from fastapi.testclient import TestClient
-from src.main import app, _init_sample_data, ZONES, OBSERVATIONS
+from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
 
 
 @pytest.fixture(scope="session", autouse=True)

@@ -37,9 +37,7 @@ class DiagnosisResult(BaseModel):
     # Confidence and severity
     confidence: float = Field(ge=0, le=1, description="نسبة الثقة في التشخيص")
     severity: DiseaseSeverity = Field(description="مستوى خطورة الإصابة")
-    affected_area_percent: float = Field(
-        ge=0, le=100, description="نسبة المنطقة المصابة"
-    )
+    affected_area_percent: float = Field(ge=0, le=100, description="نسبة المنطقة المصابة")
 
     # Crop information
     detected_crop: CropType = Field(description="نوع المحصول المكتشف")
@@ -51,15 +49,11 @@ class DiagnosisResult(BaseModel):
 
     # Expert review
     needs_expert_review: bool = Field(description="يحتاج مراجعة خبير")
-    expert_review_reason: str | None = Field(
-        None, description="سبب طلب مراجعة الخبير"
-    )
+    expert_review_reason: str | None = Field(None, description="سبب طلب مراجعة الخبير")
 
     # Additional metadata
     weather_consideration: str | None = Field(None, description="اعتبارات الطقس")
-    prevention_tips: list[str] = Field(
-        default_factory=list, description="نصائح الوقاية"
-    )
+    prevention_tips: list[str] = Field(default_factory=list, description="نصائح الوقاية")
     prevention_tips_ar: list[str] = Field(
         default_factory=list, description="نصائح الوقاية بالعربية"
     )

@@ -126,15 +126,17 @@ class PromptInjectionDetector:
         """
         detected_patterns = []
 
-        for pattern, compiled_pattern in zip(self.all_patterns, self.compiled_patterns, strict=False):
+        for pattern, compiled_pattern in zip(
+            self.all_patterns, self.compiled_patterns, strict=False
+        ):
             if compiled_pattern.search(text):
                 detected_patterns.append(pattern)
                 logger.warning(f"Prompt injection pattern detected: {pattern}")
 
         # Check for excessive special characters (potential encoding attack)
-        special_char_ratio = sum(
-            1 for c in text if not c.isalnum() and not c.isspace()
-        ) / max(len(text), 1)
+        special_char_ratio = sum(1 for c in text if not c.isalnum() and not c.isspace()) / max(
+            len(text), 1
+        )
         if special_char_ratio > 0.4:
             detected_patterns.append("excessive_special_characters")
             logger.warning(f"Excessive special characters: {special_char_ratio:.2%}")
@@ -174,9 +176,7 @@ class PIIDetector:
                 r"|\+?\d{1,3}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}"  # International
             ),
             "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),  # US SSN
-            "iqama": re.compile(
-                r"\b[12]\d{9}\b"
-            ),  # Saudi Iqama (10 digits starting with 1 or 2)
+            "iqama": re.compile(r"\b[12]\d{9}\b"),  # Saudi Iqama (10 digits starting with 1 or 2)
             "national_id": re.compile(r"\b1\d{9}\b"),  # Saudi National ID
             "cr_number": re.compile(r"\b[47]\d{9}\b"),  # Saudi CR number
             "credit_card": re.compile(r"\b(?:\d{4}[-\s]?){3}\d{4}\b"),  # 16-digit card
@@ -184,9 +184,7 @@ class PIIDetector:
             "ipv6": re.compile(r"\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b"),
         }
 
-    def detect_and_mask(
-        self, text: str, mask_char: str = "*"
-    ) -> tuple[str, dict[str, int]]:
+    def detect_and_mask(self, text: str, mask_char: str = "*") -> tuple[str, dict[str, int]]:
         """
         Detect and mask PII in text.
 
@@ -213,11 +211,7 @@ class PIIDetector:
 
                     # Keep first and last 2 characters visible for debugging
                     if len(match_str) > 6:
-                        masked = (
-                            match_str[:2]
-                            + mask_char * (len(match_str) - 4)
-                            + match_str[-2:]
-                        )
+                        masked = match_str[:2] + mask_char * (len(match_str) - 4) + match_str[-2:]
                     else:
                         masked = mask_char * len(match_str)
 
@@ -412,9 +406,7 @@ class InputFilter:
                 if mask_pii:
                     filtered_text, pii_counts = self.pii_detector.detect_and_mask(text)
                     warnings.append(f"PII detected and masked: {pii_counts}")
-                    warnings_ar.append(
-                        f"تم اكتشاف وإخفاء المعلومات الشخصية: {pii_counts}"
-                    )
+                    warnings_ar.append(f"تم اكتشاف وإخفاء المعلومات الشخصية: {pii_counts}")
                     metadata["pii_masked"] = pii_counts
                 else:
                     violations.append("PII detected in input")
@@ -523,9 +515,7 @@ def sanitize_input(text: str) -> str:
     text = " ".join(text.split())
 
     # Remove control characters (except newline, tab, carriage return)
-    text = "".join(
-        char for char in text if char.isprintable() or char in ["\n", "\t", "\r"]
-    )
+    text = "".join(char for char in text if char.isprintable() or char in ["\n", "\t", "\r"])
 
     return text.strip()
 

@@ -25,7 +25,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 from uuid import UUID
 
 
@@ -250,9 +250,7 @@ class HashChainValidator:
         report.chain_breaks_detected = sum(
             1 for e in report.errors if e.error_type == "chain_break"
         )
-        report.tamper_indicators = sum(
-            1 for e in report.errors if e.error_type == "hash_mismatch"
-        )
+        report.tamper_indicators = sum(1 for e in report.errors if e.error_type == "hash_mismatch")
 
         # Forensic analysis
         report.suspicious_entries = self._identify_suspicious_entries(entries, report.errors)
@@ -328,9 +326,7 @@ class HashChainValidator:
 
             # Verify entry hash
             canonical = self.build_canonical_string(entry)
-            computed_hash = self.compute_entry_hash(
-                prev_hash=stored_prev_hash, canonical=canonical
-            )
+            computed_hash = self.compute_entry_hash(prev_hash=stored_prev_hash, canonical=canonical)
 
             if computed_hash != stored_entry_hash:
                 segment.is_valid = False
@@ -354,9 +350,7 @@ class HashChainValidator:
 
         return segment
 
-    def _validate_parallel(
-        self, entries: list[dict], segment_size: int
-    ) -> list[ValidationSegment]:
+    def _validate_parallel(self, entries: list[dict], segment_size: int) -> list[ValidationSegment]:
         """Validate chain in parallel segments"""
         segments = []
         num_segments = (len(entries) + segment_size - 1) // segment_size
@@ -368,9 +362,7 @@ class HashChainValidator:
             for i in range(num_segments):
                 start = i * segment_size
                 end = min(start + segment_size - 1, len(entries) - 1)
-                futures.append(
-                    executor.submit(self._validate_segment, entries, start, end)
-                )
+                futures.append(executor.submit(self._validate_segment, entries, start, end))
 
             for future in as_completed(futures):
                 segments.append(future.result())
@@ -420,9 +412,7 @@ class HashChainValidator:
                         "action": entry.get("action"),
                         "actor_id": entry.get("actor_id"),
                         "timestamp": entry.get("created_at"),
-                        "errors": [
-                            e.error_type for e in errors if e.entry_index == idx
-                        ],
+                        "errors": [e.error_type for e in errors if e.entry_index == idx],
                     }
                 )
 
@@ -480,9 +470,7 @@ class HashChainValidator:
             return False
 
         canonical = self.build_canonical_string(entry)
-        computed_hash = self.compute_entry_hash(
-            prev_hash=stored_prev_hash, canonical=canonical
-        )
+        computed_hash = self.compute_entry_hash(prev_hash=stored_prev_hash, canonical=canonical)
 
         return computed_hash == entry.get("entry_hash")
 
@@ -676,8 +664,7 @@ def generate_markdown_report(report: ValidationReport) -> str:
         )
         for err in report.errors[:50]:
             lines.append(
-                f"| {err.entry_index} | {err.error_type} | "
-                f"{err.severity} | {err.description} |"
+                f"| {err.entry_index} | {err.error_type} | {err.severity} | {err.description} |"
             )
         lines.append("")
 
@@ -703,9 +690,7 @@ def generate_markdown_report(report: ValidationReport) -> str:
             ]
         )
         for gap in report.timeline_gaps[:10]:
-            lines.append(
-                f"- {gap['gap_hours']}h gap: {gap['start_time']} to {gap['end_time']}"
-            )
+            lines.append(f"- {gap['gap_hours']}h gap: {gap['start_time']} to {gap['end_time']}")
         lines.append("")
 
     lines.extend(
@@ -720,9 +705,7 @@ def generate_markdown_report(report: ValidationReport) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Validate SAHOOL audit log hash chain integrity"
-    )
+    parser = argparse.ArgumentParser(description="Validate SAHOOL audit log hash chain integrity")
     parser.add_argument(
         "--input",
         "-i",

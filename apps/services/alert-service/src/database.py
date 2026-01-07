@@ -18,9 +18,7 @@ from .db_models import Base
 # Get database URL from environment
 # Security: No fallback credentials - require DATABASE_URL to be set
 # TLS/SSL: DATABASE_URL must include sslmode=require for production
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://localhost:5432/sahool_alerts"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost:5432/sahool_alerts")
 
 # Create SQLAlchemy engine with connection pooling and TLS support
 # SSL/TLS is enforced via DATABASE_URL parameter: ?sslmode=require

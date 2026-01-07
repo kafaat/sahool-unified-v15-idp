@@ -57,9 +57,7 @@ class WeatherData:
             "humidity_percent": (
                 round(self.humidity_percent, 1) if self.humidity_percent else None
             ),
-            "wind_speed_ms": (
-                round(self.wind_speed_ms, 2) if self.wind_speed_ms else None
-            ),
+            "wind_speed_ms": (round(self.wind_speed_ms, 2) if self.wind_speed_ms else None),
             "solar_radiation_wm2": (
                 round(self.solar_radiation_wm2, 1) if self.solar_radiation_wm2 else None
             ),
@@ -257,15 +255,9 @@ class WeatherIntegration:
                             if i < len(daily_temp_mean)
                             else (daily_temp_max[i] + daily_temp_min[i]) / 2
                         ),
-                        temperature_min_c=(
-                            daily_temp_min[i] if i < len(daily_temp_min) else 0
-                        ),
-                        temperature_max_c=(
-                            daily_temp_max[i] if i < len(daily_temp_max) else 0
-                        ),
-                        precipitation_mm=(
-                            daily_precip[i] if i < len(daily_precip) else 0
-                        ),
+                        temperature_min_c=(daily_temp_min[i] if i < len(daily_temp_min) else 0),
+                        temperature_max_c=(daily_temp_max[i] if i < len(daily_temp_max) else 0),
+                        precipitation_mm=(daily_precip[i] if i < len(daily_precip) else 0),
                         et0_mm=daily_et0[i] if i < len(daily_et0) else None,
                     )
                 )
@@ -286,16 +278,10 @@ class WeatherIntegration:
                         temperature_c=hourly_temp[i] if i < len(hourly_temp) else 0,
                         temperature_min_c=hourly_temp[i] if i < len(hourly_temp) else 0,
                         temperature_max_c=hourly_temp[i] if i < len(hourly_temp) else 0,
-                        precipitation_mm=(
-                            hourly_precip[i] if i < len(hourly_precip) else 0
-                        ),
-                        humidity_percent=(
-                            hourly_humidity[i] if i < len(hourly_humidity) else None
-                        ),
+                        precipitation_mm=(hourly_precip[i] if i < len(hourly_precip) else 0),
+                        humidity_percent=(hourly_humidity[i] if i < len(hourly_humidity) else None),
                         wind_speed_ms=hourly_wind[i] if i < len(hourly_wind) else None,
-                        solar_radiation_wm2=(
-                            hourly_solar[i] if i < len(hourly_solar) else None
-                        ),
+                        solar_radiation_wm2=(hourly_solar[i] if i < len(hourly_solar) else None),
                     )
                 )
 
@@ -365,15 +351,9 @@ class WeatherIntegration:
                             if i < len(daily_temp_mean)
                             else (daily_temp_max[i] + daily_temp_min[i]) / 2
                         ),
-                        temperature_min_c=(
-                            daily_temp_min[i] if i < len(daily_temp_min) else 0
-                        ),
-                        temperature_max_c=(
-                            daily_temp_max[i] if i < len(daily_temp_max) else 0
-                        ),
-                        precipitation_mm=(
-                            daily_precip[i] if i < len(daily_precip) else 0
-                        ),
+                        temperature_min_c=(daily_temp_min[i] if i < len(daily_temp_min) else 0),
+                        temperature_max_c=(daily_temp_max[i] if i < len(daily_temp_max) else 0),
+                        precipitation_mm=(daily_precip[i] if i < len(daily_precip) else 0),
                         et0_mm=daily_et0[i] if i < len(daily_et0) else None,
                     )
                 )
@@ -435,9 +415,7 @@ class WeatherIntegration:
             Total accumulated GDD
         """
         # Get historical data
-        historical = await self.get_historical(
-            latitude, longitude, start_date, end_date
-        )
+        historical = await self.get_historical(latitude, longitude, start_date, end_date)
 
         # Calculate GDD
         gdd = 0.0
@@ -470,9 +448,7 @@ class WeatherIntegration:
             Dict with water balance analysis
         """
         # Get historical data
-        historical = await self.get_historical(
-            latitude, longitude, start_date, end_date
-        )
+        historical = await self.get_historical(latitude, longitude, start_date, end_date)
 
         # Calculate water balance
         total_precipitation = 0.0
@@ -522,9 +498,7 @@ class WeatherIntegration:
                 "total_precipitation_mm": round(total_precipitation, 1),
                 "total_etc_mm": round(total_etc, 1),
                 "total_balance_mm": round(total_balance, 1),
-                "avg_daily_precipitation_mm": round(
-                    total_precipitation / len(historical.daily), 2
-                ),
+                "avg_daily_precipitation_mm": round(total_precipitation / len(historical.daily), 2),
                 "avg_daily_etc_mm": round(total_etc / len(historical.daily), 2),
                 "status": status,
                 "status_ar": status_ar,
@@ -564,11 +538,7 @@ class WeatherIntegration:
             # Get Kc for growth stage
             if growth_stage == "initial" or growth_stage == "germination":
                 kc = crop_info.kc_initial or 0.5
-            elif (
-                growth_stage == "mid"
-                or growth_stage == "flowering"
-                or growth_stage == "fruiting"
-            ):
+            elif growth_stage == "mid" or growth_stage == "flowering" or growth_stage == "fruiting":
                 kc = crop_info.kc_mid or 1.0
             elif growth_stage == "late" or growth_stage == "ripening":
                 kc = crop_info.kc_end or 0.8
@@ -613,10 +583,10 @@ class WeatherIntegration:
             recommendation_ar = f"ري معتدل مطلوب كل {freq_days} أيام."
         else:
             freq_days = 2
-            recommendation_en = f"Heavy irrigation required every {freq_days} days due to high water demand."
-            recommendation_ar = (
-                f"ري كثيف مطلوب كل {freq_days} أيام بسبب الطلب المائي العالي."
+            recommendation_en = (
+                f"Heavy irrigation required every {freq_days} days due to high water demand."
             )
+            recommendation_ar = f"ري كثيف مطلوب كل {freq_days} أيام بسبب الطلب المائي العالي."
 
         # Add growth stage specific advice
         if growth_stage in ["flowering", "mid"]:

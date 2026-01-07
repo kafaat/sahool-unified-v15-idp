@@ -163,9 +163,7 @@ def register_all_handlers(worker: TaskWorker):
     Args:
         worker: TaskWorker instance
     """
-    worker.register_handler(
-        TaskType.SATELLITE_IMAGE_PROCESSING, handle_satellite_image_processing
-    )
+    worker.register_handler(TaskType.SATELLITE_IMAGE_PROCESSING, handle_satellite_image_processing)
     worker.register_handler(TaskType.NDVI_CALCULATION, handle_ndvi_calculation)
     worker.register_handler(TaskType.DISEASE_DETECTION, handle_disease_detection)
     worker.register_handler(TaskType.REPORT_GENERATION, handle_report_generation)
@@ -180,9 +178,7 @@ def register_all_handlers(worker: TaskWorker):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def create_queue_with_workers(
-    redis_client, worker_count: int = 3, namespace: str = "sahool"
-):
+def create_queue_with_workers(redis_client, worker_count: int = 3, namespace: str = "sahool"):
     """
     إنشاء قائمة انتظار مع عمال جاهزين
     Create queue with ready workers

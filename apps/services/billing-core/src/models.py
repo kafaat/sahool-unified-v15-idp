@@ -140,22 +140,14 @@ class Plan(Base):
     )
 
     # Names
-    name: Mapped[str] = mapped_column(
-        String(255), nullable=False, comment="اسم الخطة (EN)"
-    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False, comment="اسم الخطة (EN)")
 
-    name_ar: Mapped[str] = mapped_column(
-        String(255), nullable=False, comment="اسم الخطة (AR)"
-    )
+    name_ar: Mapped[str] = mapped_column(String(255), nullable=False, comment="اسم الخطة (AR)")
 
     # Descriptions
-    description: Mapped[str] = mapped_column(
-        Text, nullable=False, comment="وصف الخطة (EN)"
-    )
+    description: Mapped[str] = mapped_column(Text, nullable=False, comment="وصف الخطة (EN)")
 
-    description_ar: Mapped[str] = mapped_column(
-        Text, nullable=False, comment="وصف الخطة (AR)"
-    )
+    description_ar: Mapped[str] = mapped_column(Text, nullable=False, comment="وصف الخطة (AR)")
 
     # Tier
     tier: Mapped[PlanTier] = mapped_column(
@@ -254,13 +246,9 @@ class Tenant(Base):
     )
 
     # Names
-    name: Mapped[str] = mapped_column(
-        String(255), nullable=False, comment="اسم المستأجر (EN)"
-    )
+    name: Mapped[str] = mapped_column(String(255), nullable=False, comment="اسم المستأجر (EN)")
 
-    name_ar: Mapped[str] = mapped_column(
-        String(255), nullable=False, comment="اسم المستأجر (AR)"
-    )
+    name_ar: Mapped[str] = mapped_column(String(255), nullable=False, comment="اسم المستأجر (AR)")
 
     # Contact Info (stored as JSONB)
     contact: Mapped[dict] = mapped_column(
@@ -270,9 +258,7 @@ class Tenant(Base):
     )
 
     # Tax ID
-    tax_id: Mapped[str | None] = mapped_column(
-        String(100), nullable=True, comment="الرقم الضريبي"
-    )
+    tax_id: Mapped[str | None] = mapped_column(String(100), nullable=True, comment="الرقم الضريبي")
 
     # Status
     is_active: Mapped[bool] = mapped_column(
@@ -370,13 +356,9 @@ class Subscription(Base):
     )
 
     # Dates
-    start_date: Mapped[date] = mapped_column(
-        Date, nullable=False, comment="تاريخ البدء"
-    )
+    start_date: Mapped[date] = mapped_column(Date, nullable=False, comment="تاريخ البدء")
 
-    end_date: Mapped[date] = mapped_column(
-        Date, nullable=False, comment="تاريخ الانتهاء"
-    )
+    end_date: Mapped[date] = mapped_column(Date, nullable=False, comment="تاريخ الانتهاء")
 
     trial_end_date: Mapped[date | None] = mapped_column(
         Date, nullable=True, comment="تاريخ انتهاء الفترة التجريبية"
@@ -523,9 +505,7 @@ class Invoice(Base):
         Date, nullable=False, index=True, comment="تاريخ الاستحقاق"
     )
 
-    paid_date: Mapped[date | None] = mapped_column(
-        Date, nullable=True, comment="تاريخ الدفع"
-    )
+    paid_date: Mapped[date | None] = mapped_column(Date, nullable=True, comment="تاريخ الدفع")
 
     # Amounts (stored as Numeric for precision)
     subtotal: Mapped[Decimal] = mapped_column(
@@ -556,9 +536,7 @@ class Invoice(Base):
         comment="مبلغ الخصم",
     )
 
-    total: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2), nullable=False, comment="المجموع الكلي"
-    )
+    total: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, comment="المجموع الكلي")
 
     amount_paid: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
@@ -578,13 +556,9 @@ class Invoice(Base):
     )
 
     # Notes
-    notes: Mapped[str | None] = mapped_column(
-        Text, nullable=True, comment="ملاحظات (EN)"
-    )
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True, comment="ملاحظات (EN)")
 
-    notes_ar: Mapped[str | None] = mapped_column(
-        Text, nullable=True, comment="ملاحظات (AR)"
-    )
+    notes_ar: Mapped[str | None] = mapped_column(Text, nullable=True, comment="ملاحظات (AR)")
 
     # External IDs
     stripe_invoice_id: Mapped[str | None] = mapped_column(
@@ -668,9 +642,7 @@ class Payment(Base):
     )
 
     # Amount
-    amount: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2), nullable=False, comment="المبلغ"
-    )
+    amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False, comment="المبلغ")
 
     currency: Mapped[Currency] = mapped_column(
         SQLEnum(Currency, name="currency_enum"),
@@ -703,9 +675,7 @@ class Payment(Base):
         DateTime(timezone=True), nullable=True, comment="تاريخ المعالجة"
     )
 
-    failure_reason: Mapped[str | None] = mapped_column(
-        Text, nullable=True, comment="سبب الفشل"
-    )
+    failure_reason: Mapped[str | None] = mapped_column(Text, nullable=True, comment="سبب الفشل")
 
     # External References
     stripe_payment_id: Mapped[str | None] = mapped_column(
@@ -795,9 +765,7 @@ class UsageRecord(Base):
         comment="نوع المقياس (e.g., satellite_analyses, api_calls)",
     )
 
-    quantity: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=1, comment="الكمية"
-    )
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=1, comment="الكمية")
 
     # Timestamps
     recorded_at: Mapped[datetime] = mapped_column(
@@ -829,9 +797,7 @@ class UsageRecord(Base):
     __table_args__ = (
         CheckConstraint("quantity > 0", name="check_quantity_positive"),
         Index("idx_usage_subscription_metric", "subscription_id", "metric_type"),
-        Index(
-            "idx_usage_tenant_metric_date", "tenant_id", "metric_type", "recorded_at"
-        ),
+        Index("idx_usage_tenant_metric_date", "tenant_id", "metric_type", "recorded_at"),
         Index("idx_usage_recorded_at", "recorded_at"),
     )
 

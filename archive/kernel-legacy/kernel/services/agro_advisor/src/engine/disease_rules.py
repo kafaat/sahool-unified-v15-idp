@@ -3,7 +3,6 @@ Disease Rules Engine - SAHOOL Agro Advisor
 Rule-based disease assessment and recommendation generation
 """
 
-
 from ..kb.diseases import DISEASES, get_disease
 
 
@@ -77,9 +76,7 @@ def assess_from_image_event(
     urgency = disease["urgency_hours"]
 
     if weather_context:
-        severity, urgency = _adjust_for_weather(
-            disease, weather_context, severity, urgency
-        )
+        severity, urgency = _adjust_for_weather(disease, weather_context, severity, urgency)
 
     # Build assessment
     return DiseaseAssessment(

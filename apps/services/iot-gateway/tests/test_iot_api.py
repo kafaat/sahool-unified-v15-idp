@@ -256,9 +256,7 @@ class TestDeviceEndpoints:
     @patch("apps.services.iot_gateway.src.main.registry")
     @patch("apps.services.iot_gateway.src.main.publisher")
     @pytest.mark.asyncio
-    async def test_register_device_success(
-        self, mock_pub, mock_reg, test_client, mock_publisher
-    ):
+    async def test_register_device_success(self, mock_pub, mock_reg, test_client, mock_publisher):
         """Test successful device registration"""
         new_registry = DeviceRegistry()
         mock_reg.register = new_registry.register
@@ -503,9 +501,7 @@ class TestAsyncEndpoints:
     @patch("apps.services.iot_gateway.src.main.registry")
     @patch("apps.services.iot_gateway.src.main.publisher")
     @pytest.mark.asyncio
-    async def test_async_sensor_reading(
-        self, mock_pub, mock_reg, mock_registry, mock_publisher
-    ):
+    async def test_async_sensor_reading(self, mock_pub, mock_reg, mock_registry, mock_publisher):
         """Test sensor reading submission with async client"""
         mock_reg.__bool__ = lambda x: True
         mock_reg.get = mock_registry.get

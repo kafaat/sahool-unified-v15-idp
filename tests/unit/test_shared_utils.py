@@ -29,7 +29,6 @@ from shared.libs.pagination import (
     SortOrder,
 )
 
-
 # ═══════════════════════════════════════════════════════════════════════════
 # Cache Tests
 # ═══════════════════════════════════════════════════════════════════════════
@@ -48,9 +47,7 @@ class TestCacheConfig:
 
     def test_custom_config(self):
         """Test custom cache configuration"""
-        config = CacheConfig(
-            enabled=False, ttl_seconds=600, max_size=5000, key_prefix="test:"
-        )
+        config = CacheConfig(enabled=False, ttl_seconds=600, max_size=5000, key_prefix="test:")
         assert config.enabled is False
         assert config.ttl_seconds == 600
         assert config.max_size == 5000

@@ -67,9 +67,7 @@ class TestSensorAggregator(unittest.TestCase):
         )
         readings.append(outlier)
 
-        outliers = self.aggregator.detect_outliers(
-            readings, method="zscore", threshold=2.0
-        )
+        outliers = self.aggregator.detect_outliers(readings, method="zscore", threshold=2.0)
 
         # يجب أن يكتشف على الأقل قيمة شاذة واحدة
         # Should detect at least one outlier
@@ -138,9 +136,7 @@ class TestSensorAggregator(unittest.TestCase):
     def test_aggregate_by_sensor_type(self):
         """اختبار التجميع حسب نوع المستشعر"""
         # إنشاء قراءات لحقول مختلفة
-        readings = create_sample_readings(
-            "device_001", "field_001", "soil_moisture", count=24
-        )
+        readings = create_sample_readings("device_001", "field_001", "soil_moisture", count=24)
         readings.extend(
             create_sample_readings("device_002", "field_002", "soil_moisture", count=24)
         )
@@ -164,9 +160,7 @@ class TestSensorAggregator(unittest.TestCase):
         """اختبار المتوسط الساعي"""
         # إنشاء قراءات لـ 24 ساعة (كل 15 دقيقة)
         # Create readings for 24 hours (every 15 minutes)
-        readings = create_sample_readings(
-            self.device_id, self.field_id, self.sensor_type, count=96
-        )
+        readings = create_sample_readings(self.device_id, self.field_id, self.sensor_type, count=96)
 
         hourly_data = self.aggregator.hourly_average(readings)
 
@@ -178,9 +172,7 @@ class TestSensorAggregator(unittest.TestCase):
     def test_daily_summary(self):
         """اختبار الملخص اليومي"""
         # إنشاء قراءات لعدة أيام
-        readings = create_sample_readings(
-            self.device_id, self.field_id, self.sensor_type, count=96
-        )
+        readings = create_sample_readings(self.device_id, self.field_id, self.sensor_type, count=96)
 
         daily_data = self.aggregator.daily_summary(readings)
 
@@ -339,9 +331,7 @@ class TestSensorAggregator(unittest.TestCase):
         # المجموع التراكمي يجب أن يساوي مجموع القيم
         # Cumulative sum should equal sum of values
         self.assertIsNotNone(aggregated.cumulative_sum)
-        self.assertAlmostEqual(
-            aggregated.cumulative_sum, sum(rainfall_values), places=1
-        )
+        self.assertAlmostEqual(aggregated.cumulative_sum, sum(rainfall_values), places=1)
 
 
 class TestSensorReadingModel(unittest.TestCase):

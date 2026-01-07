@@ -3,22 +3,22 @@ Comprehensive Weather Forecast Tests
 Tests for forecast calculations, alert generation, and agricultural indices
 """
 
-import pytest
 from datetime import date, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 from src.forecast_integration import (
+    AlertCategory,
+    AlertSeverity,
     WeatherForecastService,
+    calculate_agricultural_indices,
+    calculate_chill_hours,
+    calculate_evapotranspiration,
+    calculate_gdd,
+    detect_drought_conditions,
     detect_frost_risk,
     detect_heat_wave,
     detect_heavy_rain,
-    detect_drought_conditions,
-    calculate_gdd,
-    calculate_chill_hours,
-    calculate_evapotranspiration,
-    calculate_agricultural_indices,
-    AlertSeverity,
-    AlertCategory,
 )
 from src.providers.open_meteo import DailyForecast, HourlyForecast
 
@@ -167,7 +167,7 @@ class TestHeatWaveDetection:
         """Test critical heat wave detection (3+ consecutive hot days)"""
         heat_forecast = [
             DailyForecast(
-                date=f"2026-01-{10+i}",
+                date=f"2026-01-{10 + i}",
                 temp_max_c=42.0 + i,  # Critical heat
                 temp_min_c=28.0,
                 precipitation_mm=0.0,
@@ -192,7 +192,7 @@ class TestHeatWaveDetection:
         """Test medium heat wave detection"""
         heat_forecast = [
             DailyForecast(
-                date=f"2026-01-{10+i}",
+                date=f"2026-01-{10 + i}",
                 temp_max_c=38.0,  # Medium heat wave threshold
                 temp_min_c=25.0,
                 precipitation_mm=0.0,
@@ -247,7 +247,7 @@ class TestHeatWaveDetection:
         """Test heat wave alert includes irrigation recommendations"""
         heat_forecast = [
             DailyForecast(
-                date=f"2026-01-{10+i}",
+                date=f"2026-01-{10 + i}",
                 temp_max_c=40.0,
                 temp_min_c=26.0,
                 precipitation_mm=0.0,
@@ -263,8 +263,9 @@ class TestHeatWaveDetection:
         alerts = detect_heat_wave(heat_forecast)
 
         assert len(alerts) > 0
-        assert any("irrigation" in rec.lower() or "ري" in rec
-                   for rec in alerts[0].recommendations_en)
+        assert any(
+            "irrigation" in rec.lower() or "ري" in rec for rec in alerts[0].recommendations_en
+        )
 
 
 class TestHeavyRainDetection:
@@ -365,7 +366,7 @@ class TestDroughtDetection:
         # Create 14 days of minimal precipitation
         drought_forecast = [
             DailyForecast(
-                date=f"2026-01-{10+i}",
+                date=f"2026-01-{10 + i}",
                 temp_max_c=35.0,
                 temp_min_c=22.0,
                 precipitation_mm=0.0,  # No rain
@@ -389,7 +390,7 @@ class TestDroughtDetection:
         # Historical dry period
         history = [
             DailyForecast(
-                date=f"2025-12-{20+i}",
+                date=f"2025-12-{20 + i}",
                 temp_max_c=32.0,
                 temp_min_c=20.0,
                 precipitation_mm=0.5,
@@ -405,7 +406,7 @@ class TestDroughtDetection:
         # Current forecast also dry
         forecast = [
             DailyForecast(
-                date=f"2026-01-{10+i}",
+                date=f"2026-01-{10 + i}",
                 temp_max_c=34.0,
                 temp_min_c=21.0,
                 precipitation_mm=0.0,
@@ -426,7 +427,7 @@ class TestDroughtDetection:
         """Test no drought with sufficient rainfall"""
         forecast = [
             DailyForecast(
-                date=f"2026-01-{10+i}",
+                date=f"2026-01-{10 + i}",
                 temp_max_c=30.0,
                 temp_min_c=20.0,
                 precipitation_mm=15.0 if i % 3 == 0 else 0.0,  # Regular rain
@@ -681,7 +682,7 @@ class TestWeatherForecastService:
     @pytest.mark.asyncio
     async def test_service_initialization(self):
         """Test service initializes with providers"""
-        with patch('src.forecast_integration.get_config') as mock_config:
+        with patch("src.forecast_integration.get_config") as mock_config:
             # Mock configuration
             mock_cfg = MagicMock()
             mock_cfg.providers = {
@@ -698,7 +699,7 @@ class TestWeatherForecastService:
     @pytest.mark.asyncio
     async def test_fetch_forecast_success(self):
         """Test successful forecast fetching"""
-        with patch('src.forecast_integration.get_config') as mock_config:
+        with patch("src.forecast_integration.get_config") as mock_config:
             mock_cfg = MagicMock()
             mock_cfg.providers = {
                 "open_meteo": MagicMock(enabled=True, priority=MagicMock(value=1)),
@@ -711,19 +712,21 @@ class TestWeatherForecastService:
             # Mock provider
             mock_provider = AsyncMock()
             mock_provider.is_configured = True
-            mock_provider.get_daily_forecast = AsyncMock(return_value=[
-                DailyForecast(
-                    date="2026-01-15",
-                    temp_max_c=32.0,
-                    temp_min_c=18.0,
-                    precipitation_mm=0.0,
-                    precipitation_probability_pct=10.0,
-                    wind_speed_max_kmh=15.0,
-                    uv_index_max=9.0,
-                    sunrise="06:15",
-                    sunset="18:00",
-                )
-            ])
+            mock_provider.get_daily_forecast = AsyncMock(
+                return_value=[
+                    DailyForecast(
+                        date="2026-01-15",
+                        temp_max_c=32.0,
+                        temp_min_c=18.0,
+                        precipitation_mm=0.0,
+                        precipitation_probability_pct=10.0,
+                        wind_speed_max_kmh=15.0,
+                        uv_index_max=9.0,
+                        sunrise="06:15",
+                        sunset="18:00",
+                    )
+                ]
+            )
             mock_provider.get_hourly_forecast = AsyncMock(return_value=[])
 
             service.providers = {"open_meteo": mock_provider}
@@ -737,7 +740,7 @@ class TestWeatherForecastService:
     @pytest.mark.asyncio
     async def test_fetch_forecast_provider_fallback(self):
         """Test provider fallback on failure"""
-        with patch('src.forecast_integration.get_config') as mock_config:
+        with patch("src.forecast_integration.get_config") as mock_config:
             mock_cfg = MagicMock()
             mock_cfg.providers = {}
             mock_cfg.forecast_max_days = 16
@@ -748,9 +751,7 @@ class TestWeatherForecastService:
             # Mock multiple providers, first fails
             mock_provider1 = AsyncMock()
             mock_provider1.is_configured = True
-            mock_provider1.get_daily_forecast = AsyncMock(
-                side_effect=Exception("API Error")
-            )
+            mock_provider1.get_daily_forecast = AsyncMock(side_effect=Exception("API Error"))
 
             mock_provider2 = AsyncMock()
             mock_provider2.is_configured = True

@@ -26,8 +26,6 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable
-from uuid import UUID
 
 
 class AnomalyType(str, Enum):
@@ -222,9 +220,7 @@ class AuditAnomalyDetector:
                 actor_entries[actor_id].append(entry)
 
         for actor_id, actor_logs in actor_entries.items():
-            baseline = self._build_entity_baseline(
-                actor_id, "actor", actor_logs, baseline_days
-            )
+            baseline = self._build_entity_baseline(actor_id, "actor", actor_logs, baseline_days)
             self._baselines[f"actor:{actor_id}"] = baseline
 
         return self._baselines
@@ -248,9 +244,7 @@ class AuditAnomalyDetector:
             return baseline
 
         # Calculate daily event counts
-        daily_counts = Counter(
-            e["_timestamp"].strftime("%Y-%m-%d") for e in entries
-        )
+        daily_counts = Counter(e["_timestamp"].strftime("%Y-%m-%d") for e in entries)
         counts = list(daily_counts.values())
 
         if counts:
@@ -260,9 +254,7 @@ class AuditAnomalyDetector:
                 baseline.std_daily_events = math.sqrt(variance)
 
             # Calculate bounds (3 sigma)
-            baseline.volume_upper_bound = (
-                baseline.avg_daily_events + 3 * baseline.std_daily_events
-            )
+            baseline.volume_upper_bound = baseline.avg_daily_events + 3 * baseline.std_daily_events
             baseline.volume_lower_bound = max(
                 0, baseline.avg_daily_events - 3 * baseline.std_daily_events
             )
@@ -376,9 +368,7 @@ class AuditAnomalyDetector:
         report.critical_anomalies = sum(
             1 for a in anomalies if a.severity == SeverityLevel.CRITICAL
         )
-        report.high_anomalies = sum(
-            1 for a in anomalies if a.severity == SeverityLevel.HIGH
-        )
+        report.high_anomalies = sum(1 for a in anomalies if a.severity == SeverityLevel.HIGH)
 
         # Calculate threat score
         self._calculate_threat_score(report)
@@ -420,15 +410,11 @@ class AuditAnomalyDetector:
                     Anomaly(
                         anomaly_id=self._generate_anomaly_id(),
                         anomaly_type=AnomalyType.VOLUME_SPIKE,
-                        severity=SeverityLevel.MEDIUM
-                        if z_score < 4
-                        else SeverityLevel.HIGH,
+                        severity=SeverityLevel.MEDIUM if z_score < 4 else SeverityLevel.HIGH,
                         description=f"Volume spike detected: {count} events in hour {hour} "
                         f"(Z-score: {z_score:.2f})",
                         confidence=min(0.95, 0.5 + z_score / 10),
-                        timestamp=datetime.strptime(hour, "%Y-%m-%d %H").replace(
-                            tzinfo=UTC
-                        ),
+                        timestamp=datetime.strptime(hour, "%Y-%m-%d %H").replace(tzinfo=UTC),
                         metrics={
                             "count": count,
                             "mean": mean,
@@ -449,9 +435,7 @@ class AuditAnomalyDetector:
                         severity=SeverityLevel.LOW,
                         description=f"Volume drop detected: {count} events in hour {hour}",
                         confidence=min(0.9, 0.5 + abs(z_score) / 10),
-                        timestamp=datetime.strptime(hour, "%Y-%m-%d %H").replace(
-                            tzinfo=UTC
-                        ),
+                        timestamp=datetime.strptime(hour, "%Y-%m-%d %H").replace(tzinfo=UTC),
                         metrics={"count": count, "z_score": z_score},
                         recommendations=["Verify system availability"],
                     )
@@ -556,9 +540,7 @@ class AuditAnomalyDetector:
                         timestamp=actor_logs[-1]["_timestamp"],
                         actor_id=actor_id,
                         metrics={"new_resource_count": len(new_resources)},
-                        recommendations=[
-                            "Verify authorization for new resource access"
-                        ],
+                        recommendations=["Verify authorization for new resource access"],
                     )
                 )
 
@@ -585,9 +567,7 @@ class AuditAnomalyDetector:
                 for i in range(len(actions) - len(pattern) + 1):
                     window = actions[i : i + len(pattern)]
                     # Fuzzy match - check if actions contain the pattern
-                    matches = all(
-                        any(p in a for a in window) for p in pattern
-                    )
+                    matches = all(any(p in a for a in window) for p in pattern)
                     if matches:
                         anomalies.append(
                             Anomaly(
@@ -599,8 +579,7 @@ class AuditAnomalyDetector:
                                 timestamp=actor_logs[i]["_timestamp"],
                                 actor_id=actor_id,
                                 evidence=[
-                                    {"action": a, "index": i + j}
-                                    for j, a in enumerate(window)
+                                    {"action": a, "index": i + j} for j, a in enumerate(window)
                                 ],
                                 recommendations=[
                                     "Investigate actor's recent activity",
@@ -636,9 +615,7 @@ class AuditAnomalyDetector:
                 window_end = window_start + timedelta(minutes=1)
 
                 window_count = sum(
-                    1
-                    for e in actor_logs[i:]
-                    if window_start <= e["_timestamp"] <= window_end
+                    1 for e in actor_logs[i:] if window_start <= e["_timestamp"] <= window_end
                 )
 
                 if window_count >= self.VELOCITY_THRESHOLD:
@@ -756,9 +733,7 @@ class AuditAnomalyDetector:
             if len(failures) >= 5:
                 # Check time window
                 failures.sort(key=lambda x: x["_timestamp"])
-                time_span = (
-                    failures[-1]["_timestamp"] - failures[0]["_timestamp"]
-                ).total_seconds()
+                time_span = (failures[-1]["_timestamp"] - failures[0]["_timestamp"]).total_seconds()
 
                 if time_span < 300:  # 5 minutes
                     anomalies.append(
@@ -808,9 +783,7 @@ class AuditAnomalyDetector:
             SeverityLevel.INFO: 1,
         }
 
-        total_weight = sum(
-            weights.get(a.severity, 0) * a.confidence for a in report.anomalies
-        )
+        total_weight = sum(weights.get(a.severity, 0) * a.confidence for a in report.anomalies)
 
         # Normalize to 0-100
         report.threat_score = min(100, total_weight)
@@ -827,9 +800,7 @@ class AuditAnomalyDetector:
 
         # Identify top threats
         threat_types = Counter(a.anomaly_type.value for a in report.anomalies)
-        report.top_threats = [
-            {"type": t, "count": c} for t, c in threat_types.most_common(5)
-        ]
+        report.top_threats = [{"type": t, "count": c} for t, c in threat_types.most_common(5)]
 
 
 def generate_markdown_report(report: DetectionReport) -> str:
@@ -878,9 +849,7 @@ def generate_markdown_report(report: DetectionReport) -> str:
 
     # Critical and High anomalies
     critical_high = [
-        a
-        for a in report.anomalies
-        if a.severity in (SeverityLevel.CRITICAL, SeverityLevel.HIGH)
+        a for a in report.anomalies if a.severity in (SeverityLevel.CRITICAL, SeverityLevel.HIGH)
     ]
 
     if critical_high:
@@ -1026,7 +995,7 @@ def main():
     output_path.write_text(output)
 
     # Console output
-    print(f"Anomaly Detection Complete")
+    print("Anomaly Detection Complete")
     print(f"  Threat Score: {report.threat_score:.1f}/100 ({report.threat_level.upper()})")
     print(f"  Anomalies: {report.anomalies_detected} detected")
     print(f"  Critical: {report.critical_anomalies}")

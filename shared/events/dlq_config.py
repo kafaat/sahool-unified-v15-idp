@@ -101,9 +101,7 @@ class DLQConfig(BaseModel):
         ge=1,
         description="Alert when DLQ message count exceeds this threshold",
     )
-    alert_enabled: bool = Field(
-        default=True, description="Enable alerting for DLQ accumulation"
-    )
+    alert_enabled: bool = Field(default=True, description="Enable alerting for DLQ accumulation")
     alert_check_interval_seconds: int = Field(
         default=300,  # 5 minutes
         ge=60,
@@ -172,23 +170,17 @@ class DLQMessageMetadata(BaseModel):
     # Original message info
     original_subject: str = Field(..., description="Original NATS subject")
     original_event_id: str | None = Field(None, description="Original event ID")
-    correlation_id: str | None = Field(
-        None, description="Correlation ID for tracing"
-    )
+    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
 
     # Failure info
     retry_count: int = Field(default=0, ge=0, description="Number of retry attempts")
     failure_reason: str = Field(..., description="Reason for failure")
-    failure_timestamp: str = Field(
-        ..., description="ISO 8601 timestamp of final failure"
-    )
+    failure_timestamp: str = Field(..., description="ISO 8601 timestamp of final failure")
     error_type: str | None = Field(None, description="Python exception class name")
     error_traceback: str | None = Field(None, description="Stack trace (truncated)")
 
     # Consumer info
-    consumer_service: str | None = Field(
-        None, description="Service that failed to process"
-    )
+    consumer_service: str | None = Field(None, description="Service that failed to process")
     consumer_version: str | None = Field(None, description="Service version")
     handler_function: str | None = Field(None, description="Handler function name")
 
@@ -203,9 +195,7 @@ class DLQMessageMetadata(BaseModel):
     # Replay info
     replayed: bool = Field(default=False, description="Has this message been replayed")
     replay_count: int = Field(default=0, ge=0, description="Number of replay attempts")
-    last_replay_timestamp: str | None = Field(
-        None, description="Last replay timestamp"
-    )
+    last_replay_timestamp: str | None = Field(None, description="Last replay timestamp")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

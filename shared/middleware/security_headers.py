@@ -18,7 +18,7 @@ Based on GAPS_AND_RECOMMENDATIONS.md - Phase 1 (High Priority)
 """
 
 import os
-from typing import Callable
+from collections.abc import Callable
 
 from fastapi import FastAPI, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -27,10 +27,10 @@ from starlette.middleware.base import BaseHTTPMiddleware
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """
     Middleware to add security headers to all responses.
-    
+
     Usage:
         from shared.middleware.security_headers import SecurityHeadersMiddleware
-        
+
         app = FastAPI()
         app.add_middleware(SecurityHeadersMiddleware)
     """
@@ -44,7 +44,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     ):
         """
         Initialize security headers middleware.
-        
+
         Args:
             app: FastAPI application instance
             enable_hsts: Enable Strict-Transport-Security header (HTTPS only)
@@ -60,10 +60,10 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     def _get_default_csp(self) -> str:
         """
         Get default Content Security Policy.
-        
+
         This is a restrictive policy optimized for API services.
         For web applications serving HTML/JS, customize via CSP_POLICY env var.
-        
+
         Security Note: This default policy does NOT use 'unsafe-inline' or
         'unsafe-eval' to maintain strong XSS protection. If your app requires
         inline scripts/styles, use nonces or hashes instead.
@@ -82,16 +82,14 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "upgrade-insecure-requests"  # Upgrade HTTP to HTTPS
         )
 
-    async def dispatch(
-        self, request: Request, call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Add security headers to all responses.
-        
+
         Args:
             request: Incoming HTTP request
             call_next: Next middleware or route handler
-            
+
         Returns:
             Response with security headers added
         """
@@ -185,19 +183,19 @@ def setup_security_headers(
 ) -> None:
     """
     Configure security headers middleware with sensible defaults.
-    
+
     Args:
         app: FastAPI application instance
         enable_hsts: Enable HSTS header (auto-detected based on environment)
         enable_csp: Enable Content-Security-Policy header
         csp_policy: Custom CSP policy (uses secure default if None)
-    
+
     Usage:
         from shared.middleware.security_headers import setup_security_headers
-        
+
         app = FastAPI()
         setup_security_headers(app)
-    
+
     Environment Variables:
         ENVIRONMENT: Set to 'production' to enable HSTS
         ENABLE_HSTS: Override auto-detection (true/false)
@@ -237,7 +235,7 @@ def get_security_headers_config() -> dict:
     """
     Get security headers configuration as a dictionary.
     Useful for debugging or logging.
-    
+
     Returns:
         Dictionary with current security headers configuration
     """

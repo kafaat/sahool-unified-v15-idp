@@ -16,9 +16,7 @@ class StockManager:
     def __init__(self, db: Prisma):
         self.db = db
 
-    async def consume_stock_fifo(
-        self, item_id: str, quantity: float
-    ) -> tuple[list[dict], float]:
+    async def consume_stock_fifo(self, item_id: str, quantity: float) -> tuple[list[dict], float]:
         """
         Consume stock using FIFO (First In First Out) method
         Returns: (consumed_batches, total_consumed)
@@ -147,9 +145,7 @@ class StockManager:
             data={
                 "currentQuantity": new_current,
                 "availableQuantity": new_available,
-                "lastRestocked": (
-                    datetime.utcnow() if is_addition else item.lastRestocked
-                ),
+                "lastRestocked": (datetime.utcnow() if is_addition else item.lastRestocked),
             },
         )
 
@@ -271,11 +267,7 @@ class StockManager:
                     {"reorderLevel": {"not": None}},
                     {
                         "OR": [
-                            {
-                                "currentQuantity": {
-                                    "lte": self.db.inventoryitem.fields.reorderLevel
-                                }
-                            },
+                            {"currentQuantity": {"lte": self.db.inventoryitem.fields.reorderLevel}},
                         ]
                     },
                 ]
@@ -286,8 +278,7 @@ class StockManager:
         low_stock_items = [
             item
             for item in items
-            if item.reorderLevel is not None
-            and item.currentQuantity <= item.reorderLevel
+            if item.reorderLevel is not None and item.currentQuantity <= item.reorderLevel
         ]
 
         return low_stock_items
@@ -314,9 +305,7 @@ class StockManager:
 
     async def calculate_inventory_value(self) -> dict:
         """Calculate total inventory value"""
-        items = await self.db.inventoryitem.find_many(
-            where={"currentQuantity": {"gt": 0}}
-        )
+        items = await self.db.inventoryitem.find_many(where={"currentQuantity": {"gt": 0}})
 
         total_value = 0.0
         value_by_category = {}

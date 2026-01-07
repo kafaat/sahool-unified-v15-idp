@@ -135,9 +135,7 @@ async def create_rotation_plan_with_history(req: CreateRotationPlanRequest) -> d
                     planting_date=(
                         date.fromisoformat(h.planting_date) if h.planting_date else None
                     ),
-                    harvest_date=(
-                        date.fromisoformat(h.harvest_date) if h.harvest_date else None
-                    ),
+                    harvest_date=(date.fromisoformat(h.harvest_date) if h.harvest_date else None),
                     expected_yield=h.expected_yield,
                     notes=h.notes,
                 )
@@ -175,9 +173,7 @@ async def suggest_next_crop_endpoint(
     history = await planner.get_field_history(field_id, years=5)
 
     # Get suggestions
-    suggestions = await planner.suggest_next_crop(
-        field_id=field_id, history=history, season=season
-    )
+    suggestions = await planner.suggest_next_crop(field_id=field_id, history=history, season=season)
 
     return {
         "field_id": field_id,
@@ -210,12 +206,8 @@ async def evaluate_rotation_endpoint(req: EvaluateRotationRequest) -> dict:
                 crop_name_ar=s.crop_name_ar,
                 crop_name_en=s.crop_name_en,
                 crop_family=CropFamily(s.crop_family),
-                planting_date=(
-                    date.fromisoformat(s.planting_date) if s.planting_date else None
-                ),
-                harvest_date=(
-                    date.fromisoformat(s.harvest_date) if s.harvest_date else None
-                ),
+                planting_date=(date.fromisoformat(s.planting_date) if s.planting_date else None),
+                harvest_date=(date.fromisoformat(s.harvest_date) if s.harvest_date else None),
                 expected_yield=s.expected_yield,
                 notes=s.notes,
             )
@@ -317,9 +309,7 @@ async def check_rotation_compatibility_endpoint(
     try:
         family = CropFamily(crop_family)
     except ValueError:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid crop family: {crop_family}"
-        )
+        raise HTTPException(status_code=400, detail=f"Invalid crop family: {crop_family}")
 
     # Convert previous crops to SeasonPlan objects
     history = []

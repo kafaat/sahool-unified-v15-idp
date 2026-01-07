@@ -157,18 +157,14 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.INVALID_INPUT,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Invalid input provided", ar="تم تقديم بيانات غير صالحة"
-        ),
+        message=BilingualMessage(en="Invalid input provided", ar="تم تقديم بيانات غير صالحة"),
         retryable=False,
     ),
     ErrorCode.MISSING_REQUIRED_FIELD: ErrorCodeMetadata(
         code=ErrorCode.MISSING_REQUIRED_FIELD,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Required field is missing", ar="حقل مطلوب غير موجود"
-        ),
+        message=BilingualMessage(en="Required field is missing", ar="حقل مطلوب غير موجود"),
         retryable=False,
     ),
     ErrorCode.INVALID_FORMAT: ErrorCodeMetadata(
@@ -182,18 +178,14 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.INVALID_EMAIL,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Invalid email format", ar="تنسيق البريد الإلكتروني غير صالح"
-        ),
+        message=BilingualMessage(en="Invalid email format", ar="تنسيق البريد الإلكتروني غير صالح"),
         retryable=False,
     ),
     ErrorCode.INVALID_PHONE: ErrorCodeMetadata(
         code=ErrorCode.INVALID_PHONE,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Invalid phone number format", ar="تنسيق رقم الهاتف غير صالح"
-        ),
+        message=BilingualMessage(en="Invalid phone number format", ar="تنسيق رقم الهاتف غير صالح"),
         retryable=False,
     ),
     ErrorCode.INVALID_DATE: ErrorCodeMetadata(
@@ -231,9 +223,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.INVALID_CREDENTIALS,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Invalid credentials provided", ar="بيانات اعتماد غير صالحة"
-        ),
+        message=BilingualMessage(en="Invalid credentials provided", ar="بيانات اعتماد غير صالحة"),
         retryable=False,
     ),
     ErrorCode.TOKEN_EXPIRED: ErrorCodeMetadata(
@@ -249,18 +239,14 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.TOKEN_INVALID,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Invalid authentication token", ar="رمز مصادقة غير صالح"
-        ),
+        message=BilingualMessage(en="Invalid authentication token", ar="رمز مصادقة غير صالح"),
         retryable=False,
     ),
     ErrorCode.TOKEN_MISSING: ErrorCodeMetadata(
         code=ErrorCode.TOKEN_MISSING,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Authentication token is missing", ar="رمز المصادقة مفقود"
-        ),
+        message=BilingualMessage(en="Authentication token is missing", ar="رمز المصادقة مفقود"),
         retryable=False,
     ),
     ErrorCode.SESSION_EXPIRED: ErrorCodeMetadata(
@@ -288,9 +274,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.EMAIL_NOT_VERIFIED,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Email address not verified", ar="البريد الإلكتروني غير مُفعّل"
-        ),
+        message=BilingualMessage(en="Email address not verified", ar="البريد الإلكتروني غير مُفعّل"),
         retryable=False,
     ),
     # Authorization Errors
@@ -332,27 +316,21 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.ROLE_REQUIRED,
         category=ErrorCategory.AUTHORIZATION,
         http_status=HTTPStatus.FORBIDDEN,
-        message=BilingualMessage(
-            en="Required role not assigned", ar="الدور المطلوب غير معين"
-        ),
+        message=BilingualMessage(en="Required role not assigned", ar="الدور المطلوب غير معين"),
         retryable=False,
     ),
     ErrorCode.SUBSCRIPTION_REQUIRED: ErrorCodeMetadata(
         code=ErrorCode.SUBSCRIPTION_REQUIRED,
         category=ErrorCategory.AUTHORIZATION,
         http_status=HTTPStatus.FORBIDDEN,
-        message=BilingualMessage(
-            en="Active subscription required", ar="يتطلب اشتراك نشط"
-        ),
+        message=BilingualMessage(en="Active subscription required", ar="يتطلب اشتراك نشط"),
         retryable=False,
     ),
     ErrorCode.QUOTA_EXCEEDED: ErrorCodeMetadata(
         code=ErrorCode.QUOTA_EXCEEDED,
         category=ErrorCategory.AUTHORIZATION,
         http_status=HTTPStatus.FORBIDDEN,
-        message=BilingualMessage(
-            en="Usage quota exceeded", ar="تم تجاوز حصة الاستخدام"
-        ),
+        message=BilingualMessage(en="Usage quota exceeded", ar="تم تجاوز حصة الاستخدام"),
         retryable=False,
     ),
     # Not Found Errors
@@ -438,9 +416,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.RESOURCE_ALREADY_EXISTS,
         category=ErrorCategory.CONFLICT,
         http_status=HTTPStatus.CONFLICT,
-        message=BilingualMessage(
-            en="Resource already exists", ar="المورد موجود بالفعل"
-        ),
+        message=BilingualMessage(en="Resource already exists", ar="المورد موجود بالفعل"),
         retryable=False,
     ),
     ErrorCode.DUPLICATE_EMAIL: ErrorCodeMetadata(
@@ -456,9 +432,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.DUPLICATE_PHONE,
         category=ErrorCategory.CONFLICT,
         http_status=HTTPStatus.CONFLICT,
-        message=BilingualMessage(
-            en="Phone number already registered", ar="رقم الهاتف مسجل بالفعل"
-        ),
+        message=BilingualMessage(en="Phone number already registered", ar="رقم الهاتف مسجل بالفعل"),
         retryable=False,
     ),
     ErrorCode.CONCURRENT_MODIFICATION: ErrorCodeMetadata(
@@ -499,9 +473,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.INVALID_STATE_TRANSITION,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Invalid state transition", ar="انتقال حالة غير صالح"
-        ),
+        message=BilingualMessage(en="Invalid state transition", ar="انتقال حالة غير صالح"),
         retryable=False,
     ),
     ErrorCode.OPERATION_NOT_ALLOWED: ErrorCodeMetadata(
@@ -527,9 +499,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.PLANTING_DATE_INVALID,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Invalid planting date", ar="تاريخ الزراعة غير صالح"
-        ),
+        message=BilingualMessage(en="Invalid planting date", ar="تاريخ الزراعة غير صالح"),
         retryable=False,
     ),
     ErrorCode.HARVEST_DATE_BEFORE_PLANTING: ErrorCodeMetadata(
@@ -581,9 +551,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.EXTERNAL_SERVICE_ERROR,
         category=ErrorCategory.EXTERNAL_SERVICE,
         http_status=HTTPStatus.BAD_GATEWAY,
-        message=BilingualMessage(
-            en="External service error", ar="خطأ في الخدمة الخارجية"
-        ),
+        message=BilingualMessage(en="External service error", ar="خطأ في الخدمة الخارجية"),
         retryable=True,
     ),
     ErrorCode.WEATHER_SERVICE_UNAVAILABLE: ErrorCodeMetadata(
@@ -617,18 +585,14 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.SMS_SERVICE_ERROR,
         category=ErrorCategory.EXTERNAL_SERVICE,
         http_status=HTTPStatus.BAD_GATEWAY,
-        message=BilingualMessage(
-            en="SMS service error", ar="خطأ في خدمة الرسائل النصية"
-        ),
+        message=BilingualMessage(en="SMS service error", ar="خطأ في خدمة الرسائل النصية"),
         retryable=True,
     ),
     ErrorCode.EMAIL_SERVICE_ERROR: ErrorCodeMetadata(
         code=ErrorCode.EMAIL_SERVICE_ERROR,
         category=ErrorCategory.EXTERNAL_SERVICE,
         http_status=HTTPStatus.BAD_GATEWAY,
-        message=BilingualMessage(
-            en="Email service error", ar="خطأ في خدمة البريد الإلكتروني"
-        ),
+        message=BilingualMessage(en="Email service error", ar="خطأ في خدمة البريد الإلكتروني"),
         retryable=True,
     ),
     ErrorCode.MAPS_SERVICE_ERROR: ErrorCodeMetadata(
@@ -643,9 +607,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.DATABASE_ERROR,
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-        message=BilingualMessage(
-            en="Database error occurred", ar="حدث خطأ في قاعدة البيانات"
-        ),
+        message=BilingualMessage(en="Database error occurred", ar="حدث خطأ في قاعدة البيانات"),
         retryable=True,
     ),
     ErrorCode.DATABASE_CONNECTION_FAILED: ErrorCodeMetadata(
@@ -670,9 +632,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.TRANSACTION_FAILED,
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-        message=BilingualMessage(
-            en="Database transaction failed", ar="فشلت معاملة قاعدة البيانات"
-        ),
+        message=BilingualMessage(en="Database transaction failed", ar="فشلت معاملة قاعدة البيانات"),
         retryable=True,
     ),
     ErrorCode.CONSTRAINT_VIOLATION: ErrorCodeMetadata(
@@ -697,9 +657,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.UNIQUE_CONSTRAINT_VIOLATION,
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.CONFLICT,
-        message=BilingualMessage(
-            en="Unique constraint violation", ar="انتهاك قيد الفريدية"
-        ),
+        message=BilingualMessage(en="Unique constraint violation", ar="انتهاك قيد الفريدية"),
         retryable=False,
     ),
     # Internal Errors
@@ -714,9 +672,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.SERVICE_UNAVAILABLE,
         category=ErrorCategory.INTERNAL,
         http_status=HTTPStatus.SERVICE_UNAVAILABLE,
-        message=BilingualMessage(
-            en="Service temporarily unavailable", ar="الخدمة غير متاحة مؤقتاً"
-        ),
+        message=BilingualMessage(en="Service temporarily unavailable", ar="الخدمة غير متاحة مؤقتاً"),
         retryable=True,
     ),
     ErrorCode.CONFIGURATION_ERROR: ErrorCodeMetadata(
@@ -737,9 +693,7 @@ ERROR_REGISTRY: dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.DEPENDENCY_FAILED,
         category=ErrorCategory.INTERNAL,
         http_status=HTTPStatus.FAILED_DEPENDENCY,
-        message=BilingualMessage(
-            en="Dependency service failed", ar="فشلت خدمة الاعتماد"
-        ),
+        message=BilingualMessage(en="Dependency service failed", ar="فشلت خدمة الاعتماد"),
         retryable=True,
     ),
     # Rate Limiting
@@ -780,8 +734,4 @@ def get_error_codes_by_category(category: ErrorCategory) -> list[ErrorCode]:
     Get all error codes by category
     الحصول على جميع أكواد الأخطاء حسب الفئة
     """
-    return [
-        code
-        for code, metadata in ERROR_REGISTRY.items()
-        if metadata.category == category
-    ]
+    return [code for code, metadata in ERROR_REGISTRY.items() if metadata.category == category]

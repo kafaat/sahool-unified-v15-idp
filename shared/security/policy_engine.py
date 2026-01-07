@@ -103,10 +103,8 @@ class PolicyContext:
             return cls()
 
         return cls(
-            user_id=getattr(principal, "sub", None)
-            or getattr(principal, "user_id", None),
-            tenant_id=getattr(principal, "tid", None)
-            or getattr(principal, "tenant_id", None),
+            user_id=getattr(principal, "sub", None) or getattr(principal, "user_id", None),
+            tenant_id=getattr(principal, "tid", None) or getattr(principal, "tenant_id", None),
             roles=getattr(principal, "roles", []),
             scopes=getattr(principal, "scopes", []),
             is_authenticated=True,
@@ -138,12 +136,8 @@ DEFAULT_POLICIES: dict[str, RoutePolicy] = {
     # Public routes
     "/login": RoutePolicy("/login", require_auth=False, allow_public=True),
     "/register": RoutePolicy("/register", require_auth=False, allow_public=True),
-    "/forgot-password": RoutePolicy(
-        "/forgot-password", require_auth=False, allow_public=True
-    ),
-    "/reset-password": RoutePolicy(
-        "/reset-password", require_auth=False, allow_public=True
-    ),
+    "/forgot-password": RoutePolicy("/forgot-password", require_auth=False, allow_public=True),
+    "/reset-password": RoutePolicy("/reset-password", require_auth=False, allow_public=True),
     # API health endpoints
     "/healthz": RoutePolicy("/healthz", require_auth=False, allow_public=True),
     "/readyz": RoutePolicy("/readyz", require_auth=False, allow_public=True),
@@ -217,9 +211,7 @@ class PolicyEngine:
 
         # Prefix match (longest first)
         matching = [
-            (p, policy)
-            for p, policy in self._policies.items()
-            if path.startswith(p) and p != "/"
+            (p, policy) for p, policy in self._policies.items() if path.startswith(p) and p != "/"
         ]
         if matching:
             matching.sort(key=lambda x: len(x[0]), reverse=True)
@@ -291,9 +283,7 @@ class PolicyEngine:
             required_roles = set(policy.require_roles)
 
             # Super admin bypasses role check
-            if not context.is_super_admin and not user_roles.intersection(
-                required_roles
-            ):
+            if not context.is_super_admin and not user_roles.intersection(required_roles):
                 logger.debug(
                     f"Role check failed for {path}: need {required_roles}, have {user_roles}"
                 )
@@ -323,8 +313,7 @@ class PolicyEngine:
         # Check any permission (at least ONE must match)
         if policy.require_any_permission:
             has_any = any(
-                self._has_permission(context, perm)
-                for perm in policy.require_any_permission
+                self._has_permission(context, perm) for perm in policy.require_any_permission
             )
             if not has_any:
                 logger.debug(f"Any-permission check failed for {path}")

@@ -15,15 +15,9 @@ from fastapi import FastAPI, HTTPException
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
-from pydantic import BaseModel, Field, field_validator, ValidationInfo
+from pydantic import BaseModel, Field, ValidationInfo, field_validator
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
@@ -75,9 +69,7 @@ async def handle_mqtt_message(msg: MqttMessage):
         if not device:
             # Auto-register device if enabled (for backward compatibility)
             # In production, devices should be pre-registered
-            auto_register_enabled = (
-                os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
-            )
+            auto_register_enabled = os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
 
             if auto_register_enabled:
                 logger.warning(
@@ -101,10 +93,7 @@ async def handle_mqtt_message(msg: MqttMessage):
         sensor_type_lower = reading.sensor_type.lower()
         if sensor_type_lower in SENSOR_RANGES:
             range_config = SENSOR_RANGES[sensor_type_lower]
-            if (
-                reading.value < range_config["min"]
-                or reading.value > range_config["max"]
-            ):
+            if reading.value < range_config["min"] or reading.value > range_config["max"]:
                 logger.error(
                     f"MQTT message rejected: Value {reading.value} out of range "
                     f"for {reading.sensor_type}. Device: {reading.device_id}, "
@@ -159,8 +148,7 @@ async def check_offline_devices():
                     device_id=device.device_id,
                     field_id=device.field_id,
                     status=DeviceStatus.OFFLINE.value,
-                    last_seen=device.last_seen
-                    or datetime.now(UTC).isoformat(),
+                    last_seen=device.last_seen or datetime.now(UTC).isoformat(),
                 )
 
                 # Also publish alert
@@ -267,15 +255,16 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+
 # Add exception handler to prevent crashes
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
     """Global exception handler to prevent service crashes"""
     logger.error(f"Unhandled exception: {exc}", exc_info=True)
     from fastapi.responses import JSONResponse
+
     return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error", "service": "iot-gateway"}
+        status_code=500, content={"detail": "Internal server error", "service": "iot-gateway"}
     )
 
 
@@ -344,8 +333,8 @@ class SensorReadingRequest(BaseModel):
     @classmethod
     def validate_value_range(cls, v, info: ValidationInfo):
         """Validate sensor value is within expected range"""
-        if info.data and 'sensor_type' in info.data:
-            sensor_type = info.data['sensor_type'].lower()
+        if info.data and "sensor_type" in info.data:
+            sensor_type = info.data["sensor_type"].lower()
             if sensor_type in SENSOR_RANGES:
                 range_config = SENSOR_RANGES[sensor_type]
                 if v < range_config["min"] or v > range_config["max"]:
@@ -377,9 +366,7 @@ class DeviceRegisterRequest(BaseModel):
 # ============== Authorization & Validation Functions ==============
 
 
-def validate_device_authorization(
-    device_id: str, tenant_id: str, field_id: str
-) -> bool:
+def validate_device_authorization(device_id: str, tenant_id: str, field_id: str) -> bool:
     """
     Validate that device is authorized for the tenant and field
     """
@@ -464,9 +451,7 @@ async def post_sensor_reading(req: SensorReadingRequest):
         raise HTTPException(status_code=503, detail="Publisher not available")
 
     # Validate device authorization and sensor reading
-    validate_sensor_reading(
-        req.device_id, req.tenant_id, req.field_id, req.sensor_type, req.value
-    )
+    validate_sensor_reading(req.device_id, req.tenant_id, req.field_id, req.sensor_type, req.value)
 
     timestamp = req.timestamp or datetime.now(UTC).isoformat()
 
@@ -547,8 +532,7 @@ async def post_batch_readings(req: BatchReadingRequest):
 
             if not sensor_type or value is None:
                 logger.warning(
-                    f"Skipping reading {idx}: missing sensor_type or value. "
-                    f"Device: {req.device_id}"
+                    f"Skipping reading {idx}: missing sensor_type or value. Device: {req.device_id}"
                 )
                 continue
 
@@ -557,10 +541,7 @@ async def post_batch_readings(req: BatchReadingRequest):
             if sensor_type_lower in SENSOR_RANGES:
                 range_config = SENSOR_RANGES[sensor_type_lower]
                 value_float = float(value)
-                if (
-                    value_float < range_config["min"]
-                    or value_float > range_config["max"]
-                ):
+                if value_float < range_config["min"] or value_float > range_config["max"]:
                     logger.error(
                         f"Batch reading {idx} rejected: Value {value_float} out of range "
                         f"for {sensor_type}. Expected {range_config['min']} to {range_config['max']}"
@@ -585,12 +566,8 @@ async def post_batch_readings(req: BatchReadingRequest):
         except HTTPException:
             raise  # Re-raise HTTP exceptions
         except Exception as e:
-            logger.error(
-                f"Error processing batch reading {idx} for device {req.device_id}: {e}"
-            )
-            raise HTTPException(
-                status_code=400, detail=f"Error processing reading {idx}: {str(e)}"
-            )
+            logger.error(f"Error processing batch reading {idx} for device {req.device_id}: {e}")
+            raise HTTPException(status_code=400, detail=f"Error processing reading {idx}: {str(e)}")
 
     # Update device status
     registry.update_status(device_id=req.device_id)

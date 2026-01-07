@@ -6,28 +6,26 @@ This file defines the database schema for tasks and evidence.
 يحدد هذا الملف مخطط قاعدة البيانات للمهام والأدلة.
 """
 
-import sys
 import os
+import sys
+import uuid
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import (
     Boolean,
     DateTime,
+    ForeignKey,
+    Index,
     Integer,
     String,
     Text,
-    Index,
-    ForeignKey,
-    Time,
 )
-from sqlalchemy.dialects.postgresql import UUID, JSONB, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-import uuid
 
 # Import shared database base classes
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
-from database.base import Base, TimestampMixin, TenantMixin
+from database.base import Base, TenantMixin, TimestampMixin
 
 
 class Task(Base, TimestampMixin, TenantMixin):
@@ -52,15 +50,15 @@ class Task(Base, TimestampMixin, TenantMixin):
         String(200),
         nullable=False,
     )
-    title_ar: Mapped[Optional[str]] = mapped_column(
+    title_ar: Mapped[str | None] = mapped_column(
         String(200),
         nullable=True,
     )
-    description: Mapped[Optional[str]] = mapped_column(
+    description: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
-    description_ar: Mapped[Optional[str]] = mapped_column(
+    description_ar: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
@@ -84,16 +82,16 @@ class Task(Base, TimestampMixin, TenantMixin):
     )
 
     # Assignment & Location - التعيين والموقع
-    field_id: Mapped[Optional[str]] = mapped_column(
+    field_id: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True,
         index=True,
     )
-    zone_id: Mapped[Optional[str]] = mapped_column(
+    zone_id: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True,
     )
-    assigned_to: Mapped[Optional[str]] = mapped_column(
+    assigned_to: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True,
         index=True,
@@ -104,55 +102,55 @@ class Task(Base, TimestampMixin, TenantMixin):
     )
 
     # Scheduling - الجدولة
-    due_date: Mapped[Optional[datetime]] = mapped_column(
+    due_date: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
         index=True,
     )
-    scheduled_time: Mapped[Optional[str]] = mapped_column(
+    scheduled_time: Mapped[str | None] = mapped_column(
         String(10),  # HH:MM format
         nullable=True,
     )
-    estimated_duration_minutes: Mapped[Optional[int]] = mapped_column(
+    estimated_duration_minutes: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
     )
-    actual_duration_minutes: Mapped[Optional[int]] = mapped_column(
+    actual_duration_minutes: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
     )
 
     # Completion - الإنجاز
-    completed_at: Mapped[Optional[datetime]] = mapped_column(
+    completed_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
-    completion_notes: Mapped[Optional[str]] = mapped_column(
+    completion_notes: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
 
     # Metadata - البيانات الوصفية
-    metadata: Mapped[Optional[dict]] = mapped_column(
+    metadata: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         default={},
     )
 
     # Astronomical Fields - الحقول الفلكية
-    astronomical_score: Mapped[Optional[int]] = mapped_column(
+    astronomical_score: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
     )
-    moon_phase_at_due_date: Mapped[Optional[str]] = mapped_column(
+    moon_phase_at_due_date: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True,
     )
-    lunar_mansion_at_due_date: Mapped[Optional[str]] = mapped_column(
+    lunar_mansion_at_due_date: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True,
     )
-    optimal_time_of_day: Mapped[Optional[str]] = mapped_column(
+    optimal_time_of_day: Mapped[str | None] = mapped_column(
         String(50),
         nullable=True,
     )
@@ -161,11 +159,11 @@ class Task(Base, TimestampMixin, TenantMixin):
         default=False,
         nullable=False,
     )
-    astronomical_recommendation: Mapped[Optional[dict]] = mapped_column(
+    astronomical_recommendation: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
     )
-    astronomical_warnings: Mapped[Optional[list]] = mapped_column(
+    astronomical_warnings: Mapped[list | None] = mapped_column(
         ARRAY(Text),
         nullable=True,
         default=[],
@@ -181,10 +179,10 @@ class Task(Base, TimestampMixin, TenantMixin):
 
     # Indexes for performance - الفهارس لتحسين الأداء
     __table_args__ = (
-        Index('idx_tasks_tenant_status', 'tenant_id', 'status'),
-        Index('idx_tasks_assigned_status', 'assigned_to', 'status'),
-        Index('idx_tasks_field_status', 'field_id', 'status'),
-        Index('idx_tasks_due_date_status', 'due_date', 'status'),
+        Index("idx_tasks_tenant_status", "tenant_id", "status"),
+        Index("idx_tasks_assigned_status", "assigned_to", "status"),
+        Index("idx_tasks_field_status", "field_id", "status"),
+        Index("idx_tasks_due_date_status", "due_date", "status"),
     )
 
     def __repr__(self):
@@ -233,7 +231,7 @@ class TaskEvidence(Base, TimestampMixin):
     )
 
     # Location (stored as JSONB for flexibility)
-    location: Mapped[Optional[dict]] = mapped_column(
+    location: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         comment="GPS coordinates: {lat: float, lon: float}",
@@ -247,8 +245,8 @@ class TaskEvidence(Base, TimestampMixin):
 
     # Index for performance
     __table_args__ = (
-        Index('idx_evidence_task_id', 'task_id'),
-        Index('idx_evidence_type', 'type'),
+        Index("idx_evidence_task_id", "task_id"),
+        Index("idx_evidence_type", "type"),
     )
 
     def __repr__(self):
@@ -286,11 +284,11 @@ class TaskHistory(Base, TimestampMixin):
         nullable=False,
         comment="created, updated, started, completed, cancelled, assigned",
     )
-    old_status: Mapped[Optional[str]] = mapped_column(
+    old_status: Mapped[str | None] = mapped_column(
         String(20),
         nullable=True,
     )
-    new_status: Mapped[Optional[str]] = mapped_column(
+    new_status: Mapped[str | None] = mapped_column(
         String(20),
         nullable=True,
     )
@@ -300,21 +298,21 @@ class TaskHistory(Base, TimestampMixin):
         String(100),
         nullable=False,
     )
-    changes: Mapped[Optional[dict]] = mapped_column(
+    changes: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         comment="Detailed changes in JSON format",
     )
-    notes: Mapped[Optional[str]] = mapped_column(
+    notes: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )
 
     # Index for audit queries
     __table_args__ = (
-        Index('idx_history_task_id', 'task_id'),
-        Index('idx_history_action', 'action'),
-        Index('idx_history_created_at', 'created_at'),
+        Index("idx_history_task_id", "task_id"),
+        Index("idx_history_action", "action"),
+        Index("idx_history_created_at", "created_at"),
     )
 
     def __repr__(self):

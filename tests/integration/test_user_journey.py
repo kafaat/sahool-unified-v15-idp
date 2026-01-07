@@ -54,9 +54,7 @@ async def test_new_farmer_onboarding_journey(
     billing_url = service_urls.get("billing_core", "http://localhost:8089")
 
     # List available plans
-    plans_response = await http_client.get(
-        f"{billing_url}/v1/plans", headers=auth_headers
-    )
+    plans_response = await http_client.get(f"{billing_url}/v1/plans", headers=auth_headers)
 
     if plans_response.status_code == 200:
         plans = plans_response.json()
@@ -667,9 +665,7 @@ async def test_multi_service_integration_journey(
         "timestamp": datetime.utcnow().isoformat(),
     }
 
-    await http_client.post(
-        f"{iot_url}/v1/readings", json=sensor_reading, headers=auth_headers
-    )
+    await http_client.post(f"{iot_url}/v1/readings", json=sensor_reading, headers=auth_headers)
 
     # Steps 2-3: Alert and notification happen automatically
     # Wait for event propagation
@@ -710,9 +706,7 @@ async def test_multi_service_integration_journey(
         "due_date": datetime.utcnow().isoformat(),
     }
 
-    await http_client.post(
-        f"{task_url}/api/v1/tasks", json=irrigation_task, headers=auth_headers
-    )
+    await http_client.post(f"{task_url}/api/v1/tasks", json=irrigation_task, headers=auth_headers)
 
     # Step 6: Farmer approves (or auto-approved if configured)
     # Step 7: Actuator control
@@ -731,9 +725,7 @@ async def test_multi_service_integration_journey(
     # Step 9: Check billing quota usage
     billing_url = service_urls.get("billing_core", "http://localhost:8089")
 
-    usage_response = await http_client.get(
-        f"{billing_url}/v1/usage", headers=auth_headers
-    )
+    usage_response = await http_client.get(f"{billing_url}/v1/usage", headers=auth_headers)
 
     if usage_response.status_code == 200:
         usage = usage_response.json()

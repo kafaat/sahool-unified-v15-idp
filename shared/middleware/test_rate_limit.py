@@ -345,10 +345,7 @@ class TestMiddlewareIntegration:
         response = client.get("/test")
 
         # Check for rate limit headers
-        assert (
-            "x-ratelimit-limit" in response.headers
-            or "X-RateLimit-Limit" in response.headers
-        )
+        assert "x-ratelimit-limit" in response.headers or "X-RateLimit-Limit" in response.headers
 
     def test_middleware_excludes_health_endpoints(self):
         """Test that health endpoints are excluded from rate limiting"""

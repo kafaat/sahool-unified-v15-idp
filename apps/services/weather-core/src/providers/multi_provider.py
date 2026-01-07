@@ -268,9 +268,7 @@ class OpenMeteoProvider(WeatherProvider):
                     temp_max_c=daily.get("temperature_2m_max", [0])[i],
                     temp_min_c=daily.get("temperature_2m_min", [0])[i],
                     precipitation_mm=daily.get("precipitation_sum", [0])[i] or 0,
-                    precipitation_probability_pct=daily.get(
-                        "precipitation_probability_max", [0]
-                    )[i]
+                    precipitation_probability_pct=daily.get("precipitation_probability_max", [0])[i]
                     or 0,
                     wind_speed_max_kmh=daily.get("wind_speed_10m_max", [0])[i],
                     uv_index_max=daily.get("uv_index_max", [0])[i] or 0,
@@ -321,9 +319,7 @@ class OpenMeteoProvider(WeatherProvider):
                     temperature_c=hourly.get("temperature_2m", [0])[i],
                     humidity_pct=hourly.get("relative_humidity_2m", [0])[i],
                     precipitation_mm=hourly.get("precipitation", [0])[i] or 0,
-                    precipitation_probability_pct=hourly.get(
-                        "precipitation_probability", [0]
-                    )[i]
+                    precipitation_probability_pct=hourly.get("precipitation_probability", [0])[i]
                     or 0,
                     wind_speed_kmh=hourly.get("wind_speed_10m", [0])[i],
                     cloud_cover_pct=hourly.get("cloud_cover", [0])[i],
@@ -410,9 +406,7 @@ class OpenWeatherMapProvider(WeatherProvider):
     BASE_URL = "https://api.openweathermap.org/data/2.5"
 
     def __init__(self, api_key: str | None = None):
-        super().__init__(
-            "OpenWeatherMap", api_key or os.getenv("OPENWEATHERMAP_API_KEY")
-        )
+        super().__init__("OpenWeatherMap", api_key or os.getenv("OPENWEATHERMAP_API_KEY"))
 
     @property
     def is_configured(self) -> bool:
@@ -490,9 +484,7 @@ class OpenWeatherMapProvider(WeatherProvider):
                     temp_max_c=max(temps),
                     temp_min_c=min(temps),
                     precipitation_mm=sum(precips),
-                    precipitation_probability_pct=int(
-                        (items[0].get("pop", 0) or 0) * 100
-                    ),
+                    precipitation_probability_pct=int((items[0].get("pop", 0) or 0) * 100),
                     wind_speed_max_kmh=items[0]["wind"]["speed"] * 3.6,
                     uv_index_max=0,
                     condition=condition,
@@ -640,9 +632,7 @@ class WeatherAPIProvider(WeatherProvider):
                     temp_max_c=day_data.get("maxtemp_c", 0),
                     temp_min_c=day_data.get("mintemp_c", 0),
                     precipitation_mm=day_data.get("totalprecip_mm", 0),
-                    precipitation_probability_pct=day_data.get(
-                        "daily_chance_of_rain", 0
-                    ),
+                    precipitation_probability_pct=day_data.get("daily_chance_of_rain", 0),
                     wind_speed_max_kmh=day_data.get("maxwind_kph", 0),
                     uv_index_max=day_data.get("uv", 0),
                     condition=day_data.get("condition", {}).get("text", "Unknown"),
@@ -774,9 +764,7 @@ class MultiWeatherService:
             error_ar="فشل جميع مزودي الطقس",
         )
 
-    async def get_daily_forecast(
-        self, lat: float, lon: float, days: int = 7
-    ) -> WeatherResult:
+    async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> WeatherResult:
         """Get daily forecast with automatic fallback"""
         cache_key = f"daily_{lat:.2f}_{lon:.2f}_{days}"
 
@@ -810,9 +798,7 @@ class MultiWeatherService:
             error_ar="فشل جميع مزودي التوقعات",
         )
 
-    async def get_hourly_forecast(
-        self, lat: float, lon: float, hours: int = 24
-    ) -> WeatherResult:
+    async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24) -> WeatherResult:
         """Get hourly forecast with automatic fallback"""
         cache_key = f"hourly_{lat:.2f}_{lon:.2f}_{hours}"
 

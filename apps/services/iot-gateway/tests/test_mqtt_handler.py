@@ -53,9 +53,7 @@ class TestMqttClient:
 
     def test_mqtt_client_initialization(self):
         """Test MQTT client initialization"""
-        client = MqttClient(
-            broker="mqtt.example.com", port=1883, username="user", password="pass"
-        )
+        client = MqttClient(broker="mqtt.example.com", port=1883, username="user", password="pass")
 
         assert client.broker == "mqtt.example.com"
         assert client.port == 1883
@@ -255,9 +253,7 @@ class TestMqttMessageHandling:
                 mock_publisher.publish_sensor_reading.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_handle_mqtt_message_unregistered_device(
-        self, mock_registry, mock_publisher
-    ):
+    async def test_handle_mqtt_message_unregistered_device(self, mock_registry, mock_publisher):
         """Test handling message from unregistered device"""
         from apps.services.iot_gateway.src.main import handle_mqtt_message
 
@@ -283,9 +279,7 @@ class TestMqttMessageHandling:
                 mock_publisher.publish_sensor_reading.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_handle_mqtt_message_with_auto_register(
-        self, mock_registry, mock_publisher
-    ):
+    async def test_handle_mqtt_message_with_auto_register(self, mock_registry, mock_publisher):
         """Test handling message with auto-registration enabled"""
         from apps.services.iot_gateway.src.main import handle_mqtt_message
 
@@ -312,9 +306,7 @@ class TestMqttMessageHandling:
                     assert device is not None
 
     @pytest.mark.asyncio
-    async def test_handle_mqtt_message_out_of_range(
-        self, mock_registry, mock_publisher
-    ):
+    async def test_handle_mqtt_message_out_of_range(self, mock_registry, mock_publisher):
         """Test handling message with out-of-range value"""
         from apps.services.iot_gateway.src.main import handle_mqtt_message
 
@@ -339,9 +331,7 @@ class TestMqttMessageHandling:
                 mock_publisher.publish_sensor_reading.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_handle_mqtt_message_with_metadata(
-        self, mock_registry, mock_publisher
-    ):
+    async def test_handle_mqtt_message_with_metadata(self, mock_registry, mock_publisher):
         """Test handling message with battery and RSSI metadata"""
         from apps.services.iot_gateway.src.main import handle_mqtt_message
 
@@ -370,9 +360,7 @@ class TestMqttMessageHandling:
                 assert "metadata" in call_args.kwargs
 
     @pytest.mark.asyncio
-    async def test_handle_mqtt_message_invalid_json(
-        self, mock_registry, mock_publisher
-    ):
+    async def test_handle_mqtt_message_invalid_json(self, mock_registry, mock_publisher):
         """Test handling message with invalid JSON"""
         from apps.services.iot_gateway.src.main import handle_mqtt_message
 
@@ -726,9 +714,7 @@ class TestMqttErrorRecovery:
         publisher = MagicMock()
 
         # Send malformed message
-        msg = MqttMessage(
-            topic="test/topic", payload="not json", qos=1, retain=False
-        )
+        msg = MqttMessage(topic="test/topic", payload="not json", qos=1, retain=False)
 
         with patch("apps.services.iot_gateway.src.main.registry", registry):
             with patch("apps.services.iot_gateway.src.main.publisher", publisher):

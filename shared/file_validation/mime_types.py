@@ -3,7 +3,6 @@ MIME Type Definitions and Magic Bytes Validation
 تعريفات أنواع MIME والتحقق من البايتات السحرية
 """
 
-from typing import Dict, List, Optional, Tuple
 
 # MIME Type Whitelists - قوائم بيضاء لأنواع MIME
 ALLOWED_IMAGE_TYPES = [
@@ -44,7 +43,7 @@ ALLOWED_VIDEO_TYPES = [
 
 # Magic Bytes for common file types - البايتات السحرية لأنواع الملفات الشائعة
 # Format: (magic_bytes, mime_type, extension)
-MAGIC_BYTES_SIGNATURES: List[Tuple[bytes, str, str]] = [
+MAGIC_BYTES_SIGNATURES: list[tuple[bytes, str, str]] = [
     # Images
     (b"\xff\xd8\xff", "image/jpeg", "jpg"),
     (b"\x89PNG\r\n\x1a\n", "image/png", "png"),
@@ -54,17 +53,14 @@ MAGIC_BYTES_SIGNATURES: List[Tuple[bytes, str, str]] = [
     (b"BM", "image/bmp", "bmp"),
     (b"II*\x00", "image/tiff", "tiff"),  # Little-endian TIFF
     (b"MM\x00*", "image/tiff", "tiff"),  # Big-endian TIFF
-
     # Documents
     (b"%PDF", "application/pdf", "pdf"),
     (b"PK\x03\x04", "application/zip", "zip"),  # Also used by docx, xlsx, etc.
     (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1", "application/msword", "doc"),  # MS Office
-
     # Archives
     (b"\x1f\x8b", "application/gzip", "gz"),
     (b"7z\xbc\xaf\x27\x1c", "application/x-7z-compressed", "7z"),
     (b"Rar!\x1a\x07", "application/x-rar-compressed", "rar"),
-
     # Video
     (b"\x00\x00\x00\x18ftypmp42", "video/mp4", "mp4"),
     (b"\x00\x00\x00\x1cftypmp42", "video/mp4", "mp4"),
@@ -72,7 +68,7 @@ MAGIC_BYTES_SIGNATURES: List[Tuple[bytes, str, str]] = [
 ]
 
 
-def get_mime_from_magic_bytes(file_bytes: bytes, max_check: int = 32) -> Optional[str]:
+def get_mime_from_magic_bytes(file_bytes: bytes, max_check: int = 32) -> str | None:
     """
     Detect MIME type from file magic bytes
     كشف نوع MIME من البايتات السحرية للملف
@@ -97,11 +93,7 @@ def get_mime_from_magic_bytes(file_bytes: bytes, max_check: int = 32) -> Optiona
     return None
 
 
-def validate_mime_match(
-    declared_mime: str,
-    file_bytes: bytes,
-    strict: bool = True
-) -> bool:
+def validate_mime_match(declared_mime: str, file_bytes: bytes, strict: bool = True) -> bool:
     """
     Validate that declared MIME type matches file content
     التحقق من تطابق نوع MIME المعلن مع محتوى الملف
@@ -130,7 +122,7 @@ def validate_mime_match(
     return declared_category == detected_category
 
 
-def is_mime_allowed(mime_type: str, allowed_types: List[str]) -> bool:
+def is_mime_allowed(mime_type: str, allowed_types: list[str]) -> bool:
     """
     Check if MIME type is in allowed list
     التحقق من وجود نوع MIME في القائمة المسموحة
@@ -145,7 +137,7 @@ def is_mime_allowed(mime_type: str, allowed_types: List[str]) -> bool:
     return mime_type in allowed_types
 
 
-def get_extension_from_mime(mime_type: str) -> Optional[str]:
+def get_extension_from_mime(mime_type: str) -> str | None:
     """
     Get file extension from MIME type
     الحصول على امتداد الملف من نوع MIME
@@ -156,7 +148,7 @@ def get_extension_from_mime(mime_type: str) -> Optional[str]:
     Returns:
         File extension (without dot) or None
     """
-    mime_to_ext: Dict[str, str] = {
+    mime_to_ext: dict[str, str] = {
         "image/jpeg": "jpg",
         "image/jpg": "jpg",
         "image/png": "png",

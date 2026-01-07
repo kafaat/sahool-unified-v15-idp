@@ -94,16 +94,12 @@ class InventoryAlert:
             "recommended_action_ar": self.recommended_action_ar,
             "action_url": self.action_url,
             "created_at": self.created_at.isoformat(),
-            "acknowledged_at": (
-                self.acknowledged_at.isoformat() if self.acknowledged_at else None
-            ),
+            "acknowledged_at": (self.acknowledged_at.isoformat() if self.acknowledged_at else None),
             "acknowledged_by": self.acknowledged_by,
             "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
             "resolved_by": self.resolved_by,
             "resolution_notes": self.resolution_notes,
-            "snooze_until": (
-                self.snooze_until.isoformat() if self.snooze_until else None
-            ),
+            "snooze_until": (self.snooze_until.isoformat() if self.snooze_until else None),
         }
 
 
@@ -218,9 +214,7 @@ class AlertManager:
 
             if quantity <= 0:
                 # Check if alert already exists
-                existing_alert = self._find_existing_alert(
-                    item_id, AlertType.OUT_OF_STOCK
-                )
+                existing_alert = self._find_existing_alert(item_id, AlertType.OUT_OF_STOCK)
 
                 if existing_alert and existing_alert.status == AlertStatus.ACTIVE:
                     continue
@@ -271,9 +265,7 @@ class AlertManager:
 
             # Parse expiry date
             if isinstance(expiry_date_str, str):
-                expiry_date = datetime.fromisoformat(
-                    expiry_date_str.replace("Z", "+00:00")
-                ).date()
+                expiry_date = datetime.fromisoformat(expiry_date_str.replace("Z", "+00:00")).date()
             elif isinstance(expiry_date_str, datetime):
                 expiry_date = expiry_date_str.date()
             elif isinstance(expiry_date_str, date):
@@ -293,20 +285,20 @@ class AlertManager:
                 message_en = f"This item expired {abs(days_until_expiry)} day(s) ago. Remove from inventory immediately."
                 message_ar = f"انتهت صلاحية هذا الصنف منذ {abs(days_until_expiry)} يوم. قم بإزالته من المخزون فوراً."
                 action_en = "Remove expired item from inventory and dispose safely"
-                action_ar = (
-                    "قم بإزالة الصنف المنتهي الصلاحية من المخزون والتخلص منه بشكل آمن"
-                )
+                action_ar = "قم بإزالة الصنف المنتهي الصلاحية من المخزون والتخلص منه بشكل آمن"
             elif days_until_expiry <= critical_days:
                 # Critical warning
                 alert_type = AlertType.EXPIRING_SOON
                 priority = AlertPriority.HIGH
                 title_en = f"Expiring Soon: {item.get('name', 'Unknown')}"
                 title_ar = f"ينتهي قريبا: {item.get('name_ar', 'غير معروف')}"
-                message_en = f"This item expires in {days_until_expiry} day(s). Use or discount immediately."
-                message_ar = f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. استخدمه أو قدم خصم فوراً."
-                action_en = (
-                    f"Use item within {days_until_expiry} days or offer discount"
+                message_en = (
+                    f"This item expires in {days_until_expiry} day(s). Use or discount immediately."
                 )
+                message_ar = (
+                    f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. استخدمه أو قدم خصم فوراً."
+                )
+                action_en = f"Use item within {days_until_expiry} days or offer discount"
                 action_ar = f"استخدم الصنف خلال {days_until_expiry} يوم أو قدم خصم"
             elif days_until_expiry <= warning_days:
                 # Warning
@@ -314,8 +306,12 @@ class AlertManager:
                 priority = AlertPriority.MEDIUM
                 title_en = f"Expiring in {days_until_expiry} Days: {item.get('name', 'Unknown')}"
                 title_ar = f"ينتهي خلال {days_until_expiry} يوم: {item.get('name_ar', 'غير معروف')}"
-                message_en = f"This item expires in {days_until_expiry} day(s). Plan usage accordingly."
-                message_ar = f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. خطط للاستخدام وفقاً لذلك."
+                message_en = (
+                    f"This item expires in {days_until_expiry} day(s). Plan usage accordingly."
+                )
+                message_ar = (
+                    f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. خطط للاستخدام وفقاً لذلك."
+                )
                 action_en = f"Plan to use item within {days_until_expiry} days"
                 action_ar = f"خطط لاستخدام الصنف خلال {days_until_expiry} يوم"
             else:
@@ -378,9 +374,7 @@ class AlertManager:
                 order_quantity = max_stock - quantity
 
                 # Check if alert already exists
-                existing_alert = self._find_existing_alert(
-                    item_id, AlertType.REORDER_POINT
-                )
+                existing_alert = self._find_existing_alert(item_id, AlertType.REORDER_POINT)
 
                 if existing_alert and existing_alert.status == AlertStatus.ACTIVE:
                     continue
@@ -562,9 +556,7 @@ class AlertManager:
 
         return alerts
 
-    async def acknowledge_alert(
-        self, alert_id: str, acknowledged_by: str
-    ) -> InventoryAlert | None:
+    async def acknowledge_alert(self, alert_id: str, acknowledged_by: str) -> InventoryAlert | None:
         """Acknowledge an alert"""
         alert = self.alerts_db.get(alert_id)
         if not alert:
@@ -593,9 +585,7 @@ class AlertManager:
         logger.info(f"Alert {alert_id} resolved by {resolved_by}")
         return alert
 
-    async def snooze_alert(
-        self, alert_id: str, snooze_hours: int = 24
-    ) -> InventoryAlert | None:
+    async def snooze_alert(self, alert_id: str, snooze_hours: int = 24) -> InventoryAlert | None:
         """Snooze alert for N hours"""
         alert = self.alerts_db.get(alert_id)
         if not alert:
@@ -641,9 +631,7 @@ class AlertManager:
             "recent_alerts": [alert.to_dict() for alert in active_alerts[:5]],
         }
 
-    async def send_notifications(
-        self, alerts: list[InventoryAlert], nats_client=None
-    ) -> dict:
+    async def send_notifications(self, alerts: list[InventoryAlert], nats_client=None) -> dict:
         """
         Send notifications via NATS to notification service.
         Groups by user/farm for batch sending.
@@ -688,9 +676,7 @@ class AlertManager:
 
         return {"sent": sent, "failed": failed}
 
-    def _find_existing_alert(
-        self, item_id: str, alert_type: AlertType
-    ) -> InventoryAlert | None:
+    def _find_existing_alert(self, item_id: str, alert_type: AlertType) -> InventoryAlert | None:
         """Find existing active alert for item and type"""
         for alert in self.alerts_db.values():
             if (

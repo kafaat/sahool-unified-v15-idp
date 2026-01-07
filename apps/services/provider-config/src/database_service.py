@@ -7,8 +7,6 @@ SAHOOL - Provider Configuration Database Service
 
 import json
 import logging
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 
 import redis
 from sqlalchemy.exc import IntegrityError
@@ -47,13 +45,13 @@ class CacheManager:
             logger.warning(f"Redis cache connection failed: {e}. Caching disabled.")
             self.redis_client = None
 
-    def _get_key(self, tenant_id: str, provider_type: Optional[str] = None) -> str:
+    def _get_key(self, tenant_id: str, provider_type: str | None = None) -> str:
         """Generate cache key"""
         if provider_type:
             return f"provider_config:{tenant_id}:{provider_type}"
         return f"provider_config:{tenant_id}:all"
 
-    def get(self, tenant_id: str, provider_type: Optional[str] = None) -> Optional[Dict]:
+    def get(self, tenant_id: str, provider_type: str | None = None) -> dict | None:
         """Get cached configuration"""
         if not self.redis_client:
             return None
@@ -70,9 +68,7 @@ class CacheManager:
             logger.error(f"Cache get error: {e}")
             return None
 
-    def set(
-        self, tenant_id: str, data: Dict, provider_type: Optional[str] = None
-    ) -> bool:
+    def set(self, tenant_id: str, data: dict, provider_type: str | None = None) -> bool:
         """Set cached configuration"""
         if not self.redis_client:
             return False
@@ -86,7 +82,7 @@ class CacheManager:
             logger.error(f"Cache set error: {e}")
             return False
 
-    def invalidate(self, tenant_id: str, provider_type: Optional[str] = None):
+    def invalidate(self, tenant_id: str, provider_type: str | None = None):
         """Invalidate cache for tenant"""
         if not self.redis_client:
             return
@@ -129,12 +125,12 @@ class ProviderConfigService:
         tenant_id: str,
         provider_type: str,
         provider_name: str,
-        api_key: Optional[str] = None,
-        api_secret: Optional[str] = None,
+        api_key: str | None = None,
+        api_secret: str | None = None,
         priority: str = "primary",
         enabled: bool = True,
-        config_data: Optional[Dict] = None,
-        created_by: Optional[str] = None,
+        config_data: dict | None = None,
+        created_by: str | None = None,
     ) -> ProviderConfig:
         """Create new provider configuration"""
         try:
@@ -156,9 +152,7 @@ class ProviderConfigService:
             # Invalidate cache
             self.cache.invalidate(tenant_id, provider_type)
 
-            logger.info(
-                f"Created config for tenant {tenant_id}: {provider_type}/{provider_name}"
-            )
+            logger.info(f"Created config for tenant {tenant_id}: {provider_type}/{provider_name}")
             return config
 
         except IntegrityError:
@@ -166,9 +160,7 @@ class ProviderConfigService:
             logger.error(
                 f"Duplicate config: tenant={tenant_id}, type={provider_type}, name={provider_name}"
             )
-            raise ValueError(
-                f"Configuration already exists for {provider_type}/{provider_name}"
-            )
+            raise ValueError(f"Configuration already exists for {provider_type}/{provider_name}")
         except Exception as e:
             session.rollback()
             logger.error(f"Error creating config: {e}")
@@ -179,8 +171,8 @@ class ProviderConfigService:
     # ─────────────────────────────────────────────────────────────────────────
 
     def get_tenant_configs(
-        self, session: Session, tenant_id: str, provider_type: Optional[str] = None
-    ) -> List[ProviderConfig]:
+        self, session: Session, tenant_id: str, provider_type: str | None = None
+    ) -> list[ProviderConfig]:
         """Get all provider configurations for a tenant"""
         # Check cache first
         cached = self.cache.get(tenant_id, provider_type)
@@ -189,9 +181,7 @@ class ProviderConfigService:
             return cached
 
         # Query database
-        query = session.query(ProviderConfig).filter(
-            ProviderConfig.tenant_id == tenant_id
-        )
+        query = session.query(ProviderConfig).filter(ProviderConfig.tenant_id == tenant_id)
 
         if provider_type:
             query = query.filter(ProviderConfig.provider_type == provider_type)
@@ -206,7 +196,7 @@ class ProviderConfigService:
 
     def get_config_by_name(
         self, session: Session, tenant_id: str, provider_type: str, provider_name: str
-    ) -> Optional[ProviderConfig]:
+    ) -> ProviderConfig | None:
         """Get specific provider configuration"""
         return (
             session.query(ProviderConfig)
@@ -220,7 +210,7 @@ class ProviderConfigService:
 
     def get_enabled_providers(
         self, session: Session, tenant_id: str, provider_type: str
-    ) -> List[ProviderConfig]:
+    ) -> list[ProviderConfig]:
         """Get all enabled providers of a specific type for failover"""
         return (
             session.query(ProviderConfig)
@@ -246,18 +236,16 @@ class ProviderConfigService:
         tenant_id: str,
         provider_type: str,
         provider_name: str,
-        api_key: Optional[str] = None,
-        api_secret: Optional[str] = None,
-        priority: Optional[str] = None,
-        enabled: Optional[bool] = None,
-        config_data: Optional[Dict] = None,
-        updated_by: Optional[str] = None,
-    ) -> Optional[ProviderConfig]:
+        api_key: str | None = None,
+        api_secret: str | None = None,
+        priority: str | None = None,
+        enabled: bool | None = None,
+        config_data: dict | None = None,
+        updated_by: str | None = None,
+    ) -> ProviderConfig | None:
         """Update provider configuration"""
         try:
-            config = self.get_config_by_name(
-                session, tenant_id, provider_type, provider_name
-            )
+            config = self.get_config_by_name(session, tenant_id, provider_type, provider_name)
             if not config:
                 return None
 
@@ -281,9 +269,7 @@ class ProviderConfigService:
             # Invalidate cache
             self.cache.invalidate(tenant_id, provider_type)
 
-            logger.info(
-                f"Updated config for tenant {tenant_id}: {provider_type}/{provider_name}"
-            )
+            logger.info(f"Updated config for tenant {tenant_id}: {provider_type}/{provider_name}")
             return config
 
         except Exception as e:
@@ -300,9 +286,7 @@ class ProviderConfigService:
     ) -> bool:
         """Delete provider configuration"""
         try:
-            config = self.get_config_by_name(
-                session, tenant_id, provider_type, provider_name
-            )
+            config = self.get_config_by_name(session, tenant_id, provider_type, provider_name)
             if not config:
                 return False
 
@@ -312,9 +296,7 @@ class ProviderConfigService:
             # Invalidate cache
             self.cache.invalidate(tenant_id, provider_type)
 
-            logger.info(
-                f"Deleted config for tenant {tenant_id}: {provider_type}/{provider_name}"
-            )
+            logger.info(f"Deleted config for tenant {tenant_id}: {provider_type}/{provider_name}")
             return True
 
         except Exception as e:
@@ -330,13 +312,11 @@ class ProviderConfigService:
         self,
         session: Session,
         tenant_id: str,
-        provider_type: Optional[str] = None,
+        provider_type: str | None = None,
         limit: int = 100,
-    ) -> List[ConfigVersion]:
+    ) -> list[ConfigVersion]:
         """Get configuration change history"""
-        query = session.query(ConfigVersion).filter(
-            ConfigVersion.tenant_id == tenant_id
-        )
+        query = session.query(ConfigVersion).filter(ConfigVersion.tenant_id == tenant_id)
 
         if provider_type:
             query = query.filter(ConfigVersion.provider_type == provider_type)
@@ -345,19 +325,17 @@ class ProviderConfigService:
 
     def get_config_version(
         self, session: Session, config_id: str, version: int
-    ) -> Optional[ConfigVersion]:
+    ) -> ConfigVersion | None:
         """Get specific version of a configuration"""
         return (
             session.query(ConfigVersion)
-            .filter(
-                ConfigVersion.config_id == config_id, ConfigVersion.version == version
-            )
+            .filter(ConfigVersion.config_id == config_id, ConfigVersion.version == version)
             .first()
         )
 
     def rollback_to_version(
-        self, session: Session, config_id: str, version: int, updated_by: Optional[str] = None
-    ) -> Optional[ProviderConfig]:
+        self, session: Session, config_id: str, version: int, updated_by: str | None = None
+    ) -> ProviderConfig | None:
         """Rollback configuration to a specific version"""
         try:
             # Get the version to rollback to
@@ -366,11 +344,7 @@ class ProviderConfigService:
                 return None
 
             # Get current config
-            config = (
-                session.query(ProviderConfig)
-                .filter(ProviderConfig.id == config_id)
-                .first()
-            )
+            config = session.query(ProviderConfig).filter(ProviderConfig.id == config_id).first()
             if not config:
                 return None
 
@@ -388,9 +362,7 @@ class ProviderConfigService:
             # Invalidate cache
             self.cache.invalidate(config.tenant_id, config.provider_type)
 
-            logger.info(
-                f"Rolled back config {config_id} to version {version}"
-            )
+            logger.info(f"Rolled back config {config_id} to version {version}")
             return config
 
         except Exception as e:

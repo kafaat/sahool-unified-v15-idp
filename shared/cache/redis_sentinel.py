@@ -55,9 +55,7 @@ class RedisSentinelConfig:
 
         # Connection settings
         self.socket_timeout = int(os.getenv("REDIS_SOCKET_TIMEOUT", "5"))
-        self.socket_connect_timeout = int(
-            os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5")
-        )
+        self.socket_connect_timeout = int(os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5"))
         self.socket_keepalive = True
         self.socket_keepalive_options = {
             1: 1,  # TCP_KEEPIDLE
@@ -86,11 +84,7 @@ class RedisSentinelConfig:
         """
         sentinels = []
         for i, host in enumerate(self.sentinel_hosts):
-            port = (
-                self.sentinel_ports[i]
-                if i < len(self.sentinel_ports)
-                else self.sentinel_port
-            )
+            port = self.sentinel_ports[i] if i < len(self.sentinel_ports) else self.sentinel_port
             sentinels.append((host.strip(), port))
         return sentinels
 
@@ -223,9 +217,7 @@ class RedisSentinelClient:
                 max_connections=self.config.max_connections,
             )
 
-            logger.info(
-                f"Successfully connected to Redis master: {self.config.master_name}"
-            )
+            logger.info(f"Successfully connected to Redis master: {self.config.master_name}")
 
         except Exception as e:
             logger.error(f"Failed to initialize Sentinel: {e}")
@@ -297,9 +289,7 @@ class RedisSentinelClient:
                 last_exception = e
                 if attempt < max_retries - 1:
                     delay = retry_delay * (2**attempt)  # Exponential backoff
-                    logger.warning(
-                        f"Retry {attempt + 1}/{max_retries} after {delay}s due to: {e}"
-                    )
+                    logger.warning(f"Retry {attempt + 1}/{max_retries} after {delay}s due to: {e}")
                     time.sleep(delay)
                 else:
                     logger.error(f"All {max_retries} retries failed")
@@ -333,9 +323,7 @@ class RedisSentinelClient:
         Returns:
             True إذا نجحت العملية
         """
-        return self._execute_with_retry(
-            self._master.set, key, value, ex=ex, px=px, nx=nx, xx=xx
-        )
+        return self._execute_with_retry(self._master.set, key, value, ex=ex, px=px, nx=nx, xx=xx)
 
     def get(self, key: str, use_slave: bool = True) -> str | None:
         """
@@ -482,9 +470,7 @@ class RedisSentinelClient:
     ) -> list:
         """الحصول على نطاق من المجموعة المرتبة"""
         conn = self._slave if use_slave else self._master
-        return self._execute_with_retry(
-            conn.zrange, name, start, end, withscores=withscores
-        )
+        return self._execute_with_retry(conn.zrange, name, start, end, withscores=withscores)
 
     def zrem(self, name: str, *values: Any) -> int:
         """إزالة عناصر من مجموعة مرتبة"""

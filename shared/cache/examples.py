@@ -172,9 +172,7 @@ class DistributedLock:
         self.timeout = timeout
         self.identifier = str(uuid.uuid4())
 
-    def acquire(
-        self, blocking: bool = True, acquire_timeout: int | None = None
-    ) -> bool:
+    def acquire(self, blocking: bool = True, acquire_timeout: int | None = None) -> bool:
         """
         الحصول على القفل
 
@@ -189,9 +187,7 @@ class DistributedLock:
 
         while True:
             # محاولة الحصول على القفل
-            if self.redis.set(
-                self.lock_name, self.identifier, nx=True, ex=self.timeout
-            ):
+            if self.redis.set(self.lock_name, self.identifier, nx=True, ex=self.timeout):
                 return True
 
             if not blocking:
@@ -440,11 +436,9 @@ if __name__ == "__main__":
     limiter = RateLimiter(max_requests=5, window=10)
     for i in range(7):
         if limiter.is_allowed("user:1000"):
-            print(
-                f"  Request {i+1}: Allowed (Remaining: {limiter.get_remaining('user:1000')})"
-            )
+            print(f"  Request {i + 1}: Allowed (Remaining: {limiter.get_remaining('user:1000')})")
         else:
-            print(f"  Request {i+1}: Denied (Rate limit exceeded)")
+            print(f"  Request {i + 1}: Denied (Rate limit exceeded)")
     print()
 
     # Example 3: Distributed Lock

@@ -103,8 +103,7 @@ class ActionTemplateFactory:
                 else "Based on crop water needs analysis"
             ),
             urgency=urgency,
-            deadline=deadline
-            or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
+            deadline=deadline or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
             field_id=field_id,
             steps=steps,
             resources_needed=resources,
@@ -145,9 +144,7 @@ class ActionTemplateFactory:
             "foliar": ("رش ورقي", "Foliar Spray"),
         }
 
-        fert_ar, fert_en = fertilizer_names.get(
-            fertilizer_type, (fertilizer_type, fertilizer_type)
-        )
+        fert_ar, fert_en = fertilizer_names.get(fertilizer_type, (fertilizer_type, fertilizer_type))
         method_ar, method_en = method_names.get(
             application_method, (application_method, application_method)
         )
@@ -211,18 +208,13 @@ class ActionTemplateFactory:
             source_analysis_type="npk_recommendation",
             confidence=confidence,
             reasoning_ar=(
-                f"نسبة NPK الموصى بها: {npk_ratio}"
-                if npk_ratio
-                else "بناءً على تحليل التربة"
+                f"نسبة NPK الموصى بها: {npk_ratio}" if npk_ratio else "بناءً على تحليل التربة"
             ),
             reasoning_en=(
-                f"Recommended NPK ratio: {npk_ratio}"
-                if npk_ratio
-                else "Based on soil analysis"
+                f"Recommended NPK ratio: {npk_ratio}" if npk_ratio else "Based on soil analysis"
             ),
             urgency=urgency,
-            deadline=deadline
-            or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
+            deadline=deadline or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
             field_id=field_id,
             steps=steps,
             resources_needed=resources,
@@ -281,8 +273,8 @@ class ActionTemplateFactory:
             action_type=ActionType.INSPECTION_DISEASE,
             title_ar=f"فحص مرض - {disease_name_ar}",
             title_en=f"Disease Inspection - {disease_name_en}",
-            description_ar=f"تم اكتشاف احتمال إصابة بـ{disease_name_ar} بنسبة ثقة {confidence*100:.0f}%، المنطقة المتأثرة: {affected_area_percent:.1f}%",
-            description_en=f"Possible {disease_name_en} infection detected with {confidence*100:.0f}% confidence, affected area: {affected_area_percent:.1f}%",
+            description_ar=f"تم اكتشاف احتمال إصابة بـ{disease_name_ar} بنسبة ثقة {confidence * 100:.0f}%، المنطقة المتأثرة: {affected_area_percent:.1f}%",
+            description_en=f"Possible {disease_name_en} infection detected with {confidence * 100:.0f}% confidence, affected area: {affected_area_percent:.1f}%",
             summary_ar=f"اشتباه {disease_name_ar} - {affected_area_percent:.0f}% من الحقل",
             source_service="crop-health-ai",
             source_analysis_id=source_analysis_id,

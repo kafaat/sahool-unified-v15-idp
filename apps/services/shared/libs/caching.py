@@ -211,9 +211,7 @@ class CacheManager:
                 self._cache = RedisCache(config.redis_url)
                 logger.info("Using Redis cache")
             except Exception as e:
-                logger.warning(
-                    f"Failed to initialize Redis cache: {e}, falling back to in-memory"
-                )
+                logger.warning(f"Failed to initialize Redis cache: {e}, falling back to in-memory")
                 self._cache = InMemoryCache(config.max_size)
         else:
             self._cache = InMemoryCache(config.max_size)

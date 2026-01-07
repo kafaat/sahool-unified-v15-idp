@@ -305,9 +305,7 @@ class MockApiClient:
                 },
                 "forecast": [
                     {
-                        "date": (datetime.now() + timedelta(days=i)).strftime(
-                            "%Y-%m-%d"
-                        ),
+                        "date": (datetime.now() + timedelta(days=i)).strftime("%Y-%m-%d"),
                         "high": round(random.uniform(28, 38), 1),
                         "low": round(random.uniform(18, 25), 1),
                         "condition": random.choice(conditions),
@@ -335,9 +333,7 @@ class MockApiClient:
                 "title": f"مهمة {['الري', 'التسميد', 'الحصاد', 'مكافحة الآفات', 'الزراعة'][i % 5]}",
                 "description": f"وصف المهمة رقم {i}",
                 "status": statuses[i % 3],
-                "due_date": (
-                    datetime.now() + timedelta(days=random.randint(1, 14))
-                ).isoformat(),
+                "due_date": (datetime.now() + timedelta(days=random.randint(1, 14))).isoformat(),
             }
             for i in range(1, 11)
         ]
@@ -568,9 +564,7 @@ class MobileAppSimulator:
     # Weather - الطقس
     # =========================================================================
 
-    async def get_weather(
-        self, lat: float = 15.3694, lng: float = 44.1910
-    ) -> WeatherData | None:
+    async def get_weather(self, lat: float = 15.3694, lng: float = 44.1910) -> WeatherData | None:
         """Get weather data for location"""
         self.log(f"جاري جلب بيانات الطقس: ({lat:.4f}, {lng:.4f})", "INFO")
 
@@ -596,9 +590,7 @@ class MobileAppSimulator:
 
                 # Cache for 30 minutes
                 self.storage.cache_set(cache_key, asdict(weather), 1800)
-                self.log(
-                    f"الطقس: {weather.temperature}°C, {weather.condition}", "SUCCESS"
-                )
+                self.log(f"الطقس: {weather.temperature}°C, {weather.condition}", "SUCCESS")
                 return weather
 
         except ConnectionError:

@@ -108,10 +108,7 @@ def enqueue_event(
     db.add(row)
     db.flush()  # Get the ID without committing
 
-    logger.info(
-        f"Enqueued event {row.id} "
-        f"type={event_type} schema={schema_ref} tenant={tenant_id}"
-    )
+    logger.info(f"Enqueued event {row.id} type={event_type} schema={schema_ref} tenant={tenant_id}")
 
     return row.id
 

@@ -53,6 +53,7 @@ try:
         BatchSpanProcessor,
         ConsoleSpanExporter,
     )
+
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
@@ -117,12 +118,14 @@ def setup_tracing(
     logger.info(f"Setting up tracing for service: {service_name}")
 
     # Create resource with service information
-    resource = Resource.create({
-        SERVICE_NAME: service_name,
-        "service.version": service_version,
-        "deployment.environment": environment,
-        "service.namespace": "sahool-idp",
-    })
+    resource = Resource.create(
+        {
+            SERVICE_NAME: service_name,
+            "service.version": service_version,
+            "deployment.environment": environment,
+            "service.namespace": "sahool-idp",
+        }
+    )
 
     # Create tracer provider
     provider = TracerProvider(resource=resource)
@@ -164,6 +167,7 @@ def get_tracer() -> trace.Tracer | None:
 # ═══════════════════════════════════════════════════════════════════════════════
 # AUTO-INSTRUMENTATION
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def instrument_fastapi(app):
     """
@@ -233,6 +237,7 @@ def instrument_aiohttp():
 # CUSTOM SPAN DECORATORS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def traced(
     operation_name: str | None = None,
     attributes: dict[str, Any] | None = None,
@@ -245,6 +250,7 @@ def traced(
         async def authenticate(email, password):
             ...
     """
+
     def decorator(func):
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -292,6 +298,7 @@ def traced(
                     raise
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         return sync_wrapper
@@ -305,6 +312,7 @@ def trace_database_query(query_name: str):
 
     Adds attributes useful for database debugging.
     """
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -317,6 +325,7 @@ def trace_database_query(query_name: str):
                 span.set_attribute("db.operation", query_name)
 
                 import time
+
                 start = time.time()
 
                 try:
@@ -335,12 +344,14 @@ def trace_database_query(query_name: str):
                     raise
 
         return wrapper
+
     return decorator
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # FASTAPI MIDDLEWARE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TracingMiddleware:
     """
@@ -478,6 +489,7 @@ service:
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXAMPLE INTEGRATION
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def example_fastapi_integration():
     """

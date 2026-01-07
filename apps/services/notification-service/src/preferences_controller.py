@@ -28,9 +28,7 @@ class UpdateEventPreferenceRequest(BaseModel):
     """طلب تحديث تفضيلات حدث - Update Event Preference Request"""
 
     user_id: str = Field(..., description="User ID")
-    event_type: str = Field(
-        ..., description="Event type (weather_alert, pest_outbreak, etc.)"
-    )
+    event_type: str = Field(..., description="Event type (weather_alert, pest_outbreak, etc.)")
     channels: list[str] = Field(..., description="List of channel types to use")
     enabled: bool = Field(True, description="Whether this event type is enabled")
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
@@ -75,9 +73,7 @@ class BulkUpdatePreferencesRequest(BaseModel):
     """طلب تحديث تفضيلات متعددة - Bulk Update Preferences Request"""
 
     user_id: str = Field(..., description="User ID")
-    preferences: list[dict[str, Any]] = Field(
-        ..., description="List of preference updates"
-    )
+    preferences: list[dict[str, Any]] = Field(..., description="List of preference updates")
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
 
     class Config:
@@ -140,9 +136,7 @@ async def get_preferences(
         raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
-@router.get(
-    "/event/{event_type}", summary="الحصول على تفضيلات حدث معين - Get Event Preference"
-)
+@router.get("/event/{event_type}", summary="الحصول على تفضيلات حدث معين - Get Event Preference")
 async def get_event_preference(
     event_type: str,
     user_id: str = Query(..., description="User ID"),

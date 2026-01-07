@@ -35,12 +35,8 @@ class CertificationScope(str, Enum):
     CROPS_BASE = "crops_base"  # قاعدة المحاصيل - Crops Base
     FRUIT_VEGETABLES = "fruit_vegetables"  # الفواكه والخضروات - Fruit and Vegetables
     COMBINABLE_CROPS = "combinable_crops"  # المحاصيل القابلة للدمج - Combinable Crops
-    PLANT_PROPAGATION = (
-        "plant_propagation"  # إكثار النباتات - Plant Propagation Material
-    )
-    FLOWERS_ORNAMENTALS = (
-        "flowers_ornamentals"  # الزهور والنباتات الزينة - Flowers and Ornamentals
-    )
+    PLANT_PROPAGATION = "plant_propagation"  # إكثار النباتات - Plant Propagation Material
+    FLOWERS_ORNAMENTALS = "flowers_ornamentals"  # الزهور والنباتات الزينة - Flowers and Ornamentals
 
 
 class CertificationBody(BaseModel):
@@ -49,9 +45,7 @@ class CertificationBody(BaseModel):
     معلومات الجهة المانحة للشهادة
     """
 
-    name: str = Field(
-        ..., description="Certification body name | اسم الجهة المانحة للشهادة"
-    )
+    name: str = Field(..., description="Certification body name | اسم الجهة المانحة للشهادة")
     code: str = Field(..., description="CB code | رمز الجهة")
     country: str = Field(..., description="Country | الدولة")
     contact_email: str | None = None
@@ -92,9 +86,7 @@ class GGNCertificate(BaseModel):
     )
 
     # Certification scope | نطاق الشهادة
-    scope: CertificationScope = Field(
-        ..., description="Certification scope | نطاق الشهادة"
-    )
+    scope: CertificationScope = Field(..., description="Certification scope | نطاق الشهادة")
     products: list[str] = Field(
         default_factory=list, description="Certified products | المنتجات المعتمدة"
     )
@@ -126,15 +118,11 @@ class GGNCertificate(BaseModel):
     )
 
     # Producer information | معلومات المنتج
-    producer_name: str = Field(
-        ..., description="Producer/farmer name | اسم المنتج/المزارع"
-    )
+    producer_name: str = Field(..., description="Producer/farmer name | اسم المنتج/المزارع")
     producer_contact: str | None = None
 
     # Compliance information | معلومات الامتثال
-    ifa_version: str = Field(
-        default="6.0", description="IFA version | إصدار معايير IFA"
-    )
+    ifa_version: str = Field(default="6.0", description="IFA version | إصدار معايير IFA")
     compliance_percentage: float = Field(
         ge=0.0,
         le=100.0,

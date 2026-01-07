@@ -36,12 +36,10 @@ def test_calculate_spray_score():
     ]
 
     print(f"{'Conditions':<40} {'Score':<10} {'Level':<15} {'Status'}")
-    print(f"{'-'*80}")
+    print(f"{'-' * 80}")
 
     for temp, humidity, wind, rain, product, expected, desc in test_cases:
-        score, condition, risks = advisor.calculate_spray_score(
-            temp, humidity, wind, rain, product
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp, humidity, wind, rain, product)
 
         status = "✅" if condition == expected else f"⚠️  (expected {expected.value})"
         print(f"{desc:<40} {score:>6.1f}/100  {condition.value.upper():<15} {status}")
@@ -73,16 +71,12 @@ def test_product_specific_conditions():
 
     print(f"Weather: {temp}°C, {humidity}% humidity, {wind} km/h wind, {rain}% rain\n")
     print(f"{'Product':<25} {'Score':<10} {'Condition':<15} {'Key Risks'}")
-    print(f"{'-'*80}")
+    print(f"{'-' * 80}")
 
     for product, name in products:
-        score, condition, risks = advisor.calculate_spray_score(
-            temp, humidity, wind, rain, product
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp, humidity, wind, rain, product)
         risks_str = ", ".join(risks[:2]) if risks else "None"
-        print(
-            f"{name:<25} {score:>6.1f}/100  {condition.value.upper():<15} {risks_str}"
-        )
+        print(f"{name:<25} {score:>6.1f}/100  {condition.value.upper():<15} {risks_str}")
 
     print("\n" + "=" * 80)
 
@@ -190,10 +184,8 @@ def test_delta_t_ranges():
         (28, 60, "2-8°C (ideal)"),
     ]
 
-    print(
-        f"{'Temp':<8} {'Humidity':<12} {'Delta-T':<12} {'Classification':<25} {'Expected'}"
-    )
-    print(f"{'-'*80}")
+    print(f"{'Temp':<8} {'Humidity':<12} {'Delta-T':<12} {'Classification':<25} {'Expected'}")
+    print(f"{'-' * 80}")
 
     for temp, humidity, expected in test_cases:
         delta_t = advisor._calculate_delta_t(temp, humidity)
@@ -208,8 +200,7 @@ def test_delta_t_ranges():
 
             status = (
                 "✅"
-                if expected in classification
-                or (expected == "2-8°C (ideal)" and 2 <= delta_t <= 8)
+                if expected in classification or (expected == "2-8°C (ideal)" and 2 <= delta_t <= 8)
                 else "⚠️ "
             )
 
@@ -217,9 +208,7 @@ def test_delta_t_ranges():
                 f"{temp}°C    {humidity}%       {delta_t:.1f}°C      {classification:<25} {status}"
             )
         else:
-            print(
-                f"{temp}°C    {humidity}%       N/A         Error                     ❌"
-            )
+            print(f"{temp}°C    {humidity}%       N/A         Error                     ❌")
 
     print("\n" + "=" * 80)
 
@@ -241,21 +230,15 @@ def test_condition_scoring_boundaries():
     ]
 
     print(f"{'Weather Conditions':<45} {'Score':<10} {'Expected':<15} {'Result'}")
-    print(f"{'-'*80}")
+    print(f"{'-' * 80}")
 
     for temp, humidity, wind, rain, expected_min, expected_condition in boundary_tests:
-        score, condition, risks = advisor.calculate_spray_score(
-            temp, humidity, wind, rain
-        )
+        score, condition, risks = advisor.calculate_spray_score(temp, humidity, wind, rain)
 
-        status = (
-            "✅" if condition == expected_condition and score >= expected_min else "⚠️ "
-        )
+        status = "✅" if condition == expected_condition and score >= expected_min else "⚠️ "
         conditions_str = f"{temp}°C, {humidity}%, {wind}km/h, {rain}%"
 
-        print(
-            f"{conditions_str:<45} {score:>6.1f}/100  {expected_condition.value:<15} {status}"
-        )
+        print(f"{conditions_str:<45} {score:>6.1f}/100  {expected_condition.value:<15} {status}")
 
     print("\n" + "=" * 80)
 

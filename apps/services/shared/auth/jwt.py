@@ -138,9 +138,7 @@ def verify_token(token: str, token_type: str = "access") -> bool:
     try:
         data = decode_token(token)
         if data.token_type != token_type:
-            logger.warning(
-                f"Token type mismatch: expected {token_type}, got {data.token_type}"
-            )
+            logger.warning(f"Token type mismatch: expected {token_type}, got {data.token_type}")
             return False
         return True
     except Exception:

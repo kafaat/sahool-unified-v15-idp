@@ -122,9 +122,7 @@ class TestMultiLLMService:
     """Test suite for Multi-LLM service with fallback"""
 
     @pytest.mark.asyncio
-    async def test_chat_with_primary_provider(
-        self, mock_env_vars, mock_anthropic_client
-    ):
+    async def test_chat_with_primary_provider(self, mock_env_vars, mock_anthropic_client):
         """Test chat with primary provider (Anthropic)"""
         from src.llm.multi_provider import LLMMessage, MultiLLMService
 
@@ -144,9 +142,7 @@ class TestMultiLLMService:
             assert len(result.failed_providers) == 0
 
     @pytest.mark.asyncio
-    async def test_fallback_to_secondary_provider(
-        self, mock_env_vars, mock_openai_client
-    ):
+    async def test_fallback_to_secondary_provider(self, mock_env_vars, mock_openai_client):
         """Test fallback when primary provider fails"""
         from src.llm.multi_provider import LLMMessage, MultiLLMService
 

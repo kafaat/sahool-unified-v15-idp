@@ -23,40 +23,28 @@ class SensorData(BaseModel):
         ...,
         ge=0,
         le=100,
-        description="رطوبة التربة بالنسبة المئوية - Soil moisture percentage (0-100%)"
+        description="رطوبة التربة بالنسبة المئوية - Soil moisture percentage (0-100%)",
     )
     temperature: float = Field(
-        ...,
-        ge=-50,
-        le=60,
-        description="درجة الحرارة بالدرجات المئوية - Temperature in Celsius"
+        ..., ge=-50, le=60, description="درجة الحرارة بالدرجات المئوية - Temperature in Celsius"
     )
     humidity: float = Field(
         ...,
         ge=0,
         le=100,
-        description="الرطوبة النسبية بالنسبة المئوية - Relative humidity percentage"
+        description="الرطوبة النسبية بالنسبة المئوية - Relative humidity percentage",
     )
 
 
 class NDVIData(BaseModel):
     """بيانات مؤشر الغطاء النباتي - NDVI vegetation index data"""
 
-    ndvi_value: float = Field(
-        ...,
-        ge=-1,
-        le=1,
-        description="قيمة مؤشر NDVI - NDVI value (-1 to 1)"
-    )
+    ndvi_value: float = Field(..., ge=-1, le=1, description="قيمة مؤشر NDVI - NDVI value (-1 to 1)")
     image_date: str | None = Field(
-        None,
-        description="تاريخ التقاط صورة القمر الصناعي - Satellite image capture date"
+        None, description="تاريخ التقاط صورة القمر الصناعي - Satellite image capture date"
     )
     cloud_coverage: float | None = Field(
-        None,
-        ge=0,
-        le=100,
-        description="نسبة تغطية السحب - Cloud coverage percentage"
+        None, ge=0, le=100, description="نسبة تغطية السحب - Cloud coverage percentage"
     )
 
 
@@ -64,20 +52,13 @@ class WeatherData(BaseModel):
     """بيانات الطقس - Weather data"""
 
     precipitation: float = Field(
-        ...,
-        ge=0,
-        description="هطول الأمطار بالملليمتر - Precipitation in mm"
+        ..., ge=0, description="هطول الأمطار بالملليمتر - Precipitation in mm"
     )
     wind_speed: float | None = Field(
-        None,
-        ge=0,
-        description="سرعة الرياح بالكيلومتر/ساعة - Wind speed in km/h"
+        None, ge=0, description="سرعة الرياح بالكيلومتر/ساعة - Wind speed in km/h"
     )
     forecast_days: int | None = Field(
-        7,
-        ge=1,
-        le=14,
-        description="أيام التنبؤ - Forecast days ahead"
+        7, ge=1, le=14, description="أيام التنبؤ - Forecast days ahead"
     )
 
 
@@ -107,47 +88,35 @@ class FieldHealthResponse(BaseModel):
     field_id: str = Field(..., description="معرف الحقل - Field ID")
     crop_type: str = Field(..., description="نوع المحصول - Crop type")
     overall_health_score: float = Field(
-        ...,
-        ge=0,
-        le=100,
-        description="درجة الصحة الإجمالية - Overall health score (0-100)"
+        ..., ge=0, le=100, description="درجة الصحة الإجمالية - Overall health score (0-100)"
     )
     health_status: str = Field(
-        ...,
-        description="حالة الصحة - Health status: excellent, good, fair, poor, critical"
+        ..., description="حالة الصحة - Health status: excellent, good, fair, poor, critical"
     )
-    health_status_ar: str = Field(
-        ...,
-        description="حالة الصحة بالعربية - Health status in Arabic"
-    )
+    health_status_ar: str = Field(..., description="حالة الصحة بالعربية - Health status in Arabic")
 
     # Component scores - درجات المكونات
     ndvi_score: float = Field(..., ge=0, le=100, description="درجة الغطاء النباتي - NDVI score")
-    soil_moisture_score: float = Field(..., ge=0, le=100, description="درجة رطوبة التربة - Soil moisture score")
+    soil_moisture_score: float = Field(
+        ..., ge=0, le=100, description="درجة رطوبة التربة - Soil moisture score"
+    )
     weather_score: float = Field(..., ge=0, le=100, description="درجة الطقس - Weather score")
-    sensor_anomaly_score: float = Field(..., ge=0, le=100, description="درجة شذوذ الأجهزة - Sensor anomaly score")
+    sensor_anomaly_score: float = Field(
+        ..., ge=0, le=100, description="درجة شذوذ الأجهزة - Sensor anomaly score"
+    )
 
     risk_factors: list[RiskFactor] = Field(
-        default_factory=list,
-        description="عوامل الخطر المحددة - Identified risk factors"
+        default_factory=list, description="عوامل الخطر المحددة - Identified risk factors"
     )
     recommendations_ar: list[str] = Field(
-        default_factory=list,
-        description="التوصيات بالعربية - Recommendations in Arabic"
+        default_factory=list, description="التوصيات بالعربية - Recommendations in Arabic"
     )
     recommendations_en: list[str] = Field(
-        default_factory=list,
-        description="التوصيات بالإنجليزية - Recommendations in English"
+        default_factory=list, description="التوصيات بالإنجليزية - Recommendations in English"
     )
 
-    analysis_timestamp: str = Field(
-        ...,
-        description="وقت التحليل - Analysis timestamp"
-    )
-    metadata: dict[str, Any] | None = Field(
-        None,
-        description="بيانات إضافية - Additional metadata"
-    )
+    analysis_timestamp: str = Field(..., description="وقت التحليل - Analysis timestamp")
+    metadata: dict[str, Any] | None = Field(None, description="بيانات إضافية - Additional metadata")
 
 
 # ============== Router Setup ==============
@@ -218,13 +187,13 @@ def calculate_soil_moisture_score(sensor_data: SensorData, crop_type: str) -> fl
     # نطاقات الرطوبة المثلى حسب نوع المحصول
     # Optimal moisture ranges by crop type
     optimal_ranges = {
-        "wheat": (25, 35),      # قمح - Wheat
-        "corn": (30, 40),       # ذرة - Corn
-        "rice": (60, 80),       # أرز - Rice
-        "tomato": (25, 35),     # طماطم - Tomato
-        "potato": (30, 40),     # بطاطس - Potato
-        "cotton": (20, 30),     # قطن - Cotton
-        "default": (25, 40)     # افتراضي - Default
+        "wheat": (25, 35),  # قمح - Wheat
+        "corn": (30, 40),  # ذرة - Corn
+        "rice": (60, 80),  # أرز - Rice
+        "tomato": (25, 35),  # طماطم - Tomato
+        "potato": (30, 40),  # بطاطس - Potato
+        "cotton": (20, 30),  # قطن - Cotton
+        "default": (25, 40),  # افتراضي - Default
     }
 
     # الحصول على النطاق المثلى - Get optimal range
@@ -333,7 +302,7 @@ def identify_risk_factors(
     ndvi_score: float,
     soil_score: float,
     weather_score: float,
-    sensor_score: float
+    sensor_score: float,
 ) -> list[RiskFactor]:
     """
     تحديد عوامل الخطر
@@ -346,71 +315,85 @@ def identify_risk_factors(
 
     # خطر ضعف النمو النباتي - Poor vegetation growth risk
     if ndvi_score < 40:
-        risks.append(RiskFactor(
-            type="vegetation_stress",
-            severity="critical" if ndvi_score < 20 else "high",
-            description_ar="ضعف شديد في النمو النباتي يتطلب تدخل فوري",
-            description_en="Severe vegetation stress requiring immediate intervention",
-            impact_score=100 - ndvi_score
-        ))
+        risks.append(
+            RiskFactor(
+                type="vegetation_stress",
+                severity="critical" if ndvi_score < 20 else "high",
+                description_ar="ضعف شديد في النمو النباتي يتطلب تدخل فوري",
+                description_en="Severe vegetation stress requiring immediate intervention",
+                impact_score=100 - ndvi_score,
+            )
+        )
     elif ndvi_score < 60:
-        risks.append(RiskFactor(
-            type="vegetation_stress",
-            severity="medium",
-            description_ar="إجهاد نباتي متوسط قد يؤثر على الإنتاجية",
-            description_en="Moderate vegetation stress may affect productivity",
-            impact_score=60 - ndvi_score
-        ))
+        risks.append(
+            RiskFactor(
+                type="vegetation_stress",
+                severity="medium",
+                description_ar="إجهاد نباتي متوسط قد يؤثر على الإنتاجية",
+                description_en="Moderate vegetation stress may affect productivity",
+                impact_score=60 - ndvi_score,
+            )
+        )
 
     # خطر الجفاف أو الغمر - Drought or waterlogging risk
     if soil_score < 40:
         moisture = request.sensor_data.soil_moisture
         if moisture < 20:
-            risks.append(RiskFactor(
-                type="drought",
-                severity="high",
-                description_ar="جفاف شديد في التربة يتطلب ري فوري",
-                description_en="Severe soil drought requiring immediate irrigation",
-                impact_score=80
-            ))
+            risks.append(
+                RiskFactor(
+                    type="drought",
+                    severity="high",
+                    description_ar="جفاف شديد في التربة يتطلب ري فوري",
+                    description_en="Severe soil drought requiring immediate irrigation",
+                    impact_score=80,
+                )
+            )
         else:
-            risks.append(RiskFactor(
-                type="waterlogging",
-                severity="high",
-                description_ar="رطوبة زائدة في التربة قد تسبب تعفن الجذور",
-                description_en="Excessive soil moisture may cause root rot",
-                impact_score=70
-            ))
+            risks.append(
+                RiskFactor(
+                    type="waterlogging",
+                    severity="high",
+                    description_ar="رطوبة زائدة في التربة قد تسبب تعفن الجذور",
+                    description_en="Excessive soil moisture may cause root rot",
+                    impact_score=70,
+                )
+            )
 
     # خطر الطقس السيء - Adverse weather risk
     if weather_score < 60:
         if request.weather_data.precipitation > 50:
-            risks.append(RiskFactor(
-                type="heavy_rain",
-                severity="medium",
-                description_ar="أمطار غزيرة قد تؤثر على العمليات الزراعية",
-                description_en="Heavy rainfall may affect agricultural operations",
-                impact_score=50
-            ))
+            risks.append(
+                RiskFactor(
+                    type="heavy_rain",
+                    severity="medium",
+                    description_ar="أمطار غزيرة قد تؤثر على العمليات الزراعية",
+                    description_en="Heavy rainfall may affect agricultural operations",
+                    impact_score=50,
+                )
+            )
 
         if request.weather_data.wind_speed and request.weather_data.wind_speed > 40:
-            risks.append(RiskFactor(
-                type="strong_winds",
-                severity="high",
-                description_ar="رياح قوية قد تضر بالمحاصيل",
-                description_en="Strong winds may damage crops",
-                impact_score=60
-            ))
+            risks.append(
+                RiskFactor(
+                    type="strong_winds",
+                    severity="high",
+                    description_ar="رياح قوية قد تضر بالمحاصيل",
+                    description_en="Strong winds may damage crops",
+                    impact_score=60,
+                )
+            )
 
     # خطر أعطال الأجهزة - Sensor malfunction risk
     if sensor_score < 70:
-        risks.append(RiskFactor(
-            type="sensor_anomaly",
-            severity="low",
-            description_ar="قراءات شاذة من الأجهزة تحتاج للمراجعة",
-            description_en="Anomalous sensor readings need review",
-            impact_score=30
-        ))
+        risks.append(
+            RiskFactor(
+                type="sensor_anomaly",
+                severity="low",
+                description_ar="قراءات شاذة من الأجهزة تحتاج للمراجعة",
+                description_en="Anomalous sensor readings need review",
+                impact_score=30,
+            )
+        )
 
     return risks
 
@@ -420,7 +403,7 @@ def generate_recommendations(
     overall_score: float,
     risk_factors: list[RiskFactor],
     soil_score: float,
-    ndvi_score: float
+    ndvi_score: float,
 ) -> tuple[list[str], list[str]]:
     """
     توليد التوصيات الزراعية
@@ -436,13 +419,17 @@ def generate_recommendations(
     # Recommendations based on overall health
     if overall_score < 50:
         recommendations_ar.append("⚠️ الحقل يحتاج لتدخل فوري لتحسين الصحة العامة")
-        recommendations_en.append("⚠️ Field requires immediate intervention to improve overall health")
+        recommendations_en.append(
+            "⚠️ Field requires immediate intervention to improve overall health"
+        )
 
     # توصيات رطوبة التربة - Soil moisture recommendations
     moisture = request.sensor_data.soil_moisture
     if moisture < 20:
         recommendations_ar.append("💧 تنفيذ خطة ري عاجلة لمعالجة الجفاف الشديد")
-        recommendations_en.append("💧 Implement emergency irrigation plan to address severe drought")
+        recommendations_en.append(
+            "💧 Implement emergency irrigation plan to address severe drought"
+        )
     elif moisture < 30:
         recommendations_ar.append("💧 زيادة معدل الري للوصول للرطوبة المثلى")
         recommendations_en.append("💧 Increase irrigation rate to reach optimal moisture")
@@ -546,10 +533,10 @@ async def analyze_field_health(request: FieldHealthRequest) -> FieldHealthRespon
         # حساب الدرجة الإجمالية بالأوزان المحددة
         # Calculate weighted overall score
         overall_health_score = (
-            ndvi_score * 0.40 +
-            soil_moisture_score * 0.25 +
-            weather_score * 0.20 +
-            sensor_anomaly_score * 0.15
+            ndvi_score * 0.40
+            + soil_moisture_score * 0.25
+            + weather_score * 0.20
+            + sensor_anomaly_score * 0.15
         )
 
         # تحديد حالة الصحة - Determine health status
@@ -557,20 +544,12 @@ async def analyze_field_health(request: FieldHealthRequest) -> FieldHealthRespon
 
         # تحديد عوامل الخطر - Identify risk factors
         risk_factors = identify_risk_factors(
-            request,
-            ndvi_score,
-            soil_moisture_score,
-            weather_score,
-            sensor_anomaly_score
+            request, ndvi_score, soil_moisture_score, weather_score, sensor_anomaly_score
         )
 
         # توليد التوصيات - Generate recommendations
         recommendations_ar, recommendations_en = generate_recommendations(
-            request,
-            overall_health_score,
-            risk_factors,
-            soil_moisture_score,
-            ndvi_score
+            request, overall_health_score, risk_factors, soil_moisture_score, ndvi_score
         )
 
         # بناء الاستجابة - Build response
@@ -595,19 +574,15 @@ async def analyze_field_health(request: FieldHealthRequest) -> FieldHealthRespon
                 "sensor_anomaly_weight": 0.15,
                 "total_risk_factors": len(risk_factors),
                 "critical_risks": len([r for r in risk_factors if r.severity == "critical"]),
-                "high_risks": len([r for r in risk_factors if r.severity == "high"])
-            }
+                "high_risks": len([r for r in risk_factors if r.severity == "high"]),
+            },
         )
 
         return response
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid input data: {str(e)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Invalid input data: {str(e)}")
     except Exception as e:
         raise HTTPException(
-            status_code=500,
-            detail=f"Internal server error during health analysis: {str(e)}"
+            status_code=500, detail=f"Internal server error during health analysis: {str(e)}"
         )

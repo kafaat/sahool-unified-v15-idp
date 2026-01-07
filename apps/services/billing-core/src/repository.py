@@ -118,9 +118,7 @@ class PlanRepository:
         """Update plan - تحديث الخطة"""
         kwargs["updated_at"] = datetime.utcnow()
 
-        await self.db.execute(
-            update(Plan).where(Plan.plan_id == plan_id).values(**kwargs)
-        )
+        await self.db.execute(update(Plan).where(Plan.plan_id == plan_id).values(**kwargs))
         await self.db.commit()
 
         return await self.get_by_plan_id(plan_id)
@@ -231,9 +229,7 @@ class TenantRepository:
 
     async def get_by_tenant_id(self, tenant_id: str) -> Tenant | None:
         """Get tenant by tenant_id - الحصول على مستأجر بواسطة معرف المستأجر"""
-        result = await self.db.execute(
-            select(Tenant).where(Tenant.tenant_id == tenant_id)
-        )
+        result = await self.db.execute(select(Tenant).where(Tenant.tenant_id == tenant_id))
         return result.scalar_one_or_none()
 
     async def list_all(
@@ -261,9 +257,7 @@ class TenantRepository:
         """Update tenant - تحديث المستأجر"""
         kwargs["updated_at"] = datetime.utcnow()
 
-        await self.db.execute(
-            update(Tenant).where(Tenant.tenant_id == tenant_id).values(**kwargs)
-        )
+        await self.db.execute(update(Tenant).where(Tenant.tenant_id == tenant_id).values(**kwargs))
         await self.db.commit()
 
         return await self.get_by_tenant_id(tenant_id)
@@ -358,9 +352,7 @@ class SubscriptionRepository:
         else:
             # Get active or trial subscriptions
             query = query.where(
-                Subscription.status.in_(
-                    [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]
-                )
+                Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL])
             )
 
         query = query.order_by(desc(Subscription.created_at))
@@ -394,9 +386,7 @@ class SubscriptionRepository:
         kwargs["updated_at"] = datetime.utcnow()
 
         await self.db.execute(
-            update(Subscription)
-            .where(Subscription.id == subscription_id)
-            .values(**kwargs)
+            update(Subscription).where(Subscription.id == subscription_id).values(**kwargs)
         )
         await self.db.commit()
 
@@ -422,9 +412,7 @@ class SubscriptionRepository:
             update_data["end_date"] = date.today()
 
         await self.db.execute(
-            update(Subscription)
-            .where(Subscription.id == subscription_id)
-            .values(**update_data)
+            update(Subscription).where(Subscription.id == subscription_id).values(**update_data)
         )
         await self.db.commit()
 
@@ -442,9 +430,7 @@ class SubscriptionRepository:
             select(Subscription).where(
                 and_(
                     Subscription.next_billing_date <= billing_date,
-                    Subscription.status.in_(
-                        [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]
-                    ),
+                    Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]),
                 )
             )
         )
@@ -453,9 +439,7 @@ class SubscriptionRepository:
     async def count_by_status(self) -> dict[str, int]:
         """Count subscriptions by status - عد الاشتراكات حسب الحالة"""
         result = await self.db.execute(
-            select(Subscription.status, func.count(Subscription.id)).group_by(
-                Subscription.status
-            )
+            select(Subscription.status, func.count(Subscription.id)).group_by(Subscription.status)
         )
 
         return {status.value: count for status, count in result.all()}
@@ -463,9 +447,7 @@ class SubscriptionRepository:
     async def count_by_plan(self) -> dict[str, int]:
         """Count subscriptions by plan - عد الاشتراكات حسب الخطة"""
         result = await self.db.execute(
-            select(Subscription.plan_id, func.count(Subscription.id)).group_by(
-                Subscription.plan_id
-            )
+            select(Subscription.plan_id, func.count(Subscription.id)).group_by(Subscription.plan_id)
         )
 
         return dict(result.all())
@@ -593,9 +575,7 @@ class InvoiceRepository:
         **kwargs,
     ) -> Invoice | None:
         """Update invoice - تحديث الفاتورة"""
-        await self.db.execute(
-            update(Invoice).where(Invoice.id == invoice_id).values(**kwargs)
-        )
+        await self.db.execute(update(Invoice).where(Invoice.id == invoice_id).values(**kwargs))
         await self.db.commit()
 
         return await self.get_by_id(invoice_id)
@@ -623,9 +603,7 @@ class InvoiceRepository:
             update_data["status"] = InvoiceStatus.PAID
             update_data["paid_date"] = date.today()
 
-        await self.db.execute(
-            update(Invoice).where(Invoice.id == invoice_id).values(**update_data)
-        )
+        await self.db.execute(update(Invoice).where(Invoice.id == invoice_id).values(**update_data))
         await self.db.commit()
 
         return await self.get_by_id(invoice_id)
@@ -656,9 +634,7 @@ class InvoiceRepository:
         currency: Currency | None = None,
     ) -> Decimal:
         """Calculate total revenue - حساب إجمالي الإيرادات"""
-        query = select(func.sum(Invoice.total)).where(
-            Invoice.status == InvoiceStatus.PAID
-        )
+        query = select(func.sum(Invoice.total)).where(Invoice.status == InvoiceStatus.PAID)
 
         if start_date:
             query = query.where(Invoice.paid_date >= start_date)
@@ -761,9 +737,7 @@ class PaymentRepository:
         **kwargs,
     ) -> Payment | None:
         """Update payment - تحديث الدفعة"""
-        await self.db.execute(
-            update(Payment).where(Payment.id == payment_id).values(**kwargs)
-        )
+        await self.db.execute(update(Payment).where(Payment.id == payment_id).values(**kwargs))
         await self.db.commit()
 
         return await self.get_by_id(payment_id)
@@ -784,9 +758,7 @@ class PaymentRepository:
         if external_id:
             update_data["stripe_payment_id"] = external_id
 
-        await self.db.execute(
-            update(Payment).where(Payment.id == payment_id).values(**update_data)
-        )
+        await self.db.execute(update(Payment).where(Payment.id == payment_id).values(**update_data))
         await self.db.commit()
 
         return await self.get_by_id(payment_id)
@@ -870,9 +842,7 @@ class UsageRecordRepository:
 
     async def get_by_id(self, record_id: uuid.UUID) -> UsageRecord | None:
         """Get usage record by ID - الحصول على سجل استخدام بواسطة المعرف"""
-        result = await self.db.execute(
-            select(UsageRecord).where(UsageRecord.id == record_id)
-        )
+        result = await self.db.execute(select(UsageRecord).where(UsageRecord.id == record_id))
         return result.scalar_one_or_none()
 
     async def list_by_subscription(
@@ -885,9 +855,7 @@ class UsageRecordRepository:
         offset: int = 0,
     ) -> list[UsageRecord]:
         """List usage records for subscription - قائمة سجلات استخدام الاشتراك"""
-        query = select(UsageRecord).where(
-            UsageRecord.subscription_id == subscription_id
-        )
+        query = select(UsageRecord).where(UsageRecord.subscription_id == subscription_id)
 
         if metric_type:
             query = query.where(UsageRecord.metric_type == metric_type)
@@ -898,9 +866,7 @@ class UsageRecordRepository:
         if end_date:
             query = query.where(UsageRecord.recorded_at <= end_date)
 
-        query = (
-            query.order_by(desc(UsageRecord.recorded_at)).limit(limit).offset(offset)
-        )
+        query = query.order_by(desc(UsageRecord.recorded_at)).limit(limit).offset(offset)
 
         result = await self.db.execute(query)
         return list(result.scalars().all())
@@ -926,9 +892,7 @@ class UsageRecordRepository:
         if end_date:
             query = query.where(UsageRecord.recorded_at <= end_date)
 
-        query = (
-            query.order_by(desc(UsageRecord.recorded_at)).limit(limit).offset(offset)
-        )
+        query = query.order_by(desc(UsageRecord.recorded_at)).limit(limit).offset(offset)
 
         result = await self.db.execute(query)
         return list(result.scalars().all())

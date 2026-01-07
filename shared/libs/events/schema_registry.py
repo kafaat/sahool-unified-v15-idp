@@ -143,8 +143,7 @@ class SchemaRegistry:
         """
         if not HAS_JSONSCHEMA:
             raise RuntimeError(
-                "jsonschema is not installed. "
-                "Add it to dependencies: pip install jsonschema"
+                "jsonschema is not installed. Add it to dependencies: pip install jsonschema"
             )
 
         schema = self.get_schema(schema_ref)

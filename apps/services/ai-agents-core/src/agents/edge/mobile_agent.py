@@ -39,32 +39,32 @@ class MobileAgent(BaseAgent):
             "threshold": 40,  # Celsius
             "action": "irrigation_alert",
             "priority": 1,
-            "message_ar": "تنبيه: درجة الحرارة مرتفعة جداً، يُنصح بالري الفوري"
+            "message_ar": "تنبيه: درجة الحرارة مرتفعة جداً، يُنصح بالري الفوري",
         },
         "low_soil_moisture": {
             "threshold": 0.2,  # 20%
             "action": "irrigation_needed",
             "priority": 2,
-            "message_ar": "رطوبة التربة منخفضة، يُنصح بالري"
+            "message_ar": "رطوبة التربة منخفضة، يُنصح بالري",
         },
         "pest_detected": {
             "confidence_threshold": 0.7,
             "action": "pest_alert",
             "priority": 1,
-            "message_ar": "تم اكتشاف آفة، يُرجى اتخاذ إجراء فوري"
+            "message_ar": "تم اكتشاف آفة، يُرجى اتخاذ إجراء فوري",
         },
         "disease_detected": {
             "confidence_threshold": 0.6,
             "action": "disease_alert",
             "priority": 1,
-            "message_ar": "تم اكتشاف مرض محتمل، يُنصح بالفحص"
+            "message_ar": "تم اكتشاف مرض محتمل، يُنصح بالفحص",
         },
         "harvest_ready": {
             "maturity_threshold": 0.9,
             "action": "harvest_notification",
             "priority": 3,
-            "message_ar": "المحصول جاهز للحصاد"
-        }
+            "message_ar": "المحصول جاهز للحصاد",
+        },
     }
 
     def __init__(self, agent_id: str = "mobile_edge_001"):
@@ -75,7 +75,7 @@ class MobileAgent(BaseAgent):
             agent_type=AgentType.SIMPLE_REFLEX,
             layer=AgentLayer.EDGE,
             description="Fast on-device processing for instant responses",
-            description_ar="معالجة سريعة على الجهاز للاستجابات الفورية"
+            description_ar="معالجة سريعة على الجهاز للاستجابات الفورية",
         )
 
         # Local cache for offline operation
@@ -98,8 +98,8 @@ class MobileAgent(BaseAgent):
                 parameters={"urgency": "high", "reason": "high_temperature"},
                 confidence=0.95,
                 priority=1,
-                reasoning="درجة الحرارة تجاوزت 40 درجة مئوية"
-            )
+                reasoning="درجة الحرارة تجاوزت 40 درجة مئوية",
+            ),
         )
 
         # Low moisture rule
@@ -110,8 +110,8 @@ class MobileAgent(BaseAgent):
                 parameters={"urgency": "medium", "reason": "low_moisture"},
                 confidence=0.9,
                 priority=2,
-                reasoning="رطوبة التربة أقل من 20%"
-            )
+                reasoning="رطوبة التربة أقل من 20%",
+            ),
         )
 
         # Frost alert rule
@@ -122,8 +122,8 @@ class MobileAgent(BaseAgent):
                 parameters={"urgency": "critical", "reason": "frost_risk"},
                 confidence=0.98,
                 priority=1,
-                reasoning="خطر الصقيع - درجة الحرارة أقل من 2 درجة"
-            )
+                reasoning="خطر الصقيع - درجة الحرارة أقل من 2 درجة",
+            ),
         )
 
     async def perceive(self, percept: AgentPercept) -> None:
@@ -151,11 +151,13 @@ class MobileAgent(BaseAgent):
                 self.context = AgentContext(location=percept.data)
 
         # Store in memory for learning
-        self.state.memory.append({
-            "percept": percept.percept_type,
-            "timestamp": datetime.now().isoformat(),
-            "data_summary": str(percept.data)[:100]
-        })
+        self.state.memory.append(
+            {
+                "percept": percept.percept_type,
+                "timestamp": datetime.now().isoformat(),
+                "data_summary": str(percept.data)[:100],
+            }
+        )
 
         # Keep memory limited
         if len(self.state.memory) > 100:
@@ -199,7 +201,7 @@ class MobileAgent(BaseAgent):
             "action_type": action.action_type,
             "executed_at": datetime.now().isoformat(),
             "parameters": action.parameters,
-            "success": True
+            "success": True,
         }
 
         # Execute based on action type
@@ -208,7 +210,7 @@ class MobileAgent(BaseAgent):
                 "title": "تنبيه الري",
                 "body": action.reasoning,
                 "priority": "high",
-                "sound": "alert"
+                "sound": "alert",
             }
 
         elif action.action_type == "disease_alert":
@@ -216,20 +218,22 @@ class MobileAgent(BaseAgent):
                 "title": "تنبيه مرض",
                 "body": action.reasoning,
                 "priority": "high",
-                "action_button": "عرض التفاصيل"
+                "action_button": "عرض التفاصيل",
             }
             # Queue for specialist agent
-            self.offline_queue.append({
-                "type": "disease_analysis_request",
-                "data": self.last_image_analysis,
-                "timestamp": datetime.now().isoformat()
-            })
+            self.offline_queue.append(
+                {
+                    "type": "disease_analysis_request",
+                    "data": self.last_image_analysis,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
         elif action.action_type == "harvest_notification":
             result["notification"] = {
                 "title": "إشعار الحصاد",
                 "body": action.reasoning,
-                "priority": "normal"
+                "priority": "normal",
             }
 
         elif action.action_type == "frost_alert":
@@ -237,7 +241,7 @@ class MobileAgent(BaseAgent):
                 "title": "⚠️ تحذير صقيع",
                 "body": action.reasoning,
                 "priority": "critical",
-                "sound": "emergency"
+                "sound": "emergency",
             }
 
         # Cache result for offline access
@@ -256,7 +260,7 @@ class MobileAgent(BaseAgent):
             "quick_classification": "healthy",
             "confidence": 0.85,
             "needs_detailed_analysis": False,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     async def _parse_voice_command(self, audio_data: Any) -> str:
@@ -271,12 +275,12 @@ class MobileAgent(BaseAgent):
                 action_type="disease_alert",
                 parameters={
                     "confidence": analysis.get("confidence", 0),
-                    "image_id": analysis.get("image_id")
+                    "image_id": analysis.get("image_id"),
                 },
                 confidence=analysis.get("confidence", 0.5),
                 priority=1,
                 reasoning="تم اكتشاف أعراض مرضية في الصورة",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
         return None
 
@@ -289,7 +293,7 @@ class MobileAgent(BaseAgent):
                 confidence=0.9,
                 priority=3,
                 reasoning="طلب المستخدم حالة الحقل",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             ),
             "start_irrigation": AgentAction(
                 action_type="irrigation_command",
@@ -298,17 +302,20 @@ class MobileAgent(BaseAgent):
                 priority=2,
                 reasoning="أمر المستخدم ببدء الري",
                 source_agent=self.agent_id,
-                requires_confirmation=True
-            )
+                requires_confirmation=True,
+            ),
         }
-        return intention_map.get(intention, AgentAction(
-            action_type="unknown_command",
-            parameters={"raw_intention": intention},
-            confidence=0.5,
-            priority=4,
-            reasoning="أمر غير معروف",
-            source_agent=self.agent_id
-        ))
+        return intention_map.get(
+            intention,
+            AgentAction(
+                action_type="unknown_command",
+                parameters={"raw_intention": intention},
+                confidence=0.5,
+                priority=4,
+                reasoning="أمر غير معروف",
+                source_agent=self.agent_id,
+            ),
+        )
 
     async def _proactive_check(self) -> AgentAction | None:
         """فحص استباقي"""

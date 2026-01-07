@@ -166,9 +166,7 @@ class CropHealthIntegration:
                 "detection_id": detection_data.get("id"),
                 "field_id": field_id,
                 "farm_id": detection_data.get("farm_id"),
-                "timestamp": detection_data.get(
-                    "detected_at", datetime.now(UTC).isoformat()
-                ),
+                "timestamp": detection_data.get("detected_at", datetime.now(UTC).isoformat()),
                 # Threat identification
                 "threat": {
                     "type": threat_type.value,
@@ -179,13 +177,9 @@ class CropHealthIntegration:
                 },
                 # Impact assessment
                 "impact": {
-                    "affected_area_percentage": detection_data.get(
-                        "affected_area_percentage", 0.0
-                    ),
+                    "affected_area_percentage": detection_data.get("affected_area_percentage", 0.0),
                     "crop_stage": detection_data.get("crop_stage"),
-                    "economic_threshold_exceeded": self._check_economic_threshold(
-                        detection_data
-                    ),
+                    "economic_threshold_exceeded": self._check_economic_threshold(detection_data),
                 },
                 # IPM recommendations
                 "ipm_recommendations": self._generate_ipm_recommendations(
@@ -194,15 +188,12 @@ class CropHealthIntegration:
                 # Documentation
                 "evidence": {
                     "images": detection_data.get("image_urls", []),
-                    "detection_method": detection_data.get(
-                        "detection_method", "ai_vision"
-                    ),
+                    "detection_method": detection_data.get("detection_method", "ai_vision"),
                     "scout_name": detection_data.get("scout_name"),
                 },
                 # Compliance tracking
                 "compliance": {
-                    "requires_action": severity
-                    in [SeverityLevel.HIGH, SeverityLevel.CRITICAL],
+                    "requires_action": severity in [SeverityLevel.HIGH, SeverityLevel.CRITICAL],
                     "action_deadline": self._calculate_action_deadline(severity),
                     "reported_to_authorities": False,  # Update based on local regulations
                 },
@@ -228,9 +219,7 @@ class CropHealthIntegration:
                 correlation_id=detection_data.get("correlation_id"),
             )
 
-            self.logger.info(
-                f"Detection mapped to IPM: {threat_type.value} - {severity.value}"
-            )
+            self.logger.info(f"Detection mapped to IPM: {threat_type.value} - {severity.value}")
             return ipm_data
 
         except Exception as e:
@@ -279,9 +268,7 @@ class CropHealthIntegration:
             self.logger.info(f"Generating IPM report for field {field_id}")
 
             # Count interventions by type
-            chemical_count = sum(
-                1 for r in ipm_records if r.action_type == IPMAction.CHEMICAL
-            )
+            chemical_count = sum(1 for r in ipm_records if r.action_type == IPMAction.CHEMICAL)
             non_chemical_count = len(ipm_records) - chemical_count
 
             # Analyze threat breakdown
@@ -565,9 +552,7 @@ class CropHealthIntegration:
         # Check for recurring threats
         threat_counts = {}
         for detection in detections:
-            threat_counts[detection.threat_name] = (
-                threat_counts.get(detection.threat_name, 0) + 1
-            )
+            threat_counts[detection.threat_name] = threat_counts.get(detection.threat_name, 0) + 1
 
         recurring = [name for name, count in threat_counts.items() if count > 2]
         if recurring:
@@ -576,9 +561,7 @@ class CropHealthIntegration:
             )
 
         # Check effectiveness
-        low_effectiveness = sum(
-            1 for r in ipm_records if r.effectiveness and r.effectiveness < 0.5
-        )
+        low_effectiveness = sum(1 for r in ipm_records if r.effectiveness and r.effectiveness < 0.5)
         if low_effectiveness > 0:
             recommendations.append(
                 "Review and improve intervention strategies with low effectiveness"
@@ -592,9 +575,7 @@ class CropHealthIntegration:
         # For now, we'll use a simplified check
         return True  # Placeholder
 
-    def _check_phi_compliance(
-        self, application: PPPApplication, harvest_date: datetime
-    ) -> bool:
+    def _check_phi_compliance(self, application: PPPApplication, harvest_date: datetime) -> bool:
         """فحص امتثال فترة ما قبل الحصاد - Check PHI compliance"""
         days_before_harvest = (harvest_date - application.application_date).days
         return days_before_harvest >= application.pre_harvest_interval_days

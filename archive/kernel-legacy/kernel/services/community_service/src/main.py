@@ -414,9 +414,7 @@ async def health_check():
 async def list_posts(
     category: PostCategory | None = Query(None, description="Filter by category"),
     author_id: str | None = Query(None, description="Filter by author"),
-    has_expert_reply: bool | None = Query(
-        None, description="Filter by expert reply"
-    ),
+    has_expert_reply: bool | None = Query(None, description="Filter by expert reply"),
     search: str | None = Query(None, description="Search in title and content"),
     sort_by: str = Query("recent", description="Sort: recent, popular, unanswered"),
     limit: int = Query(20, ge=1, le=50),
@@ -445,9 +443,7 @@ async def list_posts(
 
     # Sort
     if sort_by == "popular":
-        filtered.sort(
-            key=lambda p: (p.likes_count + p.comments_count * 2), reverse=True
-        )
+        filtered.sort(key=lambda p: (p.likes_count + p.comments_count * 2), reverse=True)
     elif sort_by == "unanswered":
         filtered = [p for p in filtered if not p.has_expert_reply]
         filtered.sort(key=lambda p: p.created_at, reverse=True)
@@ -597,9 +593,7 @@ async def get_comments(
     comments = [c for c in comments_db.values() if c.post_id == post_id]
 
     # Sort: accepted answer first, then expert replies, then by date
-    comments.sort(
-        key=lambda c: (not c.is_accepted_answer, not c.is_expert_reply, c.created_at)
-    )
+    comments.sort(key=lambda c: (not c.is_accepted_answer, not c.is_expert_reply, c.created_at))
 
     total = len(comments)
     paginated = comments[offset : offset + limit]
@@ -681,9 +675,7 @@ async def accept_answer(
         raise HTTPException(status_code=404, detail="Post not found")
 
     if post.author.user_id != user_id:
-        raise HTTPException(
-            status_code=403, detail="Only post author can accept answers"
-        )
+        raise HTTPException(status_code=403, detail="Only post author can accept answers")
 
     # Unaccept other answers
     for c in comments_db.values():

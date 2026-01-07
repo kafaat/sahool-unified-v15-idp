@@ -15,29 +15,27 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
 from pydantic import BaseModel, Field
 
 # Import authentication dependencies
 try:
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-    from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+
     AUTH_AVAILABLE = True
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
     User = None
+
     def get_current_user():
         """Placeholder when auth not available"""
         return None
+
 
 # Import API routers - استيراد موجهات الواجهة البرمجية
 from .api.v1.field_health import router as field_health_router
@@ -69,9 +67,7 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10
-            )
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Database connected")
         except Exception as e:
@@ -206,8 +202,7 @@ _operations: dict = {}
 
 @app.post("/fields", response_model=FieldResponse)
 async def create_field(
-    field: FieldCreate,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    field: FieldCreate, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Create a new agricultural field"""
     field_id = str(uuid4())
@@ -235,9 +230,7 @@ async def create_field(
 
             await app.state.nc.publish(
                 "sahool.fields.created",
-                json.dumps(
-                    {"field_id": field_id, "tenant_id": field.tenant_id}
-                ).encode(),
+                json.dumps({"field_id": field_id, "tenant_id": field.tenant_id}).encode(),
             )
         except Exception:
             pass
@@ -247,8 +240,7 @@ async def create_field(
 
 @app.get("/fields/{field_id}", response_model=FieldResponse)
 async def get_field(
-    field_id: str,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    field_id: str, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Get field by ID"""
     if field_id not in _fields:

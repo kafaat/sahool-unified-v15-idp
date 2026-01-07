@@ -53,9 +53,7 @@ class RegistryConfig(BaseModel):
     health_check_timeout_seconds: int = Field(
         default=5, description="Health check request timeout", ge=1, le=60
     )
-    max_retries: int = Field(
-        default=3, description="Max health check retries", ge=0, le=10
-    )
+    max_retries: int = Field(default=3, description="Max health check retries", ge=0, le=10)
     enable_auto_discovery: bool = Field(
         default=False, description="Enable automatic agent discovery"
     )
@@ -363,9 +361,7 @@ class AgentRegistry:
                     response_time_ms=response_time,
                     metadata=(
                         response.json()
-                        if response.headers.get("content-type", "").startswith(
-                            "application/json"
-                        )
+                        if response.headers.get("content-type", "").startswith("application/json")
                         else {}
                     ),
                 )
@@ -412,19 +408,13 @@ class AgentRegistry:
             Dictionary with registry statistics
         """
         healthy_count = sum(
-            1
-            for status in self._health_status.values()
-            if status.status == HealthStatus.HEALTHY
+            1 for status in self._health_status.values() if status.status == HealthStatus.HEALTHY
         )
 
         return {
             "total_agents": len(self._agents),
-            "active_agents": len(
-                [a for a in self._agents.values() if a.status == "active"]
-            ),
-            "inactive_agents": len(
-                [a for a in self._agents.values() if a.status == "inactive"]
-            ),
+            "active_agents": len([a for a in self._agents.values() if a.status == "active"]),
+            "inactive_agents": len([a for a in self._agents.values() if a.status == "inactive"]),
             "healthy_agents": healthy_count,
             "capabilities": len(self._capability_index),
             "skills": len(self._skill_index),
@@ -447,17 +437,13 @@ class AgentRegistry:
 
                 # Check health of all active agents
                 active_agents = [
-                    a
-                    for a in self._agents.values()
-                    if a.status == "active" and a.health_endpoint
+                    a for a in self._agents.values() if a.status == "active" and a.health_endpoint
                 ]
 
                 self._logger.debug("running_health_checks", count=len(active_agents))
 
                 # Check all agents concurrently
-                tasks = [
-                    self.check_agent_health(agent.agent_id) for agent in active_agents
-                ]
+                tasks = [self.check_agent_health(agent.agent_id) for agent in active_agents]
 
                 if tasks:
                     await asyncio.gather(*tasks, return_exceptions=True)

@@ -67,9 +67,7 @@ class TestPasswordHasher:
     def test_argon2_verify_correct_password(self):
         """Test verification of correct Argon2id password"""
         hashed = self.hasher.hash_password(self.test_password)
-        is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password, hashed
-        )
+        is_valid, needs_migration = self.hasher.verify_password(self.test_password, hashed)
 
         assert is_valid is True
         assert needs_migration is False  # New hash shouldn't need migration
@@ -78,9 +76,7 @@ class TestPasswordHasher:
     def test_argon2_verify_incorrect_password(self):
         """Test verification of incorrect Argon2id password"""
         hashed = self.hasher.hash_password(self.test_password)
-        is_valid, needs_migration = self.hasher.verify_password(
-            "WrongPassword123!", hashed
-        )
+        is_valid, needs_migration = self.hasher.verify_password("WrongPassword123!", hashed)
 
         assert is_valid is False
         assert needs_migration is False
@@ -114,9 +110,7 @@ class TestPasswordHasher:
         ).decode("utf-8")
 
         # Verify it can be validated
-        is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password, legacy_hash
-        )
+        is_valid, needs_migration = self.hasher.verify_password(self.test_password, legacy_hash)
 
         assert is_valid is True
         assert needs_migration is True  # Should need migration to Argon2id
@@ -134,9 +128,7 @@ class TestPasswordHasher:
             self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
         ).decode("utf-8")
 
-        is_valid, needs_migration = self.hasher.verify_password(
-            "WrongPassword", legacy_hash
-        )
+        is_valid, needs_migration = self.hasher.verify_password("WrongPassword", legacy_hash)
 
         assert is_valid is False
 
@@ -156,9 +148,7 @@ class TestPasswordHasher:
         legacy_hash = f"{salt.hex()}${hashed.hex()}"
 
         # Verify it can be validated
-        is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password, legacy_hash
-        )
+        is_valid, needs_migration = self.hasher.verify_password(self.test_password, legacy_hash)
 
         assert is_valid is True
         assert needs_migration is True  # Should need migration to Argon2id
@@ -179,9 +169,7 @@ class TestPasswordHasher:
         )
         legacy_hash = f"{salt.hex()}${hashed.hex()}"
 
-        is_valid, needs_migration = self.hasher.verify_password(
-            "WrongPassword", legacy_hash
-        )
+        is_valid, needs_migration = self.hasher.verify_password("WrongPassword", legacy_hash)
 
         assert is_valid is False
 
@@ -426,9 +414,7 @@ class TestPasswordMigrationScenarios:
         ).decode("utf-8")
 
         # Step 2: User logs in - verify old password
-        is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password, old_hash
-        )
+        is_valid, needs_migration = self.hasher.verify_password(self.test_password, old_hash)
 
         assert is_valid is True
         assert needs_migration is True
@@ -437,9 +423,7 @@ class TestPasswordMigrationScenarios:
         new_hash = self.hasher.hash_password(self.test_password)
 
         # Step 4: Verify new hash works
-        is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password, new_hash
-        )
+        is_valid, needs_migration = self.hasher.verify_password(self.test_password, new_hash)
 
         assert is_valid is True
         assert needs_migration is False
@@ -459,9 +443,7 @@ class TestPasswordMigrationScenarios:
         old_hash = f"{salt.hex()}${hashed.hex()}"
 
         # Step 2: User logs in - verify old password
-        is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password, old_hash
-        )
+        is_valid, needs_migration = self.hasher.verify_password(self.test_password, old_hash)
 
         assert is_valid is True
         assert needs_migration is True
@@ -470,9 +452,7 @@ class TestPasswordMigrationScenarios:
         new_hash = self.hasher.hash_password(self.test_password)
 
         # Step 4: Verify new hash works
-        is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password, new_hash
-        )
+        is_valid, needs_migration = self.hasher.verify_password(self.test_password, new_hash)
 
         assert is_valid is True
         assert needs_migration is False

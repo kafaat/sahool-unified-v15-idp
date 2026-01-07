@@ -144,10 +144,14 @@ class ChatRepository:
         )
 
         # Increment unread for other participants
-        await ChatParticipant.filter(
-            thread_id=thread_id,
-        ).exclude(user_id=sender_id).update(
-            unread_count=ChatParticipant.unread_count + 1,
+        await (
+            ChatParticipant.filter(
+                thread_id=thread_id,
+            )
+            .exclude(user_id=sender_id)
+            .update(
+                unread_count=ChatParticipant.unread_count + 1,
+            )
         )
 
         return message

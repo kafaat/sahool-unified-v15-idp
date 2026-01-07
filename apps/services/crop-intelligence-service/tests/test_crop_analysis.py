@@ -10,9 +10,10 @@ This module tests:
 - API endpoints for crop analysis
 """
 
-import pytest
 from datetime import datetime, timedelta
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -21,7 +22,7 @@ class TestVegetationIndicesAnalysis:
 
     def test_ndvi_healthy_crop(self):
         """Test NDVI analysis for healthy crop"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Healthy crop indices
         indices = Indices(
@@ -30,14 +31,10 @@ class TestVegetationIndicesAnalysis:
             ndre=0.35,
             lci=0.40,
             ndwi=0.10,
-            savi=0.80
+            savi=0.80,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_healthy",
-            growth_stage=GrowthStage.mid,
-            indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_healthy", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -50,7 +47,7 @@ class TestVegetationIndicesAnalysis:
 
     def test_ndvi_stressed_crop(self):
         """Test NDVI analysis for stressed crop"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Stressed crop indices
         indices = Indices(
@@ -59,13 +56,11 @@ class TestVegetationIndicesAnalysis:
             ndre=0.15,
             lci=0.10,
             ndwi=-0.15,
-            savi=0.28
+            savi=0.28,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_stressed",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_stressed", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -90,7 +85,7 @@ class TestVegetationIndicesAnalysis:
 
     def test_evi_analysis(self):
         """Test Enhanced Vegetation Index analysis"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Test with high EVI
         high_evi_indices = Indices(
@@ -99,13 +94,11 @@ class TestVegetationIndicesAnalysis:
             ndre=0.30,
             lci=0.35,
             ndwi=0.05,
-            savi=0.75
+            savi=0.75,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_high_evi",
-            growth_stage=GrowthStage.mid,
-            indices=high_evi_indices
+            zone_id="zone_high_evi", growth_stage=GrowthStage.mid, indices=high_evi_indices
         )
 
         actions = diagnose_zone(obs)
@@ -116,7 +109,7 @@ class TestVegetationIndicesAnalysis:
 
     def test_ndre_nitrogen_stress(self):
         """Test NDRE for nitrogen deficiency detection"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Good NDVI but low NDRE (hidden hunger)
         indices = Indices(
@@ -125,13 +118,11 @@ class TestVegetationIndicesAnalysis:
             ndre=0.20,  # Low nitrogen indicator
             lci=0.18,
             ndwi=0.00,
-            savi=0.65
+            savi=0.65,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_nitrogen_deficient",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_nitrogen_deficient", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -141,12 +132,13 @@ class TestVegetationIndicesAnalysis:
         assert len(fert_actions) > 0
 
         # Check for nitrogen-related recommendation
-        assert any("nitrogen" in a["reason"].lower() or "نيتروجين" in a["reason"]
-                   for a in fert_actions)
+        assert any(
+            "nitrogen" in a["reason"].lower() or "نيتروجين" in a["reason"] for a in fert_actions
+        )
 
     def test_ndwi_water_stress_detection(self):
         """Test NDWI for water stress detection"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Low NDWI indicating water stress
         indices = Indices(
@@ -155,13 +147,11 @@ class TestVegetationIndicesAnalysis:
             ndre=0.25,
             lci=0.22,
             ndwi=-0.18,  # Severe water stress
-            savi=0.45
+            savi=0.45,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_water_stressed",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_water_stressed", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -176,7 +166,7 @@ class TestVegetationIndicesAnalysis:
 
     def test_savi_seedling_stage(self):
         """Test SAVI for seedling stage analysis"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Low SAVI in seedling stage
         indices = Indices(
@@ -185,13 +175,11 @@ class TestVegetationIndicesAnalysis:
             ndre=0.15,
             lci=0.12,
             ndwi=-0.05,
-            savi=0.18  # Very low for seedlings
+            savi=0.18,  # Very low for seedlings
         )
 
         obs = ZoneObservation(
-            zone_id="zone_seedling",
-            growth_stage=GrowthStage.seedling,
-            indices=indices
+            zone_id="zone_seedling", growth_stage=GrowthStage.seedling, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -210,7 +198,7 @@ class TestZoneHealthAssessment:
 
         critical_actions = [
             {"priority": "P0", "type": "irrigation"},
-            {"priority": "P1", "type": "scouting"}
+            {"priority": "P1", "type": "scouting"},
         ]
 
         status = classify_zone_status(critical_actions)
@@ -222,7 +210,7 @@ class TestZoneHealthAssessment:
 
         warning_actions = [
             {"priority": "P1", "type": "fertilization"},
-            {"priority": "P2", "type": "scouting"}
+            {"priority": "P2", "type": "scouting"},
         ]
 
         status = classify_zone_status(warning_actions)
@@ -232,9 +220,7 @@ class TestZoneHealthAssessment:
         """Test classification of attention zone status"""
         from src.decision_engine import classify_zone_status
 
-        attention_actions = [
-            {"priority": "P2", "type": "scouting"}
-        ]
+        attention_actions = [{"priority": "P2", "type": "scouting"}]
 
         status = classify_zone_status(attention_actions)
         assert status == "attention"
@@ -243,9 +229,7 @@ class TestZoneHealthAssessment:
         """Test classification of OK zone status"""
         from src.decision_engine import classify_zone_status
 
-        ok_actions = [
-            {"priority": "P3", "type": "none"}
-        ]
+        ok_actions = [{"priority": "P3", "type": "none"}]
 
         status = classify_zone_status(ok_actions)
         assert status == "ok"
@@ -332,7 +316,7 @@ class TestGrowthStageAnalysis:
 
     def test_seedling_stage_analysis(self):
         """Test analysis during seedling stage"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         indices = Indices(
             ndvi=0.35,
@@ -340,13 +324,11 @@ class TestGrowthStageAnalysis:
             ndre=0.20,
             lci=0.18,
             ndwi=0.00,
-            savi=0.18  # Low SAVI triggers seedling-specific checks
+            savi=0.18,  # Low SAVI triggers seedling-specific checks
         )
 
         obs = ZoneObservation(
-            zone_id="zone_seedling",
-            growth_stage=GrowthStage.seedling,
-            indices=indices
+            zone_id="zone_seedling", growth_stage=GrowthStage.seedling, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -356,22 +338,11 @@ class TestGrowthStageAnalysis:
 
     def test_rapid_growth_stage_analysis(self):
         """Test analysis during rapid growth stage"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
-        indices = Indices(
-            ndvi=0.70,
-            evi=0.65,
-            ndre=0.30,
-            lci=0.32,
-            ndwi=0.05,
-            savi=0.68
-        )
+        indices = Indices(ndvi=0.70, evi=0.65, ndre=0.30, lci=0.32, ndwi=0.05, savi=0.68)
 
-        obs = ZoneObservation(
-            zone_id="zone_rapid",
-            growth_stage=GrowthStage.rapid,
-            indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_rapid", growth_stage=GrowthStage.rapid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -381,7 +352,7 @@ class TestGrowthStageAnalysis:
 
     def test_mid_season_analysis(self):
         """Test analysis during mid-season"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Mid-season with low NDRE should trigger fertilization
         indices = Indices(
@@ -390,14 +361,10 @@ class TestGrowthStageAnalysis:
             ndre=0.22,  # Low NDRE
             lci=0.25,
             ndwi=0.02,
-            savi=0.62
+            savi=0.62,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_mid",
-            growth_stage=GrowthStage.mid,
-            indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_mid", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -407,23 +374,12 @@ class TestGrowthStageAnalysis:
 
     def test_late_season_analysis(self):
         """Test analysis during late season"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Late season with low NDRE
-        indices = Indices(
-            ndvi=0.70,
-            evi=0.62,
-            ndre=0.24,
-            lci=0.28,
-            ndwi=0.00,
-            savi=0.65
-        )
+        indices = Indices(ndvi=0.70, evi=0.62, ndre=0.24, lci=0.28, ndwi=0.00, savi=0.65)
 
-        obs = ZoneObservation(
-            zone_id="zone_late",
-            growth_stage=GrowthStage.late,
-            indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_late", growth_stage=GrowthStage.late, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -447,14 +403,12 @@ class TestAPIEndpointsForAnalysis:
                 "ndre": 0.28,
                 "lci": 0.30,
                 "ndwi": 0.00,
-                "savi": 0.68
-            }
+                "savi": 0.68,
+            },
         }
 
         response = client.post(
-            "/api/v1/diagnose",
-            json=observation_data,
-            params={"zone_id": "test_zone"}
+            "/api/v1/diagnose", json=observation_data, params={"zone_id": "test_zone"}
         )
 
         assert response.status_code == 200
@@ -471,10 +425,7 @@ class TestAPIEndpointsForAnalysis:
 
     def test_field_diagnosis_with_multiple_zones(self, client):
         """Test field diagnosis aggregating multiple zones"""
-        response = client.get(
-            "/api/v1/fields/field_demo/diagnosis",
-            params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"})
 
         assert response.status_code == 200
         data = response.json()
@@ -496,7 +447,7 @@ class TestAPIEndpointsForAnalysis:
         """Test zone timeline for temporal analysis"""
         response = client.get(
             "/api/v1/fields/field_demo/zones/zone_a/timeline",
-            params={"from": "2025-12-01", "to": "2025-12-31"}
+            params={"from": "2025-12-01", "to": "2025-12-31"},
         )
 
         assert response.status_code == 200
@@ -526,13 +477,12 @@ class TestDataValidation:
                 "ndre": 0.25,
                 "lci": 0.30,
                 "ndwi": -0.05,
-                "savi": 0.65
-            }
+                "savi": 0.65,
+            },
         }
 
         response = client.post(
-            "/api/v1/fields/test_field/zones/test_zone/observations",
-            json=invalid_data
+            "/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data
         )
 
         assert response.status_code == 422  # Validation error
@@ -549,13 +499,12 @@ class TestDataValidation:
                 "ndre": 0.25,
                 "lci": 0.30,
                 "ndwi": -0.05,
-                "savi": 0.65
-            }
+                "savi": 0.65,
+            },
         }
 
         response = client.post(
-            "/api/v1/fields/test_field/zones/test_zone/observations",
-            json=invalid_data
+            "/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data
         )
 
         assert response.status_code == 422
@@ -570,22 +519,18 @@ class TestDataValidation:
                 "ndvi": 0.75,
                 "evi": 0.60,
                 # Missing ndre, lci, ndwi, savi
-            }
+            },
         }
 
         response = client.post(
-            "/api/v1/fields/test_field/zones/test_zone/observations",
-            json=invalid_data
+            "/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data
         )
 
         assert response.status_code == 422
 
     def test_invalid_date_format(self, client):
         """Test validation of invalid date format"""
-        response = client.get(
-            "/api/v1/fields/field_demo/diagnosis",
-            params={"date": "not-a-date"}
-        )
+        response = client.get("/api/v1/fields/field_demo/diagnosis", params={"date": "not-a-date"})
 
         assert response.status_code == 400
 
@@ -603,7 +548,7 @@ class TestMultiTemporalAnalysis:
             "2025-12-01T10:00:00Z",
             "2025-12-08T10:00:00Z",
             "2025-12-15T10:00:00Z",
-            "2025-12-22T10:00:00Z"
+            "2025-12-22T10:00:00Z",
         ]
 
         ndvi_values = [0.45, 0.55, 0.65, 0.75]  # Improving trend
@@ -613,15 +558,12 @@ class TestMultiTemporalAnalysis:
             obs_data["captured_at"] = date
             obs_data["indices"]["ndvi"] = ndvi
 
-            client.post(
-                f"/api/v1/fields/{field_id}/zones/{zone_id}/observations",
-                json=obs_data
-            )
+            client.post(f"/api/v1/fields/{field_id}/zones/{zone_id}/observations", json=obs_data)
 
         # Get timeline
         response = client.get(
             f"/api/v1/fields/{field_id}/zones/{zone_id}/timeline",
-            params={"from": "2025-12-01", "to": "2025-12-31"}
+            params={"from": "2025-12-01", "to": "2025-12-31"},
         )
 
         assert response.status_code == 200
@@ -652,15 +594,12 @@ class TestMultiTemporalAnalysis:
             obs_data = sample_observation_data.copy()
             obs_data["captured_at"] = date
 
-            client.post(
-                f"/api/v1/fields/{field_id}/zones/{zone_id}/observations",
-                json=obs_data
-            )
+            client.post(f"/api/v1/fields/{field_id}/zones/{zone_id}/observations", json=obs_data)
 
         # Get timeline for December only
         response = client.get(
             f"/api/v1/fields/{field_id}/zones/{zone_id}/timeline",
-            params={"from": "2025-12-01", "to": "2025-12-31"}
+            params={"from": "2025-12-01", "to": "2025-12-31"},
         )
 
         assert response.status_code == 200
@@ -679,16 +618,8 @@ class TestVRTGeneration:
 
         zone_id = "vrt_test_zone"
         actions = [
-            {
-                "type": "irrigation",
-                "priority": "P0",
-                "recommended_dose_hint": None
-            },
-            {
-                "type": "fertilization",
-                "priority": "P1",
-                "recommended_dose_hint": "medium"
-            }
+            {"type": "irrigation", "priority": "P0", "recommended_dose_hint": None},
+            {"type": "fertilization", "priority": "P1", "recommended_dose_hint": "medium"},
         ]
 
         vrt_props = generate_vrt_properties(zone_id, actions)
@@ -702,10 +633,7 @@ class TestVRTGeneration:
 
     def test_vrt_export_endpoint(self, client):
         """Test VRT export endpoint"""
-        response = client.get(
-            "/api/v1/fields/field_demo/vrt",
-            params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/field_demo/vrt", params={"date": "2025-12-14"})
 
         assert response.status_code == 200
         data = response.json()
@@ -743,17 +671,15 @@ class TestPerformanceAndScalability:
             zone_id = f"zone_{i}"
             client.post(
                 f"/api/v1/fields/{field_id}/zones/{zone_id}/observations",
-                json=sample_observation_data
+                json=sample_observation_data,
             )
 
         # Time the diagnosis
         import time
+
         start = time.time()
 
-        response = client.get(
-            f"/api/v1/fields/{field_id}/diagnosis",
-            params={"date": "2025-12-27"}
-        )
+        response = client.get(f"/api/v1/fields/{field_id}/diagnosis", params={"date": "2025-12-27"})
 
         duration = time.time() - start
 

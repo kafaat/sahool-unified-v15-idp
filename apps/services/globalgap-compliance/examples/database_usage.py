@@ -285,8 +285,7 @@ async def example_9_analytics_queries():
         print("\nCompliance by Scope:")
         for row in results:
             print(
-                f"  {row['scope']}: {row['avg_compliance']:.2f}% avg "
-                f"({row['audit_count']} audits)"
+                f"  {row['scope']}: {row['avg_compliance']:.2f}% avg ({row['audit_count']} audits)"
             )
 
         # Most common non-conformances

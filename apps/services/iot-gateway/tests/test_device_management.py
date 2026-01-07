@@ -7,7 +7,6 @@ from datetime import UTC, datetime, timedelta
 from time import sleep
 
 import pytest
-
 from apps.services.iot_gateway.src.registry import (
     Device,
     DeviceRegistry,
@@ -245,9 +244,7 @@ class TestDeviceRetrieval:
         )
 
         # Tenant 2, Field 3
-        registry.register(
-            "dev_t2_f3_s1", "tenant_2", "field_3", "water_sensor", "ماء 1", "Water 1"
-        )
+        registry.register("dev_t2_f3_s1", "tenant_2", "field_3", "water_sensor", "ماء 1", "Water 1")
 
         return registry
 
@@ -298,13 +295,9 @@ class TestDeviceStatusTracking:
     def test_update_device_status(self):
         """Test updating device status"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
-        device = registry.update_status(
-            device_id="dev_001", status=DeviceStatus.ONLINE
-        )
+        device = registry.update_status(device_id="dev_001", status=DeviceStatus.ONLINE)
 
         assert device.status == DeviceStatus.ONLINE.value
         assert device.last_seen is not None
@@ -312,9 +305,7 @@ class TestDeviceStatusTracking:
     def test_update_status_sets_last_seen(self):
         """Test that updating status sets last_seen timestamp"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         before = datetime.now(UTC)
         registry.update_status(device_id="dev_001")
@@ -327,9 +318,7 @@ class TestDeviceStatusTracking:
     def test_update_status_with_last_reading(self):
         """Test updating status with last reading"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         reading = {"sensor_type": "soil_moisture", "value": 45.5, "unit": "%"}
 
@@ -340,9 +329,7 @@ class TestDeviceStatusTracking:
     def test_update_status_with_battery_level(self):
         """Test updating status with battery level"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         device = registry.update_status(device_id="dev_001", battery_level=85.5)
 
@@ -351,9 +338,7 @@ class TestDeviceStatusTracking:
     def test_update_status_with_signal_strength(self):
         """Test updating status with signal strength"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         device = registry.update_status(device_id="dev_001", signal_strength=-65)
 
@@ -362,9 +347,7 @@ class TestDeviceStatusTracking:
     def test_update_status_low_battery_sets_warning(self):
         """Test that low battery sets warning status"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         device = registry.update_status(device_id="dev_001", battery_level=15)
 
@@ -394,9 +377,7 @@ class TestOfflineDeviceDetection:
     def test_check_offline_devices_no_offline(self):
         """Test checking when all devices are online"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
         registry.update_status("dev_001", DeviceStatus.ONLINE)
 
         offline = registry.check_offline_devices()
@@ -408,9 +389,7 @@ class TestOfflineDeviceDetection:
         registry = DeviceRegistry()
 
         # Register device and set old last_seen
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
         old_time = datetime.now(UTC) - timedelta(minutes=30)
         device = registry.get("dev_001")
         device.last_seen = old_time.isoformat()
@@ -426,9 +405,7 @@ class TestOfflineDeviceDetection:
         """Test that already offline devices are skipped"""
         registry = DeviceRegistry()
 
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
         device = registry.get("dev_001")
         device.status = DeviceStatus.OFFLINE.value
         old_time = datetime.now(UTC) - timedelta(minutes=30)
@@ -471,9 +448,7 @@ class TestDeviceDeletion:
     def test_delete_device_success(self):
         """Test successful device deletion"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         result = registry.delete("dev_001")
 
@@ -491,12 +466,8 @@ class TestDeviceDeletion:
     def test_delete_device_removes_from_all_queries(self):
         """Test that deleted device is removed from all queries"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
-        registry.register(
-            "dev_002", "tenant_1", "field_1", "weather_station", "طقس", "Weather"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
+        registry.register("dev_002", "tenant_1", "field_1", "weather_station", "طقس", "Weather")
 
         registry.delete("dev_001")
 
@@ -689,9 +660,7 @@ class TestRegistrySingleton:
     def test_get_registry_persists_data(self):
         """Test that registry data persists across get_registry calls"""
         registry1 = get_registry()
-        registry1.register(
-            "persistent_dev", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry1.register("persistent_dev", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         registry2 = get_registry()
         device = registry2.get("persistent_dev")
@@ -706,9 +675,7 @@ class TestConcurrentOperations:
     def test_multiple_status_updates(self):
         """Test multiple status updates on same device"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         # Multiple status updates
         for i in range(5):
@@ -796,17 +763,13 @@ class TestEdgeCases:
         ]
 
         for device_id in special_ids:
-            device = registry.register(
-                device_id, "tenant_1", "field_1", "sensor", "ح", "S"
-            )
+            device = registry.register(device_id, "tenant_1", "field_1", "sensor", "ح", "S")
             assert device.device_id == device_id
 
     def test_zero_battery_level(self):
         """Test device with zero battery level"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         device = registry.update_status(device_id="dev_001", battery_level=0)
 
@@ -816,9 +779,7 @@ class TestEdgeCases:
     def test_negative_signal_strength(self):
         """Test device with negative signal strength (RSSI)"""
         registry = DeviceRegistry()
-        registry.register(
-            "dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor"
-        )
+        registry.register("dev_001", "tenant_1", "field_1", "soil_sensor", "حساس", "Sensor")
 
         device = registry.update_status(device_id="dev_001", signal_strength=-120)
 

@@ -248,9 +248,7 @@ def classify_zone_status(actions: list[dict[str, Any]]) -> str:
     return "ok"
 
 
-def generate_vrt_properties(
-    zone_id: str, actions: list[dict[str, Any]]
-) -> dict[str, Any]:
+def generate_vrt_properties(zone_id: str, actions: list[dict[str, Any]]) -> dict[str, Any]:
     """
     توليد خصائص VRT للمنطقة (للتصدير إلى آلات الرش/الري)
     """
@@ -261,13 +259,9 @@ def generate_vrt_properties(
         "zone_id": zone_id,
         "status": classify_zone_status(actions),
         "irrigation_required": len(irrigation_actions) > 0,
-        "irrigation_priority": (
-            irrigation_actions[0]["priority"] if irrigation_actions else None
-        ),
+        "irrigation_priority": (irrigation_actions[0]["priority"] if irrigation_actions else None),
         "fertilization_required": len(fert_actions) > 0,
-        "n_dose_hint": (
-            fert_actions[0].get("recommended_dose_hint") if fert_actions else None
-        ),
+        "n_dose_hint": (fert_actions[0].get("recommended_dose_hint") if fert_actions else None),
     }
 
     return props

@@ -88,9 +88,7 @@ class ServiceClient:
             headers["Authorization"] = f"Bearer {self.auth_token}"
         return headers
 
-    def _get_cache_key(
-        self, method: str, path: str, params: dict | None = None
-    ) -> str:
+    def _get_cache_key(self, method: str, path: str, params: dict | None = None) -> str:
         """Generate cache key"""
         param_str = "&".join(f"{k}={v}" for k, v in sorted((params or {}).items()))
         return f"{method}:{path}?{param_str}"

@@ -380,9 +380,7 @@ async def check_map_provider_health(
 
     # Build test URL
     url_template = provider["url_template"]
-    test_url = (
-        url_template.replace("{z}", "10").replace("{x}", "512").replace("{y}", "512")
-    )
+    test_url = url_template.replace("{z}", "10").replace("{x}", "512").replace("{y}", "512")
     if api_key:
         test_url = test_url.replace("{api_key}", api_key)
 
@@ -438,7 +436,9 @@ async def check_weather_provider_health(
     # Build test URL based on provider
     test_url = ""
     if provider_name == WeatherProviderName.OPEN_METEO:
-        test_url = f"{provider['base_url']}/forecast?latitude=15.37&longitude=44.19&current=temperature_2m"
+        test_url = (
+            f"{provider['base_url']}/forecast?latitude=15.37&longitude=44.19&current=temperature_2m"
+        )
     elif provider_name == WeatherProviderName.OPENWEATHERMAP:
         if not api_key:
             return ProviderStatusResponse(
@@ -524,16 +524,12 @@ async def health_check():
 async def list_all_providers():
     """List all available providers"""
     return ProvidersListResponse(
-        map_providers=[
-            {**v, "id": k.value, "type": "map"} for k, v in MAP_PROVIDERS.items()
-        ],
+        map_providers=[{**v, "id": k.value, "type": "map"} for k, v in MAP_PROVIDERS.items()],
         weather_providers=[
-            {**v, "id": k.value, "type": "weather"}
-            for k, v in WEATHER_PROVIDERS.items()
+            {**v, "id": k.value, "type": "weather"} for k, v in WEATHER_PROVIDERS.items()
         ],
         satellite_providers=[
-            {**v, "id": k.value, "type": "satellite"}
-            for k, v in SATELLITE_PROVIDERS.items()
+            {**v, "id": k.value, "type": "satellite"} for k, v in SATELLITE_PROVIDERS.items()
         ],
     )
 
@@ -543,9 +539,7 @@ async def list_map_providers():
     """List all map providers"""
     return {
         "providers": [{**v, "id": k.value} for k, v in MAP_PROVIDERS.items()],
-        "free_providers": [
-            k.value for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]
-        ],
+        "free_providers": [k.value for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]],
     }
 
 
@@ -613,17 +607,13 @@ async def check_all_free_providers():
     }
 
     # Check free map providers
-    free_map_providers = [
-        k for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]
-    ]
+    free_map_providers = [k for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]]
     for provider_name in free_map_providers:
         status = await check_map_provider_health(provider_name)
         results["map_providers"].append(status.dict())
 
     # Check free weather providers
-    free_weather_providers = [
-        k for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]
-    ]
+    free_weather_providers = [k for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]]
     for provider_name in free_weather_providers:
         status = await check_weather_provider_health(provider_name)
         results["weather_providers"].append(status.dict())

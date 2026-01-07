@@ -6,7 +6,6 @@ This module manages all environment variables and service configuration.
 تدير هذه الوحدة جميع متغيرات البيئة وإعدادات الخدمة.
 """
 
-
 from pydantic_settings import BaseSettings
 
 
@@ -60,9 +59,7 @@ class Settings(BaseSettings):
     nats_subject_prefix: str = "sahool.ai-advisor"
 
     # Embeddings Model | نموذج التضمينات
-    embeddings_model: str = (
-        "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
-    )
+    embeddings_model: str = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
     embeddings_device: str = "cpu"  # or "cuda" for GPU
 
     # Agent Configuration | إعدادات الوكلاء

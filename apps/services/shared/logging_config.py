@@ -29,7 +29,6 @@ import logging
 import os
 import sys
 from contextvars import ContextVar
-from typing import Any, Optional
 from uuid import uuid4
 
 import structlog
@@ -38,14 +37,12 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
 # Context variables for correlation tracking
-correlation_id_var: ContextVar[Optional[str]] = ContextVar("correlation_id", default=None)
-tenant_id_var: ContextVar[Optional[str]] = ContextVar("tenant_id", default=None)
-user_id_var: ContextVar[Optional[str]] = ContextVar("user_id", default=None)
+correlation_id_var: ContextVar[str | None] = ContextVar("correlation_id", default=None)
+tenant_id_var: ContextVar[str | None] = ContextVar("tenant_id", default=None)
+user_id_var: ContextVar[str | None] = ContextVar("user_id", default=None)
 
 
-def add_correlation_id(
-    logger: logging.Logger, method_name: str, event_dict: dict
-) -> dict:
+def add_correlation_id(logger: logging.Logger, method_name: str, event_dict: dict) -> dict:
     """Add correlation ID to log entries"""
     correlation_id = correlation_id_var.get()
     if correlation_id:
@@ -65,7 +62,7 @@ def add_correlation_id(
 
 def setup_logging(
     service_name: str,
-    log_level: Optional[str] = None,
+    log_level: str | None = None,
     json_logs: bool = True,
 ) -> None:
     """
@@ -147,7 +144,7 @@ def setup_logging(
     structlog.contextvars.bind_contextvars(service=service_name)
 
 
-def get_logger(name: Optional[str] = None) -> structlog.BoundLogger:
+def get_logger(name: str | None = None) -> structlog.BoundLogger:
     """
     Get a logger instance with the given name.
 
@@ -286,12 +283,10 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 def set_correlation_id(correlation_id: str) -> None:
     """Manually set correlation ID for the current context"""
     correlation_id_var.set(correlation_id)
-    structlog.contextvars.bind_contextvars(
-        correlationId=correlation_id, traceId=correlation_id
-    )
+    structlog.contextvars.bind_contextvars(correlationId=correlation_id, traceId=correlation_id)
 
 
-def get_correlation_id() -> Optional[str]:
+def get_correlation_id() -> str | None:
     """Get the current correlation ID"""
     return correlation_id_var.get()
 

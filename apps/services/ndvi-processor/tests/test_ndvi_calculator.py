@@ -3,7 +3,6 @@ NDVI Calculator Tests
 اختبارات حاسبة NDVI
 """
 
-
 import numpy as np
 import pytest
 

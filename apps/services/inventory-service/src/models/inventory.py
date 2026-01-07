@@ -66,9 +66,7 @@ class TenantEntity(Base, TimestampMixin, TenantMixin):
 
     __abstract__ = True
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
 
 class MovementType(str, Enum):
@@ -108,9 +106,7 @@ class ItemCategory(Base, TimestampMixin):
 
     __tablename__ = "inventory_categories"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     name_en: Mapped[str] = mapped_column(String(100), nullable=False)
     name_ar: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -169,9 +165,7 @@ class InventoryItem(TenantEntity):
     name_en: Mapped[str] = mapped_column(String(200), nullable=False)
     name_ar: Mapped[str] = mapped_column(String(200), nullable=False)
     sku: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    barcode: Mapped[str | None] = mapped_column(
-        String(100), nullable=True, index=True
-    )
+    barcode: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
 
     # Category and classification
     category_id: Mapped[uuid.UUID] = mapped_column(
@@ -202,12 +196,8 @@ class InventoryItem(TenantEntity):
 
     # Cost and valuation
     unit_cost: Mapped[Decimal] = mapped_column(Numeric(15, 2), default=Decimal("0.00"))
-    average_cost: Mapped[Decimal] = mapped_column(
-        Numeric(15, 2), default=Decimal("0.00")
-    )
-    total_value: Mapped[Decimal] = mapped_column(
-        Numeric(15, 2), default=Decimal("0.00")
-    )
+    average_cost: Mapped[Decimal] = mapped_column(Numeric(15, 2), default=Decimal("0.00"))
+    total_value: Mapped[Decimal] = mapped_column(Numeric(15, 2), default=Decimal("0.00"))
 
     # Expiry tracking
     has_expiry: Mapped[bool] = mapped_column(Boolean, default=False)
@@ -272,9 +262,7 @@ class InventoryMovement(TenantEntity):
         SQLEnum(MovementType, name="movement_type"), nullable=False
     )
 
-    movement_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    movement_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     reference_no: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
 
@@ -308,9 +296,7 @@ class InventoryMovement(TenantEntity):
 
     # Relationships
     item = relationship("InventoryItem", back_populates="movements")
-    warehouse = relationship(
-        "Warehouse", foreign_keys=[warehouse_id], back_populates="movements"
-    )
+    warehouse = relationship("Warehouse", foreign_keys=[warehouse_id], back_populates="movements")
     to_warehouse = relationship("Warehouse", foreign_keys=[to_warehouse_id])
 
     # Indexes
@@ -341,9 +327,7 @@ class InventoryTransaction(TenantEntity):
         SQLEnum(TransactionType, name="transaction_type"), nullable=False
     )
 
-    transaction_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    transaction_date: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     reference_no: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
 
@@ -358,9 +342,7 @@ class InventoryTransaction(TenantEntity):
     total_amount: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
 
     # Additional costs (shipping, tax, etc.)
-    additional_costs: Mapped[Decimal] = mapped_column(
-        Numeric(15, 2), default=Decimal("0.00")
-    )
+    additional_costs: Mapped[Decimal] = mapped_column(Numeric(15, 2), default=Decimal("0.00"))
 
     # Field/crop reference
     field_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -379,9 +361,7 @@ class InventoryTransaction(TenantEntity):
 
     # Indexes
     __table_args__ = (
-        Index(
-            "idx_inventory_transactions_tenant_date", "tenant_id", "transaction_date"
-        ),
+        Index("idx_inventory_transactions_tenant_date", "tenant_id", "transaction_date"),
         Index("idx_inventory_transactions_item", "item_id"),
         Index("idx_inventory_transactions_field", "field_id"),
         # Performance index for party-related transactions (partial index)

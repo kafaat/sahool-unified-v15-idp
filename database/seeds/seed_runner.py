@@ -152,9 +152,7 @@ def get_db_url_from_env(env: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description="SAHOOL Database Seed Runner")
-    parser.add_argument(
-        "--db-url", help="Database URL (postgresql://user:pass@host:port/dbname)"
-    )
+    parser.add_argument("--db-url", help="Database URL (postgresql://user:pass@host:port/dbname)")
     parser.add_argument(
         "--env",
         choices=["development", "staging", "production"],

@@ -182,8 +182,7 @@ class VaultClient:
             return value
 
         raise ValueError(
-            f"Secret not found in Vault ({vault_path}/{vault_key}) "
-            f"or environment ({env_var})"
+            f"Secret not found in Vault ({vault_path}/{vault_key}) or environment ({env_var})"
         )
 
 

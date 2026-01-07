@@ -44,9 +44,7 @@ class SecretConfig:
     vault_path_prefix: str = "sahool"
 
     # Fallback configuration
-    allow_env_fallback: bool = (
-        True  # Allow fallback to environment variables on Vault failure
-    )
+    allow_env_fallback: bool = True  # Allow fallback to environment variables on Vault failure
 
     # Cache configuration
     cache_ttl_seconds: int = 300  # 5 minutes
@@ -83,9 +81,7 @@ class SecretManager:
                     )
                     self.config.backend = SecretBackend.ENVIRONMENT
                 else:
-                    raise ValueError(
-                        "Vault address not configured and env fallback is disabled"
-                    )
+                    raise ValueError("Vault address not configured and env fallback is disabled")
                 return
 
             self._vault_client = hvac.Client(url=vault_addr)
@@ -125,9 +121,7 @@ class SecretManager:
                     )
                     self.config.backend = SecretBackend.ENVIRONMENT
                 else:
-                    raise RuntimeError(
-                        "Vault authentication failed and env fallback is disabled"
-                    )
+                    raise RuntimeError("Vault authentication failed and env fallback is disabled")
 
         except ImportError:
             if self.config.allow_env_fallback:
@@ -317,9 +311,7 @@ def get_secret_manager(config: SecretConfig | None = None) -> SecretManager:
             try:
                 backend = SecretBackend(backend_str.lower())
             except ValueError:
-                logger.warning(
-                    f"Unknown secret backend '{backend_str}', using environment"
-                )
+                logger.warning(f"Unknown secret backend '{backend_str}', using environment")
                 backend = SecretBackend.ENVIRONMENT
 
             config = SecretConfig(

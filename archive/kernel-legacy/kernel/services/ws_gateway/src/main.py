@@ -115,9 +115,7 @@ class ConnectionManager:
         return {
             "total_connections": len(self.active_connections),
             "tenants": len(self.tenant_connections),
-            "connections_by_tenant": {
-                t: len(c) for t, c in self.tenant_connections.items()
-            },
+            "connections_by_tenant": {t: len(c) for t, c in self.tenant_connections.items()},
         }
 
 

@@ -31,7 +31,6 @@ import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 
 def print_banner():
@@ -83,7 +82,7 @@ def cmd_analyze(args: argparse.Namespace) -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(output)
 
-    print(f"\n Analysis Complete")
+    print("\n Analysis Complete")
     print(f"  Total events: {report.total_events:,}")
     print(f"  Unique actors: {report.unique_actors:,}")
     print(f"  Risk indicators: {len(report.risk_indicators)}")
@@ -217,7 +216,7 @@ def cmd_detect(args: argparse.Namespace) -> int:
     detector = AuditAnomalyDetector()
     detector.load_from_file(Path(args.input))
 
-    print(f"Building baselines and detecting anomalies...")
+    print("Building baselines and detecting anomalies...")
     report = detector.detect(
         tenant_id=args.tenant_id,
         window_hours=args.window,
@@ -257,7 +256,7 @@ def cmd_detect(args: argparse.Namespace) -> int:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(output)
 
-    print(f"\n Anomaly Detection Complete")
+    print("\n Anomaly Detection Complete")
     print(f"  Threat Score: {report.threat_score:.1f}/100 ({report.threat_level.upper()})")
     print(f"  Anomalies: {report.anomalies_detected}")
     print(f"  Critical: {report.critical_anomalies}")
@@ -327,18 +326,25 @@ def cmd_export(args: argparse.Namespace) -> int:
 
 def cmd_full_audit(args: argparse.Namespace) -> int:
     """Run complete audit analysis suite"""
-    from .analyzer import AuditLogAnalyzer, generate_markdown_report as analyze_md
+    from .analyzer import AuditLogAnalyzer
+    from .analyzer import generate_markdown_report as analyze_md
     from .anomaly_detector import (
         AuditAnomalyDetector,
+    )
+    from .anomaly_detector import (
         generate_markdown_report as detect_md,
     )
     from .compliance_reporter import (
         ComplianceFramework,
         ComplianceReporter,
+    )
+    from .compliance_reporter import (
         generate_markdown_report as compliance_md,
     )
     from .hashchain_validator import (
         HashChainValidator,
+    )
+    from .hashchain_validator import (
         generate_markdown_report as validate_md,
     )
 
@@ -409,10 +415,7 @@ def cmd_full_audit(args: argparse.Namespace) -> int:
             "details": f"Score: {compliance_report.overall_score}%",
         }
     )
-    print(
-        f"   Score: {compliance_report.overall_score}% "
-        f"({compliance_report.risk_level.upper()})"
-    )
+    print(f"   Score: {compliance_report.overall_score}% ({compliance_report.risk_level.upper()})")
 
     # 4. Anomaly Detection
     print("4/4 Detecting anomalies...")
@@ -449,9 +452,7 @@ def cmd_full_audit(args: argparse.Namespace) -> int:
     ]
 
     for result in results:
-        summary_lines.append(
-            f"| {result['tool']} | {result['status']} | {result['details']} |"
-        )
+        summary_lines.append(f"| {result['tool']} | {result['status']} | {result['details']} |")
 
     summary_lines.extend(
         [
@@ -480,8 +481,8 @@ def cmd_full_audit(args: argparse.Namespace) -> int:
     summary_output = output_dir / f"00_audit_summary_{timestamp}.md"
     summary_output.write_text("\n".join(summary_lines))
 
-    print(f"\n Full Audit Complete")
-    print(f"  Reports generated: 5")
+    print("\n Full Audit Complete")
+    print("  Reports generated: 5")
     print(f"  Output directory: {output_dir}")
     print(f"  Summary: {summary_output.name}")
 
@@ -521,45 +522,27 @@ Examples:
     analyze_parser = subparsers.add_parser(
         "analyze", help="Analyze audit logs for patterns and statistics"
     )
-    analyze_parser.add_argument(
-        "--input", "-i", required=True, help="Input JSON file"
-    )
+    analyze_parser.add_argument("--input", "-i", required=True, help="Input JSON file")
     analyze_parser.add_argument("--tenant-id", "-t", help="Filter by tenant ID")
-    analyze_parser.add_argument(
-        "--output", "-o", default="audit_analysis.md", help="Output file"
-    )
-    analyze_parser.add_argument(
-        "--format", "-f", choices=["markdown", "json"], default="markdown"
-    )
+    analyze_parser.add_argument("--output", "-o", default="audit_analysis.md", help="Output file")
+    analyze_parser.add_argument("--format", "-f", choices=["markdown", "json"], default="markdown")
 
     # Validate command
-    validate_parser = subparsers.add_parser(
-        "validate", help="Verify hash chain integrity"
-    )
-    validate_parser.add_argument(
-        "--input", "-i", required=True, help="Input JSON file"
-    )
+    validate_parser = subparsers.add_parser("validate", help="Verify hash chain integrity")
+    validate_parser.add_argument("--input", "-i", required=True, help="Input JSON file")
     validate_parser.add_argument("--tenant-id", "-t", help="Filter by tenant ID")
     validate_parser.add_argument(
         "--output", "-o", default="hashchain_validation.md", help="Output file"
     )
-    validate_parser.add_argument(
-        "--format", "-f", choices=["markdown", "json"], default="markdown"
-    )
+    validate_parser.add_argument("--format", "-f", choices=["markdown", "json"], default="markdown")
     validate_parser.add_argument(
         "--recovery", "-r", action="store_true", help="Generate recovery report"
     )
 
     # Compliance command
-    compliance_parser = subparsers.add_parser(
-        "compliance", help="Generate compliance reports"
-    )
-    compliance_parser.add_argument(
-        "--input", "-i", required=True, help="Input JSON file"
-    )
-    compliance_parser.add_argument(
-        "--tenant-id", "-t", required=True, help="Tenant ID"
-    )
+    compliance_parser = subparsers.add_parser("compliance", help="Generate compliance reports")
+    compliance_parser.add_argument("--input", "-i", required=True, help="Input JSON file")
+    compliance_parser.add_argument("--tenant-id", "-t", required=True, help="Tenant ID")
     compliance_parser.add_argument(
         "--framework",
         "-f",
@@ -570,40 +553,22 @@ Examples:
     compliance_parser.add_argument(
         "--output", "-o", default="compliance_report.md", help="Output file"
     )
-    compliance_parser.add_argument(
-        "--format", choices=["markdown", "json"], default="markdown"
-    )
+    compliance_parser.add_argument("--format", choices=["markdown", "json"], default="markdown")
 
     # Detect command
-    detect_parser = subparsers.add_parser(
-        "detect", help="Detect anomalies and threats"
-    )
-    detect_parser.add_argument(
-        "--input", "-i", required=True, help="Input JSON file"
-    )
-    detect_parser.add_argument(
-        "--tenant-id", "-t", required=True, help="Tenant ID"
-    )
-    detect_parser.add_argument(
-        "--output", "-o", default="anomaly_report.md", help="Output file"
-    )
-    detect_parser.add_argument(
-        "--format", "-f", choices=["markdown", "json"], default="markdown"
-    )
+    detect_parser = subparsers.add_parser("detect", help="Detect anomalies and threats")
+    detect_parser.add_argument("--input", "-i", required=True, help="Input JSON file")
+    detect_parser.add_argument("--tenant-id", "-t", required=True, help="Tenant ID")
+    detect_parser.add_argument("--output", "-o", default="anomaly_report.md", help="Output file")
+    detect_parser.add_argument("--format", "-f", choices=["markdown", "json"], default="markdown")
     detect_parser.add_argument(
         "--window", "-w", type=int, default=24, help="Analysis window (hours)"
     )
 
     # Export command
-    export_parser = subparsers.add_parser(
-        "export", help="Export audit data in various formats"
-    )
-    export_parser.add_argument(
-        "--input", "-i", required=True, help="Input JSON file"
-    )
-    export_parser.add_argument(
-        "--output", "-o", required=True, help="Output file"
-    )
+    export_parser = subparsers.add_parser("export", help="Export audit data in various formats")
+    export_parser.add_argument("--input", "-i", required=True, help="Input JSON file")
+    export_parser.add_argument("--output", "-o", required=True, help="Output file")
     export_parser.add_argument(
         "--format",
         "-f",
@@ -619,29 +584,15 @@ Examples:
         default="standard",
         help="PII redaction level",
     )
-    export_parser.add_argument(
-        "--compress", "-c", action="store_true", help="Compress output"
-    )
-    export_parser.add_argument(
-        "--flatten", action="store_true", help="Flatten nested JSON"
-    )
-    export_parser.add_argument(
-        "--no-hash-chain", action="store_true", help="Exclude hash chain"
-    )
+    export_parser.add_argument("--compress", "-c", action="store_true", help="Compress output")
+    export_parser.add_argument("--flatten", action="store_true", help="Flatten nested JSON")
+    export_parser.add_argument("--no-hash-chain", action="store_true", help="Exclude hash chain")
 
     # Full audit command
-    full_parser = subparsers.add_parser(
-        "full-audit", help="Run complete audit analysis suite"
-    )
-    full_parser.add_argument(
-        "--input", "-i", required=True, help="Input JSON file"
-    )
-    full_parser.add_argument(
-        "--tenant-id", "-t", required=True, help="Tenant ID"
-    )
-    full_parser.add_argument(
-        "--output", "-o", default="audit_reports", help="Output directory"
-    )
+    full_parser = subparsers.add_parser("full-audit", help="Run complete audit analysis suite")
+    full_parser.add_argument("--input", "-i", required=True, help="Input JSON file")
+    full_parser.add_argument("--tenant-id", "-t", required=True, help="Tenant ID")
+    full_parser.add_argument("--output", "-o", default="audit_reports", help="Output directory")
 
     args = parser.parse_args()
 

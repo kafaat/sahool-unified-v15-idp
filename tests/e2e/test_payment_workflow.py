@@ -72,9 +72,7 @@ async def test_complete_payment_workflow(
 
     if subscription_response.status_code in (200, 201):
         subscription_data = subscription_response.json()
-        subscription_id = subscription_data.get("id") or subscription_data.get(
-            "subscription_id"
-        )
+        subscription_id = subscription_data.get("id") or subscription_data.get("subscription_id")
         assert subscription_id is not None, "Subscription ID should be returned"
 
         cleanup_test_data["subscriptions"].append(subscription_id)
@@ -130,9 +128,7 @@ async def test_complete_payment_workflow(
             status = payment_status.get("status")
             print(f"✓ Payment status: {status}")
         else:
-            print(
-                f"⚠ Payment status not available: {payment_status_response.status_code}"
-            )
+            print(f"⚠ Payment status not available: {payment_status_response.status_code}")
 
     else:
         print(f"⚠ Cannot create payment intent: {payment_intent_response.status_code}")
@@ -261,9 +257,7 @@ async def test_subscription_management_workflow(
         pytest.skip(f"Cannot create subscription: {create_response.status_code}")
 
     subscription_data = create_response.json()
-    subscription_id = subscription_data.get("id") or subscription_data.get(
-        "subscription_id"
-    )
+    subscription_id = subscription_data.get("id") or subscription_data.get("subscription_id")
 
     print(f"✓ Subscription created: {subscription_id}")
 
@@ -353,9 +347,9 @@ async def test_invoice_generation_workflow(
                     print("✓ Invoice details retrieved")
 
                     # Verify invoice structure
-                    assert (
-                        "amount" in invoice_detail or "total" in invoice_detail
-                    ), "Invoice should have amount"
+                    assert "amount" in invoice_detail or "total" in invoice_detail, (
+                        "Invoice should have amount"
+                    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

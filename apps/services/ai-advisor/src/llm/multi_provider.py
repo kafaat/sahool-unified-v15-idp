@@ -109,9 +109,7 @@ class CircuitBreaker:
         """Check if enough time has passed to attempt reset"""
         if self.last_failure_time is None:
             return True
-        return (
-            datetime.now() - self.last_failure_time
-        ).total_seconds() >= self.recovery_timeout
+        return (datetime.now() - self.last_failure_time).total_seconds() >= self.recovery_timeout
 
     def _on_success(self):
         """Reset circuit breaker on success"""
@@ -541,9 +539,7 @@ class GoogleGeminiProvider(LLMProvider):
                 system_instruction = msg.content
             elif msg.role == "user":
                 prompt = (
-                    f"{system_instruction}\n\n{msg.content}"
-                    if system_instruction
-                    else msg.content
+                    f"{system_instruction}\n\n{msg.content}" if system_instruction else msg.content
                 )
                 response = await chat.send_message_async(prompt)
                 system_instruction = ""
@@ -629,9 +625,7 @@ class MultiLLMService:
             self._add_anthropic_first()
 
         configured = [p.name for p in self.providers if p.is_configured]
-        logger.info(
-            f"Multi-LLM Service initialized with providers: {', '.join(configured)}"
-        )
+        logger.info(f"Multi-LLM Service initialized with providers: {', '.join(configured)}")
 
     def _add_anthropic_first(self):
         anthropic = AnthropicProvider()
@@ -740,9 +734,7 @@ class MultiLLMService:
     ) -> LLMResult:
         """Simple completion with fallback"""
         messages = [LLMMessage(role="user", content=prompt)]
-        return await self.chat(
-            messages, model, max_tokens, temperature, specific_provider
-        )
+        return await self.chat(messages, model, max_tokens, temperature, specific_provider)
 
     def get_available_providers(self) -> list[dict[str, Any]]:
         """Get list of available providers"""

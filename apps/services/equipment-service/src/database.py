@@ -17,9 +17,7 @@ from .db_models import Base
 
 # Get database URL from environment
 # Security: No fallback credentials - require DATABASE_URL to be set
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://localhost:5432/sahool"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost:5432/sahool")
 
 # Create SQLAlchemy engine
 engine = create_engine(

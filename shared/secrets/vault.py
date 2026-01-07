@@ -48,9 +48,7 @@ class VaultConfig:
     """HashiCorp Vault configuration"""
 
     # Vault server address
-    address: str = field(
-        default_factory=lambda: os.getenv("VAULT_ADDR", "http://localhost:8200")
-    )
+    address: str = field(default_factory=lambda: os.getenv("VAULT_ADDR", "http://localhost:8200"))
 
     # Authentication - Token based
     token: str | None = field(default_factory=lambda: os.getenv("VAULT_TOKEN"))
@@ -60,17 +58,11 @@ class VaultConfig:
     secret_id: str | None = field(default_factory=lambda: os.getenv("VAULT_SECRET_ID"))
 
     # Namespace (for Vault Enterprise)
-    namespace: str | None = field(
-        default_factory=lambda: os.getenv("VAULT_NAMESPACE")
-    )
+    namespace: str | None = field(default_factory=lambda: os.getenv("VAULT_NAMESPACE"))
 
     # KV secrets engine configuration
-    mount_point: str = field(
-        default_factory=lambda: os.getenv("VAULT_MOUNT_POINT", "secret")
-    )
-    path_prefix: str = field(
-        default_factory=lambda: os.getenv("VAULT_PATH_PREFIX", "sahool")
-    )
+    mount_point: str = field(default_factory=lambda: os.getenv("VAULT_MOUNT_POINT", "secret"))
+    path_prefix: str = field(default_factory=lambda: os.getenv("VAULT_PATH_PREFIX", "sahool"))
 
     # Connection settings
     timeout: int = 30
@@ -142,12 +134,9 @@ class VaultClient:
             try:
                 import hvac
             except ImportError:
-                logger.error(
-                    "hvac library not installed. Install with: pip install hvac"
-                )
+                logger.error("hvac library not installed. Install with: pip install hvac")
                 raise ImportError(
-                    "hvac library required for Vault integration. "
-                    "Install with: pip install hvac"
+                    "hvac library required for Vault integration. Install with: pip install hvac"
                 )
 
             self.config.validate()
@@ -156,7 +145,9 @@ class VaultClient:
             self._client = hvac.Client(
                 url=self.config.address,
                 timeout=self.config.timeout,
-                verify=self.config.verify_ssl if self.config.ca_cert is None else self.config.ca_cert,
+                verify=self.config.verify_ssl
+                if self.config.ca_cert is None
+                else self.config.ca_cert,
                 namespace=self.config.namespace,
             )
 
@@ -215,9 +206,7 @@ class VaultClient:
                         continue
 
                     # Check if renewal is needed
-                    time_until_expiry = (
-                        self._token_expiry - datetime.now(UTC)
-                    ).total_seconds()
+                    time_until_expiry = (self._token_expiry - datetime.now(UTC)).total_seconds()
 
                     if time_until_expiry < self.config.renewal_threshold_seconds:
                         await self._renew_token()
@@ -450,9 +439,7 @@ class VaultClient:
     # Batch Operations
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def get_secrets_batch(
-        self, paths: list[str]
-    ) -> dict[str, Any]:
+    async def get_secrets_batch(self, paths: list[str]) -> dict[str, Any]:
         """
         Get multiple secrets in batch.
 

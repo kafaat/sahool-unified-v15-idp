@@ -32,9 +32,7 @@ def test_gdd_calculations():
     print()
 
     # Simple method
-    gdd_simple = tracker.calculate_daily_gdd(
-        temp_min, temp_max, base_temp, method="simple"
-    )
+    gdd_simple = tracker.calculate_daily_gdd(temp_min, temp_max, base_temp, method="simple")
     print(f"Simple Method: {gdd_simple:.1f} GDD")
     print("  Formula: ((25 + 15) / 2) - 10 = 10.0")
 
@@ -45,9 +43,7 @@ def test_gdd_calculations():
     print(f"Modified Method: {gdd_modified:.1f} GDD")
 
     # Sine method
-    gdd_sine = tracker.calculate_daily_gdd(
-        temp_min, temp_max, base_temp, upper_temp, method="sine"
-    )
+    gdd_sine = tracker.calculate_daily_gdd(temp_min, temp_max, base_temp, upper_temp, method="sine")
     print(f"Sine Method: {gdd_sine:.1f} GDD")
 
     print("\n" + "=" * 60)
@@ -98,9 +94,7 @@ def test_crop_data():
     print("\nGrowth Stages:")
 
     for i, stage in enumerate(wheat_params["stages"], 1):
-        print(
-            f"  {i}. {stage['name_en']:20} ({stage['name_ar']:20}) - {stage['gdd']:5.0f} GDD"
-        )
+        print(f"  {i}. {stage['name_en']:20} ({stage['name_ar']:20}) - {stage['gdd']:5.0f} GDD")
 
     print()
 
@@ -119,9 +113,7 @@ def test_growth_stages():
     print("GDD → Stage\n")
 
     for gdd in test_gdds:
-        current_en, current_ar, next_en, next_ar, gdd_to_next = (
-            tracker.get_current_stage(crop, gdd)
-        )
+        current_en, current_ar, next_en, next_ar, gdd_to_next = tracker.get_current_stage(crop, gdd)
         print(
             f"  {gdd:5.0f} GDD → {current_en:20} ({current_ar:20}) | Next: {next_en:20} in {gdd_to_next:5.1f} GDD"
         )

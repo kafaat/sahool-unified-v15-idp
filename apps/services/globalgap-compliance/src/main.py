@@ -15,17 +15,11 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 try:
     from cors_config import setup_cors_middleware
@@ -82,9 +76,7 @@ logger = structlog.get_logger(__name__)
 # ============== Authentication ==============
 
 
-def get_tenant_id(
-    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
-) -> str:
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
     """
     Extract and validate tenant ID from X-Tenant-Id header
     استخراج والتحقق من معرف المستأجر من رأس X-Tenant-Id
@@ -337,18 +329,14 @@ async def get_checklist_items(
     الحصول على عناصر قائمة المراجعة (نقاط التحكم)
     """
     # Filter items | تصفية العناصر
-    filtered = [
-        item for item in _checklist_items.values() if item.get("is_active", True)
-    ]
+    filtered = [item for item in _checklist_items.values() if item.get("is_active", True)]
 
     if category:
         filtered = [item for item in filtered if item.get("category") == category.value]
 
     if compliance_level:
         filtered = [
-            item
-            for item in filtered
-            if item.get("compliance_level") == compliance_level.value
+            item for item in filtered if item.get("compliance_level") == compliance_level.value
         ]
 
     return {"checklist_id": checklist_id, "items": filtered, "total": len(filtered)}
@@ -413,9 +401,7 @@ async def get_farm_assessments(
 @app.post("/audits", status_code=201)
 async def create_audit(
     farm_id: str = Query(..., description="Farm identifier"),
-    audit_type: str = Query(
-        "internal", description="internal, external, certification"
-    ),
+    audit_type: str = Query("internal", description="internal, external, certification"),
     auditor_name: str = Query(..., description="Name of auditor"),
     tenant_id: str = Depends(get_tenant_id),
 ):
@@ -574,9 +560,7 @@ async def get_farm_certificates(
 
 
 @app.post("/certificates", status_code=201)
-async def create_certificate(
-    certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id)
-):
+async def create_certificate(certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id)):
     """
     Create a new GGN certificate
     إنشاء شهادة GGN جديدة

@@ -153,9 +153,7 @@ def check_polygon_overlap(
     return False, 0.0
 
 
-def point_in_polygon(
-    point: tuple[float, float], polygon: list[list[list[float]]]
-) -> bool:
+def point_in_polygon(point: tuple[float, float], polygon: list[list[list[float]]]) -> bool:
     """
     فحص إذا كانت النقطة داخل المضلع
     باستخدام خوارزمية Ray Casting
@@ -188,9 +186,7 @@ def point_in_polygon(
     return inside
 
 
-def distance_between_points(
-    point1: tuple[float, float], point2: tuple[float, float]
-) -> float:
+def distance_between_points(point1: tuple[float, float], point2: tuple[float, float]) -> float:
     """
     حساب المسافة بين نقطتين بالكيلومتر
     باستخدام صيغة Haversine
@@ -207,10 +203,7 @@ def distance_between_points(
     dlat = lat2 - lat1
     dlng = lng2 - lng1
 
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
-    )
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
 
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
@@ -243,7 +236,7 @@ def polygon_to_kml(
     <name>SAHOOL Field Export</name>
     <Placemark>
       <name>{field_name}</name>
-      <description>{description or f'Field ID: {field_id}'}</description>
+      <description>{description or f"Field ID: {field_id}"}</description>
       <Style>
         <LineStyle>
           <color>ff00ff00</color>

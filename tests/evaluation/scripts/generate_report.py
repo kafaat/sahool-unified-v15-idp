@@ -96,13 +96,9 @@ class ReportGenerator:
         passed_tests = self.metrics.get("passed_tests", 0)
         self.metrics.get("failed_tests", 0)
 
-        status_emoji = (
-            "✅" if overall_score >= 85 else "⚠️" if overall_score >= 70 else "❌"
-        )
+        status_emoji = "✅" if overall_score >= 85 else "⚠️" if overall_score >= 70 else "❌"
         status_text = (
-            "PASS"
-            if overall_score >= 85
-            else "WARNING" if overall_score >= 70 else "FAIL"
+            "PASS" if overall_score >= 85 else "WARNING" if overall_score >= 70 else "FAIL"
         )
 
         return [
@@ -173,9 +169,7 @@ class ReportGenerator:
 
         for category, score in category_scores.items():
             category_name = self._format_category_name(category)
-            lines.append(
-                f"| {category_name} | {score}% | {self._get_status_badge(score)} |"
-            )
+            lines.append(f"| {category_name} | {score}% | {self._get_status_badge(score)} |")
 
         lines.append("")
         return lines
@@ -209,7 +203,9 @@ class ReportGenerator:
         latency_status = (
             "✅ Excellent"
             if avg_latency < 2000
-            else "⚠️ Acceptable" if avg_latency < 5000 else "❌ Poor"
+            else "⚠️ Acceptable"
+            if avg_latency < 5000
+            else "❌ Poor"
         )
 
         return [
@@ -247,9 +243,7 @@ class ReportGenerator:
         ]
 
         if overall_score >= 85:
-            recommendations.append(
-                "✅ Excellent performance! Agent is ready for production."
-            )
+            recommendations.append("✅ Excellent performance! Agent is ready for production.")
         elif overall_score >= 70:
             recommendations.append("⚠️ Good performance with room for improvement.")
         else:

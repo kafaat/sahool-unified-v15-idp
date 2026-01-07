@@ -100,14 +100,10 @@ def downgrade() -> None:
     Drop performance indexes for inventory tables.
     """
     # Drop inventory_transactions indexes
-    op.drop_index(
-        "idx_inventory_transactions_party", table_name="inventory_transactions"
-    )
+    op.drop_index("idx_inventory_transactions_party", table_name="inventory_transactions")
 
     # Drop inventory_movements indexes
-    op.drop_index(
-        "idx_inventory_movements_date_range", table_name="inventory_movements"
-    )
+    op.drop_index("idx_inventory_movements_date_range", table_name="inventory_movements")
 
     # Drop inventory_items indexes
     op.drop_index("idx_inventory_items_barcode", table_name="inventory_items")

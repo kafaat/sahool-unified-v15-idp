@@ -43,14 +43,17 @@ logger = logging.getLogger("circuit-breaker")
 # CIRCUIT BREAKER STATE
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class CircuitState(Enum):
-    CLOSED = "closed"      # Normal operation
-    OPEN = "open"          # Blocking calls, returning fallback
+    CLOSED = "closed"  # Normal operation
+    OPEN = "open"  # Blocking calls, returning fallback
     HALF_OPEN = "half_open"  # Testing if service recovered
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CIRCUIT BREAKER CONFIGURATION
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @dataclass
 class CircuitBreakerConfig:
@@ -80,6 +83,7 @@ class CircuitBreakerConfig:
     fallback_response: Any = None
     fallback_message: str = "Service temporarily unavailable. Please try again later."
     fallback_message_ar: str = "الخدمة غير متاحة مؤقتاً. يرجى المحاولة مرة أخرى لاحقاً."
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # PREDEFINED CONFIGURATIONS
@@ -125,9 +129,11 @@ EXTERNAL_API_CONFIG = CircuitBreakerConfig(
 # CIRCUIT BREAKER IMPLEMENTATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class CircuitBreakerMetrics:
     """Metrics for monitoring circuit breaker behavior."""
+
     total_calls: int = 0
     successful_calls: int = 0
     failed_calls: int = 0
@@ -229,11 +235,13 @@ class CircuitBreaker:
             self.state = CircuitState.OPEN
             self.opened_at = time.time()
             self.metrics.circuit_opened_count += 1
-            self.metrics.state_changes.append({
-                "time": datetime.now(UTC).isoformat(),
-                "from": "closed/half_open",
-                "to": "open",
-            })
+            self.metrics.state_changes.append(
+                {
+                    "time": datetime.now(UTC).isoformat(),
+                    "from": "closed/half_open",
+                    "to": "open",
+                }
+            )
 
     def _close(self):
         """Close the circuit (resume normal operation)."""
@@ -242,22 +250,26 @@ class CircuitBreaker:
         self.failures = []
         self.successes_in_half_open = 0
         self.opened_at = None
-        self.metrics.state_changes.append({
-            "time": datetime.now(UTC).isoformat(),
-            "from": "half_open",
-            "to": "closed",
-        })
+        self.metrics.state_changes.append(
+            {
+                "time": datetime.now(UTC).isoformat(),
+                "from": "half_open",
+                "to": "closed",
+            }
+        )
 
     def _half_open(self):
         """Enter half-open state to test recovery."""
         logger.info(f"🔄 Circuit '{self.config.name}' HALF-OPEN - testing recovery")
         self.state = CircuitState.HALF_OPEN
         self.successes_in_half_open = 0
-        self.metrics.state_changes.append({
-            "time": datetime.now(UTC).isoformat(),
-            "from": "open",
-            "to": "half_open",
-        })
+        self.metrics.state_changes.append(
+            {
+                "time": datetime.now(UTC).isoformat(),
+                "from": "open",
+                "to": "half_open",
+            }
+        )
 
     async def call(self, func: Callable, *args, **kwargs) -> Any:
         """Execute a function with circuit breaker protection."""
@@ -342,6 +354,7 @@ def circuit_breaker(config: CircuitBreakerConfig):
         async def authenticate_user(credentials):
             return await db.query_user(credentials)
     """
+
     def decorator(func: Callable):
         cb = get_circuit_breaker(config.name, config)
 
@@ -376,17 +389,16 @@ def external_api_circuit_breaker(func: Callable):
 # MONITORING ENDPOINT
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def get_all_circuit_breaker_status() -> dict:
     """Get status of all circuit breakers for monitoring."""
-    return {
-        name: cb.get_status()
-        for name, cb in _circuit_breakers.items()
-    }
+    return {name: cb.get_status() for name, cb in _circuit_breakers.items()}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # FASTAPI INTEGRATION
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def create_circuit_breaker_routes(app):
     """
@@ -442,15 +454,15 @@ if __name__ == "__main__":
         # Normal calls
         for i in range(3):
             result = await authenticate("user1", "pass")
-            print(f"Call {i+1}: {result}")
+            print(f"Call {i + 1}: {result}")
 
         # Failing calls - should trip circuit
         for i in range(7):
             try:
                 result = await authenticate("fail", "pass")
-                print(f"Fail call {i+1}: {result}")
+                print(f"Fail call {i + 1}: {result}")
             except Exception as e:
-                print(f"Fail call {i+1}: Exception - {e}")
+                print(f"Fail call {i + 1}: Exception - {e}")
 
         # Circuit should be open now
         result = await authenticate("user2", "pass")

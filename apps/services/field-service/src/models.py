@@ -92,9 +92,7 @@ class GeoPolygon(BaseModel):
 
         outer_ring = v[0]
         if len(outer_ring) < 4:
-            raise ValueError(
-                "يجب أن تحتوي الحلقة على 4 نقاط على الأقل (بما في ذلك نقطة الإغلاق)"
-            )
+            raise ValueError("يجب أن تحتوي الحلقة على 4 نقاط على الأقل (بما في ذلك نقطة الإغلاق)")
 
         # التحقق من أن المضلع مغلق
         if outer_ring[0] != outer_ring[-1]:
@@ -125,9 +123,7 @@ class FieldCreate(BaseModel):
     tenant_id: str = Field(..., description="معرف المستأجر")
     user_id: str = Field(..., description="معرف المزارع")
     name: str = Field(..., min_length=1, max_length=200, description="اسم الحقل")
-    name_en: str | None = Field(
-        None, max_length=200, description="الاسم بالإنجليزية"
-    )
+    name_en: str | None = Field(None, max_length=200, description="الاسم بالإنجليزية")
 
     location: FieldLocation = Field(..., description="موقع الحقل")
     boundary: GeoPolygon | None = Field(None, description="حدود الحقل")
@@ -180,9 +176,7 @@ class CropSeasonClose(BaseModel):
     """إنهاء موسم المحصول"""
 
     harvest_date: str = Field(..., description="تاريخ الحصاد")
-    actual_yield_kg: float | None = Field(
-        None, ge=0, description="الإنتاج الفعلي بالكيلوغرام"
-    )
+    actual_yield_kg: float | None = Field(None, ge=0, description="الإنتاج الفعلي بالكيلوغرام")
     quality_grade: str | None = Field(None, description="درجة الجودة")
     notes: str | None = Field(None, description="ملاحظات")
 

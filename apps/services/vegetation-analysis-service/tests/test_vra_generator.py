@@ -52,9 +52,7 @@ async def test_generate_fertilizer_prescription():
     print("\n✅ Fertilizer Prescription Generated:")
     print(f"   Field: {prescription.field_id}")
     print(f"   Zones: {prescription.num_zones}")
-    print(
-        f"   Total Product: {prescription.total_product_needed:.2f} {prescription.unit}"
-    )
+    print(f"   Total Product: {prescription.total_product_needed:.2f} {prescription.unit}")
     print(f"   Savings: {prescription.savings_percent:.1f}%")
     if prescription.cost_savings is not None:
         print(f"   Cost Savings: ${prescription.cost_savings:.2f}")

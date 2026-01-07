@@ -144,9 +144,7 @@ Communicate clearly in both Arabic and English.
         Returns:
             Yield prediction | التنبؤ بالمحصول
         """
-        query = (
-            f"Predict yield for {area} hectares of {crop_type} at {growth_stage} stage."
-        )
+        query = f"Predict yield for {area} hectares of {crop_type} at {growth_stage} stage."
 
         context = {
             "crop_type": crop_type,
@@ -244,9 +242,7 @@ Communicate clearly in both Arabic and English.
         Returns:
             Yield gap analysis | تحليل فجوة المحصول
         """
-        query = (
-            f"Analyze yield gap for {crop_type} and identify improvement opportunities."
-        )
+        query = f"Analyze yield gap for {crop_type} and identify improvement opportunities."
 
         context = {
             "crop_type": crop_type,
@@ -278,7 +274,9 @@ Communicate clearly in both Arabic and English.
         Returns:
             Risk assessment | تقييم المخاطر
         """
-        query = f"Assess yield risks for {crop_type} with {remaining_growth_period} days until harvest."
+        query = (
+            f"Assess yield risks for {crop_type} with {remaining_growth_period} days until harvest."
+        )
 
         context = {
             "crop_type": crop_type,

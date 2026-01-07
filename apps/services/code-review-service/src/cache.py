@@ -13,12 +13,13 @@ import time
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
 
-def generate_cache_key(code: str, language: Optional[str] = None, model: Optional[str] = None) -> str:
+def generate_cache_key(
+    code: str, language: str | None = None, model: str | None = None
+) -> str:
     """Generate a unique cache key for the code content"""
     content = f"{code}:{language or ''}:{model or ''}"
     return hashlib.sha256(content.encode()).hexdigest()[:32]
@@ -28,7 +29,7 @@ class CacheBackend(ABC):
     """Abstract base class for cache backends"""
 
     @abstractmethod
-    async def get(self, key: str) -> Optional[dict]:
+    async def get(self, key: str) -> dict | None:
         """Get a cached review"""
         pass
 
@@ -63,7 +64,7 @@ class MemoryCache(CacheBackend):
         self._hits = 0
         self._misses = 0
 
-    async def get(self, key: str) -> Optional[dict]:
+    async def get(self, key: str) -> dict | None:
         """Get a cached review with TTL check"""
         if key not in self._cache:
             self._misses += 1
@@ -123,7 +124,7 @@ class MemoryCache(CacheBackend):
             "max_size": self.max_size,
             "hits": self._hits,
             "misses": self._misses,
-            "hit_rate": f"{hit_rate:.1f}%"
+            "hit_rate": f"{hit_rate:.1f}%",
         }
 
 
@@ -143,6 +144,7 @@ class RedisCache(CacheBackend):
         if self._client is None:
             try:
                 import redis.asyncio as redis
+
                 self._client = redis.from_url(self.redis_url, decode_responses=True)
             except ImportError:
                 logger.error("redis package not installed. Install with: pip install redis")
@@ -153,7 +155,7 @@ class RedisCache(CacheBackend):
         """Create prefixed key"""
         return f"{self.prefix}{key}"
 
-    async def get(self, key: str) -> Optional[dict]:
+    async def get(self, key: str) -> dict | None:
         """Get a cached review from Redis"""
         try:
             client = await self._get_client()
@@ -173,11 +175,7 @@ class RedisCache(CacheBackend):
         try:
             client = await self._get_client()
             ttl = ttl or self.default_ttl
-            await client.setex(
-                self._make_key(key),
-                ttl,
-                json.dumps(value)
-            )
+            await client.setex(self._make_key(key), ttl, json.dumps(value))
             return True
         except Exception as e:
             logger.error(f"Redis set error: {e}")
@@ -224,7 +222,7 @@ class RedisCache(CacheBackend):
                 "hits": self._hits,
                 "misses": self._misses,
                 "hit_rate": f"{hit_rate:.1f}%",
-                "redis_info": info
+                "redis_info": info,
             }
         except Exception as e:
             return {"backend": "redis", "error": str(e)}
@@ -250,7 +248,7 @@ class FileCache(CacheBackend):
         """Load cache from file"""
         try:
             if self.cache_path.exists():
-                with open(self.cache_path, 'r', encoding='utf-8') as f:
+                with open(self.cache_path, encoding="utf-8") as f:
                     return json.load(f)
         except Exception as e:
             logger.error(f"Cache load error: {e}")
@@ -259,14 +257,14 @@ class FileCache(CacheBackend):
     def _save_cache(self, data: dict) -> bool:
         """Save cache to file"""
         try:
-            with open(self.cache_path, 'w', encoding='utf-8') as f:
+            with open(self.cache_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
             return True
         except Exception as e:
             logger.error(f"Cache save error: {e}")
             return False
 
-    async def get(self, key: str) -> Optional[dict]:
+    async def get(self, key: str) -> dict | None:
         """Get a cached review from file"""
         cache = self._load_cache()
         if key not in cache:
@@ -289,11 +287,7 @@ class FileCache(CacheBackend):
         try:
             ttl = ttl or self.default_ttl
             cache = self._load_cache()
-            cache[key] = {
-                "value": value,
-                "expiry": time.time() + ttl,
-                "created": time.time()
-            }
+            cache[key] = {"value": value, "expiry": time.time() + ttl, "created": time.time()}
             return self._save_cache(cache)
         except Exception as e:
             logger.error(f"File cache set error: {e}")
@@ -324,7 +318,7 @@ class FileCache(CacheBackend):
             "size": len(cache),
             "hits": self._hits,
             "misses": self._misses,
-            "hit_rate": f"{hit_rate:.1f}%"
+            "hit_rate": f"{hit_rate:.1f}%",
         }
 
 
@@ -333,7 +327,7 @@ def create_cache_backend(
     redis_url: str = None,
     cache_path: str = None,
     max_size: int = 1000,
-    default_ttl: int = 3600
+    default_ttl: int = 3600,
 ) -> CacheBackend:
     """Factory function to create the appropriate cache backend"""
     if backend == "redis":

@@ -8,11 +8,7 @@ This script will:
 3. Replace print statements with proper logging
 """
 
-import os
-import re
-import subprocess
 from pathlib import Path
-from typing import List, Tuple
 
 # Services directory
 SERVICES_DIR = Path(__file__).parent
@@ -73,29 +69,32 @@ def add_structlog_to_requirements(service_path: Path) -> bool:
     """Add structlog to requirements.txt if not present"""
     req_file = service_path / "requirements.txt"
     if not req_file.exists():
-        print(f"  ⚠️  No requirements.txt found")
+        print("  ⚠️  No requirements.txt found")
         return False
 
     if check_structlog_in_requirements(service_path):
-        print(f"  ✓  structlog already in requirements.txt")
+        print("  ✓  structlog already in requirements.txt")
         return True
 
     # Add structlog
     with open(req_file, "a") as f:
         f.write("\nstructlog>=24.1.0\n")
 
-    print(f"  ✓  Added structlog to requirements.txt")
+    print("  ✓  Added structlog to requirements.txt")
     return True
 
 
-def has_logging_configured(main_file: Path) -> Tuple[bool, str]:
+def has_logging_configured(main_file: Path) -> tuple[bool, str]:
     """Check if main.py already has logging configured"""
     if not main_file.exists():
         return False, "no_main_file"
 
     content = main_file.read_text()
 
-    if "from shared.logging_config import" in content or "from ..shared.logging_config import" in content:
+    if (
+        "from shared.logging_config import" in content
+        or "from ..shared.logging_config import" in content
+    ):
         return True, "already_configured"
 
     if "structlog.configure" in content:
@@ -112,7 +111,7 @@ def update_service(service_name: str) -> dict:
         return {
             "service": service_name,
             "status": "not_found",
-            "message": "Service directory not found"
+            "message": "Service directory not found",
         }
 
     print(f"\n📦 {service_name}")
@@ -123,21 +122,13 @@ def update_service(service_name: str) -> dict:
         main_file = service_path / "main.py"
 
     if not main_file.exists():
-        return {
-            "service": service_name,
-            "status": "no_main",
-            "message": "No main.py found"
-        }
+        return {"service": service_name, "status": "no_main", "message": "No main.py found"}
 
     # Check if already configured
     configured, status = has_logging_configured(main_file)
     if configured:
         print(f"  ✓  Logging already configured ({status})")
-        return {
-            "service": service_name,
-            "status": "already_configured",
-            "message": status
-        }
+        return {"service": service_name, "status": "already_configured", "message": status}
 
     # Add structlog to requirements
     add_structlog_to_requirements(service_path)
@@ -145,7 +136,7 @@ def update_service(service_name: str) -> dict:
     return {
         "service": service_name,
         "status": "updated",
-        "message": "Structured logging configuration ready"
+        "message": "Structured logging configuration ready",
     }
 
 

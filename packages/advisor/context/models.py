@@ -51,9 +51,7 @@ class HistoricalContext:
             "common_issues": self.common_issues,
             "successful_practices": self.successful_practices,
             "last_soil_test_date": (
-                self.last_soil_test_date.isoformat()
-                if self.last_soil_test_date
-                else None
+                self.last_soil_test_date.isoformat() if self.last_soil_test_date else None
             ),
             "soil_test_results": self.soil_test_results,
         }
@@ -87,9 +85,7 @@ class FieldContext:
             "irrigation_type": self.irrigation_type,
             "current_crop": self.current_crop,
             "growth_stage": self.growth_stage,
-            "planting_date": (
-                self.planting_date.isoformat() if self.planting_date else None
-            ),
+            "planting_date": (self.planting_date.isoformat() if self.planting_date else None),
             "location": self.location,
             "weather": self.weather.to_dict() if self.weather else None,
             "history": self.history.to_dict() if self.history else None,

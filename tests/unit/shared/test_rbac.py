@@ -3,7 +3,6 @@ SAHOOL RBAC Unit Tests
 Tests for Role-Based Access Control without I/O
 """
 
-
 from shared.security.rbac import (
     Permission,
     Role,

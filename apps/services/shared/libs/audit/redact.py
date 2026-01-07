@@ -55,9 +55,7 @@ REDACTED = "***REDACTED***"
 REDACTED_EMAIL = "***@***.***"
 
 
-def redact_dict(
-    d: dict[str, Any], depth: int = 0, max_depth: int = 10
-) -> dict[str, Any]:
+def redact_dict(d: dict[str, Any], depth: int = 0, max_depth: int = 10) -> dict[str, Any]:
     """
     Recursively redact sensitive data from a dictionary.
 

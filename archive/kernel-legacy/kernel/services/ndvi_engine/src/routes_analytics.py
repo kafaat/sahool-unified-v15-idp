@@ -117,9 +117,7 @@ async def get_ndvi_summary(
     field_id: str = Query(..., description="Field UUID"),
     start: date = Query(..., description="Start date (inclusive)"),
     end: date = Query(..., description="End date (inclusive)"),
-    min_confidence: float = Query(
-        0.0, ge=0, le=1, description="Minimum confidence filter"
-    ),
+    min_confidence: float = Query(0.0, ge=0, le=1, description="Minimum confidence filter"),
     # db: Session = Depends(get_db),
 ):
     """

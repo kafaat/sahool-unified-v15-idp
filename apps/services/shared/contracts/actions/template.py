@@ -80,9 +80,7 @@ class ActionTemplate(BaseModel):
     title_en: str = Field(..., min_length=3, max_length=200)
     description_ar: str = Field(..., min_length=10)
     description_en: str = Field(..., min_length=10)
-    summary_ar: str | None = Field(
-        None, max_length=500, description="ملخص قصير للعرض في الإشعارات"
-    )
+    summary_ar: str | None = Field(None, max_length=500, description="ملخص قصير للعرض في الإشعارات")
 
     # === Why (لماذا) - Analysis Source ===
     source_service: str = Field(
@@ -92,52 +90,36 @@ class ActionTemplate(BaseModel):
     source_analysis_type: str | None = Field(
         None, description="نوع التحليل مثل: ndvi_drop, disease_detected"
     )
-    confidence: float = Field(
-        ..., ge=0, le=1, description="مستوى الثقة في التوصية (0-1)"
-    )
+    confidence: float = Field(..., ge=0, le=1, description="مستوى الثقة في التوصية (0-1)")
     reasoning_ar: str | None = Field(None, description="شرح سبب التوصية بالعربية")
     reasoning_en: str | None = Field(None, description="شرح سبب التوصية بالإنجليزية")
 
     # === When (متى) ===
     urgency: UrgencyLevel = Field(..., description="مستوى الاستعجال")
     deadline: datetime | None = Field(None, description="الموعد النهائي للتنفيذ")
-    optimal_window: TimeWindow | None = Field(
-        None, description="النافذة الزمنية المثالية"
-    )
+    optimal_window: TimeWindow | None = Field(None, description="النافذة الزمنية المثالية")
 
     # === Where (أين) ===
     field_id: str = Field(..., description="معرف الحقل")
     zone_ids: list[str] = Field(
         default_factory=list, description="معرفات المناطق المحددة داخل الحقل"
     )
-    geometry: dict[str, Any] | None = Field(
-        None, description="GeoJSON للمنطقة المستهدفة"
-    )
+    geometry: dict[str, Any] | None = Field(None, description="GeoJSON للمنطقة المستهدفة")
 
     # === How (كيف) ===
     steps: list[ActionStep] = Field(default_factory=list, description="خطوات التنفيذ")
-    resources_needed: list[Resource] = Field(
-        default_factory=list, description="الموارد المطلوبة"
-    )
-    estimated_duration_minutes: int = Field(
-        ..., gt=0, description="الوقت المتوقع للتنفيذ بالدقائق"
-    )
+    resources_needed: list[Resource] = Field(default_factory=list, description="الموارد المطلوبة")
+    estimated_duration_minutes: int = Field(..., gt=0, description="الوقت المتوقع للتنفيذ بالدقائق")
     estimated_cost: float | None = Field(None, description="التكلفة التقديرية")
     cost_currency: str = "YER"
 
     # === Field-First: Offline Support ===
-    offline_executable: bool = Field(
-        default=True, description="هل يمكن تنفيذه بدون اتصال؟"
-    )
+    offline_executable: bool = Field(default=True, description="هل يمكن تنفيذه بدون اتصال؟")
     fallback_instructions_ar: str = Field(
         ..., description="تعليمات Fallback بالعربية في حال عدم الاتصال"
     )
-    fallback_instructions_en: str = Field(
-        ..., description="تعليمات Fallback بالإنجليزية"
-    )
-    requires_sync_before: bool = Field(
-        default=False, description="هل يتطلب مزامنة قبل التنفيذ؟"
-    )
+    fallback_instructions_en: str = Field(..., description="تعليمات Fallback بالإنجليزية")
+    requires_sync_before: bool = Field(default=False, description="هل يتطلب مزامنة قبل التنفيذ؟")
 
     # === Metadata ===
     created_at: datetime = Field(default_factory=datetime.utcnow)

@@ -42,9 +42,7 @@ def upgrade() -> None:
         sa.Column("longitude", sa.Float(), nullable=True),
         sa.Column("total_area_hectares", sa.Float(), nullable=True),
         sa.Column("owner_id", postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column(
-            "status", sa.String(length=20), nullable=False, server_default="active"
-        ),
+        sa.Column("status", sa.String(length=20), nullable=False, server_default="active"),
         sa.Column("metadata_json", postgresql.JSONB(), nullable=True),
         sa.Column(
             "created_at",
@@ -78,9 +76,7 @@ def upgrade() -> None:
         sa.Column("area_hectares", sa.Float(), nullable=False),
         sa.Column("soil_type", sa.String(length=40), nullable=True),
         sa.Column("irrigation_type", sa.String(length=40), nullable=True),
-        sa.Column(
-            "status", sa.String(length=20), nullable=False, server_default="active"
-        ),
+        sa.Column("status", sa.String(length=20), nullable=False, server_default="active"),
         sa.Column("current_crop_id", postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column("metadata_json", postgresql.JSONB(), nullable=True),
         sa.Column(

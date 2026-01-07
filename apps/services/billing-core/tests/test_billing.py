@@ -259,9 +259,7 @@ class TestInvoices:
         assert len(data["items"]) > 0
 
     def test_pay_invoice(self, client):
-        response = client.post(
-            "/api/v1/invoices/inv_002/pay", json={"payment_method": "card"}
-        )
+        response = client.post("/api/v1/invoices/inv_002/pay", json={"payment_method": "card"})
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "paid"

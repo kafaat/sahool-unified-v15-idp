@@ -47,9 +47,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
     """
     try:
         if BCRYPT_AVAILABLE and not hashed_password.startswith("pbkdf2$"):
-            return bcrypt.checkpw(
-                password.encode("utf-8"), hashed_password.encode("utf-8")
-            )
+            return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
         else:
             # PBKDF2 format: pbkdf2$salt$hash
             parts = hashed_password.split("$")
@@ -78,9 +76,7 @@ def validate_password(password: str) -> tuple[bool, str]:
     errors = []
 
     if len(password) < config.password_min_length:
-        errors.append(
-            f"Password must be at least {config.password_min_length} characters"
-        )
+        errors.append(f"Password must be at least {config.password_min_length} characters")
 
     if config.password_require_uppercase and not re.search(r"[A-Z]", password):
         errors.append("Password must contain at least one uppercase letter")
@@ -91,9 +87,7 @@ def validate_password(password: str) -> tuple[bool, str]:
     if config.password_require_digit and not re.search(r"\d", password):
         errors.append("Password must contain at least one digit")
 
-    if config.password_require_special and not re.search(
-        r'[!@#$%^&*(),.?":{}|<>]', password
-    ):
+    if config.password_require_special and not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         errors.append("Password must contain at least one special character")
 
     if errors:

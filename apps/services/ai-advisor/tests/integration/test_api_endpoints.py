@@ -36,9 +36,7 @@ class TestAdvisorEndpoints:
         self, async_client, sample_question_request, mock_supervisor
     ):
         """Test /v1/advisor/ask endpoint with valid request"""
-        response = await async_client.post(
-            "/v1/advisor/ask", json=sample_question_request
-        )
+        response = await async_client.post("/v1/advisor/ask", json=sample_question_request)
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -77,9 +75,7 @@ class TestAdvisorEndpoints:
         self, async_client, sample_diagnose_request, mock_disease_expert
     ):
         """Test /v1/advisor/diagnose endpoint"""
-        response = await async_client.post(
-            "/v1/advisor/diagnose", json=sample_diagnose_request
-        )
+        response = await async_client.post("/v1/advisor/diagnose", json=sample_diagnose_request)
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -103,9 +99,7 @@ class TestAdvisorEndpoints:
         assert mock_crop_health_tool.analyze_image.called
         assert mock_disease_expert.diagnose.called
 
-    async def test_diagnose_disease_without_image(
-        self, async_client, mock_disease_expert
-    ):
+    async def test_diagnose_disease_without_image(self, async_client, mock_disease_expert):
         """Test disease diagnosis without image"""
         request_data = {
             "crop_type": "wheat",
@@ -209,9 +203,7 @@ class TestAdvisorEndpoints:
             "include_yield_prediction": False,
         }
 
-        response = await async_client.post(
-            "/v1/advisor/analyze-field", json=request_data
-        )
+        response = await async_client.post("/v1/advisor/analyze-field", json=request_data)
 
         assert response.status_code == status.HTTP_200_OK
         # Should still call satellite and field analyst
@@ -223,9 +215,7 @@ class TestAdvisorEndpoints:
         with patch("main.app_state", {}):
             request_data = {"field_id": "field_001", "crop_type": "wheat"}
 
-            response = await async_client.post(
-                "/v1/advisor/analyze-field", json=request_data
-            )
+            response = await async_client.post("/v1/advisor/analyze-field", json=request_data)
 
             assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
 
@@ -340,9 +330,7 @@ class TestRequestValidation:
             # Missing 'field_id'
         }
 
-        response = await async_client.post(
-            "/v1/advisor/analyze-field", json=request_data
-        )
+        response = await async_client.post("/v1/advisor/analyze-field", json=request_data)
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
@@ -367,9 +355,7 @@ class TestErrorHandling:
     async def test_diagnose_tool_error(self, async_client):
         """Test diagnose endpoint when tool fails"""
         mock_tool = AsyncMock()
-        mock_tool.analyze_image = AsyncMock(
-            side_effect=Exception("Image analysis failed")
-        )
+        mock_tool.analyze_image = AsyncMock(side_effect=Exception("Image analysis failed"))
 
         mock_agent = AsyncMock()
 
@@ -386,26 +372,18 @@ class TestErrorHandling:
                 "image_path": "/tmp/image.jpg",
             }
 
-            response = await async_client.post(
-                "/v1/advisor/diagnose", json=request_data
-            )
+            response = await async_client.post("/v1/advisor/diagnose", json=request_data)
 
             assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
 
     async def test_analyze_field_satellite_error(self, async_client):
         """Test field analysis when satellite tool fails"""
         mock_satellite = AsyncMock()
-        mock_satellite.get_ndvi = AsyncMock(
-            side_effect=Exception("Satellite data unavailable")
-        )
+        mock_satellite.get_ndvi = AsyncMock(side_effect=Exception("Satellite data unavailable"))
 
-        with patch(
-            "main.app_state", {"agents": {}, "tools": {"satellite": mock_satellite}}
-        ):
+        with patch("main.app_state", {"agents": {}, "tools": {"satellite": mock_satellite}}):
             request_data = {"field_id": "field_001", "crop_type": "wheat"}
 
-            response = await async_client.post(
-                "/v1/advisor/analyze-field", json=request_data
-            )
+            response = await async_client.post("/v1/advisor/analyze-field", json=request_data)
 
             assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR

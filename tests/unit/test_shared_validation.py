@@ -10,7 +10,6 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pydantic import BaseModel, ValidationError, field_validator
 
-
 # ═══════════════════════════════════════════════════════════════════════════
 # Helper Functions for Testing
 # ═══════════════════════════════════════════════════════════════════════════

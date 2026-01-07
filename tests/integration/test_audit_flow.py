@@ -115,7 +115,7 @@ class TestHashChain:
                 resource_id=f"res-{i}",
                 correlation_id=f"corr-{i}",
                 details_json="{}",
-                created_at_iso=f"2024-01-0{i+1}T00:00:00+00:00",
+                created_at_iso=f"2024-01-0{i + 1}T00:00:00+00:00",
             )
             entry_hash = compute_entry_hash(prev_hash=prev_hash, canonical=canonical)
 
@@ -129,7 +129,7 @@ class TestHashChain:
                     "resource_id": f"res-{i}",
                     "correlation_id": f"corr-{i}",
                     "details_json": "{}",
-                    "created_at": f"2024-01-0{i+1}T00:00:00+00:00",
+                    "created_at": f"2024-01-0{i + 1}T00:00:00+00:00",
                     "prev_hash": prev_hash,
                     "entry_hash": entry_hash,
                 }
@@ -155,7 +155,7 @@ class TestHashChain:
                 resource_id=f"res-{i}",
                 correlation_id=f"corr-{i}",
                 details_json="{}",
-                created_at_iso=f"2024-01-0{i+1}T00:00:00+00:00",
+                created_at_iso=f"2024-01-0{i + 1}T00:00:00+00:00",
             )
             entry_hash = compute_entry_hash(prev_hash=prev_hash, canonical=canonical)
 
@@ -169,7 +169,7 @@ class TestHashChain:
                     "resource_id": f"res-{i}",
                     "correlation_id": f"corr-{i}",
                     "details_json": "{}",
-                    "created_at": f"2024-01-0{i+1}T00:00:00+00:00",
+                    "created_at": f"2024-01-0{i + 1}T00:00:00+00:00",
                     "prev_hash": prev_hash,
                     "entry_hash": entry_hash,
                 }

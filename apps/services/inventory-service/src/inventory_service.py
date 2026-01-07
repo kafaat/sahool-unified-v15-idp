@@ -37,9 +37,7 @@ class InventoryService:
         # Use transaction to prevent race condition on SKU uniqueness
         async with self.db.tx() as transaction:
             # Check if SKU already exists with SELECT FOR UPDATE
-            existing = await transaction.inventoryitem.find_unique(
-                where={"sku": item_data.sku}
-            )
+            existing = await transaction.inventoryitem.find_unique(where={"sku": item_data.sku})
             if existing:
                 raise ValueError(f"Item with SKU {item_data.sku} already exists")
 
@@ -94,9 +92,7 @@ class InventoryService:
 
         return items, total
 
-    async def update_item(
-        self, item_id: str, item_data: InventoryItemUpdate
-    ) -> InventoryItem:
+    async def update_item(self, item_id: str, item_data: InventoryItemUpdate) -> InventoryItem:
         """Update an inventory item"""
         # Get existing item
         existing = await self.db.inventoryitem.find_unique(where={"id": item_id})
@@ -105,17 +101,13 @@ class InventoryService:
 
         # Check SKU uniqueness if being updated
         if item_data.sku and item_data.sku != existing.sku:
-            sku_exists = await self.db.inventoryitem.find_unique(
-                where={"sku": item_data.sku}
-            )
+            sku_exists = await self.db.inventoryitem.find_unique(where={"sku": item_data.sku})
             if sku_exists:
                 raise ValueError(f"Item with SKU {item_data.sku} already exists")
 
         # Update item
         update_data = item_data.model_dump(exclude_unset=True)
-        item = await self.db.inventoryitem.update(
-            where={"id": item_id}, data=update_data
-        )
+        item = await self.db.inventoryitem.update(where={"id": item_id}, data=update_data)
 
         return item
 
@@ -351,9 +343,7 @@ class InventoryService:
 
     # ========== Batch Operations ==========
 
-    async def get_item_batches(
-        self, item_id: str, include_empty: bool = False
-    ) -> list[BatchLot]:
+    async def get_item_batches(self, item_id: str, include_empty: bool = False) -> list[BatchLot]:
         """Get batches for an item"""
         return await self.stock_manager.get_batches_for_item(item_id, include_empty)
 
@@ -371,9 +361,7 @@ class InventoryService:
         )
         return supplier
 
-    async def list_suppliers(
-        self, skip: int = 0, limit: int = 100
-    ) -> tuple[list[Supplier], int]:
+    async def list_suppliers(self, skip: int = 0, limit: int = 100) -> tuple[list[Supplier], int]:
         """List suppliers with pagination"""
         suppliers = await self.db.supplier.find_many(
             skip=skip, take=limit, order={"createdAt": "desc"}
@@ -383,18 +371,14 @@ class InventoryService:
 
         return suppliers, total
 
-    async def update_supplier(
-        self, supplier_id: str, supplier_data: SupplierUpdate
-    ) -> Supplier:
+    async def update_supplier(self, supplier_id: str, supplier_data: SupplierUpdate) -> Supplier:
         """Update a supplier"""
         existing = await self.db.supplier.find_unique(where={"id": supplier_id})
         if not existing:
             raise ValueError(f"Supplier {supplier_id} not found")
 
         update_data = supplier_data.model_dump(exclude_unset=True)
-        supplier = await self.db.supplier.update(
-            where={"id": supplier_id}, data=update_data
-        )
+        supplier = await self.db.supplier.update(where={"id": supplier_id}, data=update_data)
 
         return supplier
 
@@ -414,9 +398,7 @@ class InventoryService:
         expiring_count = len(expiring)
 
         # Out of stock items
-        out_of_stock = await self.db.inventoryitem.count(
-            where={"currentQuantity": {"lte": 0}}
-        )
+        out_of_stock = await self.db.inventoryitem.count(where={"currentQuantity": {"lte": 0}})
 
         # Total value
         valuation = await self.stock_manager.calculate_inventory_value()
@@ -439,9 +421,7 @@ class InventoryService:
             "byCategory": valuation["by_category"],
         }
 
-    async def get_consumption_report(
-        self, item_id: str, days: int = 30
-    ) -> ConsumptionReport:
+    async def get_consumption_report(self, item_id: str, days: int = 30) -> ConsumptionReport:
         """Get consumption report for an item"""
         item = await self.db.inventoryitem.find_unique(where={"id": item_id})
         if not item:

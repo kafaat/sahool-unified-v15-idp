@@ -210,16 +210,12 @@ def get_fertilizers_for_nutrient(nutrient: str) -> list[dict]:
     results = []
     for fert_id, fert in FERTILIZERS.items():
         if nutrient in fert["analysis"] and fert["analysis"][nutrient] > 0:
-            results.append(
-                {"id": fert_id, **fert, "nutrient_content": fert["analysis"][nutrient]}
-            )
+            results.append({"id": fert_id, **fert, "nutrient_content": fert["analysis"][nutrient]})
     # Sort by nutrient content descending
     return sorted(results, key=lambda x: x["nutrient_content"], reverse=True)
 
 
-def calculate_dose(
-    fertilizer_id: str, nutrient: str, target_kg_ha: float
-) -> float | None:
+def calculate_dose(fertilizer_id: str, nutrient: str, target_kg_ha: float) -> float | None:
     """
     Calculate fertilizer dose needed to supply target kg/ha of nutrient
     Returns kg/ha of fertilizer needed

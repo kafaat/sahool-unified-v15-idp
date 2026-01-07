@@ -12,7 +12,6 @@ Tests for enterprise package services:
 Author: SAHOOL Platform Team
 """
 
-
 import httpx
 import pytest
 
@@ -42,9 +41,7 @@ class TestAIAdvisor:
         url = f"{service_urls['ai_advisor']}/api/v1/ask"
 
         # Act
-        response = await http_client.post(
-            url, json=query, headers=auth_headers, timeout=60
-        )
+        response = await http_client.post(url, json=query, headers=auth_headers, timeout=60)
 
         # Assert
         assert response.status_code in (
@@ -73,9 +70,7 @@ class TestAIAdvisor:
         }
 
         # Act
-        response = await http_client.post(
-            url, json=query, headers=auth_headers, timeout=60
-        )
+        response = await http_client.post(url, json=query, headers=auth_headers, timeout=60)
 
         # Assert
         assert response.status_code in (
@@ -104,9 +99,7 @@ class TestAIAdvisor:
         }
 
         # Act
-        response = await http_client.post(
-            url, json=query, headers=auth_headers, timeout=90
-        )
+        response = await http_client.post(url, json=query, headers=auth_headers, timeout=90)
 
         # Assert
         assert response.status_code in (
@@ -274,9 +267,7 @@ class TestMarketplace:
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to search listings: {response.text}"
+        assert response.status_code == 200, f"Failed to search listings: {response.text}"
         data = response.json()
         assert isinstance(data, list | dict)
 
@@ -340,9 +331,7 @@ class TestBilling:
         }
 
         # Act
-        response = await http_client.post(
-            url, json=subscription_data, headers=auth_headers
-        )
+        response = await http_client.post(url, json=subscription_data, headers=auth_headers)
 
         # Assert
         assert response.status_code in (
@@ -398,9 +387,7 @@ class TestBilling:
         response = await http_client.get(url, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get billing history: {response.text}"
+        assert response.status_code == 200, f"Failed to get billing history: {response.text}"
         data = response.json()
         assert isinstance(data, list | dict)
 
@@ -431,9 +418,7 @@ class TestResearchCore:
         url = f"{service_urls['research_core']}/api/v1/experiments"
 
         # Act
-        response = await http_client.post(
-            url, json=experiment_data, headers=auth_headers
-        )
+        response = await http_client.post(url, json=experiment_data, headers=auth_headers)
 
         # Assert
         assert response.status_code in (
@@ -548,6 +533,4 @@ class TestEnterprisePackageHealth:
             except Exception:
                 continue
 
-        pytest.fail(
-            f"Service {service_name} is not healthy on any known health endpoint"
-        )
+        pytest.fail(f"Service {service_name} is not healthy on any known health endpoint")

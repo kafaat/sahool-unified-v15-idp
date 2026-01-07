@@ -52,9 +52,7 @@ async def example_http_client():
         logger.info("=" * 60)
 
         try:
-            health = await client.analyze_crop_health(
-                field_id="field-123", analysis_type="ndvi"
-            )
+            health = await client.analyze_crop_health(field_id="field-123", analysis_type="ndvi")
             logger.info(f"Crop health: {health}")
         except Exception as e:
             logger.error(f"Crop health analysis failed: {e}")

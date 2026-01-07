@@ -4,10 +4,11 @@ Comprehensive unit tests for alert business logic
 Coverage: Repository operations, alert rules, statistics, event processing
 """
 
-import pytest
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
+
+import pytest
 
 
 @pytest.fixture
@@ -32,20 +33,20 @@ def mock_alert(mock_db_session):
 
     alert = Alert(
         id=uuid4(),
-        field_id='field-123',
-        tenant_id='tenant-1',
-        type='ndvi_low',
-        severity='high',
-        status='active',
-        title='Low NDVI Alert',
-        title_en='Low NDVI Alert',
-        message='NDVI below threshold',
-        message_en='NDVI below threshold',
-        recommendations=['Check irrigation'],
-        recommendations_en=['Check irrigation'],
-        metadata={'current_ndvi': 0.15},
-        source_service='ndvi-engine',
-        correlation_id=str(uuid4())
+        field_id="field-123",
+        tenant_id="tenant-1",
+        type="ndvi_low",
+        severity="high",
+        status="active",
+        title="Low NDVI Alert",
+        title_en="Low NDVI Alert",
+        message="NDVI below threshold",
+        message_en="NDVI below threshold",
+        recommendations=["Check irrigation"],
+        recommendations_en=["Check irrigation"],
+        metadata={"current_ndvi": 0.15},
+        source_service="ndvi-engine",
+        correlation_id=str(uuid4()),
     )
     alert.created_at = datetime.now(UTC)
     return alert
@@ -58,14 +59,14 @@ def mock_alert_rule(mock_db_session):
 
     rule = AlertRule(
         id=uuid4(),
-        field_id='field-123',
-        tenant_id='tenant-1',
-        name='Low Soil Moisture',
-        name_en='Low Soil Moisture',
+        field_id="field-123",
+        tenant_id="tenant-1",
+        name="Low Soil Moisture",
+        name_en="Low Soil Moisture",
         enabled=True,
-        condition={'metric': 'soil_moisture', 'operator': 'lt', 'value': 20},
-        alert_config={'type': 'irrigation', 'severity': 'high', 'title': 'Low Moisture'},
-        cooldown_hours=24
+        condition={"metric": "soil_moisture", "operator": "lt", "value": 20},
+        alert_config={"type": "irrigation", "severity": "high", "title": "Low Moisture"},
+        cooldown_hours=24,
     )
     rule.created_at = datetime.now(UTC)
     rule.updated_at = datetime.now(UTC)
@@ -108,7 +109,7 @@ class TestAlertRepository:
         result = get_alert(
             mock_db_session,
             alert_id=mock_alert.id,
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678')
+            tenant_id=UUID("12345678-1234-5678-1234-567812345678"),
         )
 
         assert result == mock_alert
@@ -133,10 +134,7 @@ class TestAlertRepository:
         mock_result.scalars = MagicMock(return_value=[mock_alert])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        alerts, total = get_alerts_by_field(
-            mock_db_session,
-            field_id='field-123'
-        )
+        alerts, total = get_alerts_by_field(mock_db_session, field_id="field-123")
 
         assert len(alerts) == 1
         assert alerts[0] == mock_alert
@@ -152,12 +150,12 @@ class TestAlertRepository:
 
         alerts, total = get_alerts_by_field(
             mock_db_session,
-            field_id='field-123',
-            status='active',
-            alert_type='ndvi_low',
-            severity='high',
+            field_id="field-123",
+            status="active",
+            alert_type="ndvi_low",
+            severity="high",
             skip=0,
-            limit=10
+            limit=10,
         )
 
         assert len(alerts) == 1
@@ -171,12 +169,7 @@ class TestAlertRepository:
         mock_result.scalars = MagicMock(return_value=mock_alerts)
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        alerts, total = get_alerts_by_field(
-            mock_db_session,
-            field_id='field-123',
-            skip=10,
-            limit=5
-        )
+        alerts, total = get_alerts_by_field(mock_db_session, field_id="field-123", skip=10, limit=5)
 
         assert len(alerts) == 5
 
@@ -189,8 +182,7 @@ class TestAlertRepository:
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
         alerts = get_alerts_by_tenant(
-            mock_db_session,
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678')
+            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678")
         )
 
         assert len(alerts) == 1
@@ -208,10 +200,10 @@ class TestAlertRepository:
 
         alerts = get_alerts_by_tenant(
             mock_db_session,
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678'),
-            status='active',
+            tenant_id=UUID("12345678-1234-5678-1234-567812345678"),
+            status="active",
             start_date=start_date,
-            end_date=end_date
+            end_date=end_date,
         )
 
         assert len(alerts) == 1
@@ -223,15 +215,12 @@ class TestAlertRepository:
         mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert
 
         result = update_alert_status(
-            mock_db_session,
-            alert_id=mock_alert.id,
-            status='acknowledged',
-            user_id='user-123'
+            mock_db_session, alert_id=mock_alert.id, status="acknowledged", user_id="user-123"
         )
 
         assert result == mock_alert
-        assert mock_alert.status == 'acknowledged'
-        assert mock_alert.acknowledged_by == 'user-123'
+        assert mock_alert.status == "acknowledged"
+        assert mock_alert.acknowledged_by == "user-123"
         assert mock_alert.acknowledged_at is not None
 
     def test_update_alert_status_resolved(self, mock_db_session, mock_alert):
@@ -243,15 +232,15 @@ class TestAlertRepository:
         result = update_alert_status(
             mock_db_session,
             alert_id=mock_alert.id,
-            status='resolved',
-            user_id='user-123',
-            note='Fixed irrigation system'
+            status="resolved",
+            user_id="user-123",
+            note="Fixed irrigation system",
         )
 
         assert result == mock_alert
-        assert mock_alert.status == 'resolved'
-        assert mock_alert.resolved_by == 'user-123'
-        assert mock_alert.resolution_note == 'Fixed irrigation system'
+        assert mock_alert.status == "resolved"
+        assert mock_alert.resolved_by == "user-123"
+        assert mock_alert.resolution_note == "Fixed irrigation system"
         assert mock_alert.resolved_at is not None
 
     def test_update_alert_status_dismissed(self, mock_db_session, mock_alert):
@@ -261,15 +250,12 @@ class TestAlertRepository:
         mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert
 
         result = update_alert_status(
-            mock_db_session,
-            alert_id=mock_alert.id,
-            status='dismissed',
-            user_id='user-123'
+            mock_db_session, alert_id=mock_alert.id, status="dismissed", user_id="user-123"
         )
 
         assert result == mock_alert
-        assert mock_alert.status == 'dismissed'
-        assert mock_alert.dismissed_by == 'user-123'
+        assert mock_alert.status == "dismissed"
+        assert mock_alert.dismissed_by == "user-123"
         assert mock_alert.dismissed_at is not None
 
     def test_update_alert_status_not_found(self, mock_db_session):
@@ -278,11 +264,7 @@ class TestAlertRepository:
 
         mock_db_session.query.return_value.filter.return_value.first.return_value = None
 
-        result = update_alert_status(
-            mock_db_session,
-            alert_id=uuid4(),
-            status='acknowledged'
-        )
+        result = update_alert_status(mock_db_session, alert_id=uuid4(), status="acknowledged")
 
         assert result is None
 
@@ -328,10 +310,7 @@ class TestAlertRepository:
         mock_result.scalars = MagicMock(return_value=[mock_alert])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        alerts = get_active_alerts(
-            mock_db_session,
-            field_id='field-123'
-        )
+        alerts = get_active_alerts(mock_db_session, field_id="field-123")
 
         assert len(alerts) == 1
 
@@ -369,10 +348,7 @@ class TestAlertRuleRepository:
         mock_result.scalars = MagicMock(return_value=[mock_alert_rule])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        rules = get_alert_rules_by_field(
-            mock_db_session,
-            field_id='field-123'
-        )
+        rules = get_alert_rules_by_field(mock_db_session, field_id="field-123")
 
         assert len(rules) == 1
         assert rules[0] == mock_alert_rule
@@ -385,11 +361,7 @@ class TestAlertRuleRepository:
         mock_result.scalars = MagicMock(return_value=[mock_alert_rule])
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
-        rules = get_alert_rules_by_field(
-            mock_db_session,
-            field_id='field-123',
-            enabled_only=True
-        )
+        rules = get_alert_rules_by_field(mock_db_session, field_id="field-123", enabled_only=True)
 
         assert len(rules) == 1
 
@@ -412,10 +384,7 @@ class TestAlertRuleRepository:
         mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert_rule
 
         result = update_alert_rule(
-            mock_db_session,
-            rule_id=mock_alert_rule.id,
-            enabled=False,
-            cooldown_hours=48
+            mock_db_session, rule_id=mock_alert_rule.id, enabled=False, cooldown_hours=48
         )
 
         assert result == mock_alert_rule
@@ -488,16 +457,14 @@ class TestAlertStatistics:
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
         stats = get_alert_statistics(
-            mock_db_session,
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678'),
-            days=30
+            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30
         )
 
-        assert 'total_alerts' in stats
-        assert 'active_alerts' in stats
-        assert 'by_type' in stats
-        assert 'by_severity' in stats
-        assert 'by_status' in stats
+        assert "total_alerts" in stats
+        assert "active_alerts" in stats
+        assert "by_type" in stats
+        assert "by_severity" in stats
+        assert "by_status" in stats
 
     def test_get_alert_statistics_by_field(self, mock_db_session, mock_alert):
         """Test getting statistics for specific field"""
@@ -509,12 +476,12 @@ class TestAlertStatistics:
 
         stats = get_alert_statistics(
             mock_db_session,
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678'),
-            field_id='field-123',
-            days=7
+            tenant_id=UUID("12345678-1234-5678-1234-567812345678"),
+            field_id="field-123",
+            days=7,
         )
 
-        assert stats['total_alerts'] >= 0
+        assert stats["total_alerts"] >= 0
 
     def test_get_alert_statistics_resolution_time(self, mock_db_session, mock_alert):
         """Test calculating average resolution time"""
@@ -528,14 +495,12 @@ class TestAlertStatistics:
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
         stats = get_alert_statistics(
-            mock_db_session,
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678'),
-            days=30
+            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30
         )
 
-        assert 'average_resolution_hours' in stats
-        if stats['average_resolution_hours'] is not None:
-            assert stats['average_resolution_hours'] > 0
+        assert "average_resolution_hours" in stats
+        if stats["average_resolution_hours"] is not None:
+            assert stats["average_resolution_hours"] > 0
 
     def test_get_alert_statistics_empty(self, mock_db_session):
         """Test statistics with no alerts"""
@@ -546,13 +511,11 @@ class TestAlertStatistics:
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
         stats = get_alert_statistics(
-            mock_db_session,
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678'),
-            days=30
+            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30
         )
 
-        assert stats['total_alerts'] == 0
-        assert stats['active_alerts'] == 0
+        assert stats["total_alerts"] == 0
+        assert stats["active_alerts"] == 0
 
 
 class TestAlertModels:
@@ -562,22 +525,22 @@ class TestAlertModels:
         """Test alert to_dict method"""
         result = mock_alert.to_dict()
 
-        assert 'id' in result
-        assert 'field_id' in result
-        assert 'type' in result
-        assert 'severity' in result
-        assert 'status' in result
+        assert "id" in result
+        assert "field_id" in result
+        assert "type" in result
+        assert "severity" in result
+        assert "status" in result
 
     def test_alert_rule_to_dict(self, mock_alert_rule):
         """Test alert rule to_dict method"""
         result = mock_alert_rule.to_dict()
 
-        assert 'id' in result
-        assert 'field_id' in result
-        assert 'name' in result
-        assert 'enabled' in result
-        assert 'condition' in result
-        assert 'alert_config' in result
+        assert "id" in result
+        assert "field_id" in result
+        assert "name" in result
+        assert "enabled" in result
+        assert "condition" in result
+        assert "alert_config" in result
 
 
 class TestAlertTypes:
@@ -587,27 +550,27 @@ class TestAlertTypes:
         """Test AlertType enum"""
         from src.models import AlertType
 
-        assert AlertType.WEATHER == 'weather'
-        assert AlertType.NDVI_LOW == 'ndvi_low'
-        assert AlertType.IRRIGATION == 'irrigation'
+        assert AlertType.WEATHER == "weather"
+        assert AlertType.NDVI_LOW == "ndvi_low"
+        assert AlertType.IRRIGATION == "irrigation"
 
     def test_alert_severity_enum(self):
         """Test AlertSeverity enum"""
         from src.models import AlertSeverity
 
-        assert AlertSeverity.CRITICAL == 'critical'
-        assert AlertSeverity.HIGH == 'high'
-        assert AlertSeverity.MEDIUM == 'medium'
-        assert AlertSeverity.LOW == 'low'
+        assert AlertSeverity.CRITICAL == "critical"
+        assert AlertSeverity.HIGH == "high"
+        assert AlertSeverity.MEDIUM == "medium"
+        assert AlertSeverity.LOW == "low"
 
     def test_alert_status_enum(self):
         """Test AlertStatus enum"""
         from src.models import AlertStatus
 
-        assert AlertStatus.ACTIVE == 'active'
-        assert AlertStatus.ACKNOWLEDGED == 'acknowledged'
-        assert AlertStatus.DISMISSED == 'dismissed'
-        assert AlertStatus.RESOLVED == 'resolved'
+        assert AlertStatus.ACTIVE == "active"
+        assert AlertStatus.ACKNOWLEDGED == "acknowledged"
+        assert AlertStatus.DISMISSED == "dismissed"
+        assert AlertStatus.RESOLVED == "resolved"
 
 
 class TestAlertValidation:
@@ -615,66 +578,57 @@ class TestAlertValidation:
 
     def test_alert_create_validation(self):
         """Test alert creation validation"""
-        from src.models import AlertCreate, AlertType, AlertSeverity
+        from src.models import AlertCreate, AlertSeverity, AlertType
 
         alert_data = AlertCreate(
-            field_id='field-123',
+            field_id="field-123",
             type=AlertType.NDVI_LOW,
             severity=AlertSeverity.HIGH,
-            title='Test Alert',
-            message='Test message'
+            title="Test Alert",
+            message="Test message",
         )
 
-        assert alert_data.field_id == 'field-123'
+        assert alert_data.field_id == "field-123"
         assert alert_data.type == AlertType.NDVI_LOW
         assert alert_data.severity == AlertSeverity.HIGH
 
     def test_alert_update_validation(self):
         """Test alert update validation"""
-        from src.models import AlertUpdate, AlertStatus
+        from src.models import AlertStatus, AlertUpdate
 
-        update_data = AlertUpdate(
-            status=AlertStatus.ACKNOWLEDGED,
-            acknowledged_by='user-123'
-        )
+        update_data = AlertUpdate(status=AlertStatus.ACKNOWLEDGED, acknowledged_by="user-123")
 
         assert update_data.status == AlertStatus.ACKNOWLEDGED
-        assert update_data.acknowledged_by == 'user-123'
+        assert update_data.acknowledged_by == "user-123"
 
     def test_alert_rule_create_validation(self):
         """Test alert rule creation validation"""
         from src.models import (
-            AlertRuleCreate,
-            RuleCondition,
             AlertRuleConfig,
-            AlertType,
+            AlertRuleCreate,
             AlertSeverity,
-            ConditionOperator
+            AlertType,
+            ConditionOperator,
+            RuleCondition,
         )
 
-        condition = RuleCondition(
-            metric='soil_moisture',
-            operator=ConditionOperator.LT,
-            value=20.0
-        )
+        condition = RuleCondition(metric="soil_moisture", operator=ConditionOperator.LT, value=20.0)
 
         alert_config = AlertRuleConfig(
-            type=AlertType.IRRIGATION,
-            severity=AlertSeverity.HIGH,
-            title='Low Moisture'
+            type=AlertType.IRRIGATION, severity=AlertSeverity.HIGH, title="Low Moisture"
         )
 
         rule_data = AlertRuleCreate(
-            field_id='field-123',
-            name='Low Moisture Rule',
+            field_id="field-123",
+            name="Low Moisture Rule",
             enabled=True,
             condition=condition,
             alert_config=alert_config,
-            cooldown_hours=24
+            cooldown_hours=24,
         )
 
-        assert rule_data.field_id == 'field-123'
-        assert rule_data.condition.metric == 'soil_moisture'
+        assert rule_data.field_id == "field-123"
+        assert rule_data.condition.metric == "soil_moisture"
         assert rule_data.alert_config.type == AlertType.IRRIGATION
 
 
@@ -690,12 +644,12 @@ class TestAlertEvents:
         publisher = AlertPublisher(mock_nc)
 
         await publisher.publish_alert_created(
-            alert_id='alert-123',
-            field_id='field-123',
-            tenant_id='tenant-1',
-            alert_type='ndvi_low',
-            severity='high',
-            title='Test Alert'
+            alert_id="alert-123",
+            field_id="field-123",
+            tenant_id="tenant-1",
+            alert_type="ndvi_low",
+            severity="high",
+            title="Test Alert",
         )
 
         assert mock_nc.publish.called
@@ -709,11 +663,11 @@ class TestAlertEvents:
         publisher = AlertPublisher(mock_nc)
 
         await publisher.publish_alert_updated(
-            alert_id='alert-123',
-            field_id='field-123',
-            old_status='active',
-            new_status='acknowledged',
-            updated_by='user-123'
+            alert_id="alert-123",
+            field_id="field-123",
+            old_status="active",
+            new_status="acknowledged",
+            updated_by="user-123",
         )
 
         assert mock_nc.publish.called
@@ -737,7 +691,7 @@ class TestDatabaseConnection:
 
     def test_check_db_connection_success(self):
         """Test successful database connection check"""
-        with patch('src.database.SessionLocal') as mock_session:
+        with patch("src.database.SessionLocal") as mock_session:
             mock_db = MagicMock()
             mock_session.return_value = mock_db
             mock_db.execute = MagicMock()
@@ -751,7 +705,7 @@ class TestDatabaseConnection:
 
     def test_check_db_connection_failure(self):
         """Test failed database connection check"""
-        with patch('src.database.SessionLocal', side_effect=Exception('Connection error')):
+        with patch("src.database.SessionLocal", side_effect=Exception("Connection error")):
             from src.database import check_db_connection
 
             result = check_db_connection()
@@ -766,7 +720,7 @@ class TestErrorHandling:
         """Test handling duplicate alert creation"""
         from src.repository import create_alert
 
-        mock_db_session.flush.side_effect = Exception('Duplicate key')
+        mock_db_session.flush.side_effect = Exception("Duplicate key")
 
         with pytest.raises(Exception):
             create_alert(mock_db_session, mock_alert)
@@ -777,11 +731,7 @@ class TestErrorHandling:
 
         mock_db_session.query.return_value.filter.return_value.first.return_value = None
 
-        result = update_alert_status(
-            mock_db_session,
-            alert_id=uuid4(),
-            status='acknowledged'
-        )
+        result = update_alert_status(mock_db_session, alert_id=uuid4(), status="acknowledged")
 
         assert result is None
 
@@ -799,11 +749,11 @@ class TestComplexQueries:
 
         alerts, total = get_alerts_by_field(
             mock_db_session,
-            field_id='field-123',
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678'),
-            status='active',
-            alert_type='ndvi_low',
-            severity='high'
+            field_id="field-123",
+            tenant_id=UUID("12345678-1234-5678-1234-567812345678"),
+            status="active",
+            alert_type="ndvi_low",
+            severity="high",
         )
 
         assert len(alerts) == 1
@@ -816,9 +766,9 @@ class TestComplexQueries:
         alerts = []
         for i in range(5):
             alert = MagicMock()
-            alert.type = 'ndvi_low' if i < 3 else 'weather'
-            alert.severity = 'high'
-            alert.status = 'active'
+            alert.type = "ndvi_low" if i < 3 else "weather"
+            alert.severity = "high"
+            alert.status = "active"
             alerts.append(alert)
 
         mock_result = MagicMock()
@@ -826,10 +776,8 @@ class TestComplexQueries:
         mock_db_session.execute = MagicMock(return_value=mock_result)
 
         stats = get_alert_statistics(
-            mock_db_session,
-            tenant_id=UUID('12345678-1234-5678-1234-567812345678'),
-            days=30
+            mock_db_session, tenant_id=UUID("12345678-1234-5678-1234-567812345678"), days=30
         )
 
-        assert stats['total_alerts'] == 5
-        assert 'ndvi_low' in stats['by_type']
+        assert stats["total_alerts"] == 5
+        assert "ndvi_low" in stats["by_type"]

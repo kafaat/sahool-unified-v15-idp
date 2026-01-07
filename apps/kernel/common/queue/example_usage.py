@@ -35,19 +35,14 @@ def example_basic_queue():
     مثال بسيط لإضافة ومعالجة المهام
     Simple example of enqueuing and processing tasks
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Example 1: Basic Task Queue")
     print("مثال 1: قائمة انتظار المهام الأساسية")
-    print("="*80)
+    print("=" * 80)
 
     # إنشاء عميل Redis
     # Create Redis client
-    redis_client = Redis(
-        host='localhost',
-        port=6379,
-        db=0,
-        decode_responses=True
-    )
+    redis_client = Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
     # إنشاء قائمة انتظار المهام
     # Create task queue
@@ -61,9 +56,9 @@ def example_basic_queue():
             "field_id": "field-12345",
             "image_url": "s3://sahool-satellite/field-12345/image.tif",
             "red_band": "B4",
-            "nir_band": "B8"
+            "nir_band": "B8",
         },
-        priority=TaskPriority.NORMAL.value
+        priority=TaskPriority.NORMAL.value,
     )
 
     print(f"✓ Task enqueued: {task_id}")
@@ -89,17 +84,12 @@ def example_worker_with_handlers():
     مثال لإنشاء عامل وتسجيل معالجات المهام
     Example of creating a worker and registering task handlers
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Example 2: Worker with Task Handlers")
     print("مثال 2: عامل مع معالجات المهام")
-    print("="*80)
+    print("=" * 80)
 
-    redis_client = Redis(
-        host='localhost',
-        port=6379,
-        db=0,
-        decode_responses=True
-    )
+    redis_client = Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
     # إنشاء قائمة انتظار
     # Create queue
@@ -110,7 +100,7 @@ def example_worker_with_handlers():
     worker = TaskWorker(
         redis_client=redis_client,
         task_types=[TaskType.NDVI_CALCULATION, TaskType.DISEASE_DETECTION],
-        max_tasks=5
+        max_tasks=5,
     )
 
     # تسجيل جميع معالجات المهام
@@ -138,17 +128,12 @@ def example_priority_queue():
     مثال استخدام قائمة الأولويات
     Example of using priority queue
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Example 3: Priority Queue")
     print("مثال 3: قائمة الأولويات")
-    print("="*80)
+    print("=" * 80)
 
-    redis_client = Redis(
-        host='localhost',
-        port=6379,
-        db=0,
-        decode_responses=True
-    )
+    redis_client = Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
     queue = TaskQueue(redis_client)
 
@@ -159,26 +144,26 @@ def example_priority_queue():
             "name": "Low Priority Export",
             "type": TaskType.DATA_EXPORT,
             "priority": TaskPriority.LOW.value,
-            "payload": {"export_type": "field_data"}
+            "payload": {"export_type": "field_data"},
         },
         {
             "name": "Critical Disease Alert",
             "type": TaskType.DISEASE_DETECTION,
             "priority": TaskPriority.CRITICAL.value,
-            "payload": {"field_id": "urgent-field"}
+            "payload": {"field_id": "urgent-field"},
         },
         {
             "name": "Normal NDVI",
             "type": TaskType.NDVI_CALCULATION,
             "priority": TaskPriority.NORMAL.value,
-            "payload": {"field_id": "field-123"}
+            "payload": {"field_id": "field-123"},
         },
         {
             "name": "High Priority Notification",
             "type": TaskType.NOTIFICATION_SEND,
             "priority": TaskPriority.HIGH.value,
-            "payload": {"user_ids": ["user-1"], "message": "Alert!"}
-        }
+            "payload": {"user_ids": ["user-1"], "message": "Alert!"},
+        },
     ]
 
     print("\nEnqueuing tasks:")
@@ -187,13 +172,13 @@ def example_priority_queue():
         task_id = queue.enqueue(
             task_type=task_info["type"],
             payload=task_info["payload"],
-            priority=task_info["priority"]
+            priority=task_info["priority"],
         )
         print(f"  - [{task_info['priority']}] {task_info['name']}: {task_id[:8]}...")
 
     status = queue.get_queue_status()
     print("\nQueue Status by Priority:")
-    for queue_name, count in status['queues'].items():
+    for queue_name, count in status["queues"].items():
         print(f"  - {queue_name}: {count} tasks")
 
 
@@ -208,35 +193,26 @@ def example_scheduled_tasks():
     مثال جدولة المهام لوقت لاحق
     Example of scheduling tasks for later execution
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Example 4: Scheduled Tasks")
     print("مثال 4: المهام المجدولة")
-    print("="*80)
+    print("=" * 80)
 
-    redis_client = Redis(
-        host='localhost',
-        port=6379,
-        db=0,
-        decode_responses=True
-    )
+    redis_client = Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
     queue = TaskQueue(redis_client)
 
     # جدولة تقرير يومي لـ 6 صباحاً غداً
     # Schedule daily report for 6 AM tomorrow
-    tomorrow_6am = datetime.utcnow().replace(
-        hour=6, minute=0, second=0, microsecond=0
-    ) + timedelta(days=1)
+    tomorrow_6am = datetime.utcnow().replace(hour=6, minute=0, second=0, microsecond=0) + timedelta(
+        days=1
+    )
 
     task_id = queue.enqueue(
         task_type=TaskType.REPORT_GENERATION,
-        payload={
-            "field_id": "field-123",
-            "report_type": "daily",
-            "format": "pdf"
-        },
+        payload={"field_id": "field-123", "report_type": "daily", "format": "pdf"},
         priority=TaskPriority.LOW.value,
-        scheduled_at=tomorrow_6am
+        scheduled_at=tomorrow_6am,
     )
 
     print(f"✓ Scheduled report task: {task_id}")
@@ -256,17 +232,12 @@ def example_worker_manager():
     مثال استخدام مدير العمال والتوسع
     Example of using worker manager and scaling
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Example 5: Worker Manager and Scaling")
     print("مثال 5: مدير العمال والتوسع")
-    print("="*80)
+    print("=" * 80)
 
-    redis_client = Redis(
-        host='localhost',
-        port=6379,
-        db=0,
-        decode_responses=True
-    )
+    redis_client = Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
     # إنشاء مدير العمال
     # Create worker manager
@@ -280,7 +251,7 @@ def example_worker_manager():
         worker_id = manager.start_worker(max_tasks=5)
         worker = manager.workers[worker_id]
         register_all_handlers(worker)
-        print(f"  ✓ Worker {i+1} started: {worker_id}")
+        print(f"  ✓ Worker {i + 1} started: {worker_id}")
 
     # الحصول على حالة العمال
     # Get worker status
@@ -317,17 +288,12 @@ def example_retry_and_failure():
     مثال معالجة الفشل وإعادة المحاولة
     Example of failure handling and retry
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Example 6: Task Retry and Failure Handling")
     print("مثال 6: إعادة المحاولة ومعالجة الفشل")
-    print("="*80)
+    print("=" * 80)
 
-    redis_client = Redis(
-        host='localhost',
-        port=6379,
-        db=0,
-        decode_responses=True
-    )
+    redis_client = Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
     queue = TaskQueue(redis_client)
 
@@ -336,18 +302,14 @@ def example_retry_and_failure():
     task_id = queue.enqueue(
         task_type=TaskType.SATELLITE_IMAGE_PROCESSING,
         payload={"field_id": "field-123"},
-        max_retries=3
+        max_retries=3,
     )
 
     print(f"✓ Task created: {task_id}")
 
     # محاكاة فشل المهمة
     # Simulate task failure
-    queue.fail_task(
-        task_id=task_id,
-        error_message="Connection timeout",
-        retry=True
-    )
+    queue.fail_task(task_id=task_id, error_message="Connection timeout", retry=True)
 
     # الحصول على معلومات المهمة
     # Get task info
@@ -378,24 +340,16 @@ def example_quick_start():
     مثال البدء السريع
     Quick start example
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("Example 7: Quick Start")
     print("مثال 7: البدء السريع")
-    print("="*80)
+    print("=" * 80)
 
-    redis_client = Redis(
-        host='localhost',
-        port=6379,
-        db=0,
-        decode_responses=True
-    )
+    redis_client = Redis(host="localhost", port=6379, db=0, decode_responses=True)
 
     # إنشاء قائمة انتظار مع 3 عمال جاهزين
     # Create queue with 3 ready workers
-    queue, manager = create_queue_with_workers(
-        redis_client=redis_client,
-        worker_count=3
-    )
+    queue, manager = create_queue_with_workers(redis_client=redis_client, worker_count=3)
 
     print("✓ Queue and workers ready!")
     print("✓ قائمة الانتظار والعمال جاهزون!")
@@ -407,7 +361,7 @@ def example_quick_start():
         task_id = queue.enqueue(
             task_type=TaskType.NDVI_CALCULATION,
             payload={"field_id": f"field-{i}"},
-            priority=TaskPriority.NORMAL.value
+            priority=TaskPriority.NORMAL.value,
         )
         task_ids.append(task_id)
 
@@ -442,10 +396,10 @@ def main():
     تشغيل جميع الأمثلة
     Run all examples
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("SAHOOL Task Queue - Examples")
     print("أمثلة استخدام قائمة انتظار المهام SAHOOL")
-    print("="*80)
+    print("=" * 80)
 
     try:
         # ملاحظة: تأكد من تشغيل Redis قبل تنفيذ الأمثلة
@@ -459,15 +413,16 @@ def main():
         example_retry_and_failure()
         example_quick_start()
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("✓ All examples completed successfully!")
         print("✓ تم تنفيذ جميع الأمثلة بنجاح!")
-        print("="*80)
+        print("=" * 80)
 
     except Exception as e:
         print(f"\n✗ Error running examples: {e}")
         print(f"✗ خطأ في تنفيذ الأمثلة: {e}")
         import traceback
+
         traceback.print_exc()
 
 

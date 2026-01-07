@@ -78,9 +78,7 @@ async def get_current_user(
             if cached_user:
                 # Validate cached user status
                 if not cached_user.get("is_active", False):
-                    logger.warning(
-                        f"Authentication failed: User {user_id} is inactive (cached)"
-                    )
+                    logger.warning(f"Authentication failed: User {user_id} is inactive (cached)")
                     raise HTTPException(
                         status_code=status.HTTP_403_FORBIDDEN,
                         detail=AuthErrors.ACCOUNT_DISABLED.en,
@@ -120,9 +118,7 @@ async def get_current_user(
             user_data = await repository.get_user_validation_data(user_id)
 
             if not user_data:
-                logger.warning(
-                    f"Authentication failed: User {user_id} not found in database"
-                )
+                logger.warning(f"Authentication failed: User {user_id} not found in database")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=AuthErrors.INVALID_TOKEN.en,
@@ -486,8 +482,7 @@ async def rate_limit_dependency(
     if not allowed:
         violation_count = _rate_limiter.get_violation_count(key)
         logger.error(
-            f"Rate limit exceeded for user {user.id} "
-            f"(total violations: {violation_count})"
+            f"Rate limit exceeded for user {user.id} (total violations: {violation_count})"
         )
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -495,9 +490,7 @@ async def rate_limit_dependency(
             headers={
                 "X-RateLimit-Limit": str(_rate_limiter.requests),
                 "X-RateLimit-Remaining": "0",
-                "X-RateLimit-Reset": str(
-                    int(time.time() + _rate_limiter.window_seconds)
-                ),
+                "X-RateLimit-Reset": str(int(time.time() + _rate_limiter.window_seconds)),
             },
         )
 

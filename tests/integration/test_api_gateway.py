@@ -67,7 +67,7 @@ def generate_jwt_token(jwt_secret: str, test_tenant_id: str, test_user_id: str):
         tenant_id: str | None = None,
         user_id: str | None = None,
         expires_in: int = 3600,
-        **extra_claims
+        **extra_claims,
     ) -> str:
         """Generate a JWT token for testing"""
         now = datetime.utcnow()
@@ -77,7 +77,7 @@ def generate_jwt_token(jwt_secret: str, test_tenant_id: str, test_user_id: str):
             "iat": now,
             "exp": now + timedelta(seconds=expires_in),
             "jti": str(uuid.uuid4()),
-            **extra_claims
+            **extra_claims,
         }
 
         return jwt.encode(payload, jwt_secret, algorithm="HS256")
@@ -115,8 +115,7 @@ async def test_kong_gateway_health(http_client: AsyncClient):
     try:
         response = await http_client.get(f"{KONG_GATEWAY_URL}/")
         # Kong returns 404 for root path, which is expected
-        assert response.status_code in [200, 404], \
-            "Kong should be responding"
+        assert response.status_code in [200, 404], "Kong should be responding"
     except httpx.ConnectError:
         pytest.skip("Kong gateway not available")
 
@@ -146,10 +145,7 @@ async def test_kong_admin_api_health():
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_route_to_field_ops_service(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_route_to_field_ops_service(http_client: AsyncClient, auth_headers):
     """
     Test Kong routes requests to field-ops service
     اختبار توجيه Kong للطلبات إلى خدمة field-ops
@@ -157,33 +153,27 @@ async def test_route_to_field_ops_service(
     try:
         # Try to access field-ops through Kong gateway
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-            headers=auth_headers(),
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
         )
 
         # Should either succeed or return auth error (both indicate routing works)
-        assert response.status_code in [200, 401, 403, 404], \
+        assert response.status_code in [200, 401, 403, 404], (
             f"Unexpected status code: {response.status_code}"
+        )
     except httpx.ConnectError:
         pytest.skip("Kong gateway or field-ops service not available")
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_route_to_weather_service(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_route_to_weather_service(http_client: AsyncClient, auth_headers):
     """
     Test Kong routes requests to weather service
     اختبار توجيه Kong للطلبات إلى خدمة الطقس
     """
     try:
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/weather/healthz",
-            headers=auth_headers(),
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/weather/healthz", headers=auth_headers(), timeout=10.0
         )
 
         assert response.status_code in [200, 401, 403, 404]
@@ -200,8 +190,7 @@ async def test_route_not_found(http_client: AsyncClient):
     """
     try:
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/nonexistent/service",
-            timeout=5.0
+            f"{KONG_GATEWAY_URL}/api/v1/nonexistent/service", timeout=5.0
         )
 
         # Should return 404 Not Found
@@ -212,10 +201,7 @@ async def test_route_not_found(http_client: AsyncClient):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_route_with_path_parameters(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_route_with_path_parameters(http_client: AsyncClient, auth_headers):
     """
     Test Kong handles routes with path parameters
     اختبار معالجة Kong للمسارات مع معاملات المسار
@@ -223,9 +209,7 @@ async def test_route_with_path_parameters(
     try:
         field_id = str(uuid.uuid4())
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields/{field_id}",
-            headers=auth_headers(),
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/fields/{field_id}", headers=auth_headers(), timeout=10.0
         )
 
         # Should route correctly (may return 404 if field doesn't exist)
@@ -248,33 +232,24 @@ async def test_jwt_authentication_required(http_client: AsyncClient):
     """
     try:
         # Request without Authorization header
-        response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields",
-            timeout=5.0
-        )
+        response = await http_client.get(f"{KONG_GATEWAY_URL}/api/v1/fields", timeout=5.0)
 
         # Should be rejected with 401 or allowed without auth
-        assert response.status_code in [200, 401, 403], \
-            "Request should be handled appropriately"
+        assert response.status_code in [200, 401, 403], "Request should be handled appropriately"
     except httpx.ConnectError:
         pytest.skip("Kong gateway not available")
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_jwt_authentication_valid_token(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_jwt_authentication_valid_token(http_client: AsyncClient, auth_headers):
     """
     Test requests with valid JWT token are accepted
     اختبار قبول الطلبات مع رمز JWT صالح
     """
     try:
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-            headers=auth_headers(),
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
         )
 
         # Should not return auth error (401/403)
@@ -286,10 +261,7 @@ async def test_jwt_authentication_valid_token(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_jwt_authentication_expired_token(
-    http_client: AsyncClient,
-    generate_jwt_token
-):
+async def test_jwt_authentication_expired_token(http_client: AsyncClient, generate_jwt_token):
     """
     Test requests with expired JWT token are rejected
     اختبار رفض الطلبات مع رمز JWT منتهي الصلاحية
@@ -301,13 +273,12 @@ async def test_jwt_authentication_expired_token(
         response = await http_client.get(
             f"{KONG_GATEWAY_URL}/api/v1/fields",
             headers={"Authorization": f"Bearer {token}"},
-            timeout=5.0
+            timeout=5.0,
         )
 
         # Should reject expired token
         # If not using JWT validation, might accept it
-        assert response.status_code in [200, 401, 403], \
-            "Expired token should be handled"
+        assert response.status_code in [200, 401, 403], "Expired token should be handled"
     except httpx.ConnectError:
         pytest.skip("Kong gateway not available")
 
@@ -315,9 +286,7 @@ async def test_jwt_authentication_expired_token(
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_jwt_authentication_invalid_signature(
-    http_client: AsyncClient,
-    test_tenant_id: str,
-    test_user_id: str
+    http_client: AsyncClient, test_tenant_id: str, test_user_id: str
 ):
     """
     Test requests with invalid JWT signature are rejected
@@ -328,14 +297,14 @@ async def test_jwt_authentication_invalid_signature(
         payload = {
             "sub": test_user_id,
             "tenant_id": test_tenant_id,
-            "exp": datetime.utcnow() + timedelta(hours=1)
+            "exp": datetime.utcnow() + timedelta(hours=1),
         }
         invalid_token = jwt.encode(payload, "wrong-secret", algorithm="HS256")
 
         response = await http_client.get(
             f"{KONG_GATEWAY_URL}/api/v1/fields",
             headers={"Authorization": f"Bearer {invalid_token}"},
-            timeout=5.0
+            timeout=5.0,
         )
 
         # Should reject invalid signature
@@ -355,7 +324,7 @@ async def test_jwt_authentication_malformed_token(http_client: AsyncClient):
         response = await http_client.get(
             f"{KONG_GATEWAY_URL}/api/v1/fields",
             headers={"Authorization": "Bearer invalid.token.here"},
-            timeout=5.0
+            timeout=5.0,
         )
 
         # Should reject malformed token
@@ -371,10 +340,7 @@ async def test_jwt_authentication_malformed_token(http_client: AsyncClient):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_tenant_isolation_in_requests(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_tenant_isolation_in_requests(http_client: AsyncClient, auth_headers):
     """
     Test tenant isolation is enforced at gateway level
     اختبار فرض عزل المستأجر على مستوى البوابة
@@ -387,14 +353,14 @@ async def test_tenant_isolation_in_requests(
         response1 = await http_client.get(
             f"{KONG_GATEWAY_URL}/api/v1/fields",
             headers=auth_headers(tenant_id=tenant1_id),
-            timeout=10.0
+            timeout=10.0,
         )
 
         # Request with tenant 2 token
         response2 = await http_client.get(
             f"{KONG_GATEWAY_URL}/api/v1/fields",
             headers=auth_headers(tenant_id=tenant2_id),
-            timeout=10.0
+            timeout=10.0,
         )
 
         # Both requests should be processed (may return empty results)
@@ -422,9 +388,9 @@ async def test_cors_preflight_request(http_client: AsyncClient):
             headers={
                 "Origin": "http://localhost:3000",
                 "Access-Control-Request-Method": "GET",
-                "Access-Control-Request-Headers": "authorization,content-type"
+                "Access-Control-Request-Headers": "authorization,content-type",
             },
-            timeout=5.0
+            timeout=5.0,
         )
 
         # Should handle OPTIONS request
@@ -440,10 +406,7 @@ async def test_cors_preflight_request(http_client: AsyncClient):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_cors_actual_request(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_cors_actual_request(http_client: AsyncClient, auth_headers):
     """
     Test CORS headers in actual requests
     اختبار رؤوس CORS في الطلبات الفعلية
@@ -451,11 +414,8 @@ async def test_cors_actual_request(
     try:
         response = await http_client.get(
             f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-            headers={
-                **auth_headers(),
-                "Origin": "http://localhost:3000"
-            },
-            timeout=10.0
+            headers={**auth_headers(), "Origin": "http://localhost:3000"},
+            timeout=10.0,
         )
 
         # Request should be processed
@@ -476,10 +436,7 @@ async def test_cors_actual_request(
 @pytest.mark.integration
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_rate_limiting_enforcement(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_rate_limiting_enforcement(http_client: AsyncClient, auth_headers):
     """
     Test rate limiting is enforced
     اختبار فرض حدود المعدل
@@ -489,9 +446,7 @@ async def test_rate_limiting_enforcement(
         responses = []
         for i in range(100):
             response = await http_client.get(
-                f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-                headers=auth_headers(),
-                timeout=5.0
+                f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=5.0
             )
             responses.append(response.status_code)
 
@@ -515,19 +470,14 @@ async def test_rate_limiting_enforcement(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_rate_limit_headers(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_rate_limit_headers(http_client: AsyncClient, auth_headers):
     """
     Test rate limit information in response headers
     اختبار معلومات حدود المعدل في رؤوس الاستجابة
     """
     try:
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-            headers=auth_headers(),
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
         )
 
         # Check for rate limit headers (if rate limiting plugin is enabled)
@@ -537,13 +487,11 @@ async def test_rate_limit_headers(
             "x-ratelimit-remaining",
             "x-ratelimit-reset",
             "ratelimit-limit",
-            "ratelimit-remaining"
+            "ratelimit-remaining",
         ]
 
         # Headers are optional, depending on Kong configuration
-        has_rate_limit_header = any(
-            header in headers for header in rate_limit_headers
-        )
+        has_rate_limit_header = any(header in headers for header in rate_limit_headers)
 
         # Just verify request was processed
         assert response.status_code in [200, 401, 403, 404, 429]
@@ -558,10 +506,7 @@ async def test_rate_limit_headers(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_request_header_forwarding(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_request_header_forwarding(http_client: AsyncClient, auth_headers):
     """
     Test Kong forwards required headers to backend services
     اختبار إعادة توجيه Kong للرؤوس المطلوبة إلى الخدمات الخلفية
@@ -570,13 +515,11 @@ async def test_request_header_forwarding(
         custom_headers = {
             **auth_headers(),
             "X-Request-ID": "test-request-123",
-            "X-Tenant-ID": "tenant-123"
+            "X-Tenant-ID": "tenant-123",
         }
 
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-            headers=custom_headers,
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=custom_headers, timeout=10.0
         )
 
         # Request should be processed
@@ -587,19 +530,14 @@ async def test_request_header_forwarding(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_response_header_addition(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_response_header_addition(http_client: AsyncClient, auth_headers):
     """
     Test Kong adds security headers to responses
     اختبار إضافة Kong لرؤوس الأمان إلى الاستجابات
     """
     try:
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-            headers=auth_headers(),
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
         )
 
         # Check for common security headers (may vary by configuration)
@@ -608,7 +546,7 @@ async def test_response_header_addition(
             "x-frame-options",
             "x-content-type-options",
             "x-xss-protection",
-            "strict-transport-security"
+            "strict-transport-security",
         ]
 
         # Security headers are optional
@@ -625,19 +563,14 @@ async def test_response_header_addition(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_api_version_routing_v1(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_api_version_routing_v1(http_client: AsyncClient, auth_headers):
     """
     Test Kong routes v1 API requests correctly
     اختبار توجيه Kong لطلبات API v1 بشكل صحيح
     """
     try:
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-            headers=auth_headers(),
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
         )
 
         assert response.status_code in [200, 401, 403, 404]
@@ -647,24 +580,16 @@ async def test_api_version_routing_v1(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_api_version_in_header(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_api_version_in_header(http_client: AsyncClient, auth_headers):
     """
     Test API versioning via header
     اختبار إصدار API عبر الرأس
     """
     try:
-        headers = {
-            **auth_headers(),
-            "Accept": "application/json; version=1"
-        }
+        headers = {**auth_headers(), "Accept": "application/json; version=1"}
 
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/fields/healthz",
-            headers=headers,
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/fields/healthz", headers=headers, timeout=10.0
         )
 
         # Should handle version header
@@ -680,10 +605,7 @@ async def test_api_version_in_header(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_service_retry_on_failure(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_service_retry_on_failure(http_client: AsyncClient, auth_headers):
     """
     Test Kong retries failed requests to backend services
     اختبار إعادة محاولة Kong للطلبات الفاشلة إلى الخدمات الخلفية
@@ -693,7 +615,7 @@ async def test_service_retry_on_failure(
         response = await http_client.get(
             f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
             headers=auth_headers(),
-            timeout=15.0  # Longer timeout for retries
+            timeout=15.0,  # Longer timeout for retries
         )
 
         # Should either succeed or fail gracefully
@@ -704,10 +626,7 @@ async def test_service_retry_on_failure(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_circuit_breaker_behavior(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_circuit_breaker_behavior(http_client: AsyncClient, auth_headers):
     """
     Test circuit breaker prevents cascading failures
     اختبار منع قاطع الدائرة للفشل المتتالي
@@ -717,9 +636,7 @@ async def test_circuit_breaker_behavior(
         responses = []
         for i in range(10):
             response = await http_client.get(
-                f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-                headers=auth_headers(),
-                timeout=5.0
+                f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=5.0
             )
             responses.append(response.status_code)
             await asyncio.sleep(0.1)
@@ -737,10 +654,7 @@ async def test_circuit_breaker_behavior(
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_gateway_response_time(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_gateway_response_time(http_client: AsyncClient, auth_headers):
     """
     Test gateway responds within acceptable time
     اختبار استجابة البوابة ضمن وقت مقبول
@@ -749,17 +663,14 @@ async def test_gateway_response_time(
         start_time = time.time()
 
         response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-            headers=auth_headers(),
-            timeout=10.0
+            f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
         )
 
         end_time = time.time()
         response_time = end_time - start_time
 
         # Gateway should add minimal overhead (< 1 second)
-        assert response_time < 10.0, \
-            f"Gateway response time too high: {response_time:.2f}s"
+        assert response_time < 10.0, f"Gateway response time too high: {response_time:.2f}s"
 
         assert response.status_code in [200, 401, 403, 404]
     except httpx.ConnectError:
@@ -769,10 +680,7 @@ async def test_gateway_response_time(
 @pytest.mark.integration
 @pytest.mark.asyncio
 @pytest.mark.slow
-async def test_concurrent_requests_through_gateway(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_concurrent_requests_through_gateway(http_client: AsyncClient, auth_headers):
     """
     Test gateway handles concurrent requests efficiently
     اختبار معالجة البوابة للطلبات المتزامنة بكفاءة
@@ -781,9 +689,7 @@ async def test_concurrent_requests_through_gateway(
         # Send 20 concurrent requests
         tasks = [
             http_client.get(
-                f"{KONG_GATEWAY_URL}/api/v1/fields/healthz",
-                headers=auth_headers(),
-                timeout=10.0
+                f"{KONG_GATEWAY_URL}/api/v1/fields/healthz", headers=auth_headers(), timeout=10.0
             )
             for _ in range(20)
         ]
@@ -792,13 +698,11 @@ async def test_concurrent_requests_through_gateway(
 
         # Count successful responses
         successful = sum(
-            1 for r in responses
-            if isinstance(r, httpx.Response) and r.status_code in [200, 404]
+            1 for r in responses if isinstance(r, httpx.Response) and r.status_code in [200, 404]
         )
 
         # At least 80% should succeed
-        assert successful >= 16, \
-            f"Only {successful}/20 concurrent requests succeeded"
+        assert successful >= 16, f"Only {successful}/20 concurrent requests succeeded"
     except httpx.ConnectError:
         pytest.skip("Kong gateway not available")
 
@@ -817,10 +721,7 @@ async def test_gateway_error_response_format(http_client: AsyncClient):
     """
     try:
         # Request to non-existent endpoint
-        response = await http_client.get(
-            f"{KONG_GATEWAY_URL}/api/v1/nonexistent",
-            timeout=5.0
-        )
+        response = await http_client.get(f"{KONG_GATEWAY_URL}/api/v1/nonexistent", timeout=5.0)
 
         assert response.status_code in [404, 401, 403]
 
@@ -837,10 +738,7 @@ async def test_gateway_error_response_format(http_client: AsyncClient):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_gateway_handles_invalid_methods(
-    http_client: AsyncClient,
-    auth_headers
-):
+async def test_gateway_handles_invalid_methods(http_client: AsyncClient, auth_headers):
     """
     Test gateway handles invalid HTTP methods
     اختبار معالجة البوابة للطرق HTTP غير الصالحة
@@ -848,10 +746,7 @@ async def test_gateway_handles_invalid_methods(
     try:
         # Send TRACE request (usually disabled for security)
         response = await http_client.request(
-            "TRACE",
-            f"{KONG_GATEWAY_URL}/api/v1/fields",
-            headers=auth_headers(),
-            timeout=5.0
+            "TRACE", f"{KONG_GATEWAY_URL}/api/v1/fields", headers=auth_headers(), timeout=5.0
         )
 
         # Should reject or handle appropriately

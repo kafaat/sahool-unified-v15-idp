@@ -10,7 +10,6 @@ import os
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any
 
 
 class Environment(str, Enum):
@@ -34,7 +33,7 @@ class DatabaseConfig:
     pool_size: int = 5
 
     @classmethod
-    def from_env(cls) -> "DatabaseConfig":
+    def from_env(cls) -> DatabaseConfig:
         """Load configuration from environment variables"""
         return cls(
             host=os.getenv("POSTGRES_HOST", "localhost"),
@@ -98,9 +97,7 @@ class ComplianceConfig:
     strong_evidence_threshold: int = 20
 
     # Framework settings
-    enabled_frameworks: list[str] = field(
-        default_factory=lambda: ["gdpr", "soc2", "iso27001"]
-    )
+    enabled_frameworks: list[str] = field(default_factory=lambda: ["gdpr", "soc2", "iso27001"])
 
     # Report settings
     max_recommendations: int = 30
@@ -208,7 +205,7 @@ class AuditToolsConfig:
     enable_telemetry: bool = False
 
     @classmethod
-    def from_env(cls) -> "AuditToolsConfig":
+    def from_env(cls) -> AuditToolsConfig:
         """Load configuration from environment variables"""
         env_str = os.getenv("SAHOOL_ENV", "development").lower()
         env_map = {

@@ -8,7 +8,6 @@ Tests infrastructure services, application services, and integrations
 Author: SAHOOL Platform Team
 """
 
-
 import httpx
 import pytest
 
@@ -601,9 +600,7 @@ async def test_all_services_health(
             continue
 
         try:
-            is_healthy = await wait_for_service(
-                http_client, config, max_retries=3, delay=1.0
-            )
+            is_healthy = await wait_for_service(http_client, config, max_retries=3, delay=1.0)
             if is_healthy:
                 healthy_services.append(service_name)
             else:
@@ -612,14 +609,14 @@ async def test_all_services_health(
             failed_services.append(f"{service_name} (Error: {str(e)})")
 
     # Report results
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("SAHOOL Platform Health Check Results")
     print("نتائج فحص صحة منصة سهول")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print(f"✓ Healthy Services: {len(healthy_services)}")
     print(f"✗ Failed Services: {len(failed_services)}")
     print(f"⊘ Skipped Services: {len(skipped_services)}")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     if failed_services:
         print("\nFailed Services:")
@@ -636,6 +633,4 @@ async def test_all_services_health(
     if total_checked > 0:
         health_percentage = (len(healthy_services) / total_checked) * 100
         print(f"\nOverall Health: {health_percentage:.1f}%")
-        assert (
-            health_percentage >= 80.0
-        ), f"Platform health is below 80% ({health_percentage:.1f}%)"
+        assert health_percentage >= 80.0, f"Platform health is below 80% ({health_percentage:.1f}%)"

@@ -170,15 +170,11 @@ class FieldBoundaryDetector:
         if date is None:
             date = datetime.now()
 
-        logger.info(
-            f"Detecting boundaries at ({latitude}, {longitude}), radius={radius_meters}m"
-        )
+        logger.info(f"Detecting boundaries at ({latitude}, {longitude}), radius={radius_meters}m")
 
         try:
             # Step 1: Fetch NDVI data
-            ndvi_data = await self._fetch_ndvi_data(
-                latitude, longitude, radius_meters, date
-            )
+            ndvi_data = await self._fetch_ndvi_data(latitude, longitude, radius_meters, date)
 
             # Step 2: Detect edges in NDVI image
             edges = self._detect_edges(ndvi_data)
@@ -214,7 +210,7 @@ class FieldBoundaryDetector:
                 # Calculate quality score (shape regularity)
                 quality = self._calculate_quality_score(simplified, area, perimeter)
 
-                field_id = f"field_{int(latitude*1e6)}_{int(longitude*1e6)}_{i}"
+                field_id = f"field_{int(latitude * 1e6)}_{int(longitude * 1e6)}_{i}"
 
                 boundary = FieldBoundary(
                     field_id=field_id,
@@ -285,7 +281,7 @@ class FieldBoundaryDetector:
             mean_ndvi = self._calculate_mean_ndvi(simplified, ndvi_data)
             quality = self._calculate_quality_score(simplified, area, perimeter)
 
-            field_id = f"field_refined_{int(centroid[1]*1e6)}_{int(centroid[0]*1e6)}"
+            field_id = f"field_refined_{int(centroid[1] * 1e6)}_{int(centroid[0] * 1e6)}"
 
             return FieldBoundary(
                 field_id=field_id,
@@ -352,9 +348,7 @@ class FieldBoundaryDetector:
             )
 
             # Find the boundary that best matches the previous one
-            current_boundary = self._find_matching_boundary(
-                previous_coords, current_boundaries
-            )
+            current_boundary = self._find_matching_boundary(previous_coords, current_boundaries)
 
             if not current_boundary:
                 # No matching boundary found - field may have been abandoned
@@ -390,9 +384,7 @@ class FieldBoundaryDetector:
             )
 
             # Calculate average boundary shift
-            shift = self._calculate_boundary_shift(
-                previous_coords, current_boundary.coordinates
-            )
+            shift = self._calculate_boundary_shift(previous_coords, current_boundary.coordinates)
 
             return BoundaryChange(
                 field_id=field_id,
@@ -451,9 +443,7 @@ class FieldBoundaryDetector:
         lon_to_meters = 111320.0 * math.cos(math.radians(avg_lat))  # varies by latitude
 
         # Convert to meters
-        coords_meters = [
-            (lon * lon_to_meters, lat * lat_to_meters) for lon, lat in coords
-        ]
+        coords_meters = [(lon * lon_to_meters, lat * lat_to_meters) for lon, lat in coords]
 
         # Shoelace formula
         area_m2 = 0.0
@@ -614,18 +604,14 @@ class FieldBoundaryDetector:
             contour = []
             for px, py in edge:
                 # Convert pixel offset to geographic coordinates
-                lon_offset = (px * meters_per_pixel) / (
-                    111320.0 * math.cos(math.radians(lat))
-                )
+                lon_offset = (px * meters_per_pixel) / (111320.0 * math.cos(math.radians(lat)))
                 lat_offset = (py * meters_per_pixel) / 111320.0
                 contour.append((lon + lon_offset, lat + lat_offset))
             contours.append(contour)
 
         return contours
 
-    def _calculate_centroid(
-        self, coords: list[tuple[float, float]]
-    ) -> tuple[float, float]:
+    def _calculate_centroid(self, coords: list[tuple[float, float]]) -> tuple[float, float]:
         """Calculate centroid of a polygon"""
         if not coords:
             return (0.0, 0.0)
@@ -703,9 +689,7 @@ class FieldBoundaryDetector:
 
         return round(quality, 2)
 
-    def _haversine_distance(
-        self, lat1: float, lon1: float, lat2: float, lon2: float
-    ) -> float:
+    def _haversine_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """Calculate distance between two points using Haversine formula"""
         R = 6371000  # Earth radius in meters
 
@@ -798,9 +782,7 @@ class FieldBoundaryDetector:
 
         return self._haversine_distance(c1[1], c1[0], c2[1], c2[0])
 
-    def _create_simulated_boundary(
-        self, lat: float, lon: float, date: datetime
-    ) -> FieldBoundary:
+    def _create_simulated_boundary(self, lat: float, lon: float, date: datetime) -> FieldBoundary:
         """Create a simulated field boundary for demo purposes"""
         # Create a rectangular field boundary
         offset = 0.001  # ~100m
@@ -815,7 +797,7 @@ class FieldBoundaryDetector:
         perimeter = self.calculate_perimeter(coords)
         centroid = (lon, lat)
 
-        field_id = f"field_sim_{int(lat*1e6)}_{int(lon*1e6)}"
+        field_id = f"field_sim_{int(lat * 1e6)}_{int(lon * 1e6)}"
 
         return FieldBoundary(
             field_id=field_id,

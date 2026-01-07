@@ -81,9 +81,9 @@ async def test_complete_ai_advisor_workflow(
         print("✓ Received immediate answer")
 
         # Verify answer structure
-        assert (
-            "answer" in answer_data or "response" in answer_data
-        ), "Response should contain answer"
+        assert "answer" in answer_data or "response" in answer_data, (
+            "Response should contain answer"
+        )
 
         answer_text = answer_data.get("answer") or answer_data.get("response")
         print(f"\nAnswer preview: {answer_text[:200]}...")
@@ -294,9 +294,7 @@ async def test_agro_advisor_agent_integration(
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
-async def test_rag_knowledge_base(
-    workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]
-):
+async def test_rag_knowledge_base(workflow_client: httpx.AsyncClient, e2e_headers: dict[str, str]):
     """
     Test RAG knowledge base integration
     اختبار تكامل قاعدة المعرفة RAG
@@ -305,9 +303,7 @@ async def test_rag_knowledge_base(
     print("\n[RAG Knowledge Base Test]")
 
     # Check Qdrant collections
-    collections_response = await workflow_client.get(
-        "http://localhost:6333/collections"
-    )
+    collections_response = await workflow_client.get("http://localhost:6333/collections")
 
     assert collections_response.status_code == 200, "Qdrant should be accessible"
 

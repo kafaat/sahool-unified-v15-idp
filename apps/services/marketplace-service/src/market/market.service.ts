@@ -17,7 +17,7 @@ import {
   GENERAL_TRANSACTION_CONFIG,
   type PaginationParams,
   type PaginatedResponse,
-} from '@sahool/shared-db';
+} from '../utils/db-utils';
 
 // Types
 interface YieldData {

@@ -1,4 +1,4 @@
-# SAHOOL Marketplace & FinTech Service v15.3
+# SAHOOL Marketplace & FinTech Service v16.0.0
 # سوق سهول والخدمات المالية
 
 # Build stage
@@ -6,21 +6,20 @@ FROM node:20-alpine AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="marketplace-service"
-LABEL version="15.3.0"
+LABEL version="16.0.0"
 
-# Use workspace structure to maintain relative paths for shared imports
-WORKDIR /workspace
+WORKDIR /app
 
-# Copy shared modules first (required for imports from ../../shared/)
-COPY apps/services/shared ./shared/
-
-# Copy service to maintain relative path: ../../shared/ from marketplace-service/src/
-COPY apps/services/marketplace-service ./marketplace-service/
-
-WORKDIR /workspace/marketplace-service
+# Copy package files first for better layer caching
+COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./
 
 # Install dependencies (with retries for network resilience)
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+
+# Copy source code
+COPY apps/services/marketplace-service/src ./src/
+COPY apps/services/marketplace-service/prisma ./prisma/
+COPY apps/services/marketplace-service/tsconfig.json apps/services/marketplace-service/nest-cli.json ./
 
 # Generate Prisma client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1

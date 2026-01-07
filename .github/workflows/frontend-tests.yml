@@ -468,6 +468,7 @@ jobs:
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
+          API_AVAILABLE: 'true'  # Enable E2E tests - test fixtures mock all API calls
         continue-on-error: true
 
       - name: Upload E2E Test Results

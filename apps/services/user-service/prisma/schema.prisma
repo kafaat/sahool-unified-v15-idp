@@ -55,7 +55,7 @@ model User {
   profile         UserProfile?
   sessions        UserSession[]
   refreshTokens   RefreshToken[]
-  assignedRoles   UserRole[]    @relation("UserAssignedRoles")
+  assignedRoles   Role[]    @relation("UserAssignedRoles")
 
   @@index([tenantId])
   @@index([email])
@@ -88,8 +88,9 @@ model UserProfile {
   @@map("user_profiles")
 }
 
-// User Role Model (for custom roles and permissions)
-model UserRole {
+// Custom Role Model (for custom roles and permissions)
+// This is separate from the UserRole enum which defines basic role types
+model Role {
   id          String   @id @default(uuid())
   name        String   @unique
   permissions Json

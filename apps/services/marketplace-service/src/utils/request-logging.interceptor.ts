@@ -20,7 +20,12 @@ import { randomUUID } from 'crypto';
 /**
  * Extended Express Request with custom properties
  */
-interface ExtendedRequest extends Request {
+interface ExtendedRequest {
+  url: string;
+  method: string;
+  path: string;
+  query: Record<string, any>;
+  headers: Record<string, string | string[] | undefined>;
   correlationId?: string;
   tenantId?: string;
   userId?: string;

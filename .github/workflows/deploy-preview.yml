@@ -1,0 +1,239 @@
+# Deploy Preview - معاينة مباشرة لكل PR
+# رابط معاينة تلقائي لكل Pull Request
+#
+# يوفر:
+# - رابط معاينة فريد لكل PR
+# - تحديث تلقائي عند كل commit
+# - تعليق الرابط على PR
+
+name: Deploy Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'apps/frontend/**'
+      - 'apps/mobile/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+
+jobs:
+  # معاينة تطبيق الويب
+  preview-web:
+    name: Web Preview
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('apps/frontend/web/package.json') != '' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'apps/frontend/web/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: apps/frontend/web
+        run: npm ci || npm install
+
+      - name: Build application
+        working-directory: apps/frontend/web
+        run: npm run build
+        env:
+          CI: true
+          NEXT_PUBLIC_API_URL: ${{ secrets.PREVIEW_API_URL || 'https://api.sahool.dev' }}
+
+      - name: Deploy to Surge.sh
+        id: surge
+        working-directory: apps/frontend/web
+        run: |
+          npm install -g surge
+          DEPLOY_DOMAIN="sahool-pr-${{ github.event.pull_request.number }}.surge.sh"
+
+          # Find build output directory
+          if [ -d "out" ]; then
+            BUILD_DIR="out"
+          elif [ -d "dist" ]; then
+            BUILD_DIR="dist"
+          elif [ -d "build" ]; then
+            BUILD_DIR="build"
+          elif [ -d ".next" ]; then
+            # For Next.js, export static
+            npm run export || npx next export || true
+            BUILD_DIR="out"
+          else
+            echo "No build directory found"
+            exit 1
+          fi
+
+          surge --project $BUILD_DIR --domain $DEPLOY_DOMAIN --token ${{ secrets.SURGE_TOKEN }} || echo "Surge deployment skipped - no token"
+          echo "url=https://$DEPLOY_DOMAIN" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Deploy to Netlify (Alternative)
+        id: netlify
+        if: steps.surge.outcome == 'failure' || env.NETLIFY_AUTH_TOKEN != ''
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: './apps/frontend/web/out'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "PR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: false
+          alias: pr-${{ github.event.pull_request.number }}
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 5
+        continue-on-error: true
+
+      - name: Comment Preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const surgeUrl = '${{ steps.surge.outputs.url }}';
+            const netlifyUrl = '${{ steps.netlify.outputs.deploy-url }}';
+            const previewUrl = netlifyUrl || surgeUrl || 'Preview deployment pending...';
+
+            const body = `## 🌐 معاينة التطبيق / Preview Deployment
+
+            | المنصة | الرابط |
+            |--------|--------|
+            | 🖥️ **Web** | [${previewUrl}](${previewUrl}) |
+
+            ---
+
+            ### 📱 كيفية المعاينة على الهاتف:
+            1. افتح الرابط أعلاه على هاتفك
+            2. أو امسح رمز QR (إن وجد)
+
+            ---
+
+            > ⏱️ آخر تحديث: ${new Date().toISOString()}
+            > 📝 Commit: \`${{ github.event.pull_request.head.sha.substring(0, 7) }}\`
+            `;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('معاينة التطبيق')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+  # معاينة تطبيق Flutter Web
+  preview-flutter:
+    name: Flutter Web Preview
+    runs-on: ubuntu-latest
+    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        working-directory: apps/mobile
+        run: |
+          flutter build web --release --base-href "/sahool-mobile/"
+        env:
+          API_BASE_URL: ${{ secrets.PREVIEW_API_URL || 'https://api.sahool.dev' }}
+
+      - name: Deploy Flutter Web to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./apps/mobile/build/web
+          destination_dir: mobile-preview/pr-${{ github.event.pull_request.number }}
+
+      - name: Comment Flutter Preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const prNumber = context.issue.number;
+            const flutterUrl = `https://${owner}.github.io/${repo}/mobile-preview/pr-${prNumber}/`;
+
+            const body = `## 📱 معاينة تطبيق الهاتف / Mobile Preview
+
+            | المنصة | الرابط |
+            |--------|--------|
+            | 📱 **Flutter Web** | [${flutterUrl}](${flutterUrl}) |
+
+            ---
+
+            ### 💡 ملاحظات:
+            - هذه نسخة Web من تطبيق Flutter
+            - للتجربة على الهاتف، افتح الرابط في متصفح الهاتف
+
+            > ⏱️ آخر تحديث: ${new Date().toISOString()}
+            `;
+
+            await github.rest.issues.createComment({
+              owner: owner,
+              repo: repo,
+              issue_number: prNumber,
+              body: body
+            });
+
+  # تنظيف المعاينات القديمة
+  cleanup-old-previews:
+    name: Cleanup Old Previews
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+
+    steps:
+      - name: Delete Surge preview
+        run: |
+          npm install -g surge
+          surge teardown sahool-pr-${{ github.event.pull_request.number }}.surge.sh --token ${{ secrets.SURGE_TOKEN }} || true
+        continue-on-error: true
+
+      - name: Comment cleanup
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '🧹 تم حذف رابط المعاينة / Preview deployment removed'
+            });

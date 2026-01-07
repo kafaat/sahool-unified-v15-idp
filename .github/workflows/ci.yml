@@ -309,7 +309,9 @@ jobs:
         if: steps.check-dockerfile.outputs.exists == 'true'
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.service.path }}
+          # Use repository root as context for shared module access
+          context: .
+          file: ${{ matrix.service.path }}/Dockerfile
           push: false
           tags: sahool/${{ matrix.service.name }}:${{ github.sha }}
           cache-from: type=gha

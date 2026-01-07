@@ -8,18 +8,19 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="marketplace-service"
 LABEL version="16.0.0"
 
-WORKDIR /app
+# Use workspace structure to maintain relative paths for shared imports
+WORKDIR /workspace
 
-# Copy package files first for better layer caching
-COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./
+# Copy shared modules first (required for imports from ../../shared/)
+COPY apps/services/shared ./shared/
+
+# Copy service to maintain relative path
+COPY apps/services/marketplace-service ./marketplace-service/
+
+WORKDIR /workspace/marketplace-service
 
 # Install dependencies (with retries for network resilience)
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
-
-# Copy source code
-COPY apps/services/marketplace-service/src ./src/
-COPY apps/services/marketplace-service/prisma ./prisma/
-COPY apps/services/marketplace-service/tsconfig.json apps/services/marketplace-service/nest-cli.json ./
 
 # Generate Prisma client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -44,7 +45,7 @@ COPY apps/services/marketplace-service/package.json apps/services/marketplace-se
 # Install with increased retries and timeout for network resilience
 RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
-# Copy prisma schema and regenerate client for production environment
+# Copy prisma schema from builder
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \

@@ -146,11 +146,6 @@ tags = ["secret"]
 [rules.allowlist]
 paths = [
     '''\.github/workflows/''',
-    '''\.yml$''',
-    '''\.yaml$''',
-    '''test''',
-    '''spec''',
-    '''example''',
 ]
 regexes = [
     '''secrets\.\w+''',

@@ -20,7 +20,7 @@ COPY apps/services/marketplace-service ./marketplace-service/
 WORKDIR /workspace/marketplace-service
 
 # Install dependencies (with retries for network resilience)
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Generate Prisma client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -43,7 +43,7 @@ RUN apk add --no-cache curl openssl
 # Copy package files
 COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./
 # Install with increased retries and timeout for network resilience
-RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/

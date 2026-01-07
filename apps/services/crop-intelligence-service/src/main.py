@@ -24,6 +24,7 @@ from shared.middleware import (
 )
 from shared.observability.middleware import ObservabilityMiddleware
 
+from errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -270,10 +271,6 @@ setup_exception_handlers(app)
 add_request_id_middleware(app)
 
 # CORS - Secure configuration
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from errors_py import setup_exception_handlers, add_request_id_middleware
 try:
     from shared.cors_config import CORS_SETTINGS
 

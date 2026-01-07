@@ -19,10 +19,10 @@ import { HealthController } from './health/health.controller';
 import { JwtService, JwtModule } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 
-// Import token revocation guard
-import { TokenRevocationGuard } from '@sahool/nestjs-auth/guards/token-revocation.guard';
-import { RedisTokenRevocationStore } from '@sahool/nestjs-auth/services/token-revocation';
-import { JWTConfig } from '@sahool/nestjs-auth/config/jwt.config';
+// Import token revocation guard from local utils
+import { TokenRevocationGuard } from './utils/token-revocation.guard';
+import { RedisTokenRevocationStore } from './utils/token-revocation';
+import { JWTConfig } from './utils/jwt.config';
 
 @Module({
   imports: [

@@ -276,8 +276,8 @@ jobs:
             path: apps/services/indicators-service
           - name: weather-advanced
             path: apps/services/weather-advanced
-          - name: crop-health-ai
-            path: apps/services/crop-health-ai
+          - name: crop-intelligence-service
+            path: apps/services/crop-intelligence-service
           - name: fertilizer-advisor
             path: apps/services/fertilizer-advisor
           - name: irrigation-smart
@@ -309,7 +309,9 @@ jobs:
         if: steps.check-dockerfile.outputs.exists == 'true'
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.service.path }}
+          # Use repository root as context for shared module access
+          context: .
+          file: ${{ matrix.service.path }}/Dockerfile
           push: false
           tags: sahool/${{ matrix.service.name }}:${{ github.sha }}
           cache-from: type=gha

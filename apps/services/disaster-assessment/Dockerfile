@@ -9,14 +9,19 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="disaster-assessment"
 LABEL version="16.0.0"
 
-WORKDIR /app
+# Use workspace structure to maintain relative paths for shared imports
+WORKDIR /workspace
+
+# Copy shared modules first (required for imports from ../../shared/)
+COPY apps/services/shared ./shared/
+
+# Copy service to maintain relative path: ../../shared/ from disaster-assessment/src/
+COPY apps/services/disaster-assessment ./disaster-assessment/
+
+WORKDIR /workspace/disaster-assessment
 
 # Install dependencies with retry for network resilience
-COPY package.json package-lock.json* ./
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
-
-# Copy source code
-COPY . .
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Build the application
 RUN npm run build
@@ -30,11 +35,11 @@ WORKDIR /app
 RUN apk add --no-cache curl
 
 # Copy package files
-COPY package.json package-lock.json* ./
-RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+COPY apps/services/disaster-assessment/package.json ./
+RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/disaster-assessment/dist ./dist
 
 # Expose port
 EXPOSE 3020

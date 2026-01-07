@@ -18,6 +18,7 @@ Field-First Architecture:
 import logging
 import math
 import os
+import sys
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
@@ -35,6 +36,7 @@ from shared.middleware import (
 )
 from shared.observability.middleware import ObservabilityMiddleware
 
+from errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -43,10 +45,7 @@ logger = logging.getLogger(__name__)
 # NATS publisher (optional)
 _nats_available = False
 try:
-    import sys
-
     sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
-from errors_py import setup_exception_handlers, add_request_id_middleware
     from shared.libs.events.nats_publisher import publish_analysis_completed_sync
 
     _nats_available = True

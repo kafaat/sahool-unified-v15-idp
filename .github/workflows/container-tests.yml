@@ -202,7 +202,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.service.path }}
+          # Use repository root as context for shared module access
+          context: .
           file: ${{ matrix.service.path }}/Dockerfile
           push: false
           load: true

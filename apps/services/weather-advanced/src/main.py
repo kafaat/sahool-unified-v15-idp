@@ -10,6 +10,7 @@ Please use 'weather-service' instead.
 import logging
 import math
 import os
+import sys
 import uuid
 from datetime import date, datetime, timedelta
 from enum import Enum

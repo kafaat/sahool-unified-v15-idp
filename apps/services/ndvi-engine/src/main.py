@@ -13,6 +13,7 @@ Migration Path:
 """
 
 import os
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -30,7 +31,6 @@ from pydantic import BaseModel, Field
 
 # Import authentication dependencies
 try:
-    import sys
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User

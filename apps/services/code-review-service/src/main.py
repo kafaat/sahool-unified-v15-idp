@@ -9,6 +9,8 @@ Monitors codebase changes and provides real-time code reviews
 import asyncio
 import json
 import logging
+import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path

@@ -8,6 +8,7 @@ Field-First Architecture:
 """
 
 # Field-First: Action Template Support
+import os
 import sys
 import uuid
 from datetime import datetime, timedelta

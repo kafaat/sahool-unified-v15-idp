@@ -217,7 +217,8 @@ jobs:
           - apps/services/indicators-service
           - apps/services/weather-advanced
           - apps/services/iot-service
-          - apps/services/crop-health-ai
+          # crop-health-ai DEPRECATED - replaced by crop-intelligence-service
+          - apps/services/crop-intelligence-service
           - apps/services/fertilizer-advisor
           - apps/services/irrigation-smart
           - apps/services/yield-engine

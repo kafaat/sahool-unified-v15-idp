@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.app/schemas/field.created.v1.json",
+  "title": "Field Created Event",
+  "description": "Event emitted when a new field is registered in the system",
+  "allOf": [
+    { "$ref": "base-event.v1.json" }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "field.created"
+    },
+    "event_version": {
+      "const": "1.0.0"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "field_id",
+        "tenant_id",
+        "name",
+        "geometry",
+        "area_hectares"
+      ],
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Unique identifier for the field"
+        },
+        "tenant_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Tenant/organization that owns the field"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Human-readable name for the field"
+        },
+        "geometry": {
+          "type": "object",
+          "description": "GeoJSON geometry of the field boundary",
+          "required": ["type", "coordinates"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["Polygon", "MultiPolygon"]
+            },
+            "coordinates": {
+              "type": "array"
+            }
+          }
+        },
+        "area_hectares": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Area of the field in hectares"
+        },
+        "soil_type": {
+          "type": "string",
+          "enum": ["clay", "sandy", "loam", "silt", "peat", "chalk", "mixed"],
+          "description": "Primary soil type of the field"
+        },
+        "irrigation_type": {
+          "type": "string",
+          "enum": ["drip", "sprinkler", "flood", "center_pivot", "none"],
+          "description": "Irrigation system type"
+        },
+        "owner_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "User ID of the field owner"
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "country": { "type": "string" },
+            "region": { "type": "string" },
+            "governorate": { "type": "string" },
+            "district": { "type": "string" }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

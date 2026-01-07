@@ -32,9 +32,31 @@ class CertificatePinningService {
   }) : _certificatePins = certificatePins ?? _getDefaultPins();
 
   /// Get default certificate pins for SAHOOL domains
+  ///
+  /// ⚠️ CRITICAL: Before production deployment, replace placeholder values with actual
+  /// SHA256 certificate fingerprints from your production certificates.
+  ///
+  /// To get the fingerprint, run:
+  /// ```bash
+  /// openssl s_client -connect api.sahool.app:443 2>/dev/null | \
+  ///   openssl x509 -pubkey -noout | \
+  ///   openssl pkey -pubin -outform der | \
+  ///   openssl dgst -sha256 -binary | \
+  ///   openssl enc -base64
+  /// ```
+  ///
+  /// Or use the getCertificateFingerprintFromUrl() helper function in this file.
   static Map<String, List<CertificatePin>> _getDefaultPins() {
+    // Check if we're using placeholder values (log warning in debug mode)
+    const bool isConfigured = false; // Set to true after configuring real pins
+    if (kDebugMode && !isConfigured) {
+      debugPrint('⚠️ [SECURITY] Certificate pinning using PLACEHOLDER values!');
+      debugPrint('⚠️ [SECURITY] Configure real fingerprints before production.');
+    }
+
     return {
       // Production API domain
+      // TODO: Replace with actual SHA256 fingerprint from production certificate
       'api.sahool.app': [
         CertificatePin(
           type: PinType.sha256,
@@ -49,6 +71,7 @@ class CertificatePinningService {
         ),
       ],
       // Production domains wildcard
+      // TODO: Replace with actual SHA256 fingerprint
       '*.sahool.io': [
         CertificatePin(
           type: PinType.sha256,
@@ -57,6 +80,7 @@ class CertificatePinningService {
         ),
       ],
       // Staging API domain
+      // TODO: Replace with actual SHA256 fingerprint from staging certificate
       'api-staging.sahool.app': [
         CertificatePin(
           type: PinType.sha256,
@@ -71,9 +95,7 @@ class CertificatePinningService {
   void configureDio(Dio dio) {
     // In debug mode, optionally bypass pinning for development
     if (kDebugMode && allowDebugBypass) {
-      if (kDebugMode) {
-        print('⚠️ Certificate pinning bypassed in debug mode');
-      }
+      debugPrint('⚠️ Certificate pinning bypassed in debug mode');
       return;
     }
 

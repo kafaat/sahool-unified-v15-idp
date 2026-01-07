@@ -49,32 +49,3 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
-
-      - name: Create Summary
-        if: always()
-        run: |
-          echo "## 🏆 OSSF Scorecard Analysis" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### What Scorecard Evaluates:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Check | Description |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|-------------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Binary-Artifacts | No binary files in repo |" >> $GITHUB_STEP_SUMMARY
-          echo "| Branch-Protection | Protected branches configured |" >> $GITHUB_STEP_SUMMARY
-          echo "| CI-Tests | CI tests running on PRs |" >> $GITHUB_STEP_SUMMARY
-          echo "| Code-Review | Code review before merge |" >> $GITHUB_STEP_SUMMARY
-          echo "| Contributors | Multiple contributors |" >> $GITHUB_STEP_SUMMARY
-          echo "| Dangerous-Workflow | No dangerous patterns in workflows |" >> $GITHUB_STEP_SUMMARY
-          echo "| Dependency-Update-Tool | Using Dependabot/Renovate |" >> $GITHUB_STEP_SUMMARY
-          echo "| Fuzzing | Fuzz testing enabled |" >> $GITHUB_STEP_SUMMARY
-          echo "| License | License file present |" >> $GITHUB_STEP_SUMMARY
-          echo "| Maintained | Project is actively maintained |" >> $GITHUB_STEP_SUMMARY
-          echo "| Pinned-Dependencies | Dependencies are pinned |" >> $GITHUB_STEP_SUMMARY
-          echo "| Packaging | Published as package |" >> $GITHUB_STEP_SUMMARY
-          echo "| SAST | Static analysis enabled |" >> $GITHUB_STEP_SUMMARY
-          echo "| Security-Policy | SECURITY.md present |" >> $GITHUB_STEP_SUMMARY
-          echo "| Signed-Releases | Releases are signed |" >> $GITHUB_STEP_SUMMARY
-          echo "| Token-Permissions | Minimal token permissions |" >> $GITHUB_STEP_SUMMARY
-          echo "| Vulnerabilities | No known vulnerabilities |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📊 View detailed results in the **Security** tab" >> $GITHUB_STEP_SUMMARY

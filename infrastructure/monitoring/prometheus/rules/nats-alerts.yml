@@ -1,0 +1,519 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - NATS Alerting Rules
+# قواعد تنبيهات NATS لمنصة سهول الزراعية
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-01-07
+# Purpose: Comprehensive alerting rules for NATS message queue monitoring
+#
+# Alert Severity Levels:
+# - critical: Requires immediate action, service degradation or outage
+# - warning:  Requires attention, potential issues developing
+# - info:     Informational, for awareness
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+groups:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NATS Server Health & Availability - صحة وتوفر خادم NATS
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: nats_server_health
+    interval: 30s
+    rules:
+      - alert: NATSServerDown
+        expr: up{service="nats"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: NATS server is down"
+          summary_ar: "حرج: خادم NATS متوقف"
+          description: "NATS message queue is unavailable. All async messaging is stopped."
+          description_ar: "نظام الرسائل NATS غير متاح. توقفت جميع الرسائل غير المتزامنة."
+          impact: "All event-driven communication between microservices is blocked"
+          impact_ar: "جميع الاتصالات الموجهة بالأحداث بين الخدمات محظورة"
+          action: "URGENT: Check NATS container logs, restart NATS service"
+          action_ar: "عاجل: تحقق من سجلات حاوية NATS، أعد تشغيل خدمة NATS"
+          runbook_url: "https://docs.sahool.io/runbooks/nats-server-down"
+
+      - alert: NATSServerRestarted
+        expr: time() - gnatsd_varz_start < 300
+        for: 1m
+        labels:
+          severity: warning
+          category: infrastructure
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "NATS server recently restarted"
+          summary_ar: "خادم NATS أعيد تشغيله مؤخراً"
+          description: "NATS server restarted {{ $value }} seconds ago"
+          description_ar: "خادم NATS أعيد تشغيله منذ {{ $value }} ثانية"
+          impact: "Possible message loss or service interruption"
+          impact_ar: "احتمال فقدان الرسائل أو انقطاع الخدمة"
+          action: "Review logs to understand restart reason"
+          action_ar: "راجع السجلات لفهم سبب إعادة التشغيل"
+
+      - alert: NATSHighCPUUsage
+        expr: gnatsd_varz_cpu > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "NATS server CPU usage is high"
+          summary_ar: "استخدام CPU لخادم NATS عالي"
+          description: "NATS CPU usage is {{ $value }}% (threshold: 80%)"
+          description_ar: "استخدام CPU لـ NATS هو {{ $value }}% (الحد: 80%)"
+          impact: "Message processing may be slowed"
+          impact_ar: "قد تتباطأ معالجة الرسائل"
+          action: "Check for message backlog, consider scaling NATS cluster"
+          action_ar: "تحقق من تراكم الرسائل، فكر في توسيع نطاق مجموعة NATS"
+
+      - alert: NATSHighMemoryUsage
+        expr: gnatsd_varz_mem > 1073741824  # 1GB
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "NATS server memory usage is high"
+          summary_ar: "استخدام الذاكرة لخادم NATS عالي"
+          description: "NATS memory usage is {{ $value | humanize1024 }}B (threshold: 1GB)"
+          description_ar: "استخدام الذاكرة لـ NATS هو {{ $value | humanize1024 }}B (الحد: 1GB)"
+          impact: "Risk of OOM, potential service degradation"
+          impact_ar: "خطر نفاد الذاكرة، احتمال تدهور الخدمة"
+          action: "Investigate memory leak, check JetStream store size"
+          action_ar: "تحقق من تسرب الذاكرة، افحص حجم مخزن JetStream"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NATS Connections & Clients - الاتصالات والعملاء
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: nats_connections
+    interval: 30s
+    rules:
+      - alert: NATSHighConnectionCount
+        expr: gnatsd_varz_connections > 800
+        for: 5m
+        labels:
+          severity: warning
+          category: connections
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High number of NATS connections"
+          summary_ar: "عدد كبير من اتصالات NATS"
+          description: "{{ $value }} active connections (threshold: 800, max: 1000)"
+          description_ar: "{{ $value }} اتصال نشط (الحد: 800، الأقصى: 1000)"
+          impact: "Approaching connection limit, new connections may be rejected"
+          impact_ar: "اقتراب من حد الاتصال، قد يتم رفض الاتصالات الجديدة"
+          action: "Review connection pooling, check for connection leaks"
+          action_ar: "راجع تجميع الاتصالات، تحقق من تسرب الاتصالات"
+
+      - alert: NATSConnectionLimitReached
+        expr: gnatsd_varz_connections >= gnatsd_varz_max_connections * 0.95
+        for: 2m
+        labels:
+          severity: critical
+          category: connections
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: NATS connection limit nearly reached"
+          summary_ar: "حرج: حد اتصال NATS شبه مستنفد"
+          description: "{{ $value }} connections (95% of max)"
+          description_ar: "{{ $value }} اتصال (95% من الحد الأقصى)"
+          impact: "New clients cannot connect, service degradation imminent"
+          impact_ar: "العملاء الجدد لا يمكنهم الاتصال، تدهور الخدمة وشيك"
+          action: "URGENT: Increase max_connections or fix connection leaks"
+          action_ar: "عاجل: زيادة max_connections أو إصلاح تسرب الاتصالات"
+
+      - alert: NATSConnectionDropRate
+        expr: rate(gnatsd_varz_total_connections[5m]) - rate(gnatsd_varz_connections[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: connections
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High NATS connection drop rate"
+          summary_ar: "معدل انقطاع اتصالات NATS عالي"
+          description: "{{ $value }} connections/sec being dropped"
+          description_ar: "{{ $value }} اتصال/ثانية يتم قطعه"
+          impact: "Clients are experiencing connection instability"
+          impact_ar: "العملاء يعانون من عدم استقرار الاتصال"
+          action: "Check network stability, review client authentication issues"
+          action_ar: "تحقق من استقرار الشبكة، راجع مشاكل مصادقة العميل"
+
+      - alert: NATSSlowConsumersDetected
+        expr: gnatsd_varz_slow_consumers > 0
+        for: 3m
+        labels:
+          severity: warning
+          category: performance
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "Slow consumers detected in NATS"
+          summary_ar: "تم اكتشاف مستهلكين بطيئين في NATS"
+          description: "{{ $value }} slow consumers detected"
+          description_ar: "{{ $value }} مستهلك بطيء تم اكتشافه"
+          impact: "Message delivery may be delayed or dropped"
+          impact_ar: "قد يتأخر تسليم الرسائل أو يتم إسقاطها"
+          action: "Identify and fix slow consumer services, check processing capacity"
+          action_ar: "حدد وأصلح خدمات المستهلك البطيء، تحقق من سعة المعالجة"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NATS Message Traffic - حركة الرسائل
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: nats_message_traffic
+    interval: 30s
+    rules:
+      - alert: NATSMessageRateHigh
+        expr: rate(gnatsd_varz_in_msgs[5m]) > 10000
+        for: 10m
+        labels:
+          severity: info
+          category: traffic
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High NATS message rate"
+          summary_ar: "معدل رسائل NATS عالي"
+          description: "{{ $value }} messages/sec being received (threshold: 10k/sec)"
+          description_ar: "{{ $value }} رسالة/ثانية يتم استقبالها (الحد: 10k/ثانية)"
+          impact: "High system load, monitor for performance degradation"
+          impact_ar: "حمل نظام عالي، راقب تدهور الأداء"
+
+      - alert: NATSMessageRateDrop
+        expr: rate(gnatsd_varz_in_msgs[5m]) < 10 and rate(gnatsd_varz_in_msgs[30m]) offset 1h > 100
+        for: 10m
+        labels:
+          severity: warning
+          category: traffic
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "NATS message rate dropped significantly"
+          summary_ar: "انخفض معدل رسائل NATS بشكل كبير"
+          description: "Message rate dropped to {{ $value }} msgs/sec"
+          description_ar: "انخفض معدل الرسائل إلى {{ $value }} رسالة/ثانية"
+          impact: "Possible publisher failure or service outage"
+          impact_ar: "احتمال فشل الناشر أو انقطاع الخدمة"
+          action: "Check publisher services and event generation"
+          action_ar: "تحقق من خدمات الناشر وتوليد الأحداث"
+
+      - alert: NATSBytesRateHigh
+        expr: rate(gnatsd_varz_in_bytes[5m]) > 104857600  # 100MB/sec
+        for: 5m
+        labels:
+          severity: warning
+          category: traffic
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High NATS bandwidth usage"
+          summary_ar: "استخدام عرض النطاق الترددي لـ NATS عالي"
+          description: "{{ $value | humanize1024 }}B/sec incoming (threshold: 100MB/sec)"
+          description_ar: "{{ $value | humanize1024 }}B/ثانية واردة (الحد: 100MB/ثانية)"
+          impact: "High network usage, potential bandwidth saturation"
+          impact_ar: "استخدام شبكة عالي، احتمال تشبع عرض النطاق"
+          action: "Review message sizes, consider message compression"
+          action_ar: "راجع أحجام الرسائل، فكر في ضغط الرسائل"
+
+      - alert: NATSSubscriptionCountHigh
+        expr: gnatsd_varz_subscriptions > 10000
+        for: 5m
+        labels:
+          severity: warning
+          category: subscriptions
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High NATS subscription count"
+          summary_ar: "عدد اشتراكات NATS عالي"
+          description: "{{ $value }} active subscriptions"
+          description_ar: "{{ $value }} اشتراك نشط"
+          impact: "High memory usage, potential performance impact"
+          impact_ar: "استخدام ذاكرة عالي، احتمال تأثير على الأداء"
+          action: "Review subscription patterns, check for subscription leaks"
+          action_ar: "راجع أنماط الاشتراك، تحقق من تسرب الاشتراكات"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # JetStream Monitoring - مراقبة JetStream
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: nats_jetstream
+    interval: 30s
+    rules:
+      - alert: JetStreamDisabled
+        expr: gnatsd_jetstream_enabled == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: JetStream is disabled"
+          summary_ar: "حرج: JetStream معطل"
+          description: "JetStream persistent messaging is not available"
+          description_ar: "الرسائل المستمرة JetStream غير متاحة"
+          impact: "No message persistence, guaranteed delivery unavailable"
+          impact_ar: "لا يوجد استمرارية للرسائل، التسليم المضمون غير متاح"
+          action: "URGENT: Enable JetStream in NATS configuration"
+          action_ar: "عاجل: قم بتمكين JetStream في إعدادات NATS"
+
+      - alert: JetStreamMemoryHigh
+        expr: gnatsd_jetstream_memory_used > 858993459  # 800MB (80% of 1GB)
+        for: 5m
+        labels:
+          severity: warning
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "JetStream memory usage is high"
+          summary_ar: "استخدام ذاكرة JetStream عالي"
+          description: "JetStream using {{ $value | humanize1024 }}B of memory (threshold: 800MB)"
+          description_ar: "JetStream يستخدم {{ $value | humanize1024 }}B من الذاكرة (الحد: 800MB)"
+          impact: "Risk of memory limit reached, message storage may fail"
+          impact_ar: "خطر الوصول إلى حد الذاكرة، قد يفشل تخزين الرسائل"
+          action: "Review stream retention policies, archive old messages"
+          action_ar: "راجع سياسات الاحتفاظ بالتدفق، أرشف الرسائل القديمة"
+
+      - alert: JetStreamMemoryCritical
+        expr: gnatsd_jetstream_memory_used > 966367642  # 900MB (90% of 1GB)
+        for: 2m
+        labels:
+          severity: critical
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: JetStream memory nearly exhausted"
+          summary_ar: "حرج: ذاكرة JetStream شبه مستنفدة"
+          description: "JetStream using {{ $value | humanize1024 }}B (90% of limit)"
+          description_ar: "JetStream يستخدم {{ $value | humanize1024 }}B (90% من الحد)"
+          impact: "URGENT: New messages may be rejected"
+          impact_ar: "عاجل: قد يتم رفض الرسائل الجديدة"
+          action: "URGENT: Increase memory limit or purge old streams"
+          action_ar: "عاجل: زيادة حد الذاكرة أو حذف التدفقات القديمة"
+
+      - alert: JetStreamStorageHigh
+        expr: gnatsd_jetstream_storage_used > 8589934592  # 8GB (80% of 10GB)
+        for: 10m
+        labels:
+          severity: warning
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "JetStream storage usage is high"
+          summary_ar: "استخدام تخزين JetStream عالي"
+          description: "JetStream using {{ $value | humanize1024 }}B of storage (threshold: 8GB)"
+          description_ar: "JetStream يستخدم {{ $value | humanize1024 }}B من التخزين (الحد: 8GB)"
+          impact: "Approaching storage limit, may affect message persistence"
+          impact_ar: "اقتراب من حد التخزين، قد يؤثر على استمرارية الرسائل"
+          action: "Review retention policies, clean up old streams, expand storage"
+          action_ar: "راجع سياسات الاحتفاظ، نظف التدفقات القديمة، وسّع التخزين"
+
+      - alert: JetStreamStorageCritical
+        expr: gnatsd_jetstream_storage_used > 9663676416  # 9GB (90% of 10GB)
+        for: 5m
+        labels:
+          severity: critical
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: JetStream storage nearly full"
+          summary_ar: "حرج: تخزين JetStream شبه ممتلئ"
+          description: "JetStream using {{ $value | humanize1024 }}B (90% of 10GB limit)"
+          description_ar: "JetStream يستخدم {{ $value | humanize1024 }}B (90% من حد 10GB)"
+          impact: "URGENT: Storage exhaustion imminent, message loss possible"
+          impact_ar: "عاجل: استنفاد التخزين وشيك، احتمال فقدان الرسائل"
+          action: "URGENT: Free up storage immediately or expand volume"
+          action_ar: "عاجل: حرر التخزين فوراً أو وسّع المجلد"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # JetStream Streams & Consumers - التدفقات والمستهلكون
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: nats_jetstream_streams
+    interval: 30s
+    rules:
+      - alert: JetStreamStreamBacklog
+        expr: nats_jetstream_stream_messages > 100000
+        for: 10m
+        labels:
+          severity: warning
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "Large message backlog in JetStream stream"
+          summary_ar: "تراكم كبير للرسائل في تدفق JetStream"
+          description: "Stream {{ $labels.stream }} has {{ $value }} messages (threshold: 100k)"
+          description_ar: "التدفق {{ $labels.stream }} لديه {{ $value }} رسالة (الحد: 100k)"
+          impact: "Messages not being consumed fast enough"
+          impact_ar: "الرسائل لا يتم استهلاكها بسرعة كافية"
+          action: "Scale consumers, check consumer health and processing rate"
+          action_ar: "وسّع المستهلكين، تحقق من صحة المستهلك ومعدل المعالجة"
+
+      - alert: JetStreamStreamBacklogCritical
+        expr: nats_jetstream_stream_messages > 500000
+        for: 5m
+        labels:
+          severity: critical
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Massive backlog in JetStream stream"
+          summary_ar: "حرج: تراكم ضخم في تدفق JetStream"
+          description: "Stream {{ $labels.stream }} has {{ $value }} messages"
+          description_ar: "التدفق {{ $labels.stream }} لديه {{ $value }} رسالة"
+          impact: "URGENT: Message processing severely delayed"
+          impact_ar: "عاجل: معالجة الرسائل متأخرة بشدة"
+          action: "URGENT: Scale consumers immediately, investigate processing issues"
+          action_ar: "عاجل: وسّع المستهلكين فوراً، تحقق من مشاكل المعالجة"
+
+      - alert: JetStreamConsumerPending
+        expr: nats_jetstream_consumer_num_pending > 10000
+        for: 5m
+        labels:
+          severity: warning
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High pending messages for JetStream consumer"
+          summary_ar: "رسائل معلقة عالية لمستهلك JetStream"
+          description: "Consumer {{ $labels.consumer }} on stream {{ $labels.stream }} has {{ $value }} pending messages"
+          description_ar: "المستهلك {{ $labels.consumer }} على التدفق {{ $labels.stream }} لديه {{ $value }} رسالة معلقة"
+          impact: "Consumer is falling behind, messages delayed"
+          impact_ar: "المستهلك متأخر، الرسائل متأخرة"
+          action: "Check consumer health, scale consumer instances"
+          action_ar: "تحقق من صحة المستهلك، وسّع نسخ المستهلك"
+
+      - alert: JetStreamConsumerAckPending
+        expr: nats_jetstream_consumer_num_ack_pending > 5000
+        for: 5m
+        labels:
+          severity: warning
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High unacknowledged messages for consumer"
+          summary_ar: "رسائل غير مؤكدة عالية للمستهلك"
+          description: "Consumer {{ $labels.consumer }} has {{ $value }} unacked messages"
+          description_ar: "المستهلك {{ $labels.consumer }} لديه {{ $value }} رسالة غير مؤكدة"
+          impact: "Messages may be redelivered, processing may be stuck"
+          impact_ar: "قد يتم إعادة تسليم الرسائل، قد تكون المعالجة عالقة"
+          action: "Check consumer processing logic, review ack timeout settings"
+          action_ar: "تحقق من منطق معالجة المستهلك، راجع إعدادات مهلة التأكيد"
+
+      - alert: JetStreamConsumerRedeliveryHigh
+        expr: rate(nats_jetstream_consumer_redelivered[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High message redelivery rate"
+          summary_ar: "معدل إعادة تسليم رسائل عالي"
+          description: "{{ $value }} messages/sec being redelivered to consumer {{ $labels.consumer }}"
+          description_ar: "{{ $value }} رسالة/ثانية يتم إعادة تسليمها إلى المستهلك {{ $labels.consumer }}"
+          impact: "Messages failing to process, possible infinite retry loop"
+          impact_ar: "فشل معالجة الرسائل، احتمال حلقة إعادة محاولة لا نهائية"
+          action: "Investigate message processing failures, check error logs"
+          action_ar: "تحقق من فشل معالجة الرسائل، افحص سجلات الأخطاء"
+
+      - alert: JetStreamConsumerStalled
+        expr: rate(nats_jetstream_consumer_delivered[5m]) == 0 and nats_jetstream_consumer_num_pending > 0
+        for: 10m
+        labels:
+          severity: critical
+          category: jetstream
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "JetStream consumer appears stalled"
+          summary_ar: "يبدو أن مستهلك JetStream متوقف"
+          description: "Consumer {{ $labels.consumer }} has pending messages but no delivery activity"
+          description_ar: "المستهلك {{ $labels.consumer }} لديه رسائل معلقة لكن لا يوجد نشاط تسليم"
+          impact: "URGENT: Message processing completely stopped"
+          impact_ar: "عاجل: توقفت معالجة الرسائل تماماً"
+          action: "URGENT: Restart consumer service, check for deadlocks or crashes"
+          action_ar: "عاجل: أعد تشغيل خدمة المستهلك، تحقق من الجمود أو الأعطال"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NATS Cluster Health - صحة مجموعة NATS
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: nats_cluster_health
+    interval: 60s
+    rules:
+      - alert: NATSClusterRouteDown
+        expr: gnatsd_routez_num_routes < 2
+        for: 2m
+        labels:
+          severity: critical
+          category: cluster
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "NATS cluster route connection lost"
+          summary_ar: "فُقد اتصال مسار مجموعة NATS"
+          description: "Only {{ $value }} cluster routes active (expected: 2+)"
+          description_ar: "فقط {{ $value }} مسار مجموعة نشط (المتوقع: 2+)"
+          impact: "Cluster communication degraded, risk of split-brain"
+          impact_ar: "تدهورت اتصالات المجموعة، خطر الانقسام"
+          action: "Check network connectivity between NATS nodes"
+          action_ar: "تحقق من اتصال الشبكة بين عقد NATS"
+
+      - alert: NATSClusterPendingData
+        expr: gnatsd_routez_pending_size > 10485760  # 10MB
+        for: 5m
+        labels:
+          severity: warning
+          category: cluster
+          component: message-queue
+          platform: sahool
+        annotations:
+          summary: "High pending data on cluster routes"
+          summary_ar: "بيانات معلقة عالية على مسارات المجموعة"
+          description: "{{ $value | humanize1024 }}B pending on cluster routes"
+          description_ar: "{{ $value | humanize1024 }}B معلقة على مسارات المجموعة"
+          impact: "Cluster replication lagging, potential data loss"
+          impact_ar: "تأخر النسخ المتماثل للمجموعة، احتمال فقدان البيانات"
+          action: "Check network bandwidth and cluster node health"
+          action_ar: "تحقق من عرض النطاق الترددي وصحة عقد المجموعة"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Alert Routing Recommendations
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Severity Levels:
+# - critical: PagerDuty/SMS + Slack #critical-alerts channel
+# - warning:  Slack #monitoring-alerts channel + Email
+# - info:     Slack #monitoring-info channel
+#
+# Business Hours vs. Off-Hours:
+# - Critical alerts: Always page on-call engineer
+# - Warnings: Business hours -> Slack, Off-hours -> Email only
+# - Info: Business hours only
+#
+# Integration with Alertmanager:
+# Add these routes to infrastructure/monitoring/alertmanager/alertmanager.yml
+#
+# ═══════════════════════════════════════════════════════════════════════════════

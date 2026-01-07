@@ -1,0 +1,27 @@
+[Unit]
+Description=SAHOOL Certificate Rotation Timer
+Documentation=file:///opt/sahool/docs/CERTIFICATE_ROTATION.md
+Requires=cert-rotation.service
+
+[Timer]
+# Run daily at 2:00 AM (low-traffic period)
+OnCalendar=daily
+# Specifically at 2:00 AM
+OnCalendar=*-*-* 02:00:00
+
+# Run 1 hour after boot (if server was down during scheduled time)
+OnBootSec=1h
+
+# If the system was off during scheduled time, run on next boot
+Persistent=true
+
+# Randomize start time by up to 30 minutes to avoid thundering herd
+RandomizedDelaySec=30min
+
+# Ensure timer doesn't run too close together
+# Minimum 12 hours between runs
+Unit=cert-rotation.service
+AccuracySec=1h
+
+[Install]
+WantedBy=timers.target

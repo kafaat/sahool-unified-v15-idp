@@ -1,0 +1,88 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Certificate Rotation - Cron Job Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This cron configuration provides an alternative to systemd timer for
+# automated certificate rotation.
+#
+# Installation:
+#   sudo cp cert-rotation.cron /etc/cron.d/sahool-cert-rotation
+#   sudo chmod 644 /etc/cron.d/sahool-cert-rotation
+#
+# Or add to root crontab:
+#   sudo crontab -e
+#   (paste the relevant lines below)
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Environment (customize as needed)
+SAHOOL_HOME=/opt/sahool
+NOTIFICATION_EMAIL=admin@example.com
+# SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Certificate Rotation - Daily at 2:00 AM
+# ─────────────────────────────────────────────────────────────────────────────
+# Format: minute hour day month weekday user command
+#
+# Runs daily at 2:00 AM (low-traffic period)
+# Checks if any certificates are expiring within 30 days
+# Only rotates certificates that need it
+0 2 * * * root cd /opt/sahool && ./scripts/certs/rotate-certs.sh --backup >> /var/log/sahool-cert-rotation.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Alternative Schedules (comment out the one above and use one of these)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Weekly on Sundays at 3:00 AM
+# 0 3 * * 0 root cd /opt/sahool && ./scripts/certs/rotate-certs.sh --backup >> /var/log/sahool-cert-rotation.log 2>&1
+
+# Monthly on the 1st at 2:00 AM
+# 0 2 1 * * root cd /opt/sahool && ./scripts/certs/rotate-certs.sh --backup >> /var/log/sahool-cert-rotation.log 2>&1
+
+# Twice monthly (1st and 15th) at 2:00 AM
+# 0 2 1,15 * * root cd /opt/sahool && ./scripts/certs/rotate-certs.sh --backup >> /var/log/sahool-cert-rotation.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Certificate Validation - Daily at 9:00 AM
+# ─────────────────────────────────────────────────────────────────────────────
+# Validates all certificates and logs results
+# Useful for monitoring certificate health
+0 9 * * * root cd /opt/sahool && ./scripts/certs/validate-certs.sh >> /var/log/sahool-cert-validation.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Weekly Certificate Report - Every Monday at 8:00 AM
+# ─────────────────────────────────────────────────────────────────────────────
+# Sends a weekly certificate status email
+# Requires NOTIFICATION_EMAIL to be set
+# 0 8 * * 1 root cd /opt/sahool && NOTIFICATION_EMAIL=admin@example.com ./scripts/certs/validate-certs.sh | mail -s "SAHOOL Weekly Certificate Report" $NOTIFICATION_EMAIL
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Log Rotation
+# ─────────────────────────────────────────────────────────────────────────────
+# Rotate certificate rotation logs weekly (keep last 4 weeks)
+# 0 3 * * 1 root find /var/log/sahool-cert-*.log -mtime +28 -delete
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Notes:
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 1. Update SAHOOL_HOME to match your installation directory
+# 2. Configure NOTIFICATION_EMAIL for email alerts
+# 3. Ensure log directory exists: mkdir -p /var/log && touch /var/log/sahool-cert-rotation.log
+# 4. Monitor logs: tail -f /var/log/sahool-cert-rotation.log
+# 5. Test rotation: sudo -u root /opt/sahool/scripts/certs/rotate-certs.sh --dry-run
+#
+# Cron Time Format:
+#   ┌─────── minute (0 - 59)
+#   │ ┌───── hour (0 - 23)
+#   │ │ ┌─── day of month (1 - 31)
+#   │ │ │ ┌─ month (1 - 12)
+#   │ │ │ │ ┌ day of week (0 - 6) (Sunday=0)
+#   │ │ │ │ │
+#   * * * * * command
+#
+# ═══════════════════════════════════════════════════════════════════════════════

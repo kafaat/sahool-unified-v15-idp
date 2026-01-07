@@ -1,0 +1,310 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - NATS Monitoring Docker Compose
+# تكوين Docker Compose لمراقبة NATS
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-01-07
+# Purpose: Dedicated NATS monitoring stack with Prometheus exporter
+#
+# This compose file adds enhanced NATS monitoring capabilities to the platform.
+# It can be run standalone or integrated with the main monitoring stack.
+#
+# Usage:
+#   docker-compose -f docker-compose.nats-monitoring.yml up -d
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Services - الخدمات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS Prometheus Exporter - مُصدِّر مقاييس NATS
+  # Enhanced metrics collection for JetStream, streams, and consumers
+  # ─────────────────────────────────────────────────────────────────────────────
+  nats-prometheus-exporter:
+    image: natsio/prometheus-nats-exporter:0.14.0
+    container_name: sahool-nats-prometheus-exporter
+    restart: unless-stopped
+    command:
+      - '-varz'
+      - '-connz'
+      - '-routez'
+      - '-subz'
+      - '-jsz=all'
+      - '-healthz'
+      - 'http://nats:8222'
+    ports:
+      - "7777:7777"
+    environment:
+      # Exporter Configuration
+      - NATS_EXPORTER_LISTEN_ADDRESS=:7777
+      - NATS_EXPORTER_LISTEN_PATH=/metrics
+
+      # NATS Connection (using monitoring user)
+      - NATS_URL=http://nats:8222
+
+      # Optional: Connect to NATS core for additional metrics
+      # - NATS_SERVER_URL=nats://${NATS_MONITOR_USER}:${NATS_MONITOR_PASSWORD}@nats:4222
+
+      # Logging
+      - LOG_LEVEL=info
+    networks:
+      - sahool-network
+      - monitoring-network
+    depends_on:
+      - nats
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7777/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      com.sahool.service: "nats-exporter"
+      com.sahool.tier: "monitoring"
+      com.sahool.component: "metrics-exporter"
+      com.sahool.description: "NATS Prometheus Exporter for JetStream"
+      com.sahool.description_ar: "مُصدِّر مقاييس NATS لـ JetStream"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS Streaming Server (Optional - if using legacy NATS Streaming)
+  # خادم NATS Streaming (اختياري)
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Uncomment if you're using NATS Streaming (deprecated, migrate to JetStream)
+  #
+  # nats-streaming-exporter:
+  #   image: synadia/nats-streaming-prometheus-exporter:0.1.0
+  #   container_name: sahool-nats-streaming-exporter
+  #   restart: unless-stopped
+  #   command:
+  #     - '-channelz'
+  #     - '-serverz'
+  #     - 'http://nats-streaming:8222'
+  #   ports:
+  #     - "7778:7778"
+  #   networks:
+  #     - sahool-network
+  #     - monitoring-network
+  #   depends_on:
+  #     - nats-streaming
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Grafana NATS Dashboard (Optional standalone Grafana)
+  # لوحة Grafana لمراقبة NATS
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Uncomment if you want a dedicated Grafana instance for NATS monitoring
+  #
+  # nats-grafana:
+  #   image: grafana/grafana:10.2.0
+  #   container_name: sahool-nats-grafana
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3003:3000"
+  #   volumes:
+  #     - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+  #     - ./grafana/dashboards/nats:/var/lib/grafana/dashboards:ro
+  #     - nats_grafana_data:/var/lib/grafana
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+  #     - GF_INSTALL_PLUGINS=grafana-piechart-panel
+  #   networks:
+  #     - monitoring-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS Surveyor - NATS Real-time Monitoring UI (Optional)
+  # واجهة مراقبة NATS في الوقت الفعلي
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS Surveyor provides a web UI for real-time NATS monitoring
+  # Uncomment to enable visual monitoring dashboard
+  #
+  # nats-surveyor:
+  #   image: natsio/nats-surveyor:0.5.4
+  #   container_name: sahool-nats-surveyor
+  #   restart: unless-stopped
+  #   command:
+  #     - '-s'
+  #     - 'nats://${NATS_MONITOR_USER}:${NATS_MONITOR_PASSWORD}@nats:4222'
+  #     - '-http'
+  #     - ':7777'
+  #   ports:
+  #     - "7779:7777"
+  #   environment:
+  #     - NATS_SURVEYOR_SERVER_COUNT=1
+  #   networks:
+  #     - sahool-network
+  #   depends_on:
+  #     - nats
+  #   labels:
+  #     com.sahool.service: "nats-surveyor"
+  #     com.sahool.tier: "monitoring"
+  #     com.sahool.description: "NATS Surveyor Real-time Monitoring"
+  #     com.sahool.description_ar: "مراقبة NATS في الوقت الفعلي"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Networks - الشبكات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+networks:
+  # Connect to main SAHOOL network
+  sahool-network:
+    external: true
+    name: sahool-network
+
+  # Connect to monitoring network
+  monitoring-network:
+    external: true
+    name: sahool-monitoring-network
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Volumes - وحدات التخزين
+# ═══════════════════════════════════════════════════════════════════════════════
+
+volumes:
+  # Grafana data (if using standalone Grafana)
+  nats_grafana_data:
+    name: sahool-nats-grafana-data
+    driver: local
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Usage Instructions - تعليمات الاستخدام
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 1. Start NATS Monitoring:
+#    docker-compose -f infrastructure/monitoring/docker-compose.nats-monitoring.yml up -d
+#
+# 2. Verify Exporter is Running:
+#    curl http://localhost:7777/metrics
+#
+# 3. Check NATS Metrics:
+#    # JetStream info
+#    curl http://nats:8222/jsz?acc=APP
+#
+#    # Server info
+#    curl http://nats:8222/varz
+#
+#    # Connections
+#    curl http://nats:8222/connz
+#
+# 4. Add to Prometheus:
+#    The exporter endpoint is automatically discovered by Prometheus if you've
+#    added the scrape config from nats-exporter.yml
+#
+# 5. Import Grafana Dashboards:
+#    - NATS Dashboard ID: 2279 (official NATS dashboard)
+#    - JetStream Dashboard ID: 14522
+#    Go to Grafana > Dashboards > Import > Enter ID
+#
+# 6. Test Alerts:
+#    # Check Prometheus rules
+#    curl http://localhost:9090/api/v1/rules | jq '.data.groups[] | select(.name | contains("nats"))'
+#
+#    # Check active alerts
+#    curl http://localhost:9090/api/v1/alerts | jq '.data.alerts[] | select(.labels.component == "message-queue")'
+#
+# 7. Stop NATS Monitoring:
+#    docker-compose -f infrastructure/monitoring/docker-compose.nats-monitoring.yml down
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# Metrics Exposed by NATS Exporter
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Server Metrics (varz):
+# - gnatsd_varz_connections          - Current connections
+# - gnatsd_varz_total_connections    - Total connections since start
+# - gnatsd_varz_in_msgs              - Incoming messages
+# - gnatsd_varz_out_msgs             - Outgoing messages
+# - gnatsd_varz_in_bytes             - Incoming bytes
+# - gnatsd_varz_out_bytes            - Outgoing bytes
+# - gnatsd_varz_slow_consumers       - Number of slow consumers
+# - gnatsd_varz_subscriptions        - Active subscriptions
+# - gnatsd_varz_cpu                  - CPU usage percentage
+# - gnatsd_varz_mem                  - Memory usage in bytes
+# - gnatsd_varz_uptime               - Server uptime in seconds
+#
+# JetStream Metrics (jsz):
+# - gnatsd_jetstream_enabled         - JetStream status (1 enabled, 0 disabled)
+# - gnatsd_jetstream_memory_used     - JetStream memory usage
+# - gnatsd_jetstream_storage_used    - JetStream storage usage
+# - gnatsd_jetstream_streams         - Number of streams
+# - gnatsd_jetstream_consumers       - Number of consumers
+# - gnatsd_jetstream_messages        - Total messages across all streams
+#
+# Per-Stream Metrics:
+# - nats_jetstream_stream_messages   - Messages in stream
+# - nats_jetstream_stream_bytes      - Bytes in stream
+# - nats_jetstream_stream_first_seq  - First sequence number
+# - nats_jetstream_stream_last_seq   - Last sequence number
+#
+# Per-Consumer Metrics:
+# - nats_jetstream_consumer_num_pending     - Pending messages
+# - nats_jetstream_consumer_num_ack_pending - Unacknowledged messages
+# - nats_jetstream_consumer_delivered       - Delivered messages
+# - nats_jetstream_consumer_redelivered     - Redelivered messages
+#
+# Connection Metrics (connz):
+# - gnatsd_connz_total               - Total connections
+# - gnatsd_connz_pending_bytes       - Pending bytes per connection
+#
+# Route Metrics (routez):
+# - gnatsd_routez_num_routes         - Number of cluster routes
+# - gnatsd_routez_pending_size       - Pending data on routes
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# Troubleshooting
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 1. Exporter not starting:
+#    - Check NATS is accessible: curl http://nats:8222/varz
+#    - Check credentials if using authentication
+#    - Review logs: docker logs sahool-nats-prometheus-exporter
+#
+# 2. No metrics in Prometheus:
+#    - Verify Prometheus scrape config includes nats-exporter
+#    - Check Prometheus targets: http://localhost:9090/targets
+#    - Test exporter endpoint: curl http://localhost:7777/metrics
+#
+# 3. JetStream metrics missing:
+#    - Ensure JetStream is enabled in NATS configuration
+#    - Check JetStream status: curl http://nats:8222/jsz
+#    - Verify exporter has -jsz=all flag
+#
+# 4. High cardinality warnings:
+#    - Limit stream/consumer monitoring to critical streams only
+#    - Use metric_relabel_configs in Prometheus to drop high-cardinality labels
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# Security Considerations
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 1. Authentication:
+#    - Exporter uses NATS monitoring endpoint (port 8222)
+#    - In production, restrict access to monitoring port
+#    - Consider using NATS system account for monitoring
+#
+# 2. Network Isolation:
+#    - Keep exporter in monitoring network
+#    - Don't expose exporter port (7777) publicly
+#
+# 3. Credentials:
+#    - Store NATS credentials in .env file
+#    - Use Docker secrets in production
+#    - Rotate credentials regularly
+#
+# 4. TLS:
+#    - If NATS uses TLS, configure exporter with certificates
+#    - Use NATS_SERVER_URL with nats:// instead of http://
+#
+# ═══════════════════════════════════════════════════════════════════════════════

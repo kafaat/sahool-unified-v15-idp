@@ -1,0 +1,1348 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Platform - Field Services API
+  description: |
+    # SAHOOL Field Management API Documentation
+    ## واجهة برمجة تطبيقات إدارة الحقول الزراعية
+
+    This API provides comprehensive field management and geospatial capabilities for the SAHOOL agricultural platform:
+    - Field CRUD operations (عمليات إدارة الحقول)
+    - NDVI & Vegetation Index Data (بيانات مؤشر الغطاء النباتي)
+    - Pest Management (إدارة الآفات)
+    - Field Health Monitoring (مراقبة صحة الحقول)
+    - Geospatial Queries (الاستعلامات الجغرافية)
+
+    ## Authentication
+    All endpoints require JWT authentication via the `Authorization: Bearer <token>` header.
+
+    ## Multi-tenancy
+    All endpoints require the `X-Tenant-ID` header for tenant isolation.
+
+    ## Rate Limiting
+    - Free tier: 30 requests/minute
+    - Standard: 60 requests/minute
+    - Premium: 120 requests/minute
+
+  version: 15.3.0
+  contact:
+    name: SAHOOL Field Services Support
+    email: support@sahool.sa
+    url: https://sahool.sa
+  license:
+    name: Proprietary
+    url: https://sahool.sa/terms
+
+servers:
+  - url: https://api.sahool.sa/v1
+    description: Production server
+  - url: https://staging-api.sahool.sa/v1
+    description: Staging server
+  - url: http://localhost:3001
+    description: Development server (Field Core)
+
+tags:
+  - name: Fields
+    description: Field management operations - إدارة الحقول
+  - name: NDVI
+    description: Vegetation index data - بيانات مؤشر الغطاء النباتي
+  - name: Pests
+    description: Pest management and treatment tracking - إدارة الآفات والعلاجات
+  - name: Geospatial
+    description: Geospatial queries and analysis - الاستعلامات الجغرافية
+  - name: Health
+    description: Service health endpoints
+
+paths:
+  # ============================================================================
+  # FIELD MANAGEMENT ENDPOINTS
+  # ============================================================================
+  /fields:
+    get:
+      tags: [Fields]
+      summary: List all fields
+      description: |
+        Get paginated list of fields for the tenant.
+        قائمة الحقول للمستأجر.
+      operationId: listFields
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+        - name: status
+          in: query
+          description: Filter by field status
+          schema:
+            type: string
+            enum: [active, fallow, preparing, harvested]
+        - name: cropType
+          in: query
+          description: Filter by crop type
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Fields]
+      summary: Create a new field
+      description: |
+        Create a new agricultural field.
+        إنشاء حقل جديد.
+      operationId: createField
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldCreate'
+            examples:
+              wheat:
+                summary: Wheat field example
+                value:
+                  name: حقل القمح الشمالي
+                  cropType: wheat
+                  coordinates:
+                    - [46.7, 24.6]
+                    - [46.8, 24.6]
+                    - [46.8, 24.7]
+                    - [46.7, 24.7]
+                  irrigationType: drip
+                  soilType: sandy_loam
+                  plantingDate: '2024-01-15'
+      responses:
+        '201':
+          description: Field created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /fields/{fieldId}:
+    get:
+      tags: [Fields]
+      summary: Get field by ID
+      description: Get detailed field information - تفاصيل الحقل
+      operationId: getField
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    patch:
+      tags: [Fields]
+      summary: Update field
+      description: Update field properties - تحديث الحقل
+      operationId: updateField
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/TenantId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldUpdate'
+      responses:
+        '200':
+          description: Field updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Fields]
+      summary: Delete field
+      description: Soft delete a field - حذف الحقل
+      operationId: deleteField
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '204':
+          description: Field deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # NDVI ENDPOINTS
+  # ============================================================================
+  /fields/{fieldId}/ndvi:
+    get:
+      tags: [NDVI]
+      summary: Get NDVI history
+      description: |
+        Get vegetation index history for a field.
+        سجل مؤشر NDVI للحقل.
+      operationId: getFieldNdvi
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/TenantId'
+        - name: startDate
+          in: query
+          description: Start date for filtering
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: End date for filtering
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: NDVI data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NdviListResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [NDVI]
+      summary: Add NDVI reading
+      description: Add new NDVI measurement - إضافة قراءة NDVI
+      operationId: addFieldNdvi
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NdviCreate'
+            example:
+              value: 0.75
+              source: sentinel-2
+              recordedAt: '2024-01-15T10:30:00Z'
+      responses:
+        '201':
+          description: NDVI reading added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NdviResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # PEST MANAGEMENT ENDPOINTS
+  # ============================================================================
+  /pests/incidents:
+    get:
+      tags: [Pests]
+      summary: List pest incidents
+      description: |
+        Get paginated list of pest incidents.
+        قائمة حوادث الآفات.
+      operationId: listPestIncidents
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: fieldId
+          in: query
+          description: Filter by field ID
+          schema:
+            type: string
+            format: uuid
+        - name: cropSeasonId
+          in: query
+          description: Filter by crop season ID
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          description: Filter by incident status
+          schema:
+            type: string
+            enum: [DETECTED, MONITORING, TREATING, RESOLVED, RECURRING]
+        - name: pestType
+          in: query
+          description: Filter by pest type
+          schema:
+            $ref: '#/components/schemas/PestType'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PestIncident'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Pests]
+      summary: Report pest incident
+      description: |
+        Report a new pest incident.
+        الإبلاغ عن حادثة آفة.
+      operationId: reportPestIncident
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PestIncidentCreate'
+            examples:
+              aphids:
+                summary: Aphid infestation
+                value:
+                  fieldId: 123e4567-e89b-12d3-a456-426614174000
+                  tenantId: tenant-001
+                  pestType: INSECT
+                  pestName: Aphids
+                  severityLevel: 3
+                  affectedArea: 0.5
+                  detectedAt: '2026-01-01T10:00:00Z'
+                  reportedBy: Field Inspector
+                  location:
+                    lat: 24.6
+                    lng: 46.7
+                  notes: Found on wheat leaves
+      responses:
+        '201':
+          description: Pest incident reported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PestIncident'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /pests/incidents/{id}:
+    get:
+      tags: [Pests]
+      summary: Get pest incident
+      description: Get pest incident details with treatments - تفاصيل حادثة الآفة
+      operationId: getPestIncident
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Pest incident ID
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PestIncident'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    put:
+      tags: [Pests]
+      summary: Update pest incident
+      description: Update pest incident details - تحديث حادثة الآفة
+      operationId: updatePestIncident
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Pest incident ID
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PestIncidentUpdate'
+      responses:
+        '200':
+          description: Pest incident updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PestIncident'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Pests]
+      summary: Delete pest incident
+      description: Delete a pest incident - حذف حادثة الآفة
+      operationId: deletePestIncident
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Pest incident ID
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Pest incident deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /pests/treatments:
+    get:
+      tags: [Pests]
+      summary: List pest treatments
+      description: Get paginated list of pest treatments - قائمة علاجات الآفات
+      operationId: listPestTreatments
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: incidentId
+          in: query
+          description: Filter by incident ID
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PestTreatment'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Pests]
+      summary: Record pest treatment
+      description: Record a new pest treatment application - تسجيل علاج الآفة
+      operationId: recordPestTreatment
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PestTreatmentCreate'
+            examples:
+              insecticide:
+                summary: Insecticide application
+                value:
+                  incidentId: 123e4567-e89b-12d3-a456-426614174001
+                  tenantId: tenant-001
+                  treatmentDate: '2026-01-01T14:00:00Z'
+                  method: Spray application
+                  productUsed: Neem Oil
+                  quantity: 5
+                  unit: liters
+                  appliedBy: Farm Worker A
+                  cost: 250.50
+                  notes: Applied in early morning
+      responses:
+        '201':
+          description: Treatment recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PestTreatment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Pest incident not found
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # GEOSPATIAL ENDPOINTS
+  # ============================================================================
+  /geo/fields/nearby:
+    get:
+      tags: [Geospatial]
+      summary: Find nearby fields
+      description: |
+        Find fields within a specified radius of a location.
+        البحث عن الحقول القريبة من موقع معين.
+      operationId: findNearbyFields
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: lat
+          in: query
+          required: true
+          description: Latitude
+          schema:
+            type: number
+            format: double
+        - name: lng
+          in: query
+          required: true
+          description: Longitude
+          schema:
+            type: number
+            format: double
+        - name: radius
+          in: query
+          description: Search radius in kilometers
+          schema:
+            type: number
+            format: double
+            default: 10
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Nearby fields found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field:
+                          $ref: '#/components/schemas/Field'
+                        distance:
+                          type: number
+                          description: Distance in kilometers
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      security:
+        - bearerAuth: []
+
+  /geo/fields/within-bounds:
+    get:
+      tags: [Geospatial]
+      summary: Find fields within bounding box
+      description: |
+        Find fields within a geographic bounding box.
+        البحث عن الحقول ضمن منطقة جغرافية محددة.
+      operationId: findFieldsWithinBounds
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+        - name: minLat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: minLng
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: maxLat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: maxLng
+          in: query
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Fields within bounds found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # HEALTH ENDPOINTS
+  # ============================================================================
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      description: Kubernetes liveness probe endpoint
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+      security: []
+
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      description: Kubernetes readiness probe endpoint
+      operationId: readinessCheck
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ready
+                  checks:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                      cache:
+                        type: string
+        '503':
+          description: Service not ready
+      security: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication service
+
+  parameters:
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      required: true
+      description: Tenant identifier
+      schema:
+        type: string
+        format: uuid
+
+    FieldId:
+      name: fieldId
+      in: path
+      required: true
+      description: Field identifier
+      schema:
+        type: string
+        format: uuid
+
+    Limit:
+      name: limit
+      in: query
+      description: Number of items to return
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    Offset:
+      name: offset
+      in: query
+      description: Number of items to skip
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+
+    IfMatch:
+      name: If-Match
+      in: header
+      description: ETag for optimistic concurrency control
+      schema:
+        type: string
+
+  schemas:
+    # Field Schemas
+    Field:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 100
+        cropType:
+          type: string
+        status:
+          type: string
+          enum: [active, fallow, preparing, harvested]
+        coordinates:
+          type: array
+          description: GeoJSON polygon coordinates
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+        area:
+          type: number
+          description: Area in hectares
+        irrigationType:
+          type: string
+          enum: [drip, sprinkler, flood, none]
+        soilType:
+          type: string
+        currentNdvi:
+          type: number
+          minimum: -1
+          maximum: 1
+        plantingDate:
+          type: string
+          format: date
+        expectedHarvest:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        version:
+          type: integer
+
+    FieldCreate:
+      type: object
+      required: [name, cropType]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        cropType:
+          type: string
+          minLength: 1
+          maxLength: 50
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+          minItems: 3
+        ownerId:
+          type: string
+          format: uuid
+        irrigationType:
+          type: string
+          enum: [drip, sprinkler, flood, none]
+        soilType:
+          type: string
+          maxLength: 50
+        plantingDate:
+          type: string
+          format: date
+        expectedHarvest:
+          type: string
+          format: date
+        metadata:
+          type: object
+
+    FieldUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        cropType:
+          type: string
+        status:
+          type: string
+          enum: [active, fallow, preparing, harvested]
+        irrigationType:
+          type: string
+          enum: [drip, sprinkler, flood, none]
+        soilType:
+          type: string
+        plantingDate:
+          type: string
+          format: date
+        expectedHarvest:
+          type: string
+          format: date
+        metadata:
+          type: object
+
+    FieldResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/Field'
+        message:
+          type: string
+        message_ar:
+          type: string
+
+    FieldListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    # NDVI Schemas
+    NdviReading:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fieldId:
+          type: string
+          format: uuid
+        value:
+          type: number
+          minimum: -1
+          maximum: 1
+        source:
+          type: string
+          description: Data source (e.g., sentinel-2, landsat-8)
+        recordedAt:
+          type: string
+          format: date-time
+
+    NdviCreate:
+      type: object
+      required: [value]
+      properties:
+        value:
+          type: number
+          minimum: -1
+          maximum: 1
+        source:
+          type: string
+          maxLength: 50
+
+    NdviResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/NdviReading'
+
+    NdviListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/NdviReading'
+
+    # Pest Management Schemas
+    PestType:
+      type: string
+      enum:
+        - INSECT
+        - FUNGUS
+        - BACTERIA
+        - VIRUS
+        - WEED
+        - RODENT
+        - BIRD
+        - NEMATODE
+        - OTHER
+
+    PestIncident:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fieldId:
+          type: string
+          format: uuid
+        cropSeasonId:
+          type: string
+          format: uuid
+          nullable: true
+        tenantId:
+          type: string
+        pestType:
+          $ref: '#/components/schemas/PestType'
+        pestName:
+          type: string
+          maxLength: 255
+        severityLevel:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Severity from 1 (low) to 5 (critical)
+        affectedArea:
+          type: number
+          description: Affected area in hectares
+        status:
+          type: string
+          enum: [DETECTED, MONITORING, TREATING, RESOLVED, RECURRING]
+        detectedAt:
+          type: string
+          format: date-time
+        reportedBy:
+          type: string
+          maxLength: 255
+        location:
+          type: object
+          nullable: true
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+        photos:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Array of photo URLs
+        notes:
+          type: string
+          nullable: true
+        treatments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PestTreatment'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PestIncidentCreate:
+      type: object
+      required:
+        - fieldId
+        - tenantId
+        - pestType
+        - pestName
+        - severityLevel
+        - affectedArea
+        - detectedAt
+        - reportedBy
+      properties:
+        fieldId:
+          type: string
+          format: uuid
+        cropSeasonId:
+          type: string
+          format: uuid
+          nullable: true
+        tenantId:
+          type: string
+        pestType:
+          $ref: '#/components/schemas/PestType'
+        pestName:
+          type: string
+        severityLevel:
+          type: integer
+          minimum: 1
+          maximum: 5
+        affectedArea:
+          type: number
+        detectedAt:
+          type: string
+          format: date-time
+        reportedBy:
+          type: string
+        location:
+          type: object
+          nullable: true
+        photos:
+          type: array
+          nullable: true
+          items:
+            type: string
+        notes:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [DETECTED, MONITORING, TREATING, RESOLVED, RECURRING]
+          nullable: true
+
+    PestIncidentUpdate:
+      type: object
+      properties:
+        pestType:
+          $ref: '#/components/schemas/PestType'
+        pestName:
+          type: string
+        severityLevel:
+          type: integer
+          minimum: 1
+          maximum: 5
+        affectedArea:
+          type: number
+        status:
+          type: string
+          enum: [DETECTED, MONITORING, TREATING, RESOLVED, RECURRING]
+        location:
+          type: object
+          nullable: true
+        photos:
+          type: array
+          nullable: true
+          items:
+            type: string
+        notes:
+          type: string
+          nullable: true
+
+    PestTreatment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        incidentId:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+        treatmentDate:
+          type: string
+          format: date-time
+        method:
+          type: string
+          maxLength: 255
+        productUsed:
+          type: string
+          maxLength: 255
+        productId:
+          type: string
+          format: uuid
+          nullable: true
+        quantity:
+          type: number
+        unit:
+          type: string
+          maxLength: 50
+        appliedBy:
+          type: string
+          maxLength: 255
+        effectiveness:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+          description: Effectiveness from 1 (ineffective) to 5 (very effective)
+        cost:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PestTreatmentCreate:
+      type: object
+      required:
+        - incidentId
+        - tenantId
+        - treatmentDate
+        - method
+        - productUsed
+        - quantity
+        - unit
+        - appliedBy
+      properties:
+        incidentId:
+          type: string
+          format: uuid
+        tenantId:
+          type: string
+        treatmentDate:
+          type: string
+          format: date-time
+        method:
+          type: string
+        productUsed:
+          type: string
+        productId:
+          type: string
+          format: uuid
+          nullable: true
+        quantity:
+          type: number
+        unit:
+          type: string
+        appliedBy:
+          type: string
+        effectiveness:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        cost:
+          type: number
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    # Common Schemas
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        hasMore:
+          type: boolean
+
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        error_ar:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+              code:
+                type: string
+
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Unauthorized
+            error_ar: غير مصرح
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Field not found
+            error_ar: الحقل غير موجود
+
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Validation failed
+            error_ar: فشل التحقق من البيانات
+            details:
+              - field: name
+                message: Required field is missing
+                code: required
+
+    Conflict:
+      description: Conflict - resource already exists or version mismatch
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Conflict detected
+            error_ar: تم اكتشاف تعارض
+
+    PreconditionFailed:
+      description: ETag mismatch - resource was modified
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Resource was modified
+            error_ar: تم تعديل المورد
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per minute
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Unix timestamp when limit resets
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retry
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Rate limit exceeded
+            error_ar: تم تجاوز حد الطلبات
+
+    BadRequest:
+      description: Bad request - Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Bad request
+            error_ar: طلب غير صالح
+
+security:
+  - bearerAuth: []

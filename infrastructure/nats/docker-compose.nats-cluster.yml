@@ -1,0 +1,421 @@
+version: '3.8'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL NATS Cluster - Docker Compose Configuration
+# High Availability 3-Node NATS Cluster with JetStream
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This configuration sets up a 3-node NATS cluster with:
+# - JetStream enabled with replication factor 3
+# - TLS encryption for all communication
+# - Full mesh cluster topology
+# - Gateway support for super-cluster setup
+# - Health checks and monitoring
+#
+# Usage:
+#   docker-compose -f infrastructure/nats/docker-compose.nats-cluster.yml up -d
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+networks:
+  nats-cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+  sahool-network:
+    external: true
+
+volumes:
+  nats-node1-data:
+    driver: local
+  nats-node2-data:
+    driver: local
+  nats-node3-data:
+    driver: local
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS Node 1 - Primary Node
+  # ─────────────────────────────────────────────────────────────────────────────
+  nats-node1:
+    image: nats:2.10-alpine
+    container_name: sahool-nats-node1
+    hostname: nats-node1
+    restart: unless-stopped
+
+    networks:
+      nats-cluster:
+        ipv4_address: 172.25.0.11
+      sahool-network:
+        aliases:
+          - nats-node1
+
+    ports:
+      - "4222:4222"   # Client connections
+      - "8222:8222"   # HTTP monitoring
+      - "6222:6222"   # Cluster routing
+      - "7222:7222"   # Gateway connections
+
+    volumes:
+      # Configuration
+      - ../../config/nats/nats-cluster-node1.conf:/etc/nats/nats.conf:ro
+
+      # TLS certificates
+      - ../../config/certs/nats:/etc/nats/certs:ro
+
+      # JetStream data persistence
+      - nats-node1-data:/data/jetstream
+
+      # Logs (optional)
+      - ./logs/node1:/var/log/nats
+
+    environment:
+      # Authentication
+      NATS_ADMIN_USER: ${NATS_ADMIN_USER:-admin}
+      NATS_ADMIN_PASSWORD: ${NATS_ADMIN_PASSWORD}
+      NATS_USER: ${NATS_USER:-sahool}
+      NATS_PASSWORD: ${NATS_PASSWORD}
+      NATS_MONITOR_USER: ${NATS_MONITOR_USER:-monitor}
+      NATS_MONITOR_PASSWORD: ${NATS_MONITOR_PASSWORD}
+      NATS_SYSTEM_USER: ${NATS_SYSTEM_USER:-system}
+      NATS_SYSTEM_PASSWORD: ${NATS_SYSTEM_PASSWORD}
+
+      # Cluster authentication
+      NATS_CLUSTER_USER: ${NATS_CLUSTER_USER:-cluster_user}
+      NATS_CLUSTER_PASSWORD: ${NATS_CLUSTER_PASSWORD}
+
+      # Gateway authentication
+      NATS_GATEWAY_USER: ${NATS_GATEWAY_USER:-gateway_user}
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD}
+
+      # JetStream encryption
+      NATS_JETSTREAM_KEY: ${NATS_JETSTREAM_KEY}
+
+      # Advertise addresses (for external access)
+      # NATS_ADVERTISE_HOST: nats-node1
+      # NATS_GATEWAY_ADVERTISE_HOST: nats-node1
+
+    command: ["-c", "/etc/nats/nats.conf"]
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    labels:
+      com.sahool.service: "nats-cluster"
+      com.sahool.node: "1"
+      com.sahool.role: "messaging"
+      com.sahool.environment: "production"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "com.sahool.service,com.sahool.node"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS Node 2 - Secondary Node
+  # ─────────────────────────────────────────────────────────────────────────────
+  nats-node2:
+    image: nats:2.10-alpine
+    container_name: sahool-nats-node2
+    hostname: nats-node2
+    restart: unless-stopped
+
+    networks:
+      nats-cluster:
+        ipv4_address: 172.25.0.12
+      sahool-network:
+        aliases:
+          - nats-node2
+
+    ports:
+      - "4223:4222"   # Client connections
+      - "8223:8222"   # HTTP monitoring
+      - "6223:6222"   # Cluster routing
+      - "7223:7222"   # Gateway connections
+
+    volumes:
+      - ../../config/nats/nats-cluster-node2.conf:/etc/nats/nats.conf:ro
+      - ../../config/certs/nats:/etc/nats/certs:ro
+      - nats-node2-data:/data/jetstream
+      - ./logs/node2:/var/log/nats
+
+    environment:
+      NATS_ADMIN_USER: ${NATS_ADMIN_USER:-admin}
+      NATS_ADMIN_PASSWORD: ${NATS_ADMIN_PASSWORD}
+      NATS_USER: ${NATS_USER:-sahool}
+      NATS_PASSWORD: ${NATS_PASSWORD}
+      NATS_MONITOR_USER: ${NATS_MONITOR_USER:-monitor}
+      NATS_MONITOR_PASSWORD: ${NATS_MONITOR_PASSWORD}
+      NATS_SYSTEM_USER: ${NATS_SYSTEM_USER:-system}
+      NATS_SYSTEM_PASSWORD: ${NATS_SYSTEM_PASSWORD}
+      NATS_CLUSTER_USER: ${NATS_CLUSTER_USER:-cluster_user}
+      NATS_CLUSTER_PASSWORD: ${NATS_CLUSTER_PASSWORD}
+      NATS_GATEWAY_USER: ${NATS_GATEWAY_USER:-gateway_user}
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD}
+      NATS_JETSTREAM_KEY: ${NATS_JETSTREAM_KEY}
+
+    command: ["-c", "/etc/nats/nats.conf"]
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    labels:
+      com.sahool.service: "nats-cluster"
+      com.sahool.node: "2"
+      com.sahool.role: "messaging"
+      com.sahool.environment: "production"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "com.sahool.service,com.sahool.node"
+
+    depends_on:
+      nats-node1:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS Node 3 - Tertiary Node
+  # ─────────────────────────────────────────────────────────────────────────────
+  nats-node3:
+    image: nats:2.10-alpine
+    container_name: sahool-nats-node3
+    hostname: nats-node3
+    restart: unless-stopped
+
+    networks:
+      nats-cluster:
+        ipv4_address: 172.25.0.13
+      sahool-network:
+        aliases:
+          - nats-node3
+
+    ports:
+      - "4224:4222"   # Client connections
+      - "8224:8222"   # HTTP monitoring
+      - "6224:6222"   # Cluster routing
+      - "7224:7222"   # Gateway connections
+
+    volumes:
+      - ../../config/nats/nats-cluster-node3.conf:/etc/nats/nats.conf:ro
+      - ../../config/certs/nats:/etc/nats/certs:ro
+      - nats-node3-data:/data/jetstream
+      - ./logs/node3:/var/log/nats
+
+    environment:
+      NATS_ADMIN_USER: ${NATS_ADMIN_USER:-admin}
+      NATS_ADMIN_PASSWORD: ${NATS_ADMIN_PASSWORD}
+      NATS_USER: ${NATS_USER:-sahool}
+      NATS_PASSWORD: ${NATS_PASSWORD}
+      NATS_MONITOR_USER: ${NATS_MONITOR_USER:-monitor}
+      NATS_MONITOR_PASSWORD: ${NATS_MONITOR_PASSWORD}
+      NATS_SYSTEM_USER: ${NATS_SYSTEM_USER:-system}
+      NATS_SYSTEM_PASSWORD: ${NATS_SYSTEM_PASSWORD}
+      NATS_CLUSTER_USER: ${NATS_CLUSTER_USER:-cluster_user}
+      NATS_CLUSTER_PASSWORD: ${NATS_CLUSTER_PASSWORD}
+      NATS_GATEWAY_USER: ${NATS_GATEWAY_USER:-gateway_user}
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD}
+      NATS_JETSTREAM_KEY: ${NATS_JETSTREAM_KEY}
+
+    command: ["-c", "/etc/nats/nats.conf"]
+
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    labels:
+      com.sahool.service: "nats-cluster"
+      com.sahool.node: "3"
+      com.sahool.role: "messaging"
+      com.sahool.environment: "production"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "com.sahool.service,com.sahool.node"
+
+    depends_on:
+      nats-node1:
+        condition: service_healthy
+      nats-node2:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS Cluster Monitor (Optional)
+  # ─────────────────────────────────────────────────────────────────────────────
+  nats-surveyor:
+    image: natsio/nats-surveyor:latest
+    container_name: sahool-nats-surveyor
+    hostname: nats-surveyor
+    restart: unless-stopped
+
+    networks:
+      - nats-cluster
+      - sahool-network
+
+    ports:
+      - "7777:7777"   # Metrics endpoint
+
+    environment:
+      NATS_SURVEYOR_SERVERS: "nats://nats-node1:4222,nats://nats-node2:4222,nats://nats-node3:4222"
+      NATS_SURVEYOR_CREDS: /etc/nats/creds/monitor.creds
+      NATS_SURVEYOR_JETSTREAM: "true"
+
+    volumes:
+      - ../../config/nats/creds:/etc/nats/creds:ro
+
+    command:
+      - -s
+      - "nats://nats-node1:4222,nats://nats-node2:4222,nats://nats-node3:4222"
+      - -p
+      - "7777"
+
+    depends_on:
+      - nats-node1
+      - nats-node2
+      - nats-node3
+
+    labels:
+      com.sahool.service: "nats-monitoring"
+      com.sahool.role: "monitoring"
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Configuration Notes
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Network Configuration:
+# ─────────────────────
+# - nats-cluster: Internal network for NATS nodes (172.25.0.0/16)
+# - sahool-network: External network for application connectivity
+#
+# Port Mapping:
+# ────────────
+# Node 1:
+#   - 4222: Client connections
+#   - 8222: HTTP monitoring/metrics
+#   - 6222: Cluster routing
+#   - 7222: Gateway connections
+#
+# Node 2:
+#   - 4223: Client connections
+#   - 8223: HTTP monitoring/metrics
+#   - 6223: Cluster routing
+#   - 7223: Gateway connections
+#
+# Node 3:
+#   - 4224: Client connections
+#   - 8224: HTTP monitoring/metrics
+#   - 6224: Cluster routing
+#   - 7224: Gateway connections
+#
+# Client Connection String:
+# ─────────────────────────
+# For high availability, clients should connect to all nodes:
+#   nats://nats-node1:4222,nats://nats-node2:4222,nats://nats-node3:4222
+#
+# Environment Variables Required:
+# ───────────────────────────────
+# Create a .env file with the following variables:
+#
+# # Authentication
+# NATS_ADMIN_USER=admin
+# NATS_ADMIN_PASSWORD=<strong-random-password>
+# NATS_USER=sahool
+# NATS_PASSWORD=<strong-random-password>
+# NATS_MONITOR_USER=monitor
+# NATS_MONITOR_PASSWORD=<strong-random-password>
+# NATS_SYSTEM_USER=system
+# NATS_SYSTEM_PASSWORD=<strong-random-password>
+#
+# # Cluster Authentication
+# NATS_CLUSTER_USER=cluster_user
+# NATS_CLUSTER_PASSWORD=<strong-random-password>
+#
+# # Gateway Authentication
+# NATS_GATEWAY_USER=gateway_user
+# NATS_GATEWAY_PASSWORD=<strong-random-password>
+#
+# # JetStream Encryption
+# NATS_JETSTREAM_KEY=<base64-encoded-32-byte-key>
+#
+# Generate strong passwords:
+#   openssl rand -base64 32
+#
+# Generate JetStream encryption key:
+#   openssl rand -base64 32
+#
+# TLS Certificates:
+# ────────────────
+# Place your TLS certificates in: config/certs/nats/
+# Required files:
+#   - server.crt
+#   - server.key
+#   - ca.crt
+#
+# Generate self-signed certificates for testing:
+#   ./scripts/security/generate-nats-credentials.sh
+#
+# JetStream Streams:
+# ─────────────────
+# Create streams with replication factor 3 for HA:
+#   nats stream add --replicas=3 <stream-name>
+#
+# Monitoring:
+# ──────────
+# - Node 1 metrics: http://localhost:8222/varz
+# - Node 2 metrics: http://localhost:8223/varz
+# - Node 3 metrics: http://localhost:8224/varz
+# - Cluster status: http://localhost:8222/routez
+# - JetStream info: http://localhost:8222/jsz
+# - Surveyor metrics: http://localhost:7777/metrics
+#
+# Health Checks:
+# ─────────────
+# Each node has a health check endpoint:
+#   curl http://localhost:8222/healthz
+#   curl http://localhost:8223/healthz
+#   curl http://localhost:8224/healthz
+#
+# Backup & Recovery:
+# ─────────────────
+# JetStream data is persisted in Docker volumes:
+#   - nats-node1-data
+#   - nats-node2-data
+#   - nats-node3-data
+#
+# To backup:
+#   docker run --rm -v nats-node1-data:/data -v $(pwd):/backup \
+#     alpine tar czf /backup/nats-node1-backup.tar.gz -C /data .
+#
+# Scaling Considerations:
+# ──────────────────────
+# - This setup provides N+2 redundancy (can lose 2 nodes)
+# - For production, consider using Kubernetes StatefulSet
+# - For multi-region, configure gateway connections
+# - Monitor resource usage and adjust limits as needed
+#
+# ═══════════════════════════════════════════════════════════════════════════════

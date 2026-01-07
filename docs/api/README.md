@@ -1,43 +1,376 @@
-# SAHOOL API Documentation
-# توثيق واجهة برمجة تطبيقات سحول
+# SAHOOL Platform API Documentation
+## دليل واجهات برمجة التطبيقات لمنصة SAHOOL
 
-**Version:** 15.3.0
-**Last Updated:** 2026-01-02
+**Version:** 16.0.0
+**Last Updated:** 2026-01-07
 
-## Overview | نظرة عامة
+Welcome to the SAHOOL Platform API documentation. This guide provides comprehensive information about our RESTful APIs for agricultural management.
 
-SAHOOL is an Agricultural Intelligence Platform that provides comprehensive APIs for:
-- Field management and crop monitoring
-- Weather forecasting and alerts
-- Satellite imagery and NDVI analysis
-- AI-powered agricultural advisory
-- IoT sensor integration
-- Market intelligence
+مرحباً بك في دليل واجهات برمجة التطبيقات لمنصة SAHOOL. يوفر هذا الدليل معلومات شاملة حول واجهات برمجة التطبيقات RESTful لإدارة الزراعة.
 
-منصة سحول هي منصة ذكاء زراعي توفر واجهات برمجية شاملة لـ:
-- إدارة الحقول ومراقبة المحاصيل
-- التنبؤ بالطقس والتنبيهات
-- صور الأقمار الصناعية وتحليل NDVI
-- الاستشارات الزراعية بالذكاء الاصطناعي
-- تكامل أجهزة استشعار إنترنت الأشياء
-- معلومات السوق
+---
 
-## Quick Start | البدء السريع
+## Table of Contents | جدول المحتويات
 
-### Authentication | المصادقة
+1. [Overview](#overview)
+2. [API Specifications](#api-specifications)
+3. [Authentication](#authentication)
+4. [Getting Started](#getting-started)
+5. [Rate Limiting](#rate-limiting)
+6. [Error Handling](#error-handling)
+7. [Versioning](#versioning)
+8. [Examples](#examples)
+9. [Tools & Resources](#tools--resources)
+10. [Legacy Services](#legacy-services)
 
-All API requests require authentication using JWT tokens:
+---
+
+## Overview
+
+The SAHOOL Platform provides a comprehensive set of REST APIs for managing agricultural operations, including:
+
+- **Core Services**: User management, authentication, notifications, and alerts
+- **Field Services**: Field management, NDVI tracking, pest management, and geospatial queries
+- **Weather Services**: Weather forecasting and alerts
+- **IoT Services**: Sensor integration and data collection
+- **AI Services**: Agricultural advisory and analysis
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      API Gateway (Kong)                      │
+│                    https://api.sahool.sa                     │
+└─────────────────────────────────────────────────────────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+┌───────▼────────┐  ┌────────▼────────┐  ┌────────▼────────┐
+│ Core Services  │  │ Field Services  │  │ Other Services  │
+├────────────────┤  ├─────────────────┤  ├─────────────────┤
+│ • Auth         │  │ • Field Mgmt    │  │ • Weather       │
+│ • Users        │  │ • NDVI          │  │ • IoT           │
+│ • Notifications│  │ • Pests         │  │ • Marketplace   │
+│ • Alerts       │  │ • Geospatial    │  │ • Analytics     │
+└────────────────┘  └─────────────────┘  └─────────────────┘
+```
+
+---
+
+## API Specifications
+
+We provide OpenAPI 3.0 specifications for all our services:
+
+### Core Services API
+**File**: [`openapi/core-services.yaml`](./openapi/core-services.yaml)
+
+**Services Included**:
+- **Authentication API**: Login, logout, token refresh
+- **User Management API**: CRUD operations for user accounts
+- **Notification Service API**: Push notifications, SMS, email, in-app alerts
+- **Alert Service API**: Agricultural alerts and warnings
+
+**Base URL**: `https://api.sahool.sa/v1`
+
+### Field Services API
+**File**: [`openapi/field-services.yaml`](./openapi/field-services.yaml)
+
+**Services Included**:
+- **Field Management API**: Create, read, update, delete fields
+- **NDVI Tracking API**: Vegetation index monitoring
+- **Pest Management API**: Pest incident reporting and treatment tracking
+- **Geospatial API**: Location-based queries
+
+**Base URL**: `https://api.sahool.sa/v1`
+
+---
+
+## Authentication
+
+All API endpoints require authentication using JWT (JSON Web Tokens).
+
+### Getting a Token
+
+**Endpoint**: `POST /auth/login`
 
 ```bash
-# Login to get access token
-curl -X POST http://localhost:8000/auth/login \
+curl -X POST https://api.sahool.sa/v1/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "password"}'
-
-# Use token in requests
-curl -X GET http://localhost:8090/v1/crops/list \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+  -d '{
+    "email": "user@sahool.com",
+    "password": "your-password"
+  }'
 ```
+
+**Response**:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expires_in": 1800,
+  "token_type": "Bearer",
+  "user": {
+    "id": "usr_123456",
+    "email": "user@sahool.com",
+    "firstName": "Ahmed",
+    "lastName": "Ali",
+    "role": "FARMER"
+  }
+}
+```
+
+### Using the Token
+
+Include the access token in the `Authorization` header for all subsequent requests:
+
+```bash
+curl -X GET https://api.sahool.sa/v1/fields \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "X-Tenant-ID: your-tenant-id"
+```
+
+### Token Refresh
+
+Access tokens expire after 30 minutes. Use the refresh token to get a new access token:
+
+```bash
+curl -X POST https://api.sahool.sa/v1/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "YOUR_REFRESH_TOKEN"
+  }'
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+1. **Account**: Sign up for a SAHOOL account at [https://sahool.sa](https://sahool.sa)
+2. **Credentials**: Obtain your API credentials from the dashboard
+3. **Tenant ID**: Note your tenant ID for multi-tenant operations
+
+### Quick Start Example
+
+Here's a complete example of authenticating and retrieving your fields:
+
+```javascript
+// 1. Login
+const loginResponse = await fetch('https://api.sahool.sa/v1/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'user@sahool.com',
+    password: 'your-password'
+  })
+});
+
+const { access_token, user } = await loginResponse.json();
+
+// 2. Get Fields
+const fieldsResponse = await fetch('https://api.sahool.sa/v1/fields', {
+  headers: {
+    'Authorization': `Bearer ${access_token}`,
+    'X-Tenant-ID': user.tenantId
+  }
+});
+
+const fields = await fieldsResponse.json();
+console.log('My Fields:', fields.data);
+```
+
+### Python Example
+
+```python
+import requests
+
+# 1. Login
+login_response = requests.post(
+    'https://api.sahool.sa/v1/auth/login',
+    json={
+        'email': 'user@sahool.com',
+        'password': 'your-password'
+    }
+)
+
+auth_data = login_response.json()
+access_token = auth_data['access_token']
+tenant_id = auth_data['user']['tenantId']
+
+# 2. Get Fields
+fields_response = requests.get(
+    'https://api.sahool.sa/v1/fields',
+    headers={
+        'Authorization': f'Bearer {access_token}',
+        'X-Tenant-ID': tenant_id
+    }
+)
+
+fields = fields_response.json()
+print('My Fields:', fields['data'])
+```
+
+---
+
+## Rate Limiting
+
+API requests are rate-limited based on your subscription tier:
+
+| Tier | Requests per Minute | Requests per Hour |
+|------|---------------------|-------------------|
+| Free | 30 | 1,000 |
+| Standard | 60 | 3,000 |
+| Premium | 120 | 10,000 |
+| Enterprise | Custom | Custom |
+
+### Rate Limit Headers
+
+All API responses include rate limit information:
+
+```http
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 45
+X-RateLimit-Reset: 1640995200
+```
+
+### Handling Rate Limits
+
+When you exceed the rate limit, you'll receive a `429 Too Many Requests` response:
+
+```json
+{
+  "success": false,
+  "error": "Rate limit exceeded",
+  "statusCode": 429,
+  "message": "Too many requests. Please try again later."
+}
+```
+
+**Best Practices**:
+- Implement exponential backoff
+- Cache responses when possible
+- Use webhooks for real-time updates instead of polling
+- Consider upgrading your tier for higher limits
+
+---
+
+## Error Handling
+
+All API errors follow a consistent format:
+
+### Error Response Structure
+
+```json
+{
+  "success": false,
+  "error": "Error type",
+  "message": "Detailed error message",
+  "statusCode": 400,
+  "timestamp": "2026-01-07T10:30:00Z",
+  "path": "/api/v1/fields",
+  "details": {
+    "field": "name",
+    "code": "required"
+  }
+}
+```
+
+### Common HTTP Status Codes
+
+| Code | Meaning | Description |
+|------|---------|-------------|
+| 200 | OK | Request successful |
+| 201 | Created | Resource created successfully |
+| 204 | No Content | Request successful, no content to return |
+| 400 | Bad Request | Invalid request parameters |
+| 401 | Unauthorized | Authentication required or failed |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource not found |
+| 409 | Conflict | Resource conflict (e.g., duplicate) |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Server-side error |
+| 503 | Service Unavailable | Service temporarily unavailable |
+
+---
+
+## Versioning
+
+The SAHOOL API uses URL-based versioning. The current version is **v1**.
+
+**Format**: `https://api.sahool.sa/{version}/{endpoint}`
+
+**Example**: `https://api.sahool.sa/v1/fields`
+
+---
+
+## Examples
+
+### Create a Field
+
+```bash
+curl -X POST https://api.sahool.sa/v1/fields \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-Tenant-ID: YOUR_TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "حقل القمح الشمالي",
+    "cropType": "wheat",
+    "coordinates": [
+      [46.7, 24.6],
+      [46.8, 24.6],
+      [46.8, 24.7],
+      [46.7, 24.7]
+    ],
+    "irrigationType": "drip",
+    "soilType": "sandy_loam",
+    "plantingDate": "2024-01-15"
+  }'
+```
+
+### Report Pest Incident
+
+```bash
+curl -X POST https://api.sahool.sa/v1/pests/incidents \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "X-Tenant-ID: YOUR_TENANT_ID" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fieldId": "123e4567-e89b-12d3-a456-426614174000",
+    "tenantId": "tenant-001",
+    "pestType": "INSECT",
+    "pestName": "Aphids",
+    "severityLevel": 3,
+    "affectedArea": 0.5,
+    "detectedAt": "2026-01-07T10:00:00Z",
+    "reportedBy": "Field Inspector",
+    "notes": "Found on wheat leaves"
+  }'
+```
+
+---
+
+## Tools & Resources
+
+### Swagger UI
+
+Interactive API documentation is available at:
+- **Production**: [https://api.sahool.sa/docs](https://api.sahool.sa/docs)
+- **Staging**: [https://staging-api.sahool.sa/docs](https://staging-api.sahool.sa/docs)
+
+### Postman Collection
+
+Import our Postman collection: [SAHOOL.postman_collection.json](./SAHOOL.postman_collection.json)
+
+### SDKs
+
+Official SDKs:
+- **JavaScript/TypeScript**: [`@sahool/api-client`](../../packages/api-client)
+- **Python**: Coming soon
+
+---
+
+## Legacy Services
 
 ### Base URLs | عناوين URL الأساسية
 
@@ -259,12 +592,65 @@ Includes:
 
 ## Support | الدعم
 
-For API support or questions:
-- Email: api-support@sahool.com
-- Documentation: https://docs.sahool.com
-- Issues: https://github.com/sahool/api/issues
+### Documentation
+
+- **API Reference**: See OpenAPI specs in [`/docs/api/openapi/`](./openapi/)
+- **Architecture Docs**: [`/docs/architecture/`](../architecture/)
+- **Legacy Services**: See sections above for backward compatibility
+
+### Community
+
+- **Developer Forum**: [https://community.sahool.sa](https://community.sahool.sa)
+- **GitHub Issues**: [GitHub Repository](https://github.com/sahool/sahool-platform)
+
+### Contact
+
+- **Email**: api-support@sahool.sa
+- **Technical Support**: support@sahool.sa
 
 ---
 
-*Generated automatically by SAHOOL API Documentation Generator*
-*تم إنشاؤه تلقائيًا بواسطة مولد توثيق SAHOOL API*
+## Best Practices
+
+### Security
+
+1. **Never share API tokens** in public repositories or client-side code
+2. **Use HTTPS** for all API requests
+3. **Rotate tokens regularly** (every 90 days recommended)
+4. **Implement proper token storage** (secure keychain, environment variables)
+5. **Use tenant isolation** - Always include X-Tenant-ID header
+
+### Performance
+
+1. **Implement caching** for frequently accessed data
+2. **Use pagination** for large datasets
+3. **Batch requests** when possible
+4. **Monitor rate limits** and implement backoff strategies
+
+---
+
+## Changelog
+
+### Version 16.0.0 (2026-01-07)
+- ✨ Added comprehensive OpenAPI 3.0 specifications
+- ✨ Enhanced alert service with new endpoints
+- ✨ Improved notification service with multi-channel support
+- 🔧 Updated authentication with token rotation
+- 📚 Complete API documentation overhaul
+
+### Version 15.3.0 (2024-12-01)
+- ✨ Added geospatial query endpoints
+- ✨ Enhanced pest management API
+- 🐛 Fixed NDVI data retrieval issues
+
+---
+
+## License
+
+© 2024-2026 SAHOOL Platform. All rights reserved.
+
+---
+
+**Last Updated**: 2026-01-07
+**Version**: 16.0.0
+**Maintained by**: SAHOOL Platform API Team

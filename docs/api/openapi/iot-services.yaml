@@ -1,0 +1,1329 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL IoT Services API
+  description: |
+    IoT and Sensor Management API for the SAHOOL Agricultural Platform
+
+    This API provides comprehensive IoT device management, sensor data collection,
+    actuator control, and real-time monitoring for agricultural fields.
+
+    Features:
+    - Sensor data management (soil moisture, temperature, humidity, pH, etc.)
+    - Actuator control (valves, pumps, irrigation systems)
+    - Real-time sensor readings via Server-Sent Events (SSE)
+    - Alert rule configuration and management
+    - MQTT bridge for device communication
+    - WebSocket support for real-time updates
+
+    Arabic Support: جميع واجهات API تدعم اللغة العربية
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.sahool.sa/api/v1
+    description: Production server
+  - url: https://staging-api.sahool.sa/api/v1
+    description: Staging server
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+
+tags:
+  - name: Sensors
+    description: Sensor management and data retrieval
+  - name: Sensor Readings
+    description: Sensor data and historical readings
+  - name: Actuators
+    description: Actuator control and management
+  - name: Alert Rules
+    description: Alert rule configuration and automation
+  - name: Devices
+    description: IoT device management
+  - name: Real-time
+    description: Real-time data streaming endpoints
+
+security:
+  - BearerAuth: []
+
+paths:
+  /iot/sensors:
+    get:
+      tags:
+        - Sensors
+      summary: Get all sensors
+      description: |
+        Retrieve a list of all sensors with optional filtering
+        جلب جميع المستشعرات مع إمكانية التصفية
+      operationId: getSensors
+      parameters:
+        - name: type
+          in: query
+          description: Filter by sensor type
+          schema:
+            $ref: '#/components/schemas/SensorType'
+        - name: status
+          in: query
+          description: Filter by sensor status
+          schema:
+            $ref: '#/components/schemas/SensorStatus'
+        - name: field_id
+          in: query
+          description: Filter by field ID
+          schema:
+            type: string
+        - name: search
+          in: query
+          description: Search by sensor name or device ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of sensors retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Sensor'
+                  total:
+                    type: integer
+                    example: 25
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: "sensor-001"
+                        name: "Soil Moisture Sensor 1"
+                        nameAr: "مستشعر رطوبة التربة 1"
+                        type: "soil_moisture"
+                        status: "active"
+                        deviceId: "SMS-001"
+                        unit: "%"
+                        unitAr: "%"
+                        location:
+                          latitude: 15.3694
+                          longitude: 44.191
+                          fieldId: "field-001"
+                          fieldName: "North Field"
+                        lastReading:
+                          value: 45
+                          unit: "%"
+                          timestamp: "2024-01-15T10:30:00Z"
+                        battery: 85
+                        signalStrength: 92
+                        metadata: {}
+                        createdAt: "2024-01-01T00:00:00Z"
+                        updatedAt: "2024-01-15T10:30:00Z"
+                    total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags:
+        - Sensors
+      summary: Create a new sensor
+      description: |
+        Register a new sensor in the system
+        إنشاء مستشعر جديد
+      operationId: createSensor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSensorRequest'
+            example:
+              name: "Temperature Sensor 2"
+              nameAr: "مستشعر درجة الحرارة 2"
+              type: "temperature"
+              deviceId: "TEMP-002"
+              unit: "°C"
+              unitAr: "°م"
+              location:
+                latitude: 15.3695
+                longitude: 44.192
+                fieldId: "field-001"
+              metadata: {}
+      responses:
+        '201':
+          description: Sensor created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Sensor'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /iot/sensors/{sensorId}:
+    get:
+      tags:
+        - Sensors
+      summary: Get sensor by ID
+      description: Retrieve detailed information about a specific sensor
+      operationId: getSensorById
+      parameters:
+        - name: sensorId
+          in: path
+          required: true
+          description: Sensor ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sensor retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Sensor'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    put:
+      tags:
+        - Sensors
+      summary: Update sensor
+      description: Update sensor configuration and metadata
+      operationId: updateSensor
+      parameters:
+        - name: sensorId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSensorRequest'
+      responses:
+        '200':
+          description: Sensor updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Sensor'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - Sensors
+      summary: Delete sensor
+      description: Remove a sensor from the system
+      operationId: deleteSensor
+      parameters:
+        - name: sensorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Sensor deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /iot/sensors/stats:
+    get:
+      tags:
+        - Sensors
+      summary: Get sensor statistics
+      description: Retrieve aggregated statistics about all sensors
+      operationId: getSensorStats
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                        example: 50
+                      active:
+                        type: integer
+                        example: 45
+                      byType:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                        example:
+                          soil_moisture: 15
+                          temperature: 12
+                          humidity: 10
+                      byStatus:
+                        type: object
+                        additionalProperties:
+                          type: integer
+                        example:
+                          active: 45
+                          offline: 3
+                          error: 2
+
+  /iot/sensors/readings:
+    get:
+      tags:
+        - Sensor Readings
+      summary: Get sensor readings
+      description: |
+        Retrieve historical sensor readings with optional time range filtering
+        جلب قراءات المستشعر التاريخية
+      operationId: getSensorReadings
+      parameters:
+        - name: sensor_id
+          in: query
+          required: true
+          description: Sensor ID
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          description: Start date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          description: End date (ISO 8601)
+          schema:
+            type: string
+            format: date-time
+        - name: interval
+          in: query
+          description: Data aggregation interval
+          schema:
+            type: string
+            enum: [1h, 1d, 1w, 1m]
+        - name: limit
+          in: query
+          description: Maximum number of readings
+          schema:
+            type: integer
+            default: 100
+            maximum: 1000
+      responses:
+        '200':
+          description: Sensor readings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SensorReading'
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: "reading-001"
+                        sensorId: "sensor-001"
+                        value: 45.5
+                        unit: "%"
+                        timestamp: "2024-01-15T10:30:00Z"
+                        quality: "good"
+                        metadata: {}
+
+  /iot/sensors/{sensorId}/latest:
+    get:
+      tags:
+        - Sensor Readings
+      summary: Get latest sensor reading
+      description: Retrieve the most recent reading from a sensor
+      operationId: getLatestReading
+      parameters:
+        - name: sensorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Latest reading retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/SensorReading'
+
+  /iot/sensors/stream:
+    get:
+      tags:
+        - Real-time
+      summary: Stream sensor readings (SSE)
+      description: |
+        Server-Sent Events endpoint for real-time sensor data streaming
+        بث بيانات المستشعر في الوقت الفعلي
+      operationId: streamSensorReadings
+      parameters:
+        - name: sensor_id
+          in: query
+          description: Filter by specific sensor ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SSE stream established
+          content:
+            text/event-stream:
+              schema:
+                type: string
+              examples:
+                sensorReading:
+                  value: |
+                    event: sensor-reading
+                    data: {"sensorId":"sensor-001","value":45.5,"unit":"%","timestamp":"2024-01-15T10:30:00Z"}
+
+                    event: sensor-reading
+                    data: {"sensorId":"sensor-002","value":28.3,"unit":"°C","timestamp":"2024-01-15T10:30:05Z"}
+
+  /iot/actuators:
+    get:
+      tags:
+        - Actuators
+      summary: Get all actuators
+      description: |
+        Retrieve a list of all actuators
+        جلب جميع المُشغلات
+      operationId: getActuators
+      parameters:
+        - name: field_id
+          in: query
+          description: Filter by field ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of actuators retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Actuator'
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: "actuator-001"
+                        name: "Irrigation Valve 1"
+                        nameAr: "صمام الري 1"
+                        type: "valve"
+                        status: "off"
+                        deviceId: "VALVE-001"
+                        location:
+                          latitude: 15.3694
+                          longitude: 44.191
+                          fieldId: "field-001"
+                        controlMode: "automatic"
+                        linkedSensorId: "sensor-001"
+                        metadata: {}
+                        createdAt: "2024-01-01T00:00:00Z"
+                        updatedAt: "2024-01-15T10:30:00Z"
+
+    post:
+      tags:
+        - Actuators
+      summary: Create a new actuator
+      description: Register a new actuator in the system
+      operationId: createActuator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateActuatorRequest'
+      responses:
+        '201':
+          description: Actuator created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Actuator'
+
+  /iot/actuators/{actuatorId}:
+    get:
+      tags:
+        - Actuators
+      summary: Get actuator by ID
+      description: Retrieve detailed information about a specific actuator
+      operationId: getActuatorById
+      parameters:
+        - name: actuatorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Actuator retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Actuator'
+
+    put:
+      tags:
+        - Actuators
+      summary: Update actuator
+      description: Update actuator configuration
+      operationId: updateActuator
+      parameters:
+        - name: actuatorId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateActuatorRequest'
+      responses:
+        '200':
+          description: Actuator updated successfully
+
+    delete:
+      tags:
+        - Actuators
+      summary: Delete actuator
+      description: Remove an actuator from the system
+      operationId: deleteActuator
+      parameters:
+        - name: actuatorId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Actuator deleted successfully
+
+  /iot/actuators/{actuatorId}/control:
+    post:
+      tags:
+        - Actuators
+      summary: Control actuator
+      description: |
+        Send control command to an actuator
+        التحكم في المُشغل
+      operationId: controlActuator
+      parameters:
+        - name: actuatorId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActuatorControlRequest'
+            examples:
+              turnOn:
+                value:
+                  action: "on"
+                  mode: "manual"
+              turnOff:
+                value:
+                  action: "off"
+              toggle:
+                value:
+                  action: "toggle"
+              timedOn:
+                value:
+                  action: "on"
+                  duration: 3600
+      responses:
+        '200':
+          description: Control command sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Actuator'
+                  message:
+                    type: string
+                    example: "Actuator turned on successfully"
+
+  /iot/actuators/{actuatorId}/mode:
+    patch:
+      tags:
+        - Actuators
+      summary: Set actuator mode
+      description: |
+        Change actuator control mode (manual/automatic/scheduled)
+        تغيير وضع التحكم
+      operationId: setActuatorMode
+      parameters:
+        - name: actuatorId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - mode
+              properties:
+                mode:
+                  type: string
+                  enum: [manual, automatic, scheduled]
+      responses:
+        '200':
+          description: Mode changed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Actuator'
+
+  /iot/alert-rules:
+    get:
+      tags:
+        - Alert Rules
+      summary: Get all alert rules
+      description: |
+        Retrieve all alert rules with optional filtering
+        جلب جميع قواعد التنبيه
+      operationId: getAlertRules
+      parameters:
+        - name: sensor_id
+          in: query
+          description: Filter by sensor ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alert rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AlertRule'
+
+    post:
+      tags:
+        - Alert Rules
+      summary: Create alert rule
+      description: |
+        Create a new alert rule for automated monitoring
+        إنشاء قاعدة تنبيه جديدة
+      operationId: createAlertRule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAlertRuleRequest'
+            examples:
+              lowMoisture:
+                value:
+                  name: "Low Soil Moisture Alert"
+                  nameAr: "تنبيه انخفاض رطوبة التربة"
+                  sensorId: "sensor-001"
+                  condition: "below"
+                  threshold: 30
+                  severity: "warning"
+                  enabled: true
+                  actionType: "both"
+                  actuatorId: "actuator-001"
+                  actuatorAction: "turn_on"
+      responses:
+        '201':
+          description: Alert rule created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AlertRule'
+
+  /iot/alert-rules/{ruleId}:
+    get:
+      tags:
+        - Alert Rules
+      summary: Get alert rule by ID
+      description: Retrieve specific alert rule details
+      operationId: getAlertRuleById
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alert rule retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AlertRule'
+
+    put:
+      tags:
+        - Alert Rules
+      summary: Update alert rule
+      description: Modify an existing alert rule
+      operationId: updateAlertRule
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAlertRuleRequest'
+      responses:
+        '200':
+          description: Alert rule updated successfully
+
+    delete:
+      tags:
+        - Alert Rules
+      summary: Delete alert rule
+      description: Remove an alert rule
+      operationId: deleteAlertRule
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Alert rule deleted successfully
+
+  /iot/alert-rules/{ruleId}/toggle:
+    patch:
+      tags:
+        - Alert Rules
+      summary: Toggle alert rule
+      description: Enable or disable an alert rule
+      operationId: toggleAlertRule
+      parameters:
+        - name: ruleId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - enabled
+              properties:
+                enabled:
+                  type: boolean
+      responses:
+        '200':
+          description: Alert rule toggled successfully
+
+  /iot/devices:
+    get:
+      tags:
+        - Devices
+      summary: Get connected devices
+      description: |
+        Retrieve list of all connected IoT devices
+        جلب جميع الأجهزة المتصلة
+      operationId: getDevices
+      responses:
+        '200':
+          description: Devices retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  devices:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Device'
+                  stats:
+                    $ref: '#/components/schemas/DeviceStats'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+  schemas:
+    SensorType:
+      type: string
+      enum:
+        - soil_moisture
+        - temperature
+        - humidity
+        - ph
+        - light
+        - pressure
+        - rain
+        - wind
+      description: Type of sensor
+
+    SensorStatus:
+      type: string
+      enum:
+        - online
+        - offline
+        - error
+        - maintenance
+        - active
+        - inactive
+      description: Current status of the sensor
+
+    ActuatorType:
+      type: string
+      enum:
+        - valve
+        - pump
+        - fan
+        - heater
+        - light
+        - sprinkler
+      description: Type of actuator
+
+    ActuatorStatus:
+      type: string
+      enum:
+        - online
+        - offline
+        - error
+        - on
+        - off
+        - auto
+      description: Current status of the actuator
+
+    Location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 15.3694
+        longitude:
+          type: number
+          format: double
+          example: 44.191
+        fieldId:
+          type: string
+          example: "field-001"
+        fieldName:
+          type: string
+          example: "North Field"
+
+    LastReading:
+      type: object
+      properties:
+        value:
+          type: number
+          example: 45.5
+        unit:
+          type: string
+          example: "%"
+        timestamp:
+          type: string
+          format: date-time
+
+    Sensor:
+      type: object
+      required:
+        - id
+        - name
+        - nameAr
+        - type
+        - status
+        - deviceId
+        - unit
+        - unitAr
+      properties:
+        id:
+          type: string
+          example: "sensor-001"
+        name:
+          type: string
+          example: "Soil Moisture Sensor 1"
+        nameAr:
+          type: string
+          example: "مستشعر رطوبة التربة 1"
+        type:
+          $ref: '#/components/schemas/SensorType'
+        status:
+          $ref: '#/components/schemas/SensorStatus'
+        deviceId:
+          type: string
+          example: "SMS-001"
+        unit:
+          type: string
+          example: "%"
+        unitAr:
+          type: string
+          example: "%"
+        location:
+          $ref: '#/components/schemas/Location'
+        lastReading:
+          $ref: '#/components/schemas/LastReading'
+        battery:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 85
+        signalStrength:
+          type: integer
+          minimum: 0
+          maximum: 100
+          example: 92
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    SensorReading:
+      type: object
+      required:
+        - id
+        - sensorId
+        - value
+        - unit
+        - timestamp
+      properties:
+        id:
+          type: string
+        sensorId:
+          type: string
+        value:
+          type: number
+        unit:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        quality:
+          type: string
+          enum: [good, fair, poor]
+        metadata:
+          type: object
+          additionalProperties: true
+
+    Actuator:
+      type: object
+      required:
+        - id
+        - name
+        - nameAr
+        - type
+        - status
+        - deviceId
+        - controlMode
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        type:
+          $ref: '#/components/schemas/ActuatorType'
+        status:
+          $ref: '#/components/schemas/ActuatorStatus'
+        deviceId:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        controlMode:
+          type: string
+          enum: [manual, automatic, scheduled]
+        linkedSensorId:
+          type: string
+        linkedSensorName:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AlertRule:
+      type: object
+      required:
+        - id
+        - name
+        - nameAr
+        - sensorId
+        - condition
+        - threshold
+        - severity
+        - enabled
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        sensorId:
+          type: string
+        sensorName:
+          type: string
+        condition:
+          type: string
+          enum: [above, below, between, outside]
+        threshold:
+          type: number
+        thresholdMax:
+          type: number
+          description: Used for 'between' and 'outside' conditions
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        enabled:
+          type: boolean
+        actionType:
+          type: string
+          enum: [notification, actuator, both]
+        actuatorId:
+          type: string
+        actuatorAction:
+          type: string
+          enum: [turn_on, turn_off]
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+        lastSeen:
+          type: string
+          format: date-time
+
+    DeviceStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        online:
+          type: integer
+        offline:
+          type: integer
+        errors:
+          type: integer
+
+    CreateSensorRequest:
+      type: object
+      required:
+        - name
+        - nameAr
+        - type
+        - deviceId
+        - unit
+        - unitAr
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        type:
+          $ref: '#/components/schemas/SensorType'
+        deviceId:
+          type: string
+        unit:
+          type: string
+        unitAr:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        metadata:
+          type: object
+          additionalProperties: true
+
+    UpdateSensorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        status:
+          $ref: '#/components/schemas/SensorStatus'
+        location:
+          $ref: '#/components/schemas/Location'
+        metadata:
+          type: object
+          additionalProperties: true
+
+    CreateActuatorRequest:
+      type: object
+      required:
+        - name
+        - nameAr
+        - type
+        - deviceId
+        - controlMode
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        type:
+          $ref: '#/components/schemas/ActuatorType'
+        deviceId:
+          type: string
+        location:
+          $ref: '#/components/schemas/Location'
+        controlMode:
+          type: string
+          enum: [manual, automatic, scheduled]
+        linkedSensorId:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+
+    UpdateActuatorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        status:
+          $ref: '#/components/schemas/ActuatorStatus'
+        location:
+          $ref: '#/components/schemas/Location'
+        controlMode:
+          type: string
+          enum: [manual, automatic, scheduled]
+        linkedSensorId:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+
+    ActuatorControlRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [on, off, toggle]
+        mode:
+          type: string
+          enum: [manual, automatic]
+        duration:
+          type: integer
+          description: Duration in seconds for temporary actions
+
+    CreateAlertRuleRequest:
+      type: object
+      required:
+        - name
+        - nameAr
+        - sensorId
+        - condition
+        - threshold
+        - severity
+        - enabled
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        sensorId:
+          type: string
+        condition:
+          type: string
+          enum: [above, below, between, outside]
+        threshold:
+          type: number
+        thresholdMax:
+          type: number
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        enabled:
+          type: boolean
+        actionType:
+          type: string
+          enum: [notification, actuator, both]
+        actuatorId:
+          type: string
+        actuatorAction:
+          type: string
+          enum: [turn_on, turn_off]
+
+    UpdateAlertRuleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        condition:
+          type: string
+          enum: [above, below, between, outside]
+        threshold:
+          type: number
+        thresholdMax:
+          type: number
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        enabled:
+          type: boolean
+        actionType:
+          type: string
+          enum: [notification, actuator, both]
+        actuatorId:
+          type: string
+        actuatorAction:
+          type: string
+          enum: [turn_on, turn_off]
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+  responses:
+    BadRequestError:
+      description: Bad request - Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "BAD_REQUEST"
+            message: "Invalid sensor type provided"
+
+    UnauthorizedError:
+      description: Unauthorized - Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Authentication token is required"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "NOT_FOUND"
+            message: "Sensor not found"
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "INTERNAL_SERVER_ERROR"
+            message: "An unexpected error occurred"

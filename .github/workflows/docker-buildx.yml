@@ -1,0 +1,256 @@
+# Docker Buildx - Multi-Platform Container Builds
+# بناء حاويات متعددة المنصات
+#
+# Buildx provides:
+# - Multi-platform builds (amd64, arm64)
+# - Build caching (GitHub Actions cache)
+# - Parallel builds
+# - BuildKit advanced features
+
+name: Docker Multi-Platform Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to build (or "all")'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - user-service
+          - marketplace-service
+          - iot-service
+          - chat-service
+          - crop-intelligence-service
+      platforms:
+        description: 'Target platforms'
+        required: false
+        default: 'linux/amd64,linux/arm64'
+      push:
+        description: 'Push to registry'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/sahool
+
+jobs:
+  prepare:
+    name: Prepare Build Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.set-matrix.outputs.services }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set build matrix
+        id: set-matrix
+        run: |
+          if [ "${{ github.event.inputs.service }}" == "all" ] || [ -z "${{ github.event.inputs.service }}" ]; then
+            # Build all services with Dockerfiles
+            SERVICES=$(find apps/services -name "Dockerfile" -type f | \
+              sed 's|apps/services/||g' | \
+              sed 's|/Dockerfile||g' | \
+              head -20 | \
+              jq -R -s -c 'split("\n") | map(select(. != ""))')
+            echo "services=$SERVICES" >> $GITHUB_OUTPUT
+          else
+            echo "services=[\"${{ github.event.inputs.service }}\"]" >> $GITHUB_OUTPUT
+          fi
+
+  build-typescript:
+    name: Build ${{ matrix.service }} (TypeScript)
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: needs.prepare.outputs.services != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [user-service, marketplace-service, iot-service, chat-service, crop-growth-model]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if Dockerfile exists
+        id: check
+        run: |
+          if [ -f "apps/services/${{ matrix.service }}/Dockerfile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up QEMU
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: |
+            image=moby/buildkit:latest
+            network=host
+
+      - name: Login to GitHub Container Registry
+        if: steps.check.outputs.exists == 'true' && github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        if: steps.check.outputs.exists == 'true'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+
+      - name: Build and push
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/services/${{ matrix.service }}/Dockerfile
+          platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
+          push: ${{ github.event_name != 'pull_request' && github.event.inputs.push == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,scope=${{ matrix.service }},mode=max
+          build-args: |
+            SERVICE_NAME=${{ matrix.service }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            VCS_REF=${{ github.sha }}
+
+      - name: Generate SBOM
+        if: steps.check.outputs.exists == 'true' && github.event_name != 'pull_request'
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}
+          artifact-name: sbom-${{ matrix.service }}.spdx.json
+          output-file: ./sbom-${{ matrix.service }}.spdx.json
+
+  build-python:
+    name: Build ${{ matrix.service }} (Python)
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: needs.prepare.outputs.services != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [crop-intelligence-service, advisory-service, agro-advisor, alert-service, ai-advisor]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check if Dockerfile exists
+        id: check
+        run: |
+          if [ -f "apps/services/${{ matrix.service }}/Dockerfile" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up QEMU
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        if: steps.check.outputs.exists == 'true' && github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        if: steps.check.outputs.exists == 'true'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=sha,prefix=
+
+      - name: Build and push
+        if: steps.check.outputs.exists == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/services/${{ matrix.service }}/Dockerfile
+          platforms: ${{ github.event.inputs.platforms || 'linux/amd64' }}
+          push: ${{ github.event_name != 'pull_request' && github.event.inputs.push == 'true' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,scope=${{ matrix.service }},mode=max
+
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [build-typescript, build-python]
+    if: always()
+
+    steps:
+      - name: Create Summary
+        run: |
+          echo "## 🐳 Docker Multi-Platform Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Configuration:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Platforms**: ${{ github.event.inputs.platforms || 'linux/amd64' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Push to Registry**: ${{ github.event.inputs.push || 'false' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### TypeScript Services:" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| user-service | ${{ needs.build-typescript.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| marketplace-service | ${{ needs.build-typescript.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| iot-service | ${{ needs.build-typescript.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| chat-service | ${{ needs.build-typescript.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Python Services:" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| crop-intelligence-service | ${{ needs.build-python.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| advisory-service | ${{ needs.build-python.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| agro-advisor | ${{ needs.build-python.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Supported Platforms:" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Architecture | Use Case |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| linux/amd64 | x86_64 | Standard servers, cloud |" >> $GITHUB_STEP_SUMMARY
+          echo "| linux/arm64 | ARM64 | AWS Graviton, M1/M2 Macs, Raspberry Pi |" >> $GITHUB_STEP_SUMMARY

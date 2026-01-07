@@ -242,6 +242,49 @@ services:
     networks:
       - sahool-network
 
+  # NATS Prometheus Exporter - Enhanced Metrics for JetStream
+  # Provides detailed metrics for streams, consumers, and message queue performance
+  nats-prometheus-exporter:
+    image: natsio/prometheus-nats-exporter:0.14.0
+    container_name: sahool-nats-prometheus-exporter
+    restart: unless-stopped
+    command:
+      - '-varz'
+      - '-connz'
+      - '-routez'
+      - '-subz'
+      - '-jsz=all'
+      - '-healthz'
+      - 'http://nats:8222'
+    ports:
+      - "127.0.0.1:7777:7777"  # Exporter metrics port
+    environment:
+      - NATS_EXPORTER_LISTEN_ADDRESS=:7777
+      - NATS_EXPORTER_LISTEN_PATH=/metrics
+      - LOG_LEVEL=info
+    depends_on:
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7777/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - sahool-network
+
   # MQTT Broker - IoT Communication
   mqtt:
     image: eclipse-mosquitto:2

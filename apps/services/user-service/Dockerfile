@@ -1,10 +1,3 @@
-# ╔════════════════════════════════════════════════════════════════════════════╗
-# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
-# ║ This service has port conflict with: disaster-assessment (port 3020)       ║
-# ║ Port Conflict: 3020 → Suggested new port: 3025                             ║
-# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
-# ╚════════════════════════════════════════════════════════════════════════════╝
-#
 # SAHOOL User Service v16.0.0
 # خدمة إدارة المستخدمين
 
@@ -66,10 +59,10 @@ RUN npx prisma generate || \
 COPY --from=builder /workspace/user-service/dist ./dist
 
 # Set port environment variable
-ENV PORT=3020
+ENV PORT=3025
 
 # Expose port
-EXPOSE 3020
+EXPOSE 3025
 
 # Set ownership and switch to non-root user (use existing node user)
 RUN chown -R node:node /app
@@ -77,7 +70,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3020/api/v1/health || exit 1
+    CMD curl -f http://localhost:3025/api/v1/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

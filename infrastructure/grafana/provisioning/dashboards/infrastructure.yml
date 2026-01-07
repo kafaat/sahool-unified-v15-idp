@@ -1,0 +1,85 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Grafana Infrastructure Dashboards Provisioning Configuration
+# إعدادات توفير لوحات البنية التحتية
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2025-01-07
+# Purpose: Auto-provisioning of infrastructure monitoring dashboards
+# الغرض: التوفير التلقائي للوحات مراقبة البنية التحتية
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apiVersion: 1
+
+providers:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure Dashboards Provider
+  # مزود لوحات البنية التحتية
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'SAHOOL Infrastructure Dashboards'
+    orgId: 1
+    folder: 'Infrastructure'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      # Path to dashboard files - مسار ملفات اللوحات
+      path: /var/lib/grafana/dashboards/infrastructure
+      foldersFromFilesStructure: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Database Performance Dashboards Provider
+  # مزود لوحات أداء قواعد البيانات
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'SAHOOL Database Dashboards'
+    orgId: 1
+    folder: 'Database'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      # Path to dashboard files - مسار ملفات اللوحات
+      path: /var/lib/grafana/dashboards/database
+      foldersFromFilesStructure: false
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Configuration Notes - ملاحظات الإعدادات
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Dashboard Structure - هيكل اللوحات:
+# ├── Infrastructure/
+# │   └── infrastructure-overview.json - Main infrastructure monitoring
+# └── Database/
+#     └── database-performance.json - Database performance monitoring
+#
+# Features - المميزات:
+# - Auto-reload every 30 seconds - إعادة التحميل التلقائي كل 30 ثانية
+# - UI updates allowed - السماح بالتحديثات من الواجهة
+# - Organization ID 1 (default) - معرف المؤسسة 1 (افتراضي)
+# - Separate folders for better organization - مجلدات منفصلة للتنظيم الأفضل
+#
+# Dashboard Coverage - تغطية اللوحات:
+# Infrastructure Overview:
+#   - PostgreSQL metrics (connections, transactions, cache hit ratio)
+#   - Redis metrics (memory, connections, operations)
+#   - NATS metrics (messages, streams, connections)
+#   - Docker container metrics (CPU, memory, network, disk)
+#
+# Database Performance:
+#   - Query performance and latency percentiles
+#   - Connection pool statistics (PgBouncer)
+#   - Slow query tracking
+#   - Replication status and lag
+#   - Database locks and deadlocks
+#
+# Arabic Support - دعم اللغة العربية:
+# - All dashboards include bilingual labels (English/Arabic)
+# - Timezone: Asia/Riyadh (Yemen timezone)
+# - Week starts on Saturday (Islamic calendar alignment)
+#
+# Data Source - مصدر البيانات:
+# - Primary: Prometheus (UID: prometheus)
+# - Metrics from exporters: postgres-exporter, redis-exporter, node-exporter
+#
+# ═══════════════════════════════════════════════════════════════════════════════

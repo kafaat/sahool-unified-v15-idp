@@ -57,7 +57,7 @@ cp .env.example .env
 ```
 
 Key variables:
-- `PORT`: Service port (default: 3020)
+- `PORT`: Service port (default: 3025)
 - `DATABASE_URL`: PostgreSQL connection string
 - `JWT_SECRET`: Secret key for JWT tokens
 - `CORS_ALLOWED_ORIGINS`: Allowed CORS origins
@@ -74,14 +74,14 @@ npm run start:prod
 
 # Docker
 docker build -t sahool-user-service .
-docker run -p 3020:3020 sahool-user-service
+docker run -p 3025:3025 sahool-user-service
 ```
 
 ## API Documentation
 
 Once running, access the Swagger documentation at:
-- Local: http://localhost:3020/docs
-- Health Check: http://localhost:3020/api/v1/health
+- Local: http://localhost:3025/docs
+- Health Check: http://localhost:3025/api/v1/health
 
 ## Database Schema
 

@@ -209,3 +209,13 @@ config/certs/*.key
 config/certs/ca/ca.key
 config/certs/*/server.key
 config/certs/ca/ca.srl
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NATS NKey Credentials (CRITICAL - Never commit!)
+# ─────────────────────────────────────────────────────────────────────────────
+config/nats/creds/
+config/nats/nkeys/
+config/nats/.env.nkey
+config/nats/.env.nkey.backup.*
+config/nats/generated/
+*.creds

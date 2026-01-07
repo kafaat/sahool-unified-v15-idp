@@ -1,0 +1,1320 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL AI Services API
+  description: |
+    AI/ML Services for Agricultural Intelligence in the SAHOOL Platform
+    خدمات الذكاء الاصطناعي للزراعة الذكية في منصة سهول
+
+    This API provides:
+    - **Crop Intelligence**: Disease detection and crop health diagnostics
+    - **Fertilizer Advisor**: NPK recommendations and soil analysis
+    - **Yield Prediction**: ML-powered crop yield forecasting
+    - **Decision Support**: Actionable recommendations for farmers
+
+    ## Authentication
+    All endpoints require authentication via Bearer token in the Authorization header.
+
+    ## Rate Limiting
+    - 100 requests per minute per user
+    - 1000 requests per hour per tenant
+
+    ## Async Job Handling
+    Long-running ML operations return a job ID for polling status.
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.io
+    url: https://sahool.io
+  license:
+    name: Proprietary
+    url: https://sahool.io/terms
+
+servers:
+  - url: https://api.sahool.io/v1
+    description: Production server
+  - url: https://staging-api.sahool.io/v1
+    description: Staging server
+  - url: http://localhost:8080/v1
+    description: Local development
+
+tags:
+  - name: Crop Intelligence
+    description: Disease detection and crop health diagnostics
+  - name: Fertilizer Advisor
+    description: NPK recommendations and soil analysis
+  - name: Yield Prediction
+    description: Crop yield forecasting with ML models
+  - name: Health Check
+    description: Service health and status endpoints
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ==================== Common Schemas ====================
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: INVALID_REQUEST
+        message:
+          type: string
+          description: Human-readable error message
+          example: Invalid crop type specified
+        details:
+          type: object
+          description: Additional error details
+
+    AsyncJob:
+      type: object
+      required:
+        - job_id
+        - status
+        - created_at
+      properties:
+        job_id:
+          type: string
+          format: uuid
+          description: Unique job identifier
+          example: 550e8400-e29b-41d4-a716-446655440000
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+          description: Current job status
+        created_at:
+          type: string
+          format: date-time
+          description: Job creation timestamp
+        completed_at:
+          type: string
+          format: date-time
+          description: Job completion timestamp
+        progress_percent:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: Job progress percentage
+        result_url:
+          type: string
+          format: uri
+          description: URL to fetch results when job is completed
+
+    # ==================== Crop Intelligence Schemas ====================
+    VegetationIndices:
+      type: object
+      required:
+        - ndvi
+        - evi
+        - ndre
+        - lci
+        - ndwi
+        - savi
+      properties:
+        ndvi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Normalized Difference Vegetation Index
+          example: 0.78
+        evi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Enhanced Vegetation Index
+          example: 0.62
+        ndre:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Normalized Difference Red Edge
+          example: 0.21
+        lci:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Leaf Chlorophyll Index
+          example: 0.32
+        ndwi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Normalized Difference Water Index
+          example: -0.05
+        savi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Soil-Adjusted Vegetation Index
+          example: 0.65
+
+    ObservationRequest:
+      type: object
+      required:
+        - captured_at
+        - source
+        - growth_stage
+        - indices
+      properties:
+        captured_at:
+          type: string
+          format: date-time
+          description: Image capture timestamp
+          example: "2025-12-14T10:00:00Z"
+        source:
+          type: string
+          enum: [sentinel-2, drone, planet, landsat, other]
+          description: Data source
+          example: sentinel-2
+        growth_stage:
+          type: string
+          enum: [germination, early, mid, late, harvest]
+          description: Current growth stage
+          example: mid
+        indices:
+          $ref: '#/components/schemas/VegetationIndices'
+        cloud_pct:
+          type: number
+          minimum: 0
+          maximum: 100
+          default: 0
+          description: Cloud coverage percentage
+        notes:
+          type: string
+          maxLength: 1000
+          description: Additional notes
+
+    DiseaseDetectionRequest:
+      type: object
+      required:
+        - field_id
+        - image_url
+      properties:
+        field_id:
+          type: string
+          description: Field identifier
+          example: field_demo
+        image_url:
+          type: string
+          format: uri
+          description: URL of the crop image for analysis
+          example: https://cdn.sahool.io/images/field123.jpg
+        crop_type:
+          type: string
+          description: Type of crop (optional, improves accuracy)
+          example: tomato
+        metadata:
+          type: object
+          description: Additional metadata (GPS, timestamp, etc.)
+
+    DiseaseDetectionResponse:
+      type: object
+      required:
+        - detection_id
+        - field_id
+        - diseases_detected
+        - confidence
+        - timestamp
+      properties:
+        detection_id:
+          type: string
+          format: uuid
+          description: Unique detection ID
+        field_id:
+          type: string
+          description: Field identifier
+        diseases_detected:
+          type: array
+          items:
+            type: object
+            required:
+              - disease_name
+              - disease_name_ar
+              - confidence
+              - severity
+            properties:
+              disease_name:
+                type: string
+                example: Early Blight
+              disease_name_ar:
+                type: string
+                example: اللفحة المبكرة
+              confidence:
+                type: number
+                minimum: 0
+                maximum: 1
+                example: 0.92
+              severity:
+                type: string
+                enum: [low, medium, high, critical]
+                example: medium
+              affected_area_percent:
+                type: number
+                minimum: 0
+                maximum: 100
+                example: 15.5
+              treatment_recommendations:
+                type: array
+                items:
+                  type: string
+                example: ["Apply copper-based fungicide", "Remove affected leaves"]
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Overall detection confidence
+          example: 0.89
+        timestamp:
+          type: string
+          format: date-time
+
+    FieldDiagnosisResponse:
+      type: object
+      required:
+        - field_id
+        - date
+        - summary
+        - actions
+        - map_layers
+      properties:
+        field_id:
+          type: string
+          example: field_demo
+        date:
+          type: string
+          format: date
+          example: "2025-12-14"
+        summary:
+          type: object
+          required:
+            - zones_total
+            - zones_critical
+            - zones_warning
+            - zones_ok
+          properties:
+            zones_total:
+              type: integer
+              example: 3
+            zones_critical:
+              type: integer
+              example: 1
+            zones_warning:
+              type: integer
+              example: 1
+            zones_ok:
+              type: integer
+              example: 1
+        actions:
+          type: array
+          items:
+            type: object
+            required:
+              - zone_id
+              - type
+              - priority
+              - title
+              - reason
+            properties:
+              zone_id:
+                type: string
+                example: zone_c
+              type:
+                type: string
+                enum: [irrigation, fertilization, scouting, none]
+                example: irrigation
+              priority:
+                type: string
+                enum: [P0, P1, P2, P3]
+                example: P0
+              title:
+                type: string
+                example: ري فوري مطلوب
+              title_en:
+                type: string
+                example: Immediate irrigation required
+              reason:
+                type: string
+                example: إجهاد مائي شديد - NDWI منخفض جداً
+              reason_en:
+                type: string
+                example: Severe water stress - very low NDWI
+              evidence:
+                type: object
+                example: { "ndwi": -0.12, "ndvi": 0.41, "zone_health": "critical" }
+              recommended_window_hours:
+                type: integer
+                example: 24
+              recommended_dose_hint:
+                type: string
+                enum: [low, medium, high]
+                example: high
+        map_layers:
+          type: object
+          required:
+            - zones_geojson_url
+          properties:
+            ndvi_raster_url:
+              type: string
+              format: uri
+              example: https://cdn.sahool.io/maps/field_demo/2025-12-14/ndvi.tiff
+            ndwi_raster_url:
+              type: string
+              format: uri
+            ndre_raster_url:
+              type: string
+              format: uri
+            zones_geojson_url:
+              type: string
+              format: uri
+              example: /api/v1/fields/field_demo/zones.geojson
+
+    # ==================== Fertilizer Advisor Schemas ====================
+    SoilAnalysis:
+      type: object
+      required:
+        - field_id
+        - analysis_date
+        - ph
+        - nitrogen_ppm
+        - phosphorus_ppm
+        - potassium_ppm
+        - organic_matter_percent
+        - ec_ds_m
+        - soil_type
+      properties:
+        field_id:
+          type: string
+          example: field_123
+        analysis_date:
+          type: string
+          format: date-time
+        ph:
+          type: number
+          minimum: 0
+          maximum: 14
+          example: 6.5
+        nitrogen_ppm:
+          type: number
+          minimum: 0
+          example: 35.5
+        phosphorus_ppm:
+          type: number
+          minimum: 0
+          example: 18.2
+        potassium_ppm:
+          type: number
+          minimum: 0
+          example: 125.0
+        organic_matter_percent:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 2.8
+        ec_ds_m:
+          type: number
+          minimum: 0
+          description: Electrical Conductivity (dS/m)
+          example: 1.5
+        calcium_ppm:
+          type: number
+          minimum: 0
+          default: 0
+        magnesium_ppm:
+          type: number
+          minimum: 0
+          default: 0
+        sulfur_ppm:
+          type: number
+          minimum: 0
+          default: 0
+        iron_ppm:
+          type: number
+          minimum: 0
+          default: 0
+        zinc_ppm:
+          type: number
+          minimum: 0
+          default: 0
+        soil_type:
+          type: string
+          enum: [sandy, clay, loamy, silt, rocky]
+          example: loamy
+
+    FertilizerRequest:
+      type: object
+      required:
+        - field_id
+        - crop
+        - growth_stage
+        - area_hectares
+      properties:
+        field_id:
+          type: string
+          example: field_123
+        crop:
+          type: string
+          enum: [tomato, wheat, coffee, qat, banana, cucumber, pepper, potato, corn, grapes, date_palm, mango]
+          example: tomato
+        growth_stage:
+          type: string
+          enum: [seedling, vegetative, flowering, fruiting, maturity]
+          example: flowering
+        area_hectares:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          example: 2.5
+        soil_type:
+          type: string
+          enum: [sandy, clay, loamy, silt, rocky]
+          default: loamy
+        target_yield_kg_ha:
+          type: number
+          minimum: 0
+          description: Target yield in kg per hectare
+          example: 40000
+        budget_yer:
+          type: number
+          minimum: 0
+          description: Budget in Yemeni Rial
+        organic_only:
+          type: boolean
+          default: false
+          description: Use only organic fertilizers
+        soil_analysis:
+          $ref: '#/components/schemas/SoilAnalysis'
+
+    FertilizerRecommendation:
+      type: object
+      required:
+        - fertilizer_type
+        - fertilizer_name_ar
+        - fertilizer_name_en
+        - quantity_kg_per_hectare
+        - quantity_kg_per_donum
+        - application_method
+        - application_method_ar
+        - timing_ar
+        - timing_en
+        - npk_content
+        - cost_estimate_yer
+      properties:
+        fertilizer_type:
+          type: string
+          enum: [urea, dap, npk_15_15_15, npk_20_20_20, potassium_sulfate, ammonium_nitrate, superphosphate, organic_compost, chicken_manure, cow_manure]
+          example: npk_20_20_20
+        fertilizer_name_ar:
+          type: string
+          example: سماد مركب 20-20-20
+        fertilizer_name_en:
+          type: string
+          example: NPK 20-20-20
+        quantity_kg_per_hectare:
+          type: number
+          example: 150.5
+        quantity_kg_per_donum:
+          type: number
+          description: Quantity per donum (1 donum = 0.1 hectare)
+          example: 15.05
+        application_method:
+          type: string
+          enum: [broadcast, side_dressing, fertigation, foliar, band]
+          example: fertigation
+        application_method_ar:
+          type: string
+          example: تسميد بالري
+        timing_ar:
+          type: string
+          example: في الصباح الباكر أو المساء
+        timing_en:
+          type: string
+          example: Early morning or evening
+        npk_content:
+          type: object
+          required:
+            - N
+            - P
+            - K
+          properties:
+            N:
+              type: number
+              description: Nitrogen percentage
+              example: 20
+            P:
+              type: number
+              description: Phosphorus percentage
+              example: 20
+            K:
+              type: number
+              description: Potassium percentage
+              example: 20
+        cost_estimate_yer:
+          type: number
+          description: Estimated cost in Yemeni Rial
+          example: 165550
+        notes_ar:
+          type: array
+          items:
+            type: string
+          example: ["سماد متوازن لجميع المراحل", "يمكن استخدامه للرش الورقي بتركيز 0.5%"]
+        notes_en:
+          type: array
+          items:
+            type: string
+          example: ["Balanced fertilizer for all stages", "Can be used for foliar spray at 0.5%"]
+
+    FertilizationPlan:
+      type: object
+      required:
+        - plan_id
+        - field_id
+        - crop
+        - crop_name_ar
+        - growth_stage
+        - growth_stage_ar
+        - area_hectares
+        - target_yield_kg_ha
+        - recommendations
+        - total_nitrogen_kg
+        - total_phosphorus_kg
+        - total_potassium_kg
+        - total_cost_yer
+        - schedule
+        - created_at
+      properties:
+        plan_id:
+          type: string
+          format: uuid
+        field_id:
+          type: string
+        crop:
+          type: string
+          example: tomato
+        crop_name_ar:
+          type: string
+          example: طماطم
+        growth_stage:
+          type: string
+          example: flowering
+        growth_stage_ar:
+          type: string
+          example: إزهار
+        area_hectares:
+          type: number
+          example: 2.5
+        soil_analysis:
+          $ref: '#/components/schemas/SoilAnalysis'
+        target_yield_kg_ha:
+          type: number
+          example: 40000
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/FertilizerRecommendation'
+        total_nitrogen_kg:
+          type: number
+          example: 112.5
+        total_phosphorus_kg:
+          type: number
+          example: 75.0
+        total_potassium_kg:
+          type: number
+          example: 137.5
+        total_cost_yer:
+          type: number
+          example: 413875
+        schedule:
+          type: array
+          items:
+            type: object
+            properties:
+              application_number:
+                type: integer
+                example: 1
+              date:
+                type: string
+                format: date
+                example: "2025-12-14"
+              fertilizers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name_ar:
+                      type: string
+                    quantity_kg:
+                      type: number
+                    method_ar:
+                      type: string
+              notes_ar:
+                type: string
+        warnings_ar:
+          type: array
+          items:
+            type: string
+        warnings_en:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # ==================== Yield Prediction Schemas ====================
+    YieldPredictionRequest:
+      type: object
+      required:
+        - area_hectares
+        - crop_type
+      properties:
+        field_id:
+          type: string
+          example: field_123
+        area_hectares:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          example: 5.0
+        crop_type:
+          type: string
+          enum: [wheat, barley, corn, sorghum, millet, faba_bean, lentil, chickpea, tomato, potato, onion, garlic, pepper, eggplant, cucumber, okra, date_palm, mango, banana, grape, citrus_orange, citrus_lemon, pomegranate, fig, guava, coffee, sesame, cotton, alfalfa]
+          example: tomato
+        avg_rainfall:
+          type: number
+          minimum: 0
+          description: Average rainfall in mm
+          example: 450
+        avg_temperature:
+          type: number
+          description: Average temperature in Celsius
+          example: 24
+        soil_quality:
+          type: string
+          enum: [poor, medium, good]
+          default: medium
+        irrigation_type:
+          type: string
+          enum: [rain-fed, drip, sprinkler, flood, smart]
+          default: rain-fed
+        governorate:
+          type: string
+          description: Yemeni governorate
+          example: Sana'a
+
+    YieldPredictionResponse:
+      type: object
+      required:
+        - prediction_id
+        - crop_type
+        - crop_name_ar
+        - area_hectares
+        - predicted_yield_tons
+        - predicted_yield_per_hectare
+        - yield_range_min
+        - yield_range_max
+        - estimated_revenue_usd
+        - estimated_revenue_yer
+        - confidence_percent
+        - factors_applied
+        - recommendations
+        - timestamp
+      properties:
+        prediction_id:
+          type: string
+          format: uuid
+        field_id:
+          type: string
+        crop_type:
+          type: string
+          example: tomato
+        crop_name_ar:
+          type: string
+          example: طماطم
+        area_hectares:
+          type: number
+          example: 5.0
+        predicted_yield_tons:
+          type: number
+          description: Total predicted yield in tons
+          example: 175.0
+        predicted_yield_per_hectare:
+          type: number
+          description: Yield per hectare in tons
+          example: 35.0
+        yield_range_min:
+          type: number
+          description: Minimum expected yield (85% confidence)
+          example: 148.75
+        yield_range_max:
+          type: number
+          description: Maximum expected yield (85% confidence)
+          example: 201.25
+        estimated_revenue_usd:
+          type: number
+          description: Estimated revenue in USD
+          example: 70000
+        estimated_revenue_yer:
+          type: number
+          description: Estimated revenue in Yemeni Rial
+          example: 37450000
+        confidence_percent:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 85
+        factors_applied:
+          type: array
+          items:
+            type: string
+          example: ["أمطار مثالية (+10%)", "حرارة مثالية (+5%)", "تربة متوسطة"]
+        recommendations:
+          type: array
+          items:
+            type: string
+          example: ["محصول طماطم يحتاج ري منتظم", "الظروف جيدة - استمر في الرعاية المعتادة"]
+        timestamp:
+          type: string
+          format: date-time
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ==================== Health Check Endpoints ====================
+  /health:
+    get:
+      tags:
+        - Health Check
+      summary: Service health check
+      description: Check if all AI services are healthy and ready
+      security: []
+      responses:
+        '200':
+          description: Services are healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  services:
+                    type: object
+                    properties:
+                      crop_intelligence:
+                        type: string
+                        example: ok
+                      fertilizer_advisor:
+                        type: string
+                        example: ok
+                      yield_engine:
+                        type: string
+                        example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  # ==================== Crop Intelligence Endpoints ====================
+  /crop-intelligence/fields/{field_id}/zones/{zone_id}/observations:
+    post:
+      tags:
+        - Crop Intelligence
+      summary: Submit crop observation
+      description: |
+        Submit vegetation indices observation for a specific zone
+        تسجيل رصد جديد لمؤشرات الغطاء النباتي
+      parameters:
+        - name: field_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: zone_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservationRequest'
+            example:
+              captured_at: "2025-12-14T10:00:00Z"
+              source: sentinel-2
+              growth_stage: mid
+              indices:
+                ndvi: 0.78
+                evi: 0.62
+                ndre: 0.21
+                lci: 0.32
+                ndwi: -0.05
+                savi: 0.65
+              cloud_pct: 5.0
+      responses:
+        '201':
+          description: Observation recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  observation_id:
+                    type: string
+                  status:
+                    type: string
+                    example: stored
+                  zone_id:
+                    type: string
+                  field_id:
+                    type: string
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+
+  /crop-intelligence/fields/{field_id}/diagnosis:
+    get:
+      tags:
+        - Crop Intelligence
+      summary: Get field diagnosis
+      description: |
+        Complete field diagnosis with zone analysis and action recommendations
+        تشخيص كامل للحقل - "الطبيب الزراعي"
+      parameters:
+        - name: field_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2025-12-14"
+      responses:
+        '200':
+          description: Field diagnosis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldDiagnosisResponse'
+        '404':
+          description: Field not found or no observations available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /crop-intelligence/disease-detection:
+    post:
+      tags:
+        - Crop Intelligence
+      summary: Detect crop diseases using ML
+      description: |
+        Analyze crop images to detect diseases using deep learning models.
+        Supports async job processing for large images.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiseaseDetectionRequest'
+      responses:
+        '200':
+          description: Disease detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiseaseDetectionResponse'
+        '202':
+          description: Disease detection job started (async)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJob'
+        '400':
+          description: Invalid image or request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /crop-intelligence/fields/{field_id}/zones/{zone_id}/timeline:
+    get:
+      tags:
+        - Crop Intelligence
+      summary: Get zone timeline
+      description: |
+        Time series data for vegetation indices
+        السلسلة الزمنية لمؤشرات المنطقة
+      parameters:
+        - name: field_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: zone_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2025-11-01"
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2025-12-14"
+      responses:
+        '200':
+          description: Timeline data retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zone_id:
+                    type: string
+                  field_id:
+                    type: string
+                  series:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        ndvi:
+                          type: number
+                        evi:
+                          type: number
+                        ndre:
+                          type: number
+                        ndwi:
+                          type: number
+                        lci:
+                          type: number
+                        savi:
+                          type: number
+
+  # ==================== Fertilizer Advisor Endpoints ====================
+  /fertilizer/recommend:
+    post:
+      tags:
+        - Fertilizer Advisor
+      summary: Get fertilizer recommendations
+      description: |
+        Get NPK fertilizer recommendations based on crop, growth stage, and soil analysis
+        الحصول على توصيات التسميد
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FertilizerRequest'
+            example:
+              field_id: field_123
+              crop: tomato
+              growth_stage: flowering
+              area_hectares: 2.5
+              soil_type: loamy
+              target_yield_kg_ha: 40000
+              organic_only: false
+      responses:
+        '200':
+          description: Fertilization plan generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FertilizationPlan'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /fertilizer/crops:
+    get:
+      tags:
+        - Fertilizer Advisor
+      summary: List supported crops
+      description: Get list of crops with NPK requirements
+      responses:
+        '200':
+          description: List of supported crops
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  crops:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name_ar:
+                          type: string
+                        target_yield_kg_ha:
+                          type: number
+                        npk_requirements:
+                          type: object
+                          properties:
+                            N:
+                              type: number
+                            P:
+                              type: number
+                            K:
+                              type: number
+
+  /fertilizer/soil-analysis/interpret:
+    post:
+      tags:
+        - Fertilizer Advisor
+      summary: Interpret soil analysis
+      description: |
+        Interpret soil analysis results and provide recommendations
+        تفسير نتائج تحليل التربة
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoilAnalysis'
+      responses:
+        '200':
+          description: Soil analysis interpreted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field_id:
+                    type: string
+                  analysis_date:
+                    type: string
+                    format: date-time
+                  interpretations_ar:
+                    type: array
+                    items:
+                      type: string
+                  interpretations_en:
+                    type: array
+                    items:
+                      type: string
+                  recommendations_ar:
+                    type: array
+                    items:
+                      type: string
+                  recommendations_en:
+                    type: array
+                    items:
+                      type: string
+                  overall_fertility:
+                    type: string
+                    enum: [جيدة, متوسطة, ضعيفة]
+
+  /fertilizer/deficiency-symptoms/{crop}:
+    get:
+      tags:
+        - Fertilizer Advisor
+      summary: Get nutrient deficiency symptoms
+      description: |
+        Get information about nutrient deficiency symptoms for a specific crop
+        أعراض نقص العناصر الغذائية
+      parameters:
+        - name: crop
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deficiency symptoms information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  crop:
+                    type: string
+                  crop_name_ar:
+                    type: string
+                  deficiency_symptoms:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      properties:
+                        name_ar:
+                          type: string
+                        symptoms_ar:
+                          type: array
+                          items:
+                            type: string
+                        symptoms_en:
+                          type: array
+                          items:
+                            type: string
+                        treatment_ar:
+                          type: string
+                        treatment_en:
+                          type: string
+
+  # ==================== Yield Prediction Endpoints ====================
+  /yield/predict:
+    post:
+      tags:
+        - Yield Prediction
+      summary: Predict crop yield
+      description: |
+        ML-powered yield prediction based on crop, area, weather, and soil conditions
+        التنبؤ بالإنتاجية الزراعية
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YieldPredictionRequest'
+            example:
+              field_id: field_123
+              area_hectares: 5.0
+              crop_type: tomato
+              avg_rainfall: 450
+              avg_temperature: 24
+              soil_quality: good
+              irrigation_type: drip
+      responses:
+        '200':
+          description: Yield prediction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YieldPredictionResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Prediction failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /yield/crops:
+    get:
+      tags:
+        - Yield Prediction
+      summary: List supported crops for yield prediction
+      description: Get list of crops with yield data and prices
+      responses:
+        '200':
+          description: List of supported crops
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    crop_id:
+                      type: string
+                    name_ar:
+                      type: string
+                    base_yield_per_hectare:
+                      type: number
+                    price_usd_per_ton:
+                      type: number
+                    growing_season_days:
+                      type: integer
+                    water_requirement:
+                      type: string
+
+  /yield/price/{crop_type}:
+    get:
+      tags:
+        - Yield Prediction
+      summary: Get current crop price
+      description: Get the current market price for a specific crop
+      parameters:
+        - name: crop_type
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Crop price information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  crop_type:
+                    type: string
+                  name_ar:
+                    type: string
+                  price_usd_per_ton:
+                    type: number
+                  price_yer_per_ton:
+                    type: number
+                  last_updated:
+                    type: string
+                    format: date-time
+
+  # ==================== Async Job Management ====================
+  /jobs/{job_id}:
+    get:
+      tags:
+        - Crop Intelligence
+      summary: Get job status
+      description: Check the status of an async ML job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Job status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsyncJob'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

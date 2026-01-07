@@ -1,0 +1,648 @@
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL NATS Cluster - Kubernetes StatefulSet
+# High Availability 3-Node NATS Cluster with JetStream
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nats-system
+  labels:
+    name: nats-system
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/component: messaging
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-config
+  namespace: nats-system
+  labels:
+    app: nats
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/component: messaging
+data:
+  nats.conf: |
+    # SAHOOL NATS Cluster Configuration for Kubernetes
+    # Server will use hostname from StatefulSet
+
+    # Client port
+    port: 4222
+
+    # HTTP monitoring
+    http_port: 8222
+
+    # Server name from pod name
+    server_name: $POD_NAME
+
+    # Server tags
+    server_tags: [
+        "env:$NATS_ENV",
+        "region:$NATS_REGION",
+        "cluster:sahool-cluster"
+    ]
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # TLS Configuration
+    # ─────────────────────────────────────────────────────────────────────────
+    tls {
+        cert_file: "/etc/nats/certs/tls.crt"
+        key_file: "/etc/nats/certs/tls.key"
+        ca_file: "/etc/nats/certs/ca.crt"
+        verify: true
+        verify_and_map: true
+        timeout: 2
+        cipher_suites: [
+            "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+            "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+            "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        ]
+        min_version: "1.2"
+    }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # JetStream Configuration
+    # ─────────────────────────────────────────────────────────────────────────
+    jetstream {
+        store_dir: /data/jetstream
+        max_memory_store: 2GB
+        max_file_store: 50GB
+        key: $NATS_JETSTREAM_KEY
+        cipher: "aes"
+        domain: sahool
+        unique_tag: "$POD_NAME"
+        sync_interval: "2m"
+    }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # System Account
+    # ─────────────────────────────────────────────────────────────────────────
+    system_account: SYS
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Accounts
+    # ─────────────────────────────────────────────────────────────────────────
+    accounts {
+        SYS: {
+            users: [
+                { user: $NATS_SYSTEM_USER, password: $NATS_SYSTEM_PASSWORD }
+            ]
+        }
+        APP: {
+            jetstream: enabled
+            users: [
+                {
+                    user: $NATS_ADMIN_USER
+                    password: $NATS_ADMIN_PASSWORD
+                    permissions = {
+                        publish = { allow = [">"] }
+                        subscribe = { allow = [">"] }
+                    }
+                    connection_limits = {
+                        max_connections: 10
+                        max_subscriptions: 100
+                        max_payload: 8MB
+                        max_pending: 64MB
+                    }
+                },
+                {
+                    user: $NATS_USER
+                    password: $NATS_PASSWORD
+                    permissions = {
+                        publish = {
+                            allow = ["sahool.>", "field.>", "weather.>", "iot.>", "notification.>", "marketplace.>", "billing.>", "chat.>", "alert.>", "_INBOX.>"]
+                            deny = ["$SYS.>", "$JS.API.SYSTEM.>"]
+                        }
+                        subscribe = {
+                            allow = ["sahool.>", "field.>", "weather.>", "iot.>", "notification.>", "marketplace.>", "billing.>", "chat.>", "alert.>", "_INBOX.>", "$JS.API.CONSUMER.>", "$JS.API.STREAM.>"]
+                            deny = ["$SYS.>"]
+                        }
+                    }
+                    connection_limits = {
+                        max_connections: 100
+                        max_subscriptions: 500
+                        max_payload: 8MB
+                        max_pending: 64MB
+                    }
+                },
+                {
+                    user: $NATS_MONITOR_USER
+                    password: $NATS_MONITOR_PASSWORD
+                    permissions = {
+                        publish = { deny = [">"] }
+                        subscribe = {
+                            allow = ["sahool.>", "field.>", "weather.>", "iot.>", "notification.>", "marketplace.>", "billing.>", "chat.>", "alert.>"]
+                            deny = ["$SYS.>", "$JS.API.>"]
+                        }
+                    }
+                    connection_limits = {
+                        max_connections: 5
+                        max_subscriptions: 50
+                        max_payload: 1MB
+                        max_pending: 8MB
+                    }
+                }
+            ]
+        }
+    }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Cluster Configuration
+    # ─────────────────────────────────────────────────────────────────────────
+    cluster {
+        name: sahool-cluster
+        listen: 0.0.0.0:6222
+
+        tls {
+            cert_file: "/etc/nats/certs/tls.crt"
+            key_file: "/etc/nats/certs/tls.key"
+            ca_file: "/etc/nats/certs/ca.crt"
+            verify: true
+            timeout: 2
+            cipher_suites: [
+                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+            ]
+            min_version: "1.2"
+        }
+
+        authorization {
+            user: $NATS_CLUSTER_USER
+            password: $NATS_CLUSTER_PASSWORD
+            timeout: 2
+        }
+
+        routes = [
+            nats://$NATS_CLUSTER_USER:$NATS_CLUSTER_PASSWORD@nats-0.nats.nats-system.svc.cluster.local:6222
+            nats://$NATS_CLUSTER_USER:$NATS_CLUSTER_PASSWORD@nats-1.nats.nats-system.svc.cluster.local:6222
+            nats://$NATS_CLUSTER_USER:$NATS_CLUSTER_PASSWORD@nats-2.nats.nats-system.svc.cluster.local:6222
+        ]
+
+        pool_size: 5
+    }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Gateway Configuration
+    # ─────────────────────────────────────────────────────────────────────────
+    gateway {
+        name: "$NATS_GATEWAY_NAME"
+        listen: 0.0.0.0:7222
+
+        tls {
+            cert_file: "/etc/nats/certs/tls.crt"
+            key_file: "/etc/nats/certs/tls.key"
+            ca_file: "/etc/nats/certs/ca.crt"
+            verify: true
+            timeout: 5
+        }
+
+        authorization {
+            user: $NATS_GATEWAY_USER
+            password: $NATS_GATEWAY_PASSWORD
+            timeout: 5
+        }
+
+        connect_retries: 5
+        reject_unknown: false
+    }
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Logging
+    # ─────────────────────────────────────────────────────────────────────────
+    debug: false
+    trace: false
+    logtime: true
+    log_file: "/dev/stdout"
+    logfile_size_limit: 100MB
+    max_traced_msg_len: 1024
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Performance & Limits
+    # ─────────────────────────────────────────────────────────────────────────
+    max_connections: 2000
+    max_control_line: 4KB
+    max_payload: 8MB
+    max_pending: 64MB
+    ping_interval: 120s
+    ping_max: 3
+    write_deadline: 10s
+    max_pending_size: 64MB
+    slow_consumer_timeout: 5s
+    max_connections_per_ip: 200
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nats-credentials
+  namespace: nats-system
+  labels:
+    app: nats
+type: Opaque
+stringData:
+  # These should be replaced with actual values or loaded from external secrets
+  # For production, use Sealed Secrets, External Secrets Operator, or Vault
+  NATS_ADMIN_USER: "admin"
+  NATS_ADMIN_PASSWORD: "CHANGE_ME_ADMIN_PASSWORD"
+  NATS_USER: "sahool"
+  NATS_PASSWORD: "CHANGE_ME_USER_PASSWORD"
+  NATS_MONITOR_USER: "monitor"
+  NATS_MONITOR_PASSWORD: "CHANGE_ME_MONITOR_PASSWORD"
+  NATS_SYSTEM_USER: "system"
+  NATS_SYSTEM_PASSWORD: "CHANGE_ME_SYSTEM_PASSWORD"
+  NATS_CLUSTER_USER: "cluster_user"
+  NATS_CLUSTER_PASSWORD: "CHANGE_ME_CLUSTER_PASSWORD"
+  NATS_GATEWAY_USER: "gateway_user"
+  NATS_GATEWAY_PASSWORD: "CHANGE_ME_GATEWAY_PASSWORD"
+  NATS_JETSTREAM_KEY: "CHANGE_ME_BASE64_ENCODED_32_BYTE_KEY"
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nats
+  namespace: nats-system
+  labels:
+    app: nats
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/component: messaging
+    app.kubernetes.io/part-of: sahool-platform
+spec:
+  serviceName: nats
+  replicas: 3
+
+  # Pod Management Policy
+  podManagementPolicy: Parallel
+
+  # Update Strategy
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+
+  selector:
+    matchLabels:
+      app: nats
+      app.kubernetes.io/name: nats
+
+  template:
+    metadata:
+      labels:
+        app: nats
+        app.kubernetes.io/name: nats
+        app.kubernetes.io/component: messaging
+        app.kubernetes.io/part-of: sahool-platform
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "7777"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Affinity rules for high availability
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nats
+              topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: node-role.kubernetes.io/worker
+                    operator: In
+                    values:
+                      - "true"
+
+      # Service Account
+      serviceAccountName: nats
+
+      # Security Context
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+
+      # Termination Grace Period
+      terminationGracePeriodSeconds: 60
+
+      # Init Container - Wait for DNS
+      initContainers:
+        - name: wait-for-dns
+          image: busybox:1.35
+          command:
+            - sh
+            - -c
+            - |
+              until nslookup nats-0.nats.nats-system.svc.cluster.local; do
+                echo "Waiting for nats-0 DNS to be ready..."
+                sleep 2
+              done
+              echo "DNS is ready"
+
+      containers:
+        - name: nats
+          image: nats:2.10-alpine
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: client
+              containerPort: 4222
+              protocol: TCP
+            - name: cluster
+              containerPort: 6222
+              protocol: TCP
+            - name: monitor
+              containerPort: 8222
+              protocol: TCP
+            - name: gateway
+              containerPort: 7222
+              protocol: TCP
+
+          # Environment Variables
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NATS_ENV
+              value: "production"
+            - name: NATS_REGION
+              value: "us-east-1"
+            - name: NATS_GATEWAY_NAME
+              value: "sahool-dc1"
+
+          # Credentials from Secret
+          envFrom:
+            - secretRef:
+                name: nats-credentials
+
+          # Command
+          command:
+            - nats-server
+            - --config
+            - /etc/nats/nats.conf
+
+          # Volume Mounts
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nats/nats.conf
+              subPath: nats.conf
+            - name: data
+              mountPath: /data
+            - name: tls-certs
+              mountPath: /etc/nats/certs
+              readOnly: true
+
+          # Liveness Probe
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8222
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+
+          # Readiness Probe
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8222
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+
+          # Startup Probe
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 8222
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 30
+
+          # Resource Limits
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+
+          # Security Context
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+
+        # Metrics Exporter Sidecar (optional)
+        - name: metrics
+          image: natsio/prometheus-nats-exporter:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: metrics
+              containerPort: 7777
+              protocol: TCP
+
+          args:
+            - -connz
+            - -routez
+            - -subz
+            - -varz
+            - -jsz=all
+            - http://localhost:8222
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            capabilities:
+              drop:
+                - ALL
+
+      # Volumes
+      volumes:
+        - name: config
+          configMap:
+            name: nats-config
+        - name: tls-certs
+          secret:
+            secretName: nats-tls-certs
+            defaultMode: 0400
+
+  # Volume Claim Templates
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app: nats
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: fast-ssd  # Change to your storage class
+        resources:
+          requests:
+            storage: 50Gi
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nats
+  namespace: nats-system
+  labels:
+    app: nats
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: nats
+  namespace: nats-system
+  labels:
+    app: nats
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: nats
+  namespace: nats-system
+  labels:
+    app: nats
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: nats
+subjects:
+  - kind: ServiceAccount
+    name: nats
+    namespace: nats-system
+
+---
+# Pod Disruption Budget for High Availability
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: nats-pdb
+  namespace: nats-system
+  labels:
+    app: nats
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: nats
+
+---
+# Horizontal Pod Autoscaler (optional - careful with stateful sets)
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nats-hpa
+  namespace: nats-system
+  labels:
+    app: nats
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: nats
+  minReplicas: 3
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Configuration Notes
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Prerequisites:
+# ─────────────
+# 1. Create TLS certificates secret:
+#    kubectl create secret tls nats-tls-certs \
+#      --cert=/path/to/tls.crt \
+#      --key=/path/to/tls.key \
+#      -n nats-system
+#
+# 2. Add CA certificate:
+#    kubectl create secret generic nats-ca-cert \
+#      --from-file=ca.crt=/path/to/ca.crt \
+#      -n nats-system
+#
+# 3. Update credentials in nats-credentials secret with strong passwords
+#
+# 4. Ensure storage class 'fast-ssd' exists or change to your storage class
+#
+# Deployment:
+# ──────────
+# kubectl apply -f infrastructure/nats/kubernetes/nats-statefulset.yaml
+#
+# Verify Deployment:
+# ─────────────────
+# kubectl get pods -n nats-system
+# kubectl get statefulset -n nats-system
+# kubectl get pvc -n nats-system
+#
+# Check Cluster Status:
+# ────────────────────
+# kubectl exec -n nats-system nats-0 -- nats-server --signal=status
+#
+# Access Monitoring:
+# ─────────────────
+# kubectl port-forward -n nats-system nats-0 8222:8222
+# curl http://localhost:8222/varz
+#
+# ═══════════════════════════════════════════════════════════════════════════════

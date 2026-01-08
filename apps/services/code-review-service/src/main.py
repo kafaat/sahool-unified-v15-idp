@@ -24,13 +24,13 @@ from config.settings import Settings
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request, status
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from agricultural_rules import AgriculturalAnalysis, AgriculturalRulesEngine
+from .agricultural_rules import AgriculturalAnalysis, AgriculturalRulesEngine
 
 # Local imports
-from cache import CacheBackend, create_cache_backend, generate_cache_key
-from github_integration import GitHubIntegration, PRReviewResult
+from .cache import CacheBackend, create_cache_backend, generate_cache_key
+from .github_integration import GitHubIntegration, PRReviewResult
 from pydantic import BaseModel, Field
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
@@ -41,10 +41,12 @@ Path("/app/logs").mkdir(parents=True, exist_ok=True)
 Path("/app/cache").mkdir(parents=True, exist_ok=True)
 
 # Configure logging
+# Setup logging - use StreamHandler only to avoid permission issues
+# The logs directory may not be writable by the non-root user
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("/app/logs/code-review.log"), logging.StreamHandler()],
+    handlers=[logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
 

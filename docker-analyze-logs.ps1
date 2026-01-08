@@ -175,6 +175,11 @@ function Test-HasErrors {
 function Invoke-LogAnalysis {
     param([string]$ServiceName, [string]$Logs)
 
+    # Truncate logs if too long (keep last 4000 characters to avoid prompt truncation)
+    if ($Logs.Length -gt 4000) {
+        $Logs = "...[TRUNCATED - showing last 4000 chars]...`n" + $Logs.Substring($Logs.Length - 4000)
+    }
+
     $prompt = @"
 You are a Docker and DevOps expert analyzing logs from the '$ServiceName' container.
 Analyze the following logs and provide:
@@ -199,10 +204,11 @@ Provide your analysis in a structured format with clear sections.
             options = @{
                 temperature = 0.3
                 num_predict = 2048
+                num_ctx = 4096
             }
         } | ConvertTo-Json -Depth 3
 
-        $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 120
+        $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 300
         return $response.response
     }
     catch {
@@ -341,6 +347,44 @@ $Logs
 "@
 
         try {
+            # Truncate logs if too long (keep last 3000 characters to avoid prompt truncation)
+            if ($Logs.Length -gt 3000) {
+                $Logs = "..." + $Logs.Substring($Logs.Length - 3000)
+            }
+            
+            $prompt = @"
+You are a Docker and DevOps expert analyzing logs from the '$ServiceName' container.
+Analyze the following logs and provide:
+1. ERRORS FOUND: List each error with line reference
+2. ROOT CAUSE: Explain why each error occurred
+3. FIXES: Specific commands or code changes to fix each issue
+4. PRIORITY: Critical/High/Medium/Low for each issue
+
+If no errors are found, state: "SERVICE HEALTHY - No issues detected"
+
+Format your response as:
+## $ServiceName Analysis
+
+### Errors Found
+- [Error 1 description]
+- [Error 2 description]
+
+### Root Cause Analysis
+1. [Cause for Error 1]
+2. [Cause for Error 2]
+
+### Suggested Fixes
+1. [Fix for Error 1 with command/code]
+2. [Fix for Error 2 with command/code]
+
+### Priority
+- Error 1: [Priority Level]
+- Error 2: [Priority Level]
+
+LOGS:
+$Logs
+"@
+
             $body = @{
                 model = "deepseek-coder:6.7b"
                 prompt = $prompt
@@ -348,10 +392,11 @@ $Logs
                 options = @{
                     temperature = 0.3
                     num_predict = 2048
+                    num_ctx = 4096
                 }
             } | ConvertTo-Json -Depth 3
 
-            $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 180
+            $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 300
             return @{
                 Service = $ServiceName
                 Analysis = $response.response

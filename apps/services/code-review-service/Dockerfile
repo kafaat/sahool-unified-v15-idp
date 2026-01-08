@@ -17,15 +17,18 @@ COPY apps/services/code-review-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy shared modules
-COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
+
+# Create logs directory and set ownership first
+RUN mkdir -p /app/logs && \
+    chown -R sahool:sahool /app
 
 # Copy application code
 COPY apps/services/code-review-service/src/ ./src/
 COPY apps/services/code-review-service/config/ ./config/
 
-# Create logs directory and set ownership
-RUN mkdir -p /app/logs && \
-    chown -R sahool:sahool /app
+# Ensure ownership is correct after copying
+RUN chown -R sahool:sahool /app
 
 # Expose API port
 EXPOSE 8096

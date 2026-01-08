@@ -13,11 +13,11 @@ from pydantic_settings import BaseSettings
 class ModelConfig(BaseSettings):
     """Configuration for a single LLM model"""
 
-    name: str = "deepseek-coder-v2"
+    name: str = "deepseek-coder"
     endpoint: str = "http://ollama:11434"
-    timeout: int = 60
-    temperature: float = 0.3
-    max_tokens: int = 2000
+    timeout: int = 180
+    temperature: float = 0.2
+    max_tokens: int = 4000
     priority: int = 1  # Lower = higher priority
 
 

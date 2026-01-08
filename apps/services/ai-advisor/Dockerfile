@@ -53,6 +53,9 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 RUN useradd -m -u 1000 -s /bin/bash appuser && \
     chown -R appuser:appuser /app
 
+# Copy shared modules | نسخ الوحدات المشتركة
+COPY --chown=appuser:appuser apps/services/shared/ /app/shared/
+
 # Copy application code | نسخ كود التطبيق
 COPY --chown=appuser:appuser apps/services/ai-advisor/src /app/src
 

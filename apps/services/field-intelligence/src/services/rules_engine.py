@@ -1629,8 +1629,12 @@ class FieldRulesEngine:
 # Module Exports - تصدير الوحدة
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Alias for backward compatibility
+RulesEngine = FieldRulesEngine
+
 __all__ = [
     "FieldRulesEngine",
+    "RulesEngine",  # Alias for backward compatibility
     "ServiceClient",
     "get_default_rules",
 ]

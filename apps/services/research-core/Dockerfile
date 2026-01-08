@@ -20,7 +20,11 @@ COPY apps/services/research-core ./research-core/
 WORKDIR /workspace/research-core
 
 # Install dependencies with retry for network resilience
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Use a retry loop to handle network issues
+RUN for i in 1 2 3 4 5; do \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
+    (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done || (echo "npm install failed after 5 attempts" && exit 1)
 
 # Copy prisma schema and generate client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -42,7 +46,11 @@ RUN apk add --no-cache curl openssl
 
 # Copy package files
 COPY apps/services/research-core/package.json ./
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Use a retry loop to handle network issues
+RUN for i in 1 2 3 4 5; do \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
+    (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done || (echo "npm install failed after 5 attempts" && exit 1)
 
 # Copy prisma schema and regenerate client for production environment
 COPY --from=builder /workspace/research-core/prisma ./prisma/

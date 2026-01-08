@@ -47,13 +47,15 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY apps/services/task-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
-# Copy shared libraries
+# Copy shared libraries (both root shared and apps/services/shared)
+COPY shared/ ./shared/
+COPY apps/services/shared/ ./apps/services/shared/
 
 # Copy source
-COPY src/ ./src/
+COPY apps/services/task-service/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app

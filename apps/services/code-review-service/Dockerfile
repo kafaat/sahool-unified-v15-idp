@@ -13,12 +13,15 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Install Python dependencies
-COPY requirements.txt .
+COPY apps/services/code-review-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared modules
+COPY shared/ ./shared/
+
 # Copy application code
-COPY src/ ./src/
-COPY config/ ./config/
+COPY apps/services/code-review-service/src/ ./src/
+COPY apps/services/code-review-service/config/ ./config/
 
 # Create logs directory and set ownership
 RUN mkdir -p /app/logs && \

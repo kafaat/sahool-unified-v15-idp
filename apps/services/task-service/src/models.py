@@ -24,8 +24,13 @@ from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 # Import shared database base classes
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
-from database.base import Base, TenantMixin, TimestampMixin
+# Add apps/services/shared to path for database imports
+# Use absolute path to ensure it works
+shared_path = "/app/apps/services/shared"
+if shared_path not in sys.path:
+    sys.path.insert(0, shared_path)
+# Import from the database package (uses __init__.py exports)
+from database import Base, TenantMixin, TimestampMixin
 
 
 class Task(Base, TimestampMixin, TenantMixin):
@@ -131,7 +136,9 @@ class Task(Base, TimestampMixin, TenantMixin):
     )
 
     # Metadata - البيانات الوصفية
-    metadata: Mapped[dict | None] = mapped_column(
+    # Note: Renamed from 'metadata' to 'task_metadata' to avoid SQLAlchemy reserved word conflict
+    # All code using task.metadata should be updated to task.task_metadata
+    task_metadata: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         default={},

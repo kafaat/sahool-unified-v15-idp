@@ -16,6 +16,7 @@ Field-First Architecture:
 import io
 import logging
 import os
+import sys
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
@@ -33,8 +34,6 @@ from pydantic import BaseModel, Field
 logger = logging.getLogger(__name__)
 
 # Add shared modules to path
-import sys
-
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 

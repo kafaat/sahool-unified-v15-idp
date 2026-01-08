@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck - Example file for demonstration purposes
 'use client';
 
@@ -151,7 +152,7 @@ export function LayerControlWithHook() {
           onClick={() => controls.updateNDVIDate(new Date())}
           className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
         >
-          Set Today's Date
+          Set Today&apos;s Date
         </button>
         <button
           onClick={() => controls.resetToDefaults()}

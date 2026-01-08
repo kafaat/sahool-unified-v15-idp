@@ -12,7 +12,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, closed]
     paths:
-      - 'apps/frontend/**'
+      - 'apps/web/**'
       - 'apps/mobile/**'
 
 permissions:
@@ -25,7 +25,7 @@ jobs:
   preview-web:
     name: Web Preview
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('apps/frontend/web/package.json') != '' }}
+    if: ${{ hashFiles('apps/web/package.json') != '' }}
 
     steps:
       - name: Checkout code
@@ -36,14 +36,14 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'apps/frontend/web/package-lock.json'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        working-directory: apps/frontend/web
+        working-directory: apps/web
         run: npm ci || npm install
 
       - name: Build application
-        working-directory: apps/frontend/web
+        working-directory: apps/web
         run: npm run build
         env:
           CI: true
@@ -51,7 +51,7 @@ jobs:
 
       - name: Deploy to Surge.sh
         id: surge
-        working-directory: apps/frontend/web
+        working-directory: apps/web
         run: |
           npm install -g surge
           DEPLOY_DOMAIN="sahool-pr-${{ github.event.pull_request.number }}.surge.sh"
@@ -81,7 +81,7 @@ jobs:
         if: steps.surge.outcome == 'failure' || env.NETLIFY_AUTH_TOKEN != ''
         uses: nwtgck/actions-netlify@v3
         with:
-          publish-dir: './apps/frontend/web/out'
+          publish-dir: './apps/web/out'
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: "PR #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}"

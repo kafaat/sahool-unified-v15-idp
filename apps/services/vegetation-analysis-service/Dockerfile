@@ -11,17 +11,17 @@ RUN groupadd --system --gid 1000 sahool && \
 RUN pip install --no-cache-dir --upgrade pip
 
 # Install dependencies with retry logic for network resilience
-COPY vegetation-analysis-service/requirements.txt .
+COPY apps/services/vegetation-analysis-service/requirements.txt .
 RUN for i in 1 2 3; do \
         pip install --no-cache-dir -r requirements.txt && break || \
         (echo "Attempt $i failed, retrying..." && sleep $((i * 5))); \
     done
 
-# Copy shared modules
+# Copy shared modules (from repo root)
 COPY shared/ ./shared/
 
 # Copy source code
-COPY vegetation-analysis-service/src/ ./src/
+COPY apps/services/vegetation-analysis-service/src/ ./src/
 
 # Set ownership and switch to non-root user
 RUN chown -R sahool:sahool /app

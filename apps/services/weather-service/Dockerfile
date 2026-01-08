@@ -24,13 +24,13 @@ RUN groupadd --system sahool && \
 
 
 # Install dependencies (using shared requirements)
-COPY weather-service/requirements.txt .
+COPY apps/services/weather-service/requirements.txt .
 
-# Copy shared libraries
+# Copy shared libraries (from repo root)
 COPY shared/ ./shared/
 
 # Copy source
-COPY weather-service/src/ ./src/
+COPY apps/services/weather-service/src/ ./src/
 
 # Upgrade pip, install dependencies, and set ownership
 RUN pip install --upgrade pip || true && \

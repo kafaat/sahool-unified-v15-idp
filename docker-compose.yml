@@ -1410,8 +1410,8 @@ services:
   # Consolidates: satellite-service, ndvi-processor, ndvi-engine, lai-estimation
   vegetation-analysis-service:
     build:
-      context: ./apps/services
-      dockerfile: vegetation-analysis-service/Dockerfile
+      context: .
+      dockerfile: apps/services/vegetation-analysis-service/Dockerfile
     container_name: sahool-vegetation-analysis-service
     environment:
       - PORT=8090
@@ -1499,8 +1499,8 @@ services:
   # Consolidates: weather-core, weather-advanced
   weather-service:
     build:
-      context: ./apps/services
-      dockerfile: weather-service/Dockerfile
+      context: .
+      dockerfile: apps/services/weather-service/Dockerfile
     container_name: sahool-weather-service
     environment:
       - PORT=8092
@@ -1911,8 +1911,8 @@ services:
   # Removal Target: v17.0.0
   agro-advisor:
     build:
-      context: ./apps/services
-      dockerfile: agro-advisor/Dockerfile
+      context: .
+      dockerfile: apps/services/agro-advisor/Dockerfile
     container_name: sahool-agro-advisor
     labels:
       - "com.sahool.deprecated=true"

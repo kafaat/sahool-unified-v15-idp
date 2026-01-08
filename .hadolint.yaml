@@ -1,34 +1,50 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Platform Hadolint Configuration
 # تكوين Hadolint لمنصة سهول
+# Version: 15.0.0
 # ═══════════════════════════════════════════════════════════════════════════════
 #
 # This configuration customizes Dockerfile linting rules for the SAHOOL platform.
 # Reference: https://github.com/hadolint/hadolint#configure
 #
 
-# Failure threshold (error, warning, info, style, ignore, none)
+# ═══════════════════════════════════════════════════════════════════════════════
+# STRICTNESS LEVEL
+# ═══════════════════════════════════════════════════════════════════════════════
+# Options: error, warning, info, style, ignore, none
 failure-threshold: warning
 
-# Ignore specific rules that don't apply to our architecture
+# ═══════════════════════════════════════════════════════════════════════════════
+# IGNORED RULES
+# ═══════════════════════════════════════════════════════════════════════════════
 ignored:
   # DL3008: Pin versions in apt-get install
-  # We use stable base images and accept latest packages for security updates
+  # Rationale: We use stable base images and accept latest packages for security updates
   - DL3008
 
   # DL3013: Pin versions in pip install
-  # We use requirements.txt with pinned versions instead
+  # Rationale: We use requirements.txt for version pinning
   - DL3013
 
   # DL3018: Pin versions in apk add
-  # Alpine packages are versioned with base image
+  # Rationale: Alpine Linux manages this at the image level
   - DL3018
 
   # DL3059: Multiple consecutive RUN instructions
-  # Sometimes preferred for layer caching
+  # Rationale: Sometimes necessary for clarity and layer optimization
   - DL3059
 
-# Trusted registries for FROM instructions
+  # SC2046: Quote this to prevent word splitting
+  # Rationale: False positives in multi-line commands
+  - SC2046
+
+  # SC1091: Not following sourced file
+  # Rationale: Files may not exist in build context
+  - SC1091
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TRUSTED REGISTRIES
+# ═══════════════════════════════════════════════════════════════════════════════
 trustedRegistries:
   - docker.io
   - ghcr.io

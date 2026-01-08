@@ -28,6 +28,13 @@ except ImportError:
     def add_request_id_middleware(app):
         pass
 
+try:
+    from shared.middleware import setup_cors
+except ImportError:
+    # Fallback if shared.middleware is not available
+    def setup_cors(app):
+        pass
+
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize

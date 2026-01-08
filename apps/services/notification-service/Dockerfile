@@ -13,10 +13,10 @@ WORKDIR /app
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# No system dependencies needed - using Python for healthcheck
+# No system dependencies needed - Using Python for healthcheck
 
 # Upgrade pip to latest version
-RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
 
 # Copy requirements first for better caching
 COPY apps/services/notification-service/requirements.txt .

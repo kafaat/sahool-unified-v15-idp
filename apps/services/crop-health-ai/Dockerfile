@@ -24,6 +24,9 @@ RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.l
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Set working directory
+WORKDIR /app
+
 # Create virtual environment
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"

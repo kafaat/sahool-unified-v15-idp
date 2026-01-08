@@ -49,12 +49,8 @@ class Device:
     signal_strength: int | None = None  # RSSI in dBm
     location: dict | None = None  # {"lat": ..., "lng": ...}
     metadata: dict = field(default_factory=dict)
-    created_at: str = field(
-        default_factory=lambda: datetime.now(UTC).isoformat()
-    )
-    updated_at: str = field(
-        default_factory=lambda: datetime.now(UTC).isoformat()
-    )
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
+    updated_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def to_dict(self) -> dict:
         return asdict(self)

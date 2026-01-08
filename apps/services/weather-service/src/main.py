@@ -18,12 +18,6 @@ from fastapi import FastAPI
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
 from pydantic import BaseModel, Field
 
@@ -405,9 +399,7 @@ async def get_providers():
     else:
         return {
             "multi_provider_enabled": False,
-            "providers": [
-                {"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}
-            ],
+            "providers": [{"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}],
             "total": 1,
             "configured": 1,
         }

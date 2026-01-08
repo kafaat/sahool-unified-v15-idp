@@ -69,9 +69,7 @@ class ChatMessage(Model):
 
     # Metadata
     reply_to_id = fields.UUIDField(null=True)  # For threaded replies
-    message_type = fields.CharField(
-        max_length=32, default="text"
-    )  # text|image|file|system
+    message_type = fields.CharField(max_length=32, default="text")  # text|image|file|system
     is_edited = fields.BooleanField(default=False)
     edited_at = fields.DatetimeField(null=True)
 

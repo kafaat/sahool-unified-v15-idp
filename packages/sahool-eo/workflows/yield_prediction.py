@@ -443,7 +443,9 @@ class GrowthStageEstimator:
             "ndvi_trend": (
                 "increasing"
                 if trend > 0.02
-                else "decreasing" if trend < -0.02 else "stable"
+                else "decreasing"
+                if trend < -0.02
+                else "stable"
             ),
             "estimated_stage_duration": stage_duration,
             "estimated_harvest_date": self._estimate_harvest_date(

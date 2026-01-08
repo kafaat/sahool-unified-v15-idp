@@ -13,28 +13,19 @@ from fastapi import FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
 from pydantic import BaseModel, Field
 
 # Add shared middleware to path
-shared_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "shared")
-)
+shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 sys.path.insert(0, shared_path)
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
-
 import logging
 
 from profitability_analyzer import (
     CostCategory,
     ProfitabilityAnalyzer,
 )
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging
 logging.basicConfig(
@@ -56,9 +47,7 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10
-            )
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Database connected")
         except Exception as e:
@@ -83,9 +72,7 @@ async def lifespan(app: FastAPI):
         app.state.nc = None
 
     # Initialize profitability analyzer
-    app.state.analyzer = ProfitabilityAnalyzer(
-        db_pool=getattr(app.state, "db_pool", None)
-    )
+    app.state.analyzer = ProfitabilityAnalyzer(db_pool=getattr(app.state, "db_pool", None))
 
     logger.info("Field Core ready on port 8090")
     yield
@@ -287,8 +274,7 @@ async def get_season_summary(request: AnalyzeSeasonRequest):
         crops_data = [
             {
                 "field_id": crop.field_id,
-                "crop_season_id": crop.crop_season_id
-                or f"{crop.field_id}-{request.season_year}",
+                "crop_season_id": crop.crop_season_id or f"{crop.field_id}-{request.season_year}",
                 "crop_code": crop.crop_code,
                 "area_ha": crop.area_ha,
                 "costs": crop.costs,
@@ -346,9 +332,7 @@ async def calculate_break_even(
     crop_code: str = Query(..., description="Crop code"),
     area_ha: float = Query(..., gt=0, description="Area in hectares"),
     total_costs: float = Query(..., gt=0, description="Total costs in YER"),
-    expected_price: float = Query(
-        ..., gt=0, description="Expected price per kg in YER"
-    ),
+    expected_price: float = Query(..., gt=0, description="Expected price per kg in YER"),
 ):
     """
     Calculate break-even yield and price for a crop.
@@ -409,9 +393,7 @@ async def get_benchmarks(
     try:
         analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
-        benchmarks = await analyzer.get_regional_benchmarks(
-            crop_code=crop_code, region=region
-        )
+        benchmarks = await analyzer.get_regional_benchmarks(crop_code=crop_code, region=region)
 
         if not benchmarks:
             raise HTTPException(
@@ -438,9 +420,7 @@ async def get_cost_breakdown(
     try:
         analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
-        breakdown = await analyzer.get_cost_breakdown(
-            crop_code=crop_code, area_ha=area_ha
-        )
+        breakdown = await analyzer.get_cost_breakdown(crop_code=crop_code, area_ha=area_ha)
 
         if not breakdown:
             raise HTTPException(

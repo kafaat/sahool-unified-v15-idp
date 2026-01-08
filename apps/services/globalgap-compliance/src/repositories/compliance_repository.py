@@ -107,9 +107,7 @@ class ComplianceRepository:
                 if include_history:
                     records = await self.compliance_records.get_by_registration(reg_id)
                 else:
-                    latest = await self.compliance_records.get_latest_by_registration(
-                        reg_id
-                    )
+                    latest = await self.compliance_records.get_latest_by_registration(reg_id)
                     records = [latest] if latest else []
 
                 # Enhance records with additional data
@@ -118,23 +116,17 @@ class ComplianceRepository:
                     record["registration"] = registration
 
                     if include_responses:
-                        record["responses"] = (
-                            await self.checklist_responses.get_by_compliance_record(
-                                record["id"]
-                            )
-                        )
+                        record[
+                            "responses"
+                        ] = await self.checklist_responses.get_by_compliance_record(record["id"])
                         record["non_compliant_count"] = sum(
-                            1
-                            for r in record["responses"]
-                            if r["response"] == "NON_COMPLIANT"
+                            1 for r in record["responses"] if r["response"] == "NON_COMPLIANT"
                         )
 
                     if include_non_conformances:
-                        record["non_conformances"] = (
-                            await self.non_conformances.get_by_compliance_record(
-                                record["id"]
-                            )
-                        )
+                        record[
+                            "non_conformances"
+                        ] = await self.non_conformances.get_by_compliance_record(record["id"])
                         record["open_nc_count"] = sum(
                             1
                             for nc in record["non_conformances"]
@@ -165,9 +157,7 @@ class ComplianceRepository:
         Calculate summary statistics for farm compliance
         حساب الإحصائيات الموجزة لامتثال المزرعة
         """
-        active_registrations = [
-            r for r in registrations if r["certificate_status"] == "ACTIVE"
-        ]
+        active_registrations = [r for r in registrations if r["certificate_status"] == "ACTIVE"]
         latest_records = sorted(
             compliance_records,
             key=lambda x: x["audit_date"] if x["audit_date"] else date.min,
@@ -178,9 +168,7 @@ class ComplianceRepository:
             "total_registrations": len(registrations),
             "active_registrations": len(active_registrations),
             "total_audits": len(compliance_records),
-            "latest_audit_date": (
-                latest_records[0]["audit_date"] if latest_records else None
-            ),
+            "latest_audit_date": (latest_records[0]["audit_date"] if latest_records else None),
         }
 
         if latest_records:
@@ -190,17 +178,13 @@ class ComplianceRepository:
                     "current_compliance_score": latest.get("overall_compliance"),
                     "current_major_must_score": latest.get("major_must_score"),
                     "current_minor_must_score": latest.get("minor_must_score"),
-                    "compliance_trend": await self._calculate_compliance_trend(
-                        compliance_records
-                    ),
+                    "compliance_trend": await self._calculate_compliance_trend(compliance_records),
                 }
             )
 
         return summary
 
-    async def _calculate_compliance_trend(
-        self, compliance_records: list[dict[str, Any]]
-    ) -> str:
+    async def _calculate_compliance_trend(self, compliance_records: list[dict[str, Any]]) -> str:
         """
         Calculate compliance trend (improving/declining/stable)
         حساب اتجاه الامتثال (تحسين/تراجع/مستقر)
@@ -290,9 +274,7 @@ class ComplianceRepository:
                         RETURNING *
                     """
 
-                    nc_description = (
-                        f"Non-compliance identified for {checklist_item_id}"
-                    )
+                    nc_description = f"Non-compliance identified for {checklist_item_id}"
                     if notes:
                         nc_description += f": {notes}"
 
@@ -304,9 +286,7 @@ class ComplianceRepository:
                     )
                     response_data["non_conformance"] = dict(nc_row) if nc_row else None
 
-                logger.info(
-                    f"Saved checklist response: {checklist_item_id} = {response}"
-                )
+                logger.info(f"Saved checklist response: {checklist_item_id} = {response}")
 
                 return response_data
 
@@ -489,7 +469,7 @@ class ComplianceRepository:
                         AVG(cr.minor_must_score) as avg_minor_must,
                         MIN(cr.overall_compliance) as min_compliance,
                         MAX(cr.overall_compliance) as max_compliance,
-                        COUNT(CASE WHEN cr.overall_compliance < ${'3' if params else '1'} THEN 1 END) as below_threshold_count
+                        COUNT(CASE WHEN cr.overall_compliance < ${"3" if params else "1"} THEN 1 END) as below_threshold_count
                     FROM compliance_records cr
                     JOIN globalgap_registrations gr ON cr.registration_id = gr.id
                     WHERE 1=1 {date_filter}
@@ -538,9 +518,7 @@ class ComplianceRepository:
                     ORDER BY avg_compliance DESC
                 """
 
-                scope_stats = await conn.fetch(
-                    scope_query, *(params[:-1] if params else [])
-                )
+                scope_stats = await conn.fetch(scope_query, *(params[:-1] if params else []))
 
                 return {
                     "report_period": {
@@ -683,9 +661,7 @@ class ComplianceRepository:
                     params.append(severity)
 
                 if days_overdue:
-                    filters.append(
-                        f"nc.due_date < CURRENT_DATE - ${len(params) + 1}::interval"
-                    )
+                    filters.append(f"nc.due_date < CURRENT_DATE - ${len(params) + 1}::interval")
                     params.append(f"{days_overdue} days")
 
                 where_clause = " AND ".join(filters)
@@ -713,9 +689,7 @@ class ComplianceRepository:
             logger.error(f"Error getting overdue corrective actions: {e}")
             raise
 
-    async def get_expiring_certificates_report(
-        self, days_ahead: int = 90
-    ) -> list[dict[str, Any]]:
+    async def get_expiring_certificates_report(self, days_ahead: int = 90) -> list[dict[str, Any]]:
         """
         Get certificates expiring within specified days with compliance status
         الحصول على الشهادات المنتهية الصلاحية خلال أيام محددة مع حالة الامتثال
@@ -928,9 +902,7 @@ class ComplianceRepository:
             logger.error(f"Error creating compliance record with responses: {e}")
             raise
 
-    def _calculate_compliance_scores(
-        self, responses: list[dict[str, Any]]
-    ) -> dict[str, float]:
+    def _calculate_compliance_scores(self, responses: list[dict[str, Any]]) -> dict[str, float]:
         """
         Calculate compliance scores from responses
         حساب درجات الامتثال من الاستجابات

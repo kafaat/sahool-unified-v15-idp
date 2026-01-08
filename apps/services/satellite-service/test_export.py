@@ -174,9 +174,7 @@ def test_boundaries_export():
     exporter = DataExporter()
 
     # Test GeoJSON format
-    result = exporter.export_boundaries(
-        boundaries=boundaries, format=ExportFormat.GEOJSON
-    )
+    result = exporter.export_boundaries(boundaries=boundaries, format=ExportFormat.GEOJSON)
 
     print("\nGeoJSON Export:")
     print(f"Filename: {result.filename}")

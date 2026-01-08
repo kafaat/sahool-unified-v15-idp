@@ -48,9 +48,7 @@ async def check_field_soil_moisture():
             print(f"Timestamp: {data['timestamp']}")
             print("\nSoil Moisture:")
             print(f"  - Percentage: {data['soil_moisture']['percent']}%")
-            print(
-                f"  - Volumetric: {data['soil_moisture']['volumetric_water_content']} m³/m³"
-            )
+            print(f"  - Volumetric: {data['soil_moisture']['volumetric_water_content']} m³/m³")
             print(f"  - Status: {data['soil_moisture']['status']}")
             print(f"  - الحالة: {data['soil_moisture']['status_ar']}")
             print("\nSAR Data:")
@@ -91,12 +89,8 @@ async def check_field_soil_moisture():
 
             if data["events_detected"] > 0:
                 print("\nSummary:")
-                print(
-                    f"  - Total water applied: {data['summary']['total_water_applied_mm']} mm"
-                )
-                print(
-                    f"  - Average per event: {data['summary']['average_application_mm']} mm"
-                )
+                print(f"  - Total water applied: {data['summary']['total_water_applied_mm']} mm")
+                print(f"  - Average per event: {data['summary']['average_application_mm']} mm")
 
                 print("\nDetailed events:")
                 for i, event in enumerate(data["events"][:5], 1):  # Show first 5
@@ -139,9 +133,7 @@ async def check_field_soil_moisture():
             print("\nStatistics:")
             stats = data["statistics"]
             print(f"  - Average moisture: {stats['average_moisture_percent']}%")
-            print(
-                f"  - Range: {stats['min_moisture_percent']}% - {stats['max_moisture_percent']}%"
-            )
+            print(f"  - Range: {stats['min_moisture_percent']}% - {stats['max_moisture_percent']}%")
             print(f"  - Variability: {stats['moisture_range_percent']}%")
             print(f"  - Trend: {stats['trend']}")
 
@@ -159,9 +151,7 @@ async def check_field_soil_moisture():
 
             # Trend analysis
             if stats["trend"] == "increasing":
-                print(
-                    "\n📈 Soil moisture is increasing (recent rainfall or irrigation)"
-                )
+                print("\n📈 Soil moisture is increasing (recent rainfall or irrigation)")
                 print("📈 رطوبة التربة تتزايد (أمطار أو ري حديث)")
             elif stats["trend"] == "decreasing":
                 print("\n📉 Soil moisture is decreasing (consider irrigation)")

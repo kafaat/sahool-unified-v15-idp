@@ -3,9 +3,10 @@ Comprehensive Advanced Weather Service Tests
 Tests for advanced weather features, agricultural reports, and Yemen-specific functionality
 """
 
-import pytest
-from datetime import datetime, date, timedelta
+from datetime import date, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -35,16 +36,8 @@ def mock_open_meteo_response():
             "weather_code": [0, 1, 65],
             "wind_speed_10m_max": [18.5, 15.0, 22.0],
             "uv_index_max": [9.5, 10.0, 5.5],
-            "sunrise": [
-                "2026-01-08T06:15:00",
-                "2026-01-09T06:15:00",
-                "2026-01-10T06:16:00"
-            ],
-            "sunset": [
-                "2026-01-08T18:00:00",
-                "2026-01-09T18:01:00",
-                "2026-01-10T18:02:00"
-            ],
+            "sunrise": ["2026-01-08T06:15:00", "2026-01-09T06:15:00", "2026-01-10T06:16:00"],
+            "sunset": ["2026-01-08T18:00:00", "2026-01-09T18:01:00", "2026-01-10T18:02:00"],
         },
         "hourly": {
             "time": [f"2026-01-08T{h:02d}:00:00" for h in range(24)],
@@ -58,7 +51,7 @@ def mock_open_meteo_response():
             "wind_speed_10m": [10 + (h % 15) for h in range(24)],
             "wind_direction_10m": [180] * 24,
             "uv_index": [0 if h < 6 or h > 18 else 8 for h in range(24)],
-        }
+        },
     }
 
 
@@ -66,6 +59,7 @@ def mock_open_meteo_response():
 def app():
     """Create FastAPI test app instance"""
     from src.main import app as weather_advanced_app
+
     return weather_advanced_app
 
 
@@ -170,9 +164,16 @@ class TestCurrentWeather:
 
         # Verify response structure
         required_fields = [
-            "location_id", "location_name_ar", "latitude", "longitude",
-            "timestamp", "temperature_c", "humidity_percent",
-            "wind_speed_kmh", "condition", "condition_ar"
+            "location_id",
+            "location_name_ar",
+            "latitude",
+            "longitude",
+            "timestamp",
+            "temperature_c",
+            "humidity_percent",
+            "wind_speed_kmh",
+            "condition",
+            "condition_ar",
         ]
         for field in required_fields:
             assert field in data
@@ -199,7 +200,7 @@ class TestCurrentWeather:
     @pytest.mark.asyncio
     async def test_current_weather_real_api_integration(self, client):
         """Test current weather with real API (or mock)"""
-        with patch('src.main.fetch_open_meteo_current') as mock_fetch:
+        with patch("src.main.fetch_open_meteo_current") as mock_fetch:
             mock_fetch.return_value = {
                 "current": {
                     "temperature_2m": 29.0,
@@ -236,10 +237,17 @@ class TestForecastEndpoint:
 
         # Verify response structure
         required_fields = [
-            "location_id", "location_name_ar", "generated_at",
-            "current", "hourly_forecast", "daily_forecast",
-            "alerts", "growing_degree_days", "evapotranspiration_mm",
-            "irrigation_recommendation_ar", "irrigation_recommendation_en"
+            "location_id",
+            "location_name_ar",
+            "generated_at",
+            "current",
+            "hourly_forecast",
+            "daily_forecast",
+            "alerts",
+            "growing_degree_days",
+            "evapotranspiration_mm",
+            "irrigation_recommendation_ar",
+            "irrigation_recommendation_en",
         ]
         for field in required_fields:
             assert field in data
@@ -277,8 +285,12 @@ class TestForecastEndpoint:
         # Verify hourly structure
         hourly = data["hourly_forecast"][0]
         required_fields = [
-            "datetime", "temperature_c", "humidity_percent",
-            "wind_speed_kmh", "precipitation_mm", "condition"
+            "datetime",
+            "temperature_c",
+            "humidity_percent",
+            "wind_speed_kmh",
+            "precipitation_mm",
+            "condition",
         ]
         for field in required_fields:
             assert field in hourly
@@ -296,9 +308,15 @@ class TestForecastEndpoint:
         # Verify daily structure
         daily = data["daily_forecast"][0]
         required_fields = [
-            "date", "temp_max_c", "temp_min_c", "humidity_avg",
-            "precipitation_total_mm", "condition", "condition_ar",
-            "agricultural_summary_ar", "agricultural_summary_en"
+            "date",
+            "temp_max_c",
+            "temp_min_c",
+            "humidity_avg",
+            "precipitation_total_mm",
+            "condition",
+            "condition_ar",
+            "agricultural_summary_ar",
+            "agricultural_summary_en",
         ]
         for field in required_fields:
             assert field in daily
@@ -344,12 +362,18 @@ class TestWeatherAlerts:
         if data["alerts_count"] > 0:
             alert = data["alerts"][0]
             required_fields = [
-                "alert_id", "alert_type", "severity",
-                "title_ar", "title_en",
-                "description_ar", "description_en",
-                "start_time", "end_time",
+                "alert_id",
+                "alert_type",
+                "severity",
+                "title_ar",
+                "title_en",
+                "description_ar",
+                "description_en",
+                "start_time",
+                "end_time",
                 "affected_crops_ar",
-                "recommendations_ar", "recommendations_en"
+                "recommendations_ar",
+                "recommendations_en",
             ]
             for field in required_fields:
                 assert field in alert
@@ -431,10 +455,17 @@ class TestAgriculturalCalendar:
         data = response.json()
 
         required_fields = [
-            "location_id", "location_name_ar", "crop", "crop_name_ar",
-            "current_month", "current_activity_ar", "current_activity_en",
-            "optimal_temperature_range", "water_requirement",
-            "planting_months", "harvest_months"
+            "location_id",
+            "location_name_ar",
+            "crop",
+            "crop_name_ar",
+            "current_month",
+            "current_activity_ar",
+            "current_activity_en",
+            "optimal_temperature_range",
+            "water_requirement",
+            "planting_months",
+            "harvest_months",
         ]
         for field in required_fields:
             assert field in data
@@ -485,10 +516,7 @@ class TestAgriculturalCalendar:
 
         # Verify suitability structure
         day_suitability = data["next_7_days_suitability"][0]
-        required_fields = [
-            "date", "planting_suitable",
-            "spraying_suitable", "harvesting_suitable"
-        ]
+        required_fields = ["date", "planting_suitable", "spraying_suitable", "harvesting_suitable"]
         for field in required_fields:
             assert field in day_suitability
 
@@ -530,10 +558,7 @@ class TestEvapotranspirationCalculation:
         from src.main import calculate_evapotranspiration
 
         et0 = calculate_evapotranspiration(
-            temp=25.0,
-            humidity=55.0,
-            wind_speed=10.0,
-            solar_radiation=20.0
+            temp=25.0, humidity=55.0, wind_speed=10.0, solar_radiation=20.0
         )
 
         assert et0 >= 0
@@ -544,17 +569,11 @@ class TestEvapotranspirationCalculation:
         from src.main import calculate_evapotranspiration
 
         et0_hot_dry = calculate_evapotranspiration(
-            temp=38.0,
-            humidity=25.0,
-            wind_speed=20.0,
-            solar_radiation=25.0
+            temp=38.0, humidity=25.0, wind_speed=20.0, solar_radiation=25.0
         )
 
         et0_normal = calculate_evapotranspiration(
-            temp=25.0,
-            humidity=55.0,
-            wind_speed=10.0,
-            solar_radiation=20.0
+            temp=25.0, humidity=55.0, wind_speed=10.0, solar_radiation=20.0
         )
 
         # Hot, dry conditions should have higher ET0
@@ -568,11 +587,7 @@ class TestGrowingDegreeDaysCalculation:
         """Test GDD calculation for normal temperatures"""
         from src.main import calculate_growing_degree_days
 
-        gdd = calculate_growing_degree_days(
-            temp_max=30.0,
-            temp_min=20.0,
-            base_temp=10.0
-        )
+        gdd = calculate_growing_degree_days(temp_max=30.0, temp_min=20.0, base_temp=10.0)
 
         # GDD = ((30 + 20) / 2) - 10 = 15
         assert gdd == 15.0
@@ -581,11 +596,7 @@ class TestGrowingDegreeDaysCalculation:
         """Test GDD when temperature is below base"""
         from src.main import calculate_growing_degree_days
 
-        gdd = calculate_growing_degree_days(
-            temp_max=8.0,
-            temp_min=5.0,
-            base_temp=10.0
-        )
+        gdd = calculate_growing_degree_days(temp_max=8.0, temp_min=5.0, base_temp=10.0)
 
         # Should return 0 when below base temp
         assert gdd == 0.0
@@ -596,7 +607,7 @@ class TestAlertGeneration:
 
     def test_heat_wave_alert_generation(self):
         """Test heat wave alert is generated for high temperatures"""
-        from src.main import check_for_alerts, DailyForecast
+        from src.main import DailyForecast, check_for_alerts
 
         forecast = [
             DailyForecast(
@@ -624,7 +635,7 @@ class TestAlertGeneration:
 
     def test_heavy_rain_alert_generation(self):
         """Test heavy rain alert is generated"""
-        from src.main import check_for_alerts, DailyForecast
+        from src.main import DailyForecast, check_for_alerts
 
         forecast = [
             DailyForecast(
@@ -652,7 +663,7 @@ class TestAlertGeneration:
 
     def test_disease_risk_alert_generation(self):
         """Test disease risk alert for high humidity"""
-        from src.main import check_for_alerts, DailyForecast
+        from src.main import DailyForecast, check_for_alerts
 
         forecast = [
             DailyForecast(
@@ -684,8 +695,7 @@ class TestSprayWindowsCalculation:
 
     def test_get_spray_windows(self):
         """Test spray window identification"""
-        from src.main import get_spray_windows, HourlyForecast
-        from datetime import datetime
+        from src.main import HourlyForecast, get_spray_windows
 
         base_time = datetime(2026, 1, 8, 0, 0, 0)
         hourly = [
@@ -714,8 +724,7 @@ class TestSprayWindowsCalculation:
 
     def test_spray_windows_exclude_windy_hours(self):
         """Test spray windows exclude windy periods"""
-        from src.main import get_spray_windows, HourlyForecast
-        from datetime import datetime
+        from src.main import HourlyForecast, get_spray_windows
 
         base_time = datetime(2026, 1, 8, 0, 0, 0)
         hourly = [
@@ -758,20 +767,13 @@ class TestCacheManagement:
     def test_cache_validity_check(self):
         """Test cache validity checking"""
         from src.main import is_cache_valid
-        from datetime import datetime
 
         # Valid cache entry
-        valid_entry = {
-            "data": {},
-            "cached_at": datetime.utcnow()
-        }
+        valid_entry = {"data": {}, "cached_at": datetime.utcnow()}
         assert is_cache_valid(valid_entry) is True
 
         # Expired cache entry
-        expired_entry = {
-            "data": {},
-            "cached_at": datetime.utcnow() - timedelta(hours=2)
-        }
+        expired_entry = {"data": {}, "cached_at": datetime.utcnow() - timedelta(hours=2)}
         assert is_cache_valid(expired_entry) is False
 
         # Invalid entry

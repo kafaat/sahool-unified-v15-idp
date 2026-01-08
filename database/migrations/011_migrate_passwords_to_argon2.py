@@ -30,15 +30,11 @@ try:
         get_password_hasher,
     )
 except ImportError:
-    print(
-        "ERROR: Could not import password_hasher. Make sure argon2-cffi is installed."
-    )
+    print("ERROR: Could not import password_hasher. Make sure argon2-cffi is installed.")
     print("Run: pip install argon2-cffi")
     sys.exit(1)
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -96,9 +92,7 @@ class PasswordMigrator:
         else:
             return HashAlgorithm.UNKNOWN
 
-    def get_users_to_migrate(
-        self, batch_size: int = 1000, offset: int = 0
-    ) -> list[tuple]:
+    def get_users_to_migrate(self, batch_size: int = 1000, offset: int = 0) -> list[tuple]:
         """
         Get batch of users with passwords to potentially migrate
 
@@ -208,9 +202,7 @@ class PasswordMigrator:
                     if self.force and self.hasher.needs_rehash(password_hash):
                         self.flag_for_migration(user_id)
                         self.stats["flagged_for_migration"] += 1
-                        logger.info(
-                            f"User {user_id}: Argon2id hash needs parameter update"
-                        )
+                        logger.info(f"User {user_id}: Argon2id hash needs parameter update")
                 elif algorithm == HashAlgorithm.BCRYPT:
                     self.stats["bcrypt"] += 1
                     self.flag_for_migration(user_id)
@@ -274,16 +266,12 @@ class PasswordMigrator:
         logger.info(f"  - bcrypt (legacy):         {self.stats['bcrypt']}")
         logger.info(f"  - PBKDF2 (legacy):         {self.stats['pbkdf2']}")
         logger.info(f"  - Unknown format:          {self.stats['unknown']}")
-        logger.info(
-            f"\nFlagged for migration:       {self.stats['flagged_for_migration']}"
-        )
+        logger.info(f"\nFlagged for migration:       {self.stats['flagged_for_migration']}")
         logger.info(f"Errors:                      {self.stats['errors']}")
         logger.info("=" * 80)
 
         if self.stats["flagged_for_migration"] > 0:
-            logger.info(
-                "\nNOTE: Flagged users will have their passwords migrated to Argon2id"
-            )
+            logger.info("\nNOTE: Flagged users will have their passwords migrated to Argon2id")
             logger.info("      automatically on their next successful login.")
 
 
@@ -310,9 +298,7 @@ def get_database_connection():
             db_user = os.getenv("DB_USER", "postgres")
             db_password = os.getenv("DB_PASSWORD", "")
 
-            database_url = (
-                f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-            )
+            database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
         conn = psycopg2.connect(database_url)
         return conn

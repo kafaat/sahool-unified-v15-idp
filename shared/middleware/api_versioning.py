@@ -21,11 +21,10 @@ Usage:
 
 import logging
 import re
+from collections.abc import Callable
 from enum import Enum
-from typing import Callable
 
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger(__name__)
@@ -145,9 +144,7 @@ class APIVersionMiddleware(BaseHTTPMiddleware):
         # If it's an API path without version, default to latest
         if version is None and UNVERSIONED_API_PATTERN.match(path):
             version = DEFAULT_VERSION
-            logger.debug(
-                f"Unversioned API request to {path}, defaulting to {version.value}"
-            )
+            logger.debug(f"Unversioned API request to {path}, defaulting to {version.value}")
 
         # Store version in request state for downstream use
         request.state.api_version = version

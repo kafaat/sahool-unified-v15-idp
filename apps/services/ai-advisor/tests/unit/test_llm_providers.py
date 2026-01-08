@@ -48,9 +48,7 @@ class TestMultiProviderLLM:
     @pytest.mark.asyncio
     async def test_generate_with_openai(self, mock_openai_client):
         """Test text generation with OpenAI GPT"""
-        with patch(
-            "src.llm.multi_provider.openai.AsyncOpenAI", return_value=mock_openai_client
-        ):
+        with patch("src.llm.multi_provider.openai.AsyncOpenAI", return_value=mock_openai_client):
             llm = MultiProviderLLM(default_provider="openai")
 
             response = await llm.generate(
@@ -107,9 +105,7 @@ class TestMultiProviderLLM:
         mock_client = AsyncMock()
         mock_client.messages.create.side_effect = Exception("API Error")
 
-        with patch(
-            "src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_client):
             llm = MultiProviderLLM()
 
             with pytest.raises(Exception):
@@ -120,20 +116,19 @@ class TestMultiProviderLLM:
         """Test fallback mechanism when primary provider fails"""
         # Mock primary provider failure
         mock_failing_client = AsyncMock()
-        mock_failing_client.messages.create.side_effect = Exception(
-            "Anthropic API Error"
-        )
+        mock_failing_client.messages.create.side_effect = Exception("Anthropic API Error")
 
-        with patch(
-            "src.llm.multi_provider.anthropic.AsyncAnthropic",
-            return_value=mock_failing_client,
-        ), patch(
-            "src.llm.multi_provider.openai.AsyncOpenAI",
-            return_value=mock_openai_client,
+        with (
+            patch(
+                "src.llm.multi_provider.anthropic.AsyncAnthropic",
+                return_value=mock_failing_client,
+            ),
+            patch(
+                "src.llm.multi_provider.openai.AsyncOpenAI",
+                return_value=mock_openai_client,
+            ),
         ):
-            llm = MultiProviderLLM(
-                default_provider="anthropic", fallback_providers=["openai"]
-            )
+            llm = MultiProviderLLM(default_provider="anthropic", fallback_providers=["openai"])
 
             response = await llm.generate(prompt="Test prompt", max_tokens=500)
 

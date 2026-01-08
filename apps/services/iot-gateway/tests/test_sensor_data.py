@@ -7,17 +7,16 @@ import json
 from datetime import UTC, datetime
 
 import pytest
-
 from apps.services.iot_gateway.src.normalizer import (
     NormalizedReading,
-    normalize,
-    normalize_batch,
-    _normalize_sensor_type,
-    _normalize_unit,
-    _get_default_unit,
     _extract_device_from_topic,
     _extract_field_from_topic,
     _extract_type_from_topic,
+    _get_default_unit,
+    _normalize_sensor_type,
+    _normalize_unit,
+    normalize,
+    normalize_batch,
 )
 
 
@@ -98,9 +97,7 @@ class TestBasicNormalization:
 
     def test_normalize_compact_payload(self):
         """Test normalization of compact payload with abbreviated keys"""
-        payload = json.dumps(
-            {"d": "sensor_002", "f": "field_456", "t": "temperature", "v": 28.3}
-        )
+        payload = json.dumps({"d": "sensor_002", "f": "field_456", "t": "temperature", "v": 28.3})
 
         result = normalize(payload)
 
@@ -591,18 +588,14 @@ class TestErrorHandling:
 
     def test_missing_sensor_type_raises_error(self):
         """Test that missing sensor type raises error"""
-        payload = json.dumps(
-            {"device_id": "sensor_001", "field_id": "field_001", "value": 25}
-        )
+        payload = json.dumps({"device_id": "sensor_001", "field_id": "field_001", "value": 25})
 
         with pytest.raises(ValueError, match="sensor type"):
             normalize(payload)
 
     def test_missing_value_raises_error(self):
         """Test that missing value raises error"""
-        payload = json.dumps(
-            {"device_id": "sensor_001", "field_id": "field_001", "type": "temp"}
-        )
+        payload = json.dumps({"device_id": "sensor_001", "field_id": "field_001", "type": "temp"})
 
         with pytest.raises(ValueError, match="value"):
             normalize(payload)

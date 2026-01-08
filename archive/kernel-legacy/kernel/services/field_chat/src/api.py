@@ -37,9 +37,7 @@ class CreateThreadRequest(BaseModel):
     scope_id: str = Field(..., description="ID of the scope entity")
     created_by: str = Field(..., description="User ID creating the thread")
     title: str | None = Field(None, description="Optional thread title")
-    correlation_id: str | None = Field(
-        None, description="Correlation ID for tracing"
-    )
+    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
 
 
 class ThreadResponse(BaseModel):
@@ -63,13 +61,9 @@ class SendMessageRequest(BaseModel):
     tenant_id: str = Field(..., description="Tenant identifier")
     sender_id: str = Field(..., description="User ID sending the message")
     text: str | None = Field(None, description="Message text")
-    attachments: list[str] | None = Field(
-        None, description="List of attachment URLs"
-    )
+    attachments: list[str] | None = Field(None, description="List of attachment URLs")
     reply_to_id: str | None = Field(None, description="Message ID being replied to")
-    correlation_id: str | None = Field(
-        None, description="Correlation ID for tracing"
-    )
+    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
 
 
 class MessageResponse(BaseModel):
@@ -89,9 +83,7 @@ class MarkReadRequest(BaseModel):
     """Request to mark messages as read"""
 
     user_id: str = Field(..., description="User ID marking as read")
-    last_read_message_id: str | None = Field(
-        None, description="Last read message ID"
-    )
+    last_read_message_id: str | None = Field(None, description="Last read message ID")
 
 
 class AddParticipantRequest(BaseModel):
@@ -157,9 +149,7 @@ async def create_thread(
         title=thread.title,
         is_archived=thread.is_archived,
         message_count=thread.message_count,
-        last_message_at=(
-            thread.last_message_at.isoformat() if thread.last_message_at else None
-        ),
+        last_message_at=(thread.last_message_at.isoformat() if thread.last_message_at else None),
         created_at=thread.created_at.isoformat(),
     )
 
@@ -191,9 +181,7 @@ async def get_thread(
         title=thread.title,
         is_archived=thread.is_archived,
         message_count=thread.message_count,
-        last_message_at=(
-            thread.last_message_at.isoformat() if thread.last_message_at else None
-        ),
+        last_message_at=(thread.last_message_at.isoformat() if thread.last_message_at else None),
         created_at=thread.created_at.isoformat(),
     )
 
@@ -226,9 +214,7 @@ async def get_thread_by_scope(
         title=thread.title,
         is_archived=thread.is_archived,
         message_count=thread.message_count,
-        last_message_at=(
-            thread.last_message_at.isoformat() if thread.last_message_at else None
-        ),
+        last_message_at=(thread.last_message_at.isoformat() if thread.last_message_at else None),
         created_at=thread.created_at.isoformat(),
     )
 
@@ -261,9 +247,7 @@ async def list_threads(
             title=t.title,
             is_archived=t.is_archived,
             message_count=t.message_count,
-            last_message_at=(
-                t.last_message_at.isoformat() if t.last_message_at else None
-            ),
+            last_message_at=(t.last_message_at.isoformat() if t.last_message_at else None),
             created_at=t.created_at.isoformat(),
         )
         for t in threads
@@ -396,12 +380,8 @@ async def list_messages(
     thread_id: UUID,
     tenant_id: str = Query(..., description="Tenant identifier"),
     limit: int = Query(50, ge=1, le=100),
-    before: datetime | None = Query(
-        None, description="Get messages before this timestamp"
-    ),
-    after: datetime | None = Query(
-        None, description="Get messages after this timestamp"
-    ),
+    before: datetime | None = Query(None, description="Get messages before this timestamp"),
+    after: datetime | None = Query(None, description="Get messages after this timestamp"),
     repo: ChatRepository = Depends(get_repository),
 ):
     """List messages in a thread with pagination"""

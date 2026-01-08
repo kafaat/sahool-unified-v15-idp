@@ -20,17 +20,12 @@ from fastapi import FastAPI, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
 from pydantic import BaseModel, Field
 
 sys.path.insert(0, "/app")
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
 try:
     from shared.contracts.actions import (
         ActionTemplate,
@@ -382,9 +377,7 @@ def calculate_water_need(
     # Adjust for soil moisture if available
     if current_moisture is not None:
         soil_capacity = SOIL_WATER_CAPACITY[soil_type]
-        moisture_deficit = (
-            (70 - current_moisture) / 100 * soil_capacity * 0.3
-        )  # Top 30cm
+        moisture_deficit = (70 - current_moisture) / 100 * soil_capacity * 0.3  # Top 30cm
         accumulated_need_mm = max(accumulated_need_mm, moisture_deficit)
 
     # Apply irrigation efficiency
@@ -462,9 +455,7 @@ def generate_reasoning(
         reason_ar = f"🟡 {crop_ar} يحتاج ري خلال 24 ساعة. مرحلة {stage_ar} تتطلب {water_need['daily_et_mm']} ملم/يوم."
         reason_en = f"🟡 {crop.value} needs irrigation within 24 hours. {stage.value} stage requires {water_need['daily_et_mm']} mm/day."
     else:
-        reason_ar = (
-            f"🟢 {crop_ar} في حالة جيدة. الري الوقائي مُوصى به للحفاظ على رطوبة مثالية."
-        )
+        reason_ar = f"🟢 {crop_ar} في حالة جيدة. الري الوقائي مُوصى به للحفاظ على رطوبة مثالية."
         reason_en = f"🟢 {crop.value} is in good condition. Preventive irrigation recommended to maintain optimal moisture."
 
     return reason_ar, reason_en
@@ -625,15 +616,11 @@ def calculate_irrigation(request: IrrigationRequest):
 
     if water_need["urgency"] == UrgencyLevel.CRITICAL:
         recommendations_ar.append("⚠️ ري فوري مطلوب - تجنب تأخير أكثر من 6 ساعات")
-        recommendations_en.append(
-            "⚠️ Immediate irrigation required - avoid delay beyond 6 hours"
-        )
+        recommendations_en.append("⚠️ Immediate irrigation required - avoid delay beyond 6 hours")
 
     if request.irrigation_method == IrrigationMethod.FLOOD:
         recommendations_ar.append("💡 التحويل للري بالتنقيط يوفر حتى 45% من المياه")
-        recommendations_en.append(
-            "💡 Switching to drip irrigation can save up to 45% water"
-        )
+        recommendations_en.append("💡 Switching to drip irrigation can save up to 45% water")
 
     if temperature > 35:
         recommendations_ar.append("🌡️ ري في الصباح الباكر فقط لتقليل التبخر")
@@ -641,13 +628,9 @@ def calculate_irrigation(request: IrrigationRequest):
 
     if request.current_soil_moisture and request.current_soil_moisture < 30:
         recommendations_ar.append("🔴 رطوبة التربة منخفضة جداً - زيادة تواتر الري")
-        recommendations_en.append(
-            "🔴 Soil moisture very low - increase irrigation frequency"
-        )
+        recommendations_en.append("🔴 Soil moisture very low - increase irrigation frequency")
 
-    recommendations_ar.append(
-        f"💧 كفاءة الري الحالية: {int(water_need['efficiency'] * 100)}%"
-    )
+    recommendations_ar.append(f"💧 كفاءة الري الحالية: {int(water_need['efficiency'] * 100)}%")
     recommendations_en.append(
         f"💧 Current irrigation efficiency: {int(water_need['efficiency'] * 100)}%"
     )
@@ -732,16 +715,12 @@ def get_water_balance(
             "total_et_mm": round(total_et, 2),
             "total_rainfall_mm": round(total_rainfall, 2),
             "total_irrigation_mm": round(total_irrigation, 2),
-            "net_water_balance_mm": round(
-                total_rainfall + total_irrigation - total_et, 2
-            ),
+            "net_water_balance_mm": round(total_rainfall + total_irrigation - total_et, 2),
             "cumulative_deficit_mm": round(cumulative_deficit, 2),
         },
         "daily_data": [b.dict() for b in balance_data],
         "recommendation_ar": (
-            "💧 يُنصح بري تعويضي"
-            if cumulative_deficit > 30
-            else "✅ الميزان المائي متوازن"
+            "💧 يُنصح بري تعويضي" if cumulative_deficit > 30 else "✅ الميزان المائي متوازن"
         ),
     }
 
@@ -808,9 +787,7 @@ def get_efficiency_report(
         if method != current_method:
             water_saved = current_water - method_water
             cost_saved = current_cost - method_cost
-            savings_percent = (
-                (water_saved / current_water) * 100 if current_water > 0 else 0
-            )
+            savings_percent = (water_saved / current_water) * 100 if current_water > 0 else 0
 
             comparisons.append(
                 {

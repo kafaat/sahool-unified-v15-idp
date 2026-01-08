@@ -67,13 +67,9 @@ class ChecklistItem(BaseModel):
     id: str | None = None
 
     # Control point identification | تعريف نقطة التحكم
-    control_point_number: str = Field(
-        ..., description="CP number e.g., AF.1.1.1 | رقم نقطة التحكم"
-    )
+    control_point_number: str = Field(..., description="CP number e.g., AF.1.1.1 | رقم نقطة التحكم")
     category: ChecklistCategory = Field(..., description="Category | الفئة")
-    compliance_level: ComplianceLevel = Field(
-        ..., description="Compliance level | مستوى الامتثال"
-    )
+    compliance_level: ComplianceLevel = Field(..., description="Compliance level | مستوى الامتثال")
 
     # Content | المحتوى
     title_ar: str = Field(..., description="Title in Arabic | العنوان بالعربية")
@@ -115,9 +111,7 @@ class ChecklistItem(BaseModel):
     related_control_points: list[str] = Field(default_factory=list)
 
     # Metadata | بيانات وصفية
-    ifa_version: str = Field(
-        default="6.0", description="IFA version | إصدار معايير IFA"
-    )
+    ifa_version: str = Field(default="6.0", description="IFA version | إصدار معايير IFA")
     is_active: bool = True
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -200,20 +194,12 @@ class Checklist(BaseModel):
     """
 
     id: str | None = None
-    name_ar: str = Field(
-        ..., description="Checklist name in Arabic | اسم القائمة بالعربية"
-    )
-    name_en: str = Field(
-        ..., description="Checklist name in English | اسم القائمة بالإنجليزية"
-    )
+    name_ar: str = Field(..., description="Checklist name in Arabic | اسم القائمة بالعربية")
+    name_en: str = Field(..., description="Checklist name in English | اسم القائمة بالإنجليزية")
 
     # Checklist details | تفاصيل القائمة
-    ifa_version: str = Field(
-        default="6.0", description="IFA version | إصدار معايير IFA"
-    )
-    checklist_type: str = Field(
-        ..., description="full, partial, follow_up | كامل، جزئي، متابعة"
-    )
+    ifa_version: str = Field(default="6.0", description="IFA version | إصدار معايير IFA")
+    checklist_type: str = Field(..., description="full, partial, follow_up | كامل، جزئي، متابعة")
 
     # Scope | النطاق
     applicable_categories: list[ChecklistCategory] = Field(
@@ -226,9 +212,7 @@ class Checklist(BaseModel):
     )
 
     # Items | العناصر
-    total_items: int = Field(
-        default=0, description="Total checklist items | إجمالي عناصر القائمة"
-    )
+    total_items: int = Field(default=0, description="Total checklist items | إجمالي عناصر القائمة")
     major_must_count: int = Field(
         default=0,
         description="Number of Major Must items | عدد العناصر الإلزامية الرئيسية",

@@ -96,12 +96,8 @@ class HallucinationDetector:
         ]
 
         # Compile patterns
-        self.uncertainty_regex = re.compile(
-            "|".join(self.uncertainty_markers), re.IGNORECASE
-        )
-        self.unverifiable_regex = re.compile(
-            "|".join(self.unverifiable_patterns), re.IGNORECASE
-        )
+        self.uncertainty_regex = re.compile("|".join(self.uncertainty_markers), re.IGNORECASE)
+        self.unverifiable_regex = re.compile("|".join(self.unverifiable_patterns), re.IGNORECASE)
         self.self_reference_regex = re.compile(
             "|".join(self.self_reference_patterns), re.IGNORECASE
         )
@@ -144,9 +140,7 @@ class HallucinationDetector:
             confidence_score -= 0.1
 
         # Check for contradictions (simple check: repeated negations)
-        negations = len(
-            re.findall(r"\b(not|no|never|neither|nor)\b", text, re.IGNORECASE)
-        )
+        negations = len(re.findall(r"\b(not|no|never|neither|nor)\b", text, re.IGNORECASE))
         if negations > len(text.split()) * 0.1:  # More than 10% negations
             markers.append("excessive_negations")
             confidence_score -= 0.1
@@ -280,9 +274,7 @@ class CitationChecker:
             r"المصدر:",  # Arabic: Source
         ]
 
-        self.citation_regex = re.compile(
-            "|".join(self.citation_patterns), re.IGNORECASE
-        )
+        self.citation_regex = re.compile("|".join(self.citation_patterns), re.IGNORECASE)
 
     def has_citations(self, text: str) -> bool:
         """Check if text has citations"""
@@ -297,9 +289,7 @@ class CitationChecker:
         if language == "ar":
             reminder = "\n\nملاحظة: يُرجى الرجوع إلى مصادر موثوقة للتحقق."
         else:
-            reminder = (
-                "\n\nNote: Please refer to authoritative sources for verification."
-            )
+            reminder = "\n\nNote: Please refer to authoritative sources for verification."
 
         return text + reminder
 
@@ -450,15 +440,11 @@ class OutputFilter:
         requires_citation = policy.require_citations and not has_citations
         if requires_citation:
             warnings.append("Output lacks required citations")
-            filtered_output = self.citation_checker.add_citation_reminder(
-                filtered_output, language
-            )
+            filtered_output = self.citation_checker.add_citation_reminder(filtered_output, language)
 
         # 5. Add disclaimer if needed
         if policy.add_disclaimer:
-            filtered_output = self.hallucination_detector.add_disclaimer(
-                filtered_output, language
-            )
+            filtered_output = self.hallucination_detector.add_disclaimer(filtered_output, language)
             metadata["disclaimer_added"] = True
 
         # Determine overall safety

@@ -19,10 +19,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -283,9 +282,7 @@ class AuditLogAnalyzer:
                 )
 
         # Check for off-hours activity
-        off_hours_entries = [
-            e for e in entries if e["_timestamp"].hour in self.SUSPICIOUS_HOURS
-        ]
+        off_hours_entries = [e for e in entries if e["_timestamp"].hour in self.SUSPICIOUS_HOURS]
         if off_hours_entries:
             off_hours_actors = Counter(
                 e.get("actor_id") for e in off_hours_entries if e.get("actor_id")
@@ -303,9 +300,7 @@ class AuditLogAnalyzer:
                     )
 
         # Check for sensitive actions
-        sensitive_entries = [
-            e for e in entries if e.get("action") in self.SENSITIVE_ACTIONS
-        ]
+        sensitive_entries = [e for e in entries if e.get("action") in self.SENSITIVE_ACTIONS]
         for entry in sensitive_entries:
             risks.append(
                 {
@@ -352,9 +347,7 @@ class AuditLogAnalyzer:
 
         for actor_id, actor_logs in actor_entries.items():
             # Check for sudden activity spikes
-            daily_counts = Counter(
-                e["_timestamp"].strftime("%Y-%m-%d") for e in actor_logs
-            )
+            daily_counts = Counter(e["_timestamp"].strftime("%Y-%m-%d") for e in actor_logs)
             if len(daily_counts) >= 3:
                 counts = list(daily_counts.values())
                 avg = sum(counts[:-1]) / len(counts[:-1])

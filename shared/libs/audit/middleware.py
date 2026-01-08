@@ -18,9 +18,7 @@ from starlette.responses import Response
 logger = logging.getLogger(__name__)
 
 # Context variable for audit context
-_audit_context: ContextVar[AuditContext | None] = ContextVar(
-    "audit_context", default=None
-)
+_audit_context: ContextVar[AuditContext | None] = ContextVar("audit_context", default=None)
 
 
 @dataclass

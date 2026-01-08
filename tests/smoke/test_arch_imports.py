@@ -102,9 +102,7 @@ class TestNoCircularImports:
         """Each module can be imported independently without circular import errors"""
         # Remove from cache to ensure fresh import
         modules_to_remove = [
-            key
-            for key in sys.modules
-            if key == module_name or key.startswith(f"{module_name}.")
+            key for key in sys.modules if key == module_name or key.startswith(f"{module_name}.")
         ]
         for mod in modules_to_remove:
             sys.modules.pop(mod, None)
@@ -140,6 +138,4 @@ class TestArchitectureRules:
         )
 
         if result.returncode != 0:
-            pytest.fail(
-                f"Architecture violations found:\n{result.stdout}\n{result.stderr}"
-            )
+            pytest.fail(f"Architecture violations found:\n{result.stdout}\n{result.stderr}")

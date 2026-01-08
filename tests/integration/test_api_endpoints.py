@@ -72,9 +72,7 @@ async def test_field_ops_list_fields(
 
     if response.status_code == 200:
         data = response.json()
-        assert isinstance(
-            data, list | dict
-        ), "Response should be a list or paginated object"
+        assert isinstance(data, list | dict), "Response should be a list or paginated object"
 
 
 @pytest.mark.integration
@@ -116,9 +114,7 @@ async def test_field_ops_get_field(
     """
     # Try to get a field (may not exist)
     field_id = "test-field-123"
-    response = await field_ops_client.get(
-        f"/api/v1/fields/{field_id}", headers=auth_headers
-    )
+    response = await field_ops_client.get(f"/api/v1/fields/{field_id}", headers=auth_headers)
     assert response.status_code in (
         200,
         401,
@@ -223,9 +219,7 @@ async def test_ndvi_get_field_analysis(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_ndvi_calculate_index(
-    ndvi_client: httpx.AsyncClient, auth_headers: dict[str, str]
-):
+async def test_ndvi_calculate_index(ndvi_client: httpx.AsyncClient, auth_headers: dict[str, str]):
     """
     Test calculating NDVI index
     اختبار حساب مؤشر NDVI
@@ -283,9 +277,7 @@ async def test_ai_advisor_get_agents(
     Test getting available AI agents
     اختبار الحصول على الوكلاء الذكيين المتاحين
     """
-    response = await ai_advisor_client.get(
-        "/api/v1/advisor/agents", headers=auth_headers
-    )
+    response = await ai_advisor_client.get("/api/v1/advisor/agents", headers=auth_headers)
     assert response.status_code in (
         200,
         401,
@@ -412,9 +404,7 @@ async def test_task_service_create_task(auth_headers: dict[str, str]):
     }
 
     async with httpx.AsyncClient(base_url="http://localhost:8103") as client:
-        response = await client.post(
-            "/api/v1/tasks", headers=auth_headers, json=task_data
-        )
+        response = await client.post("/api/v1/tasks", headers=auth_headers, json=task_data)
         assert response.status_code in (
             201,
             401,
@@ -468,9 +458,7 @@ async def test_irrigation_smart_calculate_et0(
     }
 
     async with httpx.AsyncClient(base_url="http://localhost:8094") as client:
-        response = await client.post(
-            "/api/v1/irrigation/et0", headers=auth_headers, json=et0_data
-        )
+        response = await client.post("/api/v1/irrigation/et0", headers=auth_headers, json=et0_data)
         assert response.status_code in (
             200,
             401,

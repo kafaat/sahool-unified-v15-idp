@@ -13,7 +13,6 @@ from shared.events.contracts import BaseEvent
 from shared.events.models import EventMetadata, EventPriority, EventStatus
 from shared.events.publisher import EventPublisher, PublisherConfig
 
-
 # ═══════════════════════════════════════════════════════════════════════════
 # Mock Event Classes
 # ═══════════════════════════════════════════════════════════════════════════
@@ -60,7 +59,9 @@ class TestPublisherConfig:
         assert config.enable_retry is True
         assert config.max_retry_attempts == 3
 
-    @patch.dict("os.environ", {"NATS_URL": "nats://test-server:4222", "SERVICE_NAME": "test-service"})
+    @patch.dict(
+        "os.environ", {"NATS_URL": "nats://test-server:4222", "SERVICE_NAME": "test-service"}
+    )
     def test_config_from_env(self):
         """Test configuration from environment variables"""
         config = PublisherConfig()

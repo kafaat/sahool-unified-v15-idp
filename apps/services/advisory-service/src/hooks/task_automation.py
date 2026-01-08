@@ -285,9 +285,7 @@ class TaskAutomationHook:
             corrections = payload.get("corrections", [])
 
             # Create inspection task
-            due_date = datetime.now(UTC) + timedelta(
-                hours=24 if severity == "high" else 48
-            )
+            due_date = datetime.now(UTC) + timedelta(hours=24 if severity == "high" else 48)
 
             await self.fieldops.create_task(
                 tenant_id=tenant_id,

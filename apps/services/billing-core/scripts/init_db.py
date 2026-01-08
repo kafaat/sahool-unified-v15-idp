@@ -134,9 +134,7 @@ async def seed_sample_data():
 
 async def main():
     """Main initialization function"""
-    parser = argparse.ArgumentParser(
-        description="Initialize SAHOOL Billing Core database"
-    )
+    parser = argparse.ArgumentParser(description="Initialize SAHOOL Billing Core database")
     parser.add_argument(
         "--drop",
         action="store_true",

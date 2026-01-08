@@ -156,7 +156,7 @@ def setup_opentelemetry(
     service_name: str,
     service_version: str,
     otlp_endpoint: str | None = None,
-) -> Optional[object]:
+) -> object | None:
     """
     Setup OpenTelemetry tracing.
     إعداد تتبع OpenTelemetry.
@@ -277,7 +277,7 @@ def inject_trace_headers(headers: dict) -> dict:
     return carrier
 
 
-def extract_trace_from_headers(headers: dict) -> Optional[object]:
+def extract_trace_from_headers(headers: dict) -> object | None:
     """
     Extract trace context from HTTP headers.
     استخراج سياق التتبع من رؤوس HTTP.

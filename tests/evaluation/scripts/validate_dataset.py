@@ -135,9 +135,7 @@ class DatasetValidator:
         """Validate input section"""
         for field, field_type in self.REQUIRED_INPUT_FIELDS.items():
             if field not in input_data:
-                self.errors.append(
-                    f"Test case {idx}: Missing required input field '{field}'"
-                )
+                self.errors.append(f"Test case {idx}: Missing required input field '{field}'")
                 return False
 
             if not isinstance(input_data[field], field_type):
@@ -157,9 +155,7 @@ class DatasetValidator:
         """Validate expected output section"""
         for field, field_type in self.REQUIRED_OUTPUT_FIELDS.items():
             if field not in output:
-                self.errors.append(
-                    f"Test case {idx}: Missing required output field '{field}'"
-                )
+                self.errors.append(f"Test case {idx}: Missing required output field '{field}'")
                 return False
 
             if not isinstance(output[field], field_type):
@@ -183,23 +179,17 @@ class DatasetValidator:
         """Validate evaluation criteria"""
         for field, field_types in self.REQUIRED_CRITERIA_FIELDS.items():
             if field not in criteria:
-                self.errors.append(
-                    f"Test case {idx}: Missing required criteria field '{field}'"
-                )
+                self.errors.append(f"Test case {idx}: Missing required criteria field '{field}'")
                 return False
 
             if not isinstance(criteria[field], field_types):
-                self.errors.append(
-                    f"Test case {idx}: Criteria field '{field}' must be numeric"
-                )
+                self.errors.append(f"Test case {idx}: Criteria field '{field}' must be numeric")
                 return False
 
         # Validate ranges
         min_sim = criteria["min_similarity"]
         if not (0.0 <= min_sim <= 1.0):
-            self.errors.append(
-                f"Test case {idx}: min_similarity must be between 0 and 1"
-            )
+            self.errors.append(f"Test case {idx}: min_similarity must be between 0 and 1")
             return False
 
         max_latency = criteria["max_latency_ms"]
@@ -222,16 +212,12 @@ class DatasetValidator:
         # Check category coverage
         missing_categories = self.VALID_CATEGORIES - categories
         if missing_categories:
-            self.warnings.append(
-                f"Dataset missing test cases for categories: {missing_categories}"
-            )
+            self.warnings.append(f"Dataset missing test cases for categories: {missing_categories}")
 
         # Check language coverage
         missing_languages = self.VALID_LANGUAGES - languages
         if missing_languages:
-            self.warnings.append(
-                f"Dataset missing test cases for languages: {missing_languages}"
-            )
+            self.warnings.append(f"Dataset missing test cases for languages: {missing_languages}")
 
         # Check each category has tests in each language
         for category in categories:

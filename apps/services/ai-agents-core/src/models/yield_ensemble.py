@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 class GrowthStage(Enum):
     """Crop growth stages - مراحل نمو المحصول"""
+
     GERMINATION = "germination"  # الإنبات
     VEGETATIVE = "vegetative"  # النمو الخضري
     FLOWERING = "flowering"  # الإزهار
@@ -41,6 +42,7 @@ class GrowthStage(Enum):
 
 class LimitingFactor(Enum):
     """Factors limiting yield - العوامل المحددة للإنتاج"""
+
     WATER_STRESS = "water_stress"  # إجهاد مائي
     NUTRIENT_DEFICIENCY = "nutrient_deficiency"  # نقص العناصر الغذائية
     HEAT_STRESS = "heat_stress"  # إجهاد حراري
@@ -58,6 +60,7 @@ class ConfidenceMetrics:
     Confidence calculation metrics
     مقاييس حساب الثقة
     """
+
     # Data completeness score (0-1) - درجة اكتمال البيانات
     data_completeness: float
 
@@ -80,6 +83,7 @@ class YieldPrediction:
     Comprehensive yield prediction output
     ناتج شامل للتنبؤ بالإنتاج
     """
+
     # Basic prediction - التنبؤ الأساسي
     predicted_yield_kg_per_hectare: float
 
@@ -119,6 +123,7 @@ class FieldData:
     Field data input for prediction
     بيانات الحقل المدخلة للتنبؤ
     """
+
     # Basic field information - المعلومات الأساسية للحقل
     field_id: str
     crop_id: str
@@ -172,11 +177,7 @@ class NDVIBasedPredictor:
         self.name = "NDVI Model"
         self.name_ar = "نموذج NDVI"
 
-    def predict(
-        self,
-        field_data: FieldData,
-        crop_params: CropParameters
-    ) -> tuple[float, float]:
+    def predict(self, field_data: FieldData, crop_params: CropParameters) -> tuple[float, float]:
         """
         Predict yield based on NDVI
         التنبؤ بالإنتاج بناءً على NDVI
@@ -222,7 +223,9 @@ class NDVIBasedPredictor:
         elif field_data.ndvi_peak:
             confidence = 0.75  # Peak NDVI is more reliable than current
 
-        logger.info(f"NDVI predictor: {predicted_yield:.1f} kg/ha (NDVI: {ndvi_value:.2f}, confidence: {confidence:.2f})")
+        logger.info(
+            f"NDVI predictor: {predicted_yield:.1f} kg/ha (NDVI: {ndvi_value:.2f}, confidence: {confidence:.2f})"
+        )
 
         return predicted_yield, confidence
 
@@ -241,11 +244,7 @@ class GDDBasedPredictor:
         self.name = "GDD Model"
         self.name_ar = "نموذج درجات الحرارة التراكمية"
 
-    def predict(
-        self,
-        field_data: FieldData,
-        crop_params: CropParameters
-    ) -> tuple[float, float]:
+    def predict(self, field_data: FieldData, crop_params: CropParameters) -> tuple[float, float]:
         """
         Predict yield based on GDD accumulation
         التنبؤ بالإنتاج بناءً على تراكم GDD
@@ -310,7 +309,9 @@ class GDDBasedPredictor:
 
         predicted_yield = base_yield * yield_factor
 
-        logger.info(f"GDD predictor: {predicted_yield:.1f} kg/ha (GDD: {accumulated_gdd:.0f}/{required_gdd:.0f}, confidence: {confidence:.2f})")
+        logger.info(
+            f"GDD predictor: {predicted_yield:.1f} kg/ha (GDD: {accumulated_gdd:.0f}/{required_gdd:.0f}, confidence: {confidence:.2f})"
+        )
 
         return predicted_yield, confidence
 
@@ -329,11 +330,7 @@ class SoilMoisturePredictor:
         self.name = "Soil Moisture Model"
         self.name_ar = "نموذج رطوبة التربة"
 
-    def predict(
-        self,
-        field_data: FieldData,
-        crop_params: CropParameters
-    ) -> tuple[float, float]:
+    def predict(self, field_data: FieldData, crop_params: CropParameters) -> tuple[float, float]:
         """
         Predict yield based on water availability
         التنبؤ بالإنتاج بناءً على توفر المياه
@@ -400,7 +397,9 @@ class SoilMoisturePredictor:
 
         predicted_yield = base_yield * yield_factor
 
-        logger.info(f"Soil moisture predictor: {predicted_yield:.1f} kg/ha (water adequacy: {water_adequacy:.2f}, confidence: {confidence:.2f})")
+        logger.info(
+            f"Soil moisture predictor: {predicted_yield:.1f} kg/ha (water adequacy: {water_adequacy:.2f}, confidence: {confidence:.2f})"
+        )
 
         return predicted_yield, confidence
 
@@ -419,11 +418,7 @@ class HistoricalTrendPredictor:
         self.name = "Historical Trend Model"
         self.name_ar = "نموذج الاتجاه التاريخي"
 
-    def predict(
-        self,
-        field_data: FieldData,
-        crop_params: CropParameters
-    ) -> tuple[float, float]:
+    def predict(self, field_data: FieldData, crop_params: CropParameters) -> tuple[float, float]:
         """
         Predict yield based on historical trends
         التنبؤ بالإنتاج بناءً على الاتجاهات التاريخية
@@ -482,7 +477,9 @@ class HistoricalTrendPredictor:
             if cv > 0.3:
                 confidence *= 0.85  # High variability reduces confidence
 
-        logger.info(f"Historical trend predictor: {predicted_yield:.1f} kg/ha (n={len(historical_yields)}, confidence: {confidence:.2f})")
+        logger.info(
+            f"Historical trend predictor: {predicted_yield:.1f} kg/ha (n={len(historical_yields)}, confidence: {confidence:.2f})"
+        )
 
         return predicted_yield, confidence
 
@@ -500,7 +497,7 @@ class YieldEnsembleModel:
         ndvi_weight: float = 0.35,
         gdd_weight: float = 0.25,
         moisture_weight: float = 0.20,
-        historical_weight: float = 0.20
+        historical_weight: float = 0.20,
     ):
         """
         Initialize ensemble model
@@ -518,7 +515,7 @@ class YieldEnsembleModel:
             "ndvi": ndvi_weight / total_weight,
             "gdd": gdd_weight / total_weight,
             "moisture": moisture_weight / total_weight,
-            "historical": historical_weight / total_weight
+            "historical": historical_weight / total_weight,
         }
 
         # Initialize sub-models - تهيئة النماذج الفرعية
@@ -582,12 +579,8 @@ class YieldEnsembleModel:
 
         # Calculate weighted ensemble prediction - حساب التنبؤ المرجح للمجموعة
         ensemble_yield = sum(
-            predictions[model] * self.weights[model] * confidences[model]
-            for model in predictions
-        ) / sum(
-            self.weights[model] * confidences[model]
-            for model in predictions
-        )
+            predictions[model] * self.weights[model] * confidences[model] for model in predictions
+        ) / sum(self.weights[model] * confidences[model] for model in predictions)
 
         # Apply regional multiplier - تطبيق المعامل الإقليمي
         ensemble_yield *= regional_multiplier
@@ -612,9 +605,7 @@ class YieldEnsembleModel:
         )
 
         # Generate recommendations - إنشاء التوصيات
-        recommendations = self._generate_recommendations(
-            field_data, crop_params, limiting_factors
-        )
+        recommendations = self._generate_recommendations(field_data, crop_params, limiting_factors)
 
         # Determine growth stage - تحديد مرحلة النمو
         growth_stage = self._determine_growth_stage(field_data, crop_params)
@@ -645,18 +636,16 @@ class YieldEnsembleModel:
             sub_model_predictions=predictions,
             confidence_metrics=confidence_metrics,
             estimated_revenue_per_ha=revenue_per_ha,
-            estimated_total_revenue=total_revenue
+            estimated_total_revenue=total_revenue,
         )
 
-        logger.info(f"Ensemble prediction complete: {ensemble_yield:.1f} kg/ha (confidence: {confidence_metrics.final_confidence:.2f})")
+        logger.info(
+            f"Ensemble prediction complete: {ensemble_yield:.1f} kg/ha (confidence: {confidence_metrics.final_confidence:.2f})"
+        )
 
         return prediction
 
-    def _calculate_soil_factor(
-        self,
-        field_data: FieldData,
-        crop_params: CropParameters
-    ) -> float:
+    def _calculate_soil_factor(self, field_data: FieldData, crop_params: CropParameters) -> float:
         """
         Calculate soil quality adjustment factor
         حساب عامل تعديل جودة التربة
@@ -694,15 +683,12 @@ class YieldEnsembleModel:
 
         # Nutrient score adjustment - تعديل درجة العناصر الغذائية
         if field_data.soil_nutrient_score is not None:
-            soil_factor *= (0.7 + 0.3 * field_data.soil_nutrient_score)
+            soil_factor *= 0.7 + 0.3 * field_data.soil_nutrient_score
 
         return soil_factor
 
     def _calculate_confidence_metrics(
-        self,
-        field_data: FieldData,
-        predictions: dict[str, float],
-        confidences: dict[str, float]
+        self, field_data: FieldData, predictions: dict[str, float], confidences: dict[str, float]
     ) -> ConfidenceMetrics:
         """
         Calculate comprehensive confidence metrics
@@ -720,9 +706,7 @@ class YieldEnsembleModel:
         # Calculate final confidence - حساب الثقة النهائية
         # Weighted combination of metrics
         final_confidence = (
-            0.4 * data_completeness +
-            0.3 * model_agreement +
-            0.3 * historical_accuracy
+            0.4 * data_completeness + 0.3 * model_agreement + 0.3 * historical_accuracy
         )
 
         # Adjust based on individual model confidences - التعديل بناءً على ثقة النماذج الفردية
@@ -737,7 +721,7 @@ class YieldEnsembleModel:
             model_agreement=model_agreement,
             historical_accuracy=historical_accuracy,
             final_confidence=final_confidence,
-            model_confidences=confidences
+            model_confidences=confidences,
         )
 
     def _data_completeness_score(self, field_data: FieldData) -> float:
@@ -753,8 +737,9 @@ class YieldEnsembleModel:
         critical_fields = [
             field_data.ndvi_current is not None or field_data.ndvi_peak is not None,
             field_data.accumulated_gdd is not None or field_data.days_since_planting is not None,
-            field_data.soil_moisture_current is not None or field_data.total_irrigation_mm is not None,
-            field_data.planting_date is not None
+            field_data.soil_moisture_current is not None
+            or field_data.total_irrigation_mm is not None,
+            field_data.planting_date is not None,
         ]
         available_fields += sum(critical_fields)
         total_fields += len(critical_fields)
@@ -765,7 +750,7 @@ class YieldEnsembleModel:
             field_data.soil_ec is not None,
             field_data.soil_nutrient_score is not None,
             field_data.historical_yields is not None and len(field_data.historical_yields) > 0,
-            field_data.ndvi_history is not None and len(field_data.ndvi_history) > 3
+            field_data.ndvi_history is not None and len(field_data.ndvi_history) > 3,
         ]
         available_fields += sum(supplementary_fields) * 0.5
         total_fields += len(supplementary_fields) * 0.5
@@ -828,7 +813,7 @@ class YieldEnsembleModel:
         field_data: FieldData,
         crop_params: CropParameters,
         predictions: dict[str, float],
-        ensemble_yield: float
+        ensemble_yield: float,
     ) -> list[dict[str, Any]]:
         """
         Identify factors limiting yield
@@ -840,38 +825,44 @@ class YieldEnsembleModel:
         # Check NDVI/plant health - التحقق من NDVI/صحة النبات
         if predictions["ndvi"] < base_yield * 0.7:
             severity = "high" if predictions["ndvi"] < base_yield * 0.5 else "medium"
-            limiting_factors.append({
-                "factor": LimitingFactor.POOR_PLANT_HEALTH.value,
-                "factor_ar": "صحة النبات منخفضة",
-                "severity": severity,
-                "impact_pct": ((base_yield - predictions["ndvi"]) / base_yield) * 100,
-                "description": "Vegetation index indicates poor plant vigor",
-                "description_ar": "مؤشر النباتات يشير إلى ضعف حيوية النبات"
-            })
+            limiting_factors.append(
+                {
+                    "factor": LimitingFactor.POOR_PLANT_HEALTH.value,
+                    "factor_ar": "صحة النبات منخفضة",
+                    "severity": severity,
+                    "impact_pct": ((base_yield - predictions["ndvi"]) / base_yield) * 100,
+                    "description": "Vegetation index indicates poor plant vigor",
+                    "description_ar": "مؤشر النباتات يشير إلى ضعف حيوية النبات",
+                }
+            )
 
         # Check water stress - التحقق من الإجهاد المائي
         if predictions["moisture"] < base_yield * 0.7:
             severity = "high" if predictions["moisture"] < base_yield * 0.5 else "medium"
-            limiting_factors.append({
-                "factor": LimitingFactor.WATER_STRESS.value,
-                "factor_ar": "إجهاد مائي",
-                "severity": severity,
-                "impact_pct": ((base_yield - predictions["moisture"]) / base_yield) * 100,
-                "description": "Insufficient water availability",
-                "description_ar": "عدم كفاية توفر المياه"
-            })
+            limiting_factors.append(
+                {
+                    "factor": LimitingFactor.WATER_STRESS.value,
+                    "factor_ar": "إجهاد مائي",
+                    "severity": severity,
+                    "impact_pct": ((base_yield - predictions["moisture"]) / base_yield) * 100,
+                    "description": "Insufficient water availability",
+                    "description_ar": "عدم كفاية توفر المياه",
+                }
+            )
 
         # Check GDD/thermal stress - التحقق من GDD/الإجهاد الحراري
         if predictions["gdd"] < base_yield * 0.7:
             severity = "medium"
-            limiting_factors.append({
-                "factor": LimitingFactor.INADEQUATE_GDD.value,
-                "factor_ar": "نقص درجات الحرارة التراكمية",
-                "severity": severity,
-                "impact_pct": ((base_yield - predictions["gdd"]) / base_yield) * 100,
-                "description": "Suboptimal thermal time accumulation",
-                "description_ar": "تراكم وقت حراري دون المستوى الأمثل"
-            })
+            limiting_factors.append(
+                {
+                    "factor": LimitingFactor.INADEQUATE_GDD.value,
+                    "factor_ar": "نقص درجات الحرارة التراكمية",
+                    "severity": severity,
+                    "impact_pct": ((base_yield - predictions["gdd"]) / base_yield) * 100,
+                    "description": "Suboptimal thermal time accumulation",
+                    "description_ar": "تراكم وقت حراري دون المستوى الأمثل",
+                }
+            )
 
         # Check heat stress - التحقق من الإجهاد الحراري
         if field_data.current_temperature:
@@ -879,14 +870,16 @@ class YieldEnsembleModel:
             optimal_max = crop_params.growth.optimal_temp_max
 
             if temp > optimal_max + 5:
-                limiting_factors.append({
-                    "factor": LimitingFactor.HEAT_STRESS.value,
-                    "factor_ar": "إجهاد حراري",
-                    "severity": "high",
-                    "impact_pct": min((temp - optimal_max) * 2, 20),
-                    "description": f"Temperature {temp}°C exceeds optimal range",
-                    "description_ar": f"درجة الحرارة {temp}°م تتجاوز النطاق الأمثل"
-                })
+                limiting_factors.append(
+                    {
+                        "factor": LimitingFactor.HEAT_STRESS.value,
+                        "factor_ar": "إجهاد حراري",
+                        "severity": "high",
+                        "impact_pct": min((temp - optimal_max) * 2, 20),
+                        "description": f"Temperature {temp}°C exceeds optimal range",
+                        "description_ar": f"درجة الحرارة {temp}°م تتجاوز النطاق الأمثل",
+                    }
+                )
 
         # Check soil pH - التحقق من pH التربة
         if field_data.soil_ph:
@@ -895,14 +888,16 @@ class YieldEnsembleModel:
             ph_max = crop_params.soil.ph_max
 
             if ph < ph_min - 0.5 or ph > ph_max + 0.5:
-                limiting_factors.append({
-                    "factor": LimitingFactor.SOIL_pH_IMBALANCE.value,
-                    "factor_ar": "اختلال pH التربة",
-                    "severity": "medium",
-                    "impact_pct": 15,
-                    "description": f"Soil pH {ph:.1f} outside optimal range",
-                    "description_ar": f"pH التربة {ph:.1f} خارج النطاق الأمثل"
-                })
+                limiting_factors.append(
+                    {
+                        "factor": LimitingFactor.SOIL_pH_IMBALANCE.value,
+                        "factor_ar": "اختلال pH التربة",
+                        "severity": "medium",
+                        "impact_pct": 15,
+                        "description": f"Soil pH {ph:.1f} outside optimal range",
+                        "description_ar": f"pH التربة {ph:.1f} خارج النطاق الأمثل",
+                    }
+                )
 
         # Check soil salinity - التحقق من ملوحة التربة
         if field_data.soil_ec:
@@ -910,25 +905,29 @@ class YieldEnsembleModel:
             ec_tolerance = crop_params.soil.ec_tolerance
 
             if ec > ec_tolerance * 1.2:
-                limiting_factors.append({
-                    "factor": LimitingFactor.SOIL_SALINITY.value,
-                    "factor_ar": "ملوحة التربة",
-                    "severity": "high" if ec > ec_tolerance * 1.5 else "medium",
-                    "impact_pct": min((ec - ec_tolerance) * 10, 30),
-                    "description": f"Soil EC {ec:.1f} dS/m exceeds tolerance",
-                    "description_ar": f"EC التربة {ec:.1f} dS/m يتجاوز التحمل"
-                })
+                limiting_factors.append(
+                    {
+                        "factor": LimitingFactor.SOIL_SALINITY.value,
+                        "factor_ar": "ملوحة التربة",
+                        "severity": "high" if ec > ec_tolerance * 1.5 else "medium",
+                        "impact_pct": min((ec - ec_tolerance) * 10, 30),
+                        "description": f"Soil EC {ec:.1f} dS/m exceeds tolerance",
+                        "description_ar": f"EC التربة {ec:.1f} dS/m يتجاوز التحمل",
+                    }
+                )
 
         # Check disease pressure - التحقق من ضغط الأمراض
         if field_data.disease_severity and field_data.disease_severity > 0.3:
-            limiting_factors.append({
-                "factor": LimitingFactor.DISEASE_PRESSURE.value,
-                "factor_ar": "ضغط الأمراض",
-                "severity": "high" if field_data.disease_severity > 0.6 else "medium",
-                "impact_pct": field_data.disease_severity * 40,
-                "description": "Significant disease presence detected",
-                "description_ar": "اكتشاف وجود كبير للأمراض"
-            })
+            limiting_factors.append(
+                {
+                    "factor": LimitingFactor.DISEASE_PRESSURE.value,
+                    "factor_ar": "ضغط الأمراض",
+                    "severity": "high" if field_data.disease_severity > 0.6 else "medium",
+                    "impact_pct": field_data.disease_severity * 40,
+                    "description": "Significant disease presence detected",
+                    "description_ar": "اكتشاف وجود كبير للأمراض",
+                }
+            )
 
         # Sort by impact - الترتيب حسب التأثير
         limiting_factors.sort(key=lambda x: x["impact_pct"], reverse=True)
@@ -939,7 +938,7 @@ class YieldEnsembleModel:
         self,
         field_data: FieldData,
         crop_params: CropParameters,
-        limiting_factors: list[dict[str, Any]]
+        limiting_factors: list[dict[str, Any]],
     ) -> list[dict[str, str]]:
         """
         Generate actionable recommendations
@@ -952,94 +951,108 @@ class YieldEnsembleModel:
             factor_type = factor["factor"]
 
             if factor_type == LimitingFactor.WATER_STRESS.value:
-                recommendations.append({
-                    "priority": "high",
-                    "action": "Increase irrigation frequency",
-                    "action_ar": "زيادة تكرار الري",
-                    "details": f"Apply {int(crop_params.growth.water_requirement_mm * 0.1)} mm per irrigation event",
-                    "details_ar": f"تطبيق {int(crop_params.growth.water_requirement_mm * 0.1)} مم لكل حدث ري",
-                    "expected_impact": f"Potential yield increase: {factor['impact_pct'] * 0.6:.0f}%"
-                })
+                recommendations.append(
+                    {
+                        "priority": "high",
+                        "action": "Increase irrigation frequency",
+                        "action_ar": "زيادة تكرار الري",
+                        "details": f"Apply {int(crop_params.growth.water_requirement_mm * 0.1)} mm per irrigation event",
+                        "details_ar": f"تطبيق {int(crop_params.growth.water_requirement_mm * 0.1)} مم لكل حدث ري",
+                        "expected_impact": f"Potential yield increase: {factor['impact_pct'] * 0.6:.0f}%",
+                    }
+                )
 
             elif factor_type == LimitingFactor.POOR_PLANT_HEALTH.value:
-                recommendations.append({
-                    "priority": "high",
-                    "action": "Apply foliar fertilizer and inspect for pests/diseases",
-                    "action_ar": "تطبيق سماد ورقي وفحص الآفات/الأمراض",
-                    "details": "NPK foliar spray + pest scouting",
-                    "details_ar": "رش NPK الورقي + استطلاع الآفات",
-                    "expected_impact": f"Potential yield increase: {factor['impact_pct'] * 0.5:.0f}%"
-                })
+                recommendations.append(
+                    {
+                        "priority": "high",
+                        "action": "Apply foliar fertilizer and inspect for pests/diseases",
+                        "action_ar": "تطبيق سماد ورقي وفحص الآفات/الأمراض",
+                        "details": "NPK foliar spray + pest scouting",
+                        "details_ar": "رش NPK الورقي + استطلاع الآفات",
+                        "expected_impact": f"Potential yield increase: {factor['impact_pct'] * 0.5:.0f}%",
+                    }
+                )
 
             elif factor_type == LimitingFactor.SOIL_SALINITY.value:
-                recommendations.append({
-                    "priority": "medium",
-                    "action": "Implement leaching irrigation",
-                    "action_ar": "تنفيذ ري الغسيل",
-                    "details": "Apply 15-20% extra irrigation to leach salts",
-                    "details_ar": "تطبيق 15-20% ري إضافي لغسل الأملاح",
-                    "expected_impact": "Gradual yield recovery over season"
-                })
+                recommendations.append(
+                    {
+                        "priority": "medium",
+                        "action": "Implement leaching irrigation",
+                        "action_ar": "تنفيذ ري الغسيل",
+                        "details": "Apply 15-20% extra irrigation to leach salts",
+                        "details_ar": "تطبيق 15-20% ري إضافي لغسل الأملاح",
+                        "expected_impact": "Gradual yield recovery over season",
+                    }
+                )
 
             elif factor_type == LimitingFactor.SOIL_pH_IMBALANCE.value:
                 if field_data.soil_ph and field_data.soil_ph < crop_params.soil.ph_min:
-                    recommendations.append({
-                        "priority": "medium",
-                        "action": "Apply lime to raise soil pH",
-                        "action_ar": "تطبيق الجير لرفع pH التربة",
-                        "details": f"Target pH: {crop_params.soil.ph_min:.1f}-{crop_params.soil.ph_max:.1f}",
-                        "details_ar": f"pH المستهدف: {crop_params.soil.ph_min:.1f}-{crop_params.soil.ph_max:.1f}",
-                        "expected_impact": "Long-term yield improvement"
-                    })
+                    recommendations.append(
+                        {
+                            "priority": "medium",
+                            "action": "Apply lime to raise soil pH",
+                            "action_ar": "تطبيق الجير لرفع pH التربة",
+                            "details": f"Target pH: {crop_params.soil.ph_min:.1f}-{crop_params.soil.ph_max:.1f}",
+                            "details_ar": f"pH المستهدف: {crop_params.soil.ph_min:.1f}-{crop_params.soil.ph_max:.1f}",
+                            "expected_impact": "Long-term yield improvement",
+                        }
+                    )
                 else:
-                    recommendations.append({
-                        "priority": "medium",
-                        "action": "Apply sulfur to lower soil pH",
-                        "action_ar": "تطبيق الكبريت لخفض pH التربة",
-                        "details": f"Target pH: {crop_params.soil.ph_min:.1f}-{crop_params.soil.ph_max:.1f}",
-                        "details_ar": f"pH المستهدف: {crop_params.soil.ph_min:.1f}-{crop_params.soil.ph_max:.1f}",
-                        "expected_impact": "Long-term yield improvement"
-                    })
+                    recommendations.append(
+                        {
+                            "priority": "medium",
+                            "action": "Apply sulfur to lower soil pH",
+                            "action_ar": "تطبيق الكبريت لخفض pH التربة",
+                            "details": f"Target pH: {crop_params.soil.ph_min:.1f}-{crop_params.soil.ph_max:.1f}",
+                            "details_ar": f"pH المستهدف: {crop_params.soil.ph_min:.1f}-{crop_params.soil.ph_max:.1f}",
+                            "expected_impact": "Long-term yield improvement",
+                        }
+                    )
 
             elif factor_type == LimitingFactor.DISEASE_PRESSURE.value:
-                recommendations.append({
-                    "priority": "high",
-                    "action": "Apply appropriate fungicide/pesticide",
-                    "action_ar": "تطبيق مبيد فطري/آفات مناسب",
-                    "details": f"Treat based on identified diseases for {crop_params.name_ar}",
-                    "details_ar": f"العلاج بناءً على الأمراض المحددة لـ {crop_params.name_ar}",
-                    "expected_impact": f"Prevent further yield loss of {factor['impact_pct']:.0f}%"
-                })
+                recommendations.append(
+                    {
+                        "priority": "high",
+                        "action": "Apply appropriate fungicide/pesticide",
+                        "action_ar": "تطبيق مبيد فطري/آفات مناسب",
+                        "details": f"Treat based on identified diseases for {crop_params.name_ar}",
+                        "details_ar": f"العلاج بناءً على الأمراض المحددة لـ {crop_params.name_ar}",
+                        "expected_impact": f"Prevent further yield loss of {factor['impact_pct']:.0f}%",
+                    }
+                )
 
         # General recommendations - التوصيات العامة
         if not limiting_factors:
-            recommendations.append({
-                "priority": "low",
-                "action": "Maintain current management practices",
-                "action_ar": "الحفاظ على ممارسات الإدارة الحالية",
-                "details": "Crop is performing well, continue monitoring",
-                "details_ar": "المحصول يؤدي بشكل جيد، استمر في المراقبة",
-                "expected_impact": "Sustain current yield levels"
-            })
+            recommendations.append(
+                {
+                    "priority": "low",
+                    "action": "Maintain current management practices",
+                    "action_ar": "الحفاظ على ممارسات الإدارة الحالية",
+                    "details": "Crop is performing well, continue monitoring",
+                    "details_ar": "المحصول يؤدي بشكل جيد، استمر في المراقبة",
+                    "expected_impact": "Sustain current yield levels",
+                }
+            )
 
         # Harvest timing recommendation - توصية توقيت الحصاد
         days_to_harvest = self._calculate_days_to_harvest(field_data, crop_params)
         if days_to_harvest <= 14:
-            recommendations.append({
-                "priority": "high",
-                "action": f"Prepare for harvest in {days_to_harvest} days",
-                "action_ar": f"استعد للحصاد في غضون {days_to_harvest} يوم",
-                "details": "Arrange equipment and labor",
-                "details_ar": "ترتيب المعدات والعمالة",
-                "expected_impact": "Optimal harvest timing"
-            })
+            recommendations.append(
+                {
+                    "priority": "high",
+                    "action": f"Prepare for harvest in {days_to_harvest} days",
+                    "action_ar": f"استعد للحصاد في غضون {days_to_harvest} يوم",
+                    "details": "Arrange equipment and labor",
+                    "details_ar": "ترتيب المعدات والعمالة",
+                    "expected_impact": "Optimal harvest timing",
+                }
+            )
 
         return recommendations
 
     def _determine_growth_stage(
-        self,
-        field_data: FieldData,
-        crop_params: CropParameters
+        self, field_data: FieldData, crop_params: CropParameters
     ) -> GrowthStage:
         """
         Determine current growth stage
@@ -1071,11 +1084,7 @@ class YieldEnsembleModel:
         # Default to vegetative if unknown - الافتراضي إلى الخضري إذا كان غير معروف
         return GrowthStage.VEGETATIVE
 
-    def _calculate_days_to_harvest(
-        self,
-        field_data: FieldData,
-        crop_params: CropParameters
-    ) -> int:
+    def _calculate_days_to_harvest(self, field_data: FieldData, crop_params: CropParameters) -> int:
         """
         Calculate days remaining until harvest
         حساب الأيام المتبقية حتى الحصاد
@@ -1093,7 +1102,9 @@ class YieldEnsembleModel:
 
             # Estimate days based on average daily GDD - تقدير الأيام بناءً على متوسط GDD اليومي
             if field_data.current_temperature:
-                avg_daily_gdd = max(field_data.current_temperature - crop_params.growth.base_temp, 0)
+                avg_daily_gdd = max(
+                    field_data.current_temperature - crop_params.growth.base_temp, 0
+                )
                 if avg_daily_gdd > 0:
                     days_remaining = int(gdd_remaining / avg_daily_gdd)
                     return days_remaining
@@ -1105,7 +1116,7 @@ class YieldEnsembleModel:
         self,
         ensemble_yield: float,
         confidence_metrics: ConfidenceMetrics,
-        predictions: dict[str, float]
+        predictions: dict[str, float],
     ) -> dict[str, float]:
         """
         Calculate confidence interval (low, mid, high)
@@ -1125,7 +1136,7 @@ class YieldEnsembleModel:
         return {
             "low": max(0, ensemble_yield - margin),
             "mid": ensemble_yield,
-            "high": ensemble_yield + margin
+            "high": ensemble_yield + margin,
         }
 
     def get_feature_importance(self) -> dict[str, float]:
@@ -1140,7 +1151,7 @@ class YieldEnsembleModel:
             "NDVI (Plant Health)": self.weights["ndvi"],
             "GDD (Thermal Time)": self.weights["gdd"],
             "Soil Moisture (Water)": self.weights["moisture"],
-            "Historical Trends": self.weights["historical"]
+            "Historical Trends": self.weights["historical"],
         }
 
     def explain_prediction(self, prediction: YieldPrediction) -> dict[str, Any]:
@@ -1160,25 +1171,22 @@ class YieldEnsembleModel:
                 "confidence": prediction.confidence,
                 "crop": prediction.crop_id,
                 "region": prediction.region.value,
-                "growth_stage": prediction.growth_stage.value
+                "growth_stage": prediction.growth_stage.value,
             },
-            "sub_models": {
-                "contributions": {},
-                "predictions": prediction.sub_model_predictions
-            },
+            "sub_models": {"contributions": {}, "predictions": prediction.sub_model_predictions},
             "confidence_breakdown": {
                 "data_completeness": prediction.confidence_metrics.data_completeness,
                 "model_agreement": prediction.confidence_metrics.model_agreement,
                 "historical_accuracy": prediction.confidence_metrics.historical_accuracy,
-                "final_confidence": prediction.confidence_metrics.final_confidence
+                "final_confidence": prediction.confidence_metrics.final_confidence,
             },
             "limiting_factors": prediction.limiting_factors,
             "recommendations": prediction.recommendations,
             "confidence_interval": prediction.confidence_interval,
             "economic_projection": {
                 "revenue_per_hectare": prediction.estimated_revenue_per_ha,
-                "total_revenue": prediction.estimated_total_revenue
-            }
+                "total_revenue": prediction.estimated_total_revenue,
+            },
         }
 
         # Calculate each model's contribution to final prediction
@@ -1192,7 +1200,7 @@ class YieldEnsembleModel:
                     "weight": weight,
                     "prediction": pred_value,
                     "confidence": confidence,
-                    "contribution": contribution
+                    "contribution": contribution,
                 }
 
         return explanation

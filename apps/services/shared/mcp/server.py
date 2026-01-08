@@ -132,9 +132,7 @@ class MCPServer:
 
     # ==================== MCP Protocol Handlers ====================
 
-    async def handle_initialize(
-        self, params: dict[str, Any] | None
-    ) -> dict[str, Any]:
+    async def handle_initialize(self, params: dict[str, Any] | None) -> dict[str, Any]:
         """Handle initialize request"""
         return {
             "protocolVersion": "2024-11-05",
@@ -149,9 +147,7 @@ class MCPServer:
             },
         }
 
-    async def handle_tools_list(
-        self, params: dict[str, Any] | None
-    ) -> dict[str, Any]:
+    async def handle_tools_list(self, params: dict[str, Any] | None) -> dict[str, Any]:
         """Handle tools/list request"""
         return {"tools": self.tools.get_tool_definitions()}
 
@@ -175,9 +171,7 @@ class MCPServer:
             "isError": not result.success,
         }
 
-    async def handle_resources_list(
-        self, params: dict[str, Any] | None
-    ) -> dict[str, Any]:
+    async def handle_resources_list(self, params: dict[str, Any] | None) -> dict[str, Any]:
         """Handle resources/list request"""
         resources = await self.resources.list_all_resources()
         return {
@@ -217,9 +211,7 @@ class MCPServer:
             ]
         }
 
-    async def handle_prompts_list(
-        self, params: dict[str, Any] | None
-    ) -> dict[str, Any]:
+    async def handle_prompts_list(self, params: dict[str, Any] | None) -> dict[str, Any]:
         """Handle prompts/list request"""
         return {"prompts": self.prompts}
 
@@ -229,9 +221,7 @@ class MCPServer:
         prompt_args = params.get("arguments", {})
 
         # Find the prompt template
-        prompt_template = next(
-            (p for p in self.prompts if p["name"] == prompt_name), None
-        )
+        prompt_template = next((p for p in self.prompts if p["name"] == prompt_name), None)
 
         if not prompt_template:
             raise ValueError(f"Unknown prompt: {prompt_name}")
@@ -342,9 +332,7 @@ class MCPServer:
         try:
             while True:
                 # Read line from stdin
-                line = await asyncio.get_event_loop().run_in_executor(
-                    None, sys.stdin.readline
-                )
+                line = await asyncio.get_event_loop().run_in_executor(None, sys.stdin.readline)
 
                 if not line:
                     break

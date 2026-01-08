@@ -302,7 +302,7 @@ def run_all_tests():
         print(f"{status}: {test_name}")
 
     print("\n" + "-" * 70)
-    print(f"Total: {passed}/{total} tests passed ({passed/total*100:.1f}%)")
+    print(f"Total: {passed}/{total} tests passed ({passed / total * 100:.1f}%)")
 
     if passed == total:
         print("\n🎉 All tests passed successfully!")

@@ -21,9 +21,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-sys.path.insert(
-    0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor")
-)
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor"))
 
 from src.agents.base_agent import BaseAgent
 from src.orchestration.supervisor import Supervisor
@@ -149,19 +147,13 @@ def evaluation_metrics_tracker():
                 "failed_tests": failed,
                 "pass_rate": (passed / total * 100) if total > 0 else 0,
                 "accuracy": (
-                    sum(accuracy_scores) / len(accuracy_scores) * 100
-                    if accuracy_scores
-                    else 0
+                    sum(accuracy_scores) / len(accuracy_scores) * 100 if accuracy_scores else 0
                 ),
                 "latency_score": (
-                    sum(latency_scores) / len(latency_scores) * 100
-                    if latency_scores
-                    else 0
+                    sum(latency_scores) / len(latency_scores) * 100 if latency_scores else 0
                 ),
                 "safety_score": (
-                    sum(safety_scores) / len(safety_scores) * 100
-                    if safety_scores
-                    else 0
+                    sum(safety_scores) / len(safety_scores) * 100 if safety_scores else 0
                 ),
                 "overall_score": (
                     sum(
@@ -176,9 +168,7 @@ def evaluation_metrics_tracker():
                     else 0
                 ),
                 "avg_latency_ms": (
-                    sum(r.get("latency_ms", 0) for r in self.results) / total
-                    if total > 0
-                    else 0
+                    sum(r.get("latency_ms", 0) for r in self.results) / total if total > 0 else 0
                 ),
                 "arabic_support": (
                     (
@@ -532,13 +522,9 @@ def save_evaluation_metrics(request, evaluation_metrics_tracker):
 
 def pytest_configure(config):
     """Configure pytest with custom markers"""
-    config.addinivalue_line(
-        "markers", "evaluation: mark test as part of agent evaluation suite"
-    )
+    config.addinivalue_line("markers", "evaluation: mark test as part of agent evaluation suite")
     config.addinivalue_line("markers", "golden: mark test as using golden dataset")
     config.addinivalue_line("markers", "arabic: mark test for Arabic language support")
-    config.addinivalue_line(
-        "markers", "english: mark test for English language support"
-    )
+    config.addinivalue_line("markers", "english: mark test for English language support")
     config.addinivalue_line("markers", "latency: mark test for latency measurement")
     config.addinivalue_line("markers", "safety: mark test for safety checking")

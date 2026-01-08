@@ -22,8 +22,8 @@ from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
 
 # Import shared logging configuration
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
-from shared.logging_config import setup_logging, get_logger, RequestLoggingMiddleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.logging_config import RequestLoggingMiddleware, get_logger, setup_logging
 
 # Setup structured logging
 setup_logging(service_name="weather-core")
@@ -33,14 +33,17 @@ logger = get_logger(__name__)
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+
     AUTH_AVAILABLE = True
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
     User = None
+
     def get_current_user():
         """Placeholder when auth not available"""
         return None
+
 
 # Configuration
 USE_MOCK_WEATHER = os.getenv("USE_MOCK_WEATHER", "false").lower() == "true"
@@ -152,8 +155,7 @@ class IrrigationRequest(BaseModel):
 
 @app.post("/weather/assess")
 async def assess(
-    req: WeatherAssessRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: WeatherAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """
     Assess weather conditions and generate alerts
@@ -195,8 +197,7 @@ async def assess(
 
 @app.post("/weather/current")
 async def get_current_weather(
-    req: LocationRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: LocationRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """
     Get current weather from API provider
@@ -275,16 +276,14 @@ async def get_current_weather(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Weather API error: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
 
 @app.post("/weather/forecast")
 async def get_forecast(
     req: LocationRequest,
     days: int = 7,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """
     Get weather forecast
@@ -346,8 +345,7 @@ async def get_forecast(
 
 @app.post("/weather/irrigation")
 async def irrigation_adjustment(
-    req: IrrigationRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: IrrigationRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """
     Calculate irrigation adjustment based on weather
@@ -417,9 +415,7 @@ async def get_providers():
     else:
         return {
             "multi_provider_enabled": False,
-            "providers": [
-                {"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}
-            ],
+            "providers": [{"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}],
             "total": 1,
             "configured": 1,
         }

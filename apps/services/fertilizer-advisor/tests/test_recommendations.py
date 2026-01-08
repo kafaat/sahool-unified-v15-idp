@@ -25,9 +25,7 @@ class TestRecommendationEndpoints:
 
     def test_get_recommendation(self, test_client, sample_recommendation_request):
         """Test POST /v1/fertilizer/recommend endpoint"""
-        response = test_client.post(
-            "/v1/fertilizer/recommend", json=sample_recommendation_request
-        )
+        response = test_client.post("/v1/fertilizer/recommend", json=sample_recommendation_request)
 
         if response.status_code == status.HTTP_200_OK:
             data = response.json()

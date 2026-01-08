@@ -89,9 +89,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         ]
         self.max_body_length = max_body_length
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         """Process each request with comprehensive logging."""
 
         # Skip excluded paths
@@ -217,9 +215,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 log_level = "info"
 
             # Log response
-            message = (
-                f"{request.method} {request.url.path} {status_code} {duration_ms:.2f}ms"
-            )
+            message = f"{request.method} {request.url.path} {status_code} {duration_ms:.2f}ms"
             self._log_json(log_level, message, response_log)
 
     def _extract_tenant_id(self, request: Request) -> str | None:
@@ -293,11 +289,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 redacted[key] = self._redact_sensitive_data(value)
             elif isinstance(value, list):
                 redacted[key] = [
-                    (
-                        self._redact_sensitive_data(item)
-                        if isinstance(item, dict)
-                        else item
-                    )
+                    (self._redact_sensitive_data(item) if isinstance(item, dict) else item)
                     for item in value
                 ]
             else:

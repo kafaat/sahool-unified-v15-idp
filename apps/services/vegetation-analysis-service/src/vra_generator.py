@@ -363,9 +363,7 @@ class VRAGenerator:
         flat_rate_product = target_rate * total_area_ha
 
         savings_amount = flat_rate_product - total_product_needed
-        savings_percent = (
-            (savings_amount / flat_rate_product * 100) if flat_rate_product > 0 else 0
-        )
+        savings_percent = (savings_amount / flat_rate_product * 100) if flat_rate_product > 0 else 0
 
         cost_savings = None
         if product_price_per_unit is not None:
@@ -561,9 +559,7 @@ class VRAGenerator:
         flat_rate_product = target_rate * total_area
 
         savings_amount = flat_rate_product - total_vra_product
-        savings_percent = (
-            (savings_amount / flat_rate_product * 100) if flat_rate_product > 0 else 0
-        )
+        savings_percent = (savings_amount / flat_rate_product * 100) if flat_rate_product > 0 else 0
 
         return total_vra_product, flat_rate_product, savings_percent
 
@@ -689,9 +685,7 @@ class VRAGenerator:
                 for ring in zone.polygon:
                     for point in ring:
                         lon, lat = point
-                        xml += (
-                            f'          <Point PointEast="{lon}" PointNorth="{lat}"/>\n'
-                        )
+                        xml += f'          <Point PointEast="{lon}" PointNorth="{lat}"/>\n'
 
             xml += """        </Polygon>
       </ProcessDataVariable>
@@ -729,9 +723,7 @@ class VRAGenerator:
         Returns:
             List of PrescriptionMaps for the field
         """
-        prescriptions = [
-            p for p in self._prescription_store.values() if p.field_id == field_id
-        ]
+        prescriptions = [p for p in self._prescription_store.values() if p.field_id == field_id]
 
         # Sort by creation date (newest first)
         prescriptions.sort(key=lambda p: p.created_at, reverse=True)

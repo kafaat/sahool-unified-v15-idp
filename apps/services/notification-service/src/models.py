@@ -47,9 +47,7 @@ class Notification(Model):
         max_length=255, null=True, description="Notification title (Arabic)"
     )
     body = fields.TextField(description="Notification body/content (English)")
-    body_ar = fields.TextField(
-        null=True, description="Notification body/content (Arabic)"
-    )
+    body_ar = fields.TextField(null=True, description="Notification body/content (Arabic)")
 
     # Categorization
     type = fields.CharField(
@@ -71,28 +69,18 @@ class Notification(Model):
         index=True,
         description="pending, sent, failed, read",
     )
-    sent_at = fields.DatetimeField(
-        null=True, description="When the notification was sent"
-    )
-    read_at = fields.DatetimeField(
-        null=True, description="When the user read the notification"
-    )
+    sent_at = fields.DatetimeField(null=True, description="When the notification was sent")
+    read_at = fields.DatetimeField(null=True, description="When the user read the notification")
 
     # Metadata
-    data = fields.JSONField(
-        null=True, description="Additional data/context for the notification"
-    )
-    action_url = fields.CharField(
-        max_length=500, null=True, description="Deep link or action URL"
-    )
+    data = fields.JSONField(null=True, description="Additional data/context for the notification")
+    action_url = fields.CharField(max_length=500, null=True, description="Deep link or action URL")
 
     # Targeting
     target_governorates = fields.JSONField(
         null=True, description="List of governorates this applies to"
     )
-    target_crops = fields.JSONField(
-        null=True, description="List of crop types this applies to"
-    )
+    target_crops = fields.JSONField(null=True, description="List of crop types this applies to")
 
     # Timestamps
     created_at = fields.DatetimeField(auto_now_add=True, index=True)
@@ -137,9 +125,7 @@ class NotificationTemplate(Model):
     tenant_id = fields.CharField(max_length=100, index=True, null=True)
 
     # Template identification
-    name = fields.CharField(
-        max_length=100, unique=True, description="Template name/slug"
-    )
+    name = fields.CharField(max_length=100, unique=True, description="Template name/slug")
     description = fields.CharField(max_length=255, null=True)
 
     # Template content (supports Jinja2-style variables)
@@ -197,12 +183,8 @@ class NotificationChannel(Model):
     )
 
     # Verification
-    verified = fields.BooleanField(
-        default=False, description="Whether this channel is verified"
-    )
-    verified_at = fields.DatetimeField(
-        null=True, description="When the channel was verified"
-    )
+    verified = fields.BooleanField(default=False, description="Whether this channel is verified")
+    verified_at = fields.DatetimeField(null=True, description="When the channel was verified")
     verification_code = fields.CharField(
         max_length=10,
         null=True,
@@ -266,14 +248,10 @@ class NotificationPreference(Model):
     quiet_hours_start = fields.TimeField(
         null=True, description="Start of quiet hours (e.g., 22:00)"
     )
-    quiet_hours_end = fields.TimeField(
-        null=True, description="End of quiet hours (e.g., 06:00)"
-    )
+    quiet_hours_end = fields.TimeField(null=True, description="End of quiet hours (e.g., 06:00)")
 
     # Metadata
-    metadata = fields.JSONField(
-        null=True, description="Additional preferences metadata"
-    )
+    metadata = fields.JSONField(null=True, description="Additional preferences metadata")
 
     # Timestamps
     created_at = fields.DatetimeField(auto_now_add=True)
@@ -299,10 +277,7 @@ class NotificationPreference(Model):
 
         # Handle overnight quiet hours (e.g., 22:00 to 06:00)
         if self.quiet_hours_start > self.quiet_hours_end:
-            return (
-                check_time >= self.quiet_hours_start
-                or check_time <= self.quiet_hours_end
-            )
+            return check_time >= self.quiet_hours_start or check_time <= self.quiet_hours_end
         else:
             return self.quiet_hours_start <= check_time <= self.quiet_hours_end
 
@@ -325,9 +300,7 @@ class NotificationLog(Model):
     )
 
     # Error tracking
-    error_message = fields.TextField(
-        null=True, description="Error message if delivery failed"
-    )
+    error_message = fields.TextField(null=True, description="Error message if delivery failed")
     error_code = fields.CharField(max_length=50, null=True)
 
     # Provider response

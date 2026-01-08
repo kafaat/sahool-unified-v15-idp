@@ -7,7 +7,6 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
 
 from .mime_types import (
     ALLOWED_IMAGE_TYPES,
@@ -38,7 +37,7 @@ class FileValidationConfig:
     """
 
     max_file_size: int = 10 * 1024 * 1024  # 10MB default
-    allowed_mime_types: List[str] = None
+    allowed_mime_types: list[str] = None
     check_magic_bytes: bool = True
     strict_mime_check: bool = True
     scan_for_viruses: bool = False
@@ -58,8 +57,8 @@ class FileValidator:
 
     def __init__(
         self,
-        config: Optional[FileValidationConfig] = None,
-        virus_scanner: Optional[VirusScannerInterface] = None,
+        config: FileValidationConfig | None = None,
+        virus_scanner: VirusScannerInterface | None = None,
     ):
         """
         Initialize file validator
@@ -133,17 +132,13 @@ class FileValidator:
         file_size = len(file_content)
 
         if file_size == 0:
-            raise FileValidationError(
-                "ملف فارغ / Empty file",
-                error_code="EMPTY_FILE"
-            )
+            raise FileValidationError("ملف فارغ / Empty file", error_code="EMPTY_FILE")
 
         if file_size > self.config.max_file_size:
             max_mb = self.config.max_file_size / (1024 * 1024)
             raise FileValidationError(
-                f"حجم الملف كبير جداً. الحد الأقصى {max_mb}MB / "
-                f"File too large. Maximum {max_mb}MB",
-                error_code="FILE_TOO_LARGE"
+                f"حجم الملف كبير جداً. الحد الأقصى {max_mb}MB / File too large. Maximum {max_mb}MB",
+                error_code="FILE_TOO_LARGE",
             )
 
     def _validate_mime_type(self, mime_type: str) -> None:
@@ -154,14 +149,10 @@ class FileValidator:
         if not is_mime_allowed(mime_type, self.config.allowed_mime_types):
             raise FileValidationError(
                 f"نوع ملف غير مسموح: {mime_type} / Invalid file type: {mime_type}",
-                error_code="INVALID_MIME_TYPE"
+                error_code="INVALID_MIME_TYPE",
             )
 
-    def _validate_magic_bytes(
-        self,
-        file_content: bytes,
-        declared_mime: str
-    ) -> Optional[str]:
+    def _validate_magic_bytes(self, file_content: bytes, declared_mime: str) -> str | None:
         """
         Validate file content using magic bytes
         التحقق من محتوى الملف باستخدام البايتات السحرية
@@ -170,16 +161,14 @@ class FileValidator:
 
         if detected_mime:
             is_valid = validate_mime_match(
-                declared_mime,
-                file_content,
-                strict=self.config.strict_mime_check
+                declared_mime, file_content, strict=self.config.strict_mime_check
             )
 
             if not is_valid:
                 raise FileValidationError(
                     f"نوع الملف المُعلن ({declared_mime}) لا يتطابق مع المحتوى ({detected_mime}) / "
                     f"Declared type ({declared_mime}) doesn't match content ({detected_mime})",
-                    error_code="MIME_MISMATCH"
+                    error_code="MIME_MISMATCH",
                 )
 
         return detected_mime
@@ -191,30 +180,46 @@ class FileValidator:
         """
         # Check file extension
         executable_extensions = [
-            '.exe', '.bat', '.cmd', '.com', '.scr', '.vbs', '.js',
-            '.jar', '.app', '.deb', '.rpm', '.sh', '.py', '.rb',
-            '.pl', '.php', '.asp', '.aspx', '.jsp'
+            ".exe",
+            ".bat",
+            ".cmd",
+            ".com",
+            ".scr",
+            ".vbs",
+            ".js",
+            ".jar",
+            ".app",
+            ".deb",
+            ".rpm",
+            ".sh",
+            ".py",
+            ".rb",
+            ".pl",
+            ".php",
+            ".asp",
+            ".aspx",
+            ".jsp",
         ]
 
         file_ext = get_file_extension(filename).lower()
         if file_ext in executable_extensions:
             raise FileValidationError(
-                f"ملفات قابلة للتنفيذ غير مسموحة / Executable files not allowed",
-                error_code="EXECUTABLE_NOT_ALLOWED"
+                "ملفات قابلة للتنفيذ غير مسموحة / Executable files not allowed",
+                error_code="EXECUTABLE_NOT_ALLOWED",
             )
 
         # Check magic bytes for common executables
         executable_signatures = [
-            b'MZ',  # Windows PE
-            b'\x7fELF',  # Linux ELF
-            b'#!',  # Script shebang
+            b"MZ",  # Windows PE
+            b"\x7fELF",  # Linux ELF
+            b"#!",  # Script shebang
         ]
 
         for sig in executable_signatures:
             if file_content.startswith(sig):
                 raise FileValidationError(
                     "ملف قابل للتنفيذ غير مسموح / Executable file not allowed",
-                    error_code="EXECUTABLE_NOT_ALLOWED"
+                    error_code="EXECUTABLE_NOT_ALLOWED",
                 )
 
     async def _scan_virus(self, file_content: bytes, filename: str) -> None:
@@ -226,8 +231,7 @@ class FileValidator:
 
         if not is_safe:
             raise FileValidationError(
-                "تم اكتشاف فيروس في الملف / Virus detected in file",
-                error_code="VIRUS_DETECTED"
+                "تم اكتشاف فيروس في الملف / Virus detected in file", error_code="VIRUS_DETECTED"
             )
 
 
@@ -246,19 +250,19 @@ def sanitize_filename(filename: str) -> str:
     filename = os.path.basename(filename)
 
     # Remove any null bytes
-    filename = filename.replace('\x00', '')
+    filename = filename.replace("\x00", "")
 
     # Replace path separators with underscore
-    filename = filename.replace('/', '_').replace('\\', '_')
+    filename = filename.replace("/", "_").replace("\\", "_")
 
     # Remove any leading dots to prevent hidden files
-    filename = filename.lstrip('.')
+    filename = filename.lstrip(".")
 
     # Replace multiple spaces with single space
-    filename = re.sub(r'\s+', ' ', filename)
+    filename = re.sub(r"\s+", " ", filename)
 
     # Remove or replace special characters (keep only alphanumeric, dots, hyphens, underscores)
-    filename = re.sub(r'[^\w\s.-]', '_', filename)
+    filename = re.sub(r"[^\w\s.-]", "_", filename)
 
     # Limit filename length (keep extension)
     if len(filename) > 255:
@@ -267,8 +271,9 @@ def sanitize_filename(filename: str) -> str:
         filename = name[:max_name_len] + ext
 
     # If filename is empty after sanitization, generate a random one
-    if not filename or filename == '_':
+    if not filename or filename == "_":
         import uuid
+
         filename = f"file_{uuid.uuid4().hex[:8]}"
 
     return filename
@@ -292,8 +297,8 @@ async def validate_file_upload(
     file_content: bytes,
     filename: str,
     declared_mime_type: str,
-    config: Optional[FileValidationConfig] = None,
-    virus_scanner: Optional[VirusScannerInterface] = None,
+    config: FileValidationConfig | None = None,
+    virus_scanner: VirusScannerInterface | None = None,
 ) -> dict:
     """
     Convenience function for file validation

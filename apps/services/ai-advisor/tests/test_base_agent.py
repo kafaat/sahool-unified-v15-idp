@@ -44,18 +44,14 @@ class TestBaseAgent:
         assert agent.retriever is mock_knowledge_retriever
         assert agent.conversation_memory.get_memory_usage()["message_count"] == 0
 
-    def test_retrieve_context_with_retriever(
-        self, base_agent_class, mock_knowledge_retriever
-    ):
+    def test_retrieve_context_with_retriever(self, base_agent_class, mock_knowledge_retriever):
         """Test context retrieval from RAG system"""
 
         class TestAgent(base_agent_class):
             def get_system_prompt(self) -> str:
                 return "Test prompt"
 
-        agent = TestAgent(
-            name="TestAgent", role="Testing", retriever=mock_knowledge_retriever
-        )
+        agent = TestAgent(name="TestAgent", role="Testing", retriever=mock_knowledge_retriever)
 
         context = agent._retrieve_context("wheat farming")
 
@@ -90,13 +86,9 @@ class TestBaseAgent:
             mock_llm.ainvoke = AsyncMock(return_value=mock_response)
             mock_claude.return_value = mock_llm
 
-            agent = TestAgent(
-                name="TestAgent", role="Agricultural Advisor", retriever=None
-            )
+            agent = TestAgent(name="TestAgent", role="Agricultural Advisor", retriever=None)
 
-            result = await agent.think(
-                query="When should I plant wheat?", use_rag=False
-            )
+            result = await agent.think(query="When should I plant wheat?", use_rag=False)
 
             assert result["agent"] == "TestAgent"
             assert result["role"] == "Agricultural Advisor"
@@ -118,9 +110,7 @@ class TestBaseAgent:
             mock_llm.ainvoke = AsyncMock(return_value=mock_response)
             mock_claude.return_value = mock_llm
 
-            agent = TestAgent(
-                name="TestAgent", role="Advisor", retriever=mock_knowledge_retriever
-            )
+            agent = TestAgent(name="TestAgent", role="Advisor", retriever=mock_knowledge_retriever)
 
             result = await agent.think(query="How to control pests?", use_rag=True)
 

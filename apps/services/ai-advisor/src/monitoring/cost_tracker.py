@@ -18,12 +18,14 @@ LLM_PRICING = {
     "gpt-4o": {"input": 0.005, "output": 0.015},
     "gpt-4-turbo": {"input": 0.01, "output": 0.03},
     "gemini-1.5-pro": {"input": 0.00125, "output": 0.005},
-    "default": {"input": 0.01, "output": 0.03}
+    "default": {"input": 0.01, "output": 0.03},
 }
+
 
 @dataclass
 class UsageRecord:
     """Record of a single LLM usage"""
+
     timestamp: datetime
     model: str
     input_tokens: int
@@ -31,6 +33,7 @@ class UsageRecord:
     cost: float
     user_id: str | None = None
     request_type: str | None = None
+
 
 @dataclass
 class CostTracker:
@@ -60,7 +63,7 @@ class CostTracker:
         input_tokens: int,
         output_tokens: int,
         user_id: str | None = None,
-        request_type: str | None = None
+        request_type: str | None = None,
     ) -> UsageRecord:
         """Record LLM usage and return the record"""
         cost = self.calculate_cost(model, input_tokens, output_tokens)
@@ -72,7 +75,7 @@ class CostTracker:
             output_tokens=output_tokens,
             cost=cost,
             user_id=user_id,
-            request_type=request_type
+            request_type=request_type,
         )
 
         async with self._lock:
@@ -105,7 +108,10 @@ class CostTracker:
             return False, f"Daily budget limit exceeded (${daily_cost:.2f}/${self.daily_limit})"
 
         if monthly_cost >= self.monthly_limit:
-            return False, f"Monthly budget limit exceeded (${monthly_cost:.2f}/${self.monthly_limit})"
+            return (
+                False,
+                f"Monthly budget limit exceeded (${monthly_cost:.2f}/${self.monthly_limit})",
+            )
 
         return True, ""
 
@@ -120,7 +126,7 @@ class CostTracker:
             "monthly_cost": self._monthly_costs.get(f"{user_key}:{month}", 0),
             "daily_limit": self.daily_limit,
             "monthly_limit": self.monthly_limit,
-            "total_requests": len(self._records)
+            "total_requests": len(self._records),
         }
 
     def cleanup_old_records(self, days: int = 30):

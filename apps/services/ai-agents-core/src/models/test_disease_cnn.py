@@ -198,9 +198,7 @@ class TestDiseaseCNNModel(unittest.TestCase):
         اختبار المعالجة المسبقة للدفعة
         """
         # Create multiple test images - إنشاء صور اختبار متعددة
-        images = [
-            np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8) for _ in range(5)
-        ]
+        images = [np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8) for _ in range(5)]
 
         # Preprocess all - معالجة الكل مسبقاً
         processed_images = [self.model.preprocess_image(img) for img in images]

@@ -167,9 +167,7 @@ async def test_sliding_window_allows_within_limit(redis_client):
     # محاكاة استجابة Redis
     # Mock Redis response
     mock_pipe = AsyncMock()
-    mock_pipe.execute = AsyncMock(
-        return_value=[0, 5, 1, True]
-    )  # removed=0, count=5, added=1
+    mock_pipe.execute = AsyncMock(return_value=[0, 5, 1, True])  # removed=0, count=5, added=1
     redis_client.pipeline.return_value = mock_pipe
 
     allowed, remaining, reset = await limiter.check_rate_limit(
@@ -439,9 +437,7 @@ async def test_middleware_allows_excluded_paths(app, rate_limiter):
     اختبار: الميدلوير يسمح بالمسارات المستثناة
     Test: Middleware allows excluded paths.
     """
-    app.add_middleware(
-        RateLimitMiddleware, limiter=rate_limiter, exclude_paths=["/healthz"]
-    )
+    app.add_middleware(RateLimitMiddleware, limiter=rate_limiter, exclude_paths=["/healthz"])
 
     client = TestClient(app)
     response = client.get("/healthz")

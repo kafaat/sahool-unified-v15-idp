@@ -6,13 +6,13 @@ Enhanced with multi-model support, caching, and GitHub integration
 محسن بدعم النماذج المتعددة والتخزين المؤقت وتكامل GitHub
 """
 
-from typing import Optional
-from pydantic import Field
+
 from pydantic_settings import BaseSettings
 
 
 class ModelConfig(BaseSettings):
     """Configuration for a single LLM model"""
+
     name: str = "deepseek-coder-v2"
     endpoint: str = "http://ollama:11434"
     timeout: int = 60
@@ -50,9 +50,9 @@ class Settings(BaseSettings):
     # GitHub Integration
     # ═══════════════════════════════════════════════════════════════════════════
 
-    github_token: Optional[str] = None
+    github_token: str | None = None
     github_api_url: str = "https://api.github.com"
-    github_webhook_secret: Optional[str] = None
+    github_webhook_secret: str | None = None
 
     # Auto-comment on PRs
     github_auto_comment: bool = True

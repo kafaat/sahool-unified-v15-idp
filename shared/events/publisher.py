@@ -68,20 +68,12 @@ class PublisherConfig(BaseModel):
         default_factory=lambda: os.getenv("SERVICE_NAME", "sahool-publisher"),
         description="Publisher client name",
     )
-    reconnect_time_wait: int = Field(
-        default=2, description="Seconds between reconnect attempts"
-    )
-    max_reconnect_attempts: int = Field(
-        default=60, description="Maximum reconnect attempts"
-    )
-    connect_timeout: int = Field(
-        default=10, description="Connection timeout in seconds"
-    )
+    reconnect_time_wait: int = Field(default=2, description="Seconds between reconnect attempts")
+    max_reconnect_attempts: int = Field(default=60, description="Maximum reconnect attempts")
+    connect_timeout: int = Field(default=10, description="Connection timeout in seconds")
 
     # JetStream
-    enable_jetstream: bool = Field(
-        default=True, description="Enable JetStream for persistence"
-    )
+    enable_jetstream: bool = Field(default=True, description="Enable JetStream for persistence")
     jetstream_domain: str | None = Field(None, description="JetStream domain")
 
     # Publishing options
@@ -91,9 +83,7 @@ class PublisherConfig(BaseModel):
     # Retry configuration
     enable_retry: bool = Field(default=True, description="Enable automatic retries")
     max_retry_attempts: int = Field(default=3, description="Maximum retry attempts")
-    retry_delay: float = Field(
-        default=0.5, description="Delay between retries in seconds"
-    )
+    retry_delay: float = Field(default=0.5, description="Delay between retries in seconds")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -164,9 +154,7 @@ class EventPublisher:
             True if connected successfully, False otherwise
         """
         if not _nats_available:
-            logger.error(
-                "NATS library not available. Install with: pip install nats-py"
-            )
+            logger.error("NATS library not available. Install with: pip install nats-py")
             return False
 
         if self.is_connected:
@@ -269,9 +257,7 @@ class EventPublisher:
 
         # Publish
         timeout = timeout or self.config.default_timeout
-        use_jetstream = (
-            use_jetstream if use_jetstream is not None else self.config.enable_jetstream
-        )
+        use_jetstream = use_jetstream if use_jetstream is not None else self.config.enable_jetstream
 
         try:
             if use_jetstream and self._js:
@@ -281,8 +267,7 @@ class EventPublisher:
 
             self._publish_count += 1
             logger.info(
-                f"📤 Published event: {subject} "
-                f"(id={event.event_id}, service={self.service_name})"
+                f"📤 Published event: {subject} (id={event.event_id}, service={self.service_name})"
             )
             return True
 
@@ -320,9 +305,7 @@ class EventPublisher:
             else:
                 logger.warning(f"Failed to publish event to {subject}")
 
-        logger.info(
-            f"Batch publish completed: {success_count}/{len(events)} successful"
-        )
+        logger.info(f"Batch publish completed: {success_count}/{len(events)} successful")
         return success_count
 
     async def publish_json(
@@ -384,14 +367,10 @@ class EventPublisher:
     ) -> bool:
         """Retry publishing with exponential backoff."""
         for attempt in range(1, self.config.max_retry_attempts + 1):
-            delay = self.config.retry_delay * (
-                2 ** (attempt - 1)
-            )  # Exponential backoff
+            delay = self.config.retry_delay * (2 ** (attempt - 1))  # Exponential backoff
             await asyncio.sleep(delay)
 
-            logger.info(
-                f"Retry attempt {attempt}/{self.config.max_retry_attempts} for {subject}"
-            )
+            logger.info(f"Retry attempt {attempt}/{self.config.max_retry_attempts} for {subject}")
 
             try:
                 if use_jetstream and self._js:

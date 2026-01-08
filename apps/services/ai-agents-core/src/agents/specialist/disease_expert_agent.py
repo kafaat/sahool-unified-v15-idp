@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Disease:
     """معلومات المرض"""
+
     disease_id: str
     name: str
     name_ar: str
@@ -48,6 +49,7 @@ class Disease:
 @dataclass
 class DiagnosisResult:
     """نتيجة التشخيص"""
+
     disease: Disease
     confidence: float
     severity_level: str
@@ -81,7 +83,7 @@ class DiseaseExpertAgent(BaseAgent):
                     "application": "foliar spray",
                     "effectiveness": 0.85,
                     "cost_yer": 5000,
-                    "waiting_period_days": 21
+                    "waiting_period_days": 21,
                 },
                 {
                     "name": "Tebuconazole",
@@ -90,11 +92,11 @@ class DiseaseExpertAgent(BaseAgent):
                     "application": "foliar spray",
                     "effectiveness": 0.80,
                     "cost_yer": 4500,
-                    "waiting_period_days": 14
-                }
+                    "waiting_period_days": 14,
+                },
             ],
             prevention=["resistant varieties", "crop rotation", "timely sowing"],
-            prevention_ar=["أصناف مقاومة", "تناوب المحاصيل", "الزراعة في الوقت المناسب"]
+            prevention_ar=["أصناف مقاومة", "تناوب المحاصيل", "الزراعة في الوقت المناسب"],
         ),
         "tomato_late_blight": Disease(
             disease_id="tomato_late_blight",
@@ -113,7 +115,7 @@ class DiseaseExpertAgent(BaseAgent):
                     "application": "foliar spray",
                     "effectiveness": 0.75,
                     "cost_yer": 3000,
-                    "waiting_period_days": 7
+                    "waiting_period_days": 7,
                 },
                 {
                     "name": "Mancozeb",
@@ -122,11 +124,11 @@ class DiseaseExpertAgent(BaseAgent):
                     "application": "foliar spray",
                     "effectiveness": 0.70,
                     "cost_yer": 2500,
-                    "waiting_period_days": 14
-                }
+                    "waiting_period_days": 14,
+                },
             ],
             prevention=["proper spacing", "avoid overhead irrigation", "destroy infected plants"],
-            prevention_ar=["تباعد مناسب", "تجنب الري العلوي", "إتلاف النباتات المصابة"]
+            prevention_ar=["تباعد مناسب", "تجنب الري العلوي", "إتلاف النباتات المصابة"],
         ),
         "coffee_leaf_rust": Disease(
             disease_id="coffee_leaf_rust",
@@ -145,11 +147,11 @@ class DiseaseExpertAgent(BaseAgent):
                     "application": "foliar spray",
                     "effectiveness": 0.80,
                     "cost_yer": 4000,
-                    "waiting_period_days": 21
+                    "waiting_period_days": 21,
                 }
             ],
             prevention=["shade management", "resistant varieties", "proper nutrition"],
-            prevention_ar=["إدارة الظل", "أصناف مقاومة", "تغذية سليمة"]
+            prevention_ar=["إدارة الظل", "أصناف مقاومة", "تغذية سليمة"],
         ),
         "date_palm_bayoud": Disease(
             disease_id="date_palm_bayoud",
@@ -168,11 +170,11 @@ class DiseaseExpertAgent(BaseAgent):
                     "application": "soil drench",
                     "effectiveness": 0.50,
                     "cost_yer": 8000,
-                    "waiting_period_days": 60
+                    "waiting_period_days": 60,
                 }
             ],
             prevention=["certified planting material", "quarantine", "resistant varieties"],
-            prevention_ar=["مواد زراعة معتمدة", "الحجر الصحي", "أصناف مقاومة"]
+            prevention_ar=["مواد زراعة معتمدة", "الحجر الصحي", "أصناف مقاومة"],
         ),
         "mango_anthracnose": Disease(
             disease_id="mango_anthracnose",
@@ -191,12 +193,12 @@ class DiseaseExpertAgent(BaseAgent):
                     "application": "foliar spray",
                     "effectiveness": 0.75,
                     "cost_yer": 2500,
-                    "waiting_period_days": 14
+                    "waiting_period_days": 14,
                 }
             ],
             prevention=["prune infected parts", "good air circulation", "avoid wetting foliage"],
-            prevention_ar=["تقليم الأجزاء المصابة", "تهوية جيدة", "تجنب ترطيب الأوراق"]
-        )
+            prevention_ar=["تقليم الأجزاء المصابة", "تهوية جيدة", "تجنب ترطيب الأوراق"],
+        ),
     }
 
     # Symptom to disease mapping
@@ -207,7 +209,7 @@ class DiseaseExpertAgent(BaseAgent):
         "white_mold": ["tomato_late_blight"],
         "black_spots": ["mango_anthracnose"],
         "wilting": ["date_palm_bayoud", "tomato_late_blight"],
-        "leaf_drop": ["coffee_leaf_rust", "mango_anthracnose"]
+        "leaf_drop": ["coffee_leaf_rust", "mango_anthracnose"],
     }
 
     def __init__(self, agent_id: str = "disease_expert_001"):
@@ -218,7 +220,7 @@ class DiseaseExpertAgent(BaseAgent):
             agent_type=AgentType.UTILITY_BASED,
             layer=AgentLayer.SPECIALIST,
             description="Expert agent for plant disease diagnosis and treatment",
-            description_ar="وكيل خبير لتشخيص أمراض النباتات وعلاجها"
+            description_ar="وكيل خبير لتشخيص أمراض النباتات وعلاجها",
         )
 
         # Diagnosis history for learning
@@ -253,15 +255,15 @@ class DiseaseExpertAgent(BaseAgent):
         urgency_weights = {
             "immediate": {"effectiveness": 0.5, "cost": 0.1, "wait": 0.4},
             "soon": {"effectiveness": 0.4, "cost": 0.3, "wait": 0.3},
-            "scheduled": {"effectiveness": 0.3, "cost": 0.4, "wait": 0.3}
+            "scheduled": {"effectiveness": 0.3, "cost": 0.4, "wait": 0.3},
         }
 
         weights = urgency_weights.get(urgency, urgency_weights["scheduled"])
 
         utility = (
-            weights["effectiveness"] * effectiveness +
-            weights["cost"] * cost_factor +
-            weights["wait"] * wait_factor
+            weights["effectiveness"] * effectiveness
+            + weights["cost"] * cost_factor
+            + weights["wait"] * wait_factor
         )
 
         return utility
@@ -288,9 +290,7 @@ class DiseaseExpertAgent(BaseAgent):
         if self.context:
             self.context.metadata["disease_beliefs"] = self.state.beliefs
         else:
-            self.context = AgentContext(
-                metadata={"disease_beliefs": self.state.beliefs}
-            )
+            self.context = AgentContext(metadata={"disease_beliefs": self.state.beliefs})
 
     async def think(self) -> AgentAction | None:
         """التشخيص واختيار العلاج"""
@@ -304,7 +304,7 @@ class DiseaseExpertAgent(BaseAgent):
                 confidence=0.7,
                 priority=4,
                 reasoning="لم يتم اكتشاف مرض واضح",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         self.diagnosis_history.append(diagnosis)
@@ -319,7 +319,7 @@ class DiseaseExpertAgent(BaseAgent):
                 confidence=diagnosis.confidence,
                 priority=2,
                 reasoning=f"تم تشخيص {diagnosis.disease.name_ar} - لا توجد علاجات متاحة",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         # Step 3: Select best treatment using utility function
@@ -380,7 +380,7 @@ class DiseaseExpertAgent(BaseAgent):
             severity_level=severity,
             affected_area_percent=self.state.beliefs.get("affected_area", 10),
             progression_stage=progression,
-            urgency=self._determine_urgency(disease, severity, progression)
+            urgency=self._determine_urgency(disease, severity, progression),
         )
 
     async def _match_symptoms(self, symptoms: list[str]) -> list[tuple[str, float]]:
@@ -444,26 +444,28 @@ class DiseaseExpertAgent(BaseAgent):
                         "method": treatment["application"],
                         "dosage": treatment["dosage"],
                         "timing": "early morning or late afternoon",
-                        "precautions": "wear protective equipment"
-                    }
+                        "precautions": "wear protective equipment",
+                    },
                 },
                 confidence=diagnosis.confidence * treatment["effectiveness"],
                 priority=1 if diagnosis.urgency == "immediate" else 2,
-                reasoning=f"علاج {diagnosis.disease.name_ar} باستخدام {treatment['name_ar']}"
+                reasoning=f"علاج {diagnosis.disease.name_ar} باستخدام {treatment['name_ar']}",
             )
             actions.append(action)
 
         # Add prevention action
-        actions.append(AgentAction(
-            action_type="prevention_measures",
-            parameters={
-                "disease": diagnosis.disease.name_ar,
-                "measures": diagnosis.disease.prevention_ar
-            },
-            confidence=0.9,
-            priority=3,
-            reasoning=f"إجراءات وقائية من {diagnosis.disease.name_ar}"
-        ))
+        actions.append(
+            AgentAction(
+                action_type="prevention_measures",
+                parameters={
+                    "disease": diagnosis.disease.name_ar,
+                    "measures": diagnosis.disease.prevention_ar,
+                },
+                confidence=0.9,
+                priority=3,
+                reasoning=f"إجراءات وقائية من {diagnosis.disease.name_ar}",
+            )
+        )
 
         return actions
 
@@ -472,7 +474,7 @@ class DiseaseExpertAgent(BaseAgent):
         result = {
             "action_type": action.action_type,
             "executed_at": datetime.now().isoformat(),
-            "success": True
+            "success": True,
         }
 
         if action.action_type == "apply_treatment":
@@ -487,13 +489,13 @@ class DiseaseExpertAgent(BaseAgent):
                 "waiting_period_days": treatment.get("waiting_period_days"),
                 "instructions": action.parameters.get("application_instructions"),
                 "urgency": action.parameters.get("urgency"),
-                "confidence": action.confidence
+                "confidence": action.confidence,
             }
 
         elif action.action_type == "prevention_measures":
             result["prevention"] = {
                 "disease": action.parameters.get("disease"),
-                "measures": action.parameters.get("measures")
+                "measures": action.parameters.get("measures"),
             }
 
         elif action.action_type == "no_disease_detected":
@@ -515,7 +517,7 @@ class DiseaseExpertAgent(BaseAgent):
                 "severity": disease.severity,
                 "treatments": disease.treatments,
                 "prevention": disease.prevention,
-                "prevention_ar": disease.prevention_ar
+                "prevention_ar": disease.prevention_ar,
             }
         return None
 
@@ -524,10 +526,12 @@ class DiseaseExpertAgent(BaseAgent):
         diseases = []
         for disease in self.DISEASE_DATABASE.values():
             if crop_type in disease.crop_types:
-                diseases.append({
-                    "id": disease.disease_id,
-                    "name": disease.name,
-                    "name_ar": disease.name_ar,
-                    "severity": disease.severity
-                })
+                diseases.append(
+                    {
+                        "id": disease.disease_id,
+                        "name": disease.name,
+                        "name_ar": disease.name_ar,
+                        "severity": disease.severity,
+                    }
+                )
         return diseases

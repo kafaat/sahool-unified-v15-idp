@@ -202,9 +202,7 @@ class PasswordHasher:
             return False, False
 
         try:
-            is_valid = bcrypt.checkpw(
-                password.encode("utf-8"), hashed_password.encode("utf-8")
-            )
+            is_valid = bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
             # Always migrate bcrypt to Argon2id
             return is_valid, is_valid
         except Exception as e:

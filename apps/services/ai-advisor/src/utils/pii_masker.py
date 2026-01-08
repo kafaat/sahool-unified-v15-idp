@@ -95,7 +95,9 @@ class PIIMasker:
                     (
                         cls.mask_dict(item, depth + 1)
                         if isinstance(item, dict)
-                        else cls.mask_text(item) if isinstance(item, str) else item
+                        else cls.mask_text(item)
+                        if isinstance(item, str)
+                        else item
                     )
                     for item in value
                 ]

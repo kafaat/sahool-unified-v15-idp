@@ -31,43 +31,43 @@ class IoTAgent(BaseAgent):
     # Sensor thresholds for Yemen climate
     THRESHOLDS = {
         "soil_moisture": {
-            "critical_low": 0.15,    # 15%
-            "low": 0.25,             # 25%
-            "optimal_min": 0.35,     # 35%
-            "optimal_max": 0.65,     # 65%
-            "high": 0.80,            # 80%
-            "critical_high": 0.90   # 90% (waterlogging)
+            "critical_low": 0.15,  # 15%
+            "low": 0.25,  # 25%
+            "optimal_min": 0.35,  # 35%
+            "optimal_max": 0.65,  # 65%
+            "high": 0.80,  # 80%
+            "critical_high": 0.90,  # 90% (waterlogging)
         },
         "temperature": {
-            "frost": 2,              # °C
-            "cold": 10,              # °C
-            "optimal_min": 18,       # °C
-            "optimal_max": 32,       # °C
-            "hot": 38,               # °C
-            "critical_hot": 45       # °C
+            "frost": 2,  # °C
+            "cold": 10,  # °C
+            "optimal_min": 18,  # °C
+            "optimal_max": 32,  # °C
+            "hot": 38,  # °C
+            "critical_hot": 45,  # °C
         },
         "humidity": {
-            "critical_low": 20,      # %
-            "low": 30,               # %
-            "optimal_min": 40,       # %
-            "optimal_max": 70,       # %
-            "high": 85,              # %
-            "critical_high": 95      # %
+            "critical_low": 20,  # %
+            "low": 30,  # %
+            "optimal_min": 40,  # %
+            "optimal_max": 70,  # %
+            "high": 85,  # %
+            "critical_high": 95,  # %
         },
         "soil_ec": {
-            "low": 0.5,              # dS/m
-            "optimal_min": 1.0,      # dS/m
-            "optimal_max": 2.5,      # dS/m
-            "high": 4.0,             # dS/m - salinity warning
-            "critical": 6.0          # dS/m - critical salinity
+            "low": 0.5,  # dS/m
+            "optimal_min": 1.0,  # dS/m
+            "optimal_max": 2.5,  # dS/m
+            "high": 4.0,  # dS/m - salinity warning
+            "critical": 6.0,  # dS/m - critical salinity
         },
         "soil_ph": {
             "acidic": 5.5,
             "optimal_min": 6.0,
             "optimal_max": 7.5,
             "alkaline": 8.0,
-            "critical_alkaline": 8.5
-        }
+            "critical_alkaline": 8.5,
+        },
     }
 
     def __init__(self, agent_id: str = "iot_edge_001", device_id: str = ""):
@@ -78,19 +78,19 @@ class IoTAgent(BaseAgent):
             agent_type=AgentType.MODEL_BASED,  # Maintains internal model
             layer=AgentLayer.EDGE,
             description="Real-time sensor processing and automated control",
-            description_ar="معالجة المستشعرات في الوقت الفعلي والتحكم الآلي"
+            description_ar="معالجة المستشعرات في الوقت الفعلي والتحكم الآلي",
         )
 
         self.device_id = device_id
 
         # Sensor data buffers (sliding window for trend analysis)
         self.sensor_buffers: dict[str, deque] = {
-            "soil_moisture": deque(maxlen=60),      # Last 60 readings
+            "soil_moisture": deque(maxlen=60),  # Last 60 readings
             "temperature": deque(maxlen=60),
             "humidity": deque(maxlen=60),
             "soil_ec": deque(maxlen=30),
             "soil_ph": deque(maxlen=30),
-            "water_flow": deque(maxlen=30)
+            "water_flow": deque(maxlen=30),
         }
 
         # Internal model state (Model-Based Agent)
@@ -100,14 +100,14 @@ class IoTAgent(BaseAgent):
             "trend": {},
             "anomalies": [],
             "last_irrigation": None,
-            "irrigation_in_progress": False
+            "irrigation_in_progress": False,
         }
 
         # Actuator states
         self.actuators = {
             "irrigation_valve": {"state": "closed", "last_change": None},
             "pump": {"state": "off", "last_change": None},
-            "fan": {"state": "off", "last_change": None}
+            "fan": {"state": "off", "last_change": None},
         }
 
         # Alert cooldown to prevent spam
@@ -121,7 +121,8 @@ class IoTAgent(BaseAgent):
         # Critical moisture - immediate irrigation
         self.add_rule(
             condition=lambda ctx: (
-                ctx.sensor_data.get("soil_moisture", 1) < self.THRESHOLDS["soil_moisture"]["critical_low"]
+                ctx.sensor_data.get("soil_moisture", 1)
+                < self.THRESHOLDS["soil_moisture"]["critical_low"]
                 and not self.internal_model["irrigation_in_progress"]
             ),
             action=AgentAction(
@@ -129,8 +130,8 @@ class IoTAgent(BaseAgent):
                 parameters={"duration_minutes": 30, "urgency": "critical"},
                 confidence=0.98,
                 priority=1,
-                reasoning="رطوبة التربة حرجة - أقل من 15%"
-            )
+                reasoning="رطوبة التربة حرجة - أقل من 15%",
+            ),
         )
 
         # Low moisture - scheduled irrigation
@@ -145,22 +146,23 @@ class IoTAgent(BaseAgent):
                 parameters={"duration_minutes": 20, "urgency": "medium"},
                 confidence=0.9,
                 priority=2,
-                reasoning="رطوبة التربة منخفضة - أقل من 25%"
-            )
+                reasoning="رطوبة التربة منخفضة - أقل من 25%",
+            ),
         )
 
         # Critical temperature
         self.add_rule(
             condition=lambda ctx: (
-                ctx.sensor_data.get("temperature", 25) > self.THRESHOLDS["temperature"]["critical_hot"]
+                ctx.sensor_data.get("temperature", 25)
+                > self.THRESHOLDS["temperature"]["critical_hot"]
             ),
             action=AgentAction(
                 action_type="heat_emergency",
                 parameters={"action": "activate_cooling"},
                 confidence=0.99,
                 priority=1,
-                reasoning="درجة الحرارة خطيرة - أعلى من 45°C"
-            )
+                reasoning="درجة الحرارة خطيرة - أعلى من 45°C",
+            ),
         )
 
         # Frost warning
@@ -173,8 +175,8 @@ class IoTAgent(BaseAgent):
                 parameters={"action": "activate_heating"},
                 confidence=0.99,
                 priority=1,
-                reasoning="خطر الصقيع - درجة الحرارة أقل من 2°C"
-            )
+                reasoning="خطر الصقيع - درجة الحرارة أقل من 2°C",
+            ),
         )
 
         # Salinity warning
@@ -188,8 +190,8 @@ class IoTAgent(BaseAgent):
                 parameters={"ec_value": ctx.sensor_data.get("soil_ec", 0) if ctx else 0},
                 confidence=0.95,
                 priority=2,
-                reasoning="ملوحة التربة مرتفعة - قد تؤثر على المحصول"
-            )
+                reasoning="ملوحة التربة مرتفعة - قد تؤثر على المحصول",
+            ),
         )
 
     def _check_cooldown(self, alert_type: str) -> bool:
@@ -209,10 +211,9 @@ class IoTAgent(BaseAgent):
             # Batch sensor update
             for sensor_type, value in percept.data.items():
                 if sensor_type in self.sensor_buffers:
-                    self.sensor_buffers[sensor_type].append({
-                        "value": value,
-                        "timestamp": datetime.now()
-                    })
+                    self.sensor_buffers[sensor_type].append(
+                        {"value": value, "timestamp": datetime.now()}
+                    )
 
             # Update context
             if self.context:
@@ -224,10 +225,9 @@ class IoTAgent(BaseAgent):
             sensor_type = percept.data.get("type")
             value = percept.data.get("value")
             if sensor_type and sensor_type in self.sensor_buffers:
-                self.sensor_buffers[sensor_type].append({
-                    "value": value,
-                    "timestamp": datetime.now()
-                })
+                self.sensor_buffers[sensor_type].append(
+                    {"value": value, "timestamp": datetime.now()}
+                )
                 if self.context:
                     self.context.sensor_data[sensor_type] = value
 
@@ -238,20 +238,17 @@ class IoTAgent(BaseAgent):
         """تحديث النموذج الداخلي"""
         # Current state
         self.internal_model["current_state"] = {
-            sensor: self._get_latest_value(sensor)
-            for sensor in self.sensor_buffers
+            sensor: self._get_latest_value(sensor) for sensor in self.sensor_buffers
         }
 
         # Calculate trends
         self.internal_model["trend"] = {
-            sensor: self._calculate_trend(sensor)
-            for sensor in self.sensor_buffers
+            sensor: self._calculate_trend(sensor) for sensor in self.sensor_buffers
         }
 
         # Predict next state
         self.internal_model["predicted_state"] = {
-            sensor: self._predict_next_value(sensor)
-            for sensor in self.sensor_buffers
+            sensor: self._predict_next_value(sensor) for sensor in self.sensor_buffers
         }
 
         # Detect anomalies
@@ -273,8 +270,8 @@ class IoTAgent(BaseAgent):
             return {"direction": "unknown", "rate": 0}
 
         values = [r["value"] for r in list(buffer)[-10:]]
-        avg_first_half = sum(values[:len(values)//2]) / (len(values)//2)
-        avg_second_half = sum(values[len(values)//2:]) / (len(values) - len(values)//2)
+        avg_first_half = sum(values[: len(values) // 2]) / (len(values) // 2)
+        avg_second_half = sum(values[len(values) // 2 :]) / (len(values) - len(values) // 2)
 
         diff = avg_second_half - avg_first_half
         if abs(diff) < 0.01:
@@ -287,7 +284,7 @@ class IoTAgent(BaseAgent):
         return {
             "direction": direction,
             "rate": diff,
-            "rate_per_hour": diff * 6  # Assuming 10-min intervals
+            "rate_per_hour": diff * 6,  # Assuming 10-min intervals
         }
 
     def _predict_next_value(self, sensor: str) -> float | None:
@@ -314,7 +311,7 @@ class IoTAgent(BaseAgent):
             values = [r["value"] for r in buffer]
             mean = sum(values) / len(values)
             variance = sum((v - mean) ** 2 for v in values) / len(values)
-            std_dev = variance ** 0.5
+            std_dev = variance**0.5
 
             latest = values[-1]
 
@@ -322,13 +319,15 @@ class IoTAgent(BaseAgent):
             if std_dev > 0:
                 z_score = abs(latest - mean) / std_dev
                 if z_score > 3:  # More than 3 standard deviations
-                    anomalies.append({
-                        "sensor": sensor,
-                        "value": latest,
-                        "expected_range": (mean - 2*std_dev, mean + 2*std_dev),
-                        "z_score": z_score,
-                        "timestamp": datetime.now().isoformat()
-                    })
+                    anomalies.append(
+                        {
+                            "sensor": sensor,
+                            "value": latest,
+                            "expected_range": (mean - 2 * std_dev, mean + 2 * std_dev),
+                            "z_score": z_score,
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    )
 
         return anomalies
 
@@ -346,7 +345,7 @@ class IoTAgent(BaseAgent):
                 confidence=0.85,
                 priority=1,
                 reasoning=f"قراءة غير طبيعية من مستشعر {anomaly['sensor']}",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         # 2. Check rules
@@ -375,12 +374,12 @@ class IoTAgent(BaseAgent):
                     parameters={
                         "predicted_moisture": moisture_predicted,
                         "time_to_low": "30 minutes",
-                        "suggested_action": "schedule_irrigation"
+                        "suggested_action": "schedule_irrigation",
                     },
                     confidence=0.75,
                     priority=3,
                     reasoning="توقع انخفاض الرطوبة خلال 30 دقيقة",
-                    source_agent=self.agent_id
+                    source_agent=self.agent_id,
                 )
 
         return None
@@ -390,7 +389,7 @@ class IoTAgent(BaseAgent):
         result = {
             "action_type": action.action_type,
             "executed_at": datetime.now().isoformat(),
-            "success": True
+            "success": True,
         }
 
         if action.action_type == "start_irrigation":
@@ -404,7 +403,7 @@ class IoTAgent(BaseAgent):
             result["actuator_commands"] = [
                 {"device": "valve", "command": "open"},
                 {"device": "pump", "command": "on"},
-                {"schedule": f"close_after_{duration}_minutes"}
+                {"schedule": f"close_after_{duration}_minutes"},
             ]
             self._set_cooldown("irrigation_alert")
 
@@ -415,7 +414,7 @@ class IoTAgent(BaseAgent):
 
             result["actuator_commands"] = [
                 {"device": "valve", "command": "close"},
-                {"device": "pump", "command": "off"}
+                {"device": "pump", "command": "off"},
             ]
 
         elif action.action_type == "heat_emergency":
@@ -423,7 +422,7 @@ class IoTAgent(BaseAgent):
                 "type": "emergency",
                 "title": "🔥 طوارئ حرارة",
                 "body": action.reasoning,
-                "channels": ["sms", "push", "call"]
+                "channels": ["sms", "push", "call"],
             }
 
         elif action.action_type == "frost_emergency":
@@ -431,7 +430,7 @@ class IoTAgent(BaseAgent):
                 "type": "emergency",
                 "title": "❄️ طوارئ صقيع",
                 "body": action.reasoning,
-                "channels": ["sms", "push", "call"]
+                "channels": ["sms", "push", "call"],
             }
 
         elif action.action_type == "anomaly_alert":
@@ -439,7 +438,7 @@ class IoTAgent(BaseAgent):
             result["notification"] = {
                 "type": "warning",
                 "title": "⚠️ قراءة غير طبيعية",
-                "body": action.reasoning
+                "body": action.reasoning,
             }
 
         return result
@@ -452,5 +451,5 @@ class IoTAgent(BaseAgent):
             "predictions": self.internal_model["predicted_state"],
             "anomalies": self.internal_model["anomalies"],
             "actuators": self.actuators,
-            "irrigation_in_progress": self.internal_model["irrigation_in_progress"]
+            "irrigation_in_progress": self.internal_model["irrigation_in_progress"],
         }

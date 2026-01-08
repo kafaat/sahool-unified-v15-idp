@@ -13,12 +13,6 @@ from fastapi import FastAPI, HTTPException
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
 from pydantic import BaseModel, Field
 
@@ -30,8 +24,6 @@ if not SHARED_PATH.exists():
     SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
-
 # Import shared crop catalogs
 from crops import (
     ALL_CROPS,
@@ -43,6 +35,7 @@ from crops import (
 from crops import (
     search_crops as search_crops_catalog,
 )
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from yemen_varieties import (
     get_varieties_by_crop,
 )
@@ -272,9 +265,7 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
     return {
         "id": disease_id,
         **disease,
-        "actions_details": [
-            get_action_details(action, lang) for action in disease["actions"]
-        ],
+        "actions_details": [get_action_details(action, lang) for action in disease["actions"]],
     }
 
 
@@ -443,9 +434,7 @@ def list_categories():
 def search_crops_endpoint(q: str):
     """Search crops by Arabic or English name"""
     if not q or len(q) < 2:
-        raise HTTPException(
-            status_code=400, detail="Query must be at least 2 characters"
-        )
+        raise HTTPException(status_code=400, detail="Query must be at least 2 characters")
 
     results = search_crops_catalog(q)
 

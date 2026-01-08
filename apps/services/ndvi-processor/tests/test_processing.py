@@ -81,9 +81,7 @@ class TestJobManagement:
         )
 
         result = {"ndvi_mean": 0.65, "files": {}}
-        updated_job = update_job_status(
-            job_id, JobStatus.COMPLETED, progress=100, result=result
-        )
+        updated_job = update_job_status(job_id, JobStatus.COMPLETED, progress=100, result=result)
 
         assert updated_job is not None
         assert updated_job["status"] == JobStatus.COMPLETED.value
@@ -100,9 +98,7 @@ class TestJobManagement:
             parameters={},
         )
 
-        updated_job = update_job_status(
-            job_id, JobStatus.FAILED, error="Processing error"
-        )
+        updated_job = update_job_status(job_id, JobStatus.FAILED, error="Processing error")
 
         assert updated_job is not None
         assert updated_job["status"] == JobStatus.FAILED.value
@@ -267,9 +263,7 @@ class TestTimeseriesAnalysis:
 
     def test_get_ndvi_timeseries(self):
         """Test getting NDVI timeseries"""
-        timeseries = get_ndvi_timeseries(
-            "field_timeseries_test", "2025-01-01", "2025-01-31"
-        )
+        timeseries = get_ndvi_timeseries("field_timeseries_test", "2025-01-01", "2025-01-31")
 
         assert len(timeseries) > 0
         assert all(hasattr(p, "date") for p in timeseries)
@@ -289,9 +283,7 @@ class TestChangeAnalysis:
 
     def test_analyze_change(self):
         """Test change analysis between two dates"""
-        result = analyze_change(
-            "field_change_test", "2025-01-01", "2025-06-01", include_zones=True
-        )
+        result = analyze_change("field_change_test", "2025-01-01", "2025-06-01", include_zones=True)
 
         assert result["field_id"] == "field_change_test"
         assert result["date1"] == "2025-01-01"
@@ -303,17 +295,13 @@ class TestChangeAnalysis:
 
     def test_analyze_change_without_zones(self):
         """Test change analysis without zone breakdown"""
-        result = analyze_change(
-            "field_no_zones", "2025-01-01", "2025-06-01", include_zones=False
-        )
+        result = analyze_change("field_no_zones", "2025-01-01", "2025-06-01", include_zones=False)
 
         assert result["zones"] is None
 
     def test_analyze_change_metrics(self):
         """Test change analysis metrics are valid"""
-        result = analyze_change(
-            "field_metrics", "2025-01-01", "2025-12-01", include_zones=True
-        )
+        result = analyze_change("field_metrics", "2025-01-01", "2025-12-01", include_zones=True)
 
         change = result["change"]
         assert "mean_change" in change
@@ -323,9 +311,7 @@ class TestChangeAnalysis:
 
         # Percentages should sum to ~100
         total_pct = (
-            change["percent_increased"]
-            + change["percent_decreased"]
-            + change["percent_stable"]
+            change["percent_increased"] + change["percent_decreased"] + change["percent_stable"]
         )
         assert 95 <= total_pct <= 105
 

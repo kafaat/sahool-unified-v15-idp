@@ -13,17 +13,12 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Response
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../shared/config"))
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
 try:
     from cors_config import setup_cors_middleware
 except ImportError:
@@ -197,9 +192,7 @@ async def process_job_background(job_id: str, request: ProcessRequest):
 @app.get("/health")
 def health():
     """فحص الصحة - Health check with metrics"""
-    active_jobs = len(
-        [j for j in list_jobs() if j["status"] in ["queued", "processing"]]
-    )
+    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
         "service": "ndvi-processor",
@@ -212,9 +205,7 @@ def health():
 @app.get("/healthz")
 def healthz():
     """فحص الصحة - Kubernetes liveness probe"""
-    active_jobs = len(
-        [j for j in list_jobs() if j["status"] in ["queued", "processing"]]
-    )
+    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
         "service": "ndvi-processor",
@@ -417,9 +408,7 @@ async def export_ndvi(
     """تصدير NDVI"""
     if format == ExportFormat.CSV:
         if not start or not end:
-            raise HTTPException(
-                status_code=400, detail="start و end مطلوبان لتصدير CSV"
-            )
+            raise HTTPException(status_code=400, detail="start و end مطلوبان لتصدير CSV")
 
         data = get_ndvi_timeseries(field_id, start, end)
         csv_content = "date,ndvi_mean,ndvi_min,ndvi_max,cloud_cover_percent,source\n"
@@ -429,9 +418,7 @@ async def export_ndvi(
         return Response(
             content=csv_content,
             media_type="text/csv",
-            headers={
-                "Content-Disposition": f'attachment; filename="{field_id}_ndvi.csv"'
-            },
+            headers={"Content-Disposition": f'attachment; filename="{field_id}_ndvi.csv"'},
         )
 
     elif format == ExportFormat.JSON:

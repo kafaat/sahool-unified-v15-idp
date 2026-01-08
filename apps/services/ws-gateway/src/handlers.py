@@ -47,9 +47,7 @@ class WebSocketMessageHandler:
             MessageType.READ: self.handle_read,
         }
 
-    async def handle_message(
-        self, connection_id: str, message: dict[str, Any]
-    ) -> dict | None:
+    async def handle_message(self, connection_id: str, message: dict[str, Any]) -> dict | None:
         """
         Route message to appropriate handler
         توجيه الرسالة إلى المعالج المناسب

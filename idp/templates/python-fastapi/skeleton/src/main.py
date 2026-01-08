@@ -9,9 +9,7 @@ SERVICE_NAME = os.getenv("SERVICE_NAME", "{{name}}")
 SERVICE_LAYER = os.getenv("SERVICE_LAYER", "{{layer}}")
 
 log = structlog.get_logger()
-REQS = Counter(
-    "http_requests_total", "Total HTTP requests", ["service", "path", "method"]
-)
+REQS = Counter("http_requests_total", "Total HTTP requests", ["service", "path", "method"])
 
 app = FastAPI(title=SERVICE_NAME)
 

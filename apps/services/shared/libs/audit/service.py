@@ -138,9 +138,7 @@ def write_audit_log(
         details_json=entry.details_json,
         created_at_iso=entry.created_at.isoformat(),
     )
-    entry.entry_hash = compute_entry_hash(
-        prev_hash=entry.prev_hash, canonical=canonical
-    )
+    entry.entry_hash = compute_entry_hash(prev_hash=entry.prev_hash, canonical=canonical)
 
     db.flush()
 
@@ -185,9 +183,7 @@ def query_audit_logs(
         List of matching AuditLog entries
     """
     stmt = (
-        select(AuditLog)
-        .where(AuditLog.tenant_id == tenant_id)
-        .order_by(AuditLog.created_at.desc())
+        select(AuditLog).where(AuditLog.tenant_id == tenant_id).order_by(AuditLog.created_at.desc())
     )
 
     if actor_id:
@@ -223,11 +219,7 @@ def get_audit_log_by_id(
     tenant_id: UUID,
 ) -> AuditLog | None:
     """Get a specific audit log entry"""
-    stmt = (
-        select(AuditLog)
-        .where(AuditLog.id == audit_id)
-        .where(AuditLog.tenant_id == tenant_id)
-    )
+    stmt = select(AuditLog).where(AuditLog.id == audit_id).where(AuditLog.tenant_id == tenant_id)
     return db.execute(stmt).scalar_one_or_none()
 
 

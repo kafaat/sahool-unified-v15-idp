@@ -144,16 +144,12 @@ class PermissionChecker:
     def assert_permission(self, user: User, permission_id: str) -> None:
         """Assert user has permission, raise if not"""
         if not self.has_permission(user, permission_id):
-            raise PermissionError(
-                f"User {user.id} does not have permission: {permission_id}"
-            )
+            raise PermissionError(f"User {user.id} does not have permission: {permission_id}")
 
     def assert_access(self, user: User, resource: str, action: str) -> None:
         """Assert user can access resource, raise if not"""
         if not self.can_access(user, resource, action):
-            raise PermissionError(
-                f"User {user.id} cannot {action} resource: {resource}"
-            )
+            raise PermissionError(f"User {user.id} cannot {action} resource: {resource}")
 
 
 # Global instances

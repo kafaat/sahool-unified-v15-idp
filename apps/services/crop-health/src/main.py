@@ -24,12 +24,6 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -37,20 +31,26 @@ from pydantic import BaseModel, Field
 # Import authentication dependencies
 try:
     import sys
+
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
-    from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+
     AUTH_AVAILABLE = True
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
     # Fallback error handling
-    from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     User = None
+
     def get_current_user():
         """Placeholder when auth not available"""
         return None
+
 
 from .decision_engine import (
     GrowthStage,
@@ -69,15 +69,11 @@ from .decision_engine import (
 class IndicesIn(BaseModel):
     """مؤشرات الغطاء النباتي المدخلة"""
 
-    ndvi: float = Field(
-        ..., ge=-1, le=1, description="Normalized Difference Vegetation Index"
-    )
+    ndvi: float = Field(..., ge=-1, le=1, description="Normalized Difference Vegetation Index")
     evi: float = Field(..., ge=-1, le=1, description="Enhanced Vegetation Index")
     ndre: float = Field(..., ge=-1, le=1, description="Normalized Difference Red Edge")
     lci: float = Field(..., ge=-1, le=1, description="Leaf Chlorophyll Index")
-    ndwi: float = Field(
-        ..., ge=-1, le=1, description="Normalized Difference Water Index"
-    )
+    ndwi: float = Field(..., ge=-1, le=1, description="Normalized Difference Water Index")
     savi: float = Field(..., ge=-1, le=1, description="Soil-Adjusted Vegetation Index")
 
 
@@ -313,11 +309,14 @@ async def add_deprecation_header(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-API-Deprecated"] = "true"
     response.headers["X-API-Deprecation-Date"] = "2026-01-06"
-    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use crop-intelligence-service instead."
+    response.headers["X-API-Deprecation-Info"] = (
+        "This service is deprecated. Use crop-intelligence-service instead."
+    )
     response.headers["X-API-Sunset"] = "2026-06-01"
     response.headers["Link"] = '<http://crop-intelligence-service:8095>; rel="successor-version"'
     response.headers["Deprecation"] = "true"
     return response
+
 
 # CORS - Secure configuration
 import sys
@@ -446,7 +445,7 @@ def ingest_observation(
     field_id: str,
     zone_id: str,
     body: ObservationIn,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """
     تسجيل رصد جديد لمؤشرات الغطاء النباتي
@@ -511,9 +510,7 @@ def get_field_diagnosis(
     try:
         target = date.fromisoformat(date_str)
     except ValueError:
-        raise HTTPException(
-            status_code=400, detail="تنسيق تاريخ غير صالح، استخدم YYYY-MM-DD"
-        )
+        raise HTTPException(status_code=400, detail="تنسيق تاريخ غير صالح، استخدم YYYY-MM-DD")
 
     if field_id not in OBSERVATIONS:
         raise HTTPException(status_code=404, detail="الحقل غير موجود أو لا توجد أرصاد")
@@ -527,9 +524,7 @@ def get_field_diagnosis(
 
         # اختر آخر رصد في التاريخ المطلوب أو آخر رصد متاح
         same_day = [
-            o
-            for o in obs_list
-            if datetime.fromisoformat(o["captured_at"]).date() == target
+            o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target
         ]
         chosen = same_day[-1] if same_day else obs_list[-1]
 
@@ -690,9 +685,7 @@ def export_vrt(
 
         # آخر رصد
         same_day = [
-            o
-            for o in obs_list
-            if datetime.fromisoformat(o["captured_at"]).date() == target
+            o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target
         ]
         chosen = same_day[-1] if same_day else obs_list[-1]
 

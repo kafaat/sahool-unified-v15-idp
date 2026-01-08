@@ -2,7 +2,6 @@
 Tests for NDVI Compute Module
 """
 
-
 import pytest
 from src.compute import (
     NdviResult,
@@ -94,9 +93,7 @@ class TestAnomalyDetection:
         historical_std = 0.02
         current = 0.35  # Significant drop (15.5 sigma below mean)
 
-        anomaly = detect_anomalies(
-            current, historical_mean, historical_std, threshold_sigma=2.0
-        )
+        anomaly = detect_anomalies(current, historical_mean, historical_std, threshold_sigma=2.0)
 
         assert anomaly is not None
         assert anomaly["type"] == "negative"
@@ -114,9 +111,7 @@ class TestAnomalyDetection:
         historical_std = 0.05
         current = 0.65  # 3 sigma above mean
 
-        anomaly = detect_anomalies(
-            current, historical_mean, historical_std, threshold_sigma=2.0
-        )
+        anomaly = detect_anomalies(current, historical_mean, historical_std, threshold_sigma=2.0)
 
         assert anomaly is not None
         assert anomaly["type"] == "positive"

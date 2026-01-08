@@ -457,9 +457,7 @@ class SAHOOLTools:
         except Exception as e:
             return ToolResult(success=False, error=f"Unexpected error: {str(e)}")
 
-    async def invoke_tool(
-        self, tool_name: str, arguments: dict[str, Any]
-    ) -> ToolResult:
+    async def invoke_tool(self, tool_name: str, arguments: dict[str, Any]) -> ToolResult:
         """
         Invoke a tool by name with arguments
 
@@ -484,8 +482,6 @@ class SAHOOLTools:
         try:
             return await tool_map[tool_name](**arguments)
         except TypeError as e:
-            return ToolResult(
-                success=False, error=f"Invalid arguments for {tool_name}: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Invalid arguments for {tool_name}: {str(e)}")
         except Exception as e:
             return ToolResult(success=False, error=f"Tool execution error: {str(e)}")

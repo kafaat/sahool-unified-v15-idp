@@ -66,9 +66,7 @@ class NotificationRepository:
             target_governorates=target_governorates,
             target_crops=target_crops,
             expires_at=(
-                datetime.utcnow() + timedelta(hours=expires_in_hours)
-                if expires_in_hours
-                else None
+                datetime.utcnow() + timedelta(hours=expires_in_hours) if expires_in_hours else None
             ),
         )
 
@@ -147,9 +145,7 @@ class NotificationRepository:
 
         # Filter expired notifications
         if not include_expired:
-            query = query.filter(
-                Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow())
-            )
+            query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow()))
 
         # Order by creation date
         query = query.order_by("-created_at")
@@ -174,17 +170,13 @@ class NotificationRepository:
             query = query.filter(tenant_id=tenant_id)
 
         # Exclude expired
-        query = query.filter(
-            Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow())
-        )
+        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow()))
 
         count = await query.count()
         return count
 
     @staticmethod
-    async def mark_as_read(
-        notification_id: UUID, read_at: datetime | None = None
-    ) -> bool:
+    async def mark_as_read(notification_id: UUID, read_at: datetime | None = None) -> bool:
         """
         تحديد إشعار كمقروء
         Mark notification as read
@@ -298,9 +290,7 @@ class NotificationRepository:
             query = query.filter(channel=channel)
 
         # Only get non-expired
-        query = query.filter(
-            Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow())
-        )
+        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow()))
 
         notifications = await query.order_by("created_at").limit(limit).all()
         return notifications
@@ -326,9 +316,7 @@ class NotificationRepository:
             query = query.filter(target_crops__contains=[crop])
 
         # Only non-expired
-        query = query.filter(
-            Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow())
-        )
+        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow()))
 
         notifications = await query.order_by("-created_at").limit(limit).all()
         return notifications
@@ -634,9 +622,7 @@ class NotificationPreferenceRepository:
         return await query.first()
 
     @staticmethod
-    async def is_event_enabled(
-        user_id: str, event_type: str, tenant_id: str | None = None
-    ) -> bool:
+    async def is_event_enabled(user_id: str, event_type: str, tenant_id: str | None = None) -> bool:
         """التحقق من تفعيل نوع حدث معين"""
         preference = await NotificationPreferenceRepository.get_event_preference(
             user_id, event_type, tenant_id
@@ -700,9 +686,7 @@ class NotificationPreferenceRepository:
             quiet_hours_end=end_time,
         )
 
-        logger.info(
-            f"Updated quiet hours for user {user_id}: {updated} preferences updated"
-        )
+        logger.info(f"Updated quiet hours for user {user_id}: {updated} preferences updated")
         return updated > 0
 
 
@@ -762,9 +746,7 @@ class NotificationLogRepository:
         log = await NotificationLog.filter(id=log_id).first()
         if log:
             log.retry_count += 1
-            log.next_retry_at = datetime.utcnow() + timedelta(
-                minutes=5 * (log.retry_count)
-            )
+            log.next_retry_at = datetime.utcnow() + timedelta(minutes=5 * (log.retry_count))
             await log.save()
             return True
         return False

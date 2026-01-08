@@ -15,9 +15,7 @@ from typing import Any
 
 # Add shared path for imports
 # إضافة المسار المشترك للاستيراد
-sys.path.insert(
-    0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "shared")
-)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "shared"))
 
 import structlog
 from a2a.agent import A2AAgent, AgentCapability
@@ -288,15 +286,11 @@ class AIAdvisorA2AAgent(A2AAgent):
         Register task handlers for each capability
         تسجيل معالجات المهام لكل قدرة
         """
-        self.register_task_handler(
-            "crop-disease-diagnosis", self._handle_disease_diagnosis
-        )
+        self.register_task_handler("crop-disease-diagnosis", self._handle_disease_diagnosis)
         self.register_task_handler("irrigation-optimization", self._handle_irrigation)
         self.register_task_handler("yield-prediction", self._handle_yield_prediction)
         self.register_task_handler("field-analysis", self._handle_field_analysis)
-        self.register_task_handler(
-            "general-agricultural-query", self._handle_general_query
-        )
+        self.register_task_handler("general-agricultural-query", self._handle_general_query)
 
     async def _handle_disease_diagnosis(self, task: TaskMessage) -> dict[str, Any]:
         """

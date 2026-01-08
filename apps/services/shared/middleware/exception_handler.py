@@ -77,9 +77,7 @@ class AuthenticationError(AppError):
 class AuthorizationError(AppError):
     """Authorization error"""
 
-    def __init__(
-        self, message: str = "Permission denied", message_ar: str = "الإذن مرفوض"
-    ):
+    def __init__(self, message: str = "Permission denied", message_ar: str = "الإذن مرفوض"):
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
             error_code="AUTHORIZATION_ERROR",
@@ -201,8 +199,7 @@ def create_error_response(
         safe_details = {
             k: v
             for k, v in details.items()
-            if k.lower()
-            not in ("password", "secret", "token", "api_key", "authorization")
+            if k.lower() not in ("password", "secret", "token", "api_key", "authorization")
         }
         if safe_details:
             response["error"]["details"] = safe_details
@@ -248,9 +245,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_exception_handler(
-        request: Request, exc: StarletteHTTPException
-    ) -> JSONResponse:
+    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
         """Handle HTTP exceptions"""
         error_id = str(uuid.uuid4())[:8]
 
@@ -338,9 +333,7 @@ def setup_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(Exception)
-    async def unhandled_exception_handler(
-        request: Request, exc: Exception
-    ) -> JSONResponse:
+    async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         """
         Handle all unhandled exceptions.
         This is the last line of defense - never expose internal details.

@@ -156,9 +156,7 @@ class SMSClient:
         try:
             # Validate phone number format
             if not to.startswith("+"):
-                logger.warning(
-                    f"Phone number {to} should be in E.164 format (+country_code...)"
-                )
+                logger.warning(f"Phone number {to} should be in E.164 format (+country_code...)")
                 to = f"+{to}"  # Try to fix
 
             # Select content based on language
@@ -187,9 +185,7 @@ class SMSClient:
     def _send_sync(self, to: str, content: str) -> str | None:
         """Synchronous send (for thread executor)"""
         try:
-            message = self._client.messages.create(
-                body=content, from_=self._from_number, to=to
-            )
+            message = self._client.messages.create(body=content, from_=self._from_number, to=to)
             return message.sid
         except TwilioRestException as e:
             logger.error(f"Twilio error: {e.msg} (code: {e.code})")
@@ -234,9 +230,7 @@ class SMSClient:
                 results.append({"to": recipient, "success": True, "sid": result})
             else:
                 failure_count += 1
-                results.append(
-                    {"to": recipient, "success": False, "error": "Failed to send"}
-                )
+                results.append({"to": recipient, "success": False, "error": "Failed to send"})
 
         logger.info(
             f"📱 Bulk SMS sent: {success_count} successful, "

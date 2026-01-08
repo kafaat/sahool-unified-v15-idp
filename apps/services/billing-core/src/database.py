@@ -43,9 +43,7 @@ if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 elif DATABASE_URL.startswith("postgresql+psycopg2://"):
     # Convert sync driver to async
-    DATABASE_URL = DATABASE_URL.replace(
-        "postgresql+psycopg2://", "postgresql+asyncpg://", 1
-    )
+    DATABASE_URL = DATABASE_URL.replace("postgresql+psycopg2://", "postgresql+asyncpg://", 1)
 
 # Environment settings
 ENVIRONMENT = os.getenv("ENVIRONMENT", "production").lower()
@@ -123,9 +121,7 @@ def get_engine() -> AsyncEngine:
 
         _engine = create_async_engine(DATABASE_URL, **engine_kwargs)
 
-        logger.info(
-            f"Database engine created: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}"
-        )
+        logger.info(f"Database engine created: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}")
 
     return _engine
 

@@ -56,9 +56,7 @@ class ComplianceService:
         # Count control points by status
         # عد نقاط التحكم حسب الحالة
         total_points = len(assessments)
-        compliant_points = sum(
-            1 for a in assessments if a.status == ControlPointStatus.COMPLIANT
-        )
+        compliant_points = sum(1 for a in assessments if a.status == ControlPointStatus.COMPLIANT)
         non_compliant_points = sum(
             1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT
         )
@@ -85,9 +83,7 @@ class ComplianceService:
             1 for a in assessments if a.status == ControlPointStatus.NOT_APPLICABLE
         )
         compliance_percentage = (
-            (compliant_points / applicable_points * 100)
-            if applicable_points > 0
-            else 0.0
+            (compliant_points / applicable_points * 100) if applicable_points > 0 else 0.0
         )
 
         # Determine overall status
@@ -148,9 +144,7 @@ class ComplianceService:
         # امتثال كامل
         return ComplianceStatus.COMPLIANT
 
-    async def get_farm_compliance(
-        self, farm_id: str, tenant_id: str
-    ) -> ComplianceRecord | None:
+    async def get_farm_compliance(self, farm_id: str, tenant_id: str) -> ComplianceRecord | None:
         """
         Get current compliance record for a farm
         الحصول على سجل الامتثال الحالي للمزرعة
@@ -167,9 +161,7 @@ class ComplianceService:
         key = f"{tenant_id}:{farm_id}"
         return self.compliance_records.get(key)
 
-    async def save_compliance_record(
-        self, compliance_record: ComplianceRecord
-    ) -> ComplianceRecord:
+    async def save_compliance_record(self, compliance_record: ComplianceRecord) -> ComplianceRecord:
         """
         Save compliance record to database
         حفظ سجل الامتثال في قاعدة البيانات
@@ -214,22 +206,16 @@ class ComplianceService:
         # Apply filters
         # تطبيق المرشحات
         if severity is not None:
-            non_conformities = [
-                nc for nc in non_conformities if nc.severity == severity
-            ]
+            non_conformities = [nc for nc in non_conformities if nc.severity == severity]
 
         if resolved is not None:
             non_conformities = [
-                nc
-                for nc in non_conformities
-                if nc.corrective_action_completed == resolved
+                nc for nc in non_conformities if nc.corrective_action_completed == resolved
             ]
 
         return non_conformities
 
-    async def create_non_conformity(
-        self, non_conformity: NonConformity
-    ) -> NonConformity:
+    async def create_non_conformity(self, non_conformity: NonConformity) -> NonConformity:
         """
         Create a new non-conformity record
         إنشاء سجل عدم مطابقة جديد

@@ -256,13 +256,9 @@ def detect_anomalies(
             "type": anomaly_type,
             "severity": severity,
             "z_score": round(z_score, 2),
-            "deviation_pct": round(
-                (current_ndvi - historical_mean) / historical_mean * 100, 1
-            ),
+            "deviation_pct": round((current_ndvi - historical_mean) / historical_mean * 100, 1),
             "message_ar": (
-                "انحراف إيجابي عن المعدل"
-                if anomaly_type == "positive"
-                else "انحراف سلبي عن المعدل"
+                "انحراف إيجابي عن المعدل" if anomaly_type == "positive" else "انحراف سلبي عن المعدل"
             ),
             "message_en": (
                 "Positive deviation from mean"

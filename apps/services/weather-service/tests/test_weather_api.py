@@ -3,11 +3,12 @@ Comprehensive Weather Service API Tests
 Tests for weather API endpoints, external provider integration, and error handling
 """
 
-import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
-from fastapi.testclient import TestClient
+
 import httpx
+import pytest
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture
@@ -59,6 +60,7 @@ def mock_daily_forecast():
 def app():
     """Create FastAPI test app instance"""
     from src.main import app as weather_app
+
     return weather_app
 
 
@@ -96,20 +98,22 @@ class TestCurrentWeatherEndpoint:
     @pytest.mark.asyncio
     async def test_get_current_weather_success(self, client):
         """Test successful current weather retrieval"""
-        with patch('src.main.app.state') as mock_state:
+        with patch("src.main.app.state") as mock_state:
             # Mock weather provider
             mock_provider = AsyncMock()
-            mock_provider.get_current = AsyncMock(return_value=MagicMock(
-                temperature_c=28.5,
-                humidity_pct=55.0,
-                wind_speed_kmh=12.5,
-                wind_direction_deg=180,
-                precipitation_mm=0.0,
-                cloud_cover_pct=25.0,
-                pressure_hpa=1013.0,
-                uv_index=8.0,
-                timestamp=datetime.utcnow().isoformat(),
-            ))
+            mock_provider.get_current = AsyncMock(
+                return_value=MagicMock(
+                    temperature_c=28.5,
+                    humidity_pct=55.0,
+                    wind_speed_kmh=12.5,
+                    wind_direction_deg=180,
+                    precipitation_mm=0.0,
+                    cloud_cover_pct=25.0,
+                    pressure_hpa=1013.0,
+                    uv_index=8.0,
+                    timestamp=datetime.utcnow().isoformat(),
+                )
+            )
             mock_state.weather_provider = mock_provider
             mock_state.multi_provider = None
             mock_state.publisher = None
@@ -121,7 +125,7 @@ class TestCurrentWeatherEndpoint:
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
-                }
+                },
             )
 
             assert response.status_code == 200
@@ -139,14 +143,14 @@ class TestCurrentWeatherEndpoint:
                 "field_id": "field-456",
                 "lat": 95.0,  # Invalid latitude
                 "lon": 44.20,
-            }
+            },
         )
         assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
     async def test_get_current_weather_multi_provider(self, client):
         """Test current weather with multi-provider service"""
-        with patch('src.main.app.state') as mock_state:
+        with patch("src.main.app.state") as mock_state:
             # Mock multi-provider
             mock_multi = AsyncMock()
             mock_result = MagicMock()
@@ -174,7 +178,7 @@ class TestCurrentWeatherEndpoint:
                     "field_id": "field-789",
                     "lat": 13.58,
                     "lon": 44.02,
-                }
+                },
             )
 
             assert response.status_code == 200
@@ -188,7 +192,7 @@ class TestCurrentWeatherEndpoint:
             json={
                 "tenant_id": "tenant-123",
                 # Missing field_id, lat, lon
-            }
+            },
         )
         assert response.status_code == 422
 
@@ -199,12 +203,10 @@ class TestForecastEndpoint:
     @pytest.mark.asyncio
     async def test_get_forecast_success(self, client, mock_daily_forecast):
         """Test successful forecast retrieval"""
-        with patch('src.main.app.state') as mock_state:
+        with patch("src.main.app.state") as mock_state:
             # Mock weather provider
             mock_provider = AsyncMock()
-            mock_forecasts = [
-                MagicMock(**forecast) for forecast in mock_daily_forecast
-            ]
+            mock_forecasts = [MagicMock(**forecast) for forecast in mock_daily_forecast]
             mock_provider.get_daily_forecast = AsyncMock(return_value=mock_forecasts)
             mock_state.weather_provider = mock_provider
             mock_state.multi_provider = None
@@ -217,7 +219,7 @@ class TestForecastEndpoint:
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
-                }
+                },
             )
 
             assert response.status_code == 200
@@ -228,7 +230,7 @@ class TestForecastEndpoint:
     @pytest.mark.asyncio
     async def test_get_forecast_custom_days(self, client):
         """Test forecast with custom number of days"""
-        with patch('src.main.app.state') as mock_state:
+        with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
             mock_provider.get_daily_forecast = AsyncMock(return_value=[])
             mock_state.weather_provider = mock_provider
@@ -244,14 +246,14 @@ class TestForecastEndpoint:
                         "field_id": "field-456",
                         "lat": 15.35,
                         "lon": 44.20,
-                    }
+                    },
                 )
                 assert response.status_code == 200
 
     @pytest.mark.asyncio
     async def test_get_forecast_max_days_limit(self, client):
         """Test forecast respects maximum days limit"""
-        with patch('src.main.app.state') as mock_state:
+        with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
             mock_provider.get_daily_forecast = AsyncMock(return_value=[])
             mock_state.weather_provider = mock_provider
@@ -266,7 +268,7 @@ class TestForecastEndpoint:
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
-                }
+                },
             )
 
             assert response.status_code == 200
@@ -288,7 +290,7 @@ class TestWeatherAssessEndpoint:
                 "wind_speed_kmh": 10.0,
                 "precipitation_mm": 0.0,
                 "uv_index": 6.0,
-            }
+            },
         )
 
         assert response.status_code == 200
@@ -309,7 +311,7 @@ class TestWeatherAssessEndpoint:
                 "wind_speed_kmh": 15.0,
                 "precipitation_mm": 0.0,
                 "uv_index": 11.0,
-            }
+            },
         )
 
         assert response.status_code == 200
@@ -333,7 +335,7 @@ class TestWeatherAssessEndpoint:
                 "wind_speed_kmh": 20.0,
                 "precipitation_mm": 40.0,
                 "uv_index": 2.0,
-            }
+            },
         )
 
         assert response.status_code == 200
@@ -354,7 +356,7 @@ class TestWeatherAssessEndpoint:
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 # Optional fields omitted
-            }
+            },
         )
 
         assert response.status_code == 200
@@ -376,7 +378,7 @@ class TestIrrigationEndpoint:
                 "humidity_pct": 55.0,
                 "wind_speed_kmh": 10.0,
                 "precipitation_mm": 0.0,
-            }
+            },
         )
 
         assert response.status_code == 200
@@ -397,7 +399,7 @@ class TestIrrigationEndpoint:
                 "humidity_pct": 25.0,
                 "wind_speed_kmh": 20.0,
                 "precipitation_mm": 0.0,
-            }
+            },
         )
 
         assert response.status_code == 200
@@ -416,7 +418,7 @@ class TestIrrigationEndpoint:
                 "humidity_pct": 75.0,
                 "wind_speed_kmh": 5.0,
                 "precipitation_mm": 25.0,
-            }
+            },
         )
 
         assert response.status_code == 200
@@ -430,13 +432,19 @@ class TestProvidersEndpoint:
 
     def test_get_providers_multi_enabled(self, client):
         """Test providers endpoint with multi-provider enabled"""
-        with patch('src.main.app.state') as mock_state:
+        with patch("src.main.app.state") as mock_state:
             mock_multi = MagicMock()
-            mock_multi.get_available_providers = MagicMock(return_value=[
-                {"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"},
-                {"name": "OpenWeatherMap", "configured": True, "type": "OpenWeatherMapProvider"},
-                {"name": "WeatherAPI", "configured": False, "type": "WeatherAPIProvider"},
-            ])
+            mock_multi.get_available_providers = MagicMock(
+                return_value=[
+                    {"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"},
+                    {
+                        "name": "OpenWeatherMap",
+                        "configured": True,
+                        "type": "OpenWeatherMapProvider",
+                    },
+                    {"name": "WeatherAPI", "configured": False, "type": "WeatherAPIProvider"},
+                ]
+            )
             mock_state.multi_provider = mock_multi
 
             response = client.get("/weather/providers")
@@ -450,7 +458,7 @@ class TestProvidersEndpoint:
 
     def test_get_providers_single_provider(self, client):
         """Test providers endpoint with single provider"""
-        with patch('src.main.app.state') as mock_state:
+        with patch("src.main.app.state") as mock_state:
             mock_state.multi_provider = None
 
             response = client.get("/weather/providers")
@@ -489,10 +497,10 @@ class TestHeatStressEndpoint:
         """Test heat stress at various temperature levels"""
         temperatures = [
             (30, False),  # Normal
-            (36, True),   # Low risk
-            (39, True),   # Medium risk
-            (43, True),   # High risk
-            (47, True),   # Critical risk
+            (36, True),  # Low risk
+            (39, True),  # Medium risk
+            (43, True),  # High risk
+            (47, True),  # Critical risk
         ]
 
         for temp, should_be_at_risk in temperatures:
@@ -513,7 +521,7 @@ class TestExternalAPIIntegration:
         provider = OpenMeteoProvider()
 
         # Mock the HTTP client
-        with patch.object(provider, '_get_client') as mock_client_getter:
+        with patch.object(provider, "_get_client") as mock_client_getter:
             mock_client = AsyncMock()
             mock_response = MagicMock()
             mock_response.json.return_value = {
@@ -549,7 +557,7 @@ class TestExternalAPIIntegration:
 
         provider = OpenMeteoProvider()
 
-        with patch.object(provider, '_get_client') as mock_client_getter:
+        with patch.object(provider, "_get_client") as mock_client_getter:
             mock_client = AsyncMock()
             mock_response = MagicMock()
             mock_response.json.return_value = {
@@ -585,7 +593,7 @@ class TestExternalAPIIntegration:
 
         provider = OpenMeteoProvider()
 
-        with patch.object(provider, '_get_client') as mock_client_getter:
+        with patch.object(provider, "_get_client") as mock_client_getter:
             mock_client = AsyncMock()
             mock_client.get = AsyncMock(side_effect=httpx.RequestError("Network error"))
             mock_client_getter.return_value = mock_client
@@ -603,19 +611,21 @@ class TestCorrelationID:
     @pytest.mark.asyncio
     async def test_correlation_id_in_request(self, client):
         """Test correlation ID is accepted in requests"""
-        with patch('src.main.app.state') as mock_state:
+        with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
-            mock_provider.get_current = AsyncMock(return_value=MagicMock(
-                temperature_c=28.5,
-                humidity_pct=55.0,
-                wind_speed_kmh=12.5,
-                wind_direction_deg=180,
-                precipitation_mm=0.0,
-                cloud_cover_pct=25.0,
-                pressure_hpa=1013.0,
-                uv_index=8.0,
-                timestamp=datetime.utcnow().isoformat(),
-            ))
+            mock_provider.get_current = AsyncMock(
+                return_value=MagicMock(
+                    temperature_c=28.5,
+                    humidity_pct=55.0,
+                    wind_speed_kmh=12.5,
+                    wind_direction_deg=180,
+                    precipitation_mm=0.0,
+                    cloud_cover_pct=25.0,
+                    pressure_hpa=1013.0,
+                    uv_index=8.0,
+                    timestamp=datetime.utcnow().isoformat(),
+                )
+            )
             mock_state.weather_provider = mock_provider
             mock_state.multi_provider = None
             mock_state.publisher = None
@@ -629,7 +639,7 @@ class TestCorrelationID:
                     "lat": 15.35,
                     "lon": 44.20,
                     "correlation_id": correlation_id,
-                }
+                },
             )
 
             assert response.status_code == 200

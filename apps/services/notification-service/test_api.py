@@ -49,16 +49,12 @@ async def test_health_check():
             data = response.json()
             print_success("Health check passed")
             print_info(f"Service: {data.get('service')} v{data.get('version')}")
-            print_info(
-                f"Database status: {data.get('database', {}).get('status', 'unknown')}"
-            )
+            print_info(f"Database status: {data.get('database', {}).get('status', 'unknown')}")
             print_info(f"NATS connected: {data.get('nats_connected')}")
 
             if data.get("stats"):
                 stats = data["stats"]
-                print_info(
-                    f"Total notifications: {stats.get('total_notifications', 0)}"
-                )
+                print_info(f"Total notifications: {stats.get('total_notifications', 0)}")
                 print_info(f"Pending: {stats.get('pending_notifications', 0)}")
 
             return True
@@ -168,9 +164,7 @@ async def test_irrigation_reminder():
     }
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(
-            f"{BASE_URL}/v1/reminders/irrigation", json=payload
-        )
+        response = await client.post(f"{BASE_URL}/v1/reminders/irrigation", json=payload)
 
         if response.status_code == 200:
             data = response.json()
@@ -249,9 +243,7 @@ async def test_broadcast_notifications():
 
             return True
         else:
-            print_error(
-                f"Failed to get broadcast notifications: {response.status_code}"
-            )
+            print_error(f"Failed to get broadcast notifications: {response.status_code}")
             return False
 
 
@@ -272,9 +264,7 @@ async def test_update_preferences():
     }
 
     async with httpx.AsyncClient() as client:
-        response = await client.put(
-            f"{BASE_URL}/v1/farmers/farmer-1/preferences", json=payload
-        )
+        response = await client.put(f"{BASE_URL}/v1/farmers/farmer-1/preferences", json=payload)
 
         if response.status_code == 200:
             data = response.json()
@@ -313,10 +303,10 @@ async def test_stats():
 
 async def main():
     """Run all tests"""
-    print(f"\n{Colors.GREEN}{'='*60}")
+    print(f"\n{Colors.GREEN}{'=' * 60}")
     print("  SAHOOL Notification Service - API Tests")
     print("  اختبار واجهة برمجة التطبيقات لخدمة الإشعارات")
-    print(f"{'='*60}{Colors.END}\n")
+    print(f"{'=' * 60}{Colors.END}\n")
 
     print_info(f"Testing API at: {BASE_URL}")
     print_info("Make sure the service is running!")
@@ -372,9 +362,9 @@ async def main():
         tests_passed += 1
 
     # Summary
-    print(f"\n{Colors.GREEN}{'='*60}")
+    print(f"\n{Colors.GREEN}{'=' * 60}")
     print("  Test Results | نتائج الاختبار")
-    print(f"{'='*60}{Colors.END}\n")
+    print(f"{'=' * 60}{Colors.END}\n")
 
     if tests_passed == tests_total:
         print_success(f"All tests passed! ({tests_passed}/{tests_total})")

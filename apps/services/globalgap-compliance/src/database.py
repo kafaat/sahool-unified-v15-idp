@@ -36,9 +36,7 @@ logger = logging.getLogger("globalgap-compliance")
 # Database connection URL from environment
 # عنوان URL للاتصال بقاعدة البيانات من البيئة
 # Security: No fallback credentials - require DATABASE_URL to be set
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://postgres:5432/sahool_globalgap"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:5432/sahool_globalgap")
 
 # Connection pool settings
 # إعدادات مجموعة الاتصال
@@ -83,9 +81,7 @@ async def get_pool() -> Pool:
                 "jit": "off",  # Disable JIT for compatibility
             },
         )
-        logger.info(
-            f"Connection pool created: min={MIN_POOL_SIZE}, max={MAX_POOL_SIZE}"
-        )
+        logger.info(f"Connection pool created: min={MIN_POOL_SIZE}, max={MAX_POOL_SIZE}")
 
     return _pool
 
@@ -290,9 +286,7 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         rows = await self._fetch(query, farm_id)
         return [dict(row) for row in rows]
 
-    async def get_active_registrations(
-        self, farm_id: UUID | None = None
-    ) -> list[dict[str, Any]]:
+    async def get_active_registrations(self, farm_id: UUID | None = None) -> list[dict[str, Any]]:
         """
         Get active registrations, optionally filtered by farm
         الحصول على التسجيلات النشطة، اختياريًا مصفاة حسب المزرعة
@@ -443,9 +437,7 @@ class ComplianceRecordRepository(BaseRepository):
 
         return [dict(row) for row in rows]
 
-    async def get_latest_by_registration(
-        self, registration_id: UUID
-    ) -> dict[str, Any] | None:
+    async def get_latest_by_registration(self, registration_id: UUID) -> dict[str, Any] | None:
         """
         Get the most recent compliance record for a registration
         الحصول على أحدث سجل امتثال لتسجيل
@@ -459,9 +451,7 @@ class ComplianceRecordRepository(BaseRepository):
         row = await self._fetchrow(query, registration_id)
         return dict(row) if row else None
 
-    async def get_low_compliance_records(
-        self, threshold: float = 80.0
-    ) -> list[dict[str, Any]]:
+    async def get_low_compliance_records(self, threshold: float = 80.0) -> list[dict[str, Any]]:
         """
         Get records with compliance below threshold
         الحصول على السجلات التي امتثالها أقل من الحد
@@ -585,9 +575,7 @@ class ChecklistResponseRepository(BaseRepository):
 
         return results
 
-    async def get_by_compliance_record(
-        self, compliance_record_id: UUID
-    ) -> list[dict[str, Any]]:
+    async def get_by_compliance_record(self, compliance_record_id: UUID) -> list[dict[str, Any]]:
         """
         Get all responses for a compliance record
         الحصول على جميع الاستجابات لسجل الامتثال
@@ -600,9 +588,7 @@ class ChecklistResponseRepository(BaseRepository):
         rows = await self._fetch(query, compliance_record_id)
         return [dict(row) for row in rows]
 
-    async def get_non_compliant_responses(
-        self, compliance_record_id: UUID
-    ) -> list[dict[str, Any]]:
+    async def get_non_compliant_responses(self, compliance_record_id: UUID) -> list[dict[str, Any]]:
         """
         Get non-compliant responses for a compliance record
         الحصول على الاستجابات غير الملتزمة لسجل الامتثال
@@ -713,9 +699,7 @@ class NonConformanceRepository(BaseRepository):
         row = await self._fetchrow(query, nc_id)
         return dict(row) if row else None
 
-    async def get_by_compliance_record(
-        self, compliance_record_id: UUID
-    ) -> list[dict[str, Any]]:
+    async def get_by_compliance_record(self, compliance_record_id: UUID) -> list[dict[str, Any]]:
         """
         Get all non-conformances for a compliance record
         الحصول على جميع عدم المطابقات لسجل الامتثال
@@ -728,9 +712,7 @@ class NonConformanceRepository(BaseRepository):
         rows = await self._fetch(query, compliance_record_id)
         return [dict(row) for row in rows]
 
-    async def get_open_non_conformances(
-        self, severity: str | None = None
-    ) -> list[dict[str, Any]]:
+    async def get_open_non_conformances(self, severity: str | None = None) -> list[dict[str, Any]]:
         """
         Get all open non-conformances, optionally filtered by severity
         الحصول على جميع عدم المطابقات المفتوحة، اختياريًا مصفاة حسب الخطورة
@@ -792,9 +774,7 @@ class NonConformanceRepository(BaseRepository):
             WHERE id = $1
             RETURNING *
         """
-        row = await self._fetchrow(
-            query, nc_id, status, corrective_action, resolved_date
-        )
+        row = await self._fetchrow(query, nc_id, status, corrective_action, resolved_date)
         return dict(row) if row else None
 
     async def resolve(
@@ -807,9 +787,7 @@ class NonConformanceRepository(BaseRepository):
         if resolved_date is None:
             resolved_date = date.today()
 
-        return await self.update_status(
-            nc_id, "RESOLVED", corrective_action, resolved_date
-        )
+        return await self.update_status(nc_id, "RESOLVED", corrective_action, resolved_date)
 
     async def get_by_checklist_item(
         self, checklist_item_id: str, limit: int | None = 100

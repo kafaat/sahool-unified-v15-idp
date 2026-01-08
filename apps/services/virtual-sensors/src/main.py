@@ -29,16 +29,10 @@ from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 logger = logging.getLogger(__name__)
 
@@ -420,12 +414,8 @@ class WeatherInput(BaseModel):
     temperature_min: float = Field(..., description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
     wind_speed: float = Field(..., ge=0, description="Wind speed at 2m height (m/s)")
-    solar_radiation: float | None = Field(
-        None, description="Solar radiation (MJ/m²/day)"
-    )
-    sunshine_hours: float | None = Field(
-        None, ge=0, le=24, description="Sunshine hours"
-    )
+    solar_radiation: float | None = Field(None, description="Solar radiation (MJ/m²/day)")
+    sunshine_hours: float | None = Field(None, ge=0, le=24, description="Sunshine hours")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")
     altitude: float = Field(0, description="Altitude above sea level (m)")
     calculation_date: date = Field(
@@ -477,9 +467,7 @@ class SoilMoistureInput(BaseModel):
     root_depth: float = Field(0.6, gt=0, le=3.0, description="Root depth (m)")
     last_irrigation_date: date
     last_irrigation_amount: float = Field(..., description="Irrigation amount (mm)")
-    rainfall_since: float = Field(
-        0, ge=0, description="Rainfall since last irrigation (mm)"
-    )
+    rainfall_since: float = Field(0, ge=0, description="Rainfall since last irrigation (mm)")
     daily_etc: float = Field(..., description="Daily crop ET (mm/day)")
 
 
@@ -487,16 +475,12 @@ class VirtualSoilMoistureResponse(BaseModel):
     """Virtual soil moisture estimation response"""
 
     calculation_id: str
-    estimated_moisture: float = Field(
-        ..., description="Estimated soil moisture (m³/m³)"
-    )
+    estimated_moisture: float = Field(..., description="Estimated soil moisture (m³/m³)")
     moisture_percentage: float = Field(..., description="Available water depletion (%)")
     days_since_irrigation: int
     total_et_loss: float = Field(..., description="Total ET loss since irrigation (mm)")
     available_water: float = Field(..., description="Remaining available water (mm)")
-    total_available_water: float = Field(
-        ..., description="Total available water capacity (mm)"
-    )
+    total_available_water: float = Field(..., description="Total available water capacity (mm)")
     status: str
     status_ar: str
     urgency: UrgencyLevel
@@ -718,9 +702,7 @@ def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
     return max(0, ET0)  # ET0 cannot be negative
 
 
-def get_crop_kc(
-    crop_type: str, growth_stage: GrowthStage, days_in_stage: int = None
-) -> float:
+def get_crop_kc(crop_type: str, growth_stage: GrowthStage, days_in_stage: int = None) -> float:
     """Get crop coefficient (Kc) for given crop and growth stage"""
     crop = CROP_COEFFICIENTS.get(crop_type)
     if not crop:
@@ -752,9 +734,7 @@ def get_crop_kc(
     return 1.0
 
 
-def calculate_available_water(
-    soil_type: SoilType, root_depth: float
-) -> tuple[float, float, float]:
+def calculate_available_water(soil_type: SoilType, root_depth: float) -> tuple[float, float, float]:
     """
     Calculate available water capacity.
     Returns: (total_available_water_mm, field_capacity_mm, wilting_point_mm)
@@ -887,9 +867,7 @@ def calculate_irrigation_recommendation(
         gross_mm = recommended_mm / efficiency
 
         # Convert to volume
-        recommended_liters = (
-            recommended_mm * field_area_hectares * 10000
-        )  # 1 mm = 10 m³/ha
+        recommended_liters = recommended_mm * field_area_hectares * 10000  # 1 mm = 10 m³/ha
         recommended_m3 = recommended_liters / 1000
     else:
         recommended_mm = 0
@@ -931,9 +909,7 @@ def calculate_irrigation_recommendation(
         warnings_ar.append("مرحلة نمو حرجة - تجنب إجهاد الماء")
 
     if soil_type in [SoilType.SANDY, SoilType.SANDY_LOAM] and gross_mm > 30:
-        warnings.append(
-            "Sandy soil - consider splitting irrigation into smaller applications"
-        )
+        warnings.append("Sandy soil - consider splitting irrigation into smaller applications")
         warnings_ar.append("تربة رملية - يُنصح بتقسيم الري إلى دفعات أصغر")
 
     # Urgency in Arabic
@@ -1209,8 +1185,7 @@ async def get_soil_types():
                 "name_ar": props["name_ar"],
                 "field_capacity": props["field_capacity"],
                 "wilting_point": props["wilting_point"],
-                "available_water_capacity": props["field_capacity"]
-                - props["wilting_point"],
+                "available_water_capacity": props["field_capacity"] - props["wilting_point"],
                 "infiltration_rate_mm_hr": props["infiltration_rate"],
             }
         )
@@ -1273,9 +1248,7 @@ async def get_irrigation_recommendation(input_data: IrrigationRecommendationInpu
     الحصول على توصية ري شاملة
     """
     if input_data.crop_type not in CROP_COEFFICIENTS:
-        raise HTTPException(
-            status_code=404, detail=f"Crop '{input_data.crop_type}' not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Crop '{input_data.crop_type}' not found")
 
     crop = CROP_COEFFICIENTS[input_data.crop_type]
     soil = SOIL_PROPERTIES[input_data.soil_type]
@@ -1295,9 +1268,7 @@ async def get_irrigation_recommendation(input_data: IrrigationRecommendationInpu
         root_depth = max_root
 
     # Estimate soil moisture
-    last_irr_date = input_data.last_irrigation_date or (
-        date.today() - timedelta(days=7)
-    )
+    last_irr_date = input_data.last_irrigation_date or (date.today() - timedelta(days=7))
     last_irr_amount = input_data.last_irrigation_amount or 30.0
 
     moisture_status = estimate_soil_moisture(
@@ -1361,9 +1332,7 @@ async def quick_irrigation_check(
     crop_type: str = Query(..., description="Crop type"),
     growth_stage: GrowthStage = Query(..., description="Growth stage"),
     soil_type: SoilType = Query(SoilType.LOAM, description="Soil type"),
-    days_since_irrigation: int = Query(
-        ..., ge=0, description="Days since last irrigation"
-    ),
+    days_since_irrigation: int = Query(..., ge=0, description="Days since last irrigation"),
     temperature: float = Query(..., description="Average temperature (°C)"),
     humidity: float = Query(50, ge=0, le=100, description="Relative humidity (%)"),
 ):
@@ -1442,14 +1411,10 @@ class VirtualSensorActionRequest(BaseModel):
     crop_type: str = Field(..., description="نوع المحصول")
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
     soil_type: SoilType = Field(SoilType.LOAM, description="نوع التربة")
-    irrigation_method: IrrigationMethod = Field(
-        IrrigationMethod.DRIP, description="طريقة الري"
-    )
+    irrigation_method: IrrigationMethod = Field(IrrigationMethod.DRIP, description="طريقة الري")
     field_area_hectares: float = Field(1.0, gt=0, description="مساحة الحقل بالهكتار")
     last_irrigation_date: date | None = Field(None, description="تاريخ آخر ري")
-    last_irrigation_amount: float | None = Field(
-        None, description="كمية آخر ري بالمم"
-    )
+    last_irrigation_amount: float | None = Field(None, description="كمية آخر ري بالمم")
     weather: WeatherInput = Field(..., description="بيانات الطقس")
     publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
 
@@ -1500,9 +1465,7 @@ def _create_virtual_sensor_action(
         "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بفحص رطوبة التربة يدوياً بعمق 15 سم",
         "fallback_instructions_en": "If data unavailable, manually check soil moisture at 15cm depth",
         "estimated_duration_minutes": (
-            int(recommendation.gross_irrigation_mm * 2)
-            if recommendation.irrigation_needed
-            else 30
+            int(recommendation.gross_irrigation_mm * 2) if recommendation.irrigation_needed else 30
         ),
         "data": {
             "et0": recommendation.et0,
@@ -1581,9 +1544,7 @@ async def get_irrigation_recommendation_with_action(
                 farmer_id=request.farmer_id,
                 tenant_id=request.tenant_id,
             )
-            logger.info(
-                f"NATS: Published virtual sensor event for field {request.field_id}"
-            )
+            logger.info(f"NATS: Published virtual sensor event for field {request.field_id}")
         except Exception as e:
             logger.error(f"Failed to publish NATS event: {e}")
 

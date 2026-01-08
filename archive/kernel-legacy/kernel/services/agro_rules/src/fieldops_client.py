@@ -96,9 +96,7 @@ class FieldOpsClient:
                 print(f"✅ Created task: {title} (field: {field_id})")
                 return response.json()
             else:
-                print(
-                    f"⚠️ Task creation returned {response.status_code}: {response.text}"
-                )
+                print(f"⚠️ Task creation returned {response.status_code}: {response.text}")
                 return {"status": "error", "code": response.status_code}
 
         except httpx.ConnectError as e:

@@ -208,9 +208,7 @@ async def main():
             health = await client.get(f"{BASE_URL}/healthz", timeout=5.0)
             if health.status_code != 200:
                 print("✗ Service not available. Please start the satellite service:")
-                print(
-                    "  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service"
-                )
+                print("  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service")
                 print("  python -m src.main")
                 return
             print("✓ Service is running\n")

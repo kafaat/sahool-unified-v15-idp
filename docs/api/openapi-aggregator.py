@@ -16,9 +16,7 @@ import requests
 import yaml
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -414,9 +412,7 @@ class OpenAPIAggregator:
             if spec:
                 self.specs[service.name] = {"spec": spec, "config": service}
 
-        logger.info(
-            f"\nSuccessfully fetched {len(self.specs)}/{len(self.services)} specs"
-        )
+        logger.info(f"\nSuccessfully fetched {len(self.specs)}/{len(self.services)} specs")
         if self.errors:
             logger.warning(f"Failed to fetch {len(self.errors)} specs")
 
@@ -550,9 +546,7 @@ All API endpoints require JWT authentication unless otherwise specified.
             },
         ]
 
-    def _merge_service_paths(
-        self, unified: dict, service_spec: dict, config: ServiceConfig
-    ):
+    def _merge_service_paths(self, unified: dict, service_spec: dict, config: ServiceConfig):
         """Merge paths from a service spec into the unified spec"""
         if "paths" not in service_spec:
             return
@@ -585,9 +579,7 @@ All API endpoints require JWT authentication unless otherwise specified.
 
             unified["paths"][unified_path] = path_item
 
-    def _merge_service_components(
-        self, unified: dict, service_spec: dict, service_name: str
-    ):
+    def _merge_service_components(self, unified: dict, service_spec: dict, service_name: str):
         """Merge components (schemas) from a service spec"""
         if "components" not in service_spec:
             return

@@ -37,9 +37,7 @@ from starlette.responses import JSONResponse, Response
 logger = logging.getLogger(__name__)
 
 # Context variable for tenant isolation (async-safe)
-_tenant_context: ContextVar[Optional["TenantContext"]] = ContextVar(
-    "tenant_context", default=None
-)
+_tenant_context: ContextVar[Optional["TenantContext"]] = ContextVar("tenant_context", default=None)
 
 
 @dataclass
@@ -75,8 +73,7 @@ def get_current_tenant() -> TenantContext:
     ctx = _tenant_context.get()
     if ctx is None:
         raise RuntimeError(
-            "Tenant context not available. "
-            "Ensure TenantContextMiddleware is configured."
+            "Tenant context not available. Ensure TenantContextMiddleware is configured."
         )
     return ctx
 
@@ -135,9 +132,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             "/openapi.json",
         ]
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # Skip exempt paths
         if any(request.url.path.startswith(path) for path in self.exempt_paths):
             return await call_next(request)
@@ -183,9 +178,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
             request.state.tenant_context = ctx
 
             # Add to logging context
-            logger.debug(
-                f"Tenant context set: tenant_id={tenant_id}, user_id={user_id}"
-            )
+            logger.debug(f"Tenant context set: tenant_id={tenant_id}, user_id={user_id}")
 
             try:
                 response = await call_next(request)

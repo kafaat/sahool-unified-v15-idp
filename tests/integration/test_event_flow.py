@@ -67,9 +67,7 @@ class TestFieldCreatedEventFlow:
 
         # Act - Create field
         create_url = f"{service_urls['field_core']}/api/v1/fields"
-        create_response = await http_client.post(
-            create_url, json=field_data, headers=auth_headers
-        )
+        create_response = await http_client.post(create_url, json=field_data, headers=auth_headers)
 
         # Wait for event processing
         await asyncio.sleep(2)
@@ -137,12 +135,8 @@ class TestWeatherAlertEventFlow:
         }
 
         # Publish weather alert via API (which should trigger NATS event)
-        alert_url = (
-            f"{service_urls.get('weather_core', 'http://localhost:8108')}/api/v1/alerts"
-        )
-        response = await http_client.post(
-            alert_url, json=weather_alert, headers=auth_headers
-        )
+        alert_url = f"{service_urls.get('weather_core', 'http://localhost:8108')}/api/v1/alerts"
+        response = await http_client.post(alert_url, json=weather_alert, headers=auth_headers)
 
         # Wait for event processing
         await asyncio.sleep(3)
@@ -203,10 +197,10 @@ class TestLowStockEventFlow:
             await nats_client.subscribe("inventory.low_stock", cb=alert_handler)
 
         # Act - Create low stock item (should trigger event)
-        create_url = f"{service_urls.get('inventory_service', 'http://localhost:8116')}/api/v1/inventory"
-        response = await http_client.post(
-            create_url, json=item_data, headers=auth_headers
+        create_url = (
+            f"{service_urls.get('inventory_service', 'http://localhost:8116')}/api/v1/inventory"
         )
+        response = await http_client.post(create_url, json=item_data, headers=auth_headers)
 
         # Wait for event processing
         await asyncio.sleep(2)
@@ -263,15 +257,11 @@ class TestIoTReadingEventFlow:
             received_recommendations.append(data)
 
         with contextlib.suppress(AttributeError):
-            await nats_client.subscribe(
-                "irrigation.recommendation", cb=recommendation_handler
-            )
+            await nats_client.subscribe("irrigation.recommendation", cb=recommendation_handler)
 
         # Act - Send IoT reading
         reading_url = f"{service_urls.get('iot_gateway', 'http://localhost:8106')}/api/v1/readings"
-        response = await http_client.post(
-            reading_url, json=reading, headers=auth_headers
-        )
+        response = await http_client.post(reading_url, json=reading, headers=auth_headers)
 
         # Wait for event processing
         await asyncio.sleep(3)

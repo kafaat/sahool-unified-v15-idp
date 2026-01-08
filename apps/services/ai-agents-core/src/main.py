@@ -24,16 +24,10 @@ from fastapi import FastAPI, HTTPException
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

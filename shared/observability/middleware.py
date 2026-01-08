@@ -9,7 +9,7 @@ import logging
 import time
 import uuid
 from collections.abc import Callable
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -47,7 +47,7 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         self,
         app: FastAPI,
         service_name: str,
-        metrics_collector: Optional[Any] = None,
+        metrics_collector: Any | None = None,
         exclude_paths: list[str] | None = None,
     ):
         super().__init__(app)
@@ -298,8 +298,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         }
 
         return {
-            k: "***REDACTED***" if k.lower() in sensitive_headers else v
-            for k, v in headers.items()
+            k: "***REDACTED***" if k.lower() in sensitive_headers else v for k, v in headers.items()
         }
 
 
@@ -362,7 +361,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 def setup_observability_middleware(
     app: FastAPI,
     service_name: str,
-    metrics_collector: Optional[Any] = None,
+    metrics_collector: Any | None = None,
     enable_request_logging: bool = False,
     log_request_body: bool = False,
     log_response_body: bool = False,

@@ -48,9 +48,7 @@ class EventEnvelope(BaseModel):
     producer: str = Field(..., description="Service/domain that produced this event")
 
     # Payload
-    payload: dict[str, Any] = Field(
-        ..., description="Event payload matching schema_ref"
-    )
+    payload: dict[str, Any] = Field(..., description="Event payload matching schema_ref")
 
     def to_json_dict(self) -> dict[str, Any]:
         """Convert to JSON-serializable dictionary"""

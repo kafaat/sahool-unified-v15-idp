@@ -245,9 +245,9 @@ class OpenMeteoProvider:
                         temperature_c=hourly.get("temperature_2m", [0])[i],
                         humidity_pct=hourly.get("relative_humidity_2m", [0])[i],
                         precipitation_mm=hourly.get("precipitation", [0])[i],
-                        precipitation_probability_pct=hourly.get(
-                            "precipitation_probability", [0]
-                        )[i],
+                        precipitation_probability_pct=hourly.get("precipitation_probability", [0])[
+                            i
+                        ],
                         wind_speed_kmh=hourly.get("wind_speed_10m", [0])[i],
                         cloud_cover_pct=hourly.get("cloud_cover", [0])[i],
                     )

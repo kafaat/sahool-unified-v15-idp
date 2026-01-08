@@ -94,39 +94,25 @@ class ScoreCalculator:
         latency_scores = [r.get("latency_score", 0.0) for r in self.test_results]
         safety_scores = [r.get("safety_score", 0.0) for r in self.test_results]
 
-        avg_accuracy = (
-            sum(accuracy_scores) / len(accuracy_scores) if accuracy_scores else 0.0
-        )
-        avg_latency = (
-            sum(latency_scores) / len(latency_scores) if latency_scores else 0.0
-        )
+        avg_accuracy = sum(accuracy_scores) / len(accuracy_scores) if accuracy_scores else 0.0
+        avg_latency = sum(latency_scores) / len(latency_scores) if latency_scores else 0.0
         avg_safety = sum(safety_scores) / len(safety_scores) if safety_scores else 0.0
 
         # Calculate overall score (weighted average)
-        overall_score = (
-            avg_accuracy * 0.5 + avg_latency * 0.25 + avg_safety * 0.25
-        ) * 100
+        overall_score = (avg_accuracy * 0.5 + avg_latency * 0.25 + avg_safety * 0.25) * 100
 
         # Language breakdown
         arabic_results = [r for r in self.test_results if r.get("language") == "ar"]
         english_results = [r for r in self.test_results if r.get("language") == "en"]
 
         arabic_support = (
-            (
-                sum(1 for r in arabic_results if r.get("passed", False))
-                / len(arabic_results)
-                * 100
-            )
+            (sum(1 for r in arabic_results if r.get("passed", False)) / len(arabic_results) * 100)
             if arabic_results
             else 0.0
         )
 
         english_support = (
-            (
-                sum(1 for r in english_results if r.get("passed", False))
-                / len(english_results)
-                * 100
-            )
+            (sum(1 for r in english_results if r.get("passed", False)) / len(english_results) * 100)
             if english_results
             else 0.0
         )
@@ -142,8 +128,7 @@ class ScoreCalculator:
                 categories[category]["passed"] += 1
 
         category_scores = {
-            cat: (stats["passed"] / stats["total"] * 100)
-            for cat, stats in categories.items()
+            cat: (stats["passed"] / stats["total"] * 100) for cat, stats in categories.items()
         }
 
         # Latency statistics
@@ -209,9 +194,7 @@ class ScoreCalculator:
 
 def main():
     """Main execution"""
-    parser = argparse.ArgumentParser(
-        description="Calculate evaluation scores from test results"
-    )
+    parser = argparse.ArgumentParser(description="Calculate evaluation scores from test results")
     parser.add_argument(
         "--metrics-file",
         type=Path,

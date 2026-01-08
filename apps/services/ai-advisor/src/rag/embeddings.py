@@ -6,7 +6,6 @@ Manages text embeddings using sentence-transformers.
 يدير تضمينات النصوص باستخدام sentence-transformers.
 """
 
-
 import numpy as np
 import structlog
 from sentence_transformers import SentenceTransformer
@@ -41,9 +40,7 @@ class EmbeddingsManager:
         self.model_name = model_name or settings.embeddings_model
         self.device = device or settings.embeddings_device
 
-        logger.info(
-            "loading_embeddings_model", model_name=self.model_name, device=self.device
-        )
+        logger.info("loading_embeddings_model", model_name=self.model_name, device=self.device)
 
         # Load the model
         # تحميل النموذج

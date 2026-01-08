@@ -80,12 +80,8 @@ class TaskMessage(A2AMessage):
     parameters: dict[str, Any] = Field(default_factory=dict)
     priority: int = Field(default=5, ge=1, le=10, description="Task priority 1-10")
     timeout_seconds: int | None = Field(default=300, description="Task timeout")
-    require_streaming: bool = Field(
-        default=False, description="Request streaming response"
-    )
-    context: dict[str, Any] | None = Field(
-        default_factory=dict, description="Additional context"
-    )
+    require_streaming: bool = Field(default=False, description="Request streaming response")
+    context: dict[str, Any] | None = Field(default_factory=dict, description="Additional context")
 
 
 class TaskResultMessage(A2AMessage):
@@ -101,9 +97,7 @@ class TaskResultMessage(A2AMessage):
     task_id: str
     state: TaskState
     result: dict[str, Any] | None = None
-    progress: float | None = Field(
-        default=None, ge=0.0, le=1.0, description="Task progress 0-1"
-    )
+    progress: float | None = Field(default=None, ge=0.0, le=1.0, description="Task progress 0-1")
     is_final: bool = Field(default=True, description="Is this the final result?")
     partial_result: dict[str, Any] | None = Field(
         default=None, description="Partial result for streaming"
@@ -138,9 +132,7 @@ class HeartbeatMessage(A2AMessage):
 
     message_type: MessageType = MessageType.HEARTBEAT
     agent_status: str = Field(default="active")
-    load: float | None = Field(
-        default=None, ge=0.0, le=1.0, description="Agent load 0-1"
-    )
+    load: float | None = Field(default=None, ge=0.0, le=1.0, description="Agent load 0-1")
 
 
 class CancelMessage(A2AMessage):
@@ -250,15 +242,9 @@ class ConversationContext:
             "total_messages": len(self.messages),
             "tasks": {
                 "total": len(self.tasks),
-                "pending": sum(
-                    1 for s in self.tasks.values() if s == TaskState.PENDING
-                ),
-                "in_progress": sum(
-                    1 for s in self.tasks.values() if s == TaskState.IN_PROGRESS
-                ),
-                "completed": sum(
-                    1 for s in self.tasks.values() if s == TaskState.COMPLETED
-                ),
+                "pending": sum(1 for s in self.tasks.values() if s == TaskState.PENDING),
+                "in_progress": sum(1 for s in self.tasks.values() if s == TaskState.IN_PROGRESS),
+                "completed": sum(1 for s in self.tasks.values() if s == TaskState.COMPLETED),
                 "failed": sum(1 for s in self.tasks.values() if s == TaskState.FAILED),
             },
             "created_at": self.created_at.isoformat(),
@@ -275,9 +261,7 @@ class ConversationContext:
             Number of tasks cleared
         """
         completed_tasks = [
-            task_id
-            for task_id, state in self.tasks.items()
-            if state == TaskState.COMPLETED
+            task_id for task_id, state in self.tasks.items() if state == TaskState.COMPLETED
         ]
         for task_id in completed_tasks:
             del self.tasks[task_id]
@@ -374,11 +358,7 @@ class TaskQueue:
         return {
             "total": len(self.tasks),
             "pending": sum(1 for s in self.states.values() if s == TaskState.PENDING),
-            "in_progress": sum(
-                1 for s in self.states.values() if s == TaskState.IN_PROGRESS
-            ),
-            "completed": sum(
-                1 for s in self.states.values() if s == TaskState.COMPLETED
-            ),
+            "in_progress": sum(1 for s in self.states.values() if s == TaskState.IN_PROGRESS),
+            "completed": sum(1 for s in self.states.values() if s == TaskState.COMPLETED),
             "failed": sum(1 for s in self.states.values() if s == TaskState.FAILED),
         }

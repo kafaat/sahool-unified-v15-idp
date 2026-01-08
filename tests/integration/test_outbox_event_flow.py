@@ -52,9 +52,7 @@ class TestSchemaRegistry:
         registry = SchemaRegistry.load()
         field_schemas = registry.list_by_owner("field_suite")
 
-        assert (
-            len(field_schemas) >= 3
-        )  # field.created, field.updated, farm.created, crop.planted
+        assert len(field_schemas) >= 3  # field.created, field.updated, farm.created, crop.planted
         assert all(s.owner == "field_suite" for s in field_schemas)
 
 

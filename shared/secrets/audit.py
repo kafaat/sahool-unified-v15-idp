@@ -6,7 +6,6 @@ Provides comprehensive audit logging for secret access patterns,
 anomaly detection, and security monitoring.
 """
 
-import asyncio
 import json
 import logging
 from dataclasses import dataclass, field
@@ -128,9 +127,7 @@ class SecretAuditLogger:
         # Configure file logging if specified
         if log_file:
             file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(
-                logging.Formatter("%(asctime)s - %(message)s")
-            )
+            file_handler.setFormatter(logging.Formatter("%(asctime)s - %(message)s"))
             logger.addHandler(file_handler)
 
     async def log_access(self, event: SecretAccessEvent) -> None:
@@ -163,9 +160,7 @@ class SecretAuditLogger:
         """Track access in memory for pattern analysis"""
         # Keep only recent history (last 24 hours)
         cutoff = datetime.now(UTC) - timedelta(hours=24)
-        self._access_history = [
-            e for e in self._access_history if e.timestamp > cutoff
-        ]
+        self._access_history = [e for e in self._access_history if e.timestamp > cutoff]
 
         # Add new event
         self._access_history.append(event)
@@ -183,9 +178,7 @@ class SecretAuditLogger:
             # Clean old failed attempts
             recent_cutoff = datetime.now(UTC) - timedelta(minutes=15)
             self._failed_attempts[event.user] = [
-                t
-                for t in self._failed_attempts[event.user]
-                if t > recent_cutoff
+                t for t in self._failed_attempts[event.user] if t > recent_cutoff
             ]
 
     async def _check_anomalies(self, event: SecretAccessEvent) -> None:
@@ -207,11 +200,7 @@ class SecretAuditLogger:
             await self._alert_unusual_time(event)
 
         # 4. Access from new IP
-        recent_ips = {
-            e.source_ip
-            for e in self._access_history[-100:]
-            if e.user == event.user
-        }
+        recent_ips = {e.source_ip for e in self._access_history[-100:] if e.user == event.user}
         if event.source_ip != "unknown" and event.source_ip not in recent_ips:
             await self._alert_new_ip(event)
 
@@ -223,13 +212,10 @@ class SecretAuditLogger:
             f"Count: {self._access_counts.get(f'{event.user}:{event.secret_path}', 0)}"
         )
 
-    async def _alert_failed_attempts(
-        self, event: SecretAccessEvent, count: int
-    ) -> None:
+    async def _alert_failed_attempts(self, event: SecretAccessEvent, count: int) -> None:
         """Alert on multiple failed attempts"""
         logger.warning(
-            f"ALERT: Multiple failed secret access attempts - "
-            f"User: {event.user}, Count: {count}"
+            f"ALERT: Multiple failed secret access attempts - User: {event.user}, Count: {count}"
         )
 
     async def _alert_unusual_time(self, event: SecretAccessEvent) -> None:
@@ -242,8 +228,7 @@ class SecretAuditLogger:
     async def _alert_new_ip(self, event: SecretAccessEvent) -> None:
         """Alert on access from new IP"""
         logger.warning(
-            f"ALERT: Secret access from new IP - "
-            f"User: {event.user}, IP: {event.source_ip}"
+            f"ALERT: Secret access from new IP - User: {event.user}, IP: {event.source_ip}"
         )
 
     def get_access_stats(self, hours: int = 24) -> dict[str, Any]:
@@ -379,9 +364,7 @@ def get_audit_logger() -> SecretAuditLogger:
     global _audit_logger
 
     if _audit_logger is None:
-        _audit_logger = SecretAuditLogger(
-            log_file="/var/log/sahool/secret-audit.log"
-        )
+        _audit_logger = SecretAuditLogger(log_file="/var/log/sahool/secret-audit.log")
 
     return _audit_logger
 

@@ -193,16 +193,10 @@ def test_transaction_commit(db_connection):
 
     # Insert data in transaction
     test_id = str(uuid.uuid4())
-    cursor.execute(
-        f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)",
-        (test_id, 42)
-    )
+    cursor.execute(f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)", (test_id, 42))
 
     # Verify data was inserted
-    cursor.execute(
-        f"SELECT value FROM {table_name} WHERE id = %s",
-        (test_id,)
-    )
+    cursor.execute(f"SELECT value FROM {table_name} WHERE id = %s", (test_id,))
     result = cursor.fetchone()
     assert result is not None
     assert result["value"] == 42
@@ -242,19 +236,13 @@ def test_transaction_rollback(test_config):
 
         # Insert data
         test_id = str(uuid.uuid4())
-        cursor.execute(
-            f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)",
-            (test_id, 99)
-        )
+        cursor.execute(f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)", (test_id, 99))
 
         # Rollback transaction
         conn.rollback()
 
         # Verify data was not saved
-        cursor.execute(
-            f"SELECT COUNT(*) as count FROM {table_name} WHERE id = %s",
-            (test_id,)
-        )
+        cursor.execute(f"SELECT COUNT(*) as count FROM {table_name} WHERE id = %s", (test_id,))
         result = cursor.fetchone()
         assert result["count"] == 0, "Data should not exist after rollback"
 
@@ -307,16 +295,10 @@ def test_transaction_isolation(test_config):
 
         # Connection 1: Insert data but don't commit
         test_id = str(uuid.uuid4())
-        cursor1.execute(
-            f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)",
-            (test_id, 100)
-        )
+        cursor1.execute(f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)", (test_id, 100))
 
         # Connection 2: Should not see uncommitted data
-        cursor2.execute(
-            f"SELECT COUNT(*) as count FROM {table_name} WHERE id = %s",
-            (test_id,)
-        )
+        cursor2.execute(f"SELECT COUNT(*) as count FROM {table_name} WHERE id = %s", (test_id,))
         result = cursor2.fetchone()
         assert result["count"] == 0, "Uncommitted data should not be visible"
 
@@ -324,10 +306,7 @@ def test_transaction_isolation(test_config):
         conn1.commit()
 
         # Connection 2: Should now see the data
-        cursor2.execute(
-            f"SELECT value FROM {table_name} WHERE id = %s",
-            (test_id,)
-        )
+        cursor2.execute(f"SELECT value FROM {table_name} WHERE id = %s", (test_id,))
         result = cursor2.fetchone()
         assert result is not None
         assert result["value"] == 100
@@ -372,10 +351,7 @@ def test_concurrent_writes_no_deadlock(test_config):
         # Insert multiple rows quickly (simulating concurrent writes)
         for i in range(10):
             test_id = str(uuid.uuid4())
-            cursor.execute(
-                f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)",
-                (test_id, i)
-            )
+            cursor.execute(f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)", (test_id, i))
 
         # All inserts should succeed
         cursor.execute(f"SELECT COUNT(*) as count FROM {table_name}")
@@ -610,28 +586,22 @@ def test_tenant_data_isolation(db_connection):
 
     cursor.execute(
         f"INSERT INTO {table_name} (id, tenant_id, data) VALUES (%s, %s, %s)",
-        (str(uuid.uuid4()), tenant1_id, "Tenant 1 Data")
+        (str(uuid.uuid4()), tenant1_id, "Tenant 1 Data"),
     )
     cursor.execute(
         f"INSERT INTO {table_name} (id, tenant_id, data) VALUES (%s, %s, %s)",
-        (str(uuid.uuid4()), tenant2_id, "Tenant 2 Data")
+        (str(uuid.uuid4()), tenant2_id, "Tenant 2 Data"),
     )
 
     # Query for tenant 1 data only
-    cursor.execute(
-        f"SELECT data FROM {table_name} WHERE tenant_id = %s",
-        (tenant1_id,)
-    )
+    cursor.execute(f"SELECT data FROM {table_name} WHERE tenant_id = %s", (tenant1_id,))
     results = cursor.fetchall()
 
     assert len(results) == 1
     assert results[0]["data"] == "Tenant 1 Data"
 
     # Query for tenant 2 data only
-    cursor.execute(
-        f"SELECT data FROM {table_name} WHERE tenant_id = %s",
-        (tenant2_id,)
-    )
+    cursor.execute(f"SELECT data FROM {table_name} WHERE tenant_id = %s", (tenant2_id,))
     results = cursor.fetchall()
 
     assert len(results) == 1
@@ -664,18 +634,15 @@ def test_tenant_data_no_leakage(db_connection):
 
     cursor.execute(
         f"INSERT INTO {table_name} (id, tenant_id, sensitive_data) VALUES (%s, %s, %s)",
-        (str(uuid.uuid4()), tenant1_id, "Tenant 1 Secret")
+        (str(uuid.uuid4()), tenant1_id, "Tenant 1 Secret"),
     )
     cursor.execute(
         f"INSERT INTO {table_name} (id, tenant_id, sensitive_data) VALUES (%s, %s, %s)",
-        (str(uuid.uuid4()), tenant2_id, "Tenant 2 Secret")
+        (str(uuid.uuid4()), tenant2_id, "Tenant 2 Secret"),
     )
 
     # Verify tenant 1 cannot see tenant 2's data
-    cursor.execute(
-        f"SELECT sensitive_data FROM {table_name} WHERE tenant_id = %s",
-        (tenant1_id,)
-    )
+    cursor.execute(f"SELECT sensitive_data FROM {table_name} WHERE tenant_id = %s", (tenant1_id,))
     results = cursor.fetchall()
 
     assert len(results) == 1
@@ -718,23 +685,23 @@ def test_query_with_index_performance(db_connection):
     for i in range(100):
         cursor.execute(
             f"INSERT INTO {table_name} (tenant_id, created_at) VALUES (%s, %s)",
-            (tenant_id, datetime.utcnow())
+            (tenant_id, datetime.utcnow()),
         )
 
     # Query should use index (verify with EXPLAIN)
-    cursor.execute(f"""
+    cursor.execute(
+        f"""
         EXPLAIN SELECT * FROM {table_name} WHERE tenant_id = %s
-    """, (tenant_id,))
+    """,
+        (tenant_id,),
+    )
 
     explain_results = cursor.fetchall()
     explain_text = " ".join(str(row) for row in explain_results)
 
     # Should mention index scan (not always guaranteed in small datasets)
     # Just verify query executes successfully
-    cursor.execute(
-        f"SELECT COUNT(*) as count FROM {table_name} WHERE tenant_id = %s",
-        (tenant_id,)
-    )
+    cursor.execute(f"SELECT COUNT(*) as count FROM {table_name} WHERE tenant_id = %s", (tenant_id,))
     result = cursor.fetchone()
     assert result["count"] == 100
 
@@ -763,11 +730,7 @@ def test_bulk_insert_performance(db_connection):
 
     data = [(str(uuid.uuid4()), i) for i in range(100)]
 
-    execute_values(
-        cursor,
-        f"INSERT INTO {table_name} (id, value) VALUES %s",
-        data
-    )
+    execute_values(cursor, f"INSERT INTO {table_name} (id, value) VALUES %s", data)
 
     # Verify all records inserted
     cursor.execute(f"SELECT COUNT(*) as count FROM {table_name}")
@@ -801,17 +764,11 @@ def test_primary_key_constraint(db_connection):
 
     # Insert first record
     test_id = str(uuid.uuid4())
-    cursor.execute(
-        f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)",
-        (test_id, 1)
-    )
+    cursor.execute(f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)", (test_id, 1))
 
     # Try to insert duplicate primary key
     with pytest.raises(psycopg2.IntegrityError):
-        cursor.execute(
-            f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)",
-            (test_id, 2)
-        )
+        cursor.execute(f"INSERT INTO {table_name} (id, value) VALUES (%s, %s)", (test_id, 2))
 
     cursor.close()
 
@@ -845,22 +802,19 @@ def test_foreign_key_constraint(db_connection):
 
     # Insert parent record
     parent_id = str(uuid.uuid4())
-    cursor.execute(
-        f"INSERT INTO {parent_table} (id, name) VALUES (%s, %s)",
-        (parent_id, "Parent")
-    )
+    cursor.execute(f"INSERT INTO {parent_table} (id, name) VALUES (%s, %s)", (parent_id, "Parent"))
 
     # Insert child record - should succeed
     cursor.execute(
         f"INSERT INTO {child_table} (id, parent_id, value) VALUES (%s, %s, %s)",
-        (str(uuid.uuid4()), parent_id, 42)
+        (str(uuid.uuid4()), parent_id, 42),
     )
 
     # Try to insert child with non-existent parent - should fail
     with pytest.raises(psycopg2.IntegrityError):
         cursor.execute(
             f"INSERT INTO {child_table} (id, parent_id, value) VALUES (%s, %s, %s)",
-            (str(uuid.uuid4()), str(uuid.uuid4()), 99)
+            (str(uuid.uuid4()), str(uuid.uuid4()), 99),
         )
 
     cursor.close()
@@ -887,7 +841,7 @@ def test_not_null_constraint(db_connection):
     with pytest.raises(psycopg2.IntegrityError):
         cursor.execute(
             f"INSERT INTO {table_name} (id, required_field) VALUES (%s, %s)",
-            (str(uuid.uuid4()), None)
+            (str(uuid.uuid4()), None),
         )
 
     cursor.close()
@@ -913,14 +867,14 @@ def test_unique_constraint(db_connection):
     # Insert first record
     cursor.execute(
         f"INSERT INTO {table_name} (id, email) VALUES (%s, %s)",
-        (str(uuid.uuid4()), "test@sahool.com")
+        (str(uuid.uuid4()), "test@sahool.com"),
     )
 
     # Try to insert duplicate email
     with pytest.raises(psycopg2.IntegrityError):
         cursor.execute(
             f"INSERT INTO {table_name} (id, email) VALUES (%s, %s)",
-            (str(uuid.uuid4()), "test@sahool.com")
+            (str(uuid.uuid4()), "test@sahool.com"),
         )
 
     cursor.close()

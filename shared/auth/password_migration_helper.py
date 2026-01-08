@@ -74,9 +74,7 @@ class PasswordMigrationHelper:
         self.user_repo = user_repository
         self.hasher = get_password_hasher()
 
-    async def authenticate_and_migrate(
-        self, email: str, password: str
-    ) -> AuthenticationResult:
+    async def authenticate_and_migrate(self, email: str, password: str) -> AuthenticationResult:
         """
         Authenticate user and migrate password if needed
 
@@ -98,32 +96,22 @@ class PasswordMigrationHelper:
             # Get user from database
             user = self.user_repo.get_user_by_email(email)
             if not user:
-                logger.warning(
-                    f"Authentication failed: User not found for email {email}"
-                )
-                return AuthenticationResult(
-                    success=False, error_message="Invalid credentials"
-                )
+                logger.warning(f"Authentication failed: User not found for email {email}")
+                return AuthenticationResult(success=False, error_message="Invalid credentials")
 
             user_id = user.get("id")
             stored_hash = user.get("password_hash")
 
             if not stored_hash:
                 logger.error(f"User {user_id} has no password hash")
-                return AuthenticationResult(
-                    success=False, error_message="Invalid credentials"
-                )
+                return AuthenticationResult(success=False, error_message="Invalid credentials")
 
             # Verify password and check if rehash is needed
             is_valid, needs_rehash = self.hasher.verify_password(password, stored_hash)
 
             if not is_valid:
-                logger.warning(
-                    f"Authentication failed: Invalid password for user {user_id}"
-                )
-                return AuthenticationResult(
-                    success=False, error_message="Invalid credentials"
-                )
+                logger.warning(f"Authentication failed: Invalid password for user {user_id}")
+                return AuthenticationResult(success=False, error_message="Invalid credentials")
 
             # Password is valid
             logger.info(f"Authentication successful for user {user_id}")
@@ -155,9 +143,7 @@ class PasswordMigrationHelper:
 
         except Exception as e:
             logger.error(f"Authentication error for email {email}: {e}")
-            return AuthenticationResult(
-                success=False, error_message="Authentication error"
-            )
+            return AuthenticationResult(success=False, error_message="Authentication error")
 
     async def complete_migration(self, user_id: str, new_password_hash: str) -> bool:
         """

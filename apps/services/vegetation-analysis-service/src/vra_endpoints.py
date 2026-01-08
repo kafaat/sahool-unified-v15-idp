@@ -35,15 +35,11 @@ class VRARequest(BaseModel):
     )
     target_rate: float = Field(..., gt=0, description="المعدل المستهدف")
     unit: str = Field(..., description="وحدة القياس (kg/ha, seeds/ha, L/ha, mm/ha)")
-    num_zones: int = Field(
-        default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)"
-    )
+    num_zones: int = Field(default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)")
     zone_method: str = Field(default="ndvi", description="طريقة تصنيف المناطق")
     min_rate: float | None = Field(None, gt=0, description="الحد الأدنى للمعدل")
     max_rate: float | None = Field(None, gt=0, description="الحد الأقصى للمعدل")
-    product_price_per_unit: float | None = Field(
-        None, description="سعر الوحدة للمنتج"
-    )
+    product_price_per_unit: float | None = Field(None, description="سعر الوحدة للمنتج")
     notes: str | None = Field(None, description="ملاحظات (إنجليزي)")
     notes_ar: str | None = Field(None, description="ملاحظات (عربي)")
 
@@ -279,9 +275,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
 
         except Exception as e:
             logger.error(f"Error classifying zones: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Failed to classify zones: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Failed to classify zones: {str(e)}")
 
     @app.get("/v1/vra/prescriptions/{field_id}")
     async def get_field_prescriptions(
@@ -329,9 +323,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
 
         except Exception as e:
             logger.error(f"Error fetching prescriptions: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Failed to fetch prescriptions: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Failed to fetch prescriptions: {str(e)}")
 
     @app.get("/v1/vra/prescription/{prescription_id}")
     async def get_prescription_details(prescription_id: str):
@@ -398,16 +390,12 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise
         except Exception as e:
             logger.error(f"Error fetching prescription: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Failed to fetch prescription: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Failed to fetch prescription: {str(e)}")
 
     @app.get("/v1/vra/export/{prescription_id}")
     async def export_prescription(
         prescription_id: str,
-        format: str = Query(
-            "geojson", description="Export format (geojson, shapefile, isoxml)"
-        ),
+        format: str = Query("geojson", description="Export format (geojson, shapefile, isoxml)"),
     ):
         """
         تصدير الوصفة | Export Prescription
@@ -454,9 +442,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise
         except Exception as e:
             logger.error(f"Error exporting prescription: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Failed to export prescription: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Failed to export prescription: {str(e)}")
 
     @app.delete("/v1/vra/prescription/{prescription_id}")
     async def delete_prescription(prescription_id: str):
@@ -485,9 +471,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise
         except Exception as e:
             logger.error(f"Error deleting prescription: {str(e)}")
-            raise HTTPException(
-                status_code=500, detail=f"Failed to delete prescription: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Failed to delete prescription: {str(e)}")
 
     @app.get("/v1/vra/info")
     async def get_vra_info():

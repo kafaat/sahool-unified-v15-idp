@@ -6,7 +6,6 @@ Irrigation Scheduling System Tests
 Note: Requires pytest and pydantic installation
 """
 
-
 import pytest
 
 # Uncomment when pydantic is installed

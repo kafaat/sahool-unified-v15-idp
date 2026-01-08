@@ -21,9 +21,7 @@ class MetricsRegistry:
         self._histograms: dict[str, dict] = {}
         self._start_time = time.time()
 
-    def counter(
-        self, name: str, description: str, labels: dict | None = None
-    ) -> "Counter":
+    def counter(self, name: str, description: str, labels: dict | None = None) -> "Counter":
         """Create or get a counter metric"""
         key = self._make_key(name, labels)
         if key not in self._counters:
@@ -35,9 +33,7 @@ class MetricsRegistry:
             }
         return Counter(self._counters[key])
 
-    def gauge(
-        self, name: str, description: str, labels: dict | None = None
-    ) -> "Gauge":
+    def gauge(self, name: str, description: str, labels: dict | None = None) -> "Gauge":
         """Create or get a gauge metric"""
         key = self._make_key(name, labels)
         if key not in self._gauges:
@@ -101,9 +97,7 @@ class MetricsRegistry:
 
         # Add service info
         lines.append(f"# SAHOOL {self.service_name} Metrics")
-        lines.append(
-            f"# Generated at {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}"
-        )
+        lines.append(f"# Generated at {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}")
         lines.append("")
 
         # Export counters
@@ -135,30 +129,20 @@ class MetricsRegistry:
             for bucket in sorted(metric["buckets"]):
                 cumulative += metric["bucket_counts"].get(bucket, 0)
                 bucket_labels = {**base_labels, "le": str(bucket)}
-                lines.append(
-                    f"{name}_bucket{self._format_labels(bucket_labels)} {cumulative}"
-                )
+                lines.append(f"{name}_bucket{self._format_labels(bucket_labels)} {cumulative}")
 
             # +Inf bucket
             inf_labels = {**base_labels, "le": "+Inf"}
-            lines.append(
-                f"{name}_bucket{self._format_labels(inf_labels)} {metric['count']}"
-            )
+            lines.append(f"{name}_bucket{self._format_labels(inf_labels)} {metric['count']}")
 
             # Sum and count
-            lines.append(
-                f"{name}_sum{self._format_labels(base_labels)} {metric['sum']}"
-            )
-            lines.append(
-                f"{name}_count{self._format_labels(base_labels)} {metric['count']}"
-            )
+            lines.append(f"{name}_sum{self._format_labels(base_labels)} {metric['sum']}")
+            lines.append(f"{name}_count{self._format_labels(base_labels)} {metric['count']}")
             lines.append("")
 
         # Add uptime gauge
         uptime = time.time() - self._start_time
-        lines.append(
-            f"# HELP {self.service_name}_uptime_seconds Service uptime in seconds"
-        )
+        lines.append(f"# HELP {self.service_name}_uptime_seconds Service uptime in seconds")
         lines.append(f"# TYPE {self.service_name}_uptime_seconds gauge")
         lines.append(f"{self.service_name}_uptime_seconds {uptime:.2f}")
 
@@ -309,9 +293,7 @@ def track_db_query(func: Callable):
         "db_query_duration_seconds", "Database query latency in seconds"
     )
 
-    query_errors = registry.counter(
-        "db_query_errors_total", "Total database query errors"
-    )
+    query_errors = registry.counter("db_query_errors_total", "Total database query errors")
 
     @wraps(func)
     async def wrapper(*args, **kwargs):

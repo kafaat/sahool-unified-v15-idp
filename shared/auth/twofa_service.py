@@ -22,9 +22,7 @@ try:
     PYOTP_AVAILABLE = True
 except ImportError:
     PYOTP_AVAILABLE = False
-    logging.warning(
-        "pyotp or qrcode not installed. Install with: pip install pyotp qrcode[pil]"
-    )
+    logging.warning("pyotp or qrcode not installed. Install with: pip install pyotp qrcode[pil]")
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +50,7 @@ class TwoFactorAuthService:
         """
         if not PYOTP_AVAILABLE:
             raise ImportError(
-                "pyotp and qrcode are required for 2FA. "
-                "Install with: pip install pyotp qrcode[pil]"
+                "pyotp and qrcode are required for 2FA. Install with: pip install pyotp qrcode[pil]"
             )
         self.issuer = issuer
 
@@ -68,9 +65,7 @@ class TwoFactorAuthService:
         logger.info("Generated new TOTP secret")
         return secret
 
-    def generate_totp_uri(
-        self, secret: str, account_name: str, issuer: str | None = None
-    ) -> str:
+    def generate_totp_uri(self, secret: str, account_name: str, issuer: str | None = None) -> str:
         """
         Generate TOTP provisioning URI for QR code.
 
@@ -88,15 +83,11 @@ class TwoFactorAuthService:
             digits=TOTP_DIGITS,
             interval=TOTP_INTERVAL,
         )
-        uri = totp.provisioning_uri(
-            name=account_name, issuer_name=issuer or self.issuer
-        )
+        uri = totp.provisioning_uri(name=account_name, issuer_name=issuer or self.issuer)
         logger.debug(f"Generated TOTP URI for account: {account_name}")
         return uri
 
-    def generate_qr_code(
-        self, secret: str, account_name: str, issuer: str | None = None
-    ) -> str:
+    def generate_qr_code(self, secret: str, account_name: str, issuer: str | None = None) -> str:
         """
         Generate QR code for TOTP setup.
 
@@ -215,9 +206,7 @@ class TwoFactorAuthService:
 
         return hashlib.sha256(clean_code.encode()).hexdigest()
 
-    def verify_backup_code(
-        self, code: str, hashed_codes: list[str]
-    ) -> tuple[bool, str | None]:
+    def verify_backup_code(self, code: str, hashed_codes: list[str]) -> tuple[bool, str | None]:
         """
         Verify a backup code against stored hashes.
 

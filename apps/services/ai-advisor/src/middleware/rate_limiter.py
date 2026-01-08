@@ -109,9 +109,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         if not is_allowed:
             logger.warning(f"Rate limit exceeded for {request.client.host}: {reason}")
-            raise HTTPException(
-                status_code=429, detail=reason, headers={"Retry-After": "60"}
-            )
+            raise HTTPException(status_code=429, detail=reason, headers={"Retry-After": "60"})
 
         response = await call_next(request)
         return response

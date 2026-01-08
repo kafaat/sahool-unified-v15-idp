@@ -47,9 +47,7 @@ class Page(Generic[T]):
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
         return {
-            "items": [
-                item.dict() if hasattr(item, "dict") else item for item in self.items
-            ],
+            "items": [item.dict() if hasattr(item, "dict") else item for item in self.items],
             "page_info": {
                 "has_next_page": self.page_info.has_next_page,
                 "has_previous_page": self.page_info.has_previous_page,
@@ -73,9 +71,7 @@ class OffsetPage(Generic[T]):
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
         return {
-            "items": [
-                item.dict() if hasattr(item, "dict") else item for item in self.items
-            ],
+            "items": [item.dict() if hasattr(item, "dict") else item for item in self.items],
             "pagination": {
                 "total": self.total,
                 "page": self.page,
@@ -131,9 +127,7 @@ class PaginationHelper:
     """
 
     @staticmethod
-    def get_page_size(
-        requested_size: int | None, default: int = 50, max_size: int = 1000
-    ) -> int:
+    def get_page_size(requested_size: int | None, default: int = 50, max_size: int = 1000) -> int:
         """
         Get validated page size.
         الحصول على حجم الصفحة المتحقق منه.
@@ -272,9 +266,7 @@ class SQLAlchemyPagination:
 
         # Validate cursor_field exists on model
         if not hasattr(query.model, cursor_field):
-            raise ValueError(
-                f"Field '{cursor_field}' not found on model {query.model.__name__}"
-            )
+            raise ValueError(f"Field '{cursor_field}' not found on model {query.model.__name__}")
 
         # Apply cursor filters
         cursor_value = None
@@ -282,25 +274,17 @@ class SQLAlchemyPagination:
             cursor_value = Cursor.decode(after)
             if cursor_value is not None:
                 if order_by == SortOrder.ASC:
-                    query = query.filter(
-                        getattr(query.model, cursor_field) > cursor_value
-                    )
+                    query = query.filter(getattr(query.model, cursor_field) > cursor_value)
                 else:
-                    query = query.filter(
-                        getattr(query.model, cursor_field) < cursor_value
-                    )
+                    query = query.filter(getattr(query.model, cursor_field) < cursor_value)
 
         if before:
             cursor_value = Cursor.decode(before)
             if cursor_value is not None:
                 if order_by == SortOrder.ASC:
-                    query = query.filter(
-                        getattr(query.model, cursor_field) < cursor_value
-                    )
+                    query = query.filter(getattr(query.model, cursor_field) < cursor_value)
                 else:
-                    query = query.filter(
-                        getattr(query.model, cursor_field) > cursor_value
-                    )
+                    query = query.filter(getattr(query.model, cursor_field) > cursor_value)
 
         # Apply ordering
         if order_by == SortOrder.ASC:

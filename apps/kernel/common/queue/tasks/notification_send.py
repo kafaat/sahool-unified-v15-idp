@@ -69,7 +69,7 @@ def handle_notification_send(payload: dict[str, Any]) -> dict[str, Any]:
 
         # محاكاة النتائج
         # Simulate results
-        notification_ids = [f"NOTIF-{i+1:05d}" for i in range(len(user_ids))]
+        notification_ids = [f"NOTIF-{i + 1:05d}" for i in range(len(user_ids))]
 
         result = {
             "sent_count": len(user_ids),

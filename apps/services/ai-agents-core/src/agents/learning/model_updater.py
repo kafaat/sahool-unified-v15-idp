@@ -105,9 +105,7 @@ class ModelUpdaterAgent(BaseAgent):
                 created_at=datetime.now(),
                 performance_score=action.parameters.get("expected_new_score", 0),
                 is_active=True,
-                training_samples=action.parameters.get("update_data", {}).get(
-                    "samples", 0
-                ),
+                training_samples=action.parameters.get("update_data", {}).get("samples", 0),
             )
 
             if model_type not in self.model_versions:

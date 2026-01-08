@@ -13,9 +13,10 @@ This module tests:
 - Crop-specific predictions
 """
 
-import pytest
 from datetime import datetime
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import MagicMock, Mock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -23,6 +24,7 @@ from fastapi.testclient import TestClient
 def test_client():
     """Create FastAPI test client"""
     from src.main import app
+
     return TestClient(app)
 
 
@@ -36,7 +38,7 @@ def sample_yield_request():
         "avg_rainfall": 450.0,
         "avg_temperature": 20.0,
         "soil_quality": "medium",
-        "irrigation_type": "rain-fed"
+        "irrigation_type": "rain-fed",
     }
 
 
@@ -45,7 +47,7 @@ class TestYieldPredictionModel:
 
     def test_basic_yield_prediction(self):
         """Test basic yield prediction without modifiers"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -53,7 +55,7 @@ class TestYieldPredictionModel:
             area_hectares=10.0,
             crop_type=CropType.WHEAT,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
@@ -66,7 +68,7 @@ class TestYieldPredictionModel:
 
     def test_yield_scales_with_area(self):
         """Test that yield scales linearly with area"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -77,7 +79,7 @@ class TestYieldPredictionModel:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         # Large area (2x)
@@ -87,7 +89,7 @@ class TestYieldPredictionModel:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_small = predictor.predict(request_small)
@@ -99,7 +101,7 @@ class TestYieldPredictionModel:
 
     def test_crop_specific_predictions(self):
         """Test that different crops have different yields"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -113,7 +115,7 @@ class TestYieldPredictionModel:
                 avg_rainfall=500.0,
                 avg_temperature=22.0,
                 soil_quality="medium",
-                irrigation_type="drip"
+                irrigation_type="drip",
             )
             predictions[crop] = predictor.predict(request)
 
@@ -122,8 +124,10 @@ class TestYieldPredictionModel:
         assert len(set(yields)) == len(yields)  # All different
 
         # Tomato typically has higher yield than wheat
-        assert predictions[CropType.TOMATO].predicted_yield_per_hectare > \
-               predictions[CropType.WHEAT].predicted_yield_per_hectare
+        assert (
+            predictions[CropType.TOMATO].predicted_yield_per_hectare
+            > predictions[CropType.WHEAT].predicted_yield_per_hectare
+        )
 
 
 class TestWeatherFactorCalculation:
@@ -131,7 +135,7 @@ class TestWeatherFactorCalculation:
 
     def test_optimal_rainfall_bonus(self):
         """Test that optimal rainfall gives bonus"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -142,7 +146,7 @@ class TestWeatherFactorCalculation:
             avg_rainfall=450.0,  # Optimal
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         # Suboptimal rainfall
@@ -152,7 +156,7 @@ class TestWeatherFactorCalculation:
             avg_rainfall=300.0,  # Below optimal
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_optimal = predictor.predict(request_optimal)
@@ -166,7 +170,7 @@ class TestWeatherFactorCalculation:
 
     def test_drought_penalty(self):
         """Test severe drought penalty"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -176,14 +180,13 @@ class TestWeatherFactorCalculation:
             avg_rainfall=150.0,  # Severe drought (< 50% of optimal)
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request_drought)
 
         # Should have drought factor applied
-        assert any("جفاف" in f or "drought" in f.lower()
-                   for f in prediction.factors_applied)
+        assert any("جفاف" in f or "drought" in f.lower() for f in prediction.factors_applied)
 
         # Yield should be significantly reduced
         # (base yield * drought factor should be < base yield)
@@ -191,7 +194,7 @@ class TestWeatherFactorCalculation:
 
     def test_excessive_rainfall_penalty(self):
         """Test excessive rainfall penalty"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -201,18 +204,17 @@ class TestWeatherFactorCalculation:
             avg_rainfall=800.0,  # Excessive (> 120% of optimal)
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request_excess)
 
         # Should have excessive rainfall factor
-        assert any("زائدة" in f or "excess" in f.lower()
-                   for f in prediction.factors_applied)
+        assert any("زائدة" in f or "excess" in f.lower() for f in prediction.factors_applied)
 
     def test_optimal_temperature_bonus(self):
         """Test optimal temperature gives bonus"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -223,7 +225,7 @@ class TestWeatherFactorCalculation:
             avg_rainfall=450.0,
             avg_temperature=20.0,  # Optimal
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         # Too hot
@@ -233,7 +235,7 @@ class TestWeatherFactorCalculation:
             avg_rainfall=450.0,
             avg_temperature=35.0,  # Too hot
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_optimal = predictor.predict(request_optimal)
@@ -244,7 +246,7 @@ class TestWeatherFactorCalculation:
 
     def test_temperature_tolerance_range(self):
         """Test temperature tolerance range"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -255,14 +257,13 @@ class TestWeatherFactorCalculation:
             avg_rainfall=450.0,
             avg_temperature=22.0,  # Within ±3°C of optimal 20°C
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request_tolerance)
 
         # Should have ideal temperature factor
-        assert any("مثالية" in f or "ideal" in f.lower()
-                   for f in prediction.factors_applied)
+        assert any("مثالية" in f or "ideal" in f.lower() for f in prediction.factors_applied)
 
 
 class TestSoilQualityImpact:
@@ -270,7 +271,7 @@ class TestSoilQualityImpact:
 
     def test_good_soil_bonus(self):
         """Test good soil quality bonus"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -280,7 +281,7 @@ class TestSoilQualityImpact:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="good",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         request_medium = YieldRequest(
@@ -289,7 +290,7 @@ class TestSoilQualityImpact:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_good = predictor.predict(request_good)
@@ -303,7 +304,7 @@ class TestSoilQualityImpact:
 
     def test_poor_soil_penalty(self):
         """Test poor soil quality penalty"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -313,7 +314,7 @@ class TestSoilQualityImpact:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="poor",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         request_medium = YieldRequest(
@@ -322,7 +323,7 @@ class TestSoilQualityImpact:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_poor = predictor.predict(request_poor)
@@ -340,7 +341,7 @@ class TestIrrigationMethodEffect:
 
     def test_drip_irrigation_bonus(self):
         """Test drip irrigation bonus"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -350,7 +351,7 @@ class TestIrrigationMethodEffect:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="drip"
+            irrigation_type="drip",
         )
 
         request_rainfed = YieldRequest(
@@ -359,7 +360,7 @@ class TestIrrigationMethodEffect:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_drip = predictor.predict(request_drip)
@@ -373,7 +374,7 @@ class TestIrrigationMethodEffect:
 
     def test_smart_irrigation_bonus(self):
         """Test smart irrigation bonus"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -383,7 +384,7 @@ class TestIrrigationMethodEffect:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="smart"
+            irrigation_type="smart",
         )
 
         request_rainfed = YieldRequest(
@@ -392,7 +393,7 @@ class TestIrrigationMethodEffect:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_smart = predictor.predict(request_smart)
@@ -406,7 +407,7 @@ class TestIrrigationMethodEffect:
 
     def test_rainfed_penalty_for_high_water_crops(self):
         """Test rain-fed penalty for high water requirement crops"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -417,7 +418,7 @@ class TestIrrigationMethodEffect:
             avg_rainfall=600.0,
             avg_temperature=24.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         request_irrigated_tomato = YieldRequest(
@@ -426,7 +427,7 @@ class TestIrrigationMethodEffect:
             avg_rainfall=600.0,
             avg_temperature=24.0,
             soil_quality="medium",
-            irrigation_type="drip"
+            irrigation_type="drip",
         )
 
         pred_rainfed = predictor.predict(request_rainfed_tomato)
@@ -441,7 +442,7 @@ class TestRevenueCalculations:
 
     def test_revenue_calculation_usd(self):
         """Test USD revenue calculation"""
-        from src.main import YieldPredictor, YieldRequest, CropType, CROP_DATA
+        from src.main import CROP_DATA, CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -451,20 +452,21 @@ class TestRevenueCalculations:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
 
         # Revenue should be yield * price
-        expected_revenue = prediction.predicted_yield_tons * \
-                          CROP_DATA[CropType.WHEAT]["price_usd_per_ton"]
+        expected_revenue = (
+            prediction.predicted_yield_tons * CROP_DATA[CropType.WHEAT]["price_usd_per_ton"]
+        )
 
         assert abs(prediction.estimated_revenue_usd - expected_revenue) < 1.0
 
     def test_revenue_calculation_yer(self):
         """Test YER (Yemeni Rial) revenue calculation"""
-        from src.main import YieldPredictor, YieldRequest, CropType, USD_TO_YER
+        from src.main import USD_TO_YER, CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -474,7 +476,7 @@ class TestRevenueCalculations:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
@@ -486,7 +488,7 @@ class TestRevenueCalculations:
 
     def test_high_value_crops(self):
         """Test revenue for high-value crops"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -497,7 +499,7 @@ class TestRevenueCalculations:
             avg_rainfall=1200.0,
             avg_temperature=20.0,
             soil_quality="good",
-            irrigation_type="drip"
+            irrigation_type="drip",
         )
 
         # Wheat is regular crop
@@ -507,7 +509,7 @@ class TestRevenueCalculations:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="good",
-            irrigation_type="drip"
+            irrigation_type="drip",
         )
 
         pred_coffee = predictor.predict(request_coffee)
@@ -525,7 +527,7 @@ class TestYieldRangeEstimation:
 
     def test_yield_range_calculation(self):
         """Test that yield range is ±15%"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -535,7 +537,7 @@ class TestYieldRangeEstimation:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
@@ -550,7 +552,7 @@ class TestYieldRangeEstimation:
 
     def test_yield_range_ordering(self):
         """Test that min < predicted < max"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -558,7 +560,7 @@ class TestYieldRangeEstimation:
             area_hectares=10.0,
             crop_type=CropType.WHEAT,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
@@ -572,7 +574,7 @@ class TestConfidenceCalculation:
 
     def test_base_confidence(self):
         """Test base confidence level"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -581,7 +583,7 @@ class TestConfidenceCalculation:
             area_hectares=10.0,
             crop_type=CropType.WHEAT,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
@@ -591,7 +593,7 @@ class TestConfidenceCalculation:
 
     def test_confidence_with_weather_data(self):
         """Test confidence increases with weather data"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -601,7 +603,7 @@ class TestConfidenceCalculation:
             crop_type=CropType.WHEAT,
             avg_rainfall=450.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         # With rainfall and temperature
@@ -611,7 +613,7 @@ class TestConfidenceCalculation:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_rain = predictor.predict(request_with_rain)
@@ -622,7 +624,7 @@ class TestConfidenceCalculation:
 
     def test_max_confidence_cap(self):
         """Test that confidence is capped at 95%"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -634,7 +636,7 @@ class TestConfidenceCalculation:
             avg_temperature=20.0,
             soil_quality="good",
             irrigation_type="smart",
-            target_yield_kg_ha=4000.0
+            target_yield_kg_ha=4000.0,
         )
 
         prediction = predictor.predict(request)
@@ -648,7 +650,7 @@ class TestRecommendations:
 
     def test_low_yield_recommendation(self):
         """Test recommendations for low expected yield"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -659,7 +661,7 @@ class TestRecommendations:
             avg_rainfall=200.0,  # Very low
             avg_temperature=35.0,  # Too hot
             soil_quality="poor",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
@@ -668,12 +670,11 @@ class TestRecommendations:
         assert len(prediction.recommendations) > 0
 
         # Should mention low productivity
-        assert any("منخفضة" in r or "low" in r.lower()
-                   for r in prediction.recommendations)
+        assert any("منخفضة" in r or "low" in r.lower() for r in prediction.recommendations)
 
     def test_rainfed_recommendation(self):
         """Test recommendation for rain-fed irrigation"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -683,18 +684,17 @@ class TestRecommendations:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
 
         # Should recommend drip irrigation
-        assert any("تنقيط" in r or "drip" in r.lower()
-                   for r in prediction.recommendations)
+        assert any("تنقيط" in r or "drip" in r.lower() for r in prediction.recommendations)
 
     def test_poor_soil_recommendation(self):
         """Test recommendation for poor soil"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -704,18 +704,17 @@ class TestRecommendations:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="poor",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
 
         # Should recommend soil improvement
-        assert any("سماد عضوي" in r or "organic" in r.lower()
-                   for r in prediction.recommendations)
+        assert any("سماد عضوي" in r or "organic" in r.lower() for r in prediction.recommendations)
 
     def test_high_water_crop_recommendation(self):
         """Test recommendation for high water requirement crops"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -725,14 +724,13 @@ class TestRecommendations:
             avg_rainfall=500.0,
             avg_temperature=24.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)
 
         # Should mention irrigation needs
-        assert any("ري منتظم" in r or "regular" in r.lower()
-                   for r in prediction.recommendations)
+        assert any("ري منتظم" in r or "regular" in r.lower() for r in prediction.recommendations)
 
 
 class TestAPIEndpoints:
@@ -807,7 +805,7 @@ class TestDataValidation:
             "area_hectares": -5.0,  # Invalid
             "crop_type": "wheat",
             "soil_quality": "medium",
-            "irrigation_type": "rain-fed"
+            "irrigation_type": "rain-fed",
         }
 
         response = test_client.post("/v1/predict", json=invalid_request)
@@ -820,7 +818,7 @@ class TestDataValidation:
             "area_hectares": 0.0,  # Invalid
             "crop_type": "wheat",
             "soil_quality": "medium",
-            "irrigation_type": "rain-fed"
+            "irrigation_type": "rain-fed",
         }
 
         response = test_client.post("/v1/predict", json=invalid_request)
@@ -833,7 +831,7 @@ class TestDataValidation:
             "area_hectares": 10.0,
             "crop_type": "invalid_crop",
             "soil_quality": "medium",
-            "irrigation_type": "rain-fed"
+            "irrigation_type": "rain-fed",
         }
 
         response = test_client.post("/v1/predict", json=invalid_request)
@@ -847,7 +845,7 @@ class TestDataValidation:
             "crop_type": "wheat",
             "avg_rainfall": -100.0,  # Invalid
             "soil_quality": "medium",
-            "irrigation_type": "rain-fed"
+            "irrigation_type": "rain-fed",
         }
 
         response = test_client.post("/v1/predict", json=invalid_request)
@@ -860,7 +858,7 @@ class TestTargetYieldAdjustment:
 
     def test_higher_target_yield(self):
         """Test prediction with higher target yield"""
-        from src.main import YieldPredictor, YieldRequest, CropType, CROP_DATA
+        from src.main import CROP_DATA, CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -874,7 +872,7 @@ class TestTargetYieldAdjustment:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         # Higher target (2x)
@@ -885,7 +883,7 @@ class TestTargetYieldAdjustment:
             avg_rainfall=450.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         pred_normal = predictor.predict(request_normal)
@@ -900,7 +898,7 @@ class TestCropSpecificBehaviors:
 
     def test_coffee_specific_recommendation(self):
         """Test coffee-specific recommendations"""
-        from src.main import YieldPredictor, YieldRequest, CropType
+        from src.main import CropType, YieldPredictor, YieldRequest
 
         predictor = YieldPredictor()
 
@@ -910,18 +908,17 @@ class TestCropSpecificBehaviors:
             avg_rainfall=1200.0,
             avg_temperature=20.0,
             soil_quality="medium",
-            irrigation_type="drip"
+            irrigation_type="drip",
         )
 
         prediction = predictor.predict(request)
 
         # Should have coffee-specific recommendation
-        assert any("بن" in r or "coffee" in r.lower()
-                   for r in prediction.recommendations)
+        assert any("بن" in r or "coffee" in r.lower() for r in prediction.recommendations)
 
     def test_date_palm_low_water_requirement(self):
         """Test date palm low water requirement"""
-        from src.main import YieldPredictor, YieldRequest, CropType, CROP_DATA
+        from src.main import CROP_DATA, CropType, YieldPredictor, YieldRequest
 
         # Date palm has low water requirement
         assert CROP_DATA[CropType.DATE_PALM]["water_requirement"] == "low"
@@ -935,7 +932,7 @@ class TestCropSpecificBehaviors:
             avg_rainfall=200.0,  # Low, but optimal for date palm
             avg_temperature=30.0,
             soil_quality="medium",
-            irrigation_type="rain-fed"
+            irrigation_type="rain-fed",
         )
 
         prediction = predictor.predict(request)

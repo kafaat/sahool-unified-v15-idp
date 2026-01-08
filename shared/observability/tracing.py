@@ -69,15 +69,12 @@ class TracingConfig:
         self.otlp_endpoint = otlp_endpoint or os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
         self.sample_rate = float(os.getenv("OTEL_SAMPLE_RATE", str(sample_rate)))
         self.enable_console_export = (
-            enable_console_export
-            or os.getenv("OTEL_CONSOLE_EXPORT", "false").lower() == "true"
+            enable_console_export or os.getenv("OTEL_CONSOLE_EXPORT", "false").lower() == "true"
         )
 
         # Additional service attributes
         self.service_namespace = os.getenv("SERVICE_NAMESPACE", "sahool")
-        self.service_instance_id = os.getenv(
-            "HOSTNAME", os.getenv("POD_NAME", "unknown")
-        )
+        self.service_instance_id = os.getenv("HOSTNAME", os.getenv("POD_NAME", "unknown"))
         self.deployment_environment = os.getenv("DEPLOYMENT_ENV", self.environment)
 
 
@@ -415,9 +412,7 @@ class DistributedTracer:
                     # Convert complex types to string
                     span.set_attribute(key, str(value))
 
-    def add_span_event(
-        self, name: str, attributes: dict[str, Any] | None = None
-    ) -> None:
+    def add_span_event(self, name: str, attributes: dict[str, Any] | None = None) -> None:
         """
         Add an event to current span.
         إضافة حدث إلى النطاق الحالي.
@@ -488,9 +483,7 @@ def get_tracer() -> DistributedTracer | None:
     return _tracer
 
 
-def trace_function(
-    name: str | None = None, attributes: dict[str, Any] | None = None
-):
+def trace_function(name: str | None = None, attributes: dict[str, Any] | None = None):
     """
     Decorator to trace a function.
     مزخرف لتتبع دالة.

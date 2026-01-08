@@ -32,9 +32,7 @@ class MetricsCollector:
     جامع المقاييس لمراقبة الخدمات.
     """
 
-    def __init__(
-        self, service_name: str, registry: Optional["CollectorRegistry"] = None
-    ):
+    def __init__(self, service_name: str, registry: Optional["CollectorRegistry"] = None):
         self.service_name = service_name
         self.registry = registry
         self._metrics: dict[str, Any] = {}
@@ -263,9 +261,7 @@ class MetricsCollector:
         return generate_latest(self.registry)
 
 
-def timed(
-    metric_name: str, labels_func: Callable[..., dict[str, str]] | None = None
-):
+def timed(metric_name: str, labels_func: Callable[..., dict[str, str]] | None = None):
     """
     Decorator to measure function execution time.
     مزخرف لقياس وقت تنفيذ الدالة.
@@ -667,9 +663,7 @@ class CostTracker:
         return prompt_cost + completion_cost
 
     @classmethod
-    def update_pricing(
-        cls, model: str, prompt_price: float, completion_price: float
-    ) -> None:
+    def update_pricing(cls, model: str, prompt_price: float, completion_price: float) -> None:
         """
         Update pricing for a model.
         تحديث الأسعار لنموذج.

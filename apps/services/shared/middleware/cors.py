@@ -48,9 +48,7 @@ def get_cors_origins() -> list[str]:
     # Check for explicit CORS_ORIGINS setting
     cors_origins_env = os.getenv("CORS_ORIGINS", "")
     if cors_origins_env:
-        return [
-            origin.strip() for origin in cors_origins_env.split(",") if origin.strip()
-        ]
+        return [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
 
     # Fall back to environment-based defaults
     environment = os.getenv("ENVIRONMENT", "development").lower()

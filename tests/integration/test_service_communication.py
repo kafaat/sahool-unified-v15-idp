@@ -66,27 +66,19 @@ async def test_service_health_check_communication(http_client: AsyncClient):
 
     for service_name, service_url in SERVICES.items():
         try:
-            response = await http_client.get(
-                f"{service_url}/healthz",
-                timeout=5.0
-            )
+            response = await http_client.get(f"{service_url}/healthz", timeout=5.0)
             results[service_name] = {
                 "status_code": response.status_code,
-                "healthy": response.status_code == 200
+                "healthy": response.status_code == 200,
             }
         except Exception as e:
-            results[service_name] = {
-                "status_code": None,
-                "healthy": False,
-                "error": str(e)
-            }
+            results[service_name] = {"status_code": None, "healthy": False, "error": str(e)}
 
     # At least core services should be healthy
     core_services = ["field_ops", "weather_core"]
     for service in core_services:
         if service in results:
-            assert results[service]["healthy"], \
-                f"{service} is not healthy: {results[service]}"
+            assert results[service]["healthy"], f"{service} is not healthy: {results[service]}"
 
 
 @pytest.mark.integration
@@ -112,8 +104,7 @@ async def test_service_discovery_communication(http_client: AsyncClient):
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_cross_service_request_flow(
-    http_client: AsyncClient,
-    service_headers: dict[str, str]
+    http_client: AsyncClient, service_headers: dict[str, str]
 ):
     """
     Test complete request flow across multiple services
@@ -127,12 +118,8 @@ async def test_cross_service_request_flow(
     for service_name in services_chain:
         if service_name in SERVICES:
             try:
-                response = await http_client.get(
-                    f"{SERVICES[service_name]}/healthz",
-                    timeout=5.0
-                )
-                assert response.status_code == 200, \
-                    f"{service_name} not healthy in chain"
+                response = await http_client.get(f"{SERVICES[service_name]}/healthz", timeout=5.0)
+                assert response.status_code == 200, f"{service_name} not healthy in chain"
             except Exception:
                 # Service might not be running in test environment
                 pytest.skip(f"{service_name} not available")
@@ -149,7 +136,7 @@ async def test_service_timeout_handling(http_client: AsyncClient):
     try:
         response = await http_client.get(
             f"{SERVICES['field_ops']}/healthz",
-            timeout=0.001  # 1ms - should timeout
+            timeout=0.001,  # 1ms - should timeout
         )
         # If it doesn't timeout, that's also OK (service is very fast)
         assert response.status_code in [200, 408, 504]
@@ -160,23 +147,20 @@ async def test_service_timeout_handling(http_client: AsyncClient):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_service_error_propagation(
-    http_client: AsyncClient,
-    service_headers: dict[str, str]
-):
+async def test_service_error_propagation(http_client: AsyncClient, service_headers: dict[str, str]):
     """
     Test error responses are properly propagated between services
     اختبار نشر الأخطاء بشكل صحيح بين الخدمات
     """
     # Test invalid request to field_ops
     response = await http_client.get(
-        f"{SERVICES['field_ops']}/api/v1/fields/invalid-field-id",
-        headers=service_headers
+        f"{SERVICES['field_ops']}/api/v1/fields/invalid-field-id", headers=service_headers
     )
 
     # Should return proper error response (404 or 400)
-    assert response.status_code in [400, 404, 422], \
+    assert response.status_code in [400, 404, 422], (
         "Service should return proper error code for invalid request"
+    )
 
     # Response should be JSON
     try:
@@ -200,21 +184,18 @@ async def test_concurrent_service_requests(http_client: AsyncClient):
     اختبار معالجة الخدمات للطلبات المتزامنة بشكل صحيح
     """
     # Send 10 concurrent health check requests
-    tasks = [
-        http_client.get(f"{SERVICES['field_ops']}/healthz", timeout=10.0)
-        for _ in range(10)
-    ]
+    tasks = [http_client.get(f"{SERVICES['field_ops']}/healthz", timeout=10.0) for _ in range(10)]
 
     responses = await asyncio.gather(*tasks, return_exceptions=True)
 
     # All requests should succeed
     successful_requests = [
-        r for r in responses
-        if isinstance(r, httpx.Response) and r.status_code == 200
+        r for r in responses if isinstance(r, httpx.Response) and r.status_code == 200
     ]
 
-    assert len(successful_requests) >= 8, \
+    assert len(successful_requests) >= 8, (
         f"At least 8/10 concurrent requests should succeed, got {len(successful_requests)}"
+    )
 
 
 @pytest.mark.integration
@@ -233,13 +214,9 @@ async def test_service_communication_parallelism(http_client: AsyncClient):
     results = await asyncio.gather(*tasks.values(), return_exceptions=True)
 
     # At least 2 services should respond successfully
-    successful = sum(
-        1 for r in results
-        if isinstance(r, httpx.Response) and r.status_code == 200
-    )
+    successful = sum(1 for r in results if isinstance(r, httpx.Response) and r.status_code == 200)
 
-    assert successful >= 2, \
-        f"At least 2 services should respond, got {successful}"
+    assert successful >= 2, f"At least 2 services should respond, got {successful}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -250,8 +227,7 @@ async def test_service_communication_parallelism(http_client: AsyncClient):
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_service_to_service_auth_headers(
-    http_client: AsyncClient,
-    service_headers: dict[str, str]
+    http_client: AsyncClient, service_headers: dict[str, str]
 ):
     """
     Test services properly validate authentication headers
@@ -264,20 +240,19 @@ async def test_service_to_service_auth_headers(
     }
 
     response = await http_client.get(
-        f"{SERVICES['field_ops']}/api/v1/fields",
-        headers=headers_no_tenant
+        f"{SERVICES['field_ops']}/api/v1/fields", headers=headers_no_tenant
     )
 
     # Should either reject (401/403) or accept with default tenant
-    assert response.status_code in [200, 401, 403, 422], \
+    assert response.status_code in [200, 401, 403, 422], (
         f"Unexpected status code: {response.status_code}"
+    )
 
 
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_service_request_id_propagation(
-    http_client: AsyncClient,
-    service_headers: dict[str, str]
+    http_client: AsyncClient, service_headers: dict[str, str]
 ):
     """
     Test request ID is propagated across service calls
@@ -286,10 +261,7 @@ async def test_service_request_id_propagation(
     request_id = "test-request-123-unique"
     headers = {**service_headers, "X-Request-ID": request_id}
 
-    response = await http_client.get(
-        f"{SERVICES['field_ops']}/healthz",
-        headers=headers
-    )
+    response = await http_client.get(f"{SERVICES['field_ops']}/healthz", headers=headers)
 
     # Check if request ID is in response headers or body
     response_headers = dict(response.headers)
@@ -335,18 +307,16 @@ async def test_service_graceful_degradation(http_client: AsyncClient):
 
     for service_name, service_url in SERVICES.items():
         try:
-            response = await http_client.get(
-                f"{service_url}/healthz",
-                timeout=3.0
-            )
+            response = await http_client.get(f"{service_url}/healthz", timeout=3.0)
             if response.status_code == 200:
                 available_services.append(service_name)
         except Exception:
             pass
 
     # At least one service should be available
-    assert len(available_services) >= 1, \
+    assert len(available_services) >= 1, (
         "At least one service should be available for graceful degradation"
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -387,13 +357,11 @@ async def test_service_cors_headers(http_client: AsyncClient):
     """
     # Send OPTIONS request (CORS preflight)
     response = await http_client.options(
-        f"{SERVICES['field_ops']}/healthz",
-        headers={"Origin": "http://localhost:3000"}
+        f"{SERVICES['field_ops']}/healthz", headers={"Origin": "http://localhost:3000"}
     )
 
     # Should either support CORS or handle OPTIONS
-    assert response.status_code in [200, 204, 404], \
-        "Service should handle OPTIONS requests"
+    assert response.status_code in [200, 204, 404], "Service should handle OPTIONS requests"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -418,8 +386,7 @@ async def test_service_response_time_basic(http_client: AsyncClient):
 
     assert response.status_code == 200
     # Health check should respond within 5 seconds
-    assert response_time < 5.0, \
-        f"Health check took {response_time:.2f}s (should be < 5s)"
+    assert response_time < 5.0, f"Health check took {response_time:.2f}s (should be < 5s)"
 
 
 @pytest.mark.integration
@@ -437,10 +404,7 @@ async def test_service_sustained_load(http_client: AsyncClient):
 
     for i in range(total_requests):
         try:
-            response = await http_client.get(
-                f"{SERVICES['field_ops']}/healthz",
-                timeout=5.0
-            )
+            response = await http_client.get(f"{SERVICES['field_ops']}/healthz", timeout=5.0)
             if response.status_code == 200:
                 successful_requests += 1
             else:
@@ -453,8 +417,7 @@ async def test_service_sustained_load(http_client: AsyncClient):
 
     # At least 80% success rate
     success_rate = successful_requests / total_requests
-    assert success_rate >= 0.8, \
-        f"Success rate {success_rate:.1%} is below 80% threshold"
+    assert success_rate >= 0.8, f"Success rate {success_rate:.1%} is below 80% threshold"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -464,24 +427,15 @@ async def test_service_sustained_load(http_client: AsyncClient):
 
 @pytest.mark.integration
 @pytest.mark.asyncio
-async def test_service_idempotency(
-    http_client: AsyncClient,
-    service_headers: dict[str, str]
-):
+async def test_service_idempotency(http_client: AsyncClient, service_headers: dict[str, str]):
     """
     Test idempotent operations return same results
     اختبار إرجاع العمليات المتطابقة لنفس النتائج
     """
     # Health check should be idempotent
-    response1 = await http_client.get(
-        f"{SERVICES['field_ops']}/healthz",
-        headers=service_headers
-    )
+    response1 = await http_client.get(f"{SERVICES['field_ops']}/healthz", headers=service_headers)
 
-    response2 = await http_client.get(
-        f"{SERVICES['field_ops']}/healthz",
-        headers=service_headers
-    )
+    response2 = await http_client.get(f"{SERVICES['field_ops']}/healthz", headers=service_headers)
 
     assert response1.status_code == response2.status_code
     # Both should succeed or both should fail the same way
@@ -498,8 +452,7 @@ async def test_service_api_versioning(http_client: AsyncClient):
     response = await http_client.get(f"{SERVICES['field_ops']}/api/v1/healthz")
 
     # Should either work or redirect
-    assert response.status_code in [200, 301, 302, 404], \
-        "Service should handle versioned API paths"
+    assert response.status_code in [200, 301, 302, 404], "Service should handle versioned API paths"
 
 
 @pytest.mark.integration

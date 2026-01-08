@@ -40,20 +40,14 @@ class ChecklistItem(BaseModel):
     description_en: str = Field(..., description="Detailed description in English")
     description_ar: str = Field(..., description="Detailed description in Arabic")
 
-    compliance_level: ComplianceLevel = Field(
-        ..., description="Compliance level requirement"
-    )
+    compliance_level: ComplianceLevel = Field(..., description="Compliance level requirement")
 
     evidence_required: list[str] = Field(
         default_factory=list, description="Types of evidence required"
     )
 
-    guidance_en: str | None = Field(
-        None, description="Implementation guidance in English"
-    )
-    guidance_ar: str | None = Field(
-        None, description="Implementation guidance in Arabic"
-    )
+    guidance_en: str | None = Field(None, description="Implementation guidance in English")
+    guidance_ar: str | None = Field(None, description="Implementation guidance in Arabic")
 
     applicable_to: list[str] = Field(
         default_factory=lambda: ["FV"],
@@ -116,9 +110,7 @@ class ComplianceRequirement(BaseModel):
     compliance_level: ComplianceLevel = Field(..., description="Requirement level")
     total_items: int = Field(..., description="Total applicable items")
     compliant_items: int = Field(default=0, description="Number of compliant items")
-    non_compliant_items: int = Field(
-        default=0, description="Number of non-compliant items"
-    )
+    non_compliant_items: int = Field(default=0, description="Number of non-compliant items")
     not_applicable_items: int = Field(default=0, description="Number of N/A items")
 
     @property
@@ -218,9 +210,7 @@ class NonConformance(BaseModel):
     identified_date: datetime = Field(..., description="Date identified")
     due_date: datetime = Field(..., description="Correction due date")
 
-    status: str = Field(
-        default="OPEN", description="NC status (OPEN, CLOSED, VERIFIED)"
-    )
+    status: str = Field(default="OPEN", description="NC status (OPEN, CLOSED, VERIFIED)")
 
     auditor_id: str = Field(..., description="Identifying auditor ID")
     farm_id: str = Field(..., description="Farm/producer ID")
@@ -270,23 +260,15 @@ class CorrectiveAction(BaseModel):
         default=CorrectiveActionStatus.PLANNED, description="Action status"
     )
 
-    effectiveness_verified: bool = Field(
-        default=False, description="Effectiveness verified"
-    )
+    effectiveness_verified: bool = Field(default=False, description="Effectiveness verified")
     verification_date: datetime | None = Field(None, description="Verification date")
-    verification_notes_en: str | None = Field(
-        None, description="Verification notes in English"
-    )
-    verification_notes_ar: str | None = Field(
-        None, description="Verification notes in Arabic"
-    )
+    verification_notes_en: str | None = Field(None, description="Verification notes in English")
+    verification_notes_ar: str | None = Field(None, description="Verification notes in Arabic")
 
     evidence_documents: list[str] = Field(
         default_factory=list, description="Supporting document URLs"
     )
-    evidence_photos: list[str] = Field(
-        default_factory=list, description="Supporting photo URLs"
-    )
+    evidence_photos: list[str] = Field(default_factory=list, description="Supporting photo URLs")
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -330,9 +312,7 @@ class ProducerProfile(BaseModel):
 
     # Contact Person
     contact_person_en: str = Field(..., description="Contact person name in English")
-    contact_person_ar: str | None = Field(
-        None, description="Contact person name in Arabic"
-    )
+    contact_person_ar: str | None = Field(None, description="Contact person name in Arabic")
     contact_position: str | None = Field(None, description="Contact person position")
 
     # Website and Social
@@ -373,12 +353,8 @@ class FarmRegistration(BaseModel):
     farm_name_en: str = Field(..., description="Farm name in English")
     farm_name_ar: str = Field(..., description="Farm name in Arabic")
 
-    farm_size_hectares: float = Field(
-        ..., description="Total farm size in hectares", gt=0
-    )
-    certified_area_hectares: float = Field(
-        ..., description="Certified area in hectares", gt=0
-    )
+    farm_size_hectares: float = Field(..., description="Total farm size in hectares", gt=0)
+    certified_area_hectares: float = Field(..., description="Certified area in hectares", gt=0)
 
     # Location
     country_code: str = Field(..., description="Country code (ISO 2-letter)")
@@ -396,9 +372,7 @@ class FarmRegistration(BaseModel):
     product_types_en: list[str] = Field(
         default_factory=list, description="Product types in English"
     )
-    product_types_ar: list[str] = Field(
-        default_factory=list, description="Product types in Arabic"
-    )
+    product_types_ar: list[str] = Field(default_factory=list, description="Product types in Arabic")
 
     # Certification Body
     certification_body: str | None = Field(None, description="CB name")
@@ -416,9 +390,7 @@ class FarmRegistration(BaseModel):
     parallel_production: bool = Field(
         default=False, description="Parallel production with non-certified"
     )
-    parallel_ownership: bool = Field(
-        default=False, description="Parallel ownership situations"
-    )
+    parallel_ownership: bool = Field(default=False, description="Parallel ownership situations")
 
     # Registration Dates
     registration_date: datetime = Field(default_factory=datetime.utcnow)
@@ -437,9 +409,7 @@ class FarmRegistration(BaseModel):
         import re
 
         if not re.match(GGN_FORMAT_PATTERN, v):
-            raise ValueError(
-                "GGN must be 13 digits starting with 40 (e.g., 4000000000000)"
-            )
+            raise ValueError("GGN must be 13 digits starting with 40 (e.g., 4000000000000)")
         return v
 
     @validator("certified_area_hectares")
@@ -472,9 +442,7 @@ class AuditSession(BaseModel):
     ggn: str = Field(..., description="GlobalGAP Number")
 
     audit_type: AuditType = Field(..., description="Type of audit")
-    audit_scope: list[str] = Field(
-        default_factory=lambda: ["FV"], description="Audit scope"
-    )
+    audit_scope: list[str] = Field(default_factory=lambda: ["FV"], description="Audit scope")
 
     # Audit Team
     lead_auditor_id: str = Field(..., description="Lead auditor ID")
@@ -496,9 +464,7 @@ class AuditSession(BaseModel):
     )
 
     # Results
-    findings: list[AuditFinding] = Field(
-        default_factory=list, description="Audit findings"
-    )
+    findings: list[AuditFinding] = Field(default_factory=list, description="Audit findings")
     non_conformances: list[NonConformance] = Field(
         default_factory=list, description="Non-conformances"
     )
@@ -513,9 +479,7 @@ class AuditSession(BaseModel):
 
     # Report
     report_url: str | None = Field(None, description="Audit report URL")
-    report_issued_date: datetime | None = Field(
-        None, description="Report issue date"
-    )
+    report_issued_date: datetime | None = Field(None, description="Report issue date")
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

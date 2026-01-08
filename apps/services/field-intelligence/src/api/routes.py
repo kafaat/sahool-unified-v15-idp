@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, Header, Path, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query
 
 from ..models.events import EventCreate, EventResponse, EventStatus, EventType
 from ..models.rules import (
@@ -43,9 +43,7 @@ event_processor = EventProcessor(rules_engine)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def get_tenant_id(
-    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
-) -> str:
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
     """استخراج معرف المستأجر من الرأس"""
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
@@ -78,21 +76,18 @@ async def create_event(
 
         # جلب القواعد النشطة للمستأجر
         tenant_rules = [
-            r for r in rules_db.values()
+            r
+            for r in rules_db.values()
             if r.tenant_id == tenant_id and r.status == RuleStatus.ACTIVE
         ]
 
         # معالجة الحدث
-        event_response = await event_processor.process_event(
-            event_data, tenant_rules
-        )
+        event_response = await event_processor.process_event(event_data, tenant_rules)
 
         # حفظ الحدث
         events_db[event_response.event_id] = event_response
 
-        logger.info(
-            f"✓ تم إنشاء حدث {event_response.event_id} للحقل {event_data.field_id}"
-        )
+        logger.info(f"✓ تم إنشاء حدث {event_response.event_id} للحقل {event_data.field_id}")
 
         return event_response
 
@@ -215,13 +210,13 @@ async def get_field_event_stats(
     """
     # فلترة أحداث الحقل
     field_events = [
-        e for e in events_db.values()
-        if e.tenant_id == tenant_id and e.field_id == field_id
+        e for e in events_db.values() if e.tenant_id == tenant_id and e.field_id == field_id
     ]
 
     # فلترة حسب الفترة الزمنية
     cutoff = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
     from datetime import timedelta
+
     cutoff = cutoff - timedelta(days=days)
 
     recent_events = [e for e in field_events if e.created_at >= cutoff]
@@ -344,17 +339,11 @@ async def list_rules(
     filtered = [r for r in rules_db.values() if r.tenant_id == tenant_id]
 
     if field_id:
-        filtered = [
-            r for r in filtered
-            if not r.field_ids or field_id in r.field_ids
-        ]
+        filtered = [r for r in filtered if not r.field_ids or field_id in r.field_ids]
     if status:
         filtered = [r for r in filtered if r.status == status]
     if event_type:
-        filtered = [
-            r for r in filtered
-            if not r.event_types or event_type in r.event_types
-        ]
+        filtered = [r for r in filtered if not r.event_types or event_type in r.event_types]
 
     # الترتيب (حسب الأولوية)
     filtered.sort(key=lambda r: r.priority)

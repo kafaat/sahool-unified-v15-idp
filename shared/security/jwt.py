@@ -64,14 +64,10 @@ def validate_jwt_configuration() -> bool:
     if env in ("production", "staging"):
         if JWT_ALGORITHM.startswith("RS"):
             if not JWT_PUBLIC_KEY or not JWT_PRIVATE_KEY:
-                raise RuntimeError(
-                    "RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY"
-                )
+                raise RuntimeError("RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY")
         else:
             if not JWT_SECRET_KEY or len(JWT_SECRET_KEY) < 32:
-                raise RuntimeError(
-                    "JWT_SECRET_KEY must be at least 32 characters in production"
-                )
+                raise RuntimeError("JWT_SECRET_KEY must be at least 32 characters in production")
 
     return True
 
@@ -147,15 +143,11 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
 
         # Reject 'none' algorithm explicitly
         if algorithm.lower() == "none":
-            raise AuthError(
-                "Invalid token: none algorithm not allowed", "invalid_token"
-            )
+            raise AuthError("Invalid token: none algorithm not allowed", "invalid_token")
 
         # Verify algorithm is in whitelist
         if algorithm not in ALLOWED_ALGORITHMS:
-            raise AuthError(
-                f"Invalid token: unsupported algorithm {algorithm}", "invalid_token"
-            )
+            raise AuthError(f"Invalid token: unsupported algorithm {algorithm}", "invalid_token")
 
         # SECURITY FIX: Use hardcoded whitelist instead of environment variable
         payload = jwt.decode(
@@ -205,9 +197,7 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
                     logger.warning(
                         f"Revoked token used: user={user_id}, jti={jti}, reason={reason}"
                     )
-                    raise AuthError(
-                        f"Token has been revoked: {reason}", "token_revoked"
-                    )
+                    raise AuthError(f"Token has been revoked: {reason}", "token_revoked")
 
             except ImportError:
                 # Revocation service not available, skip check

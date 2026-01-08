@@ -42,9 +42,7 @@ class RegistryStorage:
         """List all agents / قائمة بجميع الوكلاء"""
         raise NotImplementedError
 
-    async def save_health_status(
-        self, agent_id: str, status: HealthCheckResult
-    ) -> bool:
+    async def save_health_status(self, agent_id: str, status: HealthCheckResult) -> bool:
         """Save health status / حفظ حالة الصحة"""
         raise NotImplementedError
 
@@ -91,9 +89,7 @@ class InMemoryStorage(RegistryStorage):
         """List all agents from memory"""
         return list(self._agents.values())
 
-    async def save_health_status(
-        self, agent_id: str, status: HealthCheckResult
-    ) -> bool:
+    async def save_health_status(self, agent_id: str, status: HealthCheckResult) -> bool:
         """Save health status in memory"""
         self._health_status[agent_id] = status
         return True
@@ -184,9 +180,7 @@ class RedisStorage(RegistryStorage):
             return True
 
         except Exception as e:
-            self._logger.error(
-                "save_agent_failed", agent_id=agent_card.agent_id, error=str(e)
-            )
+            self._logger.error("save_agent_failed", agent_id=agent_card.agent_id, error=str(e))
             raise
 
     async def get_agent(self, agent_id: str) -> AgentCard | None:
@@ -254,9 +248,7 @@ class RedisStorage(RegistryStorage):
             self._logger.error("list_agents_failed", error=str(e))
             raise
 
-    async def save_health_status(
-        self, agent_id: str, status: HealthCheckResult
-    ) -> bool:
+    async def save_health_status(self, agent_id: str, status: HealthCheckResult) -> bool:
         """Save health status to Redis"""
         if not self._redis:
             raise RuntimeError("Redis not connected")
@@ -271,9 +263,7 @@ class RedisStorage(RegistryStorage):
             return True
 
         except Exception as e:
-            self._logger.error(
-                "save_health_status_failed", agent_id=agent_id, error=str(e)
-            )
+            self._logger.error("save_health_status_failed", agent_id=agent_id, error=str(e))
             raise
 
     async def get_health_status(self, agent_id: str) -> HealthCheckResult | None:
@@ -292,7 +282,5 @@ class RedisStorage(RegistryStorage):
             return HealthCheckResult(**status_data)
 
         except Exception as e:
-            self._logger.error(
-                "get_health_status_failed", agent_id=agent_id, error=str(e)
-            )
+            self._logger.error("get_health_status_failed", agent_id=agent_id, error=str(e))
             raise

@@ -63,9 +63,7 @@ class A2AServer:
         await websocket.accept()
         self.active_connections[client_id] = websocket
 
-        logger.info(
-            "websocket_connected", client_id=client_id, agent_id=self.agent.agent_id
-        )
+        logger.info("websocket_connected", client_id=client_id, agent_id=self.agent.agent_id)
 
         try:
             while True:
@@ -104,17 +102,13 @@ class A2AServer:
                         error_message=str(e),
                     )
                     await websocket.send_text(error.json())
-                    logger.error(
-                        "websocket_message_error", client_id=client_id, error=str(e)
-                    )
+                    logger.error("websocket_message_error", client_id=client_id, error=str(e))
 
         except WebSocketDisconnect:
             logger.info("websocket_disconnected", client_id=client_id)
 
         except Exception as e:
-            logger.error(
-                "websocket_connection_error", client_id=client_id, error=str(e)
-            )
+            logger.error("websocket_connection_error", client_id=client_id, error=str(e))
 
         finally:
             # Clean up connection
@@ -134,9 +128,7 @@ class A2AServer:
 
         # Send progress updates via callback
         # إرسال تحديثات التقدم عبر callback
-        async def progress_callback(
-            progress: float, partial_result: dict[str, Any] | None
-        ):
+        async def progress_callback(progress: float, partial_result: dict[str, Any] | None):
             """Send progress update to client"""
             update = TaskResultMessage(
                 sender_agent_id=self.agent.agent_id,
@@ -264,9 +256,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
             return TaskResultMessage(
                 sender_agent_id=agent.agent_id,
                 receiver_agent_id=(
-                    task.sender_agent_id
-                    if hasattr(task, "sender_agent_id")
-                    else "unknown"
+                    task.sender_agent_id if hasattr(task, "sender_agent_id") else "unknown"
                 ),
                 conversation_id=(
                     task.conversation_id if hasattr(task, "conversation_id") else None
@@ -321,9 +311,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
 
         except Exception as e:
             logger.error("task_status_error", task_id=task_id, error=str(e))
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     @router.get(
         "/stats",
@@ -348,9 +336,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
 
         except Exception as e:
             logger.error("stats_error", agent_id=agent.agent_id, error=str(e))
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     @router.get(
         "/conversations/{conversation_id}",
@@ -390,9 +376,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
                 conversation_id=conversation_id,
                 error=str(e),
             )
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     @router.delete(
         "/tasks/{task_id}",
@@ -448,9 +432,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
 
         except Exception as e:
             logger.error("task_cancellation_error", task_id=task_id, error=str(e))
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     @router.websocket("/ws/{client_id}")
     async def websocket_endpoint(websocket: WebSocket, client_id: str):
@@ -463,9 +445,7 @@ def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:
         """
         await server.handle_websocket_connection(websocket, client_id)
 
-    @router.get(
-        "/health", summary="Health Check", description="Agent health check endpoint"
-    )
+    @router.get("/health", summary="Health Check", description="Agent health check endpoint")
     async def health_check() -> dict[str, Any]:
         """
         Health check endpoint

@@ -6,16 +6,16 @@ Examples of using SAHOOL File Validation Module
 import asyncio
 from pathlib import Path
 
+from .mime_types import (
+    ALLOWED_DOCUMENT_TYPES,
+    ALLOWED_IMAGE_TYPES,
+    get_mime_from_magic_bytes,
+)
 from .validators import (
-    FileValidator,
     FileValidationConfig,
     FileValidationError,
+    FileValidator,
     sanitize_filename,
-)
-from .mime_types import (
-    ALLOWED_IMAGE_TYPES,
-    ALLOWED_DOCUMENT_TYPES,
-    get_mime_from_magic_bytes,
 )
 from .virus_scanner import get_virus_scanner
 
@@ -34,14 +34,12 @@ async def example_basic_validation():
     validator = FileValidator()
 
     # Sample PNG file content (just the header)
-    png_header = b'\x89PNG\r\n\x1a\n'
-    sample_content = png_header + b'\x00' * 1000  # Add some padding
+    png_header = b"\x89PNG\r\n\x1a\n"
+    sample_content = png_header + b"\x00" * 1000  # Add some padding
 
     try:
         result = await validator.validate(
-            file_content=sample_content,
-            filename="test_image.png",
-            declared_mime_type="image/png"
+            file_content=sample_content, filename="test_image.png", declared_mime_type="image/png"
         )
 
         print("\n✅ Validation successful!")
@@ -80,18 +78,16 @@ async def example_custom_configuration():
     validator = FileValidator(config=config)
 
     # Sample PDF content
-    pdf_header = b'%PDF-1.4'
-    sample_pdf = pdf_header + b'\x00' * 2000
+    pdf_header = b"%PDF-1.4"
+    sample_pdf = pdf_header + b"\x00" * 2000
 
     try:
         result = await validator.validate(
-            file_content=sample_pdf,
-            filename="document.pdf",
-            declared_mime_type="application/pdf"
+            file_content=sample_pdf, filename="document.pdf", declared_mime_type="application/pdf"
         )
 
         print("\n✅ PDF validation successful!")
-        print(f"Configuration: max_size={config.max_file_size / (1024*1024)}MB")
+        print(f"Configuration: max_size={config.max_file_size / (1024 * 1024)}MB")
         print(f"Allowed types: {len(config.allowed_mime_types)} document types")
         print(f"Validated file: {result['safe_filename']}")
 
@@ -113,7 +109,7 @@ async def example_virus_scanning():
     virus_scanner = get_virus_scanner(
         scanner_type="clamav",  # Change to "noop" if ClamAV not available
         host="localhost",
-        port=3310
+        port=3310,
     )
 
     # Check if scanner is available
@@ -134,17 +130,15 @@ async def example_virus_scanning():
     validator = FileValidator(config=config, virus_scanner=virus_scanner)
 
     # Sample image
-    jpg_header = b'\xff\xd8\xff'
-    sample_image = jpg_header + b'\x00' * 5000
+    jpg_header = b"\xff\xd8\xff"
+    sample_image = jpg_header + b"\x00" * 5000
 
     try:
         result = await validator.validate(
-            file_content=sample_image,
-            filename="photo.jpg",
-            declared_mime_type="image/jpeg"
+            file_content=sample_image, filename="photo.jpg", declared_mime_type="image/jpeg"
         )
 
-        print(f"\n✅ Validation with virus scanning successful!")
+        print("\n✅ Validation with virus scanning successful!")
         print(f"Scanned for viruses: {result['scanned_for_viruses']}")
 
     except FileValidationError as e:
@@ -163,15 +157,15 @@ async def example_mime_type_detection():
 
     # Test different file types
     test_files = [
-        (b'\xff\xd8\xff', "JPEG"),
-        (b'\x89PNG\r\n\x1a\n', "PNG"),
-        (b'GIF89a', "GIF"),
-        (b'%PDF', "PDF"),
-        (b'PK\x03\x04', "ZIP/Office"),
+        (b"\xff\xd8\xff", "JPEG"),
+        (b"\x89PNG\r\n\x1a\n", "PNG"),
+        (b"GIF89a", "GIF"),
+        (b"%PDF", "PDF"),
+        (b"PK\x03\x04", "ZIP/Office"),
     ]
 
     for magic_bytes, file_type in test_files:
-        sample = magic_bytes + b'\x00' * 100
+        sample = magic_bytes + b"\x00" * 100
         detected_mime = get_mime_from_magic_bytes(sample)
         print(f"{file_type:15} -> {detected_mime}")
 
@@ -222,7 +216,7 @@ async def example_error_handling():
 
     # Test 1: File too large
     print("\nTest 1: File too large")
-    large_file = b'\x89PNG\r\n\x1a\n' + b'\x00' * 2000  # 2KB
+    large_file = b"\x89PNG\r\n\x1a\n" + b"\x00" * 2000  # 2KB
     try:
         await validator.validate(large_file, "large.png", "image/png")
     except FileValidationError as e:
@@ -231,13 +225,13 @@ async def example_error_handling():
     # Test 2: Empty file
     print("\nTest 2: Empty file")
     try:
-        await validator.validate(b'', "empty.png", "image/png")
+        await validator.validate(b"", "empty.png", "image/png")
     except FileValidationError as e:
         print(f"❌ {e.error_code}: {e.message}")
 
     # Test 3: Invalid MIME type
     print("\nTest 3: Invalid MIME type")
-    pdf_content = b'%PDF-1.4' + b'\x00' * 100
+    pdf_content = b"%PDF-1.4" + b"\x00" * 100
     try:
         await validator.validate(pdf_content, "doc.pdf", "application/pdf")
     except FileValidationError as e:
@@ -245,7 +239,7 @@ async def example_error_handling():
 
     # Test 4: MIME mismatch (declared PNG, actually JPEG)
     print("\nTest 4: MIME type mismatch")
-    jpg_content = b'\xff\xd8\xff' + b'\x00' * 100
+    jpg_content = b"\xff\xd8\xff" + b"\x00" * 100
     try:
         await validator.validate(jpg_content, "fake.png", "image/png")
     except FileValidationError as e:
@@ -266,10 +260,10 @@ async def example_batch_validation():
 
     # Sample files
     files = [
-        (b'\x89PNG\r\n\x1a\n' + b'\x00' * 1000, "image1.png", "image/png"),
-        (b'\xff\xd8\xff' + b'\x00' * 1000, "image2.jpg", "image/jpeg"),
-        (b'GIF89a' + b'\x00' * 1000, "image3.gif", "image/gif"),
-        (b'%PDF-1.4' + b'\x00' * 1000, "doc.pdf", "application/pdf"),  # Should fail
+        (b"\x89PNG\r\n\x1a\n" + b"\x00" * 1000, "image1.png", "image/png"),
+        (b"\xff\xd8\xff" + b"\x00" * 1000, "image2.jpg", "image/jpeg"),
+        (b"GIF89a" + b"\x00" * 1000, "image3.gif", "image/gif"),
+        (b"%PDF-1.4" + b"\x00" * 1000, "doc.pdf", "application/pdf"),  # Should fail
     ]
 
     valid_files = []
@@ -284,7 +278,7 @@ async def example_batch_validation():
             invalid_files.append((filename, e.error_code))
             print(f"❌ {filename}: {e.error_code}")
 
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"Valid files: {len(valid_files)}")
     print(f"Invalid files: {len(invalid_files)}")
 

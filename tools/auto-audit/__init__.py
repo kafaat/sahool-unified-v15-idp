@@ -29,6 +29,7 @@ from .hashchain_validator import HashChainValidator
 # Conditional import for agent (requires A2A protocol)
 try:
     from .agent import AuditAgent, create_audit_agent
+
     _AGENT_AVAILABLE = True
 except ImportError:
     _AGENT_AVAILABLE = False

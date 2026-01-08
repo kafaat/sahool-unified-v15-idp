@@ -229,9 +229,7 @@ class TestTaskWorkflow:
         task_id = create_response.json()["task_id"]
 
         # Cancel the task
-        response = client.post(
-            f"/api/v1/tasks/{task_id}/cancel?reason=Weather%20conditions"
-        )
+        response = client.post(f"/api/v1/tasks/{task_id}/cancel?reason=Weather%20conditions")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "cancelled"
@@ -271,9 +269,7 @@ class TestTaskEvidence:
     def test_add_note_evidence(self, client):
         """Test adding note evidence to a task"""
         response = client.post(
-            "/api/v1/tasks/task_001/evidence"
-            "?evidence_type=note"
-            "&content=Field%20looks%20healthy"
+            "/api/v1/tasks/task_001/evidence?evidence_type=note&content=Field%20looks%20healthy"
         )
         assert response.status_code == 201
         data = response.json()

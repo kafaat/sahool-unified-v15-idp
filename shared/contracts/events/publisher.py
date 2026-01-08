@@ -63,9 +63,7 @@ class EventPublisher:
 
             if self._nats:
                 await self._nats.publish(subject, payload)
-                logger.info(
-                    f"Published event: {event.event_type} (id={event.event_id})"
-                )
+                logger.info(f"Published event: {event.event_type} (id={event.event_id})")
             else:
                 # Fallback: log event for debugging
                 logger.warning(f"No NATS client - logging event: {event}")

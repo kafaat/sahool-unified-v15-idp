@@ -69,9 +69,7 @@ class SensitiveDataMasker:
             re.IGNORECASE,
         ),
         # JWT Tokens
-        "jwt": re.compile(
-            r"(eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,})"
-        ),
+        "jwt": re.compile(r"(eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,})"),
         # Credit Card Numbers (basic pattern)
         "credit_card": re.compile(r"\b([0-9]{4}[\s\-]?){3}[0-9]{4}\b"),
         # Email addresses (optional - only mask domain part)
@@ -102,9 +100,7 @@ class SensitiveDataMasker:
     }
 
     @classmethod
-    def mask_string(
-        cls, text: str, mask_char: str = "*", preserve_length: bool = False
-    ) -> str:
+    def mask_string(cls, text: str, mask_char: str = "*", preserve_length: bool = False) -> str:
         """
         Mask sensitive data in a string.
         إخفاء البيانات الحساسة في سلسلة نصية.
@@ -128,7 +124,11 @@ class SensitiveDataMasker:
                 result = pattern.sub(r"\1***REDACTED***\3", result)
             elif pattern_name == "bearer_token":
                 result = pattern.sub(r"\1***REDACTED***", result)
-            elif pattern_name == "access_token" or pattern_name == "auth_header" or pattern_name == "database_url":
+            elif (
+                pattern_name == "access_token"
+                or pattern_name == "auth_header"
+                or pattern_name == "database_url"
+            ):
                 result = pattern.sub(r"\1***REDACTED***\3", result)
             elif pattern_name == "aws_access_key":
                 result = pattern.sub(r"***AWS_KEY_REDACTED***", result)
@@ -182,7 +182,9 @@ class SensitiveDataMasker:
                     (
                         cls.mask_dict(item, deep=True)
                         if isinstance(item, dict)
-                        else cls.mask_string(item) if isinstance(item, str) else item
+                        else cls.mask_string(item)
+                        if isinstance(item, str)
+                        else item
                     )
                     for item in value
                 ]
@@ -361,9 +363,7 @@ class ServiceLogger:
 
     def critical(self, message: str, exc_info: bool = True, **kwargs: Any) -> None:
         """Log critical message."""
-        self._log(
-            logging.CRITICAL, message, kwargs if kwargs else None, exc_info=exc_info
-        )
+        self._log(logging.CRITICAL, message, kwargs if kwargs else None, exc_info=exc_info)
 
     def exception(self, message: str, **kwargs: Any) -> None:
         """Log exception with traceback."""

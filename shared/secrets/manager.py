@@ -106,9 +106,7 @@ class SecretBackend(str, Enum):
         try:
             return cls(backend)
         except ValueError:
-            logger.warning(
-                f"Unknown SECRET_BACKEND '{backend}', defaulting to environment"
-            )
+            logger.warning(f"Unknown SECRET_BACKEND '{backend}', defaulting to environment")
             return cls.ENVIRONMENT
 
 
@@ -203,9 +201,7 @@ class EnvironmentSecretsProvider(SecretsProvider):
     async def set_secret(self, path: str, value: Any) -> None:
         env_var = self._path_to_env_var(path)
         os.environ[env_var] = str(value)
-        logger.warning(
-            f"Set secret in environment (not persistent): {env_var}"
-        )
+        logger.warning(f"Set secret in environment (not persistent): {env_var}")
 
     async def delete_secret(self, path: str) -> None:
         env_var = self._path_to_env_var(path)
@@ -294,8 +290,7 @@ class AWSSecretsProvider(SecretsProvider):
             return True
         except ImportError:
             raise ImportError(
-                "boto3 library required for AWS Secrets Manager. "
-                "Install with: pip install boto3"
+                "boto3 library required for AWS Secrets Manager. Install with: pip install boto3"
             )
 
     async def disconnect(self) -> None:
@@ -323,9 +318,7 @@ class AWSSecretsProvider(SecretsProvider):
         secret_value = json.dumps(value) if isinstance(value, dict) else str(value)
 
         try:
-            self._client.put_secret_value(
-                SecretId=secret_name, SecretString=secret_value
-            )
+            self._client.put_secret_value(SecretId=secret_name, SecretString=secret_value)
         except self._client.exceptions.ResourceNotFoundException:
             self._client.create_secret(Name=secret_name, SecretString=secret_value)
 
@@ -334,9 +327,7 @@ class AWSSecretsProvider(SecretsProvider):
             raise ConnectionError("AWS client not connected")
 
         secret_name = f"{self._prefix}{path}"
-        self._client.delete_secret(
-            SecretId=secret_name, ForceDeleteWithoutRecovery=True
-        )
+        self._client.delete_secret(SecretId=secret_name, ForceDeleteWithoutRecovery=True)
 
     async def health_check(self) -> dict[str, Any]:
         return {
@@ -375,9 +366,7 @@ class AzureSecretsProvider(SecretsProvider):
                 raise ValueError("AZURE_KEY_VAULT_URL is required")
 
             credential = DefaultAzureCredential()
-            self._client = SecretClient(
-                vault_url=self._vault_url, credential=credential
-            )
+            self._client = SecretClient(vault_url=self._vault_url, credential=credential)
             self._connected = True
             logger.info("Azure Key Vault provider initialized")
             return True
@@ -466,9 +455,7 @@ class SecretsManager:
     """
 
     def __init__(self, config: SecretsManagerConfig | None = None):
-        self.config = config or SecretsManagerConfig(
-            backend=SecretBackend.from_env()
-        )
+        self.config = config or SecretsManagerConfig(backend=SecretBackend.from_env())
         self._provider: SecretsProvider | None = None
         self._initialized = False
 
@@ -494,18 +481,13 @@ class SecretsManager:
         try:
             await self._provider.connect()
             self._initialized = True
-            logger.info(
-                f"Secrets manager initialized with {self.config.backend.value} backend"
-            )
+            logger.info(f"Secrets manager initialized with {self.config.backend.value} backend")
             return True
         except Exception as e:
             logger.error(f"Failed to initialize secrets manager: {e}")
 
             # Fall back to environment if configured
-            if (
-                self.config.fallback_to_env
-                and self.config.backend != SecretBackend.ENVIRONMENT
-            ):
+            if self.config.fallback_to_env and self.config.backend != SecretBackend.ENVIRONMENT:
                 logger.warning("Falling back to environment secrets provider")
                 self._provider = EnvironmentSecretsProvider()
                 await self._provider.connect()
@@ -520,9 +502,7 @@ class SecretsManager:
             await self._provider.disconnect()
         self._initialized = False
 
-    async def get_secret(
-        self, key: SecretKey | str, default: Any = None
-    ) -> Any:
+    async def get_secret(self, key: SecretKey | str, default: Any = None) -> Any:
         """
         Get a secret value.
 
@@ -545,10 +525,7 @@ class SecretsManager:
                 return default
 
             # Try fallback to environment
-            if (
-                self.config.fallback_to_env
-                and self.config.backend != SecretBackend.ENVIRONMENT
-            ):
+            if self.config.fallback_to_env and self.config.backend != SecretBackend.ENVIRONMENT:
                 env_var = path.replace("/", "_").upper()
                 value = os.getenv(env_var)
                 if value is not None:

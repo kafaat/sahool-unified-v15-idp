@@ -34,6 +34,7 @@ from typing import Any
 @dataclass
 class Parameter:
     """API parameter definition"""
+
     name: str
     type: str
     required: bool = False
@@ -46,6 +47,7 @@ class Parameter:
 @dataclass
 class RequestBody:
     """Request body schema"""
+
     schema: dict[str, Any]
     required: bool = True
     description: str = ""
@@ -57,6 +59,7 @@ class RequestBody:
 @dataclass
 class Response:
     """API response definition"""
+
     status_code: int
     description: str = ""
     description_ar: str = ""
@@ -67,6 +70,7 @@ class Response:
 @dataclass
 class Endpoint:
     """API endpoint definition"""
+
     path: str
     method: str
     summary: str = ""
@@ -86,6 +90,7 @@ class Endpoint:
 @dataclass
 class Service:
     """Service definition"""
+
     name: str
     title: str
     description: str = ""
@@ -98,6 +103,7 @@ class Service:
 
 class APICategory(str, Enum):
     """API categories for documentation"""
+
     AUTHENTICATION = "authentication"
     FIELD_MANAGEMENT = "field_management"
     SENSORS = "sensors"
@@ -207,7 +213,7 @@ class APIDocsGenerator:
                 description=description,
                 description_ar=description_ar,
                 version=version,
-                port=port
+                port=port,
             )
 
             # Extract endpoints
@@ -225,7 +231,7 @@ class APIDocsGenerator:
         match = re.search(r'title\s*=\s*["\']([^"\']+)["\']', content)
         if match:
             return match.group(1)
-        return default.replace('-', ' ').title()
+        return default.replace("-", " ").title()
 
     def _extract_description(self, content: str) -> str:
         """Extract service description"""
@@ -236,7 +242,7 @@ class APIDocsGenerator:
         # Try to get from docstring
         match = re.search(r'"""([^"]+)"""', content)
         if match:
-            lines = match.group(1).strip().split('\n')
+            lines = match.group(1).strip().split("\n")
             if lines:
                 return lines[0].strip()
         return ""
@@ -256,12 +262,15 @@ class APIDocsGenerator:
     def _extract_port(self, content: str) -> int:
         """Extract port number from main file"""
         # Look for Port: comment
-        match = re.search(r'Port:\s*(\d+)', content)
+        match = re.search(r"Port:\s*(\d+)", content)
         if match:
             return int(match.group(1))
 
         # Look for uvicorn.run port
-        match = re.search(r'port\s*=\s*(?:int\(os\.getenv\(["\']PORT["\']\s*,\s*["\']?(\d+)["\']?\)\)|(\d+))', content)
+        match = re.search(
+            r'port\s*=\s*(?:int\(os\.getenv\(["\']PORT["\']\s*,\s*["\']?(\d+)["\']?\)\)|(\d+))',
+            content,
+        )
         if match:
             return int(match.group(1) or match.group(2))
         return 8000
@@ -289,7 +298,7 @@ class APIDocsGenerator:
 
             # Get the function that follows
             func_start = match.end()
-            func_match = re.search(r'(?:async\s+)?def\s+(\w+)\s*\([^)]*\):', content[func_start:])
+            func_match = re.search(r"(?:async\s+)?def\s+(\w+)\s*\([^)]*\):", content[func_start:])
 
             if func_match:
                 func_name = func_match.group(1)
@@ -298,8 +307,8 @@ class APIDocsGenerator:
                 # Extract function docstring
                 docstring_match = re.search(
                     r'def\s+\w+[^:]+:\s*"""([^"]+)"""',
-                    content[func_def_start:func_def_start + 500],
-                    re.DOTALL
+                    content[func_def_start : func_def_start + 500],
+                    re.DOTALL,
                 )
 
                 summary = ""
@@ -309,7 +318,7 @@ class APIDocsGenerator:
 
                 if docstring_match:
                     docstring = docstring_match.group(1).strip()
-                    lines = [l.strip() for l in docstring.split('\n') if l.strip()]
+                    lines = [l.strip() for l in docstring.split("\n") if l.strip()]
 
                     if lines:
                         # First line is summary
@@ -323,23 +332,25 @@ class APIDocsGenerator:
 
                         # Rest is description
                         if len(lines) > 1:
-                            description = '\n'.join(lines[1:])
+                            description = "\n".join(lines[1:])
 
                 # Extract parameters
-                parameters = self._extract_parameters(content[func_def_start:func_def_start + 1000])
+                parameters = self._extract_parameters(
+                    content[func_def_start : func_def_start + 1000]
+                )
 
                 # Create endpoint
                 endpoint = Endpoint(
                     path=path,
                     method=method,
-                    summary=summary or func_name.replace('_', ' ').title(),
+                    summary=summary or func_name.replace("_", " ").title(),
                     summary_ar=summary_ar,
                     description=description,
                     description_ar=description_ar,
                     tags=[service_name],
                     parameters=parameters,
                     service_name=service_name,
-                    service_port=port
+                    service_port=port,
                 )
 
                 endpoints.append(endpoint)
@@ -351,7 +362,7 @@ class APIDocsGenerator:
         parameters = []
 
         # Look for Query parameters
-        query_pattern = r'(\w+)\s*:\s*\w+\s*=\s*Query\s*\([^)]*\)'
+        query_pattern = r"(\w+)\s*:\s*\w+\s*=\s*Query\s*\([^)]*\)"
         for match in re.finditer(query_pattern, func_content):
             param_name = match.group(1)
             param_def = match.group(0)
@@ -361,34 +372,35 @@ class APIDocsGenerator:
             description = desc_match.group(1) if desc_match else ""
 
             # Check if required (has ... or no default)
-            required = '...' in param_def
+            required = "..." in param_def
 
-            parameters.append(Parameter(
-                name=param_name,
-                type="string",
-                required=required,
-                description=description,
-                location="query"
-            ))
+            parameters.append(
+                Parameter(
+                    name=param_name,
+                    type="string",
+                    required=required,
+                    description=description,
+                    location="query",
+                )
+            )
 
         # Look for Path parameters
-        path_pattern = r'(\w+)\s*:\s*(\w+)\s*(?:,|\))'
+        path_pattern = r"(\w+)\s*:\s*(\w+)\s*(?:,|\))"
         for match in re.finditer(path_pattern, func_content):
             param_name = match.group(1)
-            if param_name not in ['request', 'response', 'background_tasks', 'db']:
+            if param_name not in ["request", "response", "background_tasks", "db"]:
                 param_type = match.group(2)
-                parameters.append(Parameter(
-                    name=param_name,
-                    type=param_type.lower(),
-                    required=True,
-                    location="path"
-                ))
+                parameters.append(
+                    Parameter(
+                        name=param_name, type=param_type.lower(), required=True, location="path"
+                    )
+                )
 
         return parameters
 
     def _contains_arabic(self, text: str) -> bool:
         """Check if text contains Arabic characters"""
-        return bool(re.search(r'[\u0600-\u06FF]', text))
+        return bool(re.search(r"[\u0600-\u06FF]", text))
 
     def _categorize_endpoints(self, service: Service):
         """Categorize endpoints by their purpose"""
@@ -402,55 +414,55 @@ class APIDocsGenerator:
         path_lower = path.lower()
 
         # Authentication
-        if 'auth' in service_lower or 'login' in path_lower or 'register' in path_lower:
+        if "auth" in service_lower or "login" in path_lower or "register" in path_lower:
             return APICategory.AUTHENTICATION
 
         # Field Management
-        if 'field' in service_lower and 'chat' not in service_lower:
+        if "field" in service_lower and "chat" not in service_lower:
             return APICategory.FIELD_MANAGEMENT
 
         # Sensors/IoT
-        if 'iot' in service_lower or 'sensor' in service_lower or 'virtual-sensor' in service_lower:
+        if "iot" in service_lower or "sensor" in service_lower or "virtual-sensor" in service_lower:
             return APICategory.SENSORS
 
         # Weather
-        if 'weather' in service_lower:
+        if "weather" in service_lower:
             return APICategory.WEATHER
 
         # Satellite
-        if 'satellite' in service_lower or 'ndvi' in service_lower or 'vegetation' in service_lower:
+        if "satellite" in service_lower or "ndvi" in service_lower or "vegetation" in service_lower:
             return APICategory.SATELLITE
 
         # AI/Analysis
-        if any(x in service_lower for x in ['ai', 'advisor', 'intelligence', 'crop-health-ai']):
+        if any(x in service_lower for x in ["ai", "advisor", "intelligence", "crop-health-ai"]):
             return APICategory.AI_ANALYSIS
 
         # Notifications
-        if 'notification' in service_lower or 'alert' in service_lower:
+        if "notification" in service_lower or "alert" in service_lower:
             return APICategory.NOTIFICATIONS
 
         # Crop Health
-        if 'crop' in service_lower and 'health' in service_lower:
+        if "crop" in service_lower and "health" in service_lower:
             return APICategory.CROP_HEALTH
 
         # Irrigation
-        if 'irrigation' in service_lower:
+        if "irrigation" in service_lower:
             return APICategory.IRRIGATION
 
         # Equipment
-        if 'equipment' in service_lower:
+        if "equipment" in service_lower:
             return APICategory.EQUIPMENT
 
         # Inventory
-        if 'inventory' in service_lower:
+        if "inventory" in service_lower:
             return APICategory.INVENTORY
 
         # Billing
-        if 'billing' in service_lower:
+        if "billing" in service_lower:
             return APICategory.BILLING
 
         # Tasks
-        if 'task' in service_lower:
+        if "task" in service_lower:
             return APICategory.TASKS
 
         return APICategory.MISC
@@ -471,10 +483,7 @@ class APIDocsGenerator:
                 "title": "SAHOOL Platform API",
                 "description": "Agricultural Intelligence Platform - منصة الذكاء الزراعي",
                 "version": "15.3.0",
-                "contact": {
-                    "name": "SAHOOL Support",
-                    "email": "support@sahool.com"
-                }
+                "contact": {"name": "SAHOOL Support", "email": "support@sahool.com"},
             },
             "servers": [],
             "paths": {},
@@ -484,36 +493,38 @@ class APIDocsGenerator:
                         "type": "http",
                         "scheme": "bearer",
                         "bearerFormat": "JWT",
-                        "description": "JWT authentication token"
+                        "description": "JWT authentication token",
                     },
                     "apiKeyAuth": {
                         "type": "apiKey",
                         "in": "header",
                         "name": "X-API-Key",
-                        "description": "API key for service-to-service communication"
-                    }
+                        "description": "API key for service-to-service communication",
+                    },
                 },
-                "schemas": {}
+                "schemas": {},
             },
-            "security": [
-                {"bearerAuth": []}
-            ],
-            "tags": []
+            "security": [{"bearerAuth": []}],
+            "tags": [],
         }
 
         # Add servers
         for service_name, service in self.services.items():
-            spec["servers"].append({
-                "url": f"http://localhost:{service.port}",
-                "description": f"{service.title} - {service.description}"
-            })
+            spec["servers"].append(
+                {
+                    "url": f"http://localhost:{service.port}",
+                    "description": f"{service.title} - {service.description}",
+                }
+            )
 
             # Add tag
-            spec["tags"].append({
-                "name": service_name,
-                "description": service.description,
-                "x-description-ar": service.description_ar
-            })
+            spec["tags"].append(
+                {
+                    "name": service_name,
+                    "description": service.description,
+                    "x-description-ar": service.description_ar,
+                }
+            )
 
         # Add endpoints
         for service_name, service in self.services.items():
@@ -531,35 +542,29 @@ class APIDocsGenerator:
                     "x-description-ar": endpoint.description_ar,
                     "parameters": [],
                     "responses": {
-                        "200": {
-                            "description": "Successful response"
-                        },
-                        "401": {
-                            "description": "Unauthorized - Invalid or missing token"
-                        },
-                        "500": {
-                            "description": "Internal server error"
-                        }
-                    }
+                        "200": {"description": "Successful response"},
+                        "401": {"description": "Unauthorized - Invalid or missing token"},
+                        "500": {"description": "Internal server error"},
+                    },
                 }
 
                 # Add parameters
                 for param in endpoint.parameters:
-                    operation["parameters"].append({
-                        "name": param.name,
-                        "in": param.location,
-                        "required": param.required,
-                        "description": param.description,
-                        "schema": {
-                            "type": param.type
+                    operation["parameters"].append(
+                        {
+                            "name": param.name,
+                            "in": param.location,
+                            "required": param.required,
+                            "description": param.description,
+                            "schema": {"type": param.type},
                         }
-                    })
+                    )
 
                 spec["paths"][endpoint.path][method_lower] = operation
 
         # Write to file
         output_path = self.output_dir / output_file
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(spec, f, indent=2, ensure_ascii=False)
 
         print(f"✅ OpenAPI spec written to: {output_path}")
@@ -590,7 +595,7 @@ class APIDocsGenerator:
 # توثيق واجهة برمجة تطبيقات سحول
 
 **Version:** 15.3.0
-**Last Updated:** {datetime.now().strftime('%Y-%m-%d')}
+**Last Updated:** {datetime.now().strftime("%Y-%m-%d")}
 
 ## Overview | نظرة عامة
 
@@ -729,7 +734,7 @@ Total Endpoints: {sum(len(s.endpoints) for s in self.services.values())}
         for category in APICategory:
             endpoints = self.endpoints_by_category[category]
             if endpoints:
-                category_name = category.value.replace('_', ' ').title()
+                category_name = category.value.replace("_", " ").title()
                 content += f"\n### {category_name}\n\n"
                 content += f"Endpoints: {len(endpoints)}\n\n"
 
@@ -769,7 +774,7 @@ For API support or questions:
 
         # Write file
         readme_path = self.output_dir / "README.md"
-        readme_path.write_text(content, encoding='utf-8')
+        readme_path.write_text(content, encoding="utf-8")
         print(f"  ✓ Created {readme_path}")
 
     def _generate_authentication_docs(self):
@@ -1147,7 +1152,7 @@ Examples:
 """
 
         auth_path = self.output_dir / "authentication.md"
-        auth_path.write_text(content, encoding='utf-8')
+        auth_path.write_text(content, encoding="utf-8")
         print(f"  ✓ Created {auth_path}")
 
     def _generate_fields_docs(self):
@@ -1193,7 +1198,9 @@ Authorization: Bearer <access_token>
         if endpoints:
             for endpoint in sorted(endpoints, key=lambda x: (x.service_port, x.path)):
                 content += f"\n### {endpoint.method} {endpoint.path}\n\n"
-                content += f"**Service:** {endpoint.service_name} (Port: {endpoint.service_port})\n\n"
+                content += (
+                    f"**Service:** {endpoint.service_name} (Port: {endpoint.service_port})\n\n"
+                )
 
                 if endpoint.summary:
                     content += f"**Summary:** {endpoint.summary}\n\n"
@@ -1423,7 +1430,8 @@ List all crops with available profitability data.
 ```
 """
 
-        content += """
+        content += (
+            """
 ## Data Models | نماذج البيانات
 
 ### Field
@@ -1489,10 +1497,13 @@ interface CropProfitability {
 
 ---
 
-*Last updated: """ + datetime.now().strftime('%Y-%m-%d') + "*\n"
+*Last updated: """
+            + datetime.now().strftime("%Y-%m-%d")
+            + "*\n"
+        )
 
         fields_path = self.output_dir / "fields.md"
-        fields_path.write_text(content, encoding='utf-8')
+        fields_path.write_text(content, encoding="utf-8")
         print(f"  ✓ Created {fields_path}")
 
     def _generate_sensors_docs(self):
@@ -1624,11 +1635,11 @@ Calculate reference evapotranspiration (ET0).
 
 ---
 
-*Last updated: {datetime.now().strftime('%Y-%m-%d')}*
+*Last updated: {datetime.now().strftime("%Y-%m-%d")}*
 """
 
         sensors_path = self.output_dir / "sensors.md"
-        sensors_path.write_text(content, encoding='utf-8')
+        sensors_path.write_text(content, encoding="utf-8")
         print(f"  ✓ Created {sensors_path}")
 
     def _generate_weather_docs(self):
@@ -1921,11 +1932,11 @@ interface DailyForecast {{
 
 ---
 
-*Last updated: {datetime.now().strftime('%Y-%m-%d')}*
+*Last updated: {datetime.now().strftime("%Y-%m-%d")}*
 """
 
         weather_path = self.output_dir / "weather.md"
-        weather_path.write_text(content, encoding='utf-8')
+        weather_path.write_text(content, encoding="utf-8")
         print(f"  ✓ Created {weather_path}")
 
     def _generate_ai_docs(self):
@@ -2311,14 +2322,16 @@ interface DiagnosisResult {{
 
 ---
 
-*Last updated: {datetime.now().strftime('%Y-%m-%d')}*
+*Last updated: {datetime.now().strftime("%Y-%m-%d")}*
 """
 
         ai_path = self.output_dir / "ai.md"
-        ai_path.write_text(content, encoding='utf-8')
+        ai_path.write_text(content, encoding="utf-8")
         print(f"  ✓ Created {ai_path}")
 
-    def generate_postman_collection(self, output_file: str = "SAHOOL.postman_collection.json") -> str:
+    def generate_postman_collection(
+        self, output_file: str = "SAHOOL.postman_collection.json"
+    ) -> str:
         """
         Generate Postman collection
         إنشاء مجموعة Postman
@@ -2332,36 +2345,18 @@ interface DiagnosisResult {{
             "info": {
                 "name": "SAHOOL Platform API",
                 "description": "Agricultural Intelligence Platform - منصة الذكاء الزراعي",
-                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
             },
             "auth": {
                 "type": "bearer",
-                "bearer": [
-                    {
-                        "key": "token",
-                        "value": "{{access_token}}",
-                        "type": "string"
-                    }
-                ]
+                "bearer": [{"key": "token", "value": "{{access_token}}", "type": "string"}],
             },
             "variable": [
-                {
-                    "key": "base_url",
-                    "value": "http://localhost",
-                    "type": "string"
-                },
-                {
-                    "key": "access_token",
-                    "value": "",
-                    "type": "string"
-                },
-                {
-                    "key": "tenant_id",
-                    "value": "tenant-123",
-                    "type": "string"
-                }
+                {"key": "base_url", "value": "http://localhost", "type": "string"},
+                {"key": "access_token", "value": "", "type": "string"},
+                {"key": "tenant_id", "value": "tenant-123", "type": "string"},
             ],
-            "item": []
+            "item": [],
         }
 
         # Add services as folders
@@ -2369,7 +2364,7 @@ interface DiagnosisResult {{
             folder = {
                 "name": f"{service.title} (Port {service.port})",
                 "description": f"{service.description}\n{service.description_ar}",
-                "item": []
+                "item": [],
             }
 
             # Add endpoints
@@ -2379,21 +2374,17 @@ interface DiagnosisResult {{
                     "request": {
                         "method": endpoint.method,
                         "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json",
-                                "type": "text"
-                            }
+                            {"key": "Content-Type", "value": "application/json", "type": "text"}
                         ],
                         "url": {
                             "raw": f"{{{{base_url}}}}:{service.port}{endpoint.path}",
                             "host": ["{{base_url}}"],
                             "port": str(service.port),
-                            "path": [p for p in endpoint.path.split('/') if p]
+                            "path": [p for p in endpoint.path.split("/") if p],
                         },
-                        "description": f"{endpoint.summary}\n{endpoint.summary_ar}"
+                        "description": f"{endpoint.summary}\n{endpoint.summary_ar}",
                     },
-                    "response": []
+                    "response": [],
                 }
 
                 # Add query parameters
@@ -2401,11 +2392,7 @@ interface DiagnosisResult {{
                     query_params = [p for p in endpoint.parameters if p.location == "query"]
                     if query_params:
                         request_item["request"]["url"]["query"] = [
-                            {
-                                "key": p.name,
-                                "value": "",
-                                "description": p.description
-                            }
+                            {"key": p.name, "value": "", "description": p.description}
                             for p in query_params
                         ]
 
@@ -2430,34 +2417,28 @@ interface DiagnosisResult {{
                                     "if (response.access_token) {",
                                     "    pm.environment.set('access_token', response.access_token);",
                                     "    pm.environment.set('refresh_token', response.refresh_token);",
-                                    "}"
+                                    "}",
                                 ],
-                                "type": "text/javascript"
-                            }
+                                "type": "text/javascript",
+                            },
                         }
                     ],
                     "request": {
                         "method": "POST",
-                        "header": [
-                            {
-                                "key": "Content-Type",
-                                "value": "application/json"
-                            }
-                        ],
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
                         "body": {
                             "mode": "raw",
-                            "raw": json.dumps({
-                                "email": "farmer@example.com",
-                                "password": "password123"
-                            }, indent=2)
+                            "raw": json.dumps(
+                                {"email": "farmer@example.com", "password": "password123"}, indent=2
+                            ),
                         },
                         "url": {
                             "raw": "{{base_url}}:8000/auth/login",
                             "host": ["{{base_url}}"],
                             "port": "8000",
-                            "path": ["auth", "login"]
-                        }
-                    }
+                            "path": ["auth", "login"],
+                        },
+                    },
                 },
                 {
                     "name": "Refresh Token",
@@ -2469,10 +2450,10 @@ interface DiagnosisResult {{
                                     "const response = pm.response.json();",
                                     "if (response.access_token) {",
                                     "    pm.environment.set('access_token', response.access_token);",
-                                    "}"
+                                    "}",
                                 ],
-                                "type": "text/javascript"
-                            }
+                                "type": "text/javascript",
+                            },
                         }
                     ],
                     "request": {
@@ -2480,31 +2461,25 @@ interface DiagnosisResult {{
                         "header": [],
                         "body": {
                             "mode": "raw",
-                            "raw": json.dumps({
-                                "refresh_token": "{{refresh_token}}"
-                            }, indent=2),
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
+                            "raw": json.dumps({"refresh_token": "{{refresh_token}}"}, indent=2),
+                            "options": {"raw": {"language": "json"}},
                         },
                         "url": {
                             "raw": "{{base_url}}:8000/auth/refresh",
                             "host": ["{{base_url}}"],
                             "port": "8000",
-                            "path": ["auth", "refresh"]
-                        }
-                    }
-                }
-            ]
+                            "path": ["auth", "refresh"],
+                        },
+                    },
+                },
+            ],
         }
 
         collection["item"].insert(0, auth_folder)
 
         # Write to file
         output_path = self.output_dir / output_file
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(collection, f, indent=2, ensure_ascii=False)
 
         print(f"✅ Postman collection written to: {output_path}")
@@ -2515,23 +2490,13 @@ def main():
     """Main function to generate all documentation"""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Generate API documentation for SAHOOL platform"
-    )
-    parser.add_argument(
-        "--services-dir",
-        help="Path to services directory",
-        default=None
-    )
-    parser.add_argument(
-        "--output-dir",
-        help="Path to output directory",
-        default=None
-    )
+    parser = argparse.ArgumentParser(description="Generate API documentation for SAHOOL platform")
+    parser.add_argument("--services-dir", help="Path to services directory", default=None)
+    parser.add_argument("--output-dir", help="Path to output directory", default=None)
     parser.add_argument(
         "--skip-scan",
         action="store_true",
-        help="Skip scanning services (use for quick regeneration)"
+        help="Skip scanning services (use for quick regeneration)",
     )
 
     args = parser.parse_args()
@@ -2541,10 +2506,7 @@ def main():
     print("مولد توثيق واجهة برمجة تطبيقات سحول")
     print("=" * 60)
 
-    generator = APIDocsGenerator(
-        services_dir=args.services_dir,
-        output_dir=args.output_dir
-    )
+    generator = APIDocsGenerator(services_dir=args.services_dir, output_dir=args.output_dir)
 
     if not args.skip_scan:
         generator.scan_all_services()

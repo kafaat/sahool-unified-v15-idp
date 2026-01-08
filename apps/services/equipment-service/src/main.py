@@ -10,40 +10,59 @@ Provides equipment/asset management:
 """
 
 import os
+import sys
 import uuid
 from datetime import datetime, timedelta
 from enum import Enum
 
 from fastapi import Depends, FastAPI, HTTPException, Query
-
-# Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
-
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from .database import get_db, init_db, check_db_connection
 from . import repository
-from .db_models import Equipment as DBEquipment, MaintenanceRecord as DBMaintenanceRecord, MaintenanceAlert as DBMaintenanceAlert
+from .database import check_db_connection, get_db, init_db
+from .db_models import (
+    Equipment as DBEquipment,
+)
+from .db_models import (
+    MaintenanceAlert as DBMaintenanceAlert,
+)
+from .db_models import (
+    MaintenanceRecord as DBMaintenanceRecord,
+)
 
-# Import authentication dependencies
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 try:
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.middleware import (
+        RequestLoggingMiddleware,
+        TenantContextMiddleware,
+        setup_cors,
+    )
+    from shared.observability.middleware import ObservabilityMiddleware
+except ImportError:
+    RequestLoggingMiddleware = None
+    TenantContextMiddleware = None
+    setup_cors = None
+    ObservabilityMiddleware = None
+
+# Import authentication dependencies and error handling
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+
     AUTH_AVAILABLE = True
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
     User = None
+    setup_exception_handlers = None
+    add_request_id_middleware = None
+
     def get_current_user():
         """Placeholder when auth not available"""
         return None
@@ -64,13 +83,12 @@ app = FastAPI(
 )
 
 # Setup unified error handling
-setup_exception_handlers(app)
-add_request_id_middleware(app)
+if setup_exception_handlers:
+    setup_exception_handlers(app)
+if add_request_id_middleware:
+    add_request_id_middleware(app)
 
 # CORS - Secure configuration
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
     from shared.cors_config import CORS_SETTINGS
 
@@ -437,7 +455,7 @@ async def health_check(db: Session = Depends(get_db)):
     return {
         "status": "healthy" if db_healthy else "unhealthy",
         "service": SERVICE_NAME,
-        "database": "connected" if db_healthy else "disconnected"
+        "database": "connected" if db_healthy else "disconnected",
     }
 
 
@@ -466,35 +484,43 @@ async def list_equipment(
     # Convert to Pydantic models
     equipment_dicts = []
     for eq in equipment_list:
-        equipment_dicts.append({
-            "equipment_id": eq.equipment_id,
-            "tenant_id": eq.tenant_id,
-            "name": eq.name,
-            "name_ar": eq.name_ar,
-            "equipment_type": eq.equipment_type,
-            "status": eq.status,
-            "brand": eq.brand,
-            "model": eq.model,
-            "serial_number": eq.serial_number,
-            "year": eq.year,
-            "purchase_date": eq.purchase_date,
-            "purchase_price": float(eq.purchase_price) if eq.purchase_price else None,
-            "field_id": eq.field_id,
-            "location_name": eq.location_name,
-            "horsepower": eq.horsepower,
-            "fuel_capacity_liters": float(eq.fuel_capacity_liters) if eq.fuel_capacity_liters else None,
-            "current_fuel_percent": float(eq.current_fuel_percent) if eq.current_fuel_percent else None,
-            "current_hours": float(eq.current_hours) if eq.current_hours else None,
-            "current_lat": float(eq.current_lat) if eq.current_lat else None,
-            "current_lon": float(eq.current_lon) if eq.current_lon else None,
-            "last_maintenance_at": eq.last_maintenance_at,
-            "next_maintenance_at": eq.next_maintenance_at,
-            "next_maintenance_hours": float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
-            "created_at": eq.created_at,
-            "updated_at": eq.updated_at,
-            "metadata": eq.metadata,
-            "qr_code": eq.qr_code,
-        })
+        equipment_dicts.append(
+            {
+                "equipment_id": eq.equipment_id,
+                "tenant_id": eq.tenant_id,
+                "name": eq.name,
+                "name_ar": eq.name_ar,
+                "equipment_type": eq.equipment_type,
+                "status": eq.status,
+                "brand": eq.brand,
+                "model": eq.model,
+                "serial_number": eq.serial_number,
+                "year": eq.year,
+                "purchase_date": eq.purchase_date,
+                "purchase_price": float(eq.purchase_price) if eq.purchase_price else None,
+                "field_id": eq.field_id,
+                "location_name": eq.location_name,
+                "horsepower": eq.horsepower,
+                "fuel_capacity_liters": float(eq.fuel_capacity_liters)
+                if eq.fuel_capacity_liters
+                else None,
+                "current_fuel_percent": float(eq.current_fuel_percent)
+                if eq.current_fuel_percent
+                else None,
+                "current_hours": float(eq.current_hours) if eq.current_hours else None,
+                "current_lat": float(eq.current_lat) if eq.current_lat else None,
+                "current_lon": float(eq.current_lon) if eq.current_lon else None,
+                "last_maintenance_at": eq.last_maintenance_at,
+                "next_maintenance_at": eq.next_maintenance_at,
+                "next_maintenance_hours": float(eq.next_maintenance_hours)
+                if eq.next_maintenance_hours
+                else None,
+                "created_at": eq.created_at,
+                "updated_at": eq.updated_at,
+                "metadata": eq.metadata,
+                "qr_code": eq.qr_code,
+            }
+        )
 
     return {
         "equipment": equipment_dicts,
@@ -531,19 +557,21 @@ async def get_maintenance_alerts(
     # Convert to dictionaries
     alert_dicts = []
     for alert in alerts:
-        alert_dicts.append({
-            "alert_id": alert.alert_id,
-            "equipment_id": alert.equipment_id,
-            "equipment_name": alert.equipment_name,
-            "maintenance_type": alert.maintenance_type,
-            "description": alert.description,
-            "description_ar": alert.description_ar,
-            "priority": alert.priority,
-            "due_at": alert.due_at,
-            "due_hours": float(alert.due_hours) if alert.due_hours else None,
-            "is_overdue": alert.is_overdue,
-            "created_at": alert.created_at,
-        })
+        alert_dicts.append(
+            {
+                "alert_id": alert.alert_id,
+                "equipment_id": alert.equipment_id,
+                "equipment_name": alert.equipment_name,
+                "maintenance_type": alert.maintenance_type,
+                "description": alert.description,
+                "description_ar": alert.description_ar,
+                "priority": alert.priority,
+                "due_at": alert.due_at,
+                "due_hours": float(alert.due_hours) if alert.due_hours else None,
+                "is_overdue": alert.is_overdue,
+                "created_at": alert.created_at,
+            }
+        )
 
     return {
         "alerts": alert_dicts,
@@ -587,7 +615,9 @@ async def get_equipment(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours)
+        if eq.next_maintenance_hours
+        else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.metadata,
@@ -630,7 +660,9 @@ async def get_equipment_by_qr(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours)
+        if eq.next_maintenance_hours
+        else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.metadata,
@@ -692,7 +724,9 @@ async def create_equipment(
         field_id=db_eq.field_id,
         location_name=db_eq.location_name,
         horsepower=db_eq.horsepower,
-        fuel_capacity_liters=float(db_eq.fuel_capacity_liters) if db_eq.fuel_capacity_liters else None,
+        fuel_capacity_liters=float(db_eq.fuel_capacity_liters)
+        if db_eq.fuel_capacity_liters
+        else None,
         current_fuel_percent=None,
         current_hours=None,
         current_lat=None,
@@ -754,7 +788,9 @@ async def update_equipment(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours)
+        if eq.next_maintenance_hours
+        else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.metadata,
@@ -801,7 +837,9 @@ async def update_equipment_status(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours)
+        if eq.next_maintenance_hours
+        else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.metadata,
@@ -854,7 +892,9 @@ async def update_equipment_location(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours)
+        if eq.next_maintenance_hours
+        else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.metadata,
@@ -914,7 +954,9 @@ async def update_equipment_telemetry(
         current_lon=float(eq.current_lon) if eq.current_lon else None,
         last_maintenance_at=eq.last_maintenance_at,
         next_maintenance_at=eq.next_maintenance_at,
-        next_maintenance_hours=float(eq.next_maintenance_hours) if eq.next_maintenance_hours else None,
+        next_maintenance_hours=float(eq.next_maintenance_hours)
+        if eq.next_maintenance_hours
+        else None,
         created_at=eq.created_at,
         updated_at=eq.updated_at,
         metadata=eq.metadata,
@@ -940,18 +982,20 @@ async def get_maintenance_history(
     # Convert to dictionaries
     record_dicts = []
     for record in records:
-        record_dicts.append({
-            "record_id": record.record_id,
-            "equipment_id": record.equipment_id,
-            "maintenance_type": record.maintenance_type,
-            "description": record.description,
-            "description_ar": record.description_ar,
-            "performed_at": record.performed_at,
-            "performed_by": record.performed_by,
-            "cost": float(record.cost) if record.cost else None,
-            "notes": record.notes,
-            "parts_replaced": record.parts_replaced,
-        })
+        record_dicts.append(
+            {
+                "record_id": record.record_id,
+                "equipment_id": record.equipment_id,
+                "maintenance_type": record.maintenance_type,
+                "description": record.description,
+                "description_ar": record.description_ar,
+                "performed_at": record.performed_at,
+                "performed_by": record.performed_by,
+                "cost": float(record.cost) if record.cost else None,
+                "notes": record.notes,
+                "parts_replaced": record.parts_replaced,
+            }
+        )
 
     return {
         "equipment_id": equipment_id,

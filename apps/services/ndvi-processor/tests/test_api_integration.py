@@ -176,8 +176,7 @@ class TestNDVIDataEndpoints:
     def test_get_timeseries(self, test_client):
         """Test GET /fields/{field_id}/ndvi/timeseries endpoint"""
         response = test_client.get(
-            "/fields/field_timeseries/ndvi/timeseries"
-            "?start=2025-01-01&end=2025-01-31"
+            "/fields/field_timeseries/ndvi/timeseries?start=2025-01-01&end=2025-01-31"
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -196,8 +195,7 @@ class TestAnalysisEndpoints:
     def test_get_change_analysis(self, test_client):
         """Test GET /fields/{field_id}/ndvi/change endpoint"""
         response = test_client.get(
-            "/fields/field_change/ndvi/change"
-            "?date1=2025-01-01&date2=2025-06-01&include_zones=true"
+            "/fields/field_change/ndvi/change?date1=2025-01-01&date2=2025-06-01&include_zones=true"
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -234,7 +232,7 @@ class TestAnalysisEndpoints:
     def test_get_anomaly_detection(self, test_client):
         """Test GET /fields/{field_id}/ndvi/anomaly endpoint"""
         response = test_client.get(
-            "/fields/field_anomaly/ndvi/anomaly" "?date=2025-12-27&current_ndvi=0.45"
+            "/fields/field_anomaly/ndvi/anomaly?date=2025-12-27&current_ndvi=0.45"
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -253,9 +251,7 @@ class TestExportEndpoints:
         # First create some data
         test_client.get("/fields/field_export_tiff/ndvi/latest")
 
-        response = test_client.get(
-            "/fields/field_export_tiff/ndvi/export?format=geotiff"
-        )
+        response = test_client.get("/fields/field_export_tiff/ndvi/export?format=geotiff")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -265,8 +261,7 @@ class TestExportEndpoints:
     def test_export_csv(self, test_client):
         """Test exporting as CSV"""
         response = test_client.get(
-            "/fields/field_export_csv/ndvi/export"
-            "?format=csv&start=2025-01-01&end=2025-01-31"
+            "/fields/field_export_csv/ndvi/export?format=csv&start=2025-01-01&end=2025-01-31"
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -293,8 +288,7 @@ class TestExportEndpoints:
     def test_export_json_timeseries(self, test_client):
         """Test exporting timeseries as JSON"""
         response = test_client.get(
-            "/fields/field_json_series/ndvi/export"
-            "?format=json&start=2025-01-01&end=2025-01-31"
+            "/fields/field_json_series/ndvi/export?format=json&start=2025-01-01&end=2025-01-31"
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -308,9 +302,7 @@ class TestCompositeEndpoints:
 
     def test_create_monthly_composite(self, test_client, sample_composite_request):
         """Test POST /composites/monthly endpoint"""
-        response = test_client.post(
-            "/composites/monthly", json=sample_composite_request
-        )
+        response = test_client.post("/composites/monthly", json=sample_composite_request)
 
         assert response.status_code == status.HTTP_201_CREATED
         data = response.json()
@@ -349,9 +341,7 @@ class TestCompositeEndpoints:
     def test_get_composite(self, test_client, sample_composite_request):
         """Test GET /composites/{composite_id} endpoint"""
         # Create a composite
-        create_response = test_client.post(
-            "/composites/monthly", json=sample_composite_request
-        )
+        create_response = test_client.post("/composites/monthly", json=sample_composite_request)
         composite_id = create_response.json()["composite_id"]
 
         # Get the composite
@@ -369,15 +359,11 @@ class TestCompositeEndpoints:
     def test_download_composite(self, test_client, sample_composite_request):
         """Test GET /composites/{composite_id}/download endpoint"""
         # Create a composite
-        create_response = test_client.post(
-            "/composites/monthly", json=sample_composite_request
-        )
+        create_response = test_client.post("/composites/monthly", json=sample_composite_request)
         composite_id = create_response.json()["composite_id"]
 
         # Download it
-        response = test_client.get(
-            f"/composites/{composite_id}/download?format=geotiff"
-        )
+        response = test_client.get(f"/composites/{composite_id}/download?format=geotiff")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()

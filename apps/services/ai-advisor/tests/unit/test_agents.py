@@ -29,9 +29,7 @@ class TestFieldAnalystAgent:
             "date": "2024-12-01",
         }
 
-        with patch.object(
-            agent, "_query_llm", new=AsyncMock(return_value="Field analysis result")
-        ):
+        with patch.object(agent, "_query_llm", new=AsyncMock(return_value="Field analysis result")):
             result = await agent.analyze_field(
                 field_id="test-field-123", satellite_data=satellite_data
             )
@@ -47,9 +45,7 @@ class TestFieldAnalystAgent:
         invalid_data = {"invalid": "data"}
 
         with pytest.raises(Exception):
-            await agent.analyze_field(
-                field_id="test-field-123", satellite_data=invalid_data
-            )
+            await agent.analyze_field(field_id="test-field-123", satellite_data=invalid_data)
 
     @pytest.mark.asyncio
     async def test_analyze_field_uses_rag(self, mock_knowledge_retriever):
@@ -59,9 +55,7 @@ class TestFieldAnalystAgent:
         satellite_data = {"ndvi_average": 0.75, "field_id": "test-field-123"}
 
         with patch.object(agent, "_query_llm", new=AsyncMock(return_value="Result")):
-            await agent.analyze_field(
-                field_id="test-field-123", satellite_data=satellite_data
-            )
+            await agent.analyze_field(field_id="test-field-123", satellite_data=satellite_data)
 
             # Verify RAG retrieval was called
             mock_knowledge_retriever.retrieve.assert_called()
@@ -189,9 +183,7 @@ class TestIrrigationAdvisorAgent:
             assert result is not None
 
     @pytest.mark.asyncio
-    async def test_recommend_irrigation_drought_conditions(
-        self, mock_knowledge_retriever
-    ):
+    async def test_recommend_irrigation_drought_conditions(self, mock_knowledge_retriever):
         """Test irrigation recommendations during drought"""
         agent = IrrigationAdvisorAgent(tools=[], retriever=mock_knowledge_retriever)
 
@@ -288,9 +280,7 @@ class TestYieldPredictorAgent:
             assert result is not None
 
     @pytest.mark.asyncio
-    async def test_predict_yield_handles_insufficient_data(
-        self, mock_knowledge_retriever
-    ):
+    async def test_predict_yield_handles_insufficient_data(self, mock_knowledge_retriever):
         """Test yield prediction with insufficient data"""
         agent = YieldPredictorAgent(tools=[], retriever=mock_knowledge_retriever)
 

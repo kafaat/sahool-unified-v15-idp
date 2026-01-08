@@ -76,14 +76,18 @@ class DevelopmentSeeder(BaseSeeder):
                 end_time = datetime.utcnow()
                 results["execution_time_ms"] = (end_time - start_time).total_seconds() * 1000
 
-                self._log("Development data seeding completed successfully!",
-                         "اكتملت تعبئة بيانات التطوير بنجاح!")
-                self._log(f"Created: {results['tenants']} tenants, {results['users']} users, "
-                         f"{results['farms']} farms, {results['fields']} fields, "
-                         f"{results['crops']} crops, {results['sensors']} sensors",
-                         f"تم إنشاء: {results['tenants']} مستأجر، {results['users']} مستخدم، "
-                         f"{results['farms']} مزرعة، {results['fields']} حقل، "
-                         f"{results['crops']} محصول، {results['sensors']} جهاز استشعار")
+                self._log(
+                    "Development data seeding completed successfully!",
+                    "اكتملت تعبئة بيانات التطوير بنجاح!",
+                )
+                self._log(
+                    f"Created: {results['tenants']} tenants, {results['users']} users, "
+                    f"{results['farms']} farms, {results['fields']} fields, "
+                    f"{results['crops']} crops, {results['sensors']} sensors",
+                    f"تم إنشاء: {results['tenants']} مستأجر، {results['users']} مستخدم، "
+                    f"{results['farms']} مزرعة، {results['fields']} حقل، "
+                    f"{results['crops']} محصول، {results['sensors']} جهاز استشعار",
+                )
 
             except Exception as e:
                 session.rollback()
@@ -144,7 +148,7 @@ class DevelopmentSeeder(BaseSeeder):
                         :is_active, :subscription_tier, NOW(), NOW()
                     )
                 """),
-                tenant_data
+                tenant_data,
             )
 
         return tenants
@@ -212,7 +216,7 @@ class DevelopmentSeeder(BaseSeeder):
                             :is_active, :is_verified, NOW(), NOW()
                         )
                     """),
-                    user_data
+                    user_data,
                 )
                 users.append(user_data)
 
@@ -258,7 +262,9 @@ class DevelopmentSeeder(BaseSeeder):
 
         for tenant in tenants:
             # العثور على مزارع لهذا المستأجر / Find farmers for this tenant
-            tenant_farmers = [u for u in users if u["tenant_id"] == tenant["id"] and u["role"] == "farmer"]
+            tenant_farmers = [
+                u for u in users if u["tenant_id"] == tenant["id"] and u["role"] == "farmer"
+            ]
 
             for i, farm_template in enumerate(farm_templates):
                 if i < len(tenant_farmers):
@@ -280,7 +286,7 @@ class DevelopmentSeeder(BaseSeeder):
                                 NOW(), NOW()
                             )
                         """),
-                        farm_data
+                        farm_data,
                     )
                     farms.append(farm_data)
 
@@ -323,21 +329,23 @@ class DevelopmentSeeder(BaseSeeder):
                 offset = 0.005  # حوالي 500 متر / About 500 meters
                 {
                     "type": "Polygon",
-                    "coordinates": [[
-                        [location["lon"] - offset, location["lat"] - offset],
-                        [location["lon"] + offset, location["lat"] - offset],
-                        [location["lon"] + offset, location["lat"] + offset],
-                        [location["lon"] - offset, location["lat"] + offset],
-                        [location["lon"] - offset, location["lat"] - offset],
-                    ]]
+                    "coordinates": [
+                        [
+                            [location["lon"] - offset, location["lat"] - offset],
+                            [location["lon"] + offset, location["lat"] - offset],
+                            [location["lon"] + offset, location["lat"] + offset],
+                            [location["lon"] - offset, location["lat"] + offset],
+                            [location["lon"] - offset, location["lat"] - offset],
+                        ]
+                    ],
                 }
 
                 field_data = {
                     "id": uuid.uuid4(),
                     "tenant_id": farm["tenant_id"],
                     "farm_id": farm["id"],
-                    "name": f"{location['name']} {i+1}",
-                    "name_ar": f"{location['name_ar']} {i+1}",
+                    "name": f"{location['name']} {i + 1}",
+                    "name_ar": f"{location['name_ar']} {i + 1}",
                     "center_latitude": location["lat"],
                     "center_longitude": location["lon"],
                     "area_hectares": round(random.uniform(2.0, 8.0), 2),
@@ -360,7 +368,7 @@ class DevelopmentSeeder(BaseSeeder):
                             NOW(), NOW()
                         )
                     """),
-                    field_data
+                    field_data,
                 )
                 fields.append(field_data)
 
@@ -420,19 +428,21 @@ class DevelopmentSeeder(BaseSeeder):
                             :yield_estimate_kg, NOW(), NOW()
                         )
                     """),
-                    crop_data
+                    crop_data,
                 )
                 crops.append(crop_data)
 
                 # تحديث current_crop_id في الحقل / Update current_crop_id in field
                 session.execute(
                     text("UPDATE fields SET current_crop_id = :crop_id WHERE id = :field_id"),
-                    {"crop_id": crop_data["id"], "field_id": field["id"]}
+                    {"crop_id": crop_data["id"], "field_id": field["id"]},
                 )
 
         return crops
 
-    def _seed_sensors(self, session: Session, tenants: list[dict], fields: list[dict]) -> list[dict]:
+    def _seed_sensors(
+        self, session: Session, tenants: list[dict], fields: list[dict]
+    ) -> list[dict]:
         """
         تعبئة أجهزة الاستشعار
         Seed sensors
@@ -442,7 +452,11 @@ class DevelopmentSeeder(BaseSeeder):
         sensors = []
 
         device_types = [
-            {"type": "soil_moisture", "name": "Soil Moisture Sensor", "name_ar": "مستشعر رطوبة التربة"},
+            {
+                "type": "soil_moisture",
+                "name": "Soil Moisture Sensor",
+                "name_ar": "مستشعر رطوبة التربة",
+            },
             {"type": "temperature", "name": "Temperature Sensor", "name_ar": "مستشعر درجة الحرارة"},
             {"type": "humidity", "name": "Humidity Sensor", "name_ar": "مستشعر الرطوبة"},
             {"type": "weather_station", "name": "Weather Station", "name_ar": "محطة الطقس"},
@@ -466,8 +480,8 @@ class DevelopmentSeeder(BaseSeeder):
                         "field_id": field["id"],
                         "device_id": f"SENSOR-{uuid.uuid4().hex[:8].upper()}",
                         "device_type": device["type"],
-                        "name": f"{device['name']} {i+1}",
-                        "name_ar": f"{device['name_ar']} {i+1}",
+                        "name": f"{device['name']} {i + 1}",
+                        "name_ar": f"{device['name_ar']} {i + 1}",
                         "latitude": field["center_latitude"] + lat_offset,
                         "longitude": field["center_longitude"] + lon_offset,
                         "is_active": True,
@@ -488,7 +502,7 @@ class DevelopmentSeeder(BaseSeeder):
                                 NOW(), NOW()
                             )
                         """),
-                        sensor_data
+                        sensor_data,
                     )
                     sensors.append(sensor_data)
 

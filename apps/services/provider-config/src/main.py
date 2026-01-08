@@ -6,30 +6,24 @@ Port: 8104
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
+import os
 from datetime import datetime
 from enum import Enum
 from typing import Any
-import os
 
 import httpx
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import Depends, FastAPI, HTTPException
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
 
+from database_service import CacheManager, ProviderConfigService
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 # Import database models and services
-from models import Database, ProviderConfig as DBProviderConfig
-from database_service import CacheManager, ProviderConfigService
+from models import Database
 
 app = FastAPI(
     title="SAHOOL Provider Configuration Service",
@@ -46,7 +40,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+
 try:
     from shared.cors_config import CORS_SETTINGS
 
@@ -682,9 +676,7 @@ async def startup_event():
 
     # Get configuration from environment
     # Security: No fallback credentials - require env vars to be set
-    database_url = os.getenv(
-        "DATABASE_URL", "postgresql://pgbouncer:6432/sahool"
-    )
+    database_url = os.getenv("DATABASE_URL", "postgresql://pgbouncer:6432/sahool")
     redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
 
     # Initialize database
@@ -739,9 +731,7 @@ async def check_map_provider_health(
 
     # Build test URL
     url_template = provider["url_template"]
-    test_url = (
-        url_template.replace("{z}", "10").replace("{x}", "512").replace("{y}", "512")
-    )
+    test_url = url_template.replace("{z}", "10").replace("{x}", "512").replace("{y}", "512")
     if api_key:
         test_url = test_url.replace("{api_key}", api_key)
 
@@ -797,7 +787,9 @@ async def check_weather_provider_health(
     # Build test URL based on provider
     test_url = ""
     if provider_name == WeatherProviderName.OPEN_METEO:
-        test_url = f"{provider['base_url']}/forecast?latitude=15.37&longitude=44.19&current=temperature_2m"
+        test_url = (
+            f"{provider['base_url']}/forecast?latitude=15.37&longitude=44.19&current=temperature_2m"
+        )
     elif provider_name == WeatherProviderName.OPENWEATHERMAP:
         if not api_key:
             return ProviderStatusResponse(
@@ -883,16 +875,12 @@ async def health_check():
 async def list_all_providers():
     """List all available providers"""
     return ProvidersListResponse(
-        map_providers=[
-            {**v, "id": k.value, "type": "map"} for k, v in MAP_PROVIDERS.items()
-        ],
+        map_providers=[{**v, "id": k.value, "type": "map"} for k, v in MAP_PROVIDERS.items()],
         weather_providers=[
-            {**v, "id": k.value, "type": "weather"}
-            for k, v in WEATHER_PROVIDERS.items()
+            {**v, "id": k.value, "type": "weather"} for k, v in WEATHER_PROVIDERS.items()
         ],
         satellite_providers=[
-            {**v, "id": k.value, "type": "satellite"}
-            for k, v in SATELLITE_PROVIDERS.items()
+            {**v, "id": k.value, "type": "satellite"} for k, v in SATELLITE_PROVIDERS.items()
         ],
     )
 
@@ -902,9 +890,7 @@ async def list_map_providers():
     """List all map providers"""
     return {
         "providers": [{**v, "id": k.value} for k, v in MAP_PROVIDERS.items()],
-        "free_providers": [
-            k.value for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]
-        ],
+        "free_providers": [k.value for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]],
     }
 
 
@@ -942,9 +928,7 @@ async def list_payment_providers():
             "global": ["stripe", "paypal"],
         },
         "supports_mada": [
-            k.value
-            for k, v in PAYMENT_PROVIDERS.items()
-            if v.get("supports_mada", False)
+            k.value for k, v in PAYMENT_PROVIDERS.items() if v.get("supports_mada", False)
         ],
     }
 
@@ -959,9 +943,7 @@ async def list_sms_providers():
             "global": ["twilio", "vonage"],
         },
         "supports_arabic_sender": [
-            k.value
-            for k, v in SMS_PROVIDERS.items()
-            if v.get("supports_arabic_sender", False)
+            k.value for k, v in SMS_PROVIDERS.items() if v.get("supports_arabic_sender", False)
         ],
     }
 
@@ -1186,17 +1168,13 @@ async def check_all_free_providers():
     }
 
     # Check free map providers
-    free_map_providers = [
-        k for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]
-    ]
+    free_map_providers = [k for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]]
     for provider_name in free_map_providers:
         status = await check_map_provider_health(provider_name)
         results["map_providers"].append(status.dict())
 
     # Check free weather providers
-    free_weather_providers = [
-        k for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]
-    ]
+    free_weather_providers = [k for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]]
     for provider_name in free_weather_providers:
         status = await check_weather_provider_health(provider_name)
         results["weather_providers"].append(status.dict())
@@ -1221,9 +1199,7 @@ async def get_tenant_config(tenant_id: str, session: Session = Depends(get_db_se
     satellite_configs = config_service.get_tenant_configs(session, tenant_id, "satellite")
     payment_configs = config_service.get_tenant_configs(session, tenant_id, "payment")
     sms_configs = config_service.get_tenant_configs(session, tenant_id, "sms")
-    notification_configs = config_service.get_tenant_configs(
-        session, tenant_id, "notification"
-    )
+    notification_configs = config_service.get_tenant_configs(session, tenant_id, "notification")
 
     # If no configs exist, return defaults
     if not (map_configs or weather_configs or satellite_configs):
@@ -1255,15 +1231,11 @@ async def get_tenant_config(tenant_id: str, session: Session = Depends(get_db_se
     return {
         "tenant_id": tenant_id,
         "map_providers": [c.to_dict() for c in map_configs] if map_configs else [],
-        "weather_providers": [c.to_dict() for c in weather_configs]
-        if weather_configs
-        else [],
+        "weather_providers": [c.to_dict() for c in weather_configs] if weather_configs else [],
         "satellite_providers": [c.to_dict() for c in satellite_configs]
         if satellite_configs
         else [],
-        "payment_providers": [c.to_dict() for c in payment_configs]
-        if payment_configs
-        else [],
+        "payment_providers": [c.to_dict() for c in payment_configs] if payment_configs else [],
         "sms_providers": [c.to_dict() for c in sms_configs] if sms_configs else [],
         "notification_providers": [c.to_dict() for c in notification_configs]
         if notification_configs
@@ -1404,9 +1376,7 @@ async def get_config_history(
         raise HTTPException(status_code=503, detail="Service not initialized")
 
     try:
-        history = config_service.get_config_history(
-            session, tenant_id, provider_type, limit
-        )
+        history = config_service.get_config_history(session, tenant_id, provider_type, limit)
         return {
             "tenant_id": tenant_id,
             "provider_type": provider_type,
@@ -1414,9 +1384,7 @@ async def get_config_history(
             "total": len(history),
         }
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get history: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to get history: {str(e)}")
 
 
 @app.post("/config/{tenant_id}/rollback")
@@ -1443,9 +1411,7 @@ async def rollback_config(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Failed to rollback: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to rollback: {str(e)}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -22,10 +22,7 @@ from typing import Any
 
 import aiohttp
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -51,6 +48,7 @@ DEVICE_TYPES = {
 # DATA MODELS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class SimulationStats:
     messages_sent: int = 0
@@ -70,9 +68,11 @@ class SimulationStats:
             return 0.0
         return self.total_latency_ms / self.messages_success
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # DEVICE SIMULATORS
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class IoTDevice:
     def __init__(self, device_id: str, device_type: str, location: dict):
@@ -83,6 +83,7 @@ class IoTDevice:
 
     def generate_payload(self) -> dict[str, Any]:
         raise NotImplementedError
+
 
 class SoilSensor(IoTDevice):
     def generate_payload(self) -> dict[str, Any]:
@@ -114,6 +115,7 @@ class SoilSensor(IoTDevice):
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
+
 class WeatherStation(IoTDevice):
     def generate_payload(self) -> dict[str, Any]:
         return {
@@ -136,6 +138,7 @@ class WeatherStation(IoTDevice):
             "battery_level": self.battery_level,
             "timestamp": datetime.now(UTC).isoformat(),
         }
+
 
 class IrrigationController(IoTDevice):
     def generate_payload(self) -> dict[str, Any]:
@@ -163,6 +166,7 @@ class IrrigationController(IoTDevice):
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
+
 class GPSTracker(IoTDevice):
     def generate_payload(self) -> dict[str, Any]:
         return {
@@ -186,9 +190,11 @@ class GPSTracker(IoTDevice):
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # SIMULATOR
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class IoTSimulator:
     def __init__(self, gateway_url: str, num_devices: int, duration_seconds: int):
@@ -249,7 +255,7 @@ class IoTSimulator:
                 f"{self.gateway_url}/api/iot/telemetry",
                 json=data,
                 headers=headers,
-                timeout=aiohttp.ClientTimeout(total=10)
+                timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 latency = (time.time() - start_time) * 1000
 
@@ -297,8 +303,7 @@ class IoTSimulator:
         async with aiohttp.ClientSession() as session:
             # Start all device loops
             tasks = [
-                asyncio.create_task(self.device_loop(session, device))
-                for device in self.devices
+                asyncio.create_task(self.device_loop(session, device)) for device in self.devices
             ]
 
             # Run for specified duration
@@ -340,7 +345,7 @@ class IoTSimulator:
                 "messages_failed": self.stats.messages_failed,
                 "success_rate": self.stats.success_rate,
                 "avg_latency_ms": self.stats.avg_latency_ms,
-            }
+            },
         }
 
         results_file = "iot_simulation_results.json"
@@ -348,44 +353,40 @@ class IoTSimulator:
             json.dump(results, f, indent=2)
         logger.info(f"  Results saved to: {results_file}")
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def main():
     parser = argparse.ArgumentParser(
         description="SAHOOL IoT Device Simulator - محاكي أجهزة إنترنت الأشياء"
     )
     parser.add_argument(
-        "--gateway", "-g",
+        "--gateway",
+        "-g",
         default="http://localhost:8106",
-        help="IoT Gateway URL (default: http://localhost:8106)"
+        help="IoT Gateway URL (default: http://localhost:8106)",
     )
     parser.add_argument(
-        "--devices", "-d",
-        type=int,
-        default=10,
-        help="Number of devices to simulate (default: 10)"
+        "--devices", "-d", type=int, default=10, help="Number of devices to simulate (default: 10)"
     )
     parser.add_argument(
-        "--duration", "-t",
-        type=int,
-        default=60,
-        help="Duration in seconds (default: 60)"
+        "--duration", "-t", type=int, default=60, help="Duration in seconds (default: 60)"
     )
 
     args = parser.parse_args()
 
     simulator = IoTSimulator(
-        gateway_url=args.gateway,
-        num_devices=args.devices,
-        duration_seconds=args.duration
+        gateway_url=args.gateway, num_devices=args.devices, duration_seconds=args.duration
     )
 
     try:
         asyncio.run(simulator.run())
     except KeyboardInterrupt:
         logger.info("\nSimulation stopped by user")
+
 
 if __name__ == "__main__":
     main()

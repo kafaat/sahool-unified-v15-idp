@@ -13,9 +13,10 @@ This module tests:
 - Crop and growth stage specific recommendations
 """
 
-import pytest
 from datetime import datetime, timedelta
 from unittest.mock import Mock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -23,6 +24,7 @@ from fastapi.testclient import TestClient
 def test_client():
     """Create FastAPI test client"""
     from src.main import app
+
     return TestClient(app)
 
 
@@ -43,7 +45,7 @@ def sample_soil_analysis():
         "sulfur_ppm": 15.0,
         "iron_ppm": 5.0,
         "zinc_ppm": 2.0,
-        "soil_type": "loamy"
+        "soil_type": "loamy",
     }
 
 
@@ -56,7 +58,7 @@ def sample_fertilizer_request():
         "growth_stage": "vegetative",
         "area_hectares": 5.0,
         "soil_type": "loamy",
-        "organic_only": False
+        "organic_only": False,
     }
 
 
@@ -65,14 +67,14 @@ class TestNPKRequirementCalculation:
 
     def test_basic_npk_calculation(self):
         """Test basic NPK calculation for crop"""
-        from src.main import calculate_npk_needs, CropType, GrowthStage
+        from src.main import CropType, GrowthStage, calculate_npk_needs
 
         needs = calculate_npk_needs(
             crop=CropType.TOMATO,
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         # Should return NPK values
@@ -87,14 +89,14 @@ class TestNPKRequirementCalculation:
 
     def test_npk_scales_with_area(self):
         """Test that NPK requirements scale with area"""
-        from src.main import calculate_npk_needs, CropType, GrowthStage
+        from src.main import CropType, GrowthStage, calculate_npk_needs
 
         needs_small = calculate_npk_needs(
             crop=CropType.TOMATO,
             stage=GrowthStage.VEGETATIVE,
             area_ha=5.0,
             target_yield=None,
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         needs_large = calculate_npk_needs(
@@ -102,7 +104,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         # Should be approximately 2x
@@ -112,14 +114,14 @@ class TestNPKRequirementCalculation:
 
     def test_growth_stage_impact(self):
         """Test that growth stage affects NPK distribution"""
-        from src.main import calculate_npk_needs, CropType, GrowthStage
+        from src.main import CropType, GrowthStage, calculate_npk_needs
 
         needs_seedling = calculate_npk_needs(
             crop=CropType.TOMATO,
             stage=GrowthStage.SEEDLING,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         needs_fruiting = calculate_npk_needs(
@@ -127,20 +129,22 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.FRUITING,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         # Different stages should have different requirements
-        assert needs_seedling["N"] != needs_fruiting["N"] or \
-               needs_seedling["P"] != needs_fruiting["P"] or \
-               needs_seedling["K"] != needs_fruiting["K"]
+        assert (
+            needs_seedling["N"] != needs_fruiting["N"]
+            or needs_seedling["P"] != needs_fruiting["P"]
+            or needs_seedling["K"] != needs_fruiting["K"]
+        )
 
         # Fruiting stage typically needs more K
         assert needs_fruiting["K"] > needs_seedling["K"]
 
     def test_target_yield_adjustment(self):
         """Test adjustment for target yield"""
-        from src.main import calculate_npk_needs, CropType, GrowthStage, CROP_NPK_REQUIREMENTS
+        from src.main import CROP_NPK_REQUIREMENTS, CropType, GrowthStage, calculate_npk_needs
 
         base_yield = CROP_NPK_REQUIREMENTS[CropType.TOMATO]["target_yield"]
 
@@ -149,7 +153,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=base_yield,
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         needs_high = calculate_npk_needs(
@@ -157,7 +161,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=base_yield * 1.5,  # 50% higher target
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         # Higher target should require more fertilizer
@@ -167,7 +171,7 @@ class TestNPKRequirementCalculation:
 
     def test_soil_analysis_nitrogen_adjustment(self):
         """Test NPK adjustment based on soil nitrogen levels"""
-        from src.main import calculate_npk_needs, CropType, GrowthStage, SoilAnalysis
+        from src.main import CropType, GrowthStage, SoilAnalysis, calculate_npk_needs
 
         # High nitrogen soil
         high_n_soil = SoilAnalysis(
@@ -179,7 +183,7 @@ class TestNPKRequirementCalculation:
             potassium_ppm=150.0,
             organic_matter_percent=3.0,
             ec_ds_m=1.5,
-            soil_type="loamy"
+            soil_type="loamy",
         )
 
         # Low nitrogen soil
@@ -192,7 +196,7 @@ class TestNPKRequirementCalculation:
             potassium_ppm=150.0,
             organic_matter_percent=3.0,
             ec_ds_m=1.5,
-            soil_type="loamy"
+            soil_type="loamy",
         )
 
         needs_high_n = calculate_npk_needs(
@@ -200,7 +204,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=high_n_soil
+            soil_analysis=high_n_soil,
         )
 
         needs_low_n = calculate_npk_needs(
@@ -208,7 +212,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=low_n_soil
+            soil_analysis=low_n_soil,
         )
 
         # High N soil should need less N fertilizer
@@ -216,7 +220,7 @@ class TestNPKRequirementCalculation:
 
     def test_soil_analysis_phosphorus_adjustment(self):
         """Test P adjustment based on soil P levels"""
-        from src.main import calculate_npk_needs, CropType, GrowthStage, SoilAnalysis
+        from src.main import CropType, GrowthStage, SoilAnalysis, calculate_npk_needs
 
         high_p_soil = SoilAnalysis(
             field_id="test",
@@ -227,7 +231,7 @@ class TestNPKRequirementCalculation:
             potassium_ppm=150.0,
             organic_matter_percent=3.0,
             ec_ds_m=1.5,
-            soil_type="loamy"
+            soil_type="loamy",
         )
 
         needs = calculate_npk_needs(
@@ -235,7 +239,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=high_p_soil
+            soil_analysis=high_p_soil,
         )
 
         needs_no_soil = calculate_npk_needs(
@@ -243,7 +247,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         # High P soil should need less P fertilizer
@@ -251,7 +255,7 @@ class TestNPKRequirementCalculation:
 
     def test_low_organic_matter_adjustment(self):
         """Test N increase for low organic matter"""
-        from src.main import calculate_npk_needs, CropType, GrowthStage, SoilAnalysis
+        from src.main import CropType, GrowthStage, SoilAnalysis, calculate_npk_needs
 
         low_om_soil = SoilAnalysis(
             field_id="test",
@@ -262,7 +266,7 @@ class TestNPKRequirementCalculation:
             potassium_ppm=150.0,
             organic_matter_percent=1.0,  # Very low
             ec_ds_m=1.5,
-            soil_type="loamy"
+            soil_type="loamy",
         )
 
         needs_low_om = calculate_npk_needs(
@@ -270,7 +274,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=low_om_soil
+            soil_analysis=low_om_soil,
         )
 
         needs_no_soil = calculate_npk_needs(
@@ -278,7 +282,7 @@ class TestNPKRequirementCalculation:
             stage=GrowthStage.VEGETATIVE,
             area_ha=10.0,
             target_yield=None,
-            soil_analysis=None
+            soil_analysis=None,
         )
 
         # Low OM should require more N
@@ -294,38 +298,30 @@ class TestFertilizerSelection:
 
         npk_needs = {"N": 100.0, "P": 50.0, "K": 120.0}
 
-        recommendations = select_fertilizers(
-            npk_needs=npk_needs,
-            organic_only=False,
-            budget=None
-        )
+        recommendations = select_fertilizers(npk_needs=npk_needs, organic_only=False, budget=None)
 
         # Should return fertilizer recommendations
         assert len(recommendations) > 0
 
         # Should use chemical fertilizers
         from src.main import FertilizerType
+
         fert_types = [r.fertilizer_type for r in recommendations]
-        assert FertilizerType.NPK_20_20_20 in fert_types or \
-               FertilizerType.UREA in fert_types
+        assert FertilizerType.NPK_20_20_20 in fert_types or FertilizerType.UREA in fert_types
 
     def test_select_organic_fertilizers_only(self):
         """Test selection of organic fertilizers only"""
-        from src.main import select_fertilizers, FertilizerType
+        from src.main import FertilizerType, select_fertilizers
 
         npk_needs = {"N": 100.0, "P": 50.0, "K": 120.0}
 
-        recommendations = select_fertilizers(
-            npk_needs=npk_needs,
-            organic_only=True,
-            budget=None
-        )
+        recommendations = select_fertilizers(npk_needs=npk_needs, organic_only=True, budget=None)
 
         # Should only use organic fertilizers
         organic_types = {
             FertilizerType.ORGANIC_COMPOST,
             FertilizerType.CHICKEN_MANURE,
-            FertilizerType.COW_MANURE
+            FertilizerType.COW_MANURE,
         }
 
         for rec in recommendations:
@@ -337,11 +333,7 @@ class TestFertilizerSelection:
 
         npk_needs = {"N": 100.0, "P": 50.0, "K": 120.0}
 
-        recommendations = select_fertilizers(
-            npk_needs=npk_needs,
-            organic_only=False,
-            budget=None
-        )
+        recommendations = select_fertilizers(npk_needs=npk_needs, organic_only=False, budget=None)
 
         for rec in recommendations:
             assert rec.quantity_kg_per_hectare > 0
@@ -353,11 +345,7 @@ class TestFertilizerSelection:
 
         npk_needs = {"N": 100.0, "P": 50.0, "K": 120.0}
 
-        recommendations = select_fertilizers(
-            npk_needs=npk_needs,
-            organic_only=False,
-            budget=None
-        )
+        recommendations = select_fertilizers(npk_needs=npk_needs, organic_only=False, budget=None)
 
         for rec in recommendations:
             # Cost should be positive
@@ -365,21 +353,17 @@ class TestFertilizerSelection:
 
             # Cost should be quantity * price_per_kg
             from src.main import FERTILIZER_PRICES
-            expected_cost = rec.quantity_kg_per_hectare * \
-                          FERTILIZER_PRICES[rec.fertilizer_type]
+
+            expected_cost = rec.quantity_kg_per_hectare * FERTILIZER_PRICES[rec.fertilizer_type]
             assert abs(rec.cost_estimate_yer - expected_cost) < 10.0
 
     def test_application_method_assignment(self):
         """Test that appropriate application methods are assigned"""
-        from src.main import select_fertilizers, ApplicationMethod
+        from src.main import ApplicationMethod, select_fertilizers
 
         npk_needs = {"N": 100.0, "P": 50.0, "K": 120.0}
 
-        recommendations = select_fertilizers(
-            npk_needs=npk_needs,
-            organic_only=False,
-            budget=None
-        )
+        recommendations = select_fertilizers(npk_needs=npk_needs, organic_only=False, budget=None)
 
         for rec in recommendations:
             # Should have a valid application method
@@ -401,7 +385,7 @@ class TestSoilAnalysisInterpretation:
             "potassium_ppm": 180.0,
             "organic_matter_percent": 3.5,
             "ec_ds_m": 1.2,
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         response = test_client.post("/v1/soil-analysis/interpret", json=healthy_soil)
@@ -428,7 +412,7 @@ class TestSoilAnalysisInterpretation:
             "potassium_ppm": 150.0,
             "organic_matter_percent": 2.5,
             "ec_ds_m": 1.2,
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         response = test_client.post("/v1/soil-analysis/interpret", json=acidic_soil)
@@ -453,7 +437,7 @@ class TestSoilAnalysisInterpretation:
             "potassium_ppm": 150.0,
             "organic_matter_percent": 2.5,
             "ec_ds_m": 1.2,
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         response = test_client.post("/v1/soil-analysis/interpret", json=alkaline_soil)
@@ -478,7 +462,7 @@ class TestSoilAnalysisInterpretation:
             "potassium_ppm": 180.0,
             "organic_matter_percent": 2.5,
             "ec_ds_m": 1.2,
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         response = test_client.post("/v1/soil-analysis/interpret", json=n_deficient_soil)
@@ -503,7 +487,7 @@ class TestSoilAnalysisInterpretation:
             "potassium_ppm": 150.0,
             "organic_matter_percent": 2.5,
             "ec_ds_m": 5.0,  # Very high salinity
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         response = test_client.post("/v1/soil-analysis/interpret", json=saline_soil)
@@ -523,7 +507,14 @@ class TestFertilizationSchedule:
 
     def test_generate_schedule_seedling_stage(self):
         """Test schedule for seedling stage"""
-        from src.main import generate_schedule, CropType, GrowthStage, FertilizerRecommendation, FertilizerType, ApplicationMethod
+        from src.main import (
+            ApplicationMethod,
+            CropType,
+            FertilizerRecommendation,
+            FertilizerType,
+            GrowthStage,
+            generate_schedule,
+        )
 
         recommendations = [
             FertilizerRecommendation(
@@ -539,14 +530,12 @@ class TestFertilizationSchedule:
                 npk_content={"N": 15, "P": 15, "K": 15},
                 cost_estimate_yer=100000.0,
                 notes_ar=["ملاحظة"],
-                notes_en=["Note"]
+                notes_en=["Note"],
             )
         ]
 
         schedule = generate_schedule(
-            crop=CropType.TOMATO,
-            stage=GrowthStage.SEEDLING,
-            recommendations=recommendations
+            crop=CropType.TOMATO, stage=GrowthStage.SEEDLING, recommendations=recommendations
         )
 
         # Seedling stage should have 2 applications
@@ -560,7 +549,14 @@ class TestFertilizationSchedule:
 
     def test_generate_schedule_vegetative_stage(self):
         """Test schedule for vegetative stage"""
-        from src.main import generate_schedule, CropType, GrowthStage, FertilizerRecommendation, FertilizerType, ApplicationMethod
+        from src.main import (
+            ApplicationMethod,
+            CropType,
+            FertilizerRecommendation,
+            FertilizerType,
+            GrowthStage,
+            generate_schedule,
+        )
 
         recommendations = [
             FertilizerRecommendation(
@@ -576,14 +572,12 @@ class TestFertilizationSchedule:
                 npk_content={"N": 46, "P": 0, "K": 0},
                 cost_estimate_yer=96000.0,
                 notes_ar=[],
-                notes_en=[]
+                notes_en=[],
             )
         ]
 
         schedule = generate_schedule(
-            crop=CropType.TOMATO,
-            stage=GrowthStage.VEGETATIVE,
-            recommendations=recommendations
+            crop=CropType.TOMATO, stage=GrowthStage.VEGETATIVE, recommendations=recommendations
         )
 
         # Vegetative stage should have 3 applications
@@ -591,7 +585,14 @@ class TestFertilizationSchedule:
 
     def test_schedule_split_quantities(self):
         """Test that schedule splits fertilizer quantities"""
-        from src.main import generate_schedule, CropType, GrowthStage, FertilizerRecommendation, FertilizerType, ApplicationMethod
+        from src.main import (
+            ApplicationMethod,
+            CropType,
+            FertilizerRecommendation,
+            FertilizerType,
+            GrowthStage,
+            generate_schedule,
+        )
 
         total_quantity = 120.0
 
@@ -609,21 +610,18 @@ class TestFertilizationSchedule:
                 npk_content={"N": 46, "P": 0, "K": 0},
                 cost_estimate_yer=96000.0,
                 notes_ar=[],
-                notes_en=[]
+                notes_en=[],
             )
         ]
 
         schedule = generate_schedule(
             crop=CropType.TOMATO,
             stage=GrowthStage.VEGETATIVE,  # 3 applications
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
         # Sum of split quantities should equal total
-        total_applied = sum(
-            app["fertilizers"][0]["quantity_kg"]
-            for app in schedule
-        )
+        total_applied = sum(app["fertilizers"][0]["quantity_kg"] for app in schedule)
 
         assert abs(total_applied - total_quantity) < 0.1
 
@@ -721,7 +719,7 @@ class TestWarningGeneration:
             "area_hectares": 1.0,
             "soil_type": "loamy",
             "target_yield_kg_ha": 80000.0,  # Very high target
-            "organic_only": False
+            "organic_only": False,
         }
 
         response = test_client.post("/v1/recommend", json=request)
@@ -747,7 +745,7 @@ class TestWarningGeneration:
             "area_hectares": 5.0,
             "soil_type": "loamy",
             "organic_only": False,
-            "soil_analysis": high_salinity_soil
+            "soil_analysis": high_salinity_soil,
         }
 
         response = test_client.post("/v1/recommend", json=request)
@@ -770,7 +768,7 @@ class TestWarningGeneration:
             "area_hectares": 5.0,
             "soil_type": "loamy",
             "organic_only": False,
-            "soil_analysis": alkaline_soil
+            "soil_analysis": alkaline_soil,
         }
 
         response = test_client.post("/v1/recommend", json=request)
@@ -793,7 +791,7 @@ class TestCropSpecificRecommendations:
             "growth_stage": "fruiting",
             "area_hectares": 5.0,
             "soil_type": "loamy",
-            "organic_only": False
+            "organic_only": False,
         }
 
         response = test_client.post("/v1/recommend", json=request)
@@ -812,7 +810,7 @@ class TestCropSpecificRecommendations:
             "growth_stage": "vegetative",
             "area_hectares": 10.0,
             "soil_type": "loamy",
-            "organic_only": False
+            "organic_only": False,
         }
 
         response = test_client.post("/v1/recommend", json=request)
@@ -831,7 +829,7 @@ class TestCropSpecificRecommendations:
             "growth_stage": "fruiting",
             "area_hectares": 5.0,
             "soil_type": "loamy",
-            "organic_only": False
+            "organic_only": False,
         }
 
         response = test_client.post("/v1/recommend", json=request)
@@ -853,7 +851,7 @@ class TestDataValidation:
             "crop": "tomato",
             "growth_stage": "vegetative",
             "area_hectares": -5.0,  # Invalid
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         response = test_client.post("/v1/recommend", json=invalid_request)
@@ -867,7 +865,7 @@ class TestDataValidation:
             "crop": "invalid_crop",
             "growth_stage": "vegetative",
             "area_hectares": 5.0,
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         response = test_client.post("/v1/recommend", json=invalid_request)
@@ -885,7 +883,7 @@ class TestDataValidation:
             "potassium_ppm": 150.0,
             "organic_matter_percent": 2.5,
             "ec_ds_m": 1.2,
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         response = test_client.post("/v1/soil-analysis/interpret", json=invalid_soil)
@@ -963,7 +961,7 @@ class TestCostCalculations:
             "growth_stage": "vegetative",
             "area_hectares": 5.0,
             "soil_type": "loamy",
-            "organic_only": False
+            "organic_only": False,
         }
 
         request_large = {
@@ -972,7 +970,7 @@ class TestCostCalculations:
             "growth_stage": "vegetative",
             "area_hectares": 10.0,
             "soil_type": "loamy",
-            "organic_only": False
+            "organic_only": False,
         }
 
         resp_small = test_client.post("/v1/recommend", json=request_small)

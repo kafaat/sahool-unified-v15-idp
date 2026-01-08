@@ -51,9 +51,7 @@ class CropHealthTool:
                     "crop_type": crop_type,
                 }
 
-                response = await client.post(
-                    f"{self.base_url}/api/v1/analyze", json=data
-                )
+                response = await client.post(f"{self.base_url}/api/v1/analyze", json=data)
                 response.raise_for_status()
 
                 result = response.json()
@@ -65,9 +63,7 @@ class CropHealthTool:
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "crop_health_analysis_failed", error=str(e), image_path=image_path
-            )
+            logger.error("crop_health_analysis_failed", error=str(e), image_path=image_path)
             return {"error": str(e), "status": "failed"}
 
     async def get_disease_info(
@@ -147,7 +143,5 @@ class CropHealthTool:
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "treatment_options_failed", error=str(e), disease_name=disease_name
-            )
+            logger.error("treatment_options_failed", error=str(e), disease_name=disease_name)
             return {"error": str(e), "status": "failed"}

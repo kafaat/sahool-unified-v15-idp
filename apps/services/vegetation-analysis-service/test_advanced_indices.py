@@ -6,9 +6,7 @@ Verifies that all new functionality works correctly
 
 import sys
 
-sys.path.insert(
-    0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service/src"
-)
+sys.path.insert(0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service/src")
 
 from vegetation_indices import (
     BandData,
@@ -175,17 +173,13 @@ def test_stress_detection():
 
     # Scenario 2: Nitrogen deficiency
     print("\nScenario 2: Nitrogen Deficiency (NDRE = 0.12)")
-    nitrogen_def = interpreter.interpret_index(
-        "ndre", 0.12, CropType.WHEAT, GrowthStage.VEGETATIVE
-    )
+    nitrogen_def = interpreter.interpret_index("ndre", 0.12, CropType.WHEAT, GrowthStage.VEGETATIVE)
     print(f"  Status: {nitrogen_def.status.value}")
     print(f"  Action: {nitrogen_def.description_en}")
 
     # Scenario 3: Early stress (GNDVI)
     print("\nScenario 3: Early Stress Detection (GNDVI = 0.32)")
-    early_stress = interpreter.interpret_index(
-        "gndvi", 0.32, CropType.WHEAT, GrowthStage.EMERGENCE
-    )
+    early_stress = interpreter.interpret_index("gndvi", 0.32, CropType.WHEAT, GrowthStage.EMERGENCE)
     print(f"  Status: {early_stress.status.value}")
     print(f"  Action: {early_stress.description_en}")
 

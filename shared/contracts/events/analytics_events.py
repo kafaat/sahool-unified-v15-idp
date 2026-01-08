@@ -58,9 +58,7 @@ class YieldPredictedEvent(BaseEvent):
             "predicted_yield_kg": self.predicted_yield_kg,
             "confidence_interval_low": self.confidence_interval_low,
             "confidence_interval_high": self.confidence_interval_high,
-            "prediction_date": (
-                self.prediction_date.isoformat() if self.prediction_date else None
-            ),
+            "prediction_date": (self.prediction_date.isoformat() if self.prediction_date else None),
             "model_version": self.model_version,
             "factors_considered": self.factors_considered,
         }

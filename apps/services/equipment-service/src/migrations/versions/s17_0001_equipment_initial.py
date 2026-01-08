@@ -35,9 +35,7 @@ def upgrade() -> None:
         sa.Column("name_ar", sa.String(length=200), nullable=True),
         # Equipment classification
         sa.Column("equipment_type", sa.String(length=50), nullable=False),
-        sa.Column(
-            "status", sa.String(length=20), nullable=False, server_default="operational"
-        ),
+        sa.Column("status", sa.String(length=20), nullable=False, server_default="operational"),
         # Equipment details
         sa.Column("brand", sa.String(length=100), nullable=True),
         sa.Column("model", sa.String(length=100), nullable=True),

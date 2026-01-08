@@ -50,7 +50,7 @@ def test_credentials():
         "tenant_id": str(uuid.uuid4()),
         "user_id": str(uuid.uuid4()),
         "email": f"test_{uuid.uuid4().hex[:8]}@sahool.com",
-        "jwt_secret": "test-secret-key-for-tests-only-do-not-use-in-production-32chars"
+        "jwt_secret": "test-secret-key-for-tests-only-do-not-use-in-production-32chars",
     }
 
 
@@ -63,14 +63,10 @@ def auth_token(test_credentials):
         "email": test_credentials["email"],
         "iat": datetime.utcnow(),
         "exp": datetime.utcnow() + timedelta(hours=1),
-        "jti": str(uuid.uuid4())
+        "jti": str(uuid.uuid4()),
     }
 
-    token = jwt.encode(
-        payload,
-        test_credentials["jwt_secret"],
-        algorithm="HS256"
-    )
+    token = jwt.encode(payload, test_credentials["jwt_secret"], algorithm="HS256")
     return token
 
 
@@ -80,7 +76,7 @@ def auth_headers(auth_token):
     return {
         "Authorization": f"Bearer {auth_token}",
         "Content-Type": "application/json",
-        "Accept": "application/json"
+        "Accept": "application/json",
     }
 
 
@@ -96,7 +92,7 @@ async def test_field_creation_workflow(
     http_client: AsyncClient,
     auth_headers: dict[str, str],
     test_credentials: dict[str, Any],
-    db_connection
+    db_connection,
 ):
     """
     Test complete field creation workflow
@@ -115,9 +111,9 @@ async def test_field_creation_workflow(
         "crop_type": "wheat",
         "location": {
             "type": "Point",
-            "coordinates": [46.7382, 24.7136]  # Riyadh, Saudi Arabia
+            "coordinates": [46.7382, 24.7136],  # Riyadh, Saudi Arabia
         },
-        "tenant_id": test_credentials["tenant_id"]
+        "tenant_id": test_credentials["tenant_id"],
     }
 
     field_id = None
@@ -128,7 +124,7 @@ async def test_field_creation_workflow(
             f"{SERVICE_URLS['field_ops']}/api/v1/fields",
             headers=auth_headers,
             json=field_data,
-            timeout=10.0
+            timeout=10.0,
         )
 
         if create_response.status_code in [200, 201]:
@@ -138,10 +134,7 @@ async def test_field_creation_workflow(
             # Step 2: Verify in database (if field was created)
             if field_id:
                 cursor = db_connection.cursor()
-                cursor.execute(
-                    "SELECT * FROM fields WHERE id = %s",
-                    (field_id,)
-                )
+                cursor.execute("SELECT * FROM fields WHERE id = %s", (field_id,))
                 db_field = cursor.fetchone()
 
                 if db_field:
@@ -151,9 +144,7 @@ async def test_field_creation_workflow(
 
             # Step 3: List fields
             list_response = await http_client.get(
-                f"{SERVICE_URLS['field_ops']}/api/v1/fields",
-                headers=auth_headers,
-                timeout=10.0
+                f"{SERVICE_URLS['field_ops']}/api/v1/fields", headers=auth_headers, timeout=10.0
             )
 
             if list_response.status_code == 200:
@@ -170,7 +161,7 @@ async def test_field_creation_workflow(
                     f"{SERVICE_URLS['field_ops']}/api/v1/fields/{field_id}",
                     headers=auth_headers,
                     json=update_data,
-                    timeout=10.0
+                    timeout=10.0,
                 )
 
                 # Update might succeed or fail
@@ -181,7 +172,7 @@ async def test_field_creation_workflow(
                 delete_response = await http_client.delete(
                     f"{SERVICE_URLS['field_ops']}/api/v1/fields/{field_id}",
                     headers=auth_headers,
-                    timeout=10.0
+                    timeout=10.0,
                 )
 
                 # Delete might succeed or fail
@@ -203,7 +194,7 @@ async def test_iot_data_ingestion_workflow(
     http_client: AsyncClient,
     auth_headers: dict[str, str],
     test_credentials: dict[str, Any],
-    nats_client
+    nats_client,
 ):
     """
     Test IoT sensor data ingestion and processing workflow
@@ -229,14 +220,11 @@ async def test_iot_data_ingestion_workflow(
         "reading_type": "soil_moisture",
         "value": 25.5,  # Low moisture - might trigger alert
         "unit": "percent",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
     try:
-        await nats_client.publish(
-            "iot.sensor.reading",
-            json.dumps(sensor_reading).encode()
-        )
+        await nats_client.publish("iot.sensor.reading", json.dumps(sensor_reading).encode())
 
         # Give services time to process
         await asyncio.sleep(2.0)
@@ -247,7 +235,7 @@ async def test_iot_data_ingestion_workflow(
             readings_response = await http_client.get(
                 f"{SERVICE_URLS['field_ops']}/api/v1/sensors/{sensor_id}/readings",
                 headers=auth_headers,
-                timeout=10.0
+                timeout=10.0,
             )
 
             if readings_response.status_code == 200:
@@ -272,9 +260,7 @@ async def test_iot_data_ingestion_workflow(
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_weather_satellite_analysis_workflow(
-    http_client: AsyncClient,
-    auth_headers: dict[str, str],
-    test_credentials: dict[str, Any]
+    http_client: AsyncClient, auth_headers: dict[str, str], test_credentials: dict[str, Any]
 ):
     """
     Test weather forecast and satellite analysis workflow
@@ -285,10 +271,7 @@ async def test_weather_satellite_analysis_workflow(
     2. Request NDVI analysis for field
     3. Combine data for comprehensive field analysis
     """
-    location = {
-        "latitude": 24.7136,
-        "longitude": 46.7382
-    }
+    location = {"latitude": 24.7136, "longitude": 46.7382}
 
     field_id = str(uuid.uuid4())
 
@@ -298,7 +281,7 @@ async def test_weather_satellite_analysis_workflow(
             f"{SERVICE_URLS['weather_core']}/api/v1/forecast",
             headers=auth_headers,
             params=location,
-            timeout=15.0
+            timeout=15.0,
         )
 
         weather_data = None
@@ -317,9 +300,9 @@ async def test_weather_satellite_analysis_workflow(
                     "field_id": field_id,
                     "latitude": location["latitude"],
                     "longitude": location["longitude"],
-                    "date": datetime.utcnow().isoformat()
+                    "date": datetime.utcnow().isoformat(),
                 },
-                timeout=20.0
+                timeout=20.0,
             )
 
             ndvi_data = None
@@ -331,7 +314,7 @@ async def test_weather_satellite_analysis_workflow(
                 "field_id": field_id,
                 "timestamp": datetime.utcnow().isoformat(),
                 "weather": weather_data,
-                "ndvi": ndvi_data
+                "ndvi": ndvi_data,
             }
 
             assert combined_analysis is not None
@@ -353,9 +336,7 @@ async def test_weather_satellite_analysis_workflow(
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_ai_recommendations_workflow(
-    http_client: AsyncClient,
-    auth_headers: dict[str, str],
-    test_credentials: dict[str, Any]
+    http_client: AsyncClient, auth_headers: dict[str, str], test_credentials: dict[str, Any]
 ):
     """
     Test AI-powered recommendations workflow
@@ -374,7 +355,7 @@ async def test_ai_recommendations_workflow(
         "area_hectares": 10.5,
         "soil_moisture": 30.0,
         "temperature": 25.0,
-        "ndvi": 0.65
+        "ndvi": 0.65,
     }
 
     try:
@@ -383,7 +364,7 @@ async def test_ai_recommendations_workflow(
             f"{SERVICE_URLS['ai_advisor']}/api/v1/recommendations",
             headers=auth_headers,
             json=field_data,
-            timeout=30.0  # AI processing might take time
+            timeout=30.0,  # AI processing might take time
         )
 
         if ai_response.status_code in [200, 201]:
@@ -397,11 +378,9 @@ async def test_ai_recommendations_workflow(
                     "fertilizer",
                     "crop_health",
                     "recommendations",
-                    "advice"
+                    "advice",
                 ]
-                has_recommendations = any(
-                    field in recommendations for field in expected_fields
-                )
+                has_recommendations = any(field in recommendations for field in expected_fields)
 
                 # AI service might return different structure
                 assert len(recommendations) > 0
@@ -412,7 +391,7 @@ async def test_ai_recommendations_workflow(
                 f"{SERVICE_URLS['ai_advisor']}/api/v1/irrigation-advice",
                 headers=auth_headers,
                 params={"field_id": field_data["field_id"]},
-                timeout=20.0
+                timeout=20.0,
             )
 
             if irrigation_response.status_code == 200:
@@ -439,7 +418,7 @@ async def test_alert_notification_workflow(
     auth_headers: dict[str, str],
     test_credentials: dict[str, Any],
     nats_client,
-    db_connection
+    db_connection,
 ):
     """
     Test alert generation and notification workflow
@@ -468,15 +447,12 @@ async def test_alert_notification_workflow(
         "value": 15.0,  # Very low
         "threshold": 25.0,
         "severity": "high",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
     try:
         # Publish alert event
-        await nats_client.publish(
-            "alerts.threshold.exceeded",
-            json.dumps(alert_event).encode()
-        )
+        await nats_client.publish("alerts.threshold.exceeded", json.dumps(alert_event).encode())
 
         # Give services time to process
         await asyncio.sleep(2.0)
@@ -484,12 +460,15 @@ async def test_alert_notification_workflow(
         # Step 2 & 4: Check if alert was stored in database
         cursor = db_connection.cursor()
         try:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM alerts
                 WHERE tenant_id = %s
                 ORDER BY created_at DESC
                 LIMIT 1
-            """, (test_credentials["tenant_id"],))
+            """,
+                (test_credentials["tenant_id"],),
+            )
 
             recent_alert = cursor.fetchone()
             if recent_alert:
@@ -505,9 +484,7 @@ async def test_alert_notification_workflow(
         # Step 5: Query alerts via API
         try:
             alerts_response = await http_client.get(
-                f"{SERVICE_URLS['field_ops']}/api/v1/alerts",
-                headers=auth_headers,
-                timeout=10.0
+                f"{SERVICE_URLS['field_ops']}/api/v1/alerts", headers=auth_headers, timeout=10.0
             )
 
             if alerts_response.status_code == 200:
@@ -532,9 +509,7 @@ async def test_alert_notification_workflow(
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_billing_subscription_workflow(
-    http_client: AsyncClient,
-    auth_headers: dict[str, str],
-    test_credentials: dict[str, Any]
+    http_client: AsyncClient, auth_headers: dict[str, str], test_credentials: dict[str, Any]
 ):
     """
     Test billing and subscription workflow
@@ -549,9 +524,7 @@ async def test_billing_subscription_workflow(
     try:
         # Step 1: Get subscription plans
         plans_response = await http_client.get(
-            f"{SERVICE_URLS['billing_core']}/api/v1/plans",
-            headers=auth_headers,
-            timeout=10.0
+            f"{SERVICE_URLS['billing_core']}/api/v1/plans", headers=auth_headers, timeout=10.0
         )
 
         if plans_response.status_code == 200:
@@ -562,14 +535,14 @@ async def test_billing_subscription_workflow(
         subscription_data = {
             "tenant_id": test_credentials["tenant_id"],
             "plan_id": "starter",
-            "billing_cycle": "monthly"
+            "billing_cycle": "monthly",
         }
 
         subscription_response = await http_client.post(
             f"{SERVICE_URLS['billing_core']}/api/v1/subscriptions",
             headers=auth_headers,
             json=subscription_data,
-            timeout=10.0
+            timeout=10.0,
         )
 
         subscription_id = None
@@ -582,7 +555,7 @@ async def test_billing_subscription_workflow(
             billing_response = await http_client.get(
                 f"{SERVICE_URLS['billing_core']}/api/v1/billing-history",
                 headers=auth_headers,
-                timeout=10.0
+                timeout=10.0,
             )
 
             if billing_response.status_code == 200:
@@ -602,9 +575,7 @@ async def test_billing_subscription_workflow(
 @pytest.mark.e2e
 @pytest.mark.asyncio
 async def test_multi_service_orchestration_workflow(
-    http_client: AsyncClient,
-    auth_headers: dict[str, str],
-    test_credentials: dict[str, Any]
+    http_client: AsyncClient, auth_headers: dict[str, str], test_credentials: dict[str, Any]
 ):
     """
     Test complex workflow involving multiple services
@@ -623,7 +594,7 @@ async def test_multi_service_orchestration_workflow(
         "field_id": field_id,
         "tenant_id": test_credentials["tenant_id"],
         "timestamp": datetime.utcnow().isoformat(),
-        "data": {}
+        "data": {},
     }
 
     # Step 1: Create or reference field
@@ -631,7 +602,7 @@ async def test_multi_service_orchestration_workflow(
         "id": field_id,
         "name": f"Orchestration Test Field {uuid.uuid4().hex[:8]}",
         "area_hectares": 15.0,
-        "location": {"lat": 24.7136, "lon": 46.7382}
+        "location": {"lat": 24.7136, "lon": 46.7382},
     }
     comprehensive_report["data"]["field"] = field_data
 
@@ -641,7 +612,7 @@ async def test_multi_service_orchestration_workflow(
             f"{SERVICE_URLS['weather_core']}/api/v1/forecast",
             headers=auth_headers,
             params={"latitude": 24.7136, "longitude": 46.7382},
-            timeout=15.0
+            timeout=15.0,
         )
 
         if weather_response.status_code == 200:
@@ -654,12 +625,8 @@ async def test_multi_service_orchestration_workflow(
         ndvi_response = await http_client.post(
             f"{SERVICE_URLS['ndvi_engine']}/api/v1/analyze",
             headers=auth_headers,
-            json={
-                "field_id": field_id,
-                "latitude": 24.7136,
-                "longitude": 46.7382
-            },
-            timeout=20.0
+            json={"field_id": field_id, "latitude": 24.7136, "longitude": 46.7382},
+            timeout=20.0,
         )
 
         if ndvi_response.status_code in [200, 201]:
@@ -672,12 +639,8 @@ async def test_multi_service_orchestration_workflow(
         ai_response = await http_client.post(
             f"{SERVICE_URLS['ai_advisor']}/api/v1/recommendations",
             headers=auth_headers,
-            json={
-                "field_id": field_id,
-                "crop_type": "wheat",
-                "area_hectares": 15.0
-            },
-            timeout=30.0
+            json={"field_id": field_id, "crop_type": "wheat", "area_hectares": 15.0},
+            timeout=30.0,
         )
 
         if ai_response.status_code in [200, 201]:
@@ -703,7 +666,7 @@ async def test_data_consistency_across_services(
     auth_headers: dict[str, str],
     test_credentials: dict[str, Any],
     db_connection,
-    nats_client
+    nats_client,
 ):
     """
     Test data consistency across services
@@ -722,7 +685,7 @@ async def test_data_consistency_across_services(
         "name": f"Consistency Test {uuid.uuid4().hex[:8]}",
         "tenant_id": test_credentials["tenant_id"],
         "area_hectares": 20.0,
-        "created_at": datetime.utcnow().isoformat()
+        "created_at": datetime.utcnow().isoformat(),
     }
 
     try:
@@ -731,7 +694,7 @@ async def test_data_consistency_across_services(
             f"{SERVICE_URLS['field_ops']}/api/v1/fields",
             headers=auth_headers,
             json=field_data,
-            timeout=10.0
+            timeout=10.0,
         )
 
         created_field_id = None
@@ -745,13 +708,10 @@ async def test_data_consistency_across_services(
                 "event_type": "field.created",
                 "field_id": created_field_id or field_id,
                 "tenant_id": test_credentials["tenant_id"],
-                "data": field_data
+                "data": field_data,
             }
 
-            await nats_client.publish(
-                "fields.created",
-                json.dumps(event).encode()
-            )
+            await nats_client.publish("fields.created", json.dumps(event).encode())
 
             # Give services time to process
             await asyncio.sleep(2.0)
@@ -759,12 +719,15 @@ async def test_data_consistency_across_services(
         # Step 3 & 4: Verify in database
         cursor = db_connection.cursor()
         try:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT * FROM fields
                 WHERE tenant_id = %s
                 ORDER BY created_at DESC
                 LIMIT 1
-            """, (test_credentials["tenant_id"],))
+            """,
+                (test_credentials["tenant_id"],),
+            )
 
             recent_field = cursor.fetchone()
             if recent_field:
@@ -790,10 +753,7 @@ async def test_data_consistency_across_services(
 @pytest.mark.e2e
 @pytest.mark.slow
 @pytest.mark.asyncio
-async def test_platform_load_handling(
-    http_client: AsyncClient,
-    auth_headers: dict[str, str]
-):
+async def test_platform_load_handling(http_client: AsyncClient, auth_headers: dict[str, str]):
     """
     Test platform handles load from multiple concurrent users
     اختبار معالجة المنصة للحمل من مستخدمين متزامنين متعددين
@@ -811,12 +771,9 @@ async def test_platform_load_handling(
                 f"{SERVICE_URLS['weather_core']}/api/v1/forecast",
                 headers=auth_headers,
                 params={"latitude": 24.7 + user_id * 0.01, "longitude": 46.7},
-                timeout=15.0
+                timeout=15.0,
             )
-            results["operations"].append({
-                "type": "weather",
-                "status": weather_resp.status_code
-            })
+            results["operations"].append({"type": "weather", "status": weather_resp.status_code})
         except Exception:
             results["operations"].append({"type": "weather", "status": "error"})
 
@@ -826,13 +783,9 @@ async def test_platform_load_handling(
         # Get health check
         try:
             health_resp = await http_client.get(
-                f"{SERVICE_URLS['field_ops']}/healthz",
-                timeout=10.0
+                f"{SERVICE_URLS['field_ops']}/healthz", timeout=10.0
             )
-            results["operations"].append({
-                "type": "health",
-                "status": health_resp.status_code
-            })
+            results["operations"].append({"type": "health", "status": health_resp.status_code})
         except Exception:
             results["operations"].append({"type": "health", "status": "error"})
 
@@ -856,8 +809,7 @@ async def test_platform_load_handling(
 
         if total_operations > 0:
             success_rate = successful_operations / total_operations
-            assert success_rate >= 0.7, \
-                f"Success rate {success_rate:.1%} is below 70% threshold"
+            assert success_rate >= 0.7, f"Success rate {success_rate:.1%} is below 70% threshold"
 
     except Exception as e:
         pytest.skip(f"Load test skipped: {e}")

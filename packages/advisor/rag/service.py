@@ -143,9 +143,7 @@ class RAGService:
         documents = list(self._documents.values())
 
         if tenant_id:
-            documents = [
-                d for d in documents if d.tenant_id is None or d.tenant_id == tenant_id
-            ]
+            documents = [d for d in documents if d.tenant_id is None or d.tenant_id == tenant_id]
 
         if category:
             documents = [d for d in documents if d.category == category]

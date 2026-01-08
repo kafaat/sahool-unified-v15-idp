@@ -120,22 +120,16 @@ async def get_alerts(
             try:
                 priority_enum = AlertPriority[priority.upper()]
             except KeyError:
-                raise HTTPException(
-                    status_code=400, detail=f"Invalid priority: {priority}"
-                )
+                raise HTTPException(status_code=400, detail=f"Invalid priority: {priority}")
 
         type_enum = None
         if alert_type:
             try:
                 type_enum = AlertType[alert_type.upper()]
             except KeyError:
-                raise HTTPException(
-                    status_code=400, detail=f"Invalid alert type: {alert_type}"
-                )
+                raise HTTPException(status_code=400, detail=f"Invalid alert type: {alert_type}")
 
-        alerts = await manager.get_active_alerts(
-            priority=priority_enum, alert_type=type_enum
-        )
+        alerts = await manager.get_active_alerts(priority=priority_enum, alert_type=type_enum)
 
         total = len(alerts)
         paginated = alerts[offset : offset + limit]
@@ -218,9 +212,7 @@ async def resolve_alert(alert_id: str, data: ResolveAlertRequest):
     """Resolve an alert"""
     try:
         manager = get_alert_manager()
-        alert = await manager.resolve_alert(
-            alert_id, data.resolved_by, data.resolution_notes
-        )
+        alert = await manager.resolve_alert(alert_id, data.resolved_by, data.resolution_notes)
 
         if not alert:
             raise HTTPException(status_code=404, detail="Alert not found")
@@ -293,9 +285,7 @@ async def get_alert_settings(tenant_id: str = "tenant_demo"):
 
 
 @router.put("/settings")
-async def update_alert_settings(
-    data: AlertSettingsModel, tenant_id: str = "tenant_demo"
-):
+async def update_alert_settings(data: AlertSettingsModel, tenant_id: str = "tenant_demo"):
     """Update alert settings"""
     settings = data.model_dump()
     settings_db[tenant_id] = settings

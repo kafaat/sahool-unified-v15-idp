@@ -10,9 +10,7 @@ from typing import Any
 # Set DATABASE_URL in .env file (see .env.example for format)
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    raise OSError(
-        "DATABASE_URL environment variable is required. " "See .env.example for format"
-    )
+    raise OSError("DATABASE_URL environment variable is required. See .env.example for format")
 
 # Tortoise ORM Configuration
 TORTOISE_ORM: dict[str, Any] = {

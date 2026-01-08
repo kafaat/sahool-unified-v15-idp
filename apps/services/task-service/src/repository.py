@@ -7,9 +7,8 @@ Provides database operations for tasks and evidence.
 
 import logging
 from datetime import datetime
-from typing import Optional, List
 
-from sqlalchemy import select, and_, or_, func, delete
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, selectinload
 
@@ -53,7 +52,7 @@ class TaskRepository:
             logger.error(f"Error creating task: {e}")
             raise
 
-    def get_task_by_id(self, task_id: str, tenant_id: str) -> Optional[Task]:
+    def get_task_by_id(self, task_id: str, tenant_id: str) -> Task | None:
         """
         Get task by ID and tenant
         الحصول على مهمة بواسطة المعرف والمستأجر
@@ -73,16 +72,16 @@ class TaskRepository:
     def list_tasks(
         self,
         tenant_id: str,
-        field_id: Optional[str] = None,
-        status: Optional[str] = None,
-        task_type: Optional[str] = None,
-        priority: Optional[str] = None,
-        assigned_to: Optional[str] = None,
-        due_before: Optional[datetime] = None,
-        due_after: Optional[datetime] = None,
+        field_id: str | None = None,
+        status: str | None = None,
+        task_type: str | None = None,
+        priority: str | None = None,
+        assigned_to: str | None = None,
+        due_before: datetime | None = None,
+        due_after: datetime | None = None,
         limit: int = 50,
         offset: int = 0,
-    ) -> tuple[List[Task], int]:
+    ) -> tuple[list[Task], int]:
         """
         List tasks with filters and pagination
         قائمة المهام مع الفلاتر والترقيم
@@ -127,7 +126,7 @@ class TaskRepository:
         tenant_id: str,
         updates: dict,
         performed_by: str,
-    ) -> Optional[Task]:
+    ) -> Task | None:
         """
         Update task fields
         تحديث حقول المهمة
@@ -198,7 +197,7 @@ class TaskRepository:
         task_id: str,
         tenant_id: str,
         performed_by: str,
-    ) -> Optional[Task]:
+    ) -> Task | None:
         """
         Mark task as in progress
         تعيين المهمة كقيد التنفيذ
@@ -239,10 +238,10 @@ class TaskRepository:
         task_id: str,
         tenant_id: str,
         performed_by: str,
-        notes: Optional[str] = None,
-        actual_duration_minutes: Optional[int] = None,
-        completion_metadata: Optional[dict] = None,
-    ) -> Optional[Task]:
+        notes: str | None = None,
+        actual_duration_minutes: int | None = None,
+        completion_metadata: dict | None = None,
+    ) -> Task | None:
         """
         Mark task as completed
         تعيين المهمة كمكتملة
@@ -291,8 +290,8 @@ class TaskRepository:
         task_id: str,
         tenant_id: str,
         performed_by: str,
-        reason: Optional[str] = None,
-    ) -> Optional[Task]:
+        reason: str | None = None,
+    ) -> Task | None:
         """
         Cancel a task
         إلغاء مهمة
@@ -370,42 +369,60 @@ class TaskRepository:
 
         # Total counts by status
         total = self.db.query(func.count(Task.task_id)).filter(Task.tenant_id == tenant_id).scalar()
-        pending = self.db.query(func.count(Task.task_id)).filter(
-            and_(Task.tenant_id == tenant_id, Task.status == "pending")
-        ).scalar()
-        in_progress = self.db.query(func.count(Task.task_id)).filter(
-            and_(Task.tenant_id == tenant_id, Task.status == "in_progress")
-        ).scalar()
-        completed = self.db.query(func.count(Task.task_id)).filter(
-            and_(Task.tenant_id == tenant_id, Task.status == "completed")
-        ).scalar()
+        pending = (
+            self.db.query(func.count(Task.task_id))
+            .filter(and_(Task.tenant_id == tenant_id, Task.status == "pending"))
+            .scalar()
+        )
+        in_progress = (
+            self.db.query(func.count(Task.task_id))
+            .filter(and_(Task.tenant_id == tenant_id, Task.status == "in_progress"))
+            .scalar()
+        )
+        completed = (
+            self.db.query(func.count(Task.task_id))
+            .filter(and_(Task.tenant_id == tenant_id, Task.status == "completed"))
+            .scalar()
+        )
 
         # Overdue tasks
-        overdue = self.db.query(func.count(Task.task_id)).filter(
-            and_(
-                Task.tenant_id == tenant_id,
-                Task.status.notin_(["completed", "cancelled"]),
-                Task.due_date < now,
+        overdue = (
+            self.db.query(func.count(Task.task_id))
+            .filter(
+                and_(
+                    Task.tenant_id == tenant_id,
+                    Task.status.notin_(["completed", "cancelled"]),
+                    Task.due_date < now,
+                )
             )
-        ).scalar()
+            .scalar()
+        )
 
         # Week progress
-        week_total = self.db.query(func.count(Task.task_id)).filter(
-            and_(
-                Task.tenant_id == tenant_id,
-                Task.due_date >= week_start,
-                Task.due_date < week_end,
+        week_total = (
+            self.db.query(func.count(Task.task_id))
+            .filter(
+                and_(
+                    Task.tenant_id == tenant_id,
+                    Task.due_date >= week_start,
+                    Task.due_date < week_end,
+                )
             )
-        ).scalar()
+            .scalar()
+        )
 
-        week_completed = self.db.query(func.count(Task.task_id)).filter(
-            and_(
-                Task.tenant_id == tenant_id,
-                Task.due_date >= week_start,
-                Task.due_date < week_end,
-                Task.status == "completed",
+        week_completed = (
+            self.db.query(func.count(Task.task_id))
+            .filter(
+                and_(
+                    Task.tenant_id == tenant_id,
+                    Task.due_date >= week_start,
+                    Task.due_date < week_end,
+                    Task.status == "completed",
+                )
             )
-        ).scalar()
+            .scalar()
+        )
 
         return {
             "total": total or 0,
@@ -416,11 +433,7 @@ class TaskRepository:
             "week_progress": {
                 "completed": week_completed or 0,
                 "total": week_total or 0,
-                "percentage": (
-                    round(week_completed / week_total * 100)
-                    if week_total > 0
-                    else 0
-                ),
+                "percentage": (round(week_completed / week_total * 100) if week_total > 0 else 0),
             },
         }
 
@@ -429,10 +442,10 @@ class TaskRepository:
         task_id: str,
         action: str,
         performed_by: str,
-        old_status: Optional[str] = None,
-        new_status: Optional[str] = None,
-        changes: Optional[dict] = None,
-        notes: Optional[str] = None,
+        old_status: str | None = None,
+        new_status: str | None = None,
+        changes: dict | None = None,
+        notes: str | None = None,
     ) -> None:
         """
         Record a history entry for task changes
@@ -487,7 +500,7 @@ class AsyncTaskRepository:
             logger.error(f"Error creating task: {e}")
             raise
 
-    async def get_task_by_id(self, task_id: str, tenant_id: str) -> Optional[Task]:
+    async def get_task_by_id(self, task_id: str, tenant_id: str) -> Task | None:
         """Get task by ID asynchronously"""
         result = await self.db.execute(
             select(Task)
@@ -506,10 +519,10 @@ class AsyncTaskRepository:
         task_id: str,
         action: str,
         performed_by: str,
-        old_status: Optional[str] = None,
-        new_status: Optional[str] = None,
-        changes: Optional[dict] = None,
-        notes: Optional[str] = None,
+        old_status: str | None = None,
+        new_status: str | None = None,
+        changes: dict | None = None,
+        notes: str | None = None,
     ) -> None:
         """Record a history entry asynchronously"""
         try:

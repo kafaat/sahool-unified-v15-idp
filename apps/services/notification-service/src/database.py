@@ -15,9 +15,7 @@ logger = logging.getLogger("sahool-notifications.database")
 # Set DATABASE_URL in .env file (see .env.example for format)
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    raise OSError(
-        "DATABASE_URL environment variable is required. " "See .env.example for format"
-    )
+    raise OSError("DATABASE_URL environment variable is required. See .env.example for format")
 
 # Tortoise ORM configuration
 TORTOISE_ORM = {
@@ -99,9 +97,7 @@ async def init_db(create_db: bool = False) -> None:
             await Tortoise.generate_schemas()
             logger.info("✅ Database schemas created")
         else:
-            logger.info(
-                "ℹ️  Skipping schema generation (use Aerich migrations in production)"
-            )
+            logger.info("ℹ️  Skipping schema generation (use Aerich migrations in production)")
 
     except DBConnectionError as e:
         logger.error(f"❌ Failed to connect to database: {e}")
@@ -137,9 +133,7 @@ async def check_db_health() -> dict:
         return {
             "status": "healthy",
             "connected": True,
-            "database": (
-                DATABASE_URL.split("/")[-1] if "/" in DATABASE_URL else "unknown"
-            ),
+            "database": (DATABASE_URL.split("/")[-1] if "/" in DATABASE_URL else "unknown"),
         }
     except Exception as e:
         logger.error(f"Database health check failed: {e}")

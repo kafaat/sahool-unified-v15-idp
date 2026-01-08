@@ -77,9 +77,7 @@ async def test_change_detector():
             print(f"    - Type: {event.change_type.value}")
             print(f"    - Severity: {event.severity.value}")
             print(f"    - Date: {event.detected_date}")
-            print(
-                f"    - NDVI Change: {event.ndvi_change:.3f} ({event.change_percent:.1f}%)"
-            )
+            print(f"    - NDVI Change: {event.ndvi_change:.3f} ({event.change_percent:.1f}%)")
             print(f"    - Confidence: {event.confidence:.2f}")
             print(f"    - Description (AR): {event.description_ar}")
             print(f"    - Recommendation (AR): {event.recommended_action_ar}")
@@ -154,9 +152,7 @@ async def test_change_detector():
         print("\n[Anomaly Details]")
         for anomaly in anomalies[:3]:
             print(f"  - Date: {anomaly['date']}")
-            print(
-                f"    NDVI: {anomaly['ndvi']:.3f} (Expected: {anomaly['expected']:.3f})"
-            )
+            print(f"    NDVI: {anomaly['ndvi']:.3f} (Expected: {anomaly['expected']:.3f})")
             print(f"    Deviation: {anomaly['deviation']:.3f}")
             print(f"    Z-Score: {anomaly['z_score']:.2f}")
 

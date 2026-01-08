@@ -112,9 +112,7 @@ class JSONFormatter(logging.Formatter):
         """
         # Base log structure
         log_data = {
-            "timestamp": datetime.fromtimestamp(
-                record.created, tz=UTC
-            ).isoformat(),
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -245,9 +243,7 @@ def setup_logging(
     """
     # Auto-detect configuration from environment
     if not service_name:
-        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv(
-            "SERVICE_NAME", "sahool-service"
-        )
+        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv("SERVICE_NAME", "sahool-service")
 
     if not service_version:
         service_version = os.getenv("SERVICE_VERSION", "1.0.0")
@@ -390,9 +386,7 @@ class RequestLoggingMiddleware:
         # Extract request info
         method = scope["method"]
         path = scope["path"]
-        client_host = (
-            scope.get("client", ["unknown"])[0] if scope.get("client") else "unknown"
-        )
+        client_host = scope.get("client", ["unknown"])[0] if scope.get("client") else "unknown"
 
         # Log request start
         self.logger.info(

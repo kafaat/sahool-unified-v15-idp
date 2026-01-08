@@ -38,9 +38,7 @@ class TestInventoryAnalytics:
         assert analytics.tenant_id == sample_tenant_id
 
     @pytest.mark.asyncio
-    async def test_get_consumption_forecast_no_data(
-        self, async_session, sample_tenant_id
-    ):
+    async def test_get_consumption_forecast_no_data(self, async_session, sample_tenant_id):
         """Test forecast when item has no consumption history"""
         from src.inventory_analytics import InventoryAnalytics
         from src.models.inventory import InventoryItem

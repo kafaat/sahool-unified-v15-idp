@@ -4,7 +4,6 @@ Fast tests to verify imports and basic functionality
 """
 
 
-
 class TestCoreImports:
     """Test that core modules can be imported"""
 
@@ -34,16 +33,19 @@ class TestServiceImports:
         field_ops_path = Path("apps/services/field-ops/src")
         if not field_ops_path.exists():
             import pytest
+
             pytest.skip("Field ops service not found at expected path")
 
         sys.path.insert(0, str(field_ops_path))
 
         try:
             import main as field_ops_main  # noqa: F401
+
             # Verify app exists
             assert hasattr(field_ops_main, "app")
         except ImportError:
             import pytest
+
             pytest.skip("Field ops main module not available")
 
     def test_field_ops_models_exist(self):
@@ -55,17 +57,20 @@ class TestServiceImports:
         field_ops_path = Path("apps/services/field-ops/src")
         if not field_ops_path.exists():
             import pytest
+
             pytest.skip("Field ops service not found at expected path")
 
         sys.path.insert(0, str(field_ops_path))
 
         try:
             from main import FieldCreate, FieldResponse, OperationCreate
+
             assert FieldCreate is not None
             assert FieldResponse is not None
             assert OperationCreate is not None
         except ImportError:
             import pytest
+
             pytest.skip("Field ops models not available")
 
 

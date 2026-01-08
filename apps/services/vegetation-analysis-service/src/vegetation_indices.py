@@ -251,9 +251,7 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B04_red + L == 0:
             return 0.0
-        return round(
-            ((b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red + L)) * (1 + L), 4
-        )
+        return round(((b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red + L)) * (1 + L), 4)
 
     def lai(self, ndvi: float) -> float:
         """
@@ -317,9 +315,9 @@ class VegetationIndicesCalculator:
         """
         if b.B04_red == 0:
             return 0.0
-        mcari_val = (
-            (b.B05_red_edge1 - b.B04_red) - 0.2 * (b.B05_red_edge1 - b.B03_green)
-        ) * (b.B05_red_edge1 / b.B04_red)
+        mcari_val = ((b.B05_red_edge1 - b.B04_red) - 0.2 * (b.B05_red_edge1 - b.B03_green)) * (
+            b.B05_red_edge1 / b.B04_red
+        )
         return round(max(0, min(mcari_val, 1.5)), 4)
 
     def tcari(self, b: BandData) -> float:
@@ -741,9 +739,7 @@ class IndexInterpreter:
             threshold_info=self.GNDVI_THRESHOLDS,
         )
 
-    def _interpret_water_stress(
-        self, index_name: str, value: float
-    ) -> IndexInterpretation:
+    def _interpret_water_stress(self, index_name: str, value: float) -> IndexInterpretation:
         """Interpret NDWI/NDMI (water stress)"""
         if value > self.WATER_STRESS_THRESHOLDS["no_stress"]:
             status = HealthStatus.EXCELLENT

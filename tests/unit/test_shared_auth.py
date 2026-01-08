@@ -21,7 +21,6 @@ from shared.auth.jwt_handler import (
 )
 from shared.auth.models import AuthErrors, AuthException, TokenPayload
 
-
 # ═══════════════════════════════════════════════════════════════════════════
 # JWT Token Creation Tests
 # ═══════════════════════════════════════════════════════════════════════════
@@ -55,9 +54,7 @@ class TestCreateAccessToken:
         mock_config.JWT_ISSUER = "sahool"
         mock_config.JWT_AUDIENCE = "sahool-api"
 
-        token = create_access_token(
-            user_id="user123", roles=["farmer"], tenant_id="tenant456"
-        )
+        token = create_access_token(user_id="user123", roles=["farmer"], tenant_id="tenant456")
 
         # Decode token to verify tenant is included
         payload = jwt.decode(
@@ -78,9 +75,7 @@ class TestCreateAccessToken:
         mock_config.JWT_AUDIENCE = "sahool-api"
 
         custom_delta = timedelta(minutes=60)
-        token = create_access_token(
-            user_id="user123", roles=["farmer"], expires_delta=custom_delta
-        )
+        token = create_access_token(user_id="user123", roles=["farmer"], expires_delta=custom_delta)
 
         payload = jwt.decode(
             token,
@@ -126,9 +121,7 @@ class TestCreateAccessToken:
         mock_config.JWT_AUDIENCE = "sahool-api"
 
         extra_claims = {"farm_id": "farm789", "region": "north"}
-        token = create_access_token(
-            user_id="user123", roles=["farmer"], extra_claims=extra_claims
-        )
+        token = create_access_token(user_id="user123", roles=["farmer"], extra_claims=extra_claims)
 
         payload = jwt.decode(
             token,
@@ -242,9 +235,7 @@ class TestVerifyToken:
         mock_config.JWT_AUDIENCE = "sahool-api"
 
         # Create token
-        token = create_access_token(
-            user_id="user123", roles=["farmer"], permissions=["farm:read"]
-        )
+        token = create_access_token(user_id="user123", roles=["farmer"], permissions=["farm:read"])
 
         # Verify token
         payload = verify_token(token)

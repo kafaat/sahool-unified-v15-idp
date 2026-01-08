@@ -8,14 +8,11 @@ to various API endpoints, creating a realistic demo environment.
 """
 
 import asyncio
-import json
 import logging
 import os
 import random
-import sys
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
-from uuid import uuid4
 
 import httpx
 
@@ -126,25 +123,31 @@ class DemoDataGenerator:
         }
 
         if device_type == "soil":
-            readings.update({
-                "soil_moisture": round(random.uniform(20, 80), 2),
-                "soil_temperature": round(random.uniform(15, 35), 2),
-                "soil_ph": round(random.uniform(6.0, 8.0), 2),
-                "ec_value": round(random.uniform(0.5, 3.0), 3),
-            })
+            readings.update(
+                {
+                    "soil_moisture": round(random.uniform(20, 80), 2),
+                    "soil_temperature": round(random.uniform(15, 35), 2),
+                    "soil_ph": round(random.uniform(6.0, 8.0), 2),
+                    "ec_value": round(random.uniform(0.5, 3.0), 3),
+                }
+            )
         elif device_type == "weather":
-            readings.update({
-                "air_temperature": round(random.uniform(25, 45), 2),
-                "humidity": round(random.uniform(10, 60), 2),
-                "wind_speed": round(random.uniform(0, 20), 2),
-                "solar_radiation": round(random.uniform(200, 1000), 1),
-            })
+            readings.update(
+                {
+                    "air_temperature": round(random.uniform(25, 45), 2),
+                    "humidity": round(random.uniform(10, 60), 2),
+                    "wind_speed": round(random.uniform(0, 20), 2),
+                    "solar_radiation": round(random.uniform(200, 1000), 1),
+                }
+            )
         elif device_type == "water":
-            readings.update({
-                "flow_rate": round(random.uniform(0, 100), 2),
-                "total_volume": round(random.uniform(1000, 50000), 1),
-                "pressure": round(random.uniform(1, 5), 2),
-            })
+            readings.update(
+                {
+                    "flow_rate": round(random.uniform(0, 100), 2),
+                    "total_volume": round(random.uniform(1000, 50000), 1),
+                    "pressure": round(random.uniform(1, 5), 2),
+                }
+            )
 
         return readings
 
@@ -317,7 +320,9 @@ class DemoDataGenerator:
         return {
             "field_id": random.choice(FIELD_IDS),
             "crop_type": random.choice(CROPS),
-            "planting_date": (datetime.now(UTC) - timedelta(days=random.randint(30, 120))).date().isoformat(),
+            "planting_date": (datetime.now(UTC) - timedelta(days=random.randint(30, 120)))
+            .date()
+            .isoformat(),
             "area_hectares": round(random.uniform(5, 150), 2),
             "irrigation_type": random.choice(["drip", "sprinkler", "flood", "center_pivot"]),
             "soil_type": random.choice(["clay", "sandy", "loam", "silt"]),

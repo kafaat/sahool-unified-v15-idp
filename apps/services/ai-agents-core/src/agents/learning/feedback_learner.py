@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class FeedbackEntry:
     """إدخال التغذية الراجعة"""
+
     feedback_id: str
     recommendation_id: str
     agent_id: str
@@ -40,6 +41,7 @@ class FeedbackEntry:
 @dataclass
 class LearningPolicy:
     """سياسة التعلم"""
+
     action_type: str
     success_rate: float
     avg_reward: float
@@ -68,7 +70,7 @@ class FeedbackLearnerAgent(BaseAgent):
             agent_type=AgentType.LEARNING,
             layer=AgentLayer.LEARNING,
             description="Learns from feedback to improve recommendations",
-            description_ar="يتعلم من التغذية الراجعة لتحسين التوصيات"
+            description_ar="يتعلم من التغذية الراجعة لتحسين التوصيات",
         )
 
         # Feedback storage
@@ -113,7 +115,7 @@ class FeedbackLearnerAgent(BaseAgent):
             actual_result=data.get("actual_result", {}),
             expected_result=data.get("expected_result", {}),
             timestamp=datetime.now(),
-            context_snapshot=data.get("context", {})
+            context_snapshot=data.get("context", {}),
         )
 
     async def _process_feedback(self, feedback: FeedbackEntry) -> None:
@@ -176,7 +178,7 @@ class FeedbackLearnerAgent(BaseAgent):
                 avg_reward=0.0,
                 adjustment_factor=1.0,
                 samples_count=0,
-                last_updated=datetime.now()
+                last_updated=datetime.now(),
             )
 
         policy = self.policies[action_type]
@@ -199,12 +201,14 @@ class FeedbackLearnerAgent(BaseAgent):
 
             # Queue for model update if significant change
             if abs(policy.adjustment_factor - 1.0) > 0.2:
-                self.adjustment_queue.append({
-                    "action_type": action_type,
-                    "adjustment": policy.adjustment_factor,
-                    "reason": "policy_drift",
-                    "timestamp": datetime.now().isoformat()
-                })
+                self.adjustment_queue.append(
+                    {
+                        "action_type": action_type,
+                        "adjustment": policy.adjustment_factor,
+                        "reason": "policy_drift",
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
 
     async def _process_outcome(self, data: dict[str, Any]) -> None:
         """معالجة النتيجة الفعلية"""
@@ -240,7 +244,7 @@ class FeedbackLearnerAgent(BaseAgent):
         self.state.knowledge[f"correction_{original_action}"] = {
             "should_be": corrected_action,
             "reason": reason,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Negative reward for original
@@ -264,15 +268,15 @@ class FeedbackLearnerAgent(BaseAgent):
                         k: {
                             "success_rate": v.success_rate,
                             "avg_reward": v.avg_reward,
-                            "adjustment_factor": v.adjustment_factor
+                            "adjustment_factor": v.adjustment_factor,
                         }
                         for k, v in self.policies.items()
-                    }
+                    },
                 },
                 confidence=0.8,
                 priority=3,
                 reasoning="تحديث النماذج بناءً على التغذية الراجعة",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         # Generate learning insights
@@ -284,7 +288,7 @@ class FeedbackLearnerAgent(BaseAgent):
                 confidence=0.75,
                 priority=4,
                 reasoning="رؤى من التعلم المستمر",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         return None
@@ -296,27 +300,29 @@ class FeedbackLearnerAgent(BaseAgent):
         # Best performing actions
         if self.policies:
             sorted_policies = sorted(
-                self.policies.values(),
-                key=lambda p: p.avg_reward,
-                reverse=True
+                self.policies.values(), key=lambda p: p.avg_reward, reverse=True
             )
 
             if sorted_policies and sorted_policies[0].avg_reward > 0.5:
-                insights.append({
-                    "type": "top_performer",
-                    "action": sorted_policies[0].action_type,
-                    "success_rate": sorted_policies[0].success_rate,
-                    "message_ar": f"الإجراء الأفضل أداءً: {sorted_policies[0].action_type}"
-                })
+                insights.append(
+                    {
+                        "type": "top_performer",
+                        "action": sorted_policies[0].action_type,
+                        "success_rate": sorted_policies[0].success_rate,
+                        "message_ar": f"الإجراء الأفضل أداءً: {sorted_policies[0].action_type}",
+                    }
+                )
 
             # Worst performing
             if sorted_policies and sorted_policies[-1].avg_reward < -0.2:
-                insights.append({
-                    "type": "needs_improvement",
-                    "action": sorted_policies[-1].action_type,
-                    "success_rate": sorted_policies[-1].success_rate,
-                    "message_ar": f"يحتاج تحسين: {sorted_policies[-1].action_type}"
-                })
+                insights.append(
+                    {
+                        "type": "needs_improvement",
+                        "action": sorted_policies[-1].action_type,
+                        "success_rate": sorted_policies[-1].success_rate,
+                        "message_ar": f"يحتاج تحسين: {sorted_policies[-1].action_type}",
+                    }
+                )
 
         return insights
 
@@ -326,7 +332,7 @@ class FeedbackLearnerAgent(BaseAgent):
             "action_type": action.action_type,
             "executed_at": datetime.now().isoformat(),
             "parameters": action.parameters,
-            "success": True
+            "success": True,
         }
 
     def get_policy_adjustments(self, action_type: str) -> float:
@@ -354,8 +360,8 @@ class FeedbackLearnerAgent(BaseAgent):
             "agent_performance": {
                 agent_id: {
                     "avg_reward": sum(rewards) / len(rewards) if rewards else 0,
-                    "samples": len(rewards)
+                    "samples": len(rewards),
                 }
                 for agent_id, rewards in self.agent_rewards.items()
-            }
+            },
         }

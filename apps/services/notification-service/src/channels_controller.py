@@ -28,12 +28,8 @@ class AddChannelRequest(BaseModel):
     """طلب إضافة قناة - Add Channel Request"""
 
     user_id: str = Field(..., description="User ID")
-    channel_type: str = Field(
-        ..., description="Channel type: email, sms, push, whatsapp, in_app"
-    )
-    address: str = Field(
-        ..., description="Channel address (email, phone, FCM token, etc.)"
-    )
+    channel_type: str = Field(..., description="Channel type: email, sms, push, whatsapp, in_app")
+    address: str = Field(..., description="Channel address (email, phone, FCM token, etc.)")
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
     metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
 

@@ -9,7 +9,6 @@ Provides GitHub PR integration for automated code reviews
 import hashlib
 import hmac
 import logging
-from typing import Any, Optional
 
 import aiohttp
 
@@ -23,12 +22,12 @@ class GitHubIntegration:
         self,
         token: str,
         api_url: str = "https://api.github.com",
-        webhook_secret: Optional[str] = None
+        webhook_secret: str | None = None,
     ):
         self.token = token
         self.api_url = api_url.rstrip("/")
         self.webhook_secret = webhook_secret
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create HTTP session"""
@@ -36,7 +35,7 @@ class GitHubIntegration:
             headers = {
                 "Authorization": f"token {self.token}",
                 "Accept": "application/vnd.github.v3+json",
-                "User-Agent": "SAHOOL-Code-Review-Service"
+                "User-Agent": "SAHOOL-Code-Review-Service",
             }
             self.session = aiohttp.ClientSession(headers=headers)
         return self.session
@@ -54,15 +53,13 @@ class GitHubIntegration:
         if not signature or not signature.startswith("sha256="):
             return False
 
-        expected = "sha256=" + hmac.new(
-            self.webhook_secret.encode(),
-            payload,
-            hashlib.sha256
-        ).hexdigest()
+        expected = (
+            "sha256=" + hmac.new(self.webhook_secret.encode(), payload, hashlib.sha256).hexdigest()
+        )
 
         return hmac.compare_digest(signature, expected)
 
-    async def get_pr(self, owner: str, repo: str, pr_number: int) -> Optional[dict]:
+    async def get_pr(self, owner: str, repo: str, pr_number: int) -> dict | None:
         """Get PR details"""
         try:
             session = await self._get_session()
@@ -100,7 +97,7 @@ class GitHubIntegration:
             logger.error(f"Error getting PR files: {e}")
             return []
 
-    async def get_file_content(self, owner: str, repo: str, path: str, ref: str) -> Optional[str]:
+    async def get_file_content(self, owner: str, repo: str, path: str, ref: str) -> str | None:
         """Get file content from repository"""
         try:
             session = await self._get_session()
@@ -111,6 +108,7 @@ class GitHubIntegration:
                 data = await response.json()
                 if data.get("encoding") == "base64":
                     import base64
+
                     return base64.b64decode(data["content"]).decode("utf-8")
                 return data.get("content")
         except Exception as e:
@@ -118,12 +116,8 @@ class GitHubIntegration:
             return None
 
     async def create_pr_comment(
-        self,
-        owner: str,
-        repo: str,
-        pr_number: int,
-        body: str
-    ) -> Optional[dict]:
+        self, owner: str, repo: str, pr_number: int, body: str
+    ) -> dict | None:
         """Create a comment on a PR"""
         try:
             session = await self._get_session()
@@ -144,17 +138,14 @@ class GitHubIntegration:
         pr_number: int,
         body: str,
         event: str = "COMMENT",  # APPROVE, REQUEST_CHANGES, COMMENT
-        comments: Optional[list[dict]] = None
-    ) -> Optional[dict]:
+        comments: list[dict] | None = None,
+    ) -> dict | None:
         """Create a PR review with inline comments"""
         try:
             session = await self._get_session()
             url = f"{self.api_url}/repos/{owner}/{repo}/pulls/{pr_number}/reviews"
 
-            payload = {
-                "body": body,
-                "event": event
-            }
+            payload = {"body": body, "event": event}
 
             if comments:
                 payload["comments"] = comments
@@ -179,8 +170,8 @@ class GitHubIntegration:
         conclusion: str = "neutral",  # success, failure, neutral, cancelled
         title: str = "Code Review Results",
         summary: str = "",
-        annotations: Optional[list[dict]] = None
-    ) -> Optional[dict]:
+        annotations: list[dict] | None = None,
+    ) -> dict | None:
         """Create a check run (requires GitHub App)"""
         try:
             session = await self._get_session()
@@ -191,10 +182,7 @@ class GitHubIntegration:
                 "head_sha": head_sha,
                 "status": status,
                 "conclusion": conclusion,
-                "output": {
-                    "title": title,
-                    "summary": summary
-                }
+                "output": {"title": title, "summary": summary},
             }
 
             if annotations:
@@ -240,11 +228,7 @@ class GitHubIntegration:
             lines.append(f"**File / الملف:** `{file_path}`")
             lines.append("")
 
-        lines.extend([
-            "### 📋 Summary / الملخص",
-            summary,
-            ""
-        ])
+        lines.extend(["### 📋 Summary / الملخص", summary, ""])
 
         if critical:
             lines.append("### ❌ Critical Issues / مشاكل حرجة")
@@ -270,11 +254,13 @@ class GitHubIntegration:
                 lines.append(f"- {suggestion}")
             lines.append("")
 
-        lines.extend([
-            "---",
-            "*Automated review by SAHOOL Code Review Service*",
-            "*مراجعة آلية بواسطة خدمة مراجعة كود سهول*"
-        ])
+        lines.extend(
+            [
+                "---",
+                "*Automated review by SAHOOL Code Review Service*",
+                "*مراجعة آلية بواسطة خدمة مراجعة كود سهول*",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -307,7 +293,7 @@ class GitHubIntegration:
             "## File Summaries / ملخص الملفات",
             "",
             "| File | Score | Status |",
-            "|------|-------|--------|"
+            "|------|-------|--------|",
         ]
 
         # Sort by score (lowest first to highlight issues)
@@ -317,7 +303,9 @@ class GitHubIntegration:
             file_name = review.get("file", "Unknown")
             score = review.get("score", 0)
             emoji = "✅" if score >= 80 else "⚠️" if score >= 60 else "❌"
-            lines.append(f"| `{file_name}` | {emoji} {score} | {review.get('summary', 'N/A')[:50]}... |")
+            lines.append(
+                f"| `{file_name}` | {emoji} {score} | {review.get('summary', 'N/A')[:50]}... |"
+            )
 
         # Aggregate issues
         all_critical = []
@@ -353,11 +341,13 @@ class GitHubIntegration:
                 lines.append(f"- {issue}")
             lines.append("")
 
-        lines.extend([
-            "---",
-            "*Automated review by SAHOOL Code Review Service v2.0*",
-            "*مراجعة آلية بواسطة خدمة مراجعة كود سهول الإصدار 2.0*"
-        ])
+        lines.extend(
+            [
+                "---",
+                "*Automated review by SAHOOL Code Review Service v2.0*",
+                "*مراجعة آلية بواسطة خدمة مراجعة كود سهول الإصدار 2.0*",
+            ]
+        )
 
         return "\n".join(lines)
 
@@ -383,7 +373,9 @@ class PRReviewResult:
     def _update_score(self):
         """Update total score"""
         if self.file_reviews:
-            self.total_score = sum(r.get("score", 0) for r in self.file_reviews) // len(self.file_reviews)
+            self.total_score = sum(r.get("score", 0) for r in self.file_reviews) // len(
+                self.file_reviews
+            )
 
     def get_conclusion(self) -> str:
         """Get GitHub check run conclusion"""

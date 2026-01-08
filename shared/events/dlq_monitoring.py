@@ -226,9 +226,7 @@ class DLQMonitor:
         if self._last_alert_time:
             time_since_last = datetime.utcnow() - self._last_alert_time
             if time_since_last < self._alert_cooldown:
-                logger.debug(
-                    f"Alert cooldown active (last: {time_since_last.seconds}s ago)"
-                )
+                logger.debug(f"Alert cooldown active (last: {time_since_last.seconds}s ago)")
                 return
 
         # Calculate severity
@@ -258,8 +256,7 @@ class DLQMonitor:
         self._last_alert_time = datetime.utcnow()
 
         logger.warning(
-            f"⚠️  DLQ ALERT: {alert.message} "
-            f"(severity: {severity}, oldest: {oldest_age_hours:.1f}h)"
+            f"⚠️  DLQ ALERT: {alert.message} (severity: {severity}, oldest: {oldest_age_hours:.1f}h)"
         )
 
         # Call alert callback

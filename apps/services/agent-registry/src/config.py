@@ -3,7 +3,6 @@ Agent Registry Service Configuration
 تكوين خدمة سجل الوكلاء
 """
 
-
 from pydantic_settings import BaseSettings
 
 
@@ -34,9 +33,7 @@ class Settings(BaseSettings):
     api_key: str | None = None
 
     # CORS
-    cors_origins: str = (
-        "https://sahool.app,https://admin.sahool.app,https://api.sahool.app"
-    )
+    cors_origins: str = "https://sahool.app,https://admin.sahool.app,https://api.sahool.app"
 
     class Config:
         env_file = ".env"

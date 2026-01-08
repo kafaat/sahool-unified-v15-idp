@@ -5,7 +5,6 @@ Event Registry
 Central registry for all domain events with version management.
 """
 
-
 from .base import BaseEvent
 
 
@@ -33,9 +32,7 @@ class EventRegistry:
         cls._events[event_type][version] = event_class
 
     @classmethod
-    def get_event_class(
-        cls, event_type: str, version: str = None
-    ) -> type[BaseEvent] | None:
+    def get_event_class(cls, event_type: str, version: str = None) -> type[BaseEvent] | None:
         """Get event class by type and optional version"""
         if event_type not in cls._events:
             return None
@@ -90,10 +87,10 @@ def _register_all_events():
         for name in dir(module):
             obj = getattr(module, name)
             if (
-                isinstance(obj, type)
-                and issubclass(obj, BaseEvent)
-                and obj != BaseEvent
-            ) and hasattr(obj, "EVENT_TYPE") and obj.EVENT_TYPE:
+                (isinstance(obj, type) and issubclass(obj, BaseEvent) and obj != BaseEvent)
+                and hasattr(obj, "EVENT_TYPE")
+                and obj.EVENT_TYPE
+            ):
                 EventRegistry.register(obj)
 
 

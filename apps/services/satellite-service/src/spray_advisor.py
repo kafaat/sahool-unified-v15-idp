@@ -261,9 +261,7 @@ class SprayAdvisor:
         Returns:
             Best spray window or None if no suitable windows found
         """
-        forecast = await self.get_spray_forecast(
-            latitude, longitude, within_days, product_type
-        )
+        forecast = await self.get_spray_forecast(latitude, longitude, within_days, product_type)
 
         # Find best window across all days
         all_windows = []
@@ -503,9 +501,7 @@ class SprayAdvisor:
         # General condition recommendations
         if condition == SprayCondition.EXCELLENT:
             recommendations_ar.append("ظروف ممتازة للرش - المضي قدماً بثقة")
-            recommendations_en.append(
-                "Excellent conditions for spraying - proceed with confidence"
-            )
+            recommendations_en.append("Excellent conditions for spraying - proceed with confidence")
         elif condition == SprayCondition.GOOD:
             recommendations_ar.append("ظروف جيدة للرش - آمن للمضي قدماً")
             recommendations_en.append("Good conditions for spraying - safe to proceed")
@@ -591,27 +587,17 @@ class SprayAdvisor:
         # Product-specific recommendations
         if product_type == SprayProduct.HERBICIDE:
             if "low_humidity" in risks:
-                recommendations_ar.append(
-                    "مبيدات الأعشاب: أضف مساعد التصاق لتحسين الامتصاص"
-                )
-                recommendations_en.append(
-                    "Herbicides: Add surfactant to improve absorption"
-                )
+                recommendations_ar.append("مبيدات الأعشاب: أضف مساعد التصاق لتحسين الامتصاص")
+                recommendations_en.append("Herbicides: Add surfactant to improve absorption")
         elif product_type == SprayProduct.FUNGICIDE:
             if "high_humidity" in risks:
                 recommendations_ar.append(
                     "مبيدات الفطريات: الرطوبة العالية قد تزيد انتشار الجراثيم"
                 )
-                recommendations_en.append(
-                    "Fungicides: High humidity may increase spore spread"
-                )
+                recommendations_en.append("Fungicides: High humidity may increase spore spread")
         elif product_type == SprayProduct.INSECTICIDE and "high_temperature" in risks:
-            recommendations_ar.append(
-                "مبيدات الحشرات: ارش عند غروب الشمس للحصول على أفضل نتيجة"
-            )
-            recommendations_en.append(
-                "Insecticides: Spray at dusk for best contact with insects"
-            )
+            recommendations_ar.append("مبيدات الحشرات: ارش عند غروب الشمس للحصول على أفضل نتيجة")
+            recommendations_en.append("Insecticides: Spray at dusk for best contact with insects")
 
         # Safety reminders
         if condition in [
@@ -659,9 +645,7 @@ class SprayAdvisor:
             hourly_temp = data.get("hourly", {}).get("temperature_2m", [])
             hourly_humidity = data.get("hourly", {}).get("relative_humidity_2m", [])
             hourly_wind = data.get("hourly", {}).get("wind_speed_10m", [])
-            hourly_precip_prob = data.get("hourly", {}).get(
-                "precipitation_probability", []
-            )
+            hourly_precip_prob = data.get("hourly", {}).get("precipitation_probability", [])
             hourly_precip = data.get("hourly", {}).get("precipitation", [])
 
             for i in range(len(hourly_times)):
@@ -669,18 +653,14 @@ class SprayAdvisor:
                     {
                         "time": datetime.fromisoformat(hourly_times[i]),
                         "temp": hourly_temp[i] if i < len(hourly_temp) else 20,
-                        "humidity": (
-                            hourly_humidity[i] if i < len(hourly_humidity) else 60
-                        ),
+                        "humidity": (hourly_humidity[i] if i < len(hourly_humidity) else 60),
                         "wind_speed": (
                             hourly_wind[i] * 3.6 if i < len(hourly_wind) else 0
                         ),  # m/s to km/h
                         "precipitation_prob": (
                             hourly_precip_prob[i] if i < len(hourly_precip_prob) else 0
                         ),
-                        "precipitation": (
-                            hourly_precip[i] if i < len(hourly_precip) else 0
-                        ),
+                        "precipitation": (hourly_precip[i] if i < len(hourly_precip) else 0),
                     }
                 )
 
@@ -740,9 +720,7 @@ class SprayAdvisor:
             else:
                 # End current window if exists
                 if current_window_hours:
-                    windows.append(
-                        self._create_window(current_window_hours, product_type)
-                    )
+                    windows.append(self._create_window(current_window_hours, product_type))
                     current_window_hours = []
 
         # Add last window if exists
@@ -761,15 +739,11 @@ class SprayAdvisor:
 
         # Calculate averages
         avg_temp = sum(h["hour"]["temp"] for h in window_hours) / len(window_hours)
-        avg_humidity = sum(h["hour"]["humidity"] for h in window_hours) / len(
+        avg_humidity = sum(h["hour"]["humidity"] for h in window_hours) / len(window_hours)
+        avg_wind = sum(h["hour"]["wind_speed"] for h in window_hours) / len(window_hours)
+        avg_precip_prob = sum(h["hour"]["precipitation_prob"] for h in window_hours) / len(
             window_hours
         )
-        avg_wind = sum(h["hour"]["wind_speed"] for h in window_hours) / len(
-            window_hours
-        )
-        avg_precip_prob = sum(
-            h["hour"]["precipitation_prob"] for h in window_hours
-        ) / len(window_hours)
 
         # Overall score and condition (use best hour)
         best_hour = max(window_hours, key=lambda h: h["score"])

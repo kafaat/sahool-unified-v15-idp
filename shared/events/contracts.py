@@ -37,13 +37,9 @@ class BaseEvent(BaseModel):
     event_id: str = Field(
         default_factory=lambda: str(uuid4()), description="Unique event identifier"
     )
-    timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Event timestamp"
-    )
+    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Event timestamp")
     version: str = Field(default="1.0", description="Event schema version")
-    source_service: str | None = Field(
-        None, description="Service that emitted the event"
-    )
+    source_service: str | None = Field(None, description="Service that emitted the event")
 
     class Config:
         json_encoders = {
@@ -68,15 +64,9 @@ class FieldCreatedEvent(BaseEvent):
     farm_id: UUID = Field(..., description="Parent farm identifier")
     tenant_id: UUID = Field(..., description="Tenant/organization identifier")
     name: str = Field(..., min_length=1, max_length=120, description="Field name")
-    name_ar: str | None = Field(
-        None, max_length=120, description="Arabic field name"
-    )
-    geometry_wkt: str = Field(
-        ..., min_length=10, description="Field geometry in WKT format"
-    )
-    area_hectares: float | None = Field(
-        None, ge=0, description="Field area in hectares"
-    )
+    name_ar: str | None = Field(None, max_length=120, description="Arabic field name")
+    geometry_wkt: str = Field(..., min_length=10, description="Field geometry in WKT format")
+    area_hectares: float | None = Field(None, ge=0, description="Field area in hectares")
     soil_type: str | None = Field(None, description="Soil type")
     irrigation_type: str | None = Field(None, description="Irrigation type")
     created_by: UUID | None = Field(None, description="User who created the field")
@@ -90,16 +80,12 @@ class FieldUpdatedEvent(BaseEvent):
 
     field_id: UUID = Field(..., description="Field identifier")
     name: str | None = Field(None, max_length=120, description="Updated field name")
-    name_ar: str | None = Field(
-        None, max_length=120, description="Updated Arabic name"
-    )
+    name_ar: str | None = Field(None, max_length=120, description="Updated Arabic name")
     geometry_wkt: str | None = Field(None, description="Updated geometry")
     area_hectares: float | None = Field(None, ge=0, description="Updated area")
     soil_type: str | None = Field(None, description="Updated soil type")
     irrigation_type: str | None = Field(None, description="Updated irrigation type")
-    ndvi_value: float | None = Field(
-        None, ge=-1, le=1, description="Latest NDVI value"
-    )
+    ndvi_value: float | None = Field(None, ge=-1, le=1, description="Latest NDVI value")
     updated_by: UUID | None = Field(None, description="User who updated the field")
 
 
@@ -132,16 +118,10 @@ class WeatherForecastEvent(BaseEvent):
     location_lon: float = Field(..., ge=-180, le=180, description="Longitude")
     forecast_date: datetime = Field(..., description="Forecast date/time")
     temperature: float | None = Field(None, description="Temperature in Celsius")
-    humidity: float | None = Field(
-        None, ge=0, le=100, description="Humidity percentage"
-    )
+    humidity: float | None = Field(None, ge=0, le=100, description="Humidity percentage")
     wind_speed: float | None = Field(None, ge=0, description="Wind speed in km/h")
-    precipitation: float | None = Field(
-        None, ge=0, description="Precipitation in mm"
-    )
-    conditions: str | None = Field(
-        None, description="Weather conditions description"
-    )
+    precipitation: float | None = Field(None, ge=0, description="Precipitation in mm")
+    conditions: str | None = Field(None, description="Weather conditions description")
     provider: str | None = Field(None, description="Weather data provider")
 
 
@@ -159,18 +139,14 @@ class WeatherAlertEvent(BaseEvent):
         pattern="^(frost|heatwave|storm|heavy_rain|drought|wind)$",
         description="Alert type",
     )
-    severity: str = Field(
-        ..., pattern="^(info|warning|critical)$", description="Alert severity"
-    )
+    severity: str = Field(..., pattern="^(info|warning|critical)$", description="Alert severity")
     title: str = Field(..., description="Alert title")
     title_ar: str | None = Field(None, description="Arabic alert title")
     message: str = Field(..., description="Alert message")
     message_ar: str | None = Field(None, description="Arabic alert message")
     start_time: datetime = Field(..., description="Alert start time")
     end_time: datetime | None = Field(None, description="Alert end time")
-    affected_area_radius_km: float | None = Field(
-        None, ge=0, description="Affected area radius"
-    )
+    affected_area_radius_km: float | None = Field(None, ge=0, description="Affected area radius")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -186,9 +162,7 @@ class SatelliteDataReadyEvent(BaseEvent):
 
     field_id: UUID = Field(..., description="Field identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
-    satellite_source: str = Field(
-        ..., description="Satellite source (e.g., Sentinel-2, Landsat)"
-    )
+    satellite_source: str = Field(..., description="Satellite source (e.g., Sentinel-2, Landsat)")
     capture_date: datetime = Field(..., description="Image capture date")
     processing_date: datetime = Field(
         default_factory=datetime.utcnow, description="Processing date"
@@ -199,12 +173,8 @@ class SatelliteDataReadyEvent(BaseEvent):
 
     # Vegetation indices
     ndvi_mean: float | None = Field(None, ge=-1, le=1, description="Mean NDVI value")
-    ndvi_min: float | None = Field(
-        None, ge=-1, le=1, description="Minimum NDVI value"
-    )
-    ndvi_max: float | None = Field(
-        None, ge=-1, le=1, description="Maximum NDVI value"
-    )
+    ndvi_min: float | None = Field(None, ge=-1, le=1, description="Minimum NDVI value")
+    ndvi_max: float | None = Field(None, ge=-1, le=1, description="Maximum NDVI value")
     evi_mean: float | None = Field(None, description="Mean EVI value")
     ndwi_mean: float | None = Field(None, ge=-1, le=1, description="Mean NDWI value")
 
@@ -214,12 +184,8 @@ class SatelliteDataReadyEvent(BaseEvent):
     data_url: str | None = Field(None, description="Raw data URL")
 
     # Metadata
-    resolution_meters: float | None = Field(
-        None, ge=0, description="Image resolution"
-    )
-    bands: list[str] | None = Field(
-        default_factory=list, description="Available spectral bands"
-    )
+    resolution_meters: float | None = Field(None, ge=0, description="Image resolution")
+    bands: list[str] | None = Field(default_factory=list, description="Available spectral bands")
 
 
 class SatelliteAnomalyEvent(BaseEvent):
@@ -240,15 +206,11 @@ class SatelliteAnomalyEvent(BaseEvent):
         ..., pattern="^(low|medium|high|critical)$", description="Anomaly severity"
     )
     confidence_score: float = Field(..., ge=0, le=1, description="Detection confidence")
-    affected_area_hectares: float | None = Field(
-        None, ge=0, description="Affected area size"
-    )
+    affected_area_hectares: float | None = Field(None, ge=0, description="Affected area size")
     affected_area_percentage: float | None = Field(
         None, ge=0, le=100, description="Percentage of field affected"
     )
-    detection_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Detection date"
-    )
+    detection_date: datetime = Field(default_factory=datetime.utcnow, description="Detection date")
 
     # Comparison values
     current_value: float | None = Field(None, description="Current index value")
@@ -256,9 +218,7 @@ class SatelliteAnomalyEvent(BaseEvent):
     deviation: float | None = Field(None, description="Deviation from baseline")
 
     # Location
-    centroid_lat: float | None = Field(
-        None, ge=-90, le=90, description="Anomaly centroid latitude"
-    )
+    centroid_lat: float | None = Field(None, ge=-90, le=90, description="Anomaly centroid latitude")
     centroid_lon: float | None = Field(
         None, ge=-180, le=180, description="Anomaly centroid longitude"
     )
@@ -266,9 +226,7 @@ class SatelliteAnomalyEvent(BaseEvent):
 
     # Recommendations
     recommended_action: str | None = Field(None, description="Recommended action")
-    recommended_action_ar: str | None = Field(
-        None, description="Arabic recommended action"
-    )
+    recommended_action_ar: str | None = Field(None, description="Arabic recommended action")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -282,9 +240,7 @@ class DiseaseDetectedEvent(BaseEvent):
     حدث يُطلق عند اكتشاف مرض نباتي
     """
 
-    detection_id: UUID = Field(
-        default_factory=uuid4, description="Detection identifier"
-    )
+    detection_id: UUID = Field(default_factory=uuid4, description="Detection identifier")
     field_id: UUID = Field(..., description="Affected field")
     tenant_id: UUID = Field(..., description="Tenant identifier")
     crop_type: str | None = Field(None, description="Affected crop type")
@@ -301,28 +257,18 @@ class DiseaseDetectedEvent(BaseEvent):
     )
 
     # Detection details
-    detection_method: str | None = Field(
-        None, description="Detection method (AI, manual, sensor)"
-    )
-    affected_area_hectares: float | None = Field(
-        None, ge=0, description="Affected area"
-    )
+    detection_method: str | None = Field(None, description="Detection method (AI, manual, sensor)")
+    affected_area_hectares: float | None = Field(None, ge=0, description="Affected area")
     symptoms_observed: list[str] | None = Field(
         default_factory=list, description="Observed symptoms"
     )
 
     # Images
-    image_urls: list[str] | None = Field(
-        default_factory=list, description="Disease image URLs"
-    )
+    image_urls: list[str] | None = Field(default_factory=list, description="Disease image URLs")
 
     # Recommendations
-    treatment_recommendation: str | None = Field(
-        None, description="Treatment recommendation"
-    )
-    treatment_recommendation_ar: str | None = Field(
-        None, description="Arabic treatment"
-    )
+    treatment_recommendation: str | None = Field(None, description="Treatment recommendation")
+    treatment_recommendation_ar: str | None = Field(None, description="Arabic treatment")
     urgency_level: str | None = Field(None, description="Treatment urgency")
     estimated_yield_impact: float | None = Field(
         None, ge=0, le=100, description="Est. yield impact %"
@@ -335,9 +281,7 @@ class CropStressEvent(BaseEvent):
     حدث يُطلق عند اكتشاف إجهاد نباتي
     """
 
-    stress_id: UUID = Field(
-        default_factory=uuid4, description="Stress event identifier"
-    )
+    stress_id: UUID = Field(default_factory=uuid4, description="Stress event identifier")
     field_id: UUID = Field(..., description="Affected field")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -353,26 +297,16 @@ class CropStressEvent(BaseEvent):
 
     # Indicators
     ndvi_value: float | None = Field(None, ge=-1, le=1, description="NDVI value")
-    ndwi_value: float | None = Field(
-        None, ge=-1, le=1, description="NDWI value (water stress)"
-    )
+    ndwi_value: float | None = Field(None, ge=-1, le=1, description="NDWI value (water stress)")
     temperature_value: float | None = Field(None, description="Temperature reading")
-    soil_moisture_value: float | None = Field(
-        None, ge=0, le=100, description="Soil moisture %"
-    )
+    soil_moisture_value: float | None = Field(None, ge=0, le=100, description="Soil moisture %")
 
-    affected_area_hectares: float | None = Field(
-        None, ge=0, description="Affected area"
-    )
-    detection_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Detection date"
-    )
+    affected_area_hectares: float | None = Field(None, ge=0, description="Affected area")
+    detection_date: datetime = Field(default_factory=datetime.utcnow, description="Detection date")
 
     # Recommendations
     action_required: str | None = Field(None, description="Required action")
-    action_required_ar: str | None = Field(
-        None, description="Arabic action required"
-    )
+    action_required_ar: str | None = Field(None, description="Arabic action required")
     time_sensitivity: str | None = Field(
         None, description="Time sensitivity (immediate, soon, monitor)"
     )
@@ -402,26 +336,16 @@ class LowStockEvent(BaseEvent):
     current_quantity: float = Field(..., ge=0, description="Current stock quantity")
     unit_of_measure: str = Field(..., description="Unit of measure (kg, L, units)")
     threshold_quantity: float = Field(..., ge=0, description="Low stock threshold")
-    reorder_quantity: float | None = Field(
-        None, ge=0, description="Recommended reorder quantity"
-    )
+    reorder_quantity: float | None = Field(None, ge=0, description="Recommended reorder quantity")
 
-    severity: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Alert severity"
-    )
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$", description="Alert severity")
 
     # Supplier info
-    preferred_supplier_id: UUID | None = Field(
-        None, description="Preferred supplier"
-    )
-    estimated_restock_days: int | None = Field(
-        None, ge=0, description="Days to restock"
-    )
+    preferred_supplier_id: UUID | None = Field(None, description="Preferred supplier")
+    estimated_restock_days: int | None = Field(None, ge=0, description="Days to restock")
 
     # Cost estimation
-    estimated_cost: float | None = Field(
-        None, ge=0, description="Estimated reorder cost"
-    )
+    estimated_cost: float | None = Field(None, ge=0, description="Estimated reorder cost")
     currency: str | None = Field(default="SAR", description="Currency code")
 
 
@@ -448,20 +372,14 @@ class BatchExpiredEvent(BaseEvent):
     status: str = Field(
         ..., pattern="^(expiring_soon|expired|critical)$", description="Expiry status"
     )
-    days_until_expiry: int = Field(
-        ..., description="Days until expiry (negative if expired)"
-    )
+    days_until_expiry: int = Field(..., description="Days until expiry (negative if expired)")
 
-    value_at_risk: float | None = Field(
-        None, ge=0, description="Value of at-risk inventory"
-    )
+    value_at_risk: float | None = Field(None, ge=0, description="Value of at-risk inventory")
     currency: str | None = Field(default="SAR", description="Currency code")
 
     # Recommendations
     recommended_action: str | None = Field(None, description="Recommended action")
-    recommended_action_ar: str | None = Field(
-        None, description="Arabic recommended action"
-    )
+    recommended_action_ar: str | None = Field(None, description="Arabic recommended action")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -491,9 +409,7 @@ class SubscriptionCreatedEvent(BaseEvent):
 
     start_date: datetime = Field(..., description="Subscription start date")
     end_date: datetime | None = Field(None, description="Subscription end date")
-    trial_end_date: datetime | None = Field(
-        None, description="Trial period end date"
-    )
+    trial_end_date: datetime | None = Field(None, description="Trial period end date")
 
     # Pricing
     price_amount: float = Field(..., ge=0, description="Subscription price")
@@ -501,17 +417,11 @@ class SubscriptionCreatedEvent(BaseEvent):
 
     # Limits and features
     max_fields: int | None = Field(None, ge=0, description="Maximum fields allowed")
-    max_area_hectares: float | None = Field(
-        None, ge=0, description="Maximum area allowed"
-    )
-    features_enabled: list[str] | None = Field(
-        default_factory=list, description="Enabled features"
-    )
+    max_area_hectares: float | None = Field(None, ge=0, description="Maximum area allowed")
+    features_enabled: list[str] | None = Field(default_factory=list, description="Enabled features")
 
     auto_renew: bool = Field(default=True, description="Auto-renewal enabled")
-    payment_method_id: str | None = Field(
-        None, description="Payment method identifier"
-    )
+    payment_method_id: str | None = Field(None, description="Payment method identifier")
 
 
 class PaymentCompletedEvent(BaseEvent):
@@ -533,27 +443,19 @@ class PaymentCompletedEvent(BaseEvent):
         pattern="^(credit_card|debit_card|bank_transfer|wallet|apple_pay|stc_pay|mada)$",
         description="Payment method",
     )
-    payment_provider: str | None = Field(
-        None, description="Payment provider (Stripe, Tap, etc.)"
-    )
+    payment_provider: str | None = Field(None, description="Payment provider (Stripe, Tap, etc.)")
 
     transaction_id: str = Field(..., description="Payment gateway transaction ID")
-    payment_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Payment date"
-    )
+    payment_date: datetime = Field(default_factory=datetime.utcnow, description="Payment date")
 
     # Payment details
     description: str | None = Field(None, description="Payment description")
-    description_ar: str | None = Field(
-        None, description="Arabic payment description"
-    )
+    description_ar: str | None = Field(None, description="Arabic payment description")
 
     # Tax and fees
     subtotal: float | None = Field(None, ge=0, description="Subtotal before tax")
     tax_amount: float | None = Field(None, ge=0, description="Tax amount (VAT)")
-    tax_percentage: float | None = Field(
-        None, ge=0, le=100, description="Tax percentage"
-    )
+    tax_percentage: float | None = Field(None, ge=0, le=100, description="Tax percentage")
 
     # Receipt
     receipt_url: str | None = Field(None, description="Payment receipt URL")
@@ -568,9 +470,7 @@ class SubscriptionRenewedEvent(BaseEvent):
 
     subscription_id: UUID = Field(..., description="Subscription identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
-    renewal_date: datetime = Field(
-        default_factory=datetime.utcnow, description="Renewal date"
-    )
+    renewal_date: datetime = Field(default_factory=datetime.utcnow, description="Renewal date")
     previous_end_date: datetime = Field(..., description="Previous end date")
     new_end_date: datetime = Field(..., description="New end date")
     payment_id: UUID | None = Field(None, description="Related payment")
@@ -593,15 +493,11 @@ class PaymentFailedEvent(BaseEvent):
 
     failure_reason: str = Field(..., description="Failure reason code")
     failure_message: str | None = Field(None, description="Failure message")
-    failure_message_ar: str | None = Field(
-        None, description="Arabic failure message"
-    )
+    failure_message_ar: str | None = Field(None, description="Arabic failure message")
 
     payment_method: str | None = Field(None, description="Payment method used")
     retry_count: int = Field(default=0, ge=0, description="Number of retry attempts")
-    next_retry_date: datetime | None = Field(
-        None, description="Next automatic retry date"
-    )
+    next_retry_date: datetime | None = Field(None, description="Next automatic retry date")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

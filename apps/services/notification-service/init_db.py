@@ -42,9 +42,7 @@ async def main():
         action="store_true",
         help="Create database schema directly (development only!)",
     )
-    parser.add_argument(
-        "--check", action="store_true", help="Check database health and exit"
-    )
+    parser.add_argument("--check", action="store_true", help="Check database health and exit")
     parser.add_argument(
         "--wait",
         action="store_true",
@@ -85,9 +83,7 @@ async def main():
         logger.info("Initializing database...")
 
         if args.create_schema:
-            logger.warning(
-                "⚠️  Creating schema directly - THIS SHOULD ONLY BE USED IN DEVELOPMENT!"
-            )
+            logger.warning("⚠️  Creating schema directly - THIS SHOULD ONLY BE USED IN DEVELOPMENT!")
             logger.warning("⚠️  In production, use Aerich migrations instead!")
 
             await init_db(create_db=True)

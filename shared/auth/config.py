@@ -16,12 +16,8 @@ class JWTConfig:
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
 
     # Token expiration times
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(
-        os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
-    )
-    REFRESH_TOKEN_EXPIRE_DAYS: int = int(
-        os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "7")
-    )
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+    REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("JWT_REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
     # JWT Issuer and Audience
     JWT_ISSUER: str = os.getenv("JWT_ISSUER", "sahool-platform")
@@ -41,9 +37,7 @@ class JWTConfig:
     RATE_LIMIT_WINDOW_SECONDS: int = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
 
     # Token revocation
-    TOKEN_REVOCATION_ENABLED: bool = (
-        os.getenv("TOKEN_REVOCATION_ENABLED", "true").lower() == "true"
-    )
+    TOKEN_REVOCATION_ENABLED: bool = os.getenv("TOKEN_REVOCATION_ENABLED", "true").lower() == "true"
 
     # Redis configuration for token revocation
     REDIS_URL: str | None = os.getenv("REDIS_URL")
@@ -60,14 +54,10 @@ class JWTConfig:
         if env in ("production", "staging"):
             if cls.JWT_ALGORITHM.startswith("RS"):
                 if not cls.JWT_PUBLIC_KEY or not cls.JWT_PRIVATE_KEY:
-                    raise ValueError(
-                        "RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY"
-                    )
+                    raise ValueError("RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY")
             else:
                 if not cls.JWT_SECRET or len(cls.JWT_SECRET) < 32:
-                    raise ValueError(
-                        "JWT_SECRET must be at least 32 characters in production"
-                    )
+                    raise ValueError("JWT_SECRET must be at least 32 characters in production")
 
     @classmethod
     def get_signing_key(cls) -> str:

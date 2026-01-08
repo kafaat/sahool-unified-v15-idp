@@ -91,9 +91,7 @@ class TaskConfig(BaseModel):
     task_type: str  # من TaskType في task-service
     priority: str = "medium"
     assign_to: str | None = None  # user_id أو "field_owner"
-    due_hours: int = Field(
-        default=24, description="المهمة مستحقة بعد كم ساعة من الحدث"
-    )
+    due_hours: int = Field(default=24, description="المهمة مستحقة بعد كم ساعة من الحدث")
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

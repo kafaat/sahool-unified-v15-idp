@@ -5,15 +5,14 @@ SAHOOL - Provider Configuration Database Models
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
+import uuid
 from datetime import datetime
-from typing import Optional
 
 from sqlalchemy import (
     JSON,
     Boolean,
     Column,
     DateTime,
-    Enum,
     Index,
     Integer,
     String,
@@ -23,7 +22,6 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import uuid
 
 Base = declarative_base()
 
@@ -60,9 +58,7 @@ class ProviderConfig(Base):
     # Configuration
     api_key = Column(Text, nullable=True)  # Encrypted in production
     api_secret = Column(Text, nullable=True)  # Encrypted in production
-    priority = Column(
-        String(20), nullable=False, default="primary"
-    )  # primary, secondary, tertiary
+    priority = Column(String(20), nullable=False, default="primary")  # primary, secondary, tertiary
     enabled = Column(Boolean, nullable=False, default=True)
 
     # Additional Settings (JSON)
@@ -70,9 +66,7 @@ class ProviderConfig(Base):
 
     # Metadata
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     created_by = Column(String(255), nullable=True)
     updated_by = Column(String(255), nullable=True)
 
@@ -146,9 +140,7 @@ class ConfigVersion(Base):
 
     # Version Information
     version = Column(Integer, nullable=False)
-    change_type = Column(
-        String(20), nullable=False
-    )  # created, updated, deleted, enabled, disabled
+    change_type = Column(String(20), nullable=False)  # created, updated, deleted, enabled, disabled
 
     # Change Metadata
     changed_at = Column(DateTime, nullable=False, default=datetime.utcnow)
@@ -159,9 +151,7 @@ class ConfigVersion(Base):
     __table_args__ = (
         Index("idx_config_version", "config_id", "version"),
         Index("idx_tenant_changed_at", "tenant_id", "changed_at"),
-        Index(
-            "idx_tenant_provider_changed", "tenant_id", "provider_type", "changed_at"
-        ),
+        Index("idx_tenant_provider_changed", "tenant_id", "provider_type", "changed_at"),
     )
 
     def to_dict(self) -> dict:
@@ -199,9 +189,7 @@ class Database:
             pool_pre_ping=True,  # Verify connections before using
             pool_recycle=3600,  # Recycle connections after 1 hour
         )
-        self.SessionLocal = sessionmaker(
-            autocommit=False, autoflush=False, bind=self.engine
-        )
+        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
 
     def create_tables(self):
         """Create all tables"""

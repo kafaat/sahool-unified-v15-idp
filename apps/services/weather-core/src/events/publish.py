@@ -170,9 +170,7 @@ class WeatherPublisher:
         subject = get_subject(IRRIGATION_ADJUSTMENT)
         await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
 
-        print(
-            f"💧 Published irrigation_adjustment: field={field_id}, factor={adjustment_factor}"
-        )
+        print(f"💧 Published irrigation_adjustment: field={field_id}, factor={adjustment_factor}")
         return env.event_id
 
 

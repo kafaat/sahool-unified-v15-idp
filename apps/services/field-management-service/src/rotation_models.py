@@ -110,9 +110,7 @@ class SeasonPlanModel(Base):
     notes = Column(Text, nullable=True)
 
     # Status
-    status = Column(
-        String(20), default="planned"
-    )  # planned, planted, growing, harvested
+    status = Column(String(20), default="planned")  # planned, planted, growing, harvested
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -194,9 +192,7 @@ class RotationRuleOverrideModel(Base):
 
     # Rule
     crop_family = Column(String(50), nullable=False)
-    rule_type = Column(
-        String(50), nullable=False
-    )  # min_years, good_predecessor, bad_predecessor
+    rule_type = Column(String(50), nullable=False)  # min_years, good_predecessor, bad_predecessor
     rule_value = Column(JSON, nullable=False)
 
     # Metadata
@@ -241,9 +237,7 @@ class RotationRecommendationModel(Base):
     warnings_en = Column(JSON, default=list)
 
     # Status
-    status = Column(
-        String(20), default="pending"
-    )  # pending, accepted, rejected, applied
+    status = Column(String(20), default="pending")  # pending, accepted, rejected, applied
     user_feedback = Column(Text, nullable=True)
 
     # Timestamps

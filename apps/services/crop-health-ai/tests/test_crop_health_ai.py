@@ -108,9 +108,7 @@ class TestImageAnalysis:
 
 class TestBatchAnalysis:
     def test_analyze_batch(self, client):
-        response = client.post(
-            "/api/v1/analyze/batch", json={"images": ["url1", "url2"]}
-        )
+        response = client.post("/api/v1/analyze/batch", json={"images": ["url1", "url2"]})
         assert response.status_code == 200
         assert "batch_id" in response.json()
 

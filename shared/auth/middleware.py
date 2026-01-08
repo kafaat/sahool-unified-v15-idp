@@ -254,9 +254,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.exclude_paths = exclude_paths or ["/health", "/docs", "/redoc", "/metrics"]
 
         # Redis connection (lazy initialized)
-        self._redis_url = (
-            redis_url or config.REDIS_URL if hasattr(config, "REDIS_URL") else None
-        )
+        self._redis_url = redis_url or config.REDIS_URL if hasattr(config, "REDIS_URL") else None
         self._redis = None
         self._redis_available = False
 
@@ -274,9 +272,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         try:
             import redis.asyncio as redis
 
-            self._redis = redis.from_url(
-                self._redis_url, encoding="utf-8", decode_responses=True
-            )
+            self._redis = redis.from_url(self._redis_url, encoding="utf-8", decode_responses=True)
             await self._redis.ping()
             self._redis_available = True
             logger.info("Rate limiter connected to Redis successfully")
@@ -284,9 +280,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             logger.warning("redis package not installed, using in-memory rate limiting")
             self._redis_available = False
         except Exception as e:
-            logger.warning(
-                f"Redis connection failed: {e}, using in-memory rate limiting"
-            )
+            logger.warning(f"Redis connection failed: {e}, using in-memory rate limiting")
             self._redis_available = False
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
@@ -550,8 +544,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Strict-Transport-Security"] = (
-            "max-age=31536000; includeSubDomains"
-        )
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
         return response

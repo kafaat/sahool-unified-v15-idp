@@ -10,9 +10,10 @@ This module tests:
 - Pattern recognition for disease indicators
 """
 
-import pytest
 from datetime import datetime
 from unittest.mock import Mock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -21,7 +22,7 @@ class TestDiseaseSymptomDetection:
 
     def test_detect_severe_canopy_weakness(self):
         """Test detection of severe canopy weakness (potential disease)"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Very low NDVI indicates severe problems
         indices = Indices(
@@ -30,13 +31,11 @@ class TestDiseaseSymptomDetection:
             ndre=0.12,
             lci=0.10,
             ndwi=-0.08,
-            savi=0.22
+            savi=0.22,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_potential_disease",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_potential_disease", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -50,7 +49,7 @@ class TestDiseaseSymptomDetection:
 
     def test_detect_chlorophyll_deficiency(self):
         """Test detection of low chlorophyll (disease symptom)"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Low LCI with moderate NDVI can indicate chlorosis (disease symptom)
         indices = Indices(
@@ -59,34 +58,26 @@ class TestDiseaseSymptomDetection:
             ndre=0.22,
             lci=0.15,  # Very low chlorophyll
             ndwi=0.00,
-            savi=0.50
+            savi=0.50,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_chlorosis",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_chlorosis", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
 
         # Should have action related to chlorophyll or nutrition
-        fert_or_scout_actions = [
-            a for a in actions
-            if a["type"] in ["fertilization", "scouting"]
-        ]
+        fert_or_scout_actions = [a for a in actions if a["type"] in ["fertilization", "scouting"]]
         assert len(fert_or_scout_actions) > 0
 
         # Check for chlorophyll-related evidence
-        lci_actions = [
-            a for a in actions
-            if "lci" in a.get("evidence", {})
-        ]
+        lci_actions = [a for a in actions if "lci" in a.get("evidence", {})]
         assert len(lci_actions) > 0
 
     def test_detect_nitrogen_deficiency_disease_like(self):
         """Test detection of severe nitrogen deficiency mimicking disease"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Low NDRE with good structure can indicate nitrogen deficiency
         # which can look like disease symptoms (yellowing)
@@ -96,13 +87,11 @@ class TestDiseaseSymptomDetection:
             ndre=0.16,  # Very low - severe nitrogen deficiency
             lci=0.18,
             ndwi=0.02,
-            savi=0.60
+            savi=0.60,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_nitrogen_deficiency",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_nitrogen_deficiency", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -112,14 +101,11 @@ class TestDiseaseSymptomDetection:
         assert len(fert_actions) > 0
 
         # Should have high or medium dose hint
-        assert any(
-            a.get("recommended_dose_hint") in ["high", "medium"]
-            for a in fert_actions
-        )
+        assert any(a.get("recommended_dose_hint") in ["high", "medium"] for a in fert_actions)
 
     def test_detect_water_stress_disease_risk(self):
         """Test detection of water stress increasing disease risk"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Severe water stress makes plants susceptible to diseases
         indices = Indices(
@@ -128,13 +114,11 @@ class TestDiseaseSymptomDetection:
             ndre=0.20,
             lci=0.22,
             ndwi=-0.22,  # Severe water stress
-            savi=0.42
+            savi=0.42,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_water_stress",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_water_stress", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -153,22 +137,13 @@ class TestEarlyWarningSystem:
 
     def test_early_stage_stress_detection(self):
         """Test detection of early stress indicators"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Moderate stress - early warning
-        indices = Indices(
-            ndvi=0.58,
-            evi=0.50,
-            ndre=0.24,
-            lci=0.26,
-            ndwi=-0.08,
-            savi=0.52
-        )
+        indices = Indices(ndvi=0.58, evi=0.50, ndre=0.24, lci=0.26, ndwi=-0.08, savi=0.52)
 
         obs = ZoneObservation(
-            zone_id="zone_early_stress",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_early_stress", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -182,7 +157,7 @@ class TestEarlyWarningSystem:
 
     def test_seedling_vulnerability_monitoring(self):
         """Test monitoring of vulnerable seedling stage"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Seedlings with poor establishment
         indices = Indices(
@@ -191,13 +166,11 @@ class TestEarlyWarningSystem:
             ndre=0.16,
             lci=0.14,
             ndwi=-0.02,
-            savi=0.16  # Very low for seedlings
+            savi=0.16,  # Very low for seedlings
         )
 
         obs = ZoneObservation(
-            zone_id="zone_vulnerable_seedlings",
-            growth_stage=GrowthStage.seedling,
-            indices=indices
+            zone_id="zone_vulnerable_seedlings", growth_stage=GrowthStage.seedling, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -208,9 +181,7 @@ class TestEarlyWarningSystem:
 
         # Should mention seedling or germination issues
         assert any(
-            "seedling" in a["title_en"].lower() or
-            "شتلات" in a["title"]
-            for a in scout_actions
+            "seedling" in a["title_en"].lower() or "شتلات" in a["title"] for a in scout_actions
         )
 
     def test_rapid_decline_detection(self, client, sample_observation_data):
@@ -231,15 +202,12 @@ class TestEarlyWarningSystem:
             test_obs["captured_at"] = obs_data["date"]
             test_obs["indices"]["ndvi"] = obs_data["ndvi"]
 
-            client.post(
-                f"/api/v1/fields/{field_id}/zones/{zone_id}/observations",
-                json=test_obs
-            )
+            client.post(f"/api/v1/fields/{field_id}/zones/{zone_id}/observations", json=test_obs)
 
         # Get timeline to analyze trend
         response = client.get(
             f"/api/v1/fields/{field_id}/zones/{zone_id}/timeline",
-            params={"from": "2025-12-01", "to": "2025-12-31"}
+            params={"from": "2025-12-01", "to": "2025-12-31"},
         )
 
         assert response.status_code == 200
@@ -251,7 +219,7 @@ class TestEarlyWarningSystem:
 
         # Each value should be less than previous (declining trend)
         for i in range(1, len(ndvi_values)):
-            assert ndvi_values[i] < ndvi_values[i-1]
+            assert ndvi_values[i] < ndvi_values[i - 1]
 
 
 class TestScoutingRecommendations:
@@ -259,7 +227,7 @@ class TestScoutingRecommendations:
 
     def test_scouting_for_low_ndvi(self):
         """Test scouting recommendation for unexplained low NDVI"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         indices = Indices(
             ndvi=0.32,  # Low enough to trigger scouting
@@ -267,13 +235,11 @@ class TestScoutingRecommendations:
             ndre=0.18,
             lci=0.16,
             ndwi=-0.05,
-            savi=0.30
+            savi=0.30,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_needs_scouting",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_needs_scouting", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -283,29 +249,17 @@ class TestScoutingRecommendations:
         assert len(scout_actions) > 0
 
         # Should provide recommended time window
-        assert any(
-            a.get("recommended_window_hours") is not None
-            for a in scout_actions
-        )
+        assert any(a.get("recommended_window_hours") is not None for a in scout_actions)
 
     def test_scouting_priority_levels(self):
         """Test different priority levels for scouting"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Moderate concern - P2 scouting
-        moderate_indices = Indices(
-            ndvi=0.33,
-            evi=0.30,
-            ndre=0.20,
-            lci=0.18,
-            ndwi=-0.03,
-            savi=0.32
-        )
+        moderate_indices = Indices(ndvi=0.33, evi=0.30, ndre=0.20, lci=0.18, ndwi=-0.03, savi=0.32)
 
         obs = ZoneObservation(
-            zone_id="zone_moderate",
-            growth_stage=GrowthStage.mid,
-            indices=moderate_indices
+            zone_id="zone_moderate", growth_stage=GrowthStage.mid, indices=moderate_indices
         )
 
         actions = diagnose_zone(obs)
@@ -317,21 +271,12 @@ class TestScoutingRecommendations:
 
     def test_scouting_reason_details(self):
         """Test that scouting actions provide detailed reasons"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
-        indices = Indices(
-            ndvi=0.30,
-            evi=0.26,
-            ndre=0.17,
-            lci=0.14,
-            ndwi=-0.04,
-            savi=0.28
-        )
+        indices = Indices(ndvi=0.30, evi=0.26, ndre=0.17, lci=0.14, ndwi=-0.04, savi=0.28)
 
         obs = ZoneObservation(
-            zone_id="zone_detail_test",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_detail_test", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -354,7 +299,7 @@ class TestAnomalyDetection:
 
     def test_detect_unusual_index_combination(self):
         """Test detection of unusual combination of indices"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Unusual: High NDVI but very low chlorophyll
         # Could indicate disease or measurement error
@@ -364,14 +309,10 @@ class TestAnomalyDetection:
             ndre=0.30,
             lci=0.12,  # Very low despite high NDVI
             ndwi=0.05,
-            savi=0.72
+            savi=0.72,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_anomaly",
-            growth_stage=GrowthStage.mid,
-            indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_anomaly", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -387,23 +328,17 @@ class TestAnomalyDetection:
             ("zone_healthy", 0.82),
             ("zone_moderate", 0.55),
             ("zone_sick", 0.28),
-            ("zone_critical", 0.18)
+            ("zone_critical", 0.18),
         ]
 
         for zone_id, ndvi in zone_healths:
             obs_data = sample_observation_data.copy()
             obs_data["indices"]["ndvi"] = ndvi
 
-            client.post(
-                f"/api/v1/fields/{field_id}/zones/{zone_id}/observations",
-                json=obs_data
-            )
+            client.post(f"/api/v1/fields/{field_id}/zones/{zone_id}/observations", json=obs_data)
 
         # Get field diagnosis
-        response = client.get(
-            f"/api/v1/fields/{field_id}/diagnosis",
-            params={"date": "2025-12-27"}
-        )
+        response = client.get(f"/api/v1/fields/{field_id}/diagnosis", params={"date": "2025-12-27"})
 
         assert response.status_code == 200
         data = response.json()
@@ -423,7 +358,7 @@ class TestDiseaseRiskFactors:
 
     def test_combined_stress_factors(self):
         """Test detection of multiple stress factors increasing disease risk"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Multiple stressors: water stress + nutrient deficiency
         indices = Indices(
@@ -432,13 +367,11 @@ class TestDiseaseRiskFactors:
             ndre=0.18,  # Low nitrogen
             lci=0.16,
             ndwi=-0.15,  # Water stress
-            savi=0.38
+            savi=0.38,
         )
 
         obs = ZoneObservation(
-            zone_id="zone_multiple_stress",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_multiple_stress", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -452,7 +385,7 @@ class TestDiseaseRiskFactors:
 
     def test_environmental_stress_indicators(self):
         """Test detection of environmental stress predisposing to disease"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         # Environmental stress indicated by low SAVI and NDWI
         indices = Indices(
@@ -461,13 +394,11 @@ class TestDiseaseRiskFactors:
             ndre=0.22,
             lci=0.24,
             ndwi=-0.12,
-            savi=0.35  # Low SAVI indicates soil influence
+            savi=0.35,  # Low SAVI indicates soil influence
         )
 
         obs = ZoneObservation(
-            zone_id="zone_env_stress",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="zone_env_stress", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -490,8 +421,8 @@ class TestDiseaseProgressionMonitoring:
 
         # Progressive deterioration
         timeline = [
-            ("2025-12-05T10:00:00Z", 0.70, 0.30, 0.05),   # Good
-            ("2025-12-12T10:00:00Z", 0.60, 0.28, 0.00),   # Declining
+            ("2025-12-05T10:00:00Z", 0.70, 0.30, 0.05),  # Good
+            ("2025-12-12T10:00:00Z", 0.60, 0.28, 0.00),  # Declining
             ("2025-12-19T10:00:00Z", 0.45, 0.22, -0.08),  # Poor
             ("2025-12-26T10:00:00Z", 0.32, 0.18, -0.15),  # Critical
         ]
@@ -503,25 +434,16 @@ class TestDiseaseProgressionMonitoring:
             obs_data["indices"]["ndre"] = ndre
             obs_data["indices"]["ndwi"] = ndwi
 
-            client.post(
-                f"/api/v1/fields/{field_id}/zones/{zone_id}/observations",
-                json=obs_data
-            )
+            client.post(f"/api/v1/fields/{field_id}/zones/{zone_id}/observations", json=obs_data)
 
         # Check final diagnosis
-        response = client.get(
-            f"/api/v1/fields/{field_id}/diagnosis",
-            params={"date": "2025-12-26"}
-        )
+        response = client.get(f"/api/v1/fields/{field_id}/diagnosis", params={"date": "2025-12-26"})
 
         assert response.status_code == 200
         data = response.json()
 
         # Should have urgent actions due to critical state
-        urgent_actions = [
-            a for a in data["actions"]
-            if a["priority"] in ["P0", "P1"]
-        ]
+        urgent_actions = [a for a in data["actions"] if a["priority"] in ["P0", "P1"]]
         assert len(urgent_actions) > 0
 
     def test_recovery_pattern_detection(self, client, sample_observation_data):
@@ -542,15 +464,12 @@ class TestDiseaseProgressionMonitoring:
             obs_data["captured_at"] = date
             obs_data["indices"]["ndvi"] = ndvi
 
-            client.post(
-                f"/api/v1/fields/{field_id}/zones/{zone_id}/observations",
-                json=obs_data
-            )
+            client.post(f"/api/v1/fields/{field_id}/zones/{zone_id}/observations", json=obs_data)
 
         # Get timeline
         response = client.get(
             f"/api/v1/fields/{field_id}/zones/{zone_id}/timeline",
-            params={"from": "2025-12-01", "to": "2025-12-31"}
+            params={"from": "2025-12-01", "to": "2025-12-31"},
         )
 
         assert response.status_code == 200
@@ -576,16 +495,13 @@ class TestIntegrationWithQuickDiagnose:
                 "ndvi": 0.22,  # Very low
                 "evi": 0.18,
                 "ndre": 0.12,
-                "lci": 0.08,   # Very low chlorophyll
+                "lci": 0.08,  # Very low chlorophyll
                 "ndwi": -0.18,  # Severe water stress
-                "savi": 0.20
-            }
+                "savi": 0.20,
+            },
         }
 
-        response = client.post(
-            "/api/v1/diagnose",
-            json=critical_symptoms
-        )
+        response = client.post("/api/v1/diagnose", json=critical_symptoms)
 
         assert response.status_code == 200
         data = response.json()
@@ -608,16 +524,13 @@ class TestIntegrationWithQuickDiagnose:
                 "ndvi": 0.38,
                 "evi": 0.30,
                 "ndre": 0.15,  # Very low
-                "lci": 0.12,   # Very low
+                "lci": 0.12,  # Very low
                 "ndwi": -0.10,
-                "savi": 0.32
-            }
+                "savi": 0.32,
+            },
         }
 
-        response = client.post(
-            "/api/v1/diagnose",
-            json=disease_pattern
-        )
+        response = client.post("/api/v1/diagnose", json=disease_pattern)
 
         assert response.status_code == 200
         data = response.json()
@@ -634,21 +547,12 @@ class TestSeverityClassification:
 
     def test_severity_levels_in_actions(self):
         """Test that actions include severity levels"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
-        indices = Indices(
-            ndvi=0.28,
-            evi=0.22,
-            ndre=0.14,
-            lci=0.12,
-            ndwi=-0.16,
-            savi=0.25
-        )
+        indices = Indices(ndvi=0.28, evi=0.22, ndre=0.14, lci=0.12, ndwi=-0.16, savi=0.25)
 
         obs = ZoneObservation(
-            zone_id="severity_test",
-            growth_stage=GrowthStage.mid,
-            indices=indices
+            zone_id="severity_test", growth_stage=GrowthStage.mid, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -661,7 +565,7 @@ class TestSeverityClassification:
 
     def test_critical_severity_conditions(self):
         """Test conditions that trigger critical severity"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import GrowthStage, Indices, ZoneObservation, diagnose_zone
 
         critical_indices = Indices(
             ndvi=0.25,
@@ -669,22 +573,17 @@ class TestSeverityClassification:
             ndre=0.12,
             lci=0.10,
             ndwi=-0.20,  # Extreme stress
-            savi=0.22
+            savi=0.22,
         )
 
         obs = ZoneObservation(
-            zone_id="critical_severity",
-            growth_stage=GrowthStage.mid,
-            indices=critical_indices
+            zone_id="critical_severity", growth_stage=GrowthStage.mid, indices=critical_indices
         )
 
         actions = diagnose_zone(obs)
 
         # Should have critical severity actions
-        critical_actions = [
-            a for a in actions
-            if a.get("severity") == "critical"
-        ]
+        critical_actions = [a for a in actions if a.get("severity") == "critical"]
         assert len(critical_actions) > 0
 
 
@@ -693,10 +592,7 @@ class TestAPIResponseStructure:
 
     def test_diagnosis_action_structure(self, client):
         """Test that diagnosis actions have all required fields"""
-        response = client.get(
-            "/api/v1/fields/field_demo/diagnosis",
-            params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"})
 
         assert response.status_code == 200
         data = response.json()
@@ -718,10 +614,7 @@ class TestAPIResponseStructure:
 
     def test_map_layers_in_diagnosis(self, client):
         """Test that map layers are provided for visual disease inspection"""
-        response = client.get(
-            "/api/v1/fields/field_demo/diagnosis",
-            params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"})
 
         assert response.status_code == 200
         data = response.json()

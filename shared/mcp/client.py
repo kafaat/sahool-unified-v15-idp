@@ -51,9 +51,7 @@ class MCPClient:
     - SSE transport (Server-Sent Events)
     """
 
-    def __init__(
-        self, server_url: str | None = None, command: list[str] | None = None
-    ):
+    def __init__(self, server_url: str | None = None, command: list[str] | None = None):
         """
         Initialize MCP Client
 
@@ -485,9 +483,7 @@ class MCPClient:
         result = await self.call_tool("get_fertilizer_recommendation", params)
 
         if result.isError:
-            raise MCPClientError(
-                f"Get fertilizer recommendation failed: {result.content}"
-            )
+            raise MCPClientError(f"Get fertilizer recommendation failed: {result.content}")
 
         if result.content and result.content[0].get("type") == "text":
             return json.loads(result.content[0]["text"])
@@ -524,15 +520,11 @@ async def example_usage():
         print(f"Available tools: {[t['name'] for t in tools]}")
 
         # Get weather forecast
-        weather = await client.get_weather_forecast(
-            latitude=15.5527, longitude=48.5164, days=7
-        )
+        weather = await client.get_weather_forecast(latitude=15.5527, longitude=48.5164, days=7)
         print(f"Weather forecast: {weather}")
 
         # Analyze crop health
-        health = await client.analyze_crop_health(
-            field_id="field-123", analysis_type="ndvi"
-        )
+        health = await client.analyze_crop_health(field_id="field-123", analysis_type="ndvi")
         print(f"Crop health: {health}")
 
         # List resources

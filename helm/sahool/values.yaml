@@ -779,9 +779,9 @@ networkPolicy:
         - protocol: TCP
           port: 4222  # NATS
         - protocol: TCP
-          port: 53    # DNS
-          protocol: UDP
-          port: 53
+          port: 53    # DNS TCP
+        - protocol: UDP
+          port: 53    # DNS UDP
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Security Configuration

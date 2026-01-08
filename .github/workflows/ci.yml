@@ -105,9 +105,9 @@ jobs:
 
           echo "Current coverage: ${CURRENT_COV_PCT}%"
 
-          # Set minimum threshold - lowered to match current coverage
-          # TODO: Gradually increase this as more tests are added
-          MIN_COVERAGE=3.0
+          # Minimum coverage threshold - enforced to maintain code quality
+          # SECURITY: This ensures adequate test coverage for production code
+          MIN_COVERAGE=60.0
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "

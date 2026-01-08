@@ -2333,6 +2333,15 @@ services:
           - PATCH
           - DELETE
     plugins:
+      # SECURITY FIX: JWT authentication is required for user management
+      # Note: /api/v1/auth endpoints handle their own authentication internally
+      # The user-service validates tokens server-side for auth endpoints
+      - name: jwt
+        config:
+          # Auth endpoints (/api/v1/auth/*) are excluded from JWT check at the service level
+          # as they need to be accessible for login/register operations
+          claims_to_verify:
+            - exp
       - name: acl
         config:
           allow:

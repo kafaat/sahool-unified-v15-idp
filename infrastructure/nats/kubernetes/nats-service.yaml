@@ -1,0 +1,463 @@
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL NATS Cluster - Kubernetes Services
+# Service definitions for NATS cluster access
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Headless Service - For StatefulSet Pod Discovery
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats
+  namespace: nats-system
+  labels:
+    app: nats
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/component: messaging
+    service-type: headless
+  annotations:
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+spec:
+  type: ClusterIP
+  clusterIP: None  # Headless service
+  publishNotReadyAddresses: true
+  selector:
+    app: nats
+  ports:
+    - name: client
+      port: 4222
+      targetPort: 4222
+      protocol: TCP
+    - name: cluster
+      port: 6222
+      targetPort: 6222
+      protocol: TCP
+    - name: monitor
+      port: 8222
+      targetPort: 8222
+      protocol: TCP
+    - name: gateway
+      port: 7222
+      targetPort: 7222
+      protocol: TCP
+    - name: metrics
+      port: 7777
+      targetPort: 7777
+      protocol: TCP
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Client Service - For Application Access
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-client
+  namespace: nats-system
+  labels:
+    app: nats
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/component: messaging
+    service-type: client
+  annotations:
+    prometheus.io/scrape: "false"
+    service.kubernetes.io/topology-aware-hints: "auto"
+spec:
+  type: ClusterIP
+  selector:
+    app: nats
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800  # 3 hours
+  ports:
+    - name: client
+      port: 4222
+      targetPort: 4222
+      protocol: TCP
+    - name: monitor
+      port: 8222
+      targetPort: 8222
+      protocol: TCP
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# External Service - For External Access (Optional)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-external
+  namespace: nats-system
+  labels:
+    app: nats
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/component: messaging
+    service-type: external
+  annotations:
+    # For AWS ELB
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+    # For GCP
+    cloud.google.com/load-balancer-type: "Internal"
+    # For Azure
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+spec:
+  type: LoadBalancer
+  selector:
+    app: nats
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  ports:
+    - name: client
+      port: 4222
+      targetPort: 4222
+      protocol: TCP
+    - name: gateway
+      port: 7222
+      targetPort: 7222
+      protocol: TCP
+  # Uncomment for specific load balancer IP
+  # loadBalancerIP: 10.0.0.100
+  # Uncomment to restrict source IPs
+  # loadBalancerSourceRanges:
+  #   - 10.0.0.0/8
+  #   - 172.16.0.0/12
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Monitoring Service - For Prometheus Scraping
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-monitoring
+  namespace: nats-system
+  labels:
+    app: nats
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/component: monitoring
+    service-type: monitoring
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "7777"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  selector:
+    app: nats
+  ports:
+    - name: metrics
+      port: 7777
+      targetPort: 7777
+      protocol: TCP
+    - name: monitor
+      port: 8222
+      targetPort: 8222
+      protocol: TCP
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ServiceMonitor - For Prometheus Operator
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nats
+  namespace: nats-system
+  labels:
+    app: nats
+    app.kubernetes.io/name: nats
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: nats
+      service-type: monitoring
+  namespaceSelector:
+    matchNames:
+      - nats-system
+  endpoints:
+    - port: metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      path: /metrics
+      scheme: http
+    - port: monitor
+      interval: 30s
+      scrapeTimeout: 10s
+      path: /varz
+      scheme: http
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Ingress - For External HTTP Monitoring Access (Optional)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nats-monitoring
+  namespace: nats-system
+  labels:
+    app: nats
+    app.kubernetes.io/name: nats
+    app.kubernetes.io/component: monitoring
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: nats-monitoring-auth
+    nginx.ingress.kubernetes.io/auth-realm: "NATS Monitoring - Authentication Required"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - nats-monitoring.sahool.io
+      secretName: nats-monitoring-tls
+  rules:
+    - host: nats-monitoring.sahool.io
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nats-monitoring
+                port:
+                  number: 8222
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# NetworkPolicy - Restrict Traffic to NATS
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: nats-network-policy
+  namespace: nats-system
+  labels:
+    app: nats
+spec:
+  podSelector:
+    matchLabels:
+      app: nats
+  policyTypes:
+    - Ingress
+    - Egress
+
+  # Ingress Rules
+  ingress:
+    # Allow client connections from application namespaces
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              app.kubernetes.io/part-of: sahool-platform
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 4222
+
+    # Allow cluster communication between NATS pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app: nats
+      ports:
+        - protocol: TCP
+          port: 6222
+
+    # Allow gateway connections from other clusters
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: nats-system
+      ports:
+        - protocol: TCP
+          port: 7222
+
+    # Allow monitoring from Prometheus
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8222
+        - protocol: TCP
+          port: 7777
+
+  # Egress Rules
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: kube-system
+        - podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+
+    # Allow cluster communication
+    - to:
+        - podSelector:
+            matchLabels:
+              app: nats
+      ports:
+        - protocol: TCP
+          port: 6222
+
+    # Allow gateway connections to other clusters
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 7222
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Endpoint Slice for Manual Service Discovery (Optional)
+# ─────────────────────────────────────────────────────────────────────────────
+# This is automatically managed by Kubernetes, but shown for reference
+# apiVersion: discovery.k8s.io/v1
+# kind: EndpointSlice
+# metadata:
+#   name: nats-cluster
+#   namespace: nats-system
+#   labels:
+#     app: nats
+#     kubernetes.io/service-name: nats
+# addressType: IPv4
+# ports:
+#   - name: client
+#     port: 4222
+#     protocol: TCP
+#   - name: cluster
+#     port: 6222
+#     protocol: TCP
+# endpoints:
+#   - addresses:
+#       - "172.25.0.11"
+#     conditions:
+#       ready: true
+#     hostname: nats-0
+#   - addresses:
+#       - "172.25.0.12"
+#     conditions:
+#       ready: true
+#     hostname: nats-1
+#   - addresses:
+#       - "172.25.0.13"
+#     conditions:
+#       ready: true
+#     hostname: nats-2
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Service Configuration Notes
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Service Types:
+# ─────────────
+#
+# 1. nats (Headless Service)
+#    - Used by StatefulSet for pod discovery
+#    - DNS: nats-0.nats.nats-system.svc.cluster.local
+#    - DNS: nats-1.nats.nats-system.svc.cluster.local
+#    - DNS: nats-2.nats.nats-system.svc.cluster.local
+#
+# 2. nats-client (ClusterIP Service)
+#    - Used by applications for client connections
+#    - DNS: nats-client.nats-system.svc.cluster.local:4222
+#    - Load balances across all NATS pods
+#    - Recommended for application connections
+#
+# 3. nats-external (LoadBalancer Service)
+#    - Optional: For external access outside the cluster
+#    - Useful for multi-cluster gateway connections
+#    - Configure cloud provider annotations as needed
+#
+# 4. nats-monitoring (ClusterIP Service)
+#    - For Prometheus metrics scraping
+#    - HTTP monitoring endpoint on port 8222
+#    - Metrics exporter on port 7777
+#
+# Client Connection Examples:
+# ──────────────────────────
+#
+# From within the cluster:
+#   nats://nats-client.nats-system.svc.cluster.local:4222
+#
+# With full URLs (recommended for HA):
+#   nats://nats-0.nats.nats-system.svc.cluster.local:4222,
+#   nats://nats-1.nats.nats-system.svc.cluster.local:4222,
+#   nats://nats-2.nats.nats-system.svc.cluster.local:4222
+#
+# From different namespace:
+#   nats://nats-client.nats-system:4222
+#
+# Monitoring Endpoints:
+# ────────────────────
+#
+# Varz (general server info):
+#   http://nats-monitoring.nats-system:8222/varz
+#
+# Connz (connections):
+#   http://nats-monitoring.nats-system:8222/connz
+#
+# Routez (cluster routes):
+#   http://nats-monitoring.nats-system:8222/routez
+#
+# Subsz (subscriptions):
+#   http://nats-monitoring.nats-system:8222/subsz
+#
+# JetStream info:
+#   http://nats-monitoring.nats-system:8222/jsz
+#
+# Prometheus metrics:
+#   http://nats-monitoring.nats-system:7777/metrics
+#
+# Network Policy:
+# ──────────────
+# The NetworkPolicy restricts traffic to:
+# - Client connections from SAHOOL platform namespaces
+# - Cluster traffic between NATS pods
+# - Gateway traffic from nats-system namespace
+# - Monitoring traffic from monitoring namespace
+#
+# Adjust the namespace selectors as needed for your setup.
+#
+# SSL/TLS:
+# ───────
+# - All communication uses TLS
+# - Certificates are mounted from nats-tls-certs secret
+# - See nats-statefulset.yaml for certificate setup
+#
+# High Availability:
+# ─────────────────
+# - Use nats-client service for automatic failover
+# - Or specify all pod endpoints in client connection string
+# - Session affinity is enabled for connection stability
+#
+# Deployment:
+# ──────────
+# kubectl apply -f infrastructure/nats/kubernetes/nats-service.yaml
+#
+# Verify Services:
+# ───────────────
+# kubectl get svc -n nats-system
+# kubectl get endpoints -n nats-system
+# kubectl describe svc nats-client -n nats-system
+#
+# Test Connection:
+# ───────────────
+# kubectl run -it --rm nats-test --image=natsio/nats-box --restart=Never -- \
+#   nats pub -s nats://nats-client.nats-system:4222 test "Hello NATS"
+#
+# ═══════════════════════════════════════════════════════════════════════════════

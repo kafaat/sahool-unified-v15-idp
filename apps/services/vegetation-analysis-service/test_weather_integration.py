@@ -30,9 +30,7 @@ async def test_forecast():
     print("   الموقع: صنعاء، اليمن")
 
     try:
-        forecast = await weather.get_forecast(
-            latitude=15.3694, longitude=44.1910, days=7
-        )
+        forecast = await weather.get_forecast(latitude=15.3694, longitude=44.1910, days=7)
 
         print("\n✅ Forecast retrieved successfully!")
         print(f"   Forecast days: {len(forecast.daily)}")
@@ -41,10 +39,8 @@ async def test_forecast():
         # Show first 3 days
         print("\n   First 3 days:")
         for i, day in enumerate(forecast.daily[:3]):
-            print(f"\n   Day {i+1}: {day.timestamp.date()}")
-            print(
-                f"   Temperature: {day.temperature_min_c}°C - {day.temperature_max_c}°C"
-            )
+            print(f"\n   Day {i + 1}: {day.timestamp.date()}")
+            print(f"   Temperature: {day.temperature_min_c}°C - {day.temperature_max_c}°C")
             print(f"   Precipitation: {day.precipitation_mm} mm")
             if day.et0_mm:
                 print(f"   ET0: {day.et0_mm} mm")
@@ -91,13 +87,9 @@ async def test_historical():
         print(f"   Average Temperature: {historical.summary['avg_temp_c']}°C")
         print(f"   Min Temperature: {historical.summary['min_temp_c']}°C")
         print(f"   Max Temperature: {historical.summary['max_temp_c']}°C")
-        print(
-            f"   Total Precipitation: {historical.summary['total_precipitation_mm']} mm"
-        )
+        print(f"   Total Precipitation: {historical.summary['total_precipitation_mm']} mm")
         print(f"   Total ET0: {historical.summary.get('total_et0_mm', 'N/A')} mm")
-        print(
-            f"   Growing Degree Days (base 10°C): {historical.summary['gdd_base_10']}"
-        )
+        print(f"   Growing Degree Days (base 10°C): {historical.summary['gdd_base_10']}")
 
         await weather.close()
         return True
@@ -122,9 +114,7 @@ async def test_gdd():
     end_date = date.today() - timedelta(days=10)
     start_date = end_date - timedelta(days=120)  # Growing season
 
-    print(
-        f"\n   Period: {start_date} to {end_date} ({(end_date - start_date).days} days)"
-    )
+    print(f"\n   Period: {start_date} to {end_date} ({(end_date - start_date).days} days)")
 
     try:
         # Test with different base temperatures
@@ -178,14 +168,10 @@ async def test_water_balance():
 
         print("\n✅ Water balance calculated successfully!")
         print("\n   Summary:")
-        print(
-            f"   Total Precipitation: {balance['summary']['total_precipitation_mm']} mm"
-        )
+        print(f"   Total Precipitation: {balance['summary']['total_precipitation_mm']} mm")
         print(f"   Total ETc (ET0 × Kc): {balance['summary']['total_etc_mm']} mm")
         print(f"   Water Balance: {balance['summary']['total_balance_mm']} mm")
-        print(
-            f"   Status: {balance['summary']['status']} ({balance['summary']['status_ar']})"
-        )
+        print(f"   Status: {balance['summary']['status']} ({balance['summary']['status_ar']})")
 
         if balance["summary"]["total_balance_mm"] < 0:
             print("\n   ⚠️  Water deficit detected! Irrigation needed.")
@@ -229,20 +215,12 @@ async def test_irrigation_recommendation():
         )
 
         print("\n✅ Irrigation recommendation generated!")
-        print(
-            f"\n   Crop: {recommendation.crop_name_en} ({recommendation.crop_name_ar})"
-        )
+        print(f"\n   Crop: {recommendation.crop_name_en} ({recommendation.crop_name_ar})")
         print(f"   Growth Stage: {recommendation.growth_stage}")
-        print(
-            f"   Water Requirement (next 7 days): {recommendation.water_requirement_mm} mm"
-        )
-        print(
-            f"   Expected Precipitation: {recommendation.precipitation_forecast_mm} mm"
-        )
+        print(f"   Water Requirement (next 7 days): {recommendation.water_requirement_mm} mm")
+        print(f"   Expected Precipitation: {recommendation.precipitation_forecast_mm} mm")
         print(f"   Irrigation Needed: {recommendation.irrigation_needed_mm} mm")
-        print(
-            f"   Recommended Frequency: Every {recommendation.irrigation_frequency_days} days"
-        )
+        print(f"   Recommended Frequency: Every {recommendation.irrigation_frequency_days} days")
         print(f"   Confidence: {recommendation.confidence:.1%}")
 
         print("\n   📋 Recommendation (English):")
@@ -273,9 +251,7 @@ async def test_frost_risk():
     print("\n   Assessing frost risk for next 7 days...")
 
     try:
-        frost_risks = await weather.get_frost_risk(
-            latitude=15.3694, longitude=44.1910, days=7
-        )
+        frost_risks = await weather.get_frost_risk(latitude=15.3694, longitude=44.1910, days=7)
 
         print("\n✅ Frost risk assessment completed!")
         print(f"   Days assessed: {len(frost_risks)}")
@@ -303,7 +279,9 @@ async def test_frost_risk():
             icon = (
                 "❄️"
                 if risk.risk_level in ["severe", "high"]
-                else "⚡" if risk.risk_level == "moderate" else "✅"
+                else "⚡"
+                if risk.risk_level == "moderate"
+                else "✅"
             )
             print(f"   {icon} {risk.date}: {risk.min_temp_c}°C ({risk.risk_level})")
 
@@ -358,21 +336,17 @@ async def main():
         status = "✅ PASS" if result else "❌ FAIL"
         print(f"{status} - {name}")
 
-    print(f"\n{'='*80}")
-    print(f"Results: {passed}/{total} tests passed ({passed/total*100:.1f}%)")
-    print(f"النتائج: {passed}/{total} اختبار ناجح ({passed/total*100:.1f}%)")
+    print(f"\n{'=' * 80}")
+    print(f"Results: {passed}/{total} tests passed ({passed / total * 100:.1f}%)")
+    print(f"النتائج: {passed}/{total} اختبار ناجح ({passed / total * 100:.1f}%)")
     print("=" * 80)
 
     if passed == total:
         print("\n🎉 All tests passed! Weather integration is working correctly.")
         print("   جميع الاختبارات نجحت! تكامل الطقس يعمل بشكل صحيح.")
     else:
-        print(
-            f"\n⚠️  {total - passed} test(s) failed. Check the output above for details."
-        )
-        print(
-            f"   {total - passed} اختبار فشل. تحقق من المخرجات أعلاه للحصول على التفاصيل."
-        )
+        print(f"\n⚠️  {total - passed} test(s) failed. Check the output above for details.")
+        print(f"   {total - passed} اختبار فشل. تحقق من المخرجات أعلاه للحصول على التفاصيل.")
 
 
 if __name__ == "__main__":

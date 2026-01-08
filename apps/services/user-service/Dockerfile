@@ -1,10 +1,3 @@
-# ╔════════════════════════════════════════════════════════════════════════════╗
-# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
-# ║ This service has port conflict with: disaster-assessment (port 3020)       ║
-# ║ Port Conflict: 3020 → Suggested new port: 3025                             ║
-# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
-# ╚════════════════════════════════════════════════════════════════════════════╝
-#
 # SAHOOL User Service v16.0.0
 # خدمة إدارة المستخدمين
 
@@ -15,23 +8,29 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="user-service"
 LABEL version="16.0.0"
 
-WORKDIR /app
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
+# Use workspace structure to maintain relative paths for shared imports
+WORKDIR /workspace
+
+# Copy shared modules first (required for imports from ../../shared/)
+COPY apps/services/shared ./shared/
+
+# Copy service to maintain relative path: ../../shared/ from user-service/src/
+COPY apps/services/user-service ./user-service/
+
+WORKDIR /workspace/user-service
 
 # Install dependencies (with retries for network resilience)
-COPY package.json package-lock.json* ./
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and generate client
-# Add retry logic for network resilience
-COPY prisma ./prisma/
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
     (sleep 10 && npx prisma generate) || \
     (echo "Prisma generate failed after retries" && exit 1)
-
-# Copy source code
-COPY . .
 
 # Build the application
 RUN npm run build
@@ -45,14 +44,11 @@ WORKDIR /app
 RUN apk add --no-cache curl openssl
 
 # Copy package files
-COPY package.json package-lock.json* ./
-# Install with increased retries and timeout for network resilience
-# Using --omit=dev instead of deprecated --only=production
-RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+COPY apps/services/user-service/package.json ./
+RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
-# Add retry logic and checksum ignore for network resilience
-COPY --from=builder /app/prisma ./prisma/
+COPY --from=builder /workspace/user-service/prisma ./prisma/
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
@@ -60,13 +56,13 @@ RUN npx prisma generate || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/user-service/dist ./dist
 
 # Set port environment variable
-ENV PORT=3020
+ENV PORT=3025
 
 # Expose port
-EXPOSE 3020
+EXPOSE 3025
 
 # Set ownership and switch to non-root user (use existing node user)
 RUN chown -R node:node /app
@@ -74,7 +70,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:3020/api/v1/health || exit 1
+    CMD curl -f http://localhost:3025/api/v1/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

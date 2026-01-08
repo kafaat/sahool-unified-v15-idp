@@ -159,13 +159,9 @@ class RateLimiter:
 
         return True, self._build_headers(key, config, tier, exceeded=False)
 
-    def _build_headers(
-        self, key: str, config: RateLimitConfig, tier: str, exceeded: bool
-    ) -> dict:
+    def _build_headers(self, key: str, config: RateLimitConfig, tier: str, exceeded: bool) -> dict:
         """Build rate limit response headers"""
-        remaining = max(
-            0, config.requests_per_minute - len(self._request_counts.get(key, []))
-        )
+        remaining = max(0, config.requests_per_minute - len(self._request_counts.get(key, [])))
 
         headers = {
             "X-RateLimit-Limit": str(config.requests_per_minute),
@@ -305,9 +301,7 @@ def rate_limit(
     )
 
     limiter = RateLimiter()
-    limiter.tier_config = TierConfig(
-        free=config, standard=config, premium=config, internal=config
-    )
+    limiter.tier_config = TierConfig(free=config, standard=config, premium=config, internal=config)
 
     def decorator(func: Callable):
         @wraps(func)

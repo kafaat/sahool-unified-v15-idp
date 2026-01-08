@@ -3,7 +3,6 @@ SAHOOL Astronomical Calendar Service - Unit Tests
 اختبارات خدمة التقويم الفلكي الزراعي
 """
 
-
 import pytest
 from fastapi.testclient import TestClient
 

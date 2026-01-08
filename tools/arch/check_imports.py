@@ -153,9 +153,7 @@ def print_suggestions(violations: list[ImportViolation]) -> None:
 
     for violation in violations:
         print(f"File: {violation.file_path}:{violation.line_number}")
-        print(
-            f"  Problem: {violation.importing_domain} imports from {violation.forbidden_domain}"
-        )
+        print(f"  Problem: {violation.importing_domain} imports from {violation.forbidden_domain}")
         print(f"  Import: {violation.imported_module}")
         print("  Solutions:")
         print("    1. Move shared logic to 'shared/' package")
@@ -165,9 +163,7 @@ def print_suggestions(violations: list[ImportViolation]) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Check for architecture import violations"
-    )
+    parser = argparse.ArgumentParser(description="Check for architecture import violations")
     parser.add_argument(
         "--verbose",
         "-v",

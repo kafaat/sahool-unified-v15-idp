@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../config/config.dart';
 import '../security/security_config.dart';
 import '../security/certificate_pinning_service.dart';
+import 'retry_interceptor.dart';
 
 /// SAHOOL API Client with offline handling and certificate pinning
 class ApiClient {
@@ -47,6 +48,12 @@ class ApiClient {
     }
 
     // Add interceptors
+    // Add retry interceptor first for automatic retry on network errors
+    _dio.interceptors.add(RetryInterceptor(
+      maxRetries: 3,
+      initialDelay: const Duration(seconds: 1),
+    ));
+
     _dio.interceptors.add(_AuthInterceptor(this));
     _dio.interceptors.add(_LoggingInterceptor());
   }

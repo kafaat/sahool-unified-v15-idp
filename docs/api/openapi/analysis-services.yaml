@@ -1,0 +1,1445 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Analysis Services API
+  description: |
+    Remote Sensing and Vegetation Analysis Services for the SAHOOL Platform
+    خدمات التحليل والاستشعار عن بعد في منصة سهول
+
+    This API provides:
+    - **NDVI Analysis**: Vegetation health monitoring using satellite data
+    - **Vegetation Analysis**: Advanced vegetation indices (EVI, SAVI, NDWI, LAI, etc.)
+    - **Satellite Imagery**: Multi-source satellite data (Sentinel-2, Landsat, MODIS)
+    - **LAI Estimation**: Leaf Area Index calculation and monitoring
+
+    ## Data Sources
+    - Sentinel-2 (10m resolution, 5-day revisit)
+    - Landsat-8/9 (30m resolution, 16-day revisit)
+    - MODIS (250m resolution, daily)
+
+    ## Authentication
+    All endpoints require authentication via Bearer token in the Authorization header.
+
+    ## Rate Limiting
+    - 50 requests per minute per user for analysis endpoints
+    - 500 requests per minute for cached time-series data
+
+    ## Caching
+    Analysis results are cached for 24 hours. Use the `Cache-Control` header to control caching behavior.
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.io
+    url: https://sahool.io
+  license:
+    name: Proprietary
+    url: https://sahool.io/terms
+
+servers:
+  - url: https://api.sahool.io/v1
+    description: Production server
+  - url: https://staging-api.sahool.io/v1
+    description: Staging server
+  - url: http://localhost:8090/v1
+    description: Local development
+
+tags:
+  - name: NDVI Analysis
+    description: Normalized Difference Vegetation Index computation and monitoring
+  - name: Vegetation Analysis
+    description: Advanced vegetation indices and health assessment
+  - name: Satellite Imagery
+    description: Multi-source satellite data acquisition and processing
+  - name: LAI Estimation
+    description: Leaf Area Index calculation and monitoring
+  - name: Time Series
+    description: Historical vegetation data and trends
+  - name: Health Check
+    description: Service health and status endpoints
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ==================== Common Schemas ====================
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          example: INVALID_REQUEST
+        message:
+          type: string
+          example: Invalid coordinates provided
+        details:
+          type: object
+
+    Location:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+          example: 15.3694
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          example: 44.1910
+
+    DateRange:
+      type: object
+      required:
+        - start_date
+        - end_date
+      properties:
+        start_date:
+          type: string
+          format: date
+          example: "2025-11-01"
+        end_date:
+          type: string
+          format: date
+          example: "2025-12-14"
+
+    # ==================== NDVI Schemas ====================
+    NDVIComputeRequest:
+      type: object
+      required:
+        - field_id
+      properties:
+        tenant_id:
+          type: string
+          description: Tenant identifier
+          example: tenant_123
+        field_id:
+          type: string
+          description: Field identifier
+          example: field_demo
+        correlation_id:
+          type: string
+          description: Correlation ID for tracing
+        use_sentinel:
+          type: boolean
+          default: false
+          description: Use real Sentinel-2 data (requires geometry)
+        geometry:
+          type: object
+          description: GeoJSON geometry of the field
+          example:
+            type: Polygon
+            coordinates:
+              - [[44.1910, 15.3694], [44.1920, 15.3694], [44.1920, 15.3704], [44.1910, 15.3704], [44.1910, 15.3694]]
+
+    NDVIComputeResponse:
+      type: object
+      required:
+        - field_id
+        - ndvi
+        - trends
+        - health
+        - metadata
+      properties:
+        field_id:
+          type: string
+          example: field_demo
+        ndvi:
+          type: object
+          required:
+            - mean
+            - min
+            - max
+            - std
+          properties:
+            mean:
+              type: number
+              minimum: -1
+              maximum: 1
+              example: 0.72
+            min:
+              type: number
+              minimum: -1
+              maximum: 1
+              example: 0.45
+            max:
+              type: number
+              minimum: -1
+              maximum: 1
+              example: 0.89
+            std:
+              type: number
+              minimum: 0
+              example: 0.08
+        trends:
+          type: object
+          properties:
+            trend_7d:
+              type: number
+              description: 7-day trend (-1 to 1, negative=declining)
+              example: 0.05
+            trend_30d:
+              type: number
+              description: 30-day trend
+              example: 0.12
+        health:
+          type: object
+          required:
+            - status_en
+            - status_ar
+          properties:
+            status_en:
+              type: string
+              enum: [excellent, good, moderate, stressed, critical]
+              example: good
+            status_ar:
+              type: string
+              example: جيد
+        metadata:
+          type: object
+          required:
+            - scene_date
+            - data_source
+          properties:
+            scene_date:
+              type: string
+              format: date-time
+              example: "2025-12-14T10:00:00Z"
+            cloud_cover_pct:
+              type: number
+              minimum: 0
+              maximum: 100
+              example: 5.2
+            data_source:
+              type: string
+              enum: [sentinel-2, landsat-8, landsat-9, modis, simulated]
+              example: sentinel-2
+            quality_score:
+              type: number
+              minimum: 0
+              maximum: 1
+              example: 0.95
+        event_id:
+          type: string
+          description: NATS event ID if published
+        published:
+          type: boolean
+          description: Whether event was published to NATS
+
+    NDVIAnomalyRequest:
+      type: object
+      required:
+        - tenant_id
+        - field_id
+        - current_ndvi
+        - historical_mean
+        - historical_std
+      properties:
+        tenant_id:
+          type: string
+        field_id:
+          type: string
+        current_ndvi:
+          type: number
+          minimum: -1
+          maximum: 1
+          example: 0.35
+        historical_mean:
+          type: number
+          minimum: -1
+          maximum: 1
+          example: 0.68
+        historical_std:
+          type: number
+          minimum: 0
+          example: 0.08
+        correlation_id:
+          type: string
+
+    NDVIAnomalyResponse:
+      type: object
+      required:
+        - field_id
+        - anomaly_detected
+      properties:
+        field_id:
+          type: string
+        anomaly_detected:
+          type: boolean
+          example: true
+        anomaly:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+              enum: [decline, spike, stable_anomaly]
+              example: decline
+            severity:
+              type: string
+              enum: [low, medium, high, critical]
+              example: high
+            z_score:
+              type: number
+              description: Statistical z-score
+              example: -4.125
+            deviation_percent:
+              type: number
+              description: Deviation from mean as percentage
+              example: -48.5
+            description_ar:
+              type: string
+              example: انخفاض حاد في الـ NDVI
+            description_en:
+              type: string
+              example: Severe NDVI decline
+        event_id:
+          type: string
+
+    # ==================== Vegetation Analysis Schemas ====================
+    VegetationIndicesRequest:
+      type: object
+      required:
+        - red
+        - nir
+      properties:
+        red:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Red band reflectance
+          example: 0.08
+        nir:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Near-infrared reflectance
+          example: 0.45
+        blue:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Blue band reflectance
+          example: 0.05
+        green:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Green band reflectance
+          example: 0.06
+        swir:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Short-wave infrared reflectance
+          example: 0.15
+
+    AdvancedIndicesResponse:
+      type: object
+      required:
+        - indices
+        - health_assessment
+      properties:
+        indices:
+          type: object
+          properties:
+            # Basic indices
+            ndvi:
+              type: number
+              description: Normalized Difference Vegetation Index
+              example: 0.70
+            ndwi:
+              type: number
+              description: Normalized Difference Water Index
+              example: 0.12
+            evi:
+              type: number
+              description: Enhanced Vegetation Index
+              example: 0.65
+            savi:
+              type: number
+              description: Soil Adjusted Vegetation Index
+              example: 0.68
+            lai:
+              type: number
+              description: Leaf Area Index
+              example: 3.8
+            ndmi:
+              type: number
+              description: Normalized Difference Moisture Index
+              example: 0.18
+            # Chlorophyll & Nitrogen
+            ndre:
+              type: number
+              description: Normalized Difference Red Edge
+              example: 0.25
+            cvi:
+              type: number
+              description: Chlorophyll Vegetation Index
+              example: 4.2
+            mcari:
+              type: number
+              description: Modified Chlorophyll Absorption Ratio Index
+              example: 0.15
+            tcari:
+              type: number
+              description: Transformed Chlorophyll Absorption Ratio Index
+              example: 0.22
+            sipi:
+              type: number
+              description: Structure Insensitive Pigment Index
+              example: 0.92
+            # Early Stress Detection
+            gndvi:
+              type: number
+              description: Green NDVI
+              example: 0.58
+            vari:
+              type: number
+              description: Visible Atmospherically Resistant Index
+              example: 0.45
+            gli:
+              type: number
+              description: Green Leaf Index
+              example: 0.12
+            grvi:
+              type: number
+              description: Green Red Vegetation Index
+              example: 0.62
+            # Soil/Atmosphere Corrected
+            msavi:
+              type: number
+              description: Modified Soil Adjusted Vegetation Index
+              example: 0.71
+            osavi:
+              type: number
+              description: Optimized Soil Adjusted Vegetation Index
+              example: 0.69
+            arvi:
+              type: number
+              description: Atmospherically Resistant Vegetation Index
+              example: 0.68
+        health_assessment:
+          type: object
+          properties:
+            overall_health:
+              type: string
+              enum: [excellent, good, fair, poor, critical]
+              example: good
+            vigor_score:
+              type: number
+              minimum: 0
+              maximum: 100
+              example: 78
+            water_stress:
+              type: string
+              enum: [none, low, moderate, high, severe]
+              example: low
+            nitrogen_status:
+              type: string
+              enum: [deficient, low, adequate, high, excessive]
+              example: adequate
+            recommendations_ar:
+              type: array
+              items:
+                type: string
+              example: ["الحالة جيدة - استمر في الري المنتظم", "قد تحتاج إلى تسميد نيتروجيني خفيف"]
+            recommendations_en:
+              type: array
+              items:
+                type: string
+              example: ["Good condition - continue regular irrigation", "May need light nitrogen fertilization"]
+
+    # ==================== Satellite Imagery Schemas ====================
+    SatelliteImageryRequest:
+      type: object
+      required:
+        - field_id
+        - latitude
+        - longitude
+      properties:
+        field_id:
+          type: string
+          example: field_123
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+          example: 15.3694
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          example: 44.1910
+        satellite:
+          type: string
+          enum: [sentinel-2, landsat-8, landsat-9, modis]
+          default: sentinel-2
+        start_date:
+          type: string
+          format: date
+          example: "2025-11-01"
+        end_date:
+          type: string
+          format: date
+          example: "2025-12-14"
+        cloud_cover_max:
+          type: number
+          minimum: 0
+          maximum: 100
+          default: 20
+          description: Maximum acceptable cloud coverage percentage
+
+    SatelliteBand:
+      type: object
+      required:
+        - band_name
+        - wavelength_nm
+        - resolution_m
+        - value
+      properties:
+        band_name:
+          type: string
+          example: NIR
+        wavelength_nm:
+          type: string
+          example: 842nm
+        resolution_m:
+          type: integer
+          example: 10
+        value:
+          type: number
+          example: 0.45
+
+    SatelliteImagery:
+      type: object
+      required:
+        - imagery_id
+        - field_id
+        - satellite
+        - acquisition_date
+        - cloud_cover_percent
+        - bands
+        - scene_id
+        - tile_id
+        - processing_level
+      properties:
+        imagery_id:
+          type: string
+          format: uuid
+        field_id:
+          type: string
+        satellite:
+          type: string
+          enum: [sentinel-2, landsat-8, landsat-9, modis]
+        acquisition_date:
+          type: string
+          format: date-time
+        cloud_cover_percent:
+          type: number
+          minimum: 0
+          maximum: 100
+        sun_elevation:
+          type: number
+          description: Sun elevation angle at acquisition
+        bands:
+          type: array
+          items:
+            $ref: '#/components/schemas/SatelliteBand'
+        scene_id:
+          type: string
+          example: S2A_MSIL2A_20251214T074251_N0509_R092_T38RDU_20251214T113045
+        tile_id:
+          type: string
+          example: 38RDU
+        processing_level:
+          type: string
+          example: L2A
+
+    FieldAnalysisRequest:
+      type: object
+      required:
+        - field_id
+        - geometry
+      properties:
+        field_id:
+          type: string
+        geometry:
+          type: object
+          description: GeoJSON geometry
+          example:
+            type: Polygon
+            coordinates:
+              - [[44.1910, 15.3694], [44.1920, 15.3694], [44.1920, 15.3704], [44.1910, 15.3704], [44.1910, 15.3694]]
+        date:
+          type: string
+          format: date
+          description: Analysis date (defaults to most recent available)
+        satellite:
+          type: string
+          enum: [sentinel-2, landsat-8, landsat-9, modis, auto]
+          default: auto
+        cloud_cover_max:
+          type: number
+          default: 20
+
+    FieldAnalysisResponse:
+      type: object
+      required:
+        - field_id
+        - analysis_date
+        - satellite
+        - imagery
+        - indices
+        - health_score
+        - health_status
+      properties:
+        field_id:
+          type: string
+        analysis_date:
+          type: string
+          format: date-time
+        satellite:
+          type: string
+        imagery:
+          $ref: '#/components/schemas/SatelliteImagery'
+        indices:
+          type: object
+          properties:
+            ndvi:
+              type: number
+            ndwi:
+              type: number
+            evi:
+              type: number
+            savi:
+              type: number
+            lai:
+              type: number
+            ndmi:
+              type: number
+        health_score:
+          type: number
+          minimum: 0
+          maximum: 100
+          example: 78
+        health_status:
+          type: string
+          enum: [excellent, good, moderate, stressed, critical]
+          example: good
+        anomalies:
+          type: array
+          items:
+            type: string
+          example: ["Possible water stress in zone A", "Low chlorophyll in zone C"]
+        recommendations_ar:
+          type: array
+          items:
+            type: string
+          example: ["فحص نظام الري في المنطقة A", "تسميد نيتروجيني في المنطقة C"]
+        recommendations_en:
+          type: array
+          items:
+            type: string
+          example: ["Check irrigation system in zone A", "Nitrogen fertilization in zone C"]
+
+    # ==================== LAI Estimation Schemas ====================
+    LAIRequest:
+      type: object
+      required:
+        - field_id
+        - ndvi
+      properties:
+        field_id:
+          type: string
+        ndvi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: NDVI value for LAI estimation
+          example: 0.72
+        crop_type:
+          type: string
+          description: Crop type (improves accuracy)
+          example: wheat
+        growth_stage:
+          type: string
+          enum: [early, vegetative, flowering, maturity]
+          description: Growth stage (improves accuracy)
+
+    LAIResponse:
+      type: object
+      required:
+        - field_id
+        - lai
+        - lai_min
+        - lai_max
+        - method
+        - confidence
+      properties:
+        field_id:
+          type: string
+        lai:
+          type: number
+          minimum: 0
+          description: Estimated Leaf Area Index
+          example: 3.8
+        lai_min:
+          type: number
+          description: Lower confidence bound
+          example: 3.4
+        lai_max:
+          type: number
+          description: Upper confidence bound
+          example: 4.2
+        method:
+          type: string
+          description: Estimation method used
+          example: NDVI-empirical
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          example: 0.85
+        interpretation_ar:
+          type: string
+          example: غطاء نباتي كثيف - حالة ممتازة
+        interpretation_en:
+          type: string
+          example: Dense vegetation cover - excellent condition
+        timestamp:
+          type: string
+          format: date-time
+
+    # ==================== Time Series Schemas ====================
+    TimeSeriesRequest:
+      type: object
+      required:
+        - field_id
+        - start_date
+        - end_date
+      properties:
+        field_id:
+          type: string
+        start_date:
+          type: string
+          format: date
+          example: "2025-01-01"
+        end_date:
+          type: string
+          format: date
+          example: "2025-12-14"
+        indices:
+          type: array
+          items:
+            type: string
+            enum: [ndvi, evi, ndwi, savi, lai, ndmi, ndre]
+          default: [ndvi, evi, lai]
+          description: Indices to include in time series
+        interval:
+          type: string
+          enum: [daily, weekly, monthly]
+          default: weekly
+          description: Data aggregation interval
+        satellite:
+          type: string
+          enum: [sentinel-2, landsat-8, landsat-9, modis, all]
+          default: all
+
+    TimeSeriesDataPoint:
+      type: object
+      required:
+        - date
+        - values
+      properties:
+        date:
+          type: string
+          format: date
+        values:
+          type: object
+          properties:
+            ndvi:
+              type: number
+            evi:
+              type: number
+            ndwi:
+              type: number
+            savi:
+              type: number
+            lai:
+              type: number
+            ndmi:
+              type: number
+            ndre:
+              type: number
+        quality:
+          type: string
+          enum: [high, medium, low]
+          description: Data quality indicator
+        cloud_cover:
+          type: number
+          description: Cloud coverage percentage
+        satellite:
+          type: string
+          description: Data source satellite
+
+    TimeSeriesResponse:
+      type: object
+      required:
+        - field_id
+        - start_date
+        - end_date
+        - data_points
+        - statistics
+      properties:
+        field_id:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        data_points:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeSeriesDataPoint'
+        statistics:
+          type: object
+          properties:
+            ndvi:
+              type: object
+              properties:
+                mean:
+                  type: number
+                min:
+                  type: number
+                max:
+                  type: number
+                std:
+                  type: number
+                trend:
+                  type: number
+                  description: Linear trend coefficient
+            evi:
+              type: object
+              properties:
+                mean:
+                  type: number
+                trend:
+                  type: number
+            lai:
+              type: object
+              properties:
+                mean:
+                  type: number
+                trend:
+                  type: number
+        trends:
+          type: object
+          properties:
+            overall_trend:
+              type: string
+              enum: [improving, stable, declining]
+            trend_description_ar:
+              type: string
+            trend_description_en:
+              type: string
+        cached:
+          type: boolean
+          description: Whether data was served from cache
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ==================== Health Check ====================
+  /health:
+    get:
+      tags:
+        - Health Check
+      summary: Service health check
+      description: Check if all analysis services are healthy
+      security: []
+      responses:
+        '200':
+          description: Services are healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  services:
+                    type: object
+                    properties:
+                      vegetation_analysis:
+                        type: string
+                        example: ok
+                      satellite_imagery:
+                        type: string
+                        example: ok
+                      ndvi_engine:
+                        type: string
+                        example: ok
+                  cache:
+                    type: object
+                    properties:
+                      available:
+                        type: boolean
+                      hit_rate:
+                        type: number
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  # ==================== NDVI Analysis Endpoints ====================
+  /ndvi/compute:
+    post:
+      tags:
+        - NDVI Analysis
+      summary: Compute NDVI for a field
+      description: |
+        Compute NDVI using satellite imagery or simulated data.
+        Supports Sentinel-2, Landsat, and MODIS.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NDVIComputeRequest'
+            example:
+              tenant_id: tenant_123
+              field_id: field_demo
+              use_sentinel: true
+              geometry:
+                type: Polygon
+                coordinates:
+                  - [[44.1910, 15.3694], [44.1920, 15.3694], [44.1920, 15.3704], [44.1910, 15.3704], [44.1910, 15.3694]]
+      responses:
+        '200':
+          description: NDVI computed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NDVIComputeResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ndvi/anomaly:
+    post:
+      tags:
+        - NDVI Analysis
+      summary: Detect NDVI anomalies
+      description: |
+        Detect anomalies by comparing current NDVI with historical data.
+        Uses statistical z-score analysis.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NDVIAnomalyRequest'
+      responses:
+        '200':
+          description: Anomaly detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NDVIAnomalyResponse'
+
+  /ndvi/zones:
+    post:
+      tags:
+        - NDVI Analysis
+      summary: Analyze NDVI zones
+      description: |
+        Analyze NDVI distribution within a field and identify management zones.
+        Returns zone-specific NDVI statistics.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tenant_id
+                - field_id
+              properties:
+                tenant_id:
+                  type: string
+                field_id:
+                  type: string
+      responses:
+        '200':
+          description: Zone analysis completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field_id:
+                    type: string
+                  zones:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        zone_id:
+                          type: string
+                        name_ar:
+                          type: string
+                        name_en:
+                          type: string
+                        ndvi_mean:
+                          type: number
+                        area_pct:
+                          type: number
+                        health_status:
+                          type: string
+                  count:
+                    type: integer
+
+  /ndvi/health/{ndvi_value}:
+    get:
+      tags:
+        - NDVI Analysis
+      summary: Get health classification
+      description: Get health status classification for a given NDVI value
+      parameters:
+        - name: ndvi_value
+          in: path
+          required: true
+          schema:
+            type: number
+            minimum: -1
+            maximum: 1
+      responses:
+        '200':
+          description: Health classification
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ndvi:
+                    type: number
+                  health_en:
+                    type: string
+                  health_ar:
+                    type: string
+
+  # ==================== Vegetation Analysis Endpoints ====================
+  /vegetation/indices:
+    post:
+      tags:
+        - Vegetation Analysis
+      summary: Calculate vegetation indices
+      description: |
+        Calculate multiple vegetation indices from band reflectance values.
+        Returns 17+ indices including NDVI, EVI, SAVI, LAI, NDRE, etc.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VegetationIndicesRequest'
+      responses:
+        '200':
+          description: Indices calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvancedIndicesResponse'
+
+  /vegetation/interpret:
+    post:
+      tags:
+        - Vegetation Analysis
+      summary: Interpret vegetation indices
+      description: |
+        Interpret vegetation index values with crop-specific thresholds
+        and provide actionable recommendations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - field_id
+                - indices
+              properties:
+                field_id:
+                  type: string
+                indices:
+                  type: object
+                  additionalProperties:
+                    type: number
+                crop_type:
+                  type: string
+                growth_stage:
+                  type: string
+      responses:
+        '200':
+          description: Interpretation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field_id:
+                    type: string
+                  interpretations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index_name:
+                          type: string
+                        value:
+                          type: number
+                        status:
+                          type: string
+                        description_ar:
+                          type: string
+                        description_en:
+                          type: string
+                        confidence:
+                          type: number
+
+  # ==================== Satellite Imagery Endpoints ====================
+  /satellite/imagery:
+    post:
+      tags:
+        - Satellite Imagery
+      summary: Acquire satellite imagery
+      description: |
+        Acquire satellite imagery for a specific location and time range.
+        Supports multiple satellite sources with automatic fallback.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SatelliteImageryRequest'
+      responses:
+        '200':
+          description: Imagery acquired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SatelliteImagery'
+        '404':
+          description: No imagery available for the specified parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /satellite/analyze:
+    post:
+      tags:
+        - Satellite Imagery
+      summary: Analyze field from satellite
+      description: |
+        Complete field analysis using satellite imagery.
+        Returns vegetation indices, health assessment, and recommendations.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldAnalysisRequest'
+      responses:
+        '200':
+          description: Analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldAnalysisResponse'
+        '202':
+          description: Analysis started (async)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  job_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    example: processing
+                  estimated_completion:
+                    type: string
+                    format: date-time
+
+  /satellite/sources:
+    get:
+      tags:
+        - Satellite Imagery
+      summary: List available satellite sources
+      description: Get list of satellite data sources with availability status
+      responses:
+        '200':
+          description: List of sources
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        satellite:
+                          type: string
+                        name:
+                          type: string
+                        operator:
+                          type: string
+                        resolution_m:
+                          type: integer
+                        revisit_days:
+                          type: integer
+                        available:
+                          type: boolean
+                        configured:
+                          type: boolean
+
+  # ==================== LAI Estimation Endpoints ====================
+  /lai/estimate:
+    post:
+      tags:
+        - LAI Estimation
+      summary: Estimate Leaf Area Index
+      description: |
+        Estimate LAI from NDVI or other vegetation indices.
+        Uses empirical relationships calibrated for different crops.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LAIRequest'
+      responses:
+        '200':
+          description: LAI estimated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LAIResponse'
+
+  /lai/timeseries:
+    post:
+      tags:
+        - LAI Estimation
+      summary: Get LAI time series
+      description: |
+        Get LAI time series for a field over a date range.
+        Useful for monitoring crop growth and canopy development.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - field_id
+                - start_date
+                - end_date
+              properties:
+                field_id:
+                  type: string
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                interval:
+                  type: string
+                  enum: [daily, weekly, monthly]
+                  default: weekly
+      responses:
+        '200':
+          description: LAI time series retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field_id:
+                    type: string
+                  start_date:
+                    type: string
+                    format: date
+                  end_date:
+                    type: string
+                    format: date
+                  data_points:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                        lai:
+                          type: number
+                        confidence:
+                          type: number
+                  statistics:
+                    type: object
+                    properties:
+                      mean_lai:
+                        type: number
+                      max_lai:
+                        type: number
+                      growth_rate:
+                        type: number
+
+  # ==================== Time Series Endpoints ====================
+  /timeseries/vegetation:
+    post:
+      tags:
+        - Time Series
+      summary: Get vegetation time series
+      description: |
+        Get historical vegetation indices time series.
+        Includes NDVI, EVI, LAI, and other indices over time.
+        Results are cached for 24 hours.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeSeriesRequest'
+      responses:
+        '200':
+          description: Time series data retrieved
+          headers:
+            X-Cache-Hit:
+              schema:
+                type: boolean
+              description: Whether data was served from cache
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeSeriesResponse'
+
+  /timeseries/export:
+    post:
+      tags:
+        - Time Series
+      summary: Export time series data
+      description: |
+        Export time series data in various formats (CSV, GeoJSON, NetCDF).
+        Useful for GIS analysis and data science workflows.
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [csv, geojson, netcdf, parquet]
+            default: csv
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimeSeriesRequest'
+      responses:
+        '200':
+          description: Data exported
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: object
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /timeseries/compare:
+    post:
+      tags:
+        - Time Series
+      summary: Compare multiple fields
+      description: |
+        Compare vegetation trends across multiple fields.
+        Useful for benchmarking and regional analysis.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - field_ids
+                - start_date
+                - end_date
+              properties:
+                field_ids:
+                  type: array
+                  items:
+                    type: string
+                  maxItems: 10
+                start_date:
+                  type: string
+                  format: date
+                end_date:
+                  type: string
+                  format: date
+                index:
+                  type: string
+                  default: ndvi
+      responses:
+        '200':
+          description: Comparison data retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  start_date:
+                    type: string
+                    format: date
+                  end_date:
+                    type: string
+                    format: date
+                  fields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        field_id:
+                          type: string
+                        mean_value:
+                          type: number
+                        trend:
+                          type: number
+                        data_points:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/TimeSeriesDataPoint'

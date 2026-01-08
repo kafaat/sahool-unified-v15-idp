@@ -20,8 +20,8 @@ jobs:
             path: apps/services/indicators-service
           - name: weather-advanced
             path: apps/services/weather-advanced
-          - name: crop-health-ai
-            path: apps/services/crop-health-ai
+          # crop-health-ai removed - DEPRECATED (see docs/DEPRECATED_SERVICES.md)
+          # Use crop-intelligence-service (port 8095) instead
           - name: fertilizer-advisor
             path: apps/services/fertilizer-advisor
           - name: irrigation-smart
@@ -53,6 +53,6 @@ jobs:
     - name: Build the Docker image
       if: steps.check_dockerfile.outputs.exists == 'true'
       run: |
-        docker build ${{ matrix.service.path }} \
+        docker build . \
           --file ${{ matrix.service.path }}/Dockerfile \
           --tag sahool/${{ matrix.service.name }}:${{ github.sha }}

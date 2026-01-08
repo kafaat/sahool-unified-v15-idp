@@ -8,23 +8,29 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="chat-service"
 LABEL version="16.0.0"
 
-WORKDIR /app
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
+# Use workspace structure to maintain relative paths for shared imports
+WORKDIR /workspace
+
+# Copy shared modules first (required for imports from ../../shared/)
+COPY apps/services/shared ./shared/
+
+# Copy service to maintain relative path: ../../shared/ from chat-service/src/
+COPY apps/services/chat-service ./chat-service/
+
+WORKDIR /workspace/chat-service
 
 # Install dependencies (with retries for network resilience)
-COPY package.json package-lock.json* ./
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and generate client
-# Add retry logic for network resilience
-COPY prisma ./prisma/
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
     (sleep 10 && npx prisma generate) || \
     (echo "Prisma generate failed after retries" && exit 1)
-
-# Copy source code
-COPY . .
 
 # Build the application
 RUN npm run build
@@ -38,14 +44,11 @@ WORKDIR /app
 RUN apk add --no-cache curl openssl
 
 # Copy package files
-COPY package.json package-lock.json* ./
-# Install with increased retries and timeout for network resilience
-# Using --omit=dev instead of deprecated --only=production
-RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+COPY apps/services/chat-service/package.json ./
+RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
-# Add retry logic and checksum ignore for network resilience
-COPY --from=builder /app/prisma ./prisma/
+COPY --from=builder /workspace/chat-service/prisma ./prisma/
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
@@ -53,7 +56,7 @@ RUN npx prisma generate || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/chat-service/dist ./dist
 
 # Set port environment variable
 ENV PORT=8114

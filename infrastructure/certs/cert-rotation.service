@@ -1,0 +1,58 @@
+[Unit]
+Description=SAHOOL Certificate Rotation Service
+Documentation=file:///opt/sahool/docs/CERTIFICATE_ROTATION.md
+After=network-online.target docker.service
+Wants=network-online.target
+ConditionPathExists=/opt/sahool/scripts/certs/rotate-certs.sh
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+
+# Working directory
+WorkingDirectory=/opt/sahool
+
+# Environment
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment="UNATTENDED=1"
+EnvironmentFile=-/opt/sahool/.env
+EnvironmentFile=-/etc/default/sahool-certs
+
+# Notification settings (optional - configure in /etc/default/sahool-certs)
+# Environment="NOTIFICATION_EMAIL=admin@example.com"
+# Environment="SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+
+# Execute certificate rotation
+# --backup: Always create backups before rotation
+# Certificate rotation only happens if expiring within threshold (default 30 days)
+ExecStart=/opt/sahool/scripts/certs/rotate-certs.sh --backup
+
+# Log rotation output
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=sahool-cert-rotation
+
+# Security hardening
+NoNewPrivileges=false
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/sahool/config/certs
+ReadWritePaths=/var/log/sahool
+
+# Resource limits
+CPUQuota=50%
+MemoryLimit=512M
+TasksMax=50
+
+# Restart policy
+Restart=on-failure
+RestartSec=30s
+
+# Timeout settings
+TimeoutStartSec=300s
+TimeoutStopSec=60s
+
+[Install]
+WantedBy=multi-user.target

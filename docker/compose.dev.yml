@@ -26,10 +26,10 @@ services:
 
   kong:
     environment:
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001"
     ports:
       - "8000:8000"
-      - "8001:8001"
+      - "127.0.0.1:8001:8001"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Core Services - Development Mode

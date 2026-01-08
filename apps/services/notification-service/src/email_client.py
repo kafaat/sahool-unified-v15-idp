@@ -124,9 +124,7 @@ class EmailClient:
             if not from_email:
                 from_email = os.getenv("SENDGRID_FROM_EMAIL")
             if not from_name:
-                from_name = os.getenv(
-                    "SENDGRID_FROM_NAME", "SAHOOL Agriculture Platform"
-                )
+                from_name = os.getenv("SENDGRID_FROM_NAME", "SAHOOL Agriculture Platform")
 
             # Validate credentials
             if not api_key:
@@ -143,9 +141,7 @@ class EmailClient:
             self._from_name = from_name
             self._initialized = True
 
-            logger.info(
-                f"✅ Email client initialized successfully (from: {from_email})"
-            )
+            logger.info(f"✅ Email client initialized successfully (from: {from_email})")
             return True
 
         except Exception as e:
@@ -217,9 +213,7 @@ class EmailClient:
                 from_email=Email(self._from_email, self._from_name),
                 to_emails=To(to),
                 subject=Subject(email_subject),
-                plain_text_content=(
-                    Content("text/plain", email_body) if not is_html else None
-                ),
+                plain_text_content=(Content("text/plain", email_body) if not is_html else None),
                 html_content=Content("text/html", email_body) if is_html else None,
             )
 
@@ -247,9 +241,7 @@ class EmailClient:
                     attachment = Attachment(
                         FileContent(attachment_data.get("content")),
                         FileName(attachment_data.get("filename")),
-                        FileType(
-                            attachment_data.get("type", "application/octet-stream")
-                        ),
+                        FileType(attachment_data.get("type", "application/octet-stream")),
                         Disposition(attachment_data.get("disposition", "attachment")),
                     )
                     mail.add_attachment(attachment)
@@ -279,9 +271,7 @@ class EmailClient:
                 message_id = response.headers.get("X-Message-Id", "unknown")
                 return message_id
             else:
-                logger.error(
-                    f"SendGrid error: {response.status_code} - {response.body}"
-                )
+                logger.error(f"SendGrid error: {response.status_code} - {response.body}")
                 return None
 
         except HTTPError as e:
@@ -339,9 +329,7 @@ class EmailClient:
                 results.append({"to": recipient, "success": True, "message_id": result})
             else:
                 failure_count += 1
-                results.append(
-                    {"to": recipient, "success": False, "error": "Failed to send"}
-                )
+                results.append({"to": recipient, "success": False, "error": "Failed to send"})
 
         logger.info(
             f"📧 Bulk email sent: {success_count} successful, "
@@ -413,9 +401,7 @@ class EmailClient:
 
         try:
             # Build email with template
-            mail = Mail(
-                from_email=Email(self._from_email, self._from_name), to_emails=To(to)
-            )
+            mail = Mail(from_email=Email(self._from_email, self._from_name), to_emails=To(to))
 
             # Set template ID
             mail.template_id = template_id

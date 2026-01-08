@@ -8,19 +8,26 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="research-core"
 LABEL version="15.3.0"
 
-WORKDIR /app
+# Use workspace structure to maintain relative paths for shared imports
+WORKDIR /workspace
+
+# Copy shared modules first (required for imports from ../../shared/)
+COPY apps/services/shared ./shared/
+
+# Copy service to maintain relative path: ../../shared/ from research-core/src/
+COPY apps/services/research-core ./research-core/
+
+WORKDIR /workspace/research-core
 
 # Install dependencies with retry for network resilience
-COPY package.json package-lock.json* ./
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and generate client
-COPY prisma ./prisma/
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npx prisma generate
-
-# Copy source code
-COPY . .
+RUN npx prisma generate || \
+    (sleep 5 && npx prisma generate) || \
+    (sleep 10 && npx prisma generate) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Build the application
 RUN npm run build
@@ -34,19 +41,19 @@ WORKDIR /app
 RUN apk add --no-cache curl openssl
 
 # Copy package files
-COPY package.json package-lock.json* ./
-RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+COPY apps/services/research-core/package.json ./
+RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
-# Add retry logic for network resilience
-COPY --from=builder /app/prisma ./prisma/
+COPY --from=builder /workspace/research-core/prisma ./prisma/
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
     (sleep 10 && npx prisma generate) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/research-core/dist ./dist
 
 # Expose port
 EXPOSE 3015

@@ -1,0 +1,26 @@
+{
+  "name": "@sahool/versioning",
+  "version": "1.0.0",
+  "description": "API versioning utilities for SAHOOL platform",
+  "main": "index.ts",
+  "types": "index.ts",
+  "keywords": [
+    "api",
+    "versioning",
+    "nestjs",
+    "sahool",
+    "deprecation"
+  ],
+  "author": "SAHOOL Platform Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/swagger": "^7.0.0",
+    "rxjs": "^7.8.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.0"
+  }
+}

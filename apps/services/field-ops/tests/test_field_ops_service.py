@@ -222,9 +222,7 @@ class TestOperationsManagement:
         client.post("/operations", json=op_data)
 
         # List scheduled operations
-        response = client.get(
-            "/operations", params={"field_id": field_id, "status": "scheduled"}
-        )
+        response = client.get("/operations", params={"field_id": field_id, "status": "scheduled"})
 
         assert response.status_code == 200
         data = response.json()
@@ -260,9 +258,7 @@ class TestTenantStatistics:
         # Create some fields
         field_data = {**sample_field_data, "tenant_id": tenant_id}
         field1 = client.post("/fields", json=field_data).json()
-        client.post(
-            "/fields", json={**field_data, "name": "Field 2", "area_hectares": 8.5}
-        ).json()
+        client.post("/fields", json={**field_data, "name": "Field 2", "area_hectares": 8.5}).json()
 
         # Create some operations
         op_data = {
@@ -366,7 +362,5 @@ class TestCompleteWorkflow:
         assert stats["operations"]["completed"] >= 1
 
         # Step 6: Update field info
-        update_response = client.put(
-            f"/fields/{field_id}", json={"crop_type": "wheat_updated"}
-        )
+        update_response = client.put(f"/fields/{field_id}", json={"crop_type": "wheat_updated"})
         assert update_response.status_code == 200

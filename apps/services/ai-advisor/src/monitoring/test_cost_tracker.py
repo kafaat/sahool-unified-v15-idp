@@ -67,7 +67,7 @@ async def test_cost_tracker():
         await tracker.record_usage(
             model="gpt-4o", input_tokens=500, output_tokens=300, user_id="test_user"
         )
-        print(f"  Request {i+1} recorded")
+        print(f"  Request {i + 1} recorded")
 
     stats = tracker.get_usage_stats(user_id="test_user")
     print(f"  Updated daily cost: ${stats['daily_cost']:.4f}")

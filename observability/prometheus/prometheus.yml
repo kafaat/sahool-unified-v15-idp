@@ -39,7 +39,7 @@ scrape_configs:
     static_configs:
       - targets:
         - 'field-ops:8080'
-        - 'weather-core:8080'
+        - 'weather-service:8092'
         - 'ndvi-engine:8080'
         - 'crop-health:8080'
         - 'task-service:8080'

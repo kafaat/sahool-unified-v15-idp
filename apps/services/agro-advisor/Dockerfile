@@ -42,14 +42,14 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
-COPY agro-advisor/requirements.txt .
+COPY apps/services/agro-advisor/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared libraries
-COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
 
 # Copy source
-COPY agro-advisor/src/ ./src/
+COPY apps/services/agro-advisor/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app

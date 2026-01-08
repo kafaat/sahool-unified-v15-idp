@@ -404,9 +404,7 @@ async def test_get_active_alerts_workflow(
     alert_service_url = service_urls.get("alert_service", "http://localhost:8113")
 
     # Get all active alerts - الحصول على جميع التنبيهات النشطة
-    response = await http_client.get(
-        f"{alert_service_url}/v1/alerts/active", headers=auth_headers
-    )
+    response = await http_client.get(f"{alert_service_url}/v1/alerts/active", headers=auth_headers)
 
     if response.status_code == 200:
         alerts = response.json()

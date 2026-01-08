@@ -83,9 +83,7 @@ class Tenant:
             id=str(uuid4()),
             name=name,
             name_ar=name_ar,
-            status=(
-                TenantStatus.TRIAL if plan == TenantPlan.FREE else TenantStatus.ACTIVE
-            ),
+            status=(TenantStatus.TRIAL if plan == TenantPlan.FREE else TenantStatus.ACTIVE),
             plan=plan,
             settings=TenantSettings(),
             owner_id=owner_id,

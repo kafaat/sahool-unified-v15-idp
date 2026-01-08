@@ -6,31 +6,6 @@
 import express, { Express } from "express";
 import request from "supertest";
 
-// Mock the data source
-jest.mock("../src/data-source", () => ({
-    AppDataSource: {
-        initialize: jest.fn().mockResolvedValue(undefined),
-        query: jest.fn().mockResolvedValue([{ total_fields: 5 }]),
-        getRepository: jest.fn().mockReturnValue({
-            createQueryBuilder: jest.fn().mockReturnValue({
-                andWhere: jest.fn().mockReturnThis(),
-                where: jest.fn().mockReturnThis(),
-                orderBy: jest.fn().mockReturnThis(),
-                skip: jest.fn().mockReturnThis(),
-                take: jest.fn().mockReturnThis(),
-                getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
-                getMany: jest.fn().mockResolvedValue([]),
-                getCount: jest.fn().mockResolvedValue(0),
-            }),
-            findOne: jest.fn(),
-            find: jest.fn().mockResolvedValue([]),
-            create: jest.fn(),
-            save: jest.fn(),
-            delete: jest.fn().mockResolvedValue({ affected: 1 }),
-        }),
-    },
-}));
-
 // Sample test data
 const sampleField = {
     id: "field_001",

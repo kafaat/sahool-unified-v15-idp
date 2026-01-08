@@ -6,6 +6,7 @@ Port: 8081
 
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 from uuid import uuid4
@@ -18,8 +19,13 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from jose import JWTError, jwt
 from pydantic import BaseModel
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .handlers import WebSocketMessageHandler
 from .nats_bridge import NATSBridge
@@ -117,6 +123,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
 
 # ============== Health Check ==============
 
@@ -165,7 +175,7 @@ def get_stats():
 async def websocket_endpoint(
     websocket: WebSocket,
     tenant_id: str = Query(...),
-    token: str = Query(...),
+    token: str = Query(None),  # DEPRECATED: Keep for backward compatibility
 ):
     """
     Main WebSocket endpoint for real-time communication
@@ -173,10 +183,20 @@ async def websocket_endpoint(
 
     Query params:
     - tenant_id: Required tenant identifier
-    - token: JWT token for authentication (REQUIRED)
+    - token: JWT token for authentication (DEPRECATED: Use Authorization header instead)
+
+    Headers:
+    - Authorization: Bearer token (PREFERRED for security)
     """
     connection_id = str(uuid4())
     user_id = None
+
+    # SECURITY FIX: Accept token from Authorization header (preferred) or query param (deprecated)
+    auth_header = websocket.headers.get("authorization") or websocket.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header[7:]  # Remove "Bearer " prefix
+    elif auth_header:
+        token = auth_header
 
     # JWT authentication is always required
     if not token:
@@ -289,9 +309,7 @@ async def broadcast_message(
         token = authorization[7:] if authorization.startswith("Bearer ") else authorization
 
     if not token:
-        raise HTTPException(
-            status_code=401, detail="Authorization token required for broadcast"
-        )
+        raise HTTPException(status_code=401, detail="Authorization token required for broadcast")
 
     try:
         # Validate token and check tenant ownership

@@ -41,21 +41,20 @@ except ImportError:
     print("Warning: aiohttp not installed. HTTP checks will be skipped.")
     aiohttp = None
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("env-parity")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CONFIGURATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class Environment(Enum):
     SIMULATION = "simulation"
     DEVELOPMENT = "development"
     STAGING = "staging"
     PRODUCTION = "production"
+
 
 # Critical environment variables that MUST match across environments
 CRITICAL_ENV_VARS = [
@@ -92,6 +91,7 @@ REQUIRED_SERVICES = [
 # DATA MODELS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class ConfigDiff:
     key: str
@@ -100,6 +100,7 @@ class ConfigDiff:
     severity: str  # critical, warning, info
     recommendation: str = ""
 
+
 @dataclass
 class ServiceStatus:
     name: str
@@ -107,6 +108,7 @@ class ServiceStatus:
     response_time_ms: float = 0.0
     version: str = "unknown"
     error: str = ""
+
 
 @dataclass
 class ParityReport:
@@ -151,7 +153,9 @@ class ParityReport:
             print("  Configuration Differences:")
             print("  " + "-" * 66)
             for diff in self.config_diffs[:10]:  # Show first 10
-                severity_icon = {"critical": "🔴", "warning": "🟡", "info": "🔵"}.get(diff["severity"], "⚪")
+                severity_icon = {"critical": "🔴", "warning": "🟡", "info": "🔵"}.get(
+                    diff["severity"], "⚪"
+                )
                 print(f"  {severity_icon} {diff['key']}")
                 if diff.get("recommendation"):
                     print(f"      → {diff['recommendation']}")
@@ -173,9 +177,11 @@ class ParityReport:
 
         print("=" * 70 + "\n")
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # ENVIRONMENT PARITY CHECKER
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class EnvironmentParityChecker:
     """Checks environment parity between simulation and production."""
@@ -268,13 +274,15 @@ class EnvironmentParityChecker:
                     severity = "warning"
                     recommendation = f"Consider aligning {key}"
 
-                diffs.append(ConfigDiff(
-                    key=key,
-                    source_value=source_val,
-                    target_value=target_val,
-                    severity=severity,
-                    recommendation=recommendation,
-                ))
+                diffs.append(
+                    ConfigDiff(
+                        key=key,
+                        source_value=source_val,
+                        target_value=target_val,
+                        severity=severity,
+                        recommendation=recommendation,
+                    )
+                )
 
         return diffs
 
@@ -285,10 +293,10 @@ class EnvironmentParityChecker:
 
         try:
             start = datetime.now()
-            async with aiohttp.ClientSession() as session, session.get(
-                f"{url}/health",
-                timeout=aiohttp.ClientTimeout(total=5)
-            ) as response:
+            async with (
+                aiohttp.ClientSession() as session,
+                session.get(f"{url}/health", timeout=aiohttp.ClientTimeout(total=5)) as response,
+            ):
                 elapsed = (datetime.now() - start).total_seconds() * 1000
 
                 if response.status == 200:
@@ -331,24 +339,28 @@ class EnvironmentParityChecker:
                     content = f.read()
 
                     # Check for hardcoded localhost references
-                    if 'localhost' in content and self.target_env == "production":
-                        diffs.append(ConfigDiff(
-                            key=f"{compose_file}:localhost_reference",
-                            source_value="localhost",
-                            target_value="<service-name>",
-                            severity="critical",
-                            recommendation="Replace localhost with service names for production",
-                        ))
+                    if "localhost" in content and self.target_env == "production":
+                        diffs.append(
+                            ConfigDiff(
+                                key=f"{compose_file}:localhost_reference",
+                                source_value="localhost",
+                                target_value="<service-name>",
+                                severity="critical",
+                                recommendation="Replace localhost with service names for production",
+                            )
+                        )
 
                     # Check for missing health checks
-                    if 'healthcheck' not in content:
-                        diffs.append(ConfigDiff(
-                            key=f"{compose_file}:missing_healthcheck",
-                            source_value="none",
-                            target_value="required",
-                            severity="warning",
-                            recommendation="Add healthcheck configuration to services",
-                        ))
+                    if "healthcheck" not in content:
+                        diffs.append(
+                            ConfigDiff(
+                                key=f"{compose_file}:missing_healthcheck",
+                                source_value="none",
+                                target_value="required",
+                                severity="warning",
+                                recommendation="Add healthcheck configuration to services",
+                            )
+                        )
 
         return diffs
 
@@ -372,20 +384,12 @@ class EnvironmentParityChecker:
             )
 
         if "REDIS_MAX_CONNECTIONS" in config_keys:
-            recommendations.append(
-                "Ensure Redis connection limits match to prevent session loss"
-            )
+            recommendations.append("Ensure Redis connection limits match to prevent session loss")
 
         if self.target_env == "production":
-            recommendations.append(
-                "Run load test on staging before production deployment"
-            )
-            recommendations.append(
-                "Ensure database migrations are applied in correct order"
-            )
-            recommendations.append(
-                "Verify Redis AOF persistence is enabled in production"
-            )
+            recommendations.append("Run load test on staging before production deployment")
+            recommendations.append("Ensure database migrations are applied in correct order")
+            recommendations.append("Verify Redis AOF persistence is enabled in production")
 
         return recommendations
 
@@ -428,11 +432,12 @@ class EnvironmentParityChecker:
 
         return report
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # TERRAFORM PARITY TEMPLATE
 # ═══════════════════════════════════════════════════════════════════════════════
 
-TERRAFORM_TEMPLATE = '''
+TERRAFORM_TEMPLATE = """
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL IDP - Infrastructure as Code (Terraform)
 # قالب البنية التحتية ككود
@@ -548,37 +553,48 @@ output "environment_config" {
     }))
   }
 }
-'''
+"""
+
 
 def generate_terraform_template(output_path: str):
     """Generate Terraform template for infrastructure parity."""
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         f.write(TERRAFORM_TEMPLATE)
     logger.info(f"Generated Terraform template: {output_path}")
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CLI INTERFACE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def main():
     parser = argparse.ArgumentParser(
         description="SAHOOL Environment Parity Checker - فاحص تطابق البيئات"
     )
 
-    parser.add_argument("--source", "-s", default="simulation",
-                       choices=["simulation", "development", "staging", "production"],
-                       help="Source environment")
-    parser.add_argument("--target", "-t", default="production",
-                       choices=["simulation", "development", "staging", "production"],
-                       help="Target environment")
-    parser.add_argument("--full", "-f", action="store_true",
-                       help="Run full parity check with service health")
-    parser.add_argument("--output", "-o", type=str,
-                       help="Output file for JSON report")
-    parser.add_argument("--generate-terraform", action="store_true",
-                       help="Generate Terraform template for IaC")
-    parser.add_argument("--json", action="store_true",
-                       help="Output as JSON")
+    parser.add_argument(
+        "--source",
+        "-s",
+        default="simulation",
+        choices=["simulation", "development", "staging", "production"],
+        help="Source environment",
+    )
+    parser.add_argument(
+        "--target",
+        "-t",
+        default="production",
+        choices=["simulation", "development", "staging", "production"],
+        help="Target environment",
+    )
+    parser.add_argument(
+        "--full", "-f", action="store_true", help="Run full parity check with service health"
+    )
+    parser.add_argument("--output", "-o", type=str, help="Output file for JSON report")
+    parser.add_argument(
+        "--generate-terraform", action="store_true", help="Generate Terraform template for IaC"
+    )
+    parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     args = parser.parse_args()
 
@@ -590,7 +606,7 @@ async def main():
     report = await checker.run_check()
 
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             f.write(report.to_json())
         logger.info(f"Report saved to: {args.output}")
 
@@ -598,6 +614,7 @@ async def main():
         print(report.to_json())
     else:
         report.print_summary()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

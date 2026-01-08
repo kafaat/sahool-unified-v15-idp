@@ -79,6 +79,10 @@ EXPOSE 3001
 ENV PORT=3001
 ENV HOSTNAME="0.0.0.0"
 
+# Health check to ensure the application is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+
 # In monorepo standalone, server.js is at apps/admin/server.js
 WORKDIR /app/apps/admin
 CMD ["node", "server.js"]

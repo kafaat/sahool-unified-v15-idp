@@ -1,0 +1,596 @@
+# ============================================================================
+# Kong API Gateway V2 Routes Configuration
+# SAHOOL Platform API v2 Versioning
+# ============================================================================
+# This configuration adds v2 routes alongside existing v1 routes
+# All v1 routes are marked as deprecated with appropriate headers
+# ============================================================================
+
+_format_version: "3.0"
+_transform: true
+
+# ============================================================================
+# API v2 Services Configuration
+# ============================================================================
+# Each service now has both v1 (deprecated) and v2 (current) routes
+# The v2 routes point to the same upstreams but with updated paths
+# ============================================================================
+
+services:
+  # ============================================================================
+  # User Service - v1 (Deprecated) & v2 (Current)
+  # ============================================================================
+  - name: user-service-v1
+    url: http://user-service:3025
+    tags:
+      - v1
+      - deprecated
+      - user-service
+    routes:
+      - name: user-service-v1-route
+        paths:
+          - /api/v1/users
+          - /api/v1/auth
+        strip_path: false
+        methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 50  # Reduced for deprecated endpoints
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 1"
+              - "X-API-Deprecated: true"
+              - "X-API-Deprecation-Date: 2025-06-30"
+              - "X-API-Sunset-Date: 2026-06-30"
+              - "X-API-Deprecation-Info: https://docs.sahool.app/api/deprecation/v1"
+              - "Link: </api/v2/users>; rel=\"successor-version\""
+              - "Warning: 299 - \"API version 1 is deprecated and will be removed on 2026-06-30\""
+      - name: correlation-id
+        config:
+          header_name: X-Request-ID
+          generator: uuid
+
+  - name: user-service-v2
+    url: http://user-service:3025
+    tags:
+      - v2
+      - current
+      - user-service
+    routes:
+      - name: user-service-v2-route
+        paths:
+          - /api/v2/users
+          - /api/v2/auth
+        strip_path: false
+        methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 2"
+      - name: correlation-id
+        config:
+          header_name: X-Request-ID
+          generator: uuid
+
+  # ============================================================================
+  # Field Management - v1 (Deprecated) & v2 (Current)
+  # ============================================================================
+  - name: field-core-v1
+    host: field-management-upstream
+    tags:
+      - v1
+      - deprecated
+      - field-service
+    routes:
+      - name: field-core-v1-route
+        paths:
+          - /api/v1/fields
+          - /api/v1/field-core
+        strip_path: false
+        methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 50
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 1"
+              - "X-API-Deprecated: true"
+              - "X-API-Deprecation-Date: 2025-06-30"
+              - "X-API-Sunset-Date: 2026-06-30"
+              - "Link: </api/v2/fields>; rel=\"successor-version\""
+
+  - name: field-core-v2
+    host: field-management-upstream
+    tags:
+      - v2
+      - current
+      - field-service
+    routes:
+      - name: field-core-v2-route
+        paths:
+          - /api/v2/fields
+          - /api/v2/field-core
+        strip_path: false
+        methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 2"
+
+  # ============================================================================
+  # Weather Service - v1 (Deprecated) & v2 (Current)
+  # ============================================================================
+  - name: weather-service-v1
+    host: weather-service-upstream
+    tags:
+      - v1
+      - deprecated
+      - weather
+    routes:
+      - name: weather-service-v1-route
+        paths:
+          - /api/v1/weather
+        strip_path: false
+        methods:
+          - GET
+          - POST
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 50
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 1"
+              - "X-API-Deprecated: true"
+              - "X-API-Deprecation-Date: 2025-06-30"
+              - "X-API-Sunset-Date: 2026-06-30"
+              - "Link: </api/v2/weather>; rel=\"successor-version\""
+
+  - name: weather-service-v2
+    host: weather-service-upstream
+    tags:
+      - v2
+      - current
+      - weather
+    routes:
+      - name: weather-service-v2-route
+        paths:
+          - /api/v2/weather
+        strip_path: false
+        methods:
+          - GET
+          - POST
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 2"
+
+  # ============================================================================
+  # Satellite Service - v1 (Deprecated) & v2 (Current)
+  # ============================================================================
+  - name: satellite-service-v1
+    host: vegetation-analysis-upstream
+    tags:
+      - v1
+      - deprecated
+      - satellite
+    routes:
+      - name: satellite-v1-route
+        paths:
+          - /api/v1/satellite
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 1"
+              - "X-API-Deprecated: true"
+              - "Link: </api/v2/satellite>; rel=\"successor-version\""
+
+  - name: satellite-service-v2
+    host: vegetation-analysis-upstream
+    tags:
+      - v2
+      - current
+      - satellite
+    routes:
+      - name: satellite-v2-route
+        paths:
+          - /api/v2/satellite
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 2"
+
+  # ============================================================================
+  # AI Advisor - v1 (Deprecated) & v2 (Current)
+  # ============================================================================
+  - name: ai-advisor-v1
+    host: ai-advisor-upstream
+    tags:
+      - v1
+      - deprecated
+      - ai
+    routes:
+      - name: ai-advisor-v1-route
+        paths:
+          - /api/v1/ai-advisor
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 5000
+          hour: 250000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 1"
+              - "X-API-Deprecated: true"
+              - "Link: </api/v2/ai-advisor>; rel=\"successor-version\""
+
+  - name: ai-advisor-v2
+    host: ai-advisor-upstream
+    tags:
+      - v2
+      - current
+      - ai
+    routes:
+      - name: ai-advisor-v2-route
+        paths:
+          - /api/v2/ai-advisor
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+          hour: 500000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 2"
+
+  # ============================================================================
+  # IoT Gateway - v1 (Deprecated) & v2 (Current)
+  # ============================================================================
+  - name: iot-gateway-v1
+    host: iot-gateway-upstream
+    tags:
+      - v1
+      - deprecated
+      - iot
+    routes:
+      - name: iot-gateway-v1-route
+        paths:
+          - /api/v1/iot
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 5000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 1"
+              - "X-API-Deprecated: true"
+              - "Link: </api/v2/iot>; rel=\"successor-version\""
+
+  - name: iot-gateway-v2
+    host: iot-gateway-upstream
+    tags:
+      - v2
+      - current
+      - iot
+    routes:
+      - name: iot-gateway-v2-route
+        paths:
+          - /api/v2/iot
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-API-Version: 2"
+
+# ============================================================================
+# Global Plugins (Apply to all routes)
+# ============================================================================
+plugins:
+  # CORS Configuration
+  - name: cors
+    config:
+      origins:
+        - "https://sahool.app"
+        - "https://www.sahool.app"
+        - "https://admin.sahool.app"
+        - "https://api.sahool.app"
+        - "http://localhost:3000"
+        - "http://localhost:5173"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-Type
+        - Date
+        - Authorization
+        - X-Auth-Token
+        - X-API-Version
+        - X-Request-ID
+      exposed_headers:
+        - X-Request-ID
+        - X-API-Version
+        - X-API-Deprecated
+        - X-API-Deprecation-Date
+        - X-API-Sunset-Date
+        - Link
+      credentials: true
+      max_age: 3600
+
+  # Request ID generation
+  - name: correlation-id
+    config:
+      header_name: X-Request-ID
+      generator: uuid
+      echo_downstream: true
+
+  # Security headers
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Content-Type-Options: nosniff"
+          - "X-Frame-Options: DENY"
+          - "X-XSS-Protection: 1; mode=block"
+          - "Strict-Transport-Security: max-age=31536000"
+
+# ============================================================================
+# Version Detection Plugin Configuration
+# ============================================================================
+# Custom plugin for detecting API version from headers
+# Priority: URI version > X-API-Version header > Accept header > Default (v2)
+# ============================================================================
+
+# Note: This is a conceptual configuration. Actual implementation would require
+# a custom Kong plugin or Lua script to handle header-based version negotiation.
+
+# ============================================================================
+# End of V2 Routes Configuration
+# ============================================================================

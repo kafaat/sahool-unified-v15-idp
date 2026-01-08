@@ -98,9 +98,7 @@ class SensorAggregator:
             قاموس البيانات المجمعة حسب الحقل - Dictionary of aggregated data by field
         """
         # تصفية القراءات حسب النوع - Filter readings by type
-        type_readings = [
-            r for r in readings if r.sensor_type.lower() == sensor_type.lower()
-        ]
+        type_readings = [r for r in readings if r.sensor_type.lower() == sensor_type.lower()]
 
         # تجميع حسب الحقل - Group by field
         by_field = defaultdict(list)
@@ -347,27 +345,21 @@ class SensorAggregator:
 
         return outliers
 
-    def _detect_outliers_threshold(
-        self, readings: list[SensorReading]
-    ) -> list[SensorReading]:
+    def _detect_outliers_threshold(self, readings: list[SensorReading]) -> list[SensorReading]:
         """
         اكتشاف القيم الشاذة باستخدام عتبات اليمن
         Detect outliers using Yemen-specific thresholds
         """
         outliers = []
         for reading in readings:
-            is_valid, severity = check_value_in_range(
-                reading.sensor_type, reading.value
-            )
+            is_valid, severity = check_value_in_range(reading.sensor_type, reading.value)
             if not is_valid:
                 reading.is_outlier = True
                 outliers.append(reading)
 
         return outliers
 
-    def _calculate_rate_of_change(
-        self, readings: list[SensorReading]
-    ) -> float | None:
+    def _calculate_rate_of_change(self, readings: list[SensorReading]) -> float | None:
         """
         حساب معدل التغيير
         Calculate rate of change (units per hour)
@@ -382,9 +374,7 @@ class SensorAggregator:
             return None
 
         # ترتيب القراءات حسب الوقت - Sort by timestamp
-        sorted_readings = sorted(
-            readings, key=lambda r: datetime.fromisoformat(r.timestamp)
-        )
+        sorted_readings = sorted(readings, key=lambda r: datetime.fromisoformat(r.timestamp))
 
         first = sorted_readings[0]
         last = sorted_readings[-1]
@@ -405,9 +395,7 @@ class SensorAggregator:
 
     # ============ Time-based Aggregations ============
 
-    def hourly_average(
-        self, readings: list[SensorReading]
-    ) -> dict[str, AggregatedData]:
+    def hourly_average(self, readings: list[SensorReading]) -> dict[str, AggregatedData]:
         """
         المتوسط الساعي
         Calculate hourly averages
@@ -446,9 +434,7 @@ class SensorAggregator:
         """
         return self._time_based_aggregation(readings, TimeGranularity.WEEKLY)
 
-    def monthly_report(
-        self, readings: list[SensorReading]
-    ) -> dict[str, AggregatedData]:
+    def monthly_report(self, readings: list[SensorReading]) -> dict[str, AggregatedData]:
         """
         التقرير الشهري
         Calculate monthly reports
@@ -504,9 +490,7 @@ class SensorAggregator:
 
         return aggregated
 
-    def _get_time_bucket_key(
-        self, timestamp: datetime, granularity: TimeGranularity
-    ) -> str:
+    def _get_time_bucket_key(self, timestamp: datetime, granularity: TimeGranularity) -> str:
         """
         الحصول على مفتاح الفترة الزمنية
         Get time bucket key for grouping
@@ -608,7 +592,12 @@ class SensorAggregator:
 
         # جمع التنبيهات والتوصيات - Collect alerts and recommendations
         alerts, recommendations_ar, recommendations_en = self._generate_alerts_and_recommendations(
-            status, quality_score, uptime_percentage, drift_detected, outlier_percentage, sensor_type
+            status,
+            quality_score,
+            uptime_percentage,
+            drift_detected,
+            outlier_percentage,
+            sensor_type,
         )
 
         # آخر قراءة ناجحة - Last successful reading
@@ -663,9 +652,7 @@ class SensorAggregator:
             return False, None
 
         # ترتيب القراءات حسب الوقت - Sort by timestamp
-        sorted_readings = sorted(
-            readings, key=lambda r: datetime.fromisoformat(r.timestamp)
-        )
+        sorted_readings = sorted(readings, key=lambda r: datetime.fromisoformat(r.timestamp))
 
         # مقارنة النوافذ الأولى والأخيرة - Compare first and last windows
         first_window = [r.value for r in sorted_readings[:window_size]]

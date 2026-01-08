@@ -3,7 +3,6 @@ Extended Tests for Equipment Service
 اختبارات موسعة لخدمة المعدات
 """
 
-
 import pytest
 
 
@@ -74,9 +73,7 @@ class TestEquipmentDataModels:
         """Test EquipmentCreate with minimal required fields"""
         from src.main import EquipmentCreate, EquipmentType
 
-        equipment = EquipmentCreate(
-            name="Basic Pump", equipment_type=EquipmentType.PUMP
-        )
+        equipment = EquipmentCreate(name="Basic Pump", equipment_type=EquipmentType.PUMP)
 
         assert equipment.name == "Basic Pump"
         assert equipment.equipment_type == EquipmentType.PUMP

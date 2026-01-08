@@ -77,9 +77,7 @@ async def test_yield_predictor():
     print("\nYield Prediction:")
     print(f"  Predicted Yield: {prediction.predicted_yield_ton_ha:.2f} ton/ha")
     print(f"  Confidence: {prediction.confidence * 100:.1f}%")
-    print(
-        f"  Range: {prediction.yield_range_min:.2f} - {prediction.yield_range_max:.2f} ton/ha"
-    )
+    print(f"  Range: {prediction.yield_range_min:.2f} - {prediction.yield_range_max:.2f} ton/ha")
 
     print("\nComparisons:")
     print(f"  vs. Regional Average: {prediction.comparison_to_average:+.1f}%")

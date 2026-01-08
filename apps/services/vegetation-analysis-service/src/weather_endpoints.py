@@ -55,9 +55,7 @@ def register_weather_endpoints(app):
             return forecast.to_dict()
         except Exception as e:
             logger.error(f"Failed to get forecast: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Weather API error: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
     @app.get("/v1/weather/historical")
     async def get_historical_weather(
@@ -88,27 +86,19 @@ def register_weather_endpoints(app):
 
             # Validate date range
             if start >= end:
-                raise HTTPException(
-                    status_code=400, detail="start_date must be before end_date"
-                )
+                raise HTTPException(status_code=400, detail="start_date must be before end_date")
 
             if (end - start).days > 365:
-                raise HTTPException(
-                    status_code=400, detail="Maximum 365 days per request"
-                )
+                raise HTTPException(status_code=400, detail="Maximum 365 days per request")
 
             weather_service = get_weather_service()
             historical = await weather_service.get_historical(lat, lon, start, end)
             return historical.to_dict()
         except ValueError as e:
-            raise HTTPException(
-                status_code=400, detail=f"Invalid date format: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
         except Exception as e:
             logger.error(f"Failed to get historical weather: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Weather API error: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
     @app.get("/v1/weather/gdd")
     async def get_gdd(
@@ -116,9 +106,7 @@ def register_weather_endpoints(app):
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
         end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
-        base_temp: float = Query(
-            10.0, description="Base temperature (°C)", ge=0, le=20
-        ),
+        base_temp: float = Query(10.0, description="Base temperature (°C)", ge=0, le=20),
     ):
         """
         وحدات الحرارة النامية | Calculate Growing Degree Days (GDD)
@@ -150,14 +138,10 @@ def register_weather_endpoints(app):
             end = date_class.fromisoformat(end_date)
 
             if start >= end:
-                raise HTTPException(
-                    status_code=400, detail="start_date must be before end_date"
-                )
+                raise HTTPException(status_code=400, detail="start_date must be before end_date")
 
             weather_service = get_weather_service()
-            gdd = await weather_service.get_growing_degree_days(
-                lat, lon, start, end, base_temp
-            )
+            gdd = await weather_service.get_growing_degree_days(lat, lon, start, end, base_temp)
 
             return {
                 "location": {"lat": lat, "lon": lon},
@@ -171,14 +155,10 @@ def register_weather_endpoints(app):
                 "gdd_per_day": round(gdd / ((end - start).days + 1), 2),
             }
         except ValueError as e:
-            raise HTTPException(
-                status_code=400, detail=f"Invalid date format: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
         except Exception as e:
             logger.error(f"Failed to calculate GDD: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Weather API error: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
     @app.get("/v1/weather/water-balance")
     async def get_water_balance(
@@ -186,9 +166,7 @@ def register_weather_endpoints(app):
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
         end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
-        kc: float = Query(
-            1.0, description="Crop coefficient (0.4-1.3)", ge=0.4, le=1.3
-        ),
+        kc: float = Query(1.0, description="Crop coefficient (0.4-1.3)", ge=0.4, le=1.3),
     ):
         """
         الميزان المائي | Calculate Water Balance
@@ -227,27 +205,19 @@ def register_weather_endpoints(app):
             end = date_class.fromisoformat(end_date)
 
             if start >= end:
-                raise HTTPException(
-                    status_code=400, detail="start_date must be before end_date"
-                )
+                raise HTTPException(status_code=400, detail="start_date must be before end_date")
 
             if (end - start).days > 365:
-                raise HTTPException(
-                    status_code=400, detail="Maximum 365 days per request"
-                )
+                raise HTTPException(status_code=400, detail="Maximum 365 days per request")
 
             weather_service = get_weather_service()
             balance = await weather_service.get_water_balance(lat, lon, start, end, kc)
             return balance
         except ValueError as e:
-            raise HTTPException(
-                status_code=400, detail=f"Invalid date format: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
         except Exception as e:
             logger.error(f"Failed to calculate water balance: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Weather API error: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
     @app.get("/v1/weather/irrigation-advice")
     async def get_irrigation_advice(
@@ -322,9 +292,7 @@ def register_weather_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to get irrigation advice: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Weather API error: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
     @app.get("/v1/weather/frost-risk")
     async def get_frost_risk(
@@ -387,9 +355,7 @@ def register_weather_endpoints(app):
                 "max_risk_level": max_risk_level,
                 "frost_risks": [risk.to_dict() for risk in frost_risks],
                 "summary": {
-                    "days_with_frost_risk": len(
-                        [r for r in frost_risks if r.risk_level != "none"]
-                    ),
+                    "days_with_frost_risk": len([r for r in frost_risks if r.risk_level != "none"]),
                     "days_with_high_risk": len(
                         [r for r in frost_risks if r.risk_level in ["severe", "high"]]
                     ),
@@ -398,8 +364,6 @@ def register_weather_endpoints(app):
             }
         except Exception as e:
             logger.error(f"Failed to assess frost risk: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Weather API error: {str(e)}"
-            ) from e
+            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
     logger.info("Weather API endpoints registered successfully")

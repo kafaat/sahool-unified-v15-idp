@@ -110,7 +110,7 @@ services:
 
   kong:
     layer: infrastructure
-    ports: [8000, 8001]
+    ports: [8000, 8001]  # 8000: Proxy (public), 8001: Admin (localhost-only for security)
     description: "بوابة API"
     description_en: "API Gateway"
     image: "kong:3.9"

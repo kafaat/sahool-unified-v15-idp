@@ -1,80 +1,43 @@
 /**
- * JWT Authentication Guard
- * حارس المصادقة باستخدام JWT
+ * JWT Authentication Guard with Token Revocation Support
+ * حارس المصادقة باستخدام JWT مع دعم إلغاء الرموز
  */
 
 import {
   Injectable,
-  CanActivate,
   ExecutionContext,
   UnauthorizedException,
+  CanActivate,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Observable } from 'rxjs';
 import * as jwt from 'jsonwebtoken';
 
+/**
+ * JWT Authentication Guard using Passport
+ * Extends the built-in Passport JWT AuthGuard
+ */
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise<boolean> | Observable<boolean> {
+    // Call parent canActivate (which uses the JWT strategy)
+    return super.canActivate(context);
+  }
 
-    if (!authHeader) {
-      throw new UnauthorizedException('Missing authorization header');
-    }
-
-    const [type, token] = authHeader.split(' ');
-
-    if (type !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Invalid authorization format');
-    }
-
-    try {
-      const secret = process.env.JWT_SECRET_KEY || process.env.JWT_SECRET;
-      if (!secret) {
-        throw new UnauthorizedException('JWT secret not configured');
+  handleRequest(err: any, user: any, info: any) {
+    // Handle errors and invalid tokens
+    if (err || !user) {
+      if (info?.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('Token has expired');
       }
-
-      // SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
-      // Never trust algorithm from environment variables or token header
-      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
-
-      // Decode header without verification to check algorithm
-      const header = jwt.decode(token, { complete: true })?.header;
-      if (!header || !header.alg) {
-        throw new UnauthorizedException('Invalid token: missing algorithm');
-      }
-
-      // Reject 'none' algorithm explicitly
-      if (header.alg.toLowerCase() === 'none') {
-        throw new UnauthorizedException('Invalid token: none algorithm not allowed');
-      }
-
-      // Verify algorithm is in whitelist
-      if (!ALLOWED_ALGORITHMS.includes(header.alg as jwt.Algorithm)) {
-        throw new UnauthorizedException('Invalid token: unsupported algorithm');
-      }
-
-      const decoded = jwt.verify(token, secret, {
-        algorithms: ALLOWED_ALGORITHMS,
-      }) as jwt.JwtPayload;
-
-      // Attach user info to request
-      request.user = {
-        id: decoded.sub || decoded.user_id,
-        email: decoded.email,
-        roles: decoded.roles || [],
-        tenantId: decoded.tenant_id,
-      };
-
-      return true;
-    } catch (error) {
-      if (error instanceof jwt.TokenExpiredError) {
-        throw new UnauthorizedException('Token expired');
-      }
-      if (error instanceof jwt.JsonWebTokenError) {
+      if (info?.name === 'JsonWebTokenError') {
         throw new UnauthorizedException('Invalid token');
       }
-      throw new UnauthorizedException('Authentication failed');
+      throw err || new UnauthorizedException('Authentication failed');
     }
+    return user;
   }
 }
 

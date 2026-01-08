@@ -135,9 +135,7 @@ class DroneAgent(BaseAgent):
 
         elif percept.percept_type == "multispectral_data":
             # Direct NDVI from multispectral camera
-            ndvi = self._calculate_ndvi(
-                percept.data.get("red"), percept.data.get("nir")
-            )
+            ndvi = self._calculate_ndvi(percept.data.get("red"), percept.data.get("nir"))
             if self.context:
                 self.context.satellite_data["live_ndvi"] = ndvi
 
@@ -271,9 +269,7 @@ class DroneAgent(BaseAgent):
         recent_tiles = self.tiles[-5:] if len(self.tiles) >= 5 else self.tiles
 
         stress_count = sum(
-            1
-            for t in recent_tiles
-            if t.health_status in ["stressed", "moderate_stress"]
+            1 for t in recent_tiles if t.health_status in ["stressed", "moderate_stress"]
         )
         anomaly_count = sum(1 for t in recent_tiles if t.anomaly_detected)
 
@@ -281,9 +277,7 @@ class DroneAgent(BaseAgent):
             return AgentAction(
                 action_type="anomaly_cluster_alert",
                 parameters={
-                    "location": (
-                        self.current_position.__dict__ if self.current_position else {}
-                    ),
+                    "location": (self.current_position.__dict__ if self.current_position else {}),
                     "anomaly_count": anomaly_count,
                     "tiles": [t.tile_id for t in recent_tiles if t.anomaly_detected],
                 },
@@ -297,9 +291,7 @@ class DroneAgent(BaseAgent):
             return AgentAction(
                 action_type="stress_zone_detected",
                 parameters={
-                    "location": (
-                        self.current_position.__dict__ if self.current_position else {}
-                    ),
+                    "location": (self.current_position.__dict__ if self.current_position else {}),
                     "stress_level": "high",
                     "affected_tiles": stress_count,
                 },
@@ -345,9 +337,7 @@ class DroneAgent(BaseAgent):
             result["flight_command"] = {
                 "type": "rtl",  # Return to Launch
                 "reason": (
-                    "mission_complete"
-                    if action.parameters.get("mission_complete")
-                    else "manual"
+                    "mission_complete" if action.parameters.get("mission_complete") else "manual"
                 ),
             }
             # Generate mission report
@@ -391,9 +381,7 @@ class DroneAgent(BaseAgent):
         anomalies = [t for t in self.tiles if t.anomaly_detected]
 
         return {
-            "mission_id": (
-                self.current_mission.get("id") if self.current_mission else "unknown"
-            ),
+            "mission_id": (self.current_mission.get("id") if self.current_mission else "unknown"),
             "tiles_captured": len(self.tiles),
             "coverage_percent": self.mission_progress,
             "ndvi_stats": {
@@ -404,8 +392,7 @@ class DroneAgent(BaseAgent):
             "health_distribution": health_counts,
             "anomalies_detected": len(anomalies),
             "anomaly_locations": [
-                {"tile_id": t.tile_id, "lat": t.center_lat, "lon": t.center_lon}
-                for t in anomalies
+                {"tile_id": t.tile_id, "lat": t.center_lat, "lon": t.center_lon} for t in anomalies
             ],
             "flight_duration_minutes": len(self.flight_path) * 0.5,  # Approximate
             "battery_remaining": self.battery_level,
@@ -415,9 +402,7 @@ class DroneAgent(BaseAgent):
     def get_live_status(self) -> dict[str, Any]:
         """الحصول على الحالة المباشرة"""
         return {
-            "position": (
-                self.current_position.__dict__ if self.current_position else None
-            ),
+            "position": (self.current_position.__dict__ if self.current_position else None),
             "battery": self.battery_level,
             "mission_progress": self.mission_progress,
             "tiles_captured": len(self.tiles),

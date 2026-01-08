@@ -69,9 +69,7 @@ class RequestSizeLimiter:
         # Check against allowed types
         return any(base_ct.startswith(allowed) for allowed in self.allowed_content_types)
 
-    def check_request(
-        self, request: Request
-    ) -> tuple[bool, str | None, int | None]:
+    def check_request(self, request: Request) -> tuple[bool, str | None, int | None]:
         """
         Check if request meets size/type requirements.
         Returns (allowed, error_message, status_code)
@@ -141,9 +139,7 @@ async def request_size_middleware(request: Request, call_next: Callable) -> Resp
             content={
                 "error": error_message,
                 "error_ar": (
-                    "حجم الطلب غير مسموح به"
-                    if status_code == 413
-                    else "نوع المحتوى غير مدعوم"
+                    "حجم الطلب غير مسموح به" if status_code == 413 else "نوع المحتوى غير مدعوم"
                 ),
             },
         )

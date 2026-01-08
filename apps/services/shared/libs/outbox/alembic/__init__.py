@@ -1,0 +1,3 @@
+"""
+Outbox Alembic Migrations
+"""

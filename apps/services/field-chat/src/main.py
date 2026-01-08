@@ -5,10 +5,27 @@ Main FastAPI application entry point
 
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager, suppress
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from fastapi.middleware.cors import CORSMiddleware
+
+# Import error handlers with fallback
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+except ImportError:
+
+    def setup_exception_handlers(app):
+        pass
+
+    def add_request_id_middleware(app):
+        pass
+
 
 from .api import router
 
@@ -87,10 +104,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware - Secure configuration
-import sys
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
+# CORS middleware - Secure configuration
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
 try:
     from shared.cors_config import CORS_SETTINGS
 

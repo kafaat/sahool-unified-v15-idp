@@ -45,9 +45,7 @@ async def test_marketplace_product_listing_workflow(
     marketplace_url = service_urls.get("marketplace_service", "http://localhost:3010")
 
     # Act - تنفيذ - List all products
-    response = await http_client.get(
-        f"{marketplace_url}/api/v1/products", headers=auth_headers
-    )
+    response = await http_client.get(f"{marketplace_url}/api/v1/products", headers=auth_headers)
 
     # Assert - التحقق
     assert response.status_code in (
@@ -62,9 +60,7 @@ async def test_marketplace_product_listing_workflow(
         # If it's a paginated response
         if isinstance(products_data, dict):
             assert (
-                "products" in products_data
-                or "items" in products_data
-                or "data" in products_data
+                "products" in products_data or "items" in products_data or "data" in products_data
             )
 
 
@@ -122,9 +118,7 @@ async def test_marketplace_product_categories_workflow(
     marketplace_url = service_urls.get("marketplace_service", "http://localhost:3010")
 
     # Get all categories - الحصول على جميع الفئات
-    response = await http_client.get(
-        f"{marketplace_url}/api/v1/categories", headers=auth_headers
-    )
+    response = await http_client.get(f"{marketplace_url}/api/v1/categories", headers=auth_headers)
 
     if response.status_code == 200:
         categories = response.json()
@@ -338,9 +332,7 @@ async def test_marketplace_cart_checkout_workflow(
     marketplace_url = service_urls.get("marketplace_service", "http://localhost:3010")
 
     # Get cart summary - الحصول على ملخص العربة
-    cart_response = await http_client.get(
-        f"{marketplace_url}/api/v1/cart", headers=auth_headers
-    )
+    cart_response = await http_client.get(f"{marketplace_url}/api/v1/cart", headers=auth_headers)
 
     if cart_response.status_code == 200:
         cart = cart_response.json()
@@ -425,9 +417,7 @@ async def test_marketplace_order_tracking_workflow(
     marketplace_url = service_urls.get("marketplace_service", "http://localhost:3010")
 
     # Get order history - الحصول على سجل الطلبات
-    response = await http_client.get(
-        f"{marketplace_url}/api/v1/orders", headers=auth_headers
-    )
+    response = await http_client.get(f"{marketplace_url}/api/v1/orders", headers=auth_headers)
 
     if response.status_code == 200:
         orders = response.json()

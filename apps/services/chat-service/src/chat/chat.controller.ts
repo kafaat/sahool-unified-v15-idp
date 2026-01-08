@@ -13,7 +13,7 @@ import {
   HttpStatus,
   HttpCode,
   UnauthorizedException,
-  Headers,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -21,29 +21,19 @@ import {
   ApiResponse,
   ApiParam,
   ApiQuery,
-  ApiHeader,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { ChatService } from './chat.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UserId, CurrentUser } from '../auth/decorators';
 
 @ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
-
-  /**
-   * Extract and validate user ID from headers
-   * This would typically validate JWT token, but for now we're using a simple header
-   */
-  private extractUserId(headers: any): string {
-    const userId = headers['x-user-id'];
-    if (!userId) {
-      throw new UnauthorizedException('User authentication required');
-    }
-    return userId;
-  }
 
   /**
    * Verify user is a participant in the conversation
@@ -94,22 +84,14 @@ export class ChatController {
 
   /**
    * Get user's conversations
-   * GET /api/v1/chat/conversations/:userId
+   * GET /api/v1/chat/conversations/me
    */
-  @Get('conversations/user/:userId')
+  @Get('conversations/me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get user conversations',
-    description: 'Get all conversations for a specific user',
-  })
-  @ApiParam({
-    name: 'userId',
-    description: 'User ID',
-    example: 'user-123',
-  })
-  @ApiHeader({
-    name: 'x-user-id',
-    description: 'Authenticated user ID',
-    required: true,
+    description: 'Get all conversations for the authenticated user',
   })
   @ApiResponse({
     status: 200,
@@ -117,17 +99,9 @@ export class ChatController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - User can only access their own conversations',
+    description: 'Unauthorized - Valid JWT token required',
   })
-  async getUserConversations(
-    @Param('userId') userId: string,
-    @Headers() headers: any,
-  ) {
-    // Verify authenticated user is requesting their own conversations
-    const authenticatedUserId = this.extractUserId(headers);
-    if (authenticatedUserId !== userId) {
-      throw new UnauthorizedException('You can only access your own conversations');
-    }
+  async getUserConversations(@UserId() userId: string) {
     return this.chatService.getUserConversations(userId);
   }
 
@@ -136,6 +110,8 @@ export class ChatController {
    * GET /api/v1/chat/conversations/:id
    */
   @Get('conversations/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get conversation details',
     description: 'Get conversation by ID with participants',
@@ -144,11 +120,6 @@ export class ChatController {
     name: 'id',
     description: 'Conversation ID',
     example: 'conv-123',
-  })
-  @ApiHeader({
-    name: 'x-user-id',
-    description: 'Authenticated user ID',
-    required: true,
   })
   @ApiResponse({
     status: 200,
@@ -162,8 +133,7 @@ export class ChatController {
     status: 404,
     description: 'Conversation not found',
   })
-  async getConversation(@Param('id') id: string, @Headers() headers: any) {
-    const userId = this.extractUserId(headers);
+  async getConversation(@Param('id') id: string, @UserId() userId: string) {
     await this.verifyConversationAccess(id, userId);
     return this.chatService.getConversationById(id);
   }
@@ -173,6 +143,8 @@ export class ChatController {
    * GET /api/v1/chat/conversations/:id/messages
    */
   @Get('conversations/:id/messages')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get conversation messages',
     description: 'Get paginated messages for a conversation',
@@ -194,11 +166,6 @@ export class ChatController {
     description: 'Messages per page (default: 50)',
     example: 50,
   })
-  @ApiHeader({
-    name: 'x-user-id',
-    description: 'Authenticated user ID',
-    required: true,
-  })
   @ApiResponse({
     status: 200,
     description: 'Paginated messages',
@@ -211,9 +178,8 @@ export class ChatController {
     @Param('id') conversationId: string,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '50',
-    @Headers() headers: any,
+    @UserId() userId: string,
   ) {
-    const userId = this.extractUserId(headers);
     await this.verifyConversationAccess(conversationId, userId);
     return this.chatService.getMessages(
       conversationId,
@@ -227,15 +193,12 @@ export class ChatController {
    * POST /api/v1/chat/messages
    */
   @Post('messages')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Send message',
     description: 'Send a message to a conversation (REST fallback)',
-  })
-  @ApiHeader({
-    name: 'x-user-id',
-    description: 'Authenticated user ID',
-    required: true,
   })
   @ApiResponse({
     status: 201,
@@ -247,18 +210,15 @@ export class ChatController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - User must match sender or be participant',
+    description: 'Unauthorized - Valid JWT token required',
   })
   @ApiResponse({
     status: 404,
     description: 'Conversation not found',
   })
-  async sendMessage(@Body() sendMessageDto: SendMessageDto, @Headers() headers: any) {
-    const userId = this.extractUserId(headers);
-    // Verify the authenticated user matches the senderId
-    if (userId !== sendMessageDto.senderId) {
-      throw new UnauthorizedException('You can only send messages as yourself');
-    }
+  async sendMessage(@Body() sendMessageDto: SendMessageDto, @UserId() userId: string) {
+    // Ensure the senderId matches the authenticated user
+    sendMessageDto.senderId = userId;
     return this.chatService.sendMessage(sendMessageDto);
   }
 
@@ -267,6 +227,8 @@ export class ChatController {
    * POST /api/v1/chat/messages/:messageId/read
    */
   @Post('messages/:messageId/read')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Mark message as read',
@@ -281,9 +243,13 @@ export class ChatController {
     status: 200,
     description: 'Message marked as read',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Valid JWT token required',
+  })
   async markMessageAsRead(
     @Param('messageId') messageId: string,
-    @Body('userId') userId: string,
+    @UserId() userId: string,
   ) {
     return this.chatService.markMessageAsRead(messageId, userId);
   }
@@ -293,6 +259,8 @@ export class ChatController {
    * POST /api/v1/chat/conversations/:id/read
    */
   @Post('conversations/:id/read')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Mark conversation as read',
@@ -302,11 +270,6 @@ export class ChatController {
     name: 'id',
     description: 'Conversation ID',
     example: 'conv-123',
-  })
-  @ApiHeader({
-    name: 'x-user-id',
-    description: 'Authenticated user ID',
-    required: true,
   })
   @ApiResponse({
     status: 200,
@@ -318,36 +281,22 @@ export class ChatController {
   })
   async markConversationAsRead(
     @Param('id') conversationId: string,
-    @Body('userId') userId: string,
-    @Headers() headers: any,
+    @UserId() userId: string,
   ) {
-    const authenticatedUserId = this.extractUserId(headers);
-    // Verify authenticated user matches the userId in body
-    if (authenticatedUserId !== userId) {
-      throw new UnauthorizedException('You can only mark your own messages as read');
-    }
     await this.verifyConversationAccess(conversationId, userId);
     return this.chatService.markConversationAsRead(conversationId, userId);
   }
 
   /**
    * Get unread message count
-   * GET /api/v1/chat/users/:userId/unread-count
+   * GET /api/v1/chat/unread-count
    */
-  @Get('users/:userId/unread-count')
+  @Get('unread-count')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get unread count',
-    description: 'Get total unread message count for user',
-  })
-  @ApiParam({
-    name: 'userId',
-    description: 'User ID',
-    example: 'user-123',
-  })
-  @ApiHeader({
-    name: 'x-user-id',
-    description: 'Authenticated user ID',
-    required: true,
+    description: 'Get total unread message count for authenticated user',
   })
   @ApiResponse({
     status: 200,
@@ -355,13 +304,9 @@ export class ChatController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - User can only access their own unread count',
+    description: 'Unauthorized - Valid JWT token required',
   })
-  async getUnreadCount(@Param('userId') userId: string, @Headers() headers: any) {
-    const authenticatedUserId = this.extractUserId(headers);
-    if (authenticatedUserId !== userId) {
-      throw new UnauthorizedException('You can only access your own unread count');
-    }
+  async getUnreadCount(@UserId() userId: string) {
     const count = await this.chatService.getUnreadCount(userId);
     return { userId, unreadCount: count };
   }

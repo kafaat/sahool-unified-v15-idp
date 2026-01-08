@@ -37,9 +37,7 @@ class AgentCapability(BaseModel):
     description: str = Field(..., description="Capability description")
     input_schema: dict[str, Any] = Field(..., description="JSON Schema for inputs")
     output_schema: dict[str, Any] = Field(..., description="JSON Schema for outputs")
-    examples: list[dict[str, Any]] = Field(
-        default_factory=list, description="Usage examples"
-    )
+    examples: list[dict[str, Any]] = Field(default_factory=list, description="Usage examples")
     tags: list[str] = Field(default_factory=list, description="Capability tags")
 
 
@@ -71,16 +69,12 @@ class AgentCard(BaseModel):
     # Endpoints
     # نقاط النهاية
     task_endpoint: HttpUrl = Field(..., description="Task submission endpoint")
-    websocket_endpoint: HttpUrl | None = Field(
-        None, description="WebSocket endpoint for streaming"
-    )
+    websocket_endpoint: HttpUrl | None = Field(None, description="WebSocket endpoint for streaming")
 
     # Protocol support
     # دعم البروتوكول
     protocol_version: str = Field(default="1.0", description="A2A protocol version")
-    supports_streaming: bool = Field(
-        default=False, description="Supports streaming responses"
-    )
+    supports_streaming: bool = Field(default=False, description="Supports streaming responses")
     supports_batch: bool = Field(default=False, description="Supports batch requests")
 
     # Rate limits
@@ -91,9 +85,7 @@ class AgentCard(BaseModel):
 
     # Authentication
     # المصادقة
-    authentication_required: bool = Field(
-        default=False, description="Requires authentication"
-    )
+    authentication_required: bool = Field(default=False, description="Requires authentication")
     authentication_methods: list[str] = Field(
         default_factory=list,
         description="Supported auth methods (api_key, oauth2, etc.)",
@@ -242,9 +234,7 @@ class A2AAgent(ABC):
             handler: Async function to handle the task
         """
         self.task_handlers[task_type] = handler
-        logger.debug(
-            "task_handler_registered", agent_id=self.agent_id, task_type=task_type
-        )
+        logger.debug("task_handler_registered", agent_id=self.agent_id, task_type=task_type)
 
     async def handle_task(self, task: TaskMessage) -> TaskResultMessage:
         """
@@ -280,9 +270,7 @@ class A2AAgent(ABC):
             handler = self.task_handlers.get(task.task_type)
 
             if not handler:
-                raise ValueError(
-                    f"No handler registered for task type: {task.task_type}"
-                )
+                raise ValueError(f"No handler registered for task type: {task.task_type}")
 
             # Execute task
             # تنفيذ المهمة
@@ -459,8 +447,6 @@ class A2AAgent(ABC):
                 removed += 1
 
         if removed > 0:
-            logger.info(
-                "conversations_cleaned", agent_id=self.agent_id, removed=removed
-            )
+            logger.info("conversations_cleaned", agent_id=self.agent_id, removed=removed)
 
         return removed

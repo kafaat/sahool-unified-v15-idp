@@ -41,12 +41,8 @@ async def example_1_get_weekly_forecast():
             print(f"📍 Location: {data['location']}")
             print(f"🌿 Product: {data['product_type']}")
             print("📊 Summary:")
-            print(
-                f"   - Total suitable hours: {data['summary']['total_suitable_hours']:.1f}"
-            )
-            print(
-                f"   - Days with good conditions: {data['summary']['days_with_good_conditions']}"
-            )
+            print(f"   - Total suitable hours: {data['summary']['total_suitable_hours']:.1f}")
+            print(f"   - Days with good conditions: {data['summary']['days_with_good_conditions']}")
             print(f"   - Best day: {data['summary']['best_day']}\n")
 
             print("Daily Breakdown:")
@@ -57,9 +53,7 @@ async def example_1_get_weekly_forecast():
 
                 if day["best_window"]:
                     w = day["best_window"]
-                    print(
-                        f"     ⭐ Best window: {w['start_time'][11:16]} - {w['end_time'][11:16]}"
-                    )
+                    print(f"     ⭐ Best window: {w['start_time'][11:16]} - {w['end_time'][11:16]}")
                     print(f"        Score: {w['score']:.1f}/100")
                     print(f"        Temp: {w['weather']['temperature_c']}°C")
                     print(f"        Wind: {w['weather']['wind_speed_kmh']:.1f} km/h")
@@ -222,7 +216,7 @@ async def example_4_compare_products():
     print(f"Time: {target_time}")
     print("Location: Sanaa highlands\n")
     print(f"{'Product':<35} {'Score':<10} {'Condition':<15}")
-    print(f"{'-'*60}")
+    print(f"{'-' * 60}")
 
     async with httpx.AsyncClient() as client:
         for product_code, product_name in products:
@@ -250,9 +244,7 @@ async def example_4_compare_products():
                 else:
                     icon = "❌"
 
-                print(
-                    f"{product_name:<35} {score:>6.1f}/100  {icon} {condition.upper()}"
-                )
+                print(f"{product_name:<35} {score:>6.1f}/100  {icon} {condition.upper()}")
 
 
 async def example_5_get_spray_guidelines():
@@ -281,12 +273,8 @@ async def example_5_get_spray_guidelines():
                 f"   Humidity: {general['humidity_percent']['min']}-{general['humidity_percent']['max']}%"
             )
             print(f"   Wind Speed: < {general['wind_speed_kmh']['max']} km/h")
-            print(
-                f"   Rain Probability: < {general['rain_probability_percent']['max']}%"
-            )
-            print(
-                f"   Delta-T: {general['delta_t_c']['min']}-{general['delta_t_c']['max']}°C\n"
-            )
+            print(f"   Rain Probability: < {general['rain_probability_percent']['max']}%")
+            print(f"   Delta-T: {general['delta_t_c']['min']}-{general['delta_t_c']['max']}°C\n")
 
             # Show product-specific conditions
             print("🌿 PRODUCT-SPECIFIC CONDITIONS:\n")
@@ -295,10 +283,7 @@ async def example_5_get_spray_guidelines():
                     cond = data["ideal_conditions"][product]
                     print(f"   {product.upper()}:")
                     if "temperature_c" in cond:
-                        if (
-                            "min" in cond["temperature_c"]
-                            and "max" in cond["temperature_c"]
-                        ):
+                        if "min" in cond["temperature_c"] and "max" in cond["temperature_c"]:
                             print(
                                 f"      Temp: {cond['temperature_c']['min']}-{cond['temperature_c']['max']}°C"
                             )

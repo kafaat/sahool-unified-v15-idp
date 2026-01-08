@@ -90,9 +90,7 @@ def upgrade() -> None:
             nullable=False,
             comment="المستأجر/العميل",
         ),
-        sa.Column(
-            "plan_id", sa.String(length=255), nullable=False, comment="معرف الخطة"
-        ),
+        sa.Column("plan_id", sa.String(length=255), nullable=False, comment="معرف الخطة"),
         sa.Column(
             "status",
             sa.Enum(
@@ -139,9 +137,7 @@ def upgrade() -> None:
             nullable=False,
             comment="تاريخ الفوترة التالي",
         ),
-        sa.Column(
-            "last_billing_date", sa.Date(), nullable=True, comment="تاريخ آخر فوترة"
-        ),
+        sa.Column("last_billing_date", sa.Date(), nullable=True, comment="تاريخ آخر فوترة"),
         sa.Column(
             "payment_method",
             sa.Enum(
@@ -186,9 +182,7 @@ def upgrade() -> None:
     )
 
     # Create indexes for subscriptions
-    op.create_index(
-        "idx_subscription_tenant_status", "subscriptions", ["tenant_id", "status"]
-    )
+    op.create_index("idx_subscription_tenant_status", "subscriptions", ["tenant_id", "status"])
     op.create_index(
         "idx_subscription_next_billing",
         "subscriptions",
@@ -332,9 +326,7 @@ def upgrade() -> None:
         sa.CheckConstraint("total >= 0", name="check_total_positive"),
         sa.CheckConstraint("amount_paid >= 0", name="check_amount_paid_positive"),
         sa.CheckConstraint("amount_due >= 0", name="check_amount_due_positive"),
-        sa.ForeignKeyConstraint(
-            ["subscription_id"], ["subscriptions.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["subscription_id"], ["subscriptions.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("invoice_number"),
     )
@@ -346,12 +338,8 @@ def upgrade() -> None:
     op.create_index(op.f("ix_invoices_invoice_number"), "invoices", ["invoice_number"])
     op.create_index(op.f("ix_invoices_issue_date"), "invoices", ["issue_date"])
     op.create_index(op.f("ix_invoices_status"), "invoices", ["status"])
-    op.create_index(
-        op.f("ix_invoices_stripe_invoice_id"), "invoices", ["stripe_invoice_id"]
-    )
-    op.create_index(
-        op.f("ix_invoices_subscription_id"), "invoices", ["subscription_id"]
-    )
+    op.create_index(op.f("ix_invoices_stripe_invoice_id"), "invoices", ["stripe_invoice_id"])
+    op.create_index(op.f("ix_invoices_subscription_id"), "invoices", ["subscription_id"])
     op.create_index(op.f("ix_invoices_tenant_id"), "invoices", ["tenant_id"])
 
     # Create payments table
@@ -438,9 +426,7 @@ def upgrade() -> None:
             nullable=True,
             comment="معرف المعاملة في ثروات",
         ),
-        sa.Column(
-            "receipt_url", sa.String(length=500), nullable=True, comment="رابط الإيصال"
-        ),
+        sa.Column("receipt_url", sa.String(length=500), nullable=True, comment="رابط الإيصال"),
         sa.Column(
             "metadata",
             postgresql.JSONB(astext_type=sa.Text()),
@@ -465,9 +451,7 @@ def upgrade() -> None:
     op.create_index("idx_payment_tenant_status", "payments", ["tenant_id", "status"])
     op.create_index(op.f("ix_payments_invoice_id"), "payments", ["invoice_id"])
     op.create_index(op.f("ix_payments_status"), "payments", ["status"])
-    op.create_index(
-        op.f("ix_payments_stripe_payment_id"), "payments", ["stripe_payment_id"]
-    )
+    op.create_index(op.f("ix_payments_stripe_payment_id"), "payments", ["stripe_payment_id"])
     op.create_index(op.f("ix_payments_tenant_id"), "payments", ["tenant_id"])
     op.create_index(
         op.f("ix_payments_tharwatt_transaction_id"),
@@ -518,9 +502,7 @@ def upgrade() -> None:
             comment="بيانات إضافية (e.g., resource_id, user_id)",
         ),
         sa.CheckConstraint("quantity > 0", name="check_quantity_positive"),
-        sa.ForeignKeyConstraint(
-            ["subscription_id"], ["subscriptions.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["subscription_id"], ["subscriptions.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
 
@@ -536,15 +518,9 @@ def upgrade() -> None:
         "usage_records",
         ["tenant_id", "metric_type", "recorded_at"],
     )
-    op.create_index(
-        op.f("ix_usage_records_metric_type"), "usage_records", ["metric_type"]
-    )
-    op.create_index(
-        op.f("ix_usage_records_recorded_at"), "usage_records", ["recorded_at"]
-    )
-    op.create_index(
-        op.f("ix_usage_records_subscription_id"), "usage_records", ["subscription_id"]
-    )
+    op.create_index(op.f("ix_usage_records_metric_type"), "usage_records", ["metric_type"])
+    op.create_index(op.f("ix_usage_records_recorded_at"), "usage_records", ["recorded_at"])
+    op.create_index(op.f("ix_usage_records_subscription_id"), "usage_records", ["subscription_id"])
     op.create_index(op.f("ix_usage_records_tenant_id"), "usage_records", ["tenant_id"])
 
 

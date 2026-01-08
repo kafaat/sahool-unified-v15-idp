@@ -7,6 +7,7 @@
 
 import { IsString, IsNumber, IsOptional, IsPositive, IsArray, ValidateNested, IsBoolean, IsIn, Min, Max, IsNotEmpty, IsEnum, IsDateString, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsMoneyValue, SanitizePlainText, IsYemeniPhone, IsAfterDate, IsFutureDate } from '../utils/validation';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Market DTOs
@@ -18,18 +19,20 @@ import { Type } from 'class-transformer';
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
+  @SanitizePlainText()
   name: string;
 
   @IsString()
   @IsNotEmpty()
+  @SanitizePlainText()
   nameAr: string;
 
   @IsString()
   @IsNotEmpty()
+  @SanitizePlainText()
   category: string;
 
-  @IsNumber()
-  @IsPositive()
+  @IsMoneyValue()
   price: number;
 
   @IsNumber()
@@ -38,14 +41,17 @@ export class CreateProductDto {
 
   @IsString()
   @IsNotEmpty()
+  @SanitizePlainText()
   unit: string;
 
   @IsString()
   @IsOptional()
+  @SanitizePlainText()
   description?: string;
 
   @IsString()
   @IsOptional()
+  @SanitizePlainText()
   descriptionAr?: string;
 
   @IsString()
@@ -96,10 +102,11 @@ export class CreateOrderDto {
 
   @IsString()
   @IsOptional()
+  @SanitizePlainText()
   buyerName?: string;
 
-  @IsString()
   @IsOptional()
+  @IsYemeniPhone()
   buyerPhone?: string;
 
   @IsArray()
@@ -132,8 +139,7 @@ class YieldDataDto {
   @IsPositive()
   predictedYieldTons: number;
 
-  @IsNumber()
-  @IsPositive()
+  @IsMoneyValue()
   pricePerTon: number;
 
   @IsString()
@@ -350,8 +356,7 @@ export class RequestLoanDto {
   @IsNotEmpty()
   walletId: string;
 
-  @IsNumber()
-  @IsPositive()
+  @IsMoneyValue()
   amount: number;
 
   @IsNumber()
@@ -372,9 +377,8 @@ export class RequestLoanDto {
   @IsOptional()
   collateralType?: string;
 
-  @IsNumber()
   @IsOptional()
-  @IsPositive()
+  @IsMoneyValue()
   collateralValue?: number;
 }
 
@@ -382,8 +386,7 @@ export class RequestLoanDto {
  * Deposit/Withdraw DTO
  */
 export class WalletTransactionDto {
-  @IsNumber()
-  @IsPositive()
+  @IsMoneyValue()
   amount: number;
 
   @IsString()

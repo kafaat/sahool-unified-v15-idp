@@ -151,9 +151,7 @@ def example_4_api_key_rate_limiting():
     app = FastAPI(title="Example 4: API Key Rate Limiting")
 
     @app.get("/api/v1/data")
-    @rate_limit_by_api_key(
-        requests_per_minute=100, requests_per_hour=5000, header_name="X-API-Key"
-    )
+    @rate_limit_by_api_key(requests_per_minute=100, requests_per_hour=5000, header_name="X-API-Key")
     async def get_api_data(request: Request):
         """Rate limited per API key"""
         api_key = request.headers.get("X-API-Key")
@@ -166,9 +164,7 @@ def example_4_api_key_rate_limiting():
         }
 
     @app.post("/api/v1/process")
-    @rate_limit_by_api_key(
-        requests_per_minute=50, requests_per_hour=1000, header_name="X-API-Key"
-    )
+    @rate_limit_by_api_key(requests_per_minute=50, requests_per_hour=1000, header_name="X-API-Key")
     async def process_api_request(request: Request):
         """Processing endpoint with lower limits"""
         return {"status": "processing"}
@@ -234,9 +230,7 @@ def example_6_custom_key_function():
         return f"user:{user_id}:org:{org_id}"
 
     @app.get("/org/resources")
-    @rate_limit(
-        requests_per_minute=50, requests_per_hour=2000, key_func=organization_key
-    )
+    @rate_limit(requests_per_minute=50, requests_per_hour=2000, key_func=organization_key)
     async def get_org_resources(request: Request):
         """Rate limited by organization"""
         return {"message": "Organization resources"}
@@ -361,9 +355,7 @@ def example_9_dynamic_rate_limits():
 
         # Define tier-specific limits
         tier_limits = {
-            "free": RateLimitConfig(
-                requests_per_minute=30, requests_per_hour=500, burst_limit=5
-            ),
+            "free": RateLimitConfig(requests_per_minute=30, requests_per_hour=500, burst_limit=5),
             "standard": RateLimitConfig(
                 requests_per_minute=60, requests_per_hour=2000, burst_limit=10
             ),

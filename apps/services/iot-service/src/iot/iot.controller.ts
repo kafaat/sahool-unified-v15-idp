@@ -88,7 +88,7 @@ export class IotController {
   @ApiOperation({ summary: 'Get all sensor readings for a field' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiResponse({ status: 200, description: 'Sensor readings retrieved' })
-  getFieldSensors(@Param('fieldId') fieldId: string): SensorReading[] {
+  async getFieldSensors(@Param('fieldId') fieldId: string): Promise<SensorReading[]> {
     return this.iotService.getFieldSensorData(fieldId);
   }
 
@@ -98,10 +98,10 @@ export class IotController {
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiParam({ name: 'sensorType', description: 'Type of sensor', enum: SensorType })
   @ApiResponse({ status: 200, description: 'Sensor reading retrieved' })
-  getSensorReading(
+  async getSensorReading(
     @Param('fieldId') fieldId: string,
     @Param('sensorType') sensorType: SensorType,
-  ): SensorReading | null {
+  ): Promise<SensorReading | null> {
     return this.iotService.getSensorReading(fieldId, sensorType);
   }
 
@@ -116,10 +116,10 @@ export class IotController {
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiBody({ type: TogglePumpDto })
   @ApiResponse({ status: 200, description: 'Pump command sent' })
-  togglePump(
+  async togglePump(
     @Param('fieldId') fieldId: string,
     @Body() dto: TogglePumpDto,
-  ): { success: boolean; message: string } {
+  ): Promise<{ success: boolean; message: string }> {
     return this.iotService.togglePump(fieldId, dto.status, {
       duration: dto.duration,
     });
@@ -164,9 +164,9 @@ export class IotController {
   @ApiOperation({ summary: 'Get actuator states for a field' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiResponse({ status: 200, description: 'Actuator states retrieved' })
-  getFieldActuators(
+  async getFieldActuators(
     @Param('fieldId') fieldId: string,
-  ): Record<string, boolean> {
+  ): Promise<Record<string, boolean>> {
     return this.iotService.getFieldActuatorStates(fieldId);
   }
 
@@ -178,10 +178,10 @@ export class IotController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get all connected devices' })
   @ApiResponse({ status: 200, description: 'Device list retrieved' })
-  getDevices() {
+  async getDevices() {
     return {
-      devices: this.iotService.getConnectedDevices(),
-      stats: this.iotService.getDeviceStats(),
+      devices: await this.iotService.getConnectedDevices(),
+      stats: await this.iotService.getDeviceStats(),
     };
   }
 
@@ -194,9 +194,9 @@ export class IotController {
   @ApiOperation({ summary: 'Get IoT dashboard data for a field' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })
-  getDashboard(@Param('fieldId') fieldId: string) {
-    const sensors = this.iotService.getFieldSensorData(fieldId);
-    const actuators = this.iotService.getFieldActuatorStates(fieldId);
+  async getDashboard(@Param('fieldId') fieldId: string) {
+    const sensors = await this.iotService.getFieldSensorData(fieldId);
+    const actuators = await this.iotService.getFieldActuatorStates(fieldId);
 
     // Transform to dashboard format
     const sensorData: Record<string, any> = {};

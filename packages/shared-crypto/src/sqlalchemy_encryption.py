@@ -61,9 +61,7 @@ def get_deterministic_key() -> bytes:
         raise ValueError("DETERMINISTIC_ENCRYPTION_KEY environment variable is not set")
 
     if len(key) != 64:
-        raise ValueError(
-            "DETERMINISTIC_ENCRYPTION_KEY must be 64 hex characters (32 bytes)"
-        )
+        raise ValueError("DETERMINISTIC_ENCRYPTION_KEY must be 64 hex characters (32 bytes)")
 
     return bytes.fromhex(key)
 
@@ -101,7 +99,9 @@ def encrypt_field(plaintext: str) -> str:
         nonce = os.urandom(NONCE_LENGTH)
 
         ciphertext = aesgcm.encrypt(
-            nonce, plaintext.encode("utf-8"), None  # No associated data
+            nonce,
+            plaintext.encode("utf-8"),
+            None,  # No associated data
         )
 
         # Format: nonce:ciphertext (both base64 encoded)
@@ -176,9 +176,7 @@ def encrypt_searchable(plaintext: str) -> str:
         deterministic_nonce = h.finalize()[:NONCE_LENGTH]
 
         aesgcm = AESGCM(key)
-        ciphertext = aesgcm.encrypt(
-            deterministic_nonce, plaintext.encode("utf-8"), None
-        )
+        ciphertext = aesgcm.encrypt(deterministic_nonce, plaintext.encode("utf-8"), None)
 
         # Return only ciphertext (nonce is deterministic and not stored)
         return base64.b64encode(ciphertext).decode("utf-8")
@@ -283,9 +281,7 @@ class EncryptedText(EncryptedString):
     Same as EncryptedString but with longer default length.
     """
 
-    def __init__(
-        self, deterministic: bool = False, length: int = 2048, *args, **kwargs
-    ):
+    def __init__(self, deterministic: bool = False, length: int = 2048, *args, **kwargs):
         super().__init__(deterministic=deterministic, length=length, *args, **kwargs)
 
 
@@ -366,9 +362,7 @@ def create_hmac(data: str, secret: str | None = None) -> str:
     if not hmac_secret:
         raise ValueError("HMAC_SECRET not provided and environment variable not set")
 
-    h = hmac.HMAC(
-        hmac_secret.encode("utf-8"), hashes.SHA256(), backend=default_backend()
-    )
+    h = hmac.HMAC(hmac_secret.encode("utf-8"), hashes.SHA256(), backend=default_backend())
     h.update(data.encode("utf-8"))
     return h.finalize().hex()
 
@@ -430,9 +424,7 @@ def enable_encryption_logging(session: Session):
     def receive_before_flush(session, flush_context, instances):
         """Log encryption operations before flush"""
         for instance in session.new:
-            print(
-                f"[SQLAlchemy Encryption] Encrypting new instance: {type(instance).__name__}"
-            )
+            print(f"[SQLAlchemy Encryption] Encrypting new instance: {type(instance).__name__}")
         for instance in session.dirty:
             print(
                 f"[SQLAlchemy Encryption] Encrypting modified instance: {type(instance).__name__}"

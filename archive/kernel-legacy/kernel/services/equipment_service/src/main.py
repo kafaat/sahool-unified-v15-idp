@@ -452,9 +452,7 @@ async def get_maintenance_alerts(
 ):
     """Get maintenance alerts"""
     # Get equipment IDs for this tenant
-    tenant_eq_ids = {
-        e.equipment_id for e in equipment_db.values() if e.tenant_id == tenant_id
-    }
+    tenant_eq_ids = {e.equipment_id for e in equipment_db.values() if e.tenant_id == tenant_id}
 
     alerts = [a for a in alerts_db.values() if a.equipment_id in tenant_eq_ids]
 

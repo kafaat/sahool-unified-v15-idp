@@ -26,9 +26,9 @@ services:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool} -d ${POSTGRES_DB:-sahool}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
+      interval: 30s
+      timeout: 10s
+      retries: 3
       start_period: 30s
     restart: unless-stopped
     networks:
@@ -96,10 +96,10 @@ services:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
     networks:
       - sahool-network
@@ -124,10 +124,10 @@ services:
       - "127.0.0.1:${NATS_MONITOR_PORT:-8222}:8222"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
     networks:
       - sahool-network
@@ -180,9 +180,9 @@ services:
       - ../infrastructure/gateway/kong-legacy:/kong/declarative:ro
     healthcheck:
       test: ["CMD", "kong", "health"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
+      interval: 30s
+      timeout: 10s
+      retries: 3
       start_period: 30s
     restart: unless-stopped
     networks:

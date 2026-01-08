@@ -213,22 +213,12 @@ class ServiceDiscovery:
     def get_summary(self) -> dict:
         """Get health summary"""
         total = len(SERVICE_PORTS)
-        healthy = len(
-            [h for h in self._health_cache.values() if h.status == HealthStatus.HEALTHY]
-        )
+        healthy = len([h for h in self._health_cache.values() if h.status == HealthStatus.HEALTHY])
         degraded = len(
-            [
-                h
-                for h in self._health_cache.values()
-                if h.status == HealthStatus.DEGRADED
-            ]
+            [h for h in self._health_cache.values() if h.status == HealthStatus.DEGRADED]
         )
         unhealthy = len(
-            [
-                h
-                for h in self._health_cache.values()
-                if h.status == HealthStatus.UNHEALTHY
-            ]
+            [h for h in self._health_cache.values() if h.status == HealthStatus.UNHEALTHY]
         )
 
         return {

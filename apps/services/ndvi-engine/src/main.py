@@ -1,14 +1,49 @@
 """
+⚠️ DEPRECATED: This service is deprecated and will be removed in a future release.
+Please use 'vegetation-analysis-service' instead.
+
 SAHOOL NDVI Engine - Main API Service
 Remote sensing NDVI computation and analysis
-Port: 8097
+Port: 8107
+
+Migration Path:
+- Replacement: vegetation-analysis-service (Port 8090)
+- Deprecation Date: 2026-01-06
+- Sunset Date: 2026-06-01
 """
 
 import os
+import sys
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from pydantic import BaseModel, Field
+
+# Import authentication dependencies
+try:
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    # Fallback error handling
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    User = None
+
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
+
 
 from .compute import (
     analyze_ndvi_zones,
@@ -23,11 +58,21 @@ from .events import get_publisher
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("=" * 80)
+    print("⚠️  DEPRECATION WARNING")
+    print("=" * 80)
+    print("This service (ndvi-engine) is DEPRECATED and will be removed in a future release.")
+    print("Please migrate to 'vegetation-analysis-service' instead.")
+    print("Replacement service: vegetation-analysis-service (Port 8090)")
+    print("Deprecation date: 2026-01-06")
+    print("Sunset date: 2026-06-01")
+    print("=" * 80)
+
     print("🛰️ Starting NDVI Engine Service...")
     try:
         publisher = await get_publisher()
         app.state.publisher = publisher
-        print("✅ NDVI Engine ready on port 8097")
+        print("✅ NDVI Engine ready on port 8107")
     except Exception as e:
         print(f"⚠️ NATS connection failed: {e}")
         app.state.publisher = None
@@ -38,11 +83,33 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="SAHOOL NDVI Engine",
-    description="Remote sensing NDVI computation and vegetation analysis",
+    title="SAHOOL NDVI Engine (DEPRECATED)",
+    description="⚠️ DEPRECATED - Use vegetation-analysis-service instead. Remote sensing NDVI computation and vegetation analysis",
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
+# Add deprecation headers middleware
+from fastapi import Request
+
+
+@app.middleware("http")
+async def add_deprecation_header(request: Request, call_next):
+    """Add deprecation headers to all responses"""
+    response = await call_next(request)
+    response.headers["X-API-Deprecated"] = "true"
+    response.headers["X-API-Deprecation-Date"] = "2026-01-06"
+    response.headers["X-API-Deprecation-Info"] = (
+        "This service is deprecated. Use vegetation-analysis-service instead."
+    )
+    response.headers["X-API-Sunset"] = "2026-06-01"
+    response.headers["Link"] = '<http://vegetation-analysis-service:8090>; rel="successor-version"'
+    response.headers["Deprecation"] = "true"
+    return response
 
 
 # ============== Health Check ==============
@@ -90,7 +157,9 @@ class AnomalyRequest(BaseModel):
 
 
 @app.post("/ndvi/compute")
-async def compute_ndvi(req: NdviComputeRequest):
+async def compute_ndvi(
+    req: NdviComputeRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """
     Compute NDVI for a field
 
@@ -147,7 +216,9 @@ async def compute_ndvi(req: NdviComputeRequest):
 
 
 @app.post("/ndvi/zones")
-async def get_ndvi_zones(req: NdviZonesRequest):
+async def get_ndvi_zones(
+    req: NdviZonesRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """Analyze NDVI zones within a field"""
     zones = analyze_ndvi_zones(req.field_id)
 
@@ -192,7 +263,9 @@ def calculate_indices(req: IndicesRequest):
 
 
 @app.post("/ndvi/anomaly")
-async def check_anomaly(req: AnomalyRequest):
+async def check_anomaly(
+    req: AnomalyRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """Check for NDVI anomalies"""
     anomaly = detect_anomalies(
         current_ndvi=req.current_ndvi,

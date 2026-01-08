@@ -126,9 +126,9 @@ async def test_complete_field_workflow(
         print("✓ Weather data retrieved for location")
 
         # Verify weather data structure
-        assert any(
-            key in weather_data for key in ["temperature", "temp", "main", "current"]
-        ), "Weather data should contain temperature information"
+        assert any(key in weather_data for key in ["temperature", "temp", "main", "current"]), (
+            "Weather data should contain temperature information"
+        )
     else:
         print(f"⚠ Weather data not available: {weather_response.status_code}")
 
@@ -152,9 +152,7 @@ async def test_complete_field_workflow(
         recommendations_response.json()
         print("✓ Recommendations retrieved")
     else:
-        print(
-            f"⚠ Recommendations not yet available: {recommendations_response.status_code}"
-        )
+        print(f"⚠ Recommendations not yet available: {recommendations_response.status_code}")
 
     # ───────────────────────────────────────────────────────────────────────────
     # Step 5: Verify Field Data Consistency - التحقق من اتساق بيانات الحقل
@@ -174,9 +172,9 @@ async def test_complete_field_workflow(
     if field_verify_response.status_code == 200:
         verified_field = field_verify_response.json()
         # Verify field name matches
-        assert (
-            verified_field.get("name") == test_field_data["name"]
-        ), "Field data should be consistent"
+        assert verified_field.get("name") == test_field_data["name"], (
+            "Field data should be consistent"
+        )
         print("✓ Field data is consistent")
 
     print("\n" + "=" * 80)
@@ -255,9 +253,9 @@ async def test_ndvi_analysis_workflow(
 
     if response.status_code == 200:
         ndvi_result = response.json()
-        assert (
-            "ndvi" in ndvi_result or "value" in ndvi_result
-        ), "NDVI result should contain calculated value"
+        assert "ndvi" in ndvi_result or "value" in ndvi_result, (
+            "NDVI result should contain calculated value"
+        )
 
         # NDVI value should be between -1 and 1
         ndvi_value = ndvi_result.get("ndvi") or ndvi_result.get("value")
@@ -408,9 +406,9 @@ async def test_irrigation_recommendation_workflow(
 
     if et0_response.status_code == 200:
         et0_result = et0_response.json()
-        assert (
-            "et0" in et0_result or "value" in et0_result
-        ), "ET0 result should contain calculated value"
+        assert "et0" in et0_result or "value" in et0_result, (
+            "ET0 result should contain calculated value"
+        )
 
         et0_value = et0_result.get("et0") or et0_result.get("value")
         if et0_value is not None:
@@ -473,8 +471,8 @@ async def test_field_operations_complete_workflow(
 
     if get_response.status_code == 200:
         retrieved_field = get_response.json()
-        assert (
-            retrieved_field.get("name") == test_field_data["name"]
-        ), "Retrieved field should match created field"
+        assert retrieved_field.get("name") == test_field_data["name"], (
+            "Retrieved field should match created field"
+        )
 
     print("✓ Complete field operations workflow PASSED")

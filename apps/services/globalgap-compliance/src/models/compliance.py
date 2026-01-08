@@ -86,9 +86,7 @@ class ComplianceRecord(BaseModel):
     next_assessment_date: datetime | None = None
 
     # Metadata | بيانات وصفية
-    ifa_version: str = Field(
-        default="6.0", description="IFA version | إصدار معايير IFA"
-    )
+    ifa_version: str = Field(default="6.0", description="IFA version | إصدار معايير IFA")
     notes: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -119,18 +117,12 @@ class NonConformity(BaseModel):
     id: str | None = None
     compliance_record_id: str
     control_point_id: str
-    control_point_number: str = Field(
-        ..., description="CP number e.g., AF.1.1.1 | رقم نقطة التحكم"
-    )
+    control_point_number: str = Field(..., description="CP number e.g., AF.1.1.1 | رقم نقطة التحكم")
 
     # Non-conformity details | تفاصيل عدم المطابقة
     severity: SeverityLevel
-    description_ar: str = Field(
-        ..., description="Description in Arabic | الوصف بالعربية"
-    )
-    description_en: str = Field(
-        ..., description="Description in English | الوصف بالإنجليزية"
-    )
+    description_ar: str = Field(..., description="Description in Arabic | الوصف بالعربية")
+    description_en: str = Field(..., description="Description in English | الوصف بالإنجليزية")
 
     # Corrective actions | الإجراءات التصحيحية
     corrective_action_required: bool = True
@@ -139,9 +131,7 @@ class NonConformity(BaseModel):
     corrective_action_completed: bool = False
 
     # Evidence | الأدلة
-    evidence_photos: list[str] = Field(
-        default_factory=list, description="Photo URLs | روابط الصور"
-    )
+    evidence_photos: list[str] = Field(default_factory=list, description="Photo URLs | روابط الصور")
     evidence_documents: list[str] = Field(
         default_factory=list, description="Document URLs | روابط المستندات"
     )
@@ -190,9 +180,7 @@ class AuditResult(BaseModel):
     )
 
     # Results | النتائج
-    audit_status: str = Field(
-        ..., description="passed, failed, conditional | نجح، فشل، مشروط"
-    )
+    audit_status: str = Field(..., description="passed, failed, conditional | نجح، فشل، مشروط")
     overall_score: float = Field(
         ge=0.0, le=100.0, description="Overall audit score | الدرجة الإجمالية للتدقيق"
     )

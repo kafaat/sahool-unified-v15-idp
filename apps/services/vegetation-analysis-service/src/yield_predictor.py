@@ -214,9 +214,7 @@ class YieldPredictor:
 
         # Calculate water stress
         precipitation = weather_data.get("precipitation_mm", 0)
-        et0 = weather_data.get(
-            "et0_mm", precipitation * 1.2
-        )  # Estimate if not provided
+        et0 = weather_data.get("et0_mm", precipitation * 1.2)  # Estimate if not provided
         water_stress_factor = self.calculate_water_stress(
             precipitation=precipitation,
             et0=et0,
@@ -258,10 +256,7 @@ class YieldPredictor:
 
         # Ensemble prediction (weighted average)
         predicted_yield = (
-            0.40 * ndvi_yield
-            + 0.30 * gdd_yield
-            + 0.20 * water_yield
-            + 0.10 * soil_yield
+            0.40 * ndvi_yield + 0.30 * gdd_yield + 0.20 * water_yield + 0.10 * soil_yield
         )
 
         # Calculate confidence based on data quality and consistency
@@ -478,9 +473,7 @@ class YieldPredictor:
         elif soil_moisture < 0.4:
             sm_factor = max(0.4, soil_moisture / 0.4)  # Drought stress
         else:  # > 0.6
-            sm_factor = max(
-                0.7, 1.0 - 0.3 * ((soil_moisture - 0.6) / 0.4)
-            )  # Waterlogging
+            sm_factor = max(0.7, 1.0 - 0.3 * ((soil_moisture - 0.6) / 0.4))  # Waterlogging
 
         return base_yield * sm_factor
 
@@ -549,9 +542,7 @@ class YieldPredictor:
         if model_variance:
             mean_yield = sum(model_variance) / len(model_variance)
             if mean_yield > 0:
-                variance = sum((y - mean_yield) ** 2 for y in model_variance) / len(
-                    model_variance
-                )
+                variance = sum((y - mean_yield) ** 2 for y in model_variance) / len(model_variance)
                 cv = (variance**0.5) / mean_yield  # Coefficient of variation
                 agreement_factor = max(0.5, 1 - cv)
                 confidence *= agreement_factor
@@ -578,9 +569,7 @@ class YieldPredictor:
         # Normalize each factor to 0-1 scale
         factors = {
             "vegetation_health": min(1.0, ndvi_peak / 0.8),  # 0.8 = excellent
-            "biomass_accumulation": min(
-                1.0, ndvi_integral / 60.0
-            ),  # 60 = high productivity
+            "biomass_accumulation": min(1.0, ndvi_integral / 60.0),  # 60 = high productivity
             "thermal_time": self._normalize_gdd(gdd, crop_code),
             "water_availability": water_stress_factor,
             "soil_moisture": min(1.0, soil_moisture / 0.6),  # 0.6 = optimal
@@ -625,15 +614,13 @@ class YieldPredictor:
         # Water management
         if water_stress_factor < 0.6:
             recommendations_ar.append(
-                f"🌊 إجهاد مائي مكتشف - زيادة الري بنسبة {int((1-water_stress_factor)*100)}% لتحسين الإنتاجية"
+                f"🌊 إجهاد مائي مكتشف - زيادة الري بنسبة {int((1 - water_stress_factor) * 100)}% لتحسين الإنتاجية"
             )
             recommendations_en.append(
-                f"🌊 Water stress detected - increase irrigation by {int((1-water_stress_factor)*100)}% to improve yield"
+                f"🌊 Water stress detected - increase irrigation by {int((1 - water_stress_factor) * 100)}% to improve yield"
             )
         elif soil_moisture and soil_moisture > 0.7:
-            recommendations_ar.append(
-                "⚠️ رطوبة التربة عالية - تقليل الري لتجنب تشبع الجذور"
-            )
+            recommendations_ar.append("⚠️ رطوبة التربة عالية - تقليل الري لتجنب تشبع الجذور")
             recommendations_en.append(
                 "⚠️ High soil moisture - reduce irrigation to avoid root waterlogging"
             )
@@ -648,46 +635,36 @@ class YieldPredictor:
             )
         elif ndvi_peak < 0.65:
             recommendations_ar.append("🌿 صحة النباتات متوسطة - تحسين التسميد الورقي")
-            recommendations_en.append(
-                "🌿 Moderate vegetation - improve foliar fertilization"
-            )
+            recommendations_en.append("🌿 Moderate vegetation - improve foliar fertilization")
 
         # Yield potential
         yield_ratio = predicted_yield / base_yield
         if yield_ratio < 0.7:
             recommendations_ar.append(
-                f"📉 الإنتاجية المتوقعة منخفضة ({int(yield_ratio*100)}% من الإمكانية) - تكثيف الإدارة"
+                f"📉 الإنتاجية المتوقعة منخفضة ({int(yield_ratio * 100)}% من الإمكانية) - تكثيف الإدارة"
             )
             recommendations_en.append(
-                f"📉 Low yield potential ({int(yield_ratio*100)}% of capacity) - intensify management"
+                f"📉 Low yield potential ({int(yield_ratio * 100)}% of capacity) - intensify management"
             )
         elif yield_ratio > 1.2:
             recommendations_ar.append(
-                f"✨ أداء ممتاز! الإنتاجية المتوقعة {int(yield_ratio*100)}% من الطاقة القاعدية"
+                f"✨ أداء ممتاز! الإنتاجية المتوقعة {int(yield_ratio * 100)}% من الطاقة القاعدية"
             )
             recommendations_en.append(
-                f"✨ Excellent performance! Predicted yield is {int(yield_ratio*100)}% of base capacity"
+                f"✨ Excellent performance! Predicted yield is {int(yield_ratio * 100)}% of base capacity"
             )
 
         # Growth stage specific
         if growth_stage == "flowering":
-            recommendations_ar.append(
-                "🌸 مرحلة التزهير - تجنب إجهاد الماء وتطبيق البوتاسيوم"
-            )
-            recommendations_en.append(
-                "🌸 Flowering stage - avoid water stress and apply potassium"
-            )
+            recommendations_ar.append("🌸 مرحلة التزهير - تجنب إجهاد الماء وتطبيق البوتاسيوم")
+            recommendations_en.append("🌸 Flowering stage - avoid water stress and apply potassium")
         elif growth_stage == "fruiting":
-            recommendations_ar.append(
-                "🍅 مرحلة الإثمار - الحفاظ على رطوبة ثابتة وحماية من الآفات"
-            )
+            recommendations_ar.append("🍅 مرحلة الإثمار - الحفاظ على رطوبة ثابتة وحماية من الآفات")
             recommendations_en.append(
                 "🍅 Fruiting stage - maintain consistent moisture and protect from pests"
             )
         elif growth_stage == "ripening":
-            recommendations_ar.append(
-                "🌾 مرحلة النضج - تقليل الري تدريجياً والاستعداد للحصاد"
-            )
+            recommendations_ar.append("🌾 مرحلة النضج - تقليل الري تدريجياً والاستعداد للحصاد")
             recommendations_en.append(
                 "🌾 Ripening stage - gradually reduce irrigation and prepare for harvest"
             )
@@ -710,17 +687,11 @@ class YieldPredictor:
                 "soil_moisture": "soil moisture",
             }
 
-            critical_ar = ", ".join(
-                [factor_names_ar.get(f, f) for f in critical_factors]
-            )
-            critical_en = ", ".join(
-                [factor_names_en.get(f, f) for f in critical_factors]
-            )
+            critical_ar = ", ".join([factor_names_ar.get(f, f) for f in critical_factors])
+            critical_en = ", ".join([factor_names_en.get(f, f) for f in critical_factors])
 
             recommendations_ar.append(f"⚠️ عوامل حرجة تحتاج تحسين: {critical_ar}")
-            recommendations_en.append(
-                f"⚠️ Critical factors needing improvement: {critical_en}"
-            )
+            recommendations_en.append(f"⚠️ Critical factors needing improvement: {critical_en}")
 
         # If no issues
         if not recommendations_ar:

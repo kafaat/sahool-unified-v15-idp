@@ -119,12 +119,8 @@ class FieldActivity(BaseModel):
     # Activity details
     activity_type: ActivityType = Field(..., description="Activity type")
     activity_date: date = Field(..., description="Activity date")
-    activity_description_en: str = Field(
-        ..., description="Activity description (English)"
-    )
-    activity_description_ar: str | None = Field(
-        None, description="Activity description (Arabic)"
-    )
+    activity_description_en: str = Field(..., description="Activity description (English)")
+    activity_description_ar: str | None = Field(None, description="Activity description (Arabic)")
 
     # Worker information
     worker_name: str | None = Field(None, description="Worker/operator name")
@@ -134,19 +130,13 @@ class FieldActivity(BaseModel):
     # Time tracking
     start_time: datetime | None = Field(None, description="Activity start time")
     end_time: datetime | None = Field(None, description="Activity end time")
-    duration_hours: float | None = Field(
-        None, ge=0, description="Activity duration in hours"
-    )
+    duration_hours: float | None = Field(None, ge=0, description="Activity duration in hours")
 
     # Area covered
-    area_covered_ha: float | None = Field(
-        None, ge=0, description="Area covered in hectares"
-    )
+    area_covered_ha: float | None = Field(None, ge=0, description="Area covered in hectares")
 
     # Equipment used
-    equipment_used: list[str] | None = Field(
-        default_factory=list, description="Equipment used"
-    )
+    equipment_used: list[str] | None = Field(default_factory=list, description="Equipment used")
 
     # Inputs used (fertilizers, pesticides, etc.)
     inputs_used: list[dict[str, Any]] | None = Field(
@@ -155,9 +145,7 @@ class FieldActivity(BaseModel):
 
     # Weather conditions
     weather_conditions: str | None = Field(None, description="Weather conditions")
-    temperature_celsius: float | None = Field(
-        None, description="Temperature in Celsius"
-    )
+    temperature_celsius: float | None = Field(None, description="Temperature in Celsius")
 
     # GlobalGAP compliance mapping
     related_control_points: list[str] = Field(
@@ -214,18 +202,14 @@ class HarvestBatch(BaseModel):
     packaging_type: PackagingType | None = Field(None, description="Packaging type")
 
     # Quality
-    quality_grade: str | None = Field(
-        None, description="Quality grade (A, B, C, etc.)"
-    )
+    quality_grade: str | None = Field(None, description="Quality grade (A, B, C, etc.)")
     quality_notes_en: str | None = Field(None, description="Quality notes (English)")
     quality_notes_ar: str | None = Field(None, description="Quality notes (Arabic)")
 
     # Traceability
     ggn: str | None = Field(None, description="GlobalGAP Number")
     planting_date: date | None = Field(None, description="Planting date")
-    days_to_harvest: int | None = Field(
-        None, ge=0, description="Days from planting to harvest"
-    )
+    days_to_harvest: int | None = Field(None, ge=0, description="Days from planting to harvest")
 
     # Growing period activities (counts)
     irrigation_records_count: int = Field(
@@ -237,37 +221,27 @@ class HarvestBatch(BaseModel):
     pest_control_records_count: int = Field(
         default=0, ge=0, description="Number of pest control activities"
     )
-    other_activities_count: int = Field(
-        default=0, ge=0, description="Number of other activities"
-    )
+    other_activities_count: int = Field(default=0, ge=0, description="Number of other activities")
 
     # Withdrawal periods compliance
     last_pesticide_application_date: date | None = Field(
         None, description="Last pesticide application date"
     )
-    withdrawal_period_days: int | None = Field(
-        None, ge=0, description="Required withdrawal period"
-    )
-    days_since_last_pesticide: int | None = Field(
-        None, description="Days since last pesticide"
-    )
+    withdrawal_period_days: int | None = Field(None, ge=0, description="Required withdrawal period")
+    days_since_last_pesticide: int | None = Field(None, description="Days since last pesticide")
     withdrawal_period_respected: bool = Field(
         default=True, description="Withdrawal period respected"
     )
 
     # Storage and handling
     storage_location: str | None = Field(None, description="Storage location")
-    storage_temperature_celsius: float | None = Field(
-        None, description="Storage temperature"
-    )
+    storage_temperature_celsius: float | None = Field(None, description="Storage temperature")
     cold_chain_maintained: bool = Field(
         default=True, description="Cold chain maintained (if required)"
     )
 
     # Destination
-    destination: str | None = Field(
-        None, description="Destination (customer, market, etc.)"
-    )
+    destination: str | None = Field(None, description="Destination (customer, market, etc.)")
     dispatch_date: date | None = Field(None, description="Dispatch date")
 
     # Metadata
@@ -320,22 +294,14 @@ class TraceabilityRecord(BaseModel):
     quantity_kg: float = Field(..., ge=0, description="Quantity in kg")
 
     # Activity traceability
-    linked_activities: list[str] = Field(
-        default_factory=list, description="Linked activity IDs"
-    )
+    linked_activities: list[str] = Field(default_factory=list, description="Linked activity IDs")
 
-    irrigation_records_linked: int = Field(
-        default=0, ge=0, description="Linked irrigation records"
-    )
-    fertilizer_records_linked: int = Field(
-        default=0, ge=0, description="Linked fertilizer records"
-    )
+    irrigation_records_linked: int = Field(default=0, ge=0, description="Linked irrigation records")
+    fertilizer_records_linked: int = Field(default=0, ge=0, description="Linked fertilizer records")
     pest_control_records_linked: int = Field(
         default=0, ge=0, description="Linked pest control records"
     )
-    harvest_records_linked: int = Field(
-        default=0, ge=0, description="Linked harvest records"
-    )
+    harvest_records_linked: int = Field(default=0, ge=0, description="Linked harvest records")
 
     # Input traceability
     fertilizers_used: list[dict[str, Any]] = Field(
@@ -348,16 +314,12 @@ class TraceabilityRecord(BaseModel):
     )
 
     # Compliance indicators
-    full_traceability: bool = Field(
-        ..., description="Complete farm-to-fork traceability"
-    )
+    full_traceability: bool = Field(..., description="Complete farm-to-fork traceability")
     all_inputs_documented: bool = Field(..., description="All inputs documented")
     withdrawal_periods_respected: bool = Field(
         default=True, description="All withdrawal periods respected"
     )
-    globalgap_compliant: bool = Field(
-        ..., description="Meets GlobalGAP traceability requirements"
-    )
+    globalgap_compliant: bool = Field(..., description="Meets GlobalGAP traceability requirements")
 
     # Issues
     traceability_gaps_en: list[str] = Field(
@@ -410,9 +372,7 @@ class ActivityComplianceMapping(BaseModel):
     # Evidence requirements
     photos_required: bool = Field(default=False, description="Photos required")
     documents_required: bool = Field(default=False, description="Documents required")
-    worker_training_required: bool = Field(
-        default=False, description="Worker training required"
-    )
+    worker_training_required: bool = Field(default=False, description="Worker training required")
 
     class Config:
         use_enum_values = True
@@ -524,9 +484,7 @@ class FieldOpsIntegration:
             True if connected successfully
         """
         if self.publisher is None:
-            self.publisher = EventPublisher(
-                service_name="globalgap-field-ops-integration"
-            )
+            self.publisher = EventPublisher(service_name="globalgap-field-ops-integration")
 
         if not self.publisher.is_connected:
             self._connected = await self.publisher.connect()
@@ -753,9 +711,7 @@ class FieldOpsIntegration:
             and harvest_records_count > 0
         )
 
-        all_inputs_documented = (
-            fertilizers_used is not None and len(fertilizers_used) > 0
-        )
+        all_inputs_documented = fertilizers_used is not None and len(fertilizers_used) > 0
 
         # Check for traceability gaps
         gaps_en = []
@@ -833,9 +789,7 @@ class FieldOpsIntegration:
                 created_by=created_by,
             )
 
-            await self.publisher.publish_event(
-                GlobalGAPSubjects.TRACEABILITY_RECORD_CREATED, event
-            )
+            await self.publisher.publish_event(GlobalGAPSubjects.TRACEABILITY_RECORD_CREATED, event)
 
         return record
 

@@ -139,9 +139,7 @@ class WarehouseManager:
         if warehouse_type:
             where["warehouseType"] = warehouse_type
 
-        warehouses = await self.db.warehouse.find_many(
-            where=where, include={"zones": True}
-        )
+        warehouses = await self.db.warehouse.find_many(where=where, include={"zones": True})
 
         return [self._warehouse_to_dataclass(w) for w in warehouses]
 
@@ -193,9 +191,7 @@ class WarehouseManager:
                     "capacity": zone.capacity,
                     "usage": zone.currentUsage,
                     "utilization_pct": (
-                        (zone.currentUsage / zone.capacity * 100)
-                        if zone.capacity > 0
-                        else 0
+                        (zone.currentUsage / zone.capacity * 100) if zone.capacity > 0 else 0
                     ),
                     "available": zone.capacity - zone.currentUsage,
                 }
@@ -206,9 +202,7 @@ class WarehouseManager:
             "warehouse_name": warehouse.name,
             "total_capacity": total_capacity,
             "total_usage": total_usage,
-            "utilization_pct": (
-                (total_usage / total_capacity * 100) if total_capacity > 0 else 0
-            ),
+            "utilization_pct": ((total_usage / total_capacity * 100) if total_capacity > 0 else 0),
             "available_capacity": total_capacity - total_usage,
             "capacity_unit": warehouse.capacityUnit,
             "zones": zones_utilization,
@@ -267,9 +261,7 @@ class WarehouseManager:
                             location_code=location.locationCode,
                             capacity=location.capacity,
                             current_items=[],
-                            storage_condition=StorageCondition(
-                                warehouse.storageCondition.lower()
-                            ),
+                            storage_condition=StorageCondition(warehouse.storageCondition.lower()),
                             is_occupied=location.isOccupied,
                             current_qty=location.currentQty,
                         )
@@ -350,9 +342,7 @@ class WarehouseManager:
             "transfer_id": transfer.id,
             "status": transfer.status,
             "approved_by": approved_by,
-            "approved_at": (
-                transfer.approvedAt.isoformat() if transfer.approvedAt else None
-            ),
+            "approved_at": (transfer.approvedAt.isoformat() if transfer.approvedAt else None),
         }
 
     async def complete_transfer(self, transfer_id: str, performed_by: str) -> dict:
@@ -379,9 +369,7 @@ class WarehouseManager:
             "transfer_id": transfer.id,
             "status": transfer.status,
             "performed_by": performed_by,
-            "completed_at": (
-                transfer.completedAt.isoformat() if transfer.completedAt else None
-            ),
+            "completed_at": (transfer.completedAt.isoformat() if transfer.completedAt else None),
         }
 
     async def get_warehouse_inventory(
@@ -401,9 +389,7 @@ class WarehouseManager:
         if category:
             where["category"] = category
 
-        items = await self.db.inventoryitem.find_many(
-            where=where, include={"batchLots": True}
-        )
+        items = await self.db.inventoryitem.find_many(where=where, include={"batchLots": True})
 
         result = []
         for item in items:
@@ -418,9 +404,7 @@ class WarehouseManager:
                     "available": item.availableQuantity,
                     "unit": item.unit,
                     "storage_location": item.storageLocation,
-                    "expiry_date": (
-                        item.expiryDate.isoformat() if item.expiryDate else None
-                    ),
+                    "expiry_date": (item.expiryDate.isoformat() if item.expiryDate else None),
                     "batch_count": len(item.batchLots) if item.batchLots else 0,
                 }
             )
@@ -497,9 +481,7 @@ class WarehouseManager:
                     "category": item.category,
                     "quantity": item.currentQuantity,
                     "unit": item.unit,
-                    "expiry_date": (
-                        item.expiryDate.isoformat() if item.expiryDate else None
-                    ),
+                    "expiry_date": (item.expiryDate.isoformat() if item.expiryDate else None),
                     "days_until_expiry": days_until_expiry,
                     "storage_location": item.storageLocation,
                 }
@@ -641,9 +623,7 @@ class WarehouseManager:
                     "requested_by": t.requestedBy,
                     "requested_at": t.requestedAt.isoformat(),
                     "approved_by": t.approvedBy,
-                    "completed_at": (
-                        t.completedAt.isoformat() if t.completedAt else None
-                    ),
+                    "completed_at": (t.completedAt.isoformat() if t.completedAt else None),
                     "notes": t.notes,
                 }
             )

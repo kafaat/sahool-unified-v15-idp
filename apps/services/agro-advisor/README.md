@@ -1,12 +1,30 @@
 # ⚠️ DEPRECATED - Use advisory-service instead
 
-This service has been deprecated and merged into `advisory-service`.
-Please update your references to use `advisory-service` on port 8093.
+**Status:** DEPRECATED
+**Replacement:** advisory-service (Port 8093)
+**Deprecation Date:** 2025-01-06
+**Removal Target:** v17.0.0
+
+## Migration Notice
+
+This service has been **deprecated** and **merged** into `advisory-service`.
+
+**All functionality has been moved:**
+- Disease diagnosis → advisory-service:8093/disease/*
+- Nutrient assessment → advisory-service:8093/nutrient/*
+- Fertilizer planning → advisory-service:8093/fertilizer/*
+- Crop information → advisory-service:8093/crops/*
+
+**Action Required:**
+1. Update all service URLs from `agro-advisor:8105` to `advisory-service:8093`
+2. Update Kong routes to use `/api/v1/advisory` instead of `/api/v1/agro-advisor`
+3. Remove this service from your docker-compose profiles
+
+**Kong Gateway:** The Kong API Gateway already routes `/api/v1/agro-advisor` to `advisory-service:8093` for backwards compatibility.
 
 ---
 
-
-# Agro Advisor Service
+# Agro Advisor Service (LEGACY)
 
 **المستشار الزراعي - تشخيص الأمراض وتخطيط التسميد**
 

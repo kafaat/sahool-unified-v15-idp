@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements | نسخ المتطلبات
-COPY requirements.txt .
+COPY apps/services/ai-advisor/requirements.txt .
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
@@ -54,7 +54,7 @@ RUN useradd -m -u 1000 -s /bin/bash appuser && \
     chown -R appuser:appuser /app
 
 # Copy application code | نسخ كود التطبيق
-COPY --chown=appuser:appuser ./src /app/src
+COPY --chown=appuser:appuser apps/services/ai-advisor/src /app/src
 
 # Switch to non-root user | التبديل إلى مستخدم غير جذر
 USER appuser

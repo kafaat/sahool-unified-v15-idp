@@ -36,10 +36,10 @@ def generate_fertilizer_prescription(
     Returns:
         Prescription map data
     """
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Generating Fertilizer Prescription")
     print("توليد وصفة التسميد")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     url = f"{API_BASE_URL}/v1/vra/generate"
     payload = {
@@ -70,9 +70,7 @@ def generate_fertilizer_prescription(
     print("\n✅ Prescription Generated:")
     print(f"  ID: {prescription['id']}")
     print(f"  Total Area: {prescription['total_area_ha']:.2f} ha")
-    print(
-        f"  Total Product: {prescription['total_product_needed']:.2f} {prescription['unit']}"
-    )
+    print(f"  Total Product: {prescription['total_product_needed']:.2f} {prescription['unit']}")
     print(f"  Savings: {prescription['savings_percent']:.1f}%")
     if prescription.get("cost_savings"):
         print(f"  Cost Savings: ${prescription['cost_savings']:.2f}")
@@ -103,10 +101,10 @@ def generate_seed_prescription(
     Returns:
         Prescription map data
     """
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Generating Seed Prescription")
     print("توليد وصفة البذار")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     url = f"{API_BASE_URL}/v1/vra/generate"
     payload = {
@@ -163,10 +161,10 @@ def preview_management_zones(
     Returns:
         Zone classification data
     """
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Previewing Management Zones")
     print("معاينة مناطق الإدارة")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     url = f"{API_BASE_URL}/v1/vra/zones/{field_id}"
     params = {"lat": latitude, "lon": longitude, "num_zones": num_zones}
@@ -209,10 +207,10 @@ def export_prescription(prescription_id: str, format: str = "geojson") -> Any:
     Returns:
         Exported data
     """
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"Exporting Prescription to {format.upper()}")
     print(f"تصدير الوصفة بصيغة {format.upper()}")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     url = f"{API_BASE_URL}/v1/vra/export/{prescription_id}"
     params = {"format": format}
@@ -262,10 +260,10 @@ def get_prescription_history(field_id: str) -> dict[str, Any]:
     Returns:
         Prescription history data
     """
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("Prescription History")
     print("سجل الوصفات")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     url = f"{API_BASE_URL}/v1/vra/prescriptions/{field_id}"
     params = {"limit": 10}
@@ -295,10 +293,10 @@ def get_vra_info() -> dict[str, Any]:
     Returns:
         VRA system information
     """
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print("VRA System Information")
     print("معلومات نظام التطبيق المتغير")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     url = f"{API_BASE_URL}/v1/vra/info"
 
@@ -369,7 +367,7 @@ def main():
         # 7. Get prescription history
         get_prescription_history(field_id)
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("✅ All examples completed successfully!")
         print("تم إكمال جميع الأمثلة بنجاح!")
         print("=" * 60)

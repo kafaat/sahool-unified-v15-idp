@@ -124,9 +124,7 @@ def wait_for_service(url: str, max_retries: int = 30, delay: float = 2.0) -> boo
     for attempt in range(max_retries):
         try:
             response = requests.get(url, timeout=5)
-            if (
-                response.status_code < 500
-            ):  # Any non-server error is considered "available"
+            if response.status_code < 500:  # Any non-server error is considered "available"
                 return True
         except RequestException:
             pass
@@ -298,9 +296,7 @@ async def http_client(test_config: TestConfig) -> AsyncGenerator[AsyncClient, No
     transport = RetryTransport(max_retries=3)
     timeout = Timeout(timeout=test_config.http_timeout)
 
-    async with AsyncClient(
-        transport=transport, timeout=timeout, follow_redirects=True
-    ) as client:
+    async with AsyncClient(transport=transport, timeout=timeout, follow_redirects=True) as client:
         yield client
 
 
@@ -333,9 +329,7 @@ class FieldFactory:
         return {
             "name": name or f"Test Field {faker_en.uuid4()[:8]}",
             "name_ar": f"حقل اختبار {faker_ar.uuid4()[:8]}",
-            "area_hectares": faker_en.pyfloat(
-                min_value=1.0, max_value=100.0, right_digits=2
-            ),
+            "area_hectares": faker_en.pyfloat(min_value=1.0, max_value=100.0, right_digits=2),
             "crop_type": crop_type,
             "geometry": {
                 "type": "Polygon",
@@ -663,9 +657,7 @@ class TaskFactory:
             "description": faker_en.text(),
             "task_type": task_type,
             "priority": faker_en.random_element(["low", "medium", "high"]),
-            "due_date": (
-                datetime.utcnow() + timedelta(days=faker_en.random_int(1, 7))
-            ).isoformat(),
+            "due_date": (datetime.utcnow() + timedelta(days=faker_en.random_int(1, 7))).isoformat(),
             "status": "pending",
         }
 
@@ -829,9 +821,7 @@ def sample_payment(payment_factory: PaymentFactory) -> dict[str, Any]:
 
 
 @pytest.fixture
-async def field_ops_client(
-    http_client: AsyncClient, service_urls: dict[str, str]
-) -> AsyncClient:
+async def field_ops_client(http_client: AsyncClient, service_urls: dict[str, str]) -> AsyncClient:
     """HTTP client for field operations service - عميل HTTP لخدمة عمليات الحقول"""
     base_url = service_urls.get("field_core", "http://localhost:3000")
     http_client.base_url = base_url
@@ -839,9 +829,7 @@ async def field_ops_client(
 
 
 @pytest.fixture
-async def weather_client(
-    http_client: AsyncClient, service_urls: dict[str, str]
-) -> AsyncClient:
+async def weather_client(http_client: AsyncClient, service_urls: dict[str, str]) -> AsyncClient:
     """HTTP client for weather service - عميل HTTP لخدمة الطقس"""
     base_url = service_urls.get("weather_core", "http://localhost:8108")
     http_client.base_url = base_url
@@ -849,9 +837,7 @@ async def weather_client(
 
 
 @pytest.fixture
-async def ndvi_client(
-    http_client: AsyncClient, service_urls: dict[str, str]
-) -> AsyncClient:
+async def ndvi_client(http_client: AsyncClient, service_urls: dict[str, str]) -> AsyncClient:
     """HTTP client for NDVI engine - عميل HTTP لمحرك NDVI"""
     base_url = service_urls.get("ndvi_engine", "http://localhost:8107")
     http_client.base_url = base_url
@@ -859,9 +845,7 @@ async def ndvi_client(
 
 
 @pytest.fixture
-async def ai_advisor_client(
-    http_client: AsyncClient, service_urls: dict[str, str]
-) -> AsyncClient:
+async def ai_advisor_client(http_client: AsyncClient, service_urls: dict[str, str]) -> AsyncClient:
     """HTTP client for AI advisor - عميل HTTP للمستشار الذكي"""
     base_url = service_urls.get("ai_advisor", "http://localhost:8112")
     http_client.base_url = base_url
@@ -869,9 +853,7 @@ async def ai_advisor_client(
 
 
 @pytest.fixture
-async def billing_client(
-    http_client: AsyncClient, service_urls: dict[str, str]
-) -> AsyncClient:
+async def billing_client(http_client: AsyncClient, service_urls: dict[str, str]) -> AsyncClient:
     """HTTP client for billing service - عميل HTTP لخدمة الفوترة"""
     base_url = service_urls.get("billing_core", "http://localhost:8089")
     http_client.base_url = base_url
@@ -881,9 +863,7 @@ async def billing_client(
 @pytest.fixture
 async def kong_client() -> AsyncGenerator[AsyncClient, None]:
     """HTTP client for Kong API Gateway - عميل HTTP لبوابة Kong API"""
-    async with AsyncClient(
-        base_url="http://localhost:8000", timeout=Timeout(30.0)
-    ) as client:
+    async with AsyncClient(base_url="http://localhost:8000", timeout=Timeout(30.0)) as client:
         yield client
 
 

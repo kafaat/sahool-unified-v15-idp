@@ -12,40 +12,21 @@
  */
 
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
-
-// Local HttpExceptionFilter for unified error handling
-@Catch()
-class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
-
-    const status = exception instanceof HttpException
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const message = exception instanceof HttpException
-      ? exception.message
-      : 'خطأ داخلي في الخادم';
-
-    response.status(status).json({
-      success: false,
-      error: {
-        code: `ERR_${status}`,
-        message,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      },
-    });
-  }
-}
+import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: false, // Disable default logger, use Pino instead
+    bufferLogs: true,
+  });
+
+  // Use Pino logger
+  app.useLogger(app.get(Logger));
 
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
@@ -116,16 +97,11 @@ async function bootstrap() {
   const port = process.env.PORT || 8114;
   await app.listen(port);
 
-  console.log(`
-  ╔═══════════════════════════════════════════════════════════════╗
-  ║   💬 SAHOOL Chat Service v16.0.0                              ║
-  ║   خدمة المحادثات للسوق الزراعي                                ║
-  ╠═══════════════════════════════════════════════════════════════╣
-  ║   Server running on: http://localhost:${port}                   ║
-  ║   API Documentation: http://localhost:${port}/docs             ║
-  ║   WebSocket Gateway: ws://localhost:${port}                    ║
-  ╚═══════════════════════════════════════════════════════════════╝
-  `);
+  const logger = app.get(Logger);
+  logger.log({ msg: 'SAHOOL Chat Service started', port, version: '16.0.0', docs: `http://localhost:${port}/docs` });
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Failed to start Chat Service:', err);
+  process.exit(1);
+});

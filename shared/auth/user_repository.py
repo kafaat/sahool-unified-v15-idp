@@ -47,12 +47,7 @@ class UserValidationData:
     @property
     def is_valid(self) -> bool:
         """Check if user is valid for authentication"""
-        return (
-            self.is_active
-            and self.is_verified
-            and not self.is_deleted
-            and not self.is_suspended
-        )
+        return self.is_active and self.is_verified and not self.is_deleted and not self.is_suspended
 
     def to_dict(self) -> dict:
         """Convert to dictionary"""
@@ -83,9 +78,7 @@ class UserRepository:
         """
         self.session = session
 
-    async def get_user_validation_data(
-        self, user_id: str
-    ) -> UserValidationData | None:
+    async def get_user_validation_data(self, user_id: str) -> UserValidationData | None:
         """
         Get user validation data from database.
 
@@ -214,9 +207,7 @@ class InMemoryUserRepository(UserRepository):
             is_suspended=is_suspended,
         )
 
-    async def get_user_validation_data(
-        self, user_id: str
-    ) -> UserValidationData | None:
+    async def get_user_validation_data(self, user_id: str) -> UserValidationData | None:
         """Get user from in-memory store"""
         return self._users.get(user_id)
 

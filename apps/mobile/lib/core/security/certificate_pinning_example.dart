@@ -30,7 +30,7 @@ void example1_basicUsage() {
     pinningService.configureDio(dio);
 
     if (kDebugMode) {
-      print('✅ Certificate pinning configured');
+      debugPrint('✅ Certificate pinning configured');
     }
   }
 
@@ -113,9 +113,9 @@ void example4_checkExpiringCertificates() {
 
   if (expiringPins.isNotEmpty) {
     if (kDebugMode) {
-      print('⚠️ Warning: Certificate pins expiring soon:');
+      debugPrint('⚠️ Warning: Certificate pins expiring soon:');
       for (final pin in expiringPins) {
-        print('   ${pin.domain}: ${pin.daysUntilExpiry} days until expiry');
+        debugPrint('   ${pin.domain}: ${pin.daysUntilExpiry} days until expiry');
       }
     }
 
@@ -129,7 +129,7 @@ void example4_checkExpiringCertificates() {
 
 Future<void> example5_getCertificateFingerprint() async {
   if (!kDebugMode) {
-    print('⚠️ This should only be run in debug mode');
+    debugPrint('⚠️ This should only be run in debug mode');
     return;
   }
 
@@ -139,10 +139,10 @@ Future<void> example5_getCertificateFingerprint() async {
   );
 
   if (prodFingerprint != null) {
-    print('Production API Certificate Fingerprint:');
-    print(formatFingerprint(prodFingerprint));
-    print('\nAdd this to certificate_config.dart:');
-    print('''
+    debugPrint('Production API Certificate Fingerprint:');
+    debugPrint(formatFingerprint(prodFingerprint));
+    debugPrint('\nAdd this to certificate_config.dart:');
+    debugPrint('''
     CertificatePin(
       type: PinType.sha256,
       value: '$prodFingerprint',
@@ -158,8 +158,8 @@ Future<void> example5_getCertificateFingerprint() async {
   );
 
   if (stagingFingerprint != null) {
-    print('\nStaging API Certificate Fingerprint:');
-    print(formatFingerprint(stagingFingerprint));
+    debugPrint('\nStaging API Certificate Fingerprint:');
+    debugPrint(formatFingerprint(stagingFingerprint));
   }
 }
 
@@ -186,8 +186,8 @@ void example6_runtimeUpdate() {
   pinningService.addPins('api.sahool.app', newPins);
 
   if (kDebugMode) {
-    print('✅ Certificate pins updated');
-    print('Configured domains: ${pinningService.getConfiguredDomains()}');
+    debugPrint('✅ Certificate pins updated');
+    debugPrint('Configured domains: ${pinningService.getConfiguredDomains()}');
   }
 }
 
@@ -203,13 +203,13 @@ void example7_validateConfiguration() {
 
   if (issues.isEmpty) {
     if (kDebugMode) {
-      print('✅ Certificate configuration is valid');
+      debugPrint('✅ Certificate configuration is valid');
     }
   } else {
     if (kDebugMode) {
-      print('⚠️ Certificate configuration issues:');
+      debugPrint('⚠️ Certificate configuration issues:');
       for (final issue in issues) {
-        print('   - $issue');
+        debugPrint('   - $issue');
       }
     }
   }
@@ -217,7 +217,7 @@ void example7_validateConfiguration() {
   // Print detailed status
   if (kDebugMode) {
     final status = CertificateRotationHelper.getConfigurationStatus(pins);
-    print('\n$status');
+    debugPrint('\n$status');
   }
 }
 
@@ -249,12 +249,12 @@ class ExampleApiClient {
       _pinningService!.configureDio(_dio);
 
       if (kDebugMode) {
-        print('🔒 API Client initialized with certificate pinning');
+        debugPrint('🔒 API Client initialized with certificate pinning');
       }
     } else {
       _pinningService = null;
       if (kDebugMode) {
-        print('⚠️ API Client initialized without certificate pinning');
+        debugPrint('⚠️ API Client initialized without certificate pinning');
       }
     }
   }
@@ -263,11 +263,11 @@ class ExampleApiClient {
     try {
       final response = await _dio.get('/fields');
       if (kDebugMode) {
-        print('✅ Data fetched successfully');
+        debugPrint('✅ Data fetched successfully');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error fetching data: $e');
+        debugPrint('❌ Error fetching data: $e');
       }
     }
   }

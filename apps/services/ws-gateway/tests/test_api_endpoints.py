@@ -65,9 +65,7 @@ class TestHealthEndpoints:
 class TestBroadcastEndpoint:
     """Test broadcast API endpoint"""
 
-    def test_broadcast_to_tenant(
-        self, client, valid_jwt_token, sample_broadcast_request
-    ):
+    def test_broadcast_to_tenant(self, client, valid_jwt_token, sample_broadcast_request):
         """Test broadcasting to tenant"""
         response = client.post(
             "/broadcast",

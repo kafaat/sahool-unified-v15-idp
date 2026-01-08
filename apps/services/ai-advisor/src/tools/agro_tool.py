@@ -51,9 +51,7 @@ class AgroTool:
                 response.raise_for_status()
 
                 result = response.json()
-                logger.info(
-                    "crop_info_retrieved", crop_type=crop_type, language=language
-                )
+                logger.info("crop_info_retrieved", crop_type=crop_type, language=language)
                 return result
 
         except httpx.HTTPError as e:
@@ -139,9 +137,7 @@ class AgroTool:
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "fertilizer_recommendation_failed", error=str(e), crop_type=crop_type
-            )
+            logger.error("fertilizer_recommendation_failed", error=str(e), crop_type=crop_type)
             return {"error": str(e), "status": "failed"}
 
     async def get_pest_control_advice(
@@ -219,9 +215,7 @@ class AgroTool:
                 if season:
                     params["season"] = season
 
-                response = await client.get(
-                    f"{self.base_url}/api/v1/best-practices", params=params
-                )
+                response = await client.get(f"{self.base_url}/api/v1/best-practices", params=params)
                 response.raise_for_status()
 
                 result = response.json()
@@ -259,15 +253,11 @@ class AgroTool:
                 if region:
                     params["region"] = region
 
-                response = await client.get(
-                    f"{self.base_url}/api/v1/market/prices", params=params
-                )
+                response = await client.get(f"{self.base_url}/api/v1/market/prices", params=params)
                 response.raise_for_status()
 
                 result = response.json()
-                logger.info(
-                    "market_prices_retrieved", crop_type=crop_type, region=region
-                )
+                logger.info("market_prices_retrieved", crop_type=crop_type, region=region)
                 return result
 
         except httpx.HTTPError as e:

@@ -107,8 +107,7 @@ class ViolationLogger:
 
         self.violations.append(violation_record)
         self.logger.warning(
-            f"Input violation: request_id={request_id} user_id={user_id} "
-            f"violations={violations}"
+            f"Input violation: request_id={request_id} user_id={user_id} violations={violations}"
         )
 
         # Alert on critical violations
@@ -134,8 +133,7 @@ class ViolationLogger:
 
         self.violations.append(violation_record)
         self.logger.warning(
-            f"Output warning: request_id={request_id} user_id={user_id} "
-            f"warnings={warnings}"
+            f"Output warning: request_id={request_id} user_id={user_id} warnings={warnings}"
         )
 
         # Alert on safety issues
@@ -196,18 +194,14 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # Generate request ID
-        request_id = request.headers.get(
-            "X-Request-ID", f"req_{int(time.time() * 1000)}"
-        )
+        request_id = request.headers.get("X-Request-ID", f"req_{int(time.time() * 1000)}")
 
         # Extract user info (from JWT or headers)
         user_id = self._extract_user_id(request)
         trust_level = self._get_user_trust_level(request)
 
         # Determine if strict checking required
-        strict_check = any(
-            request.url.path.startswith(path) for path in self.config.strict_paths
-        )
+        strict_check = any(request.url.path.startswith(path) for path in self.config.strict_paths)
 
         # Process request
         try:
@@ -222,9 +216,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
 
             # 3. Filter output (for JSON responses)
             if response.headers.get("content-type", "").startswith("application/json"):
-                response = await self._filter_output(
-                    response, request_id, user_id, trust_level
-                )
+                response = await self._filter_output(response, request_id, user_id, trust_level)
 
             # Add guardrails headers
             response.headers["X-Guardrails-Applied"] = "true"
@@ -311,8 +303,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
                 # Log warnings
                 if result.warnings and self.config.log_violations:
                     logger.info(
-                        f"Input warnings: request_id={request_id} "
-                        f"warnings={result.warnings}"
+                        f"Input warnings: request_id={request_id} warnings={result.warnings}"
                     )
 
             # Update request body with filtered data
@@ -530,9 +521,7 @@ def setup_guardrails(
         policy_manager: Policy manager instance
     """
     config = config or GuardrailsConfig()
-    app.add_middleware(
-        GuardrailsMiddleware, config=config, policy_manager=policy_manager
-    )
+    app.add_middleware(GuardrailsMiddleware, config=config, policy_manager=policy_manager)
 
     logger.info(
         f"AI Safety Guardrails enabled: "
@@ -552,9 +541,7 @@ def get_violation_stats() -> dict:
 
     stats = {
         "total_violations": len(violations),
-        "input_violations": sum(
-            1 for v in violations if v["type"] == "input_violation"
-        ),
+        "input_violations": sum(1 for v in violations if v["type"] == "input_violation"),
         "output_warnings": sum(1 for v in violations if v["type"] == "output_warning"),
         "critical_violations": sum(
             1

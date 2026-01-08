@@ -83,9 +83,7 @@ def generate_css(tokens: dict) -> str:
     dark = tokens.get("themes", {}).get("dark", {})
     for category, values in dark.items():
         for name, token_ref in values.items():
-            lines.append(
-                f"  --{category}-{name}: var(--color-{token_ref.replace('.', '-')});"
-            )
+            lines.append(f"  --{category}-{name}: var(--color-{token_ref.replace('.', '-')});")
     lines.append("}")
 
     return "\n".join(lines)
@@ -215,13 +213,9 @@ def generate_dart(tokens: dict) -> str:
                 lines.append(f"  static const Color {dart_name} = Color({hex_value});")
 
     lines.append("")
-    lines.append(
-        "  // ─────────────────────────────────────────────────────────────────────"
-    )
+    lines.append("  // ─────────────────────────────────────────────────────────────────────")
     lines.append("  // Spacing")
-    lines.append(
-        "  // ─────────────────────────────────────────────────────────────────────"
-    )
+    lines.append("  // ─────────────────────────────────────────────────────────────────────")
 
     # Spacing
     for space_name, space_value in tokens.get("spacing", {}).items():
@@ -231,38 +225,26 @@ def generate_dart(tokens: dict) -> str:
             lines.append(f"  static const double spacing{space_name} = {value};")
 
     lines.append("")
-    lines.append(
-        "  // ─────────────────────────────────────────────────────────────────────"
-    )
+    lines.append("  // ─────────────────────────────────────────────────────────────────────")
     lines.append("  // Border Radius")
-    lines.append(
-        "  // ─────────────────────────────────────────────────────────────────────"
-    )
+    lines.append("  // ─────────────────────────────────────────────────────────────────────")
 
     # Border Radius
     for radius_name, radius_value in tokens.get("borderRadius", {}).items():
         if radius_value != "0" and radius_value != "9999px":
             value = float(radius_value.replace("rem", "")) * 16 if "rem" in radius_value else 0
-            lines.append(
-                f"  static const double radius{radius_name.capitalize()} = {value};"
-            )
+            lines.append(f"  static const double radius{radius_name.capitalize()} = {value};")
 
     lines.append("")
-    lines.append(
-        "  // ─────────────────────────────────────────────────────────────────────"
-    )
+    lines.append("  // ─────────────────────────────────────────────────────────────────────")
     lines.append("  // Typography")
-    lines.append(
-        "  // ─────────────────────────────────────────────────────────────────────"
-    )
+    lines.append("  // ─────────────────────────────────────────────────────────────────────")
 
     typo = tokens.get("typography", {})
     for size_name, size_value in typo.get("sizes", {}).items():
         if "rem" in size_value:
             value = float(size_value.replace("rem", "")) * 16
-            lines.append(
-                f"  static const double fontSize{size_name.capitalize()} = {value};"
-            )
+            lines.append(f"  static const double fontSize{size_name.capitalize()} = {value};")
 
     lines.append("}")
     lines.append("")

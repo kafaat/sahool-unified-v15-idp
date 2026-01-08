@@ -197,11 +197,21 @@ class CertificatePinningService {
 
   /// Get default certificate pins for SAHOOL domains
   ///
-  /// NOTE: The SHA-256 fingerprints below are EXAMPLES for development.
+  /// ============================================
+  /// CRITICAL WARNING - PLACEHOLDER VALUES
+  /// ============================================
+  /// The SHA-256 fingerprints below are PLACEHOLDER EXAMPLES for development.
   /// Before deploying to production, you MUST replace these with actual
   /// certificate fingerprints from your production/staging servers.
   ///
-  /// To get actual fingerprints, use the helper function:
+  /// ⚠️  DO NOT DEPLOY TO PRODUCTION WITHOUT UPDATING THESE VALUES  ⚠️
+  ///
+  /// To generate actual certificate pins:
+  /// 1. Run the script: ./scripts/generate_cert_pins.sh api.sahool.app
+  /// 2. Copy the SHA256 fingerprint from the script output
+  /// 3. Replace the placeholder values below
+  ///
+  /// Or use the helper function:
   /// ```dart
   /// final fingerprint = await getCertificateFingerprintFromUrl('https://api.sahool.app');
   /// print('Production SHA256: $fingerprint');
@@ -217,59 +227,65 @@ class CertificatePinningService {
       // Production API domain
       'api.sahool.app': [
         // Primary certificate pin
-        // TODO: Replace with actual production certificate fingerprint
+        // TODO: CRITICAL - Replace with actual production certificate fingerprint
+        // Generate using: ./scripts/generate_cert_pins.sh api.sahool.app
         CertificatePin(
           type: PinType.sha256,
-          value: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+          value: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2026, 12, 31),
           description: 'Production primary certificate',
         ),
         // Backup pin for certificate rotation
-        // TODO: Replace with actual backup certificate fingerprint
+        // TODO: CRITICAL - Replace with actual backup certificate fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
+          value: '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2027, 6, 30),
           description: 'Production backup certificate for rotation',
         ),
         // Additional backup for seamless rotation
+        // TODO: CRITICAL - Replace with actual tertiary certificate fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d',
+          value: '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2027, 12, 31),
           description: 'Production tertiary certificate',
         ),
       ],
       // Production domains wildcard (*.sahool.io)
       '*.sahool.io': [
-        // TODO: Replace with actual wildcard certificate fingerprint
+        // TODO: CRITICAL - Replace with actual wildcard certificate fingerprint
+        // Generate using: ./scripts/generate_cert_pins.sh api.sahool.io
         CertificatePin(
           type: PinType.sha256,
-          value: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+          value: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2026, 12, 31),
           description: 'Wildcard certificate for *.sahool.io',
         ),
         // Backup for wildcard certificate rotation
+        // TODO: CRITICAL - Replace with actual backup wildcard fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9',
+          value: 'fcde2b2edba56bf408601fb721fe9b5c338d10ee429ea04fae5511b68fbf8fb9', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2027, 6, 30),
           description: 'Wildcard backup certificate',
         ),
       ],
       // Staging API domain
       'api-staging.sahool.app': [
-        // TODO: Replace with actual staging certificate fingerprint
+        // TODO: CRITICAL - Replace with actual staging certificate fingerprint
+        // Generate using: ./scripts/generate_cert_pins.sh api-staging.sahool.app
         CertificatePin(
           type: PinType.sha256,
-          value: '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589',
+          value: '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2026, 12, 31),
           description: 'Staging primary certificate',
         ),
         // Staging backup pin
+        // TODO: CRITICAL - Replace with actual staging backup fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50',
+          value: 'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2027, 3, 31),
           description: 'Staging backup certificate',
         ),

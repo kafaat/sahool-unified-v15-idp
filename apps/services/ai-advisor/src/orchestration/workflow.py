@@ -176,9 +176,7 @@ class Workflow:
                     # Circular dependency or missing dependency
                     # تبعية دائرية أو تبعية مفقودة
                     remaining = set(self.steps.keys()) - executed_steps
-                    raise ValueError(
-                        f"Cannot resolve dependencies for steps: {remaining}"
-                    )
+                    raise ValueError(f"Cannot resolve dependencies for steps: {remaining}")
 
                 # Execute ready steps
                 # تنفيذ الخطوات الجاهزة
@@ -206,9 +204,7 @@ class Workflow:
             self.status = WorkflowStatus.FAILED
             self.completed_at = datetime.utcnow()
 
-            logger.error(
-                "workflow_execution_failed", workflow_name=self.name, error=str(e)
-            )
+            logger.error("workflow_execution_failed", workflow_name=self.name, error=str(e))
 
             return {
                 "workflow_name": self.name,
@@ -233,9 +229,7 @@ class Workflow:
         step.status = WorkflowStatus.RUNNING
         step.started_at = datetime.utcnow()
 
-        logger.debug(
-            "workflow_step_started", workflow_name=self.name, step_name=step.name
-        )
+        logger.debug("workflow_step_started", workflow_name=self.name, step_name=step.name)
 
         try:
             # Prepare step input from previous results
@@ -292,14 +286,10 @@ class Workflow:
             "status": self.status.value,
             "total_steps": len(self.steps),
             "completed_steps": sum(
-                1
-                for step in self.steps.values()
-                if step.status == WorkflowStatus.COMPLETED
+                1 for step in self.steps.values() if step.status == WorkflowStatus.COMPLETED
             ),
             "failed_steps": sum(
-                1
-                for step in self.steps.values()
-                if step.status == WorkflowStatus.FAILED
+                1 for step in self.steps.values() if step.status == WorkflowStatus.FAILED
             ),
             "steps": [
                 {

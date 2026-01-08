@@ -1,0 +1,284 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - PostgreSQL High Availability Configuration
+# Streaming Replication: Primary + Replica Setup
+# Last Updated: 2026-01-06
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# USAGE:
+# 1. Initial setup (first time):
+#    docker-compose -f docker-compose.yml -f docker-compose.ha.yml up -d postgres postgres-replica
+#
+# 2. Production deployment:
+#    docker-compose -f docker-compose.yml -f docker-compose.ha.yml up -d
+#
+# 3. Check replication status:
+#    docker exec -it sahool-postgres psql -U sahool -c "SELECT * FROM pg_stat_replication;"
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PostgreSQL Primary (Override base configuration)
+  # ═══════════════════════════════════════════════════════════════════════════
+  postgres:
+    # Override base postgres service with HA configuration
+    image: postgis/postgis:16-3.4
+    container_name: sahool-postgres-primary
+    hostname: postgres-primary
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.utf8"
+      # Replication user credentials
+      POSTGRES_REPLICATION_USER: ${POSTGRES_REPLICATION_USER:-replicator}
+      POSTGRES_REPLICATION_PASSWORD: ${POSTGRES_REPLICATION_PASSWORD:?POSTGRES_REPLICATION_PASSWORD is required}
+    volumes:
+      # Data persistence
+      - postgres_data:/var/lib/postgresql/data
+
+      # Initialization scripts
+      - ./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro
+
+      # Custom configuration files
+      - ./config/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./config/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+
+      # TLS/SSL certificates
+      - ./config/certs/postgres:/var/lib/postgresql/certs:ro
+
+      # WAL archive for point-in-time recovery
+      - postgres_wal_archive:/var/lib/postgresql/wal_archive
+
+      # Logs directory
+      - postgres_logs:/var/log/postgresql
+
+      # Replication setup script
+      - ./config/postgres/scripts:/docker-entrypoint-initdb.d/99-replication:ro
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - hba_file=/etc/postgresql/pg_hba.conf
+    tmpfs:
+      - /tmp
+      - /run/postgresql
+    ports:
+      - "127.0.0.1:5432:5432"
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - |
+          pg_isready -U ${POSTGRES_USER:-sahool} && \
+          psql -U ${POSTGRES_USER:-sahool} -d ${POSTGRES_DB:-sahool} -tAc "SELECT 1" | grep -q 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 8G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    networks:
+      sahool-network:
+        aliases:
+          - postgres
+          - postgres-primary
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PostgreSQL Replica (Streaming Replication Standby)
+  # ═══════════════════════════════════════════════════════════════════════════
+  postgres-replica:
+    image: postgis/postgis:16-3.4
+    container_name: sahool-postgres-replica
+    hostname: postgres-replica
+    environment:
+      # Replica environment variables
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+
+      # Replication settings
+      PGUSER: ${POSTGRES_REPLICATION_USER:-replicator}
+      PGPASSWORD: ${POSTGRES_REPLICATION_PASSWORD:?POSTGRES_REPLICATION_PASSWORD is required}
+      POSTGRES_PRIMARY_HOST: postgres-primary
+      POSTGRES_PRIMARY_PORT: 5432
+      POSTGRES_REPLICATION_USER: ${POSTGRES_REPLICATION_USER:-replicator}
+      POSTGRES_REPLICATION_PASSWORD: ${POSTGRES_REPLICATION_PASSWORD:?POSTGRES_REPLICATION_PASSWORD is required}
+    volumes:
+      # Separate data volume for replica
+      - postgres_replica_data:/var/lib/postgresql/data
+
+      # Configuration files (replica-specific)
+      - ./config/postgres/postgresql-replica.conf:/etc/postgresql/postgresql-replica.conf:ro
+      - ./config/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./config/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+
+      # TLS/SSL certificates
+      - ./config/certs/postgres:/var/lib/postgresql/certs:ro
+
+      # Replica logs
+      - postgres_replica_logs:/var/log/postgresql
+
+      # Replica setup script
+      - ./config/postgres/scripts/setup-replica.sh:/docker-entrypoint-initdb.d/setup-replica.sh:ro
+    command:
+      - bash
+      - -c
+      - |
+        # Wait for primary to be ready
+        until pg_isready -h postgres-primary -U ${POSTGRES_USER:-sahool}; do
+          echo "Waiting for primary database..."
+          sleep 2
+        done
+
+        # Check if data directory is empty (first run)
+        if [ ! -f "/var/lib/postgresql/data/PG_VERSION" ]; then
+          echo "Initializing replica from primary..."
+
+          # Create .pgpass file for authentication
+          echo "postgres-primary:5432:*:${POSTGRES_REPLICATION_USER:-replicator}:${POSTGRES_REPLICATION_PASSWORD}" > ~/.pgpass
+          chmod 0600 ~/.pgpass
+
+          # Perform base backup from primary
+          pg_basebackup -h postgres-primary -p 5432 -U ${POSTGRES_REPLICATION_USER:-replicator} \
+            -D /var/lib/postgresql/data -Fp -Xs -P -R
+
+          # Create standby.signal file
+          touch /var/lib/postgresql/data/standby.signal
+
+          # Configure primary connection info
+          cat >> /var/lib/postgresql/data/postgresql.auto.conf <<EOF
+        primary_conninfo = 'host=postgres-primary port=5432 user=${POSTGRES_REPLICATION_USER:-replicator} password=${POSTGRES_REPLICATION_PASSWORD} application_name=postgres-replica'
+        primary_slot_name = 'replica_slot'
+        EOF
+
+          echo "Replica initialization complete"
+        fi
+
+        # Start PostgreSQL with replica configuration
+        exec postgres -c config_file=/etc/postgresql/postgresql-replica.conf -c hba_file=/etc/postgresql/pg_hba.conf
+    tmpfs:
+      - /tmp
+      - /run/postgresql
+    ports:
+      - "127.0.0.1:5433:5432"  # Different external port for replica
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - |
+          pg_isready -U ${POSTGRES_USER:-sahool} && \
+          psql -U ${POSTGRES_USER:-sahool} -d ${POSTGRES_DB:-sahool} -tAc "SELECT 1" | grep -q 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s  # Longer start period for replica initialization
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    networks:
+      sahool-network:
+        aliases:
+          - postgres-replica
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PgBouncer (Override to support read replicas)
+  # ═══════════════════════════════════════════════════════════════════════════
+  pgbouncer:
+    # Same configuration as base, pgbouncer.ini already configured for replica
+    volumes:
+      - ./infrastructure/core/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-replica:
+        condition: service_healthy
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Volumes
+# ═══════════════════════════════════════════════════════════════════════════════
+volumes:
+  # Primary database volumes
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${POSTGRES_DATA_PATH:-./data/postgres}
+
+  postgres_wal_archive:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${POSTGRES_WAL_PATH:-./data/postgres-wal}
+
+  postgres_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${POSTGRES_LOGS_PATH:-./logs/postgres}
+
+  # Replica database volumes
+  postgres_replica_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${POSTGRES_REPLICA_DATA_PATH:-./data/postgres-replica}
+
+  postgres_replica_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${POSTGRES_REPLICA_LOGS_PATH:-./logs/postgres-replica}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Networks
+# ═══════════════════════════════════════════════════════════════════════════════
+networks:
+  sahool-network:
+    external: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MONITORING COMMANDS
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Check replication status on primary:
+#   docker exec -it sahool-postgres-primary psql -U sahool -c "SELECT * FROM pg_stat_replication;"
+#
+# Check replication lag:
+#   docker exec -it sahool-postgres-primary psql -U sahool -c \
+#     "SELECT client_addr, state, sync_state,
+#      pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn) AS lag_bytes
+#      FROM pg_stat_replication;"
+#
+# Check replica status:
+#   docker exec -it sahool-postgres-replica psql -U sahool -c \
+#     "SELECT pg_is_in_recovery(), pg_last_wal_receive_lsn(), pg_last_wal_replay_lsn();"
+#
+# Promote replica to primary (in case of primary failure):
+#   docker exec -it sahool-postgres-replica pg_ctl promote
+#
+# ═══════════════════════════════════════════════════════════════════════════════

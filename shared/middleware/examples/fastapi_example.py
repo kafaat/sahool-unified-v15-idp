@@ -282,7 +282,6 @@ async def call_external_service(request: Request):
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-
 # Configure structured logging
 from observability.logging import get_logger
 

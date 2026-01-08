@@ -70,9 +70,9 @@ async def test_golden_dataset_structure(golden_test_cases):
     for idx, test_case in enumerate(golden_test_cases):
         # Check required fields
         assert "id" in test_case, f"Test case {idx} missing 'id'"
-        assert "input" in test_case or "prompt" in test_case.get(
-            "input", {}
-        ), f"Test case {idx} missing input"
+        assert "input" in test_case or "prompt" in test_case.get("input", {}), (
+            f"Test case {idx} missing input"
+        )
 
 
 @pytest.mark.asyncio
@@ -109,12 +109,10 @@ async def test_agent_response_quality(test_case):
     min_accuracy = test_case.get("evaluation_criteria", {}).get("min_similarity", 0.75)
     max_latency = test_case.get("evaluation_criteria", {}).get("max_latency_ms", 5000)
 
-    assert (
-        accuracy_score >= min_accuracy
-    ), f"Accuracy {accuracy_score} below threshold {min_accuracy}"
-    assert (
-        latency_ms <= max_latency
-    ), f"Latency {latency_ms}ms exceeds threshold {max_latency}ms"
+    assert accuracy_score >= min_accuracy, (
+        f"Accuracy {accuracy_score} below threshold {min_accuracy}"
+    )
+    assert latency_ms <= max_latency, f"Latency {latency_ms}ms exceeds threshold {max_latency}ms"
 
 
 @pytest.mark.asyncio
@@ -122,9 +120,7 @@ async def test_language_support(golden_test_cases):
     """Test that both Arabic and English are supported"""
     languages = set()
     for test_case in golden_test_cases:
-        lang = test_case.get("language") or test_case.get("input", {}).get(
-            "language", "en"
-        )
+        lang = test_case.get("language") or test_case.get("input", {}).get("language", "en")
         languages.add(lang)
 
     # Should have at least one language

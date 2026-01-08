@@ -113,9 +113,7 @@ class MqttClient:
                 if self._running:
                     await asyncio.sleep(self._reconnect_interval)
 
-    async def publish(
-        self, topic: str, payload: dict, qos: int = 1, retain: bool = False
-    ):
+    async def publish(self, topic: str, payload: dict, qos: int = 1, retain: bool = False):
         """Publish message to MQTT topic"""
         try:
             async with Client(
@@ -169,7 +167,5 @@ class MockMqttClient(MqttClient):
             )
         )
 
-    async def publish(
-        self, topic: str, payload: dict, qos: int = 1, retain: bool = False
-    ):
+    async def publish(self, topic: str, payload: dict, qos: int = 1, retain: bool = False):
         print(f"🧪 Mock publish to {topic}: {payload}")

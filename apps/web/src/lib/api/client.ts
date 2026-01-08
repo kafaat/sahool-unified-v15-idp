@@ -3,8 +3,10 @@
  * Unified API client for connecting frontend to backend services
  */
 
+import Cookies from 'js-cookie';
 import { sanitizers, validators, validationErrors } from '../validation';
 import { logger } from '../logger';
+import { getCsrfHeaders } from '../security/security';
 import type {
   ApiResponse,
   Field,
@@ -65,6 +67,7 @@ function delay(ms: number): Promise<void> {
 class SahoolApiClient {
   private baseUrl: string;
   private token: string | null = null;
+  private refreshPromise: Promise<boolean> | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
@@ -78,11 +81,151 @@ class SahoolApiClient {
     this.token = null;
   }
 
+  /**
+   * Attempt to refresh the access token using the refresh token from cookies
+   * Returns true if successful, false otherwise
+   */
+  private async attemptTokenRefresh(): Promise<boolean> {
+    // If there's already a refresh in progress, wait for it
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    // Start a new refresh
+    this.refreshPromise = (async () => {
+      try {
+        // Only attempt in browser environment
+        if (typeof window === 'undefined') {
+          return false;
+        }
+
+        const refreshToken = Cookies.get('refresh_token');
+
+        if (!refreshToken) {
+          logger.warn('No refresh token available');
+          return false;
+        }
+
+        logger.info('Attempting to refresh access token');
+
+        // Call the refresh endpoint
+        const response = await this.refreshToken(refreshToken);
+
+        if (response.success && response.data?.access_token) {
+          const newAccessToken = response.data.access_token;
+
+          // Update the stored token
+          Cookies.set('access_token', newAccessToken, {
+            expires: 7,
+            secure: true,
+            sameSite: 'strict'
+          });
+          this.setToken(newAccessToken);
+
+          logger.info('Successfully refreshed access token');
+          return true;
+        } else {
+          logger.warn('Failed to refresh token:', response.error);
+
+          // Clear invalid tokens
+          Cookies.remove('access_token');
+          Cookies.remove('refresh_token');
+          this.clearToken();
+
+          return false;
+        }
+      } catch (error) {
+        logger.error('Error refreshing token:', error);
+        return false;
+      } finally {
+        // Clear the refresh promise after completion
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
+  }
+
+  /**
+   * Redirect to login page
+   */
+  private redirectToLogin() {
+    if (typeof window !== 'undefined') {
+      logger.info('Redirecting to login page');
+      window.location.href = '/login';
+    }
+  }
+
+  /**
+   * Check if JWT token is expired
+   * Returns true if token is expired or will expire within 60 seconds
+   */
+  private isTokenExpired(token: string): boolean {
+    try {
+      // JWT format: header.payload.signature
+      const parts = token.split('.');
+      if (parts.length !== 3 || !parts[1]) {
+        return true;
+      }
+
+      // Decode payload (base64url)
+      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+
+      // Check expiration (exp is in seconds)
+      if (payload.exp) {
+        const expirationTime = payload.exp * 1000; // Convert to milliseconds
+        const currentTime = Date.now();
+        const bufferTime = 60 * 1000; // 60 seconds buffer
+
+        // Return true if token is expired or will expire within buffer time
+        return currentTime >= (expirationTime - bufferTime);
+      }
+
+      // If no exp claim, consider token invalid
+      return true;
+    } catch (error) {
+      logger.error('Error checking token expiration:', error);
+      return true;
+    }
+  }
+
+  /**
+   * Check token and refresh if necessary before making a request
+   * Returns true if token is valid or was successfully refreshed
+   */
+  private async ensureValidToken(): Promise<boolean> {
+    // No token check needed if no token is set
+    if (!this.token) {
+      return true;
+    }
+
+    // Check if token is expired
+    if (this.isTokenExpired(this.token)) {
+      logger.info('Token is expired or expiring soon, attempting refresh');
+      return await this.attemptTokenRefresh();
+    }
+
+    return true;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
     const { params, skipRetry = false, timeout = DEFAULT_TIMEOUT, ...fetchOptions } = options;
+
+    // Check and refresh token if needed (skip for auth endpoints)
+    if (endpoint !== '/api/v1/auth/refresh' && endpoint !== '/api/v1/auth/login') {
+      const tokenValid = await this.ensureValidToken();
+      if (!tokenValid) {
+        logger.warn('Unable to ensure valid token, redirecting to login');
+        this.redirectToLogin();
+        return {
+          success: false,
+          error: 'Session expired. Please login again.',
+        };
+      }
+    }
 
     // Build URL with query params
     let url = `${this.baseUrl}${endpoint}`;
@@ -101,6 +244,13 @@ class SahoolApiClient {
       (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`;
     }
 
+    // Add CSRF headers for state-changing requests
+    const method = (fetchOptions.method || 'GET').toUpperCase();
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      const csrfHeaders = getCsrfHeaders();
+      Object.assign(headers, csrfHeaders);
+    }
+
     // Retry logic
     let lastError: Error | null = null;
     const maxAttempts = skipRetry ? 1 : MAX_RETRY_ATTEMPTS;
@@ -115,6 +265,7 @@ class SahoolApiClient {
           ...fetchOptions,
           headers,
           signal: controller.signal,
+          credentials: 'include', // Ensure httpOnly cookies are sent with requests
         });
 
         clearTimeout(timeoutId);
@@ -138,7 +289,74 @@ class SahoolApiClient {
 
         // Handle HTTP errors
         if (!response.ok) {
-          // Don't retry client errors (4xx), only server errors (5xx) and network issues
+          // Handle 401 Unauthorized - try to refresh token
+          if (response.status === 401 && endpoint !== '/api/v1/auth/refresh' && endpoint !== '/api/v1/auth/login') {
+            logger.info('Received 401 response, attempting token refresh');
+
+            const refreshSuccess = await this.attemptTokenRefresh();
+
+            if (refreshSuccess) {
+              // Token refreshed successfully, retry the original request
+              logger.info('Token refreshed, retrying original request');
+
+              // Update authorization header with new token
+              if (this.token) {
+                (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`;
+              }
+
+              // Retry the request with the new token
+              const retryController = new AbortController();
+              const retryTimeoutId = setTimeout(() => retryController.abort(), timeout);
+
+              const retryResponse = await fetch(url, {
+                ...fetchOptions,
+                headers,
+                signal: retryController.signal,
+              });
+
+              clearTimeout(retryTimeoutId);
+
+              // Parse retry response
+              let retryData: any;
+              const retryContentType = retryResponse.headers.get('content-type');
+
+              if (retryContentType && retryContentType.includes('application/json')) {
+                try {
+                  retryData = await retryResponse.json();
+                } catch (parseError) {
+                  return {
+                    success: false,
+                    error: 'Invalid JSON response from server',
+                  };
+                }
+              } else {
+                retryData = await retryResponse.text();
+              }
+
+              if (!retryResponse.ok) {
+                return {
+                  success: false,
+                  error: retryData.error || retryData.message || `Request failed with status ${retryResponse.status}`,
+                };
+              }
+
+              // Successful retry response
+              return typeof retryData === 'object' && retryData !== null
+                ? retryData
+                : { success: true, data: retryData as T };
+            } else {
+              // Token refresh failed, redirect to login
+              logger.warn('Token refresh failed, redirecting to login');
+              this.redirectToLogin();
+
+              return {
+                success: false,
+                error: 'Session expired. Please login again.',
+              };
+            }
+          }
+
+          // Don't retry other client errors (4xx), only server errors (5xx) and network issues
           if (response.status >= 400 && response.status < 500) {
             return {
               success: false,
@@ -205,7 +423,7 @@ class SahoolApiClient {
       };
     }
 
-    return this.request<{ access_token: string; user: User }>('/api/v1/auth/login', {
+    return this.request<{ access_token: string; refresh_token?: string; user: User }>('/api/v1/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email: sanitizedEmail, password }),
       skipRetry: true, // Don't retry auth requests
@@ -353,11 +571,21 @@ class SahoolApiClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for image upload
 
+      // Build headers with auth and CSRF tokens
+      const uploadHeaders: Record<string, string> = this.token
+        ? { Authorization: `Bearer ${this.token}` }
+        : {};
+
+      // Add CSRF protection for file upload (POST request)
+      const csrfHeaders = getCsrfHeaders();
+      Object.assign(uploadHeaders, csrfHeaders);
+
       const response = await fetch(`${this.baseUrl}/api/v1/crop-health/analyze`, {
         method: 'POST',
-        headers: this.token ? { Authorization: `Bearer ${this.token}` } : {},
+        headers: uploadHeaders,
         body: formData,
         signal: controller.signal,
+        credentials: 'include', // Ensure httpOnly cookies are sent with requests
       });
 
       clearTimeout(timeoutId);
@@ -871,6 +1099,62 @@ class SahoolApiClient {
     return this.request<any[]>('/api/v1/disasters/alerts', {
       params: { region },
     });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Field Intelligence API
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getLivingFieldScore(fieldId: string) {
+    return this.request<any>(`/api/v1/fields/${fieldId}/intelligence/score`);
+  }
+
+  async getFieldZones(fieldId: string) {
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/zones`);
+  }
+
+  async getFieldIntelligenceAlerts(fieldId: string) {
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/alerts`, {
+      params: { status: 'active' },
+    });
+  }
+
+  async createTaskFromAlert(alertId: string, taskData: {
+    title: string;
+    titleAr: string;
+    description?: string;
+    descriptionAr?: string;
+    priority: 'urgent' | 'high' | 'medium' | 'low';
+    dueDate?: string;
+    assigneeId?: string;
+  }) {
+    return this.request<any>(`/api/v1/intelligence/alerts/${alertId}/create-task`, {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
+  }
+
+  async getBestDaysForActivity(activity: string, days: number = 14) {
+    return this.request<any[]>('/api/v1/intelligence/best-days', {
+      params: {
+        activity: activity.toLowerCase(),
+        days: String(Math.max(1, Math.min(days, 30))),
+      },
+    });
+  }
+
+  async validateTaskDate(date: string, activity: string) {
+    return this.request<any>('/api/v1/intelligence/validate-date', {
+      method: 'POST',
+      body: JSON.stringify({
+        date: new Date(date).toISOString(),
+        activity: activity.toLowerCase(),
+      }),
+    });
+  }
+
+  async getFieldRecommendations(fieldId: string) {
+    return this.request<any[]>(`/api/v1/fields/${fieldId}/intelligence/recommendations`);
   }
 }
 

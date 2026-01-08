@@ -20,12 +20,11 @@ try:
         Info,
         generate_latest,
     )
+
     PROMETHEUS_AVAILABLE = True
 except ImportError:
     PROMETHEUS_AVAILABLE = False
-    logging.warning(
-        "prometheus_client not installed. Install with: pip install prometheus-client"
-    )
+    logging.warning("prometheus_client not installed. Install with: pip install prometheus-client")
 
 from .performance_monitor import get_monitor
 
@@ -50,7 +49,7 @@ class PrometheusExporter:
         self,
         service_name: str = "sahool",
         namespace: str = "sahool",
-        registry: CollectorRegistry | None = None
+        registry: CollectorRegistry | None = None,
     ):
         """
         Initialize Prometheus exporter
@@ -82,20 +81,22 @@ class PrometheusExporter:
         self.service_info = Info(
             f"{self.namespace}_service",
             "SAHOOL service information - معلومات خدمة سهول",
-            registry=self.registry
+            registry=self.registry,
         )
-        self.service_info.info({
-            "service": self.service_name,
-            "version": "1.0.0",
-            "platform": "SAHOOL Agricultural Platform"
-        })
+        self.service_info.info(
+            {
+                "service": self.service_name,
+                "version": "1.0.0",
+                "platform": "SAHOOL Agricultural Platform",
+            }
+        )
 
         # HTTP Request Metrics - مقاييس طلبات HTTP
         self.http_requests_total = Counter(
             f"{self.namespace}_http_requests_total",
             "Total HTTP requests - إجمالي طلبات HTTP",
             ["service", "method", "endpoint", "status"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         self.http_request_duration_seconds = Histogram(
@@ -103,21 +104,21 @@ class PrometheusExporter:
             "HTTP request latency in seconds - زمن استجابة طلبات HTTP بالثواني",
             ["service", "method", "endpoint"],
             buckets=[0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0],
-            registry=self.registry
+            registry=self.registry,
         )
 
         self.http_requests_active = Gauge(
             f"{self.namespace}_http_requests_active",
             "Currently active HTTP requests - طلبات HTTP النشطة حالياً",
             ["service"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         self.http_errors_total = Counter(
             f"{self.namespace}_http_errors_total",
             "Total HTTP errors - إجمالي أخطاء HTTP",
             ["service", "status_category"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         # Database Metrics - مقاييس قاعدة البيانات
@@ -125,7 +126,7 @@ class PrometheusExporter:
             f"{self.namespace}_db_queries_total",
             "Total database queries - إجمالي استعلامات قاعدة البيانات",
             ["service", "query_type", "table"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         self.db_query_duration_seconds = Histogram(
@@ -133,14 +134,14 @@ class PrometheusExporter:
             "Database query latency in seconds - زمن استعلامات قاعدة البيانات بالثواني",
             ["service", "query_type", "table"],
             buckets=[0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5],
-            registry=self.registry
+            registry=self.registry,
         )
 
         self.db_query_errors_total = Counter(
             f"{self.namespace}_db_query_errors_total",
             "Total database query errors - إجمالي أخطاء استعلامات قاعدة البيانات",
             ["service", "query_type"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         # External API Metrics - مقاييس الخدمات الخارجية
@@ -148,7 +149,7 @@ class PrometheusExporter:
             f"{self.namespace}_external_api_calls_total",
             "Total external API calls - إجمالي استدعاءات الخدمات الخارجية",
             ["service", "target", "success"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         self.external_api_duration_seconds = Histogram(
@@ -156,7 +157,7 @@ class PrometheusExporter:
             "External API call latency - زمن استدعاءات الخدمات الخارجية",
             ["service", "target"],
             buckets=[0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0],
-            registry=self.registry
+            registry=self.registry,
         )
 
         # System Resource Metrics - مقاييس موارد النظام
@@ -164,14 +165,14 @@ class PrometheusExporter:
             f"{self.namespace}_system_memory_usage_ratio",
             "System memory usage ratio - نسبة استخدام ذاكرة النظام",
             ["service"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         self.system_cpu_usage_ratio = Gauge(
             f"{self.namespace}_system_cpu_usage_ratio",
             "System CPU usage ratio - نسبة استخدام معالج النظام",
             ["service"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         # Alert Metrics - مقاييس التنبيهات
@@ -179,14 +180,14 @@ class PrometheusExporter:
             f"{self.namespace}_alerts_total",
             "Total performance alerts - إجمالي تنبيهات الأداء",
             ["service", "alert_type", "severity"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         self.alerts_active = Gauge(
             f"{self.namespace}_alerts_active",
             "Currently active alerts - التنبيهات النشطة حالياً",
             ["service", "severity"],
-            registry=self.registry
+            registry=self.registry,
         )
 
         # Uptime - وقت التشغيل
@@ -194,16 +195,10 @@ class PrometheusExporter:
             f"{self.namespace}_uptime_seconds",
             "Service uptime in seconds - وقت تشغيل الخدمة بالثواني",
             ["service"],
-            registry=self.registry
+            registry=self.registry,
         )
 
-    def record_http_request(
-        self,
-        method: str,
-        endpoint: str,
-        status: int,
-        duration_seconds: float
-    ):
+    def record_http_request(self, method: str, endpoint: str, status: int, duration_seconds: float):
         """
         تسجيل طلب HTTP في بروميثيوس
         Record HTTP request in Prometheus
@@ -219,32 +214,22 @@ class PrometheusExporter:
 
         # Update Prometheus metrics
         self.http_requests_total.labels(
-            service=self.service_name,
-            method=method,
-            endpoint=endpoint,
-            status=str(status)
+            service=self.service_name, method=method, endpoint=endpoint, status=str(status)
         ).inc()
 
         self.http_request_duration_seconds.labels(
-            service=self.service_name,
-            method=method,
-            endpoint=endpoint
+            service=self.service_name, method=method, endpoint=endpoint
         ).observe(duration_seconds)
 
         # Track errors
         if status >= 400:
             status_category = "4xx" if status < 500 else "5xx"
             self.http_errors_total.labels(
-                service=self.service_name,
-                status_category=status_category
+                service=self.service_name, status_category=status_category
             ).inc()
 
     def record_db_query(
-        self,
-        query_type: str,
-        duration_seconds: float,
-        table: str = "unknown",
-        success: bool = True
+        self, query_type: str, duration_seconds: float, table: str = "unknown", success: bool = True
     ):
         """
         تسجيل استعلام قاعدة البيانات
@@ -261,29 +246,20 @@ class PrometheusExporter:
 
         # Update Prometheus metrics
         self.db_queries_total.labels(
-            service=self.service_name,
-            query_type=query_type,
-            table=table
+            service=self.service_name, query_type=query_type, table=table
         ).inc()
 
         self.db_query_duration_seconds.labels(
-            service=self.service_name,
-            query_type=query_type,
-            table=table
+            service=self.service_name, query_type=query_type, table=table
         ).observe(duration_seconds)
 
         if not success:
             self.db_query_errors_total.labels(
-                service=self.service_name,
-                query_type=query_type
+                service=self.service_name, query_type=query_type
             ).inc()
 
     def record_external_api_call(
-        self,
-        target: str,
-        duration_seconds: float,
-        success: bool,
-        endpoint: str | None = None
+        self, target: str, duration_seconds: float, success: bool, endpoint: str | None = None
     ):
         """
         تسجيل استدعاء خدمة خارجية
@@ -300,15 +276,12 @@ class PrometheusExporter:
 
         # Update Prometheus metrics
         self.external_api_calls_total.labels(
-            service=self.service_name,
-            target=target,
-            success=str(success)
+            service=self.service_name, target=target, success=str(success)
         ).inc()
 
-        self.external_api_duration_seconds.labels(
-            service=self.service_name,
-            target=target
-        ).observe(duration_seconds)
+        self.external_api_duration_seconds.labels(service=self.service_name, target=target).observe(
+            duration_seconds
+        )
 
     def update_system_metrics(self):
         """
@@ -327,16 +300,12 @@ class PrometheusExporter:
             # Memory
             if "memory" in system and "current_percent" in system["memory"]:
                 memory_ratio = system["memory"]["current_percent"] / 100.0
-                self.system_memory_usage_ratio.labels(
-                    service=self.service_name
-                ).set(memory_ratio)
+                self.system_memory_usage_ratio.labels(service=self.service_name).set(memory_ratio)
 
             # CPU
             if "cpu" in system and "current_percent" in system["cpu"]:
                 cpu_ratio = system["cpu"]["current_percent"] / 100.0
-                self.system_cpu_usage_ratio.labels(
-                    service=self.service_name
-                ).set(cpu_ratio)
+                self.system_cpu_usage_ratio.labels(service=self.service_name).set(cpu_ratio)
 
     def update_alert_metrics(self):
         """
@@ -349,22 +318,16 @@ class PrometheusExporter:
         warning_count = sum(1 for a in alerts if a.severity == "warning")
         critical_count = sum(1 for a in alerts if a.severity == "critical")
 
-        self.alerts_active.labels(
-            service=self.service_name,
-            severity="warning"
-        ).set(warning_count)
+        self.alerts_active.labels(service=self.service_name, severity="warning").set(warning_count)
 
-        self.alerts_active.labels(
-            service=self.service_name,
-            severity="critical"
-        ).set(critical_count)
+        self.alerts_active.labels(service=self.service_name, severity="critical").set(
+            critical_count
+        )
 
         # Increment total alerts counter
         for alert in alerts:
             self.alerts_total.labels(
-                service=self.service_name,
-                alert_type=alert.alert_type,
-                severity=alert.severity
+                service=self.service_name, alert_type=alert.alert_type, severity=alert.severity
             ).inc()
 
     def update_uptime(self):
@@ -398,7 +361,7 @@ class PrometheusExporter:
         Returns:
             Prometheus-formatted metrics as string
         """
-        return self.export_metrics().decode('utf-8')
+        return self.export_metrics().decode("utf-8")
 
 
 # Global exporter instance - النسخة العامة للمُصدّر
@@ -467,7 +430,7 @@ def setup_prometheus_endpoint(app, service_name: str = "sahool"):
             method=request.method,
             endpoint=request.url.path,
             status=response.status_code,
-            duration_seconds=duration
+            duration_seconds=duration,
         )
 
         return response
@@ -489,6 +452,7 @@ def track_db_operation(query_type: str, table: str = "unknown"):
         async def get_user(user_id: int):
             ...
     """
+
     def decorator(func):
         async def wrapper(*args, **kwargs):
             exporter = get_exporter()
@@ -506,6 +470,7 @@ def track_db_operation(query_type: str, table: str = "unknown"):
                 exporter.record_db_query(query_type, duration, table, success)
 
         return wrapper
+
     return decorator
 
 
@@ -523,6 +488,7 @@ def track_external_api(target: str, endpoint: str | None = None):
         async def get_weather(location: str):
             ...
     """
+
     def decorator(func):
         async def wrapper(*args, **kwargs):
             exporter = get_exporter()
@@ -540,4 +506,5 @@ def track_external_api(target: str, endpoint: str | None = None):
                 exporter.record_external_api_call(target, duration, success, endpoint)
 
         return wrapper
+
     return decorator

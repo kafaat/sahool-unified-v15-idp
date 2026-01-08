@@ -66,9 +66,7 @@ class NotificationPayload(BaseModel):
     data: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية")
 
     # Metadata
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="وقت الإنشاء"
-    )
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="وقت الإنشاء")
     expires_at: datetime | None = Field(None, description="وقت الانتهاء")
 
     class Config:
@@ -342,10 +340,7 @@ class NotificationTemplate:
         }
 
         # Get weather subtype if provided
-        if (
-            notification_type == NotificationType.WEATHER_ALERT
-            and "weather_type" in kwargs
-        ):
+        if notification_type == NotificationType.WEATHER_ALERT and "weather_type" in kwargs:
             weather_type = kwargs["weather_type"]
             weather_templates = {
                 "frost": NotificationTemplate.WEATHER_FROST,
@@ -354,9 +349,7 @@ class NotificationTemplate:
                 "flood": NotificationTemplate.WEATHER_FLOOD,
                 "drought": NotificationTemplate.WEATHER_DROUGHT,
             }
-            template = weather_templates.get(
-                weather_type, NotificationTemplate.WEATHER_STORM
-            )
+            template = weather_templates.get(weather_type, NotificationTemplate.WEATHER_STORM)
         else:
             template = template_map.get(notification_type, NotificationTemplate.SYSTEM)
 
@@ -467,11 +460,7 @@ def create_harvest_notification(
 
     return NotificationPayload(
         notification_type=NotificationType.HARVEST_REMINDER,
-        priority=(
-            NotificationPriority.HIGH
-            if days_until <= 2
-            else NotificationPriority.MEDIUM
-        ),
+        priority=(NotificationPriority.HIGH if days_until <= 2 else NotificationPriority.MEDIUM),
         title=en_template["title"],
         title_ar=ar_template["title"],
         body=en_template["body"],
@@ -520,11 +509,7 @@ def create_satellite_notification(
         ndvi_value=f"{ndvi_value:.2f}",
     )
 
-    priority = (
-        NotificationPriority.HIGH
-        if change_percentage < -10
-        else NotificationPriority.MEDIUM
-    )
+    priority = NotificationPriority.HIGH if change_percentage < -10 else NotificationPriority.MEDIUM
 
     return NotificationPayload(
         notification_type=NotificationType.SATELLITE_READY,

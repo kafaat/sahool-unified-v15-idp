@@ -234,9 +234,7 @@ class AlertEventSubscriber:
             data = json.loads(msg.data.decode())
             topic = msg.subject
 
-            logger.debug(
-                f"Received message on {topic}: {data.get('event_id', 'unknown')}"
-            )
+            logger.debug(f"Received message on {topic}: {data.get('event_id', 'unknown')}")
 
             if topic in self._handlers:
                 await self._handlers[topic](data)

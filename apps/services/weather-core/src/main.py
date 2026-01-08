@@ -10,14 +10,40 @@ Multi-Provider Support:
 """
 
 import os
+import sys
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from .events import get_publisher
 from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvider
 from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
+
+# Import shared logging configuration
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.logging_config import RequestLoggingMiddleware, get_logger, setup_logging
+
+# Setup structured logging
+setup_logging(service_name="weather-core")
+logger = get_logger(__name__)
+
+# Import authentication dependencies
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    User = None
+
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
+
 
 # Configuration
 USE_MOCK_WEATHER = os.getenv("USE_MOCK_WEATHER", "false").lower() == "true"
@@ -26,42 +52,47 @@ USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🌤️ Starting Weather Core Service...")
+    logger.info("weather_core_starting", port=8108, version="15.3.3")
 
     # Initialize weather provider
     if USE_MOCK_WEATHER:
         app.state.weather_provider = MockWeatherProvider()
         app.state.multi_provider = None
-        print("📋 Using mock weather provider")
+        logger.info("using_mock_weather_provider")
     elif USE_MULTI_PROVIDER:
         app.state.multi_provider = MultiWeatherService()
         app.state.weather_provider = OpenMeteoProvider()  # Fallback
         providers = app.state.multi_provider.get_available_providers()
         provider_names = [p["name"] for p in providers if p["configured"]]
-        print(f"🌐 Using multi-provider weather service: {', '.join(provider_names)}")
+        logger.info(
+            "using_multi_provider_weather_service",
+            providers=provider_names,
+            provider_count=len(provider_names),
+        )
     else:
         app.state.weather_provider = OpenMeteoProvider()
         app.state.multi_provider = None
-        print("🌐 Using Open-Meteo weather provider")
+        logger.info("using_open_meteo_provider")
 
     # Initialize publisher
     try:
         publisher = await get_publisher()
         app.state.publisher = publisher
-        print("✅ Weather Core ready on port 8108")
+        logger.info("weather_core_ready", port=8108, nats_connected=True)
     except Exception as e:
-        print(f"⚠️ NATS connection failed: {e}")
+        logger.warning("nats_connection_failed", error=str(e), nats_connected=False)
         app.state.publisher = None
 
     yield
 
     # Cleanup
+    logger.info("weather_core_shutting_down")
     if app.state.multi_provider:
         await app.state.multi_provider.close()
     await app.state.weather_provider.close()
     if app.state.publisher:
         await app.state.publisher.close()
-    print("👋 Weather Core shutting down")
+    logger.info("weather_core_shutdown_complete")
 
 
 app = FastAPI(
@@ -70,6 +101,13 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
+# Add request logging middleware
+app.add_middleware(RequestLoggingMiddleware, service_name="weather-core")
 
 
 # ============== Health Check ==============
@@ -116,7 +154,9 @@ class IrrigationRequest(BaseModel):
 
 
 @app.post("/weather/assess")
-async def assess(req: WeatherAssessRequest):
+async def assess(
+    req: WeatherAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """
     Assess weather conditions and generate alerts
 
@@ -156,7 +196,9 @@ async def assess(req: WeatherAssessRequest):
 
 
 @app.post("/weather/current")
-async def get_current_weather(req: LocationRequest):
+async def get_current_weather(
+    req: LocationRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """
     Get current weather from API provider
 
@@ -234,13 +276,15 @@ async def get_current_weather(req: LocationRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Weather API error: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
 
 @app.post("/weather/forecast")
-async def get_forecast(req: LocationRequest, days: int = 7):
+async def get_forecast(
+    req: LocationRequest,
+    days: int = 7,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
     """
     Get weather forecast
 
@@ -300,7 +344,9 @@ async def get_forecast(req: LocationRequest, days: int = 7):
 
 
 @app.post("/weather/irrigation")
-async def irrigation_adjustment(req: IrrigationRequest):
+async def irrigation_adjustment(
+    req: IrrigationRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """
     Calculate irrigation adjustment based on weather
 
@@ -369,9 +415,7 @@ async def get_providers():
     else:
         return {
             "multi_provider_enabled": False,
-            "providers": [
-                {"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}
-            ],
+            "providers": [{"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}],
             "total": 1,
             "configured": 1,
         }

@@ -399,10 +399,7 @@ class A2AClient:
 
                     message_dict = json.loads(message_data)
 
-                    if (
-                        message_dict.get("message_type")
-                        == MessageType.TASK_RESULT.value
-                    ):
+                    if message_dict.get("message_type") == MessageType.TASK_RESULT.value:
                         result = TaskResultMessage(**message_dict)
                         yield result
 
@@ -485,9 +482,7 @@ class A2AClient:
 
         # Filter out exceptions
         # تصفية الاستثناءات
-        successful_results = [
-            result for result in results if isinstance(result, TaskResultMessage)
-        ]
+        successful_results = [result for result in results if isinstance(result, TaskResultMessage)]
 
         logger.info(
             "batch_tasks_completed",

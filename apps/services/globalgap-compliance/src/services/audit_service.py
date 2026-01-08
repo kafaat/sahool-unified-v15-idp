@@ -58,15 +58,9 @@ class AuditService:
         critical_findings = sum(
             1 for nc in non_conformities if nc.severity == SeverityLevel.CRITICAL
         )
-        major_findings = sum(
-            1 for nc in non_conformities if nc.severity == SeverityLevel.MAJOR
-        )
-        minor_findings = sum(
-            1 for nc in non_conformities if nc.severity == SeverityLevel.MINOR
-        )
-        observations = sum(
-            1 for nc in non_conformities if nc.severity == SeverityLevel.OBSERVATION
-        )
+        major_findings = sum(1 for nc in non_conformities if nc.severity == SeverityLevel.MAJOR)
+        minor_findings = sum(1 for nc in non_conformities if nc.severity == SeverityLevel.MINOR)
+        observations = sum(1 for nc in non_conformities if nc.severity == SeverityLevel.OBSERVATION)
 
         # Determine audit status
         # تحديد حالة التدقيق
@@ -117,9 +111,7 @@ class AuditService:
             recommendations=recommendations,
             follow_up_required=(audit_status != "passed"),
             follow_up_deadline=(
-                datetime.utcnow() + timedelta(days=90)
-                if audit_status != "passed"
-                else None
+                datetime.utcnow() + timedelta(days=90) if audit_status != "passed" else None
             ),
         )
 
@@ -209,8 +201,7 @@ class AuditService:
         )
         if record_keeping_issues > 2:
             recommendations.append(
-                "تحسين نظام حفظ السجلات والوثائق - "
-                "Improve record keeping and documentation system"
+                "تحسين نظام حفظ السجلات والوثائق - Improve record keeping and documentation system"
             )
 
         # General recommendations
@@ -221,8 +212,7 @@ class AuditService:
                 "Train staff on GlobalGAP IFA standard requirements"
             )
             recommendations.append(
-                "إجراء تدقيق داخلي منتظم كل 6 أشهر - "
-                "Conduct regular internal audits every 6 months"
+                "إجراء تدقيق داخلي منتظم كل 6 أشهر - Conduct regular internal audits every 6 months"
             )
 
         return recommendations
@@ -257,7 +247,7 @@ class AuditService:
 - نقاط إلزامية ثانوية غير متوافقة: {compliance_record.minor_must_fails}
 - إجمالي النتائج: {total_findings}
 
-التوصية: {'يتطلب إجراءات تصحيحية فورية' if audit_status != 'passed' else 'الحفاظ على مستوى الامتثال الحالي'}
+التوصية: {"يتطلب إجراءات تصحيحية فورية" if audit_status != "passed" else "الحفاظ على مستوى الامتثال الحالي"}
 """
         return summary.strip()
 
@@ -287,7 +277,7 @@ Non-Conformities:
 - Minor Must Failures: {compliance_record.minor_must_fails}
 - Total Findings: {total_findings}
 
-Recommendation: {'Immediate corrective actions required' if audit_status != 'passed' else 'Maintain current compliance level'}
+Recommendation: {"Immediate corrective actions required" if audit_status != "passed" else "Maintain current compliance level"}
 """
         return summary.strip()
 

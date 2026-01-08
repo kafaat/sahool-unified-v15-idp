@@ -2,8 +2,8 @@
 Weather Tool
 أداة الطقس
 
-Tool for calling the weather-core service.
-أداة لاستدعاء خدمة الطقس الأساسية.
+Tool for calling the weather-service.
+أداة لاستدعاء خدمة الطقس.
 """
 
 from typing import Any
@@ -18,8 +18,8 @@ logger = structlog.get_logger()
 
 class WeatherTool:
     """
-    Tool to interact with weather-core service
-    أداة للتفاعل مع خدمة الطقس الأساسية
+    Tool to interact with weather-service
+    أداة للتفاعل مع خدمة الطقس
     """
 
     def __init__(self):
@@ -54,9 +54,7 @@ class WeatherTool:
                 response.raise_for_status()
 
                 result = response.json()
-                logger.info(
-                    "current_weather_retrieved", latitude=latitude, longitude=longitude
-                )
+                logger.info("current_weather_retrieved", latitude=latitude, longitude=longitude)
                 return result
 
         except httpx.HTTPError as e:
@@ -194,9 +192,7 @@ class WeatherTool:
                 if date:
                     params["date"] = date
 
-                response = await client.get(
-                    f"{self.base_url}/api/v1/weather/et0", params=params
-                )
+                response = await client.get(f"{self.base_url}/api/v1/weather/et0", params=params)
                 response.raise_for_status()
 
                 result = response.json()

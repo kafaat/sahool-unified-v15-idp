@@ -107,9 +107,7 @@ class DLQStats(BaseModel):
 class ReplayRequest(BaseModel):
     """Request to replay message(s)."""
 
-    message_seqs: list[int] = Field(
-        ..., description="Message sequence numbers to replay"
-    )
+    message_seqs: list[int] = Field(..., description="Message sequence numbers to replay")
     delete_after_replay: bool = Field(
         default=True, description="Delete from DLQ after successful replay"
     )
@@ -126,12 +124,8 @@ class ReplayResponse(BaseModel):
 class ArchiveRequest(BaseModel):
     """Request to archive old messages."""
 
-    older_than_days: int = Field(
-        ..., ge=1, description="Archive messages older than N days"
-    )
-    delete_after_archive: bool = Field(
-        default=False, description="Delete after archiving"
-    )
+    older_than_days: int = Field(..., ge=1, description="Archive messages older than N days")
+    delete_after_archive: bool = Field(default=False, description="Delete after archiving")
 
 
 class ArchiveResponse(BaseModel):
@@ -244,10 +238,7 @@ class DLQManager:
                     metadata = DLQMessageMetadata(**data.get("metadata", {}))
 
                     # Apply filters
-                    if (
-                        subject_filter
-                        and subject_filter not in metadata.original_subject
-                    ):
+                    if subject_filter and subject_filter not in metadata.original_subject:
                         continue
                     if error_type_filter and metadata.error_type != error_type_filter:
                         continue
@@ -290,9 +281,7 @@ class DLQManager:
             # Calculate oldest message age
             oldest_age = None
             if stream_info.state.first_ts:
-                oldest_age = int(
-                    (datetime.utcnow() - stream_info.state.first_ts).total_seconds()
-                )
+                oldest_age = int((datetime.utcnow() - stream_info.state.first_ts).total_seconds())
 
             # Get aggregated stats (simplified - would need to scan messages)
             stats = DLQStats(
@@ -302,8 +291,7 @@ class DLQManager:
                 oldest_message_age_seconds=oldest_age,
                 consumers=stream_info.state.consumer_count,
                 subjects=stream_info.config.subjects,
-                alert_triggered=stream_info.state.messages
-                > self.config.alert_threshold,
+                alert_triggered=stream_info.state.messages > self.config.alert_threshold,
                 alert_threshold=self.config.alert_threshold,
             )
 

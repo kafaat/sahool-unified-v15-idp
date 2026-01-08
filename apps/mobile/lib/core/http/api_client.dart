@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import '../config/config.dart';
 import '../config/env_config.dart';
 import '../security/security_config.dart';
 import '../security/certificate_pinning_service.dart';
@@ -11,12 +10,13 @@ import '../utils/app_logger.dart';
 import 'rate_limiter.dart';
 import 'request_signing_interceptor.dart';
 import 'security_headers_interceptor.dart';
+import 'retry_interceptor.dart';
 
 /// SAHOOL API Client with offline handling and certificate pinning
 class ApiClient {
   late final Dio _dio;
   String? _authToken;
-  String _tenantId = AppConfig.defaultTenantId;
+  String _tenantId = EnvConfig.defaultTenantId;
   CertificatePinningService? _certificatePinningService;
   late final RateLimiter _rateLimiter;
 
@@ -37,8 +37,8 @@ class ApiClient {
     _rateLimiter = rateLimiter ?? RateLimiter();
 
     _dio = Dio(BaseOptions(
-      baseUrl: baseUrl ?? AppConfig.apiBaseUrl,
-      connectTimeout: const Duration(seconds: 10),
+      baseUrl: baseUrl ?? EnvConfig.apiBaseUrl,
+      connectTimeout: EnvConfig.connectTimeout,
       receiveTimeout: config.requestTimeout,
       headers: {
         'Content-Type': 'application/json',
@@ -81,6 +81,13 @@ class ApiClient {
       rateLimiter: _rateLimiter,
       queueExceededRequests: true,
     ));
+
+    // Add retry interceptor for automatic retry on network errors
+    _dio.interceptors.add(RetryInterceptor(
+      maxRetries: 3,
+      initialDelay: const Duration(seconds: 1),
+    ));
+
     _dio.interceptors.add(_AuthInterceptor(this));
 
     // Add request signing interceptor after auth

@@ -69,6 +69,14 @@ spec:
             - $(REDIS_PASSWORD)
             - --appendonly
             - "yes"
+            - --maxmemory
+            - "{{ .Values.redis.master.maxmemory | default "768mb" }}"
+            - --maxmemory-policy
+            - "{{ .Values.redis.master.evictionPolicy | default "allkeys-lru" }}"
+            - --tcp-keepalive
+            - "60"
+            - --timeout
+            - "300"
           env:
             - name: REDIS_PASSWORD
               valueFrom:
@@ -80,6 +88,10 @@ spec:
             - redis-server
             - --appendonly
             - "yes"
+            - --maxmemory
+            - "{{ .Values.redis.master.maxmemory | default "768mb" }}"
+            - --maxmemory-policy
+            - "{{ .Values.redis.master.evictionPolicy | default "allkeys-lru" }}"
           {{- end }}
           volumeMounts:
             - name: data

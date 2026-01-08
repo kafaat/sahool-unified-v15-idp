@@ -233,9 +233,7 @@ class WeatherForecastService:
         # OpenWeatherMap
         owm_config = self.config.providers.get("openweathermap")
         if owm_config and owm_config.enabled and owm_config.api_key:
-            self.providers["openweathermap"] = OpenWeatherMapProvider(
-                owm_config.api_key
-            )
+            self.providers["openweathermap"] = OpenWeatherMapProvider(owm_config.api_key)
 
         # WeatherAPI
         wa_config = self.config.providers.get("weatherapi")
@@ -318,9 +316,7 @@ class WeatherForecastService:
                     temp_min_c=min(temps),
                     precipitation_mm=sum(precips),
                     precipitation_probability_pct=int((items[0].get("pop", 0) or 0) * 100),
-                    wind_speed_max_kmh=max(
-                        i["wind"]["speed"] * 3.6 for i in items
-                    ),
+                    wind_speed_max_kmh=max(i["wind"]["speed"] * 3.6 for i in items),
                     uv_index_max=0,
                     condition=condition,
                     condition_ar=self._translate_condition(condition),
@@ -364,7 +360,9 @@ class WeatherForecastService:
 
         return forecasts
 
-    def aggregate_forecasts(self, sources: list[tuple[str, list[DailyForecast]]]) -> list[DailyForecast]:
+    def aggregate_forecasts(
+        self, sources: list[tuple[str, list[DailyForecast]]]
+    ) -> list[DailyForecast]:
         """
         Aggregate forecasts from multiple sources
         تجميع التوقعات من مصادر متعددة
@@ -406,11 +404,14 @@ class WeatherForecastService:
                     date=date_str,
                     temp_max_c=sum(f.temp_max_c for f in day_forecasts) / len(day_forecasts),
                     temp_min_c=sum(f.temp_min_c for f in day_forecasts) / len(day_forecasts),
-                    precipitation_mm=sum(f.precipitation_mm for f in day_forecasts) / len(day_forecasts),
+                    precipitation_mm=sum(f.precipitation_mm for f in day_forecasts)
+                    / len(day_forecasts),
                     precipitation_probability_pct=sum(
                         f.precipitation_probability_pct for f in day_forecasts
-                    ) / len(day_forecasts),
-                    wind_speed_max_kmh=sum(f.wind_speed_max_kmh for f in day_forecasts) / len(day_forecasts),
+                    )
+                    / len(day_forecasts),
+                    wind_speed_max_kmh=sum(f.wind_speed_max_kmh for f in day_forecasts)
+                    / len(day_forecasts),
                     uv_index_max=sum(f.uv_index_max for f in day_forecasts) / len(day_forecasts),
                     condition=day_forecasts[0].condition,  # Use first provider's condition
                     condition_ar=day_forecasts[0].condition_ar,
@@ -822,9 +823,7 @@ def calculate_gdd(
     return max(0, gdd)  # GDD cannot be negative
 
 
-def calculate_chill_hours(
-    hourly_temps: list[float], threshold: float | None = None
-) -> float:
+def calculate_chill_hours(hourly_temps: list[float], threshold: float | None = None) -> float:
     """
     Calculate chill hours
     حساب ساعات البرودة
@@ -847,9 +846,7 @@ def calculate_chill_hours(
     return float(chill_hours)
 
 
-def calculate_evapotranspiration(
-    forecast: DailyForecast, method: str = "penman_monteith"
-) -> float:
+def calculate_evapotranspiration(forecast: DailyForecast, method: str = "penman_monteith") -> float:
     """
     Calculate reference evapotranspiration (ET0)
     حساب التبخر والنتح المرجعي
@@ -909,9 +906,7 @@ def calculate_agricultural_indices(
 
     # Growing Degree Days
     # أيام درجة النمو
-    indices.gdd = calculate_gdd(
-        daily_forecast.temp_min_c, daily_forecast.temp_max_c
-    )
+    indices.gdd = calculate_gdd(daily_forecast.temp_min_c, daily_forecast.temp_max_c)
 
     # Chill hours (if hourly data available)
     # ساعات البرودة (إذا توفرت البيانات الساعية)
@@ -933,9 +928,7 @@ def calculate_agricultural_indices(
     # ساعات الإجهاد الحراري
     if daily_forecast.temp_max_c >= 35:
         if hourly_forecast:
-            indices.heat_stress_hours = sum(
-                1 for h in hourly_forecast if h.temperature_c >= 35
-            )
+            indices.heat_stress_hours = sum(1 for h in hourly_forecast if h.temperature_c >= 35)
         else:
             # Rough estimate based on max temp
             # تقدير تقريبي بناءً على الحرارة القصوى
@@ -946,9 +939,7 @@ def calculate_agricultural_indices(
 
     # Moisture deficit (ET0 - Precipitation)
     # عجز الرطوبة
-    indices.moisture_deficit_mm = max(
-        0, indices.eto - daily_forecast.precipitation_mm
-    )
+    indices.moisture_deficit_mm = max(0, indices.eto - daily_forecast.precipitation_mm)
 
     return indices
 

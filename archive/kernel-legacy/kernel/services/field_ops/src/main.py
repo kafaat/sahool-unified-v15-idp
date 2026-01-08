@@ -33,9 +33,7 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10
-            )
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Database connected")
         except Exception as e:
@@ -186,9 +184,7 @@ async def create_field(field: FieldCreate):
 
             await app.state.nc.publish(
                 "sahool.fields.created",
-                json.dumps(
-                    {"field_id": field_id, "tenant_id": field.tenant_id}
-                ).encode(),
+                json.dumps({"field_id": field_id, "tenant_id": field.tenant_id}).encode(),
             )
         except Exception:
             pass

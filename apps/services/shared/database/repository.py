@@ -193,10 +193,7 @@ class BaseRepository(Generic[ModelType]):
 
         from datetime import datetime
 
-        return (
-            self.update(id, {"is_deleted": True, "deleted_at": datetime.utcnow()})
-            is not None
-        )
+        return self.update(id, {"is_deleted": True, "deleted_at": datetime.utcnow()}) is not None
 
     def get_active(
         self,

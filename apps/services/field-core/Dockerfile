@@ -27,7 +27,7 @@ COPY packages/field-shared ./packages/field-shared
 
 # Build the shared package
 WORKDIR /app/packages/field-shared
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 RUN npm run build
 
 # Return to app directory
@@ -35,7 +35,7 @@ WORKDIR /app
 
 # Install dependencies first (better caching) with retry for network resilience
 COPY apps/services/field-core/package*.json ./
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and generate client
 COPY apps/services/field-core/prisma ./prisma
@@ -74,7 +74,7 @@ COPY --from=builder /app/packages ./packages
 
 # Copy package files and install production dependencies
 COPY --from=builder /app/package*.json ./
-RUN npm install --omit=dev --silent --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install --omit=dev --silent --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and regenerate client for production environment
 # Add retry logic for network resilience

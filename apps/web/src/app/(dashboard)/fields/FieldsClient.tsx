@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { FieldsList } from '@/features/fields';
 import { FieldForm } from '@/features/fields/components/FieldForm';
 import type { FieldFormData } from '@/features/fields/types';
@@ -17,6 +18,7 @@ import { logger } from '@/lib/logger';
 
 export default function FieldsClient() {
   const router = useRouter();
+  const t = useTranslations('fields');
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleFieldClick = (fieldId: string) => {
@@ -59,7 +61,7 @@ export default function FieldsClient() {
 
       // For now, simulate successful creation
       logger.log('Field creation data:', data);
-      alert('تم إنشاء الحقل بنجاح | Field created successfully (mock)');
+      alert(t('createSuccess'));
       setShowCreateModal(false);
     } catch (error) {
       ErrorTracking.captureError(
@@ -67,7 +69,7 @@ export default function FieldsClient() {
         undefined,
         { data }
       );
-      alert('فشل في إنشاء الحقل | Failed to create field');
+      alert(t('createFailed'));
     }
   };
 
@@ -77,15 +79,15 @@ export default function FieldsClient() {
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">الحقول</h1>
-            <p className="text-gray-600">Fields Management</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('title')}</h1>
+            <p className="text-gray-600">{t('management')}</p>
           </div>
           <button
             onClick={handleCreateClick}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
           >
             <Plus className="w-5 h-5" />
-            <span className="font-medium">إضافة حقل جديد</span>
+            <span className="font-medium">{t('addNewField')}</span>
           </button>
         </div>
       </div>
@@ -100,8 +102,8 @@ export default function FieldsClient() {
       <Modal
         isOpen={showCreateModal}
         onClose={handleCloseModal}
-        titleAr="إضافة حقل جديد"
-        title="Create New Field"
+        titleAr={t('addNewField')}
+        title={t('createNewField')}
       >
         <FieldForm
           onSubmit={handleSubmit}

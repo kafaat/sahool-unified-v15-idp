@@ -8,8 +8,20 @@ Available middlewares:
 - Request Size: Payload size validation
 - Tenant Context: Multi-tenancy isolation
 - Request Logging: Structured JSON logging with correlation ID tracking
+- API Versioning: URL-based API versioning (/api/v1/, /api/v2/, etc.)
+- Security Headers: Essential HTTP security headers
 """
 
+from .api_versioning import (
+    APIVersion,
+    APIVersionMiddleware,
+    VersionedRouter,
+    create_versioned_routers,
+    get_api_version,
+    get_version_info,
+    require_version,
+    version_router,
+)
 from .cors import get_cors_config, get_cors_origins, setup_cors
 from .rate_limit import (
     RateLimitConfig,
@@ -31,6 +43,11 @@ from .request_size import (
     RequestSizeLimiter,
     configure_size_limits,
     request_size_middleware,
+)
+from .security_headers import (
+    SecurityHeadersMiddleware,
+    get_security_headers_config,
+    setup_security_headers,
 )
 from .tenant_context import TenantContextMiddleware
 
@@ -59,4 +76,17 @@ __all__ = [
     "RequestLoggingMiddleware",
     "get_correlation_id",
     "get_request_context",
+    # API Versioning
+    "APIVersion",
+    "APIVersionMiddleware",
+    "VersionedRouter",
+    "create_versioned_routers",
+    "get_api_version",
+    "get_version_info",
+    "require_version",
+    "version_router",
+    # Security Headers
+    "setup_security_headers",
+    "SecurityHeadersMiddleware",
+    "get_security_headers_config",
 ]

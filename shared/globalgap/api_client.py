@@ -94,10 +94,7 @@ class CertificateInfo:
             True if certificate is valid and not expired
         """
         now = datetime.now()
-        return (
-            self.status == CertificateStatus.VALID
-            and self.valid_from <= now <= self.valid_to
-        )
+        return self.status == CertificateStatus.VALID and self.valid_from <= now <= self.valid_to
 
     def days_until_expiry(self) -> int:
         """
@@ -442,11 +439,7 @@ class GlobalGAPClient:
 
         # Check if it's 13 digits and starts with 4
         # التحقق من أنه 13 رقماً ويبدأ بـ 4
-        if (
-            not clean_ggn.isdigit()
-            or len(clean_ggn) != 13
-            or not clean_ggn.startswith("4")
-        ):
+        if not clean_ggn.isdigit() or len(clean_ggn) != 13 or not clean_ggn.startswith("4"):
             raise InvalidGGN(ggn)
 
     @retry(
@@ -454,9 +447,7 @@ class GlobalGAPClient:
         wait=wait_exponential(multiplier=1, min=2, max=10),
         retry=retry_if_exception_type(httpx.HTTPStatusError),
     )
-    async def _make_request(
-        self, method: str, endpoint: str, **kwargs
-    ) -> dict[str, Any]:
+    async def _make_request(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
         """
         Make HTTP request with retry logic
         إجراء طلب HTTP مع منطق إعادة المحاولة
@@ -484,9 +475,7 @@ class GlobalGAPClient:
                 # معالجة تحديد المعدل
                 if response.status_code == 429:
                     retry_after = response.headers.get("Retry-After")
-                    raise RateLimitExceeded(
-                        retry_after=int(retry_after) if retry_after else None
-                    )
+                    raise RateLimitExceeded(retry_after=int(retry_after) if retry_after else None)
 
                 # Handle authentication errors
                 # معالجة أخطاء المصادقة
@@ -823,9 +812,7 @@ class GlobalGAPClient:
                 message_ar=f"فشل تحليل بيانات المنتج: {str(e)}",
             )
 
-    async def batch_verify_certificates(
-        self, ggns: list[str]
-    ) -> dict[str, CertificateInfo]:
+    async def batch_verify_certificates(self, ggns: list[str]) -> dict[str, CertificateInfo]:
         """
         Verify multiple certificates concurrently
         التحقق من شهادات متعددة بشكل متزامن

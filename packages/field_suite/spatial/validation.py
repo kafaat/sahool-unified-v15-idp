@@ -58,9 +58,7 @@ class GeometryValidationReport:
     def to_dict(self) -> dict[str, Any]:
         return {
             "started_at": self.started_at.isoformat(),
-            "completed_at": (
-                self.completed_at.isoformat() if self.completed_at else None
-            ),
+            "completed_at": (self.completed_at.isoformat() if self.completed_at else None),
             "fields": {
                 "checked": self.fields_checked,
                 "invalid": self.fields_invalid,
@@ -179,9 +177,7 @@ def _validate_table(
     """Validate and fix geometries in a single table."""
 
     # Count total with geometry
-    count_result = db.execute(
-        text(f"SELECT COUNT(*) FROM {table} WHERE geom IS NOT NULL;")
-    )
+    count_result = db.execute(text(f"SELECT COUNT(*) FROM {table} WHERE geom IS NOT NULL;"))
     setattr(report, checked_attr, count_result.scalar() or 0)
 
     # Count invalid
@@ -201,9 +197,7 @@ def _validate_table(
         return
 
     if dry_run:
-        logger.info(
-            f"[DRY RUN] Would fix {invalid_count} invalid geometries in {table}"
-        )
+        logger.info(f"[DRY RUN] Would fix {invalid_count} invalid geometries in {table}")
         return
 
     # Fix invalid geometries

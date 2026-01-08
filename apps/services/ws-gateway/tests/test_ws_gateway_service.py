@@ -53,19 +53,39 @@ class TestWebSocketConnection:
 
     @patch("src.main.validate_jwt_token")
     def test_websocket_connection_success(self, mock_validate, client):
-        """Test successful WebSocket connection"""
+        """Test successful WebSocket connection (query param - deprecated)"""
         mock_validate.return_value = AsyncMock(
             return_value={"sub": "user_123", "tenant_id": "tenant_123"}
         )
 
-        with client.websocket_connect(
-            "/ws?tenant_id=tenant_123&token=valid_token"
-        ) as websocket:
+        with client.websocket_connect("/ws?tenant_id=tenant_123&token=valid_token") as websocket:
             data = websocket.receive_json()
 
             assert data["type"] == "connected"
             assert "connection_id" in data
             assert data["tenant_id"] == "tenant_123"
+
+    @patch("src.main.validate_jwt_token")
+    def test_websocket_connection_with_auth_header(self, mock_validate, client):
+        """Test successful WebSocket connection with Authorization header (preferred)"""
+        mock_validate.return_value = AsyncMock(
+            return_value={"sub": "user_123", "tenant_id": "tenant_123"}
+        )
+
+        # Note: TestClient may not support custom headers for websocket_connect
+        # This is a placeholder for the expected behavior
+        try:
+            with client.websocket_connect(
+                "/ws?tenant_id=tenant_123", headers={"Authorization": "Bearer valid_token"}
+            ) as websocket:
+                data = websocket.receive_json()
+
+                assert data["type"] == "connected"
+                assert "connection_id" in data
+                assert data["tenant_id"] == "tenant_123"
+        except TypeError:
+            # TestClient might not support headers for WebSocket, skip this test
+            pytest.skip("TestClient does not support WebSocket headers")
 
     def test_websocket_connection_without_token(self, client):
         """Test WebSocket connection without token"""
@@ -77,8 +97,9 @@ class TestWebSocketConnection:
         """Test WebSocket connection with invalid token"""
         mock_validate.side_effect = ValueError("Invalid token")
 
-        with pytest.raises(Exception), client.websocket_connect(
-            "/ws?tenant_id=tenant_123&token=invalid_token"
+        with (
+            pytest.raises(Exception),
+            client.websocket_connect("/ws?tenant_id=tenant_123&token=invalid_token"),
         ):
             pass
 
@@ -110,9 +131,7 @@ class TestWebSocketMessaging:
 
         mock_room_manager.broadcast_to_room = AsyncMock(return_value=5)
 
-        with client.websocket_connect(
-            "/ws?tenant_id=tenant_123&token=token"
-        ) as websocket:
+        with client.websocket_connect("/ws?tenant_id=tenant_123&token=token") as websocket:
             # Receive connection confirmation
             websocket.receive_json()
 
@@ -130,9 +149,7 @@ class TestWebSocketMessaging:
             return_value={"sub": "user_123", "tenant_id": "tenant_123"}
         )
 
-        with client.websocket_connect(
-            "/ws?tenant_id=tenant_123&token=token"
-        ) as websocket:
+        with client.websocket_connect("/ws?tenant_id=tenant_123&token=token") as websocket:
             # Receive connection confirmation
             websocket.receive_json()
 
@@ -291,9 +308,7 @@ class TestCompleteWorkflow:
 
     @patch("src.main.validate_jwt_token")
     @patch("src.main.room_manager")
-    def test_complete_websocket_workflow(
-        self, mock_room_manager, mock_validate, client
-    ):
+    def test_complete_websocket_workflow(self, mock_room_manager, mock_validate, client):
         """Test complete WebSocket communication workflow"""
         # Setup mocks
         mock_validate.return_value = {"sub": "user_123", "tenant_id": "tenant_123"}
@@ -303,9 +318,7 @@ class TestCompleteWorkflow:
         mock_room_manager.broadcast_to_room = AsyncMock(return_value=1)
 
         # Connect WebSocket
-        with client.websocket_connect(
-            "/ws?tenant_id=tenant_123&token=token"
-        ) as websocket:
+        with client.websocket_connect("/ws?tenant_id=tenant_123&token=token") as websocket:
             # Step 1: Receive connection confirmation
             connection_data = websocket.receive_json()
             assert connection_data["type"] == "connected"

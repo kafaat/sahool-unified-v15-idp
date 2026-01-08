@@ -168,9 +168,7 @@ class FertilizerIntegration:
 
             # Extract application details
             fertilizer_type = FertilizerType(application_data.get("type", "inorganic"))
-            application_method = ApplicationMethod(
-                application_data.get("method", "broadcast")
-            )
+            application_method = ApplicationMethod(application_data.get("method", "broadcast"))
 
             # Calculate application rate
             quantity = application_data.get("quantity_kg", 0.0)
@@ -182,9 +180,7 @@ class FertilizerIntegration:
                 "application_id": application_data.get("id"),
                 "field_id": field_id,
                 "farm_id": application_data.get("farm_id"),
-                "timestamp": application_data.get(
-                    "timestamp", datetime.now(UTC).isoformat()
-                ),
+                "timestamp": application_data.get("timestamp", datetime.now(UTC).isoformat()),
                 # Product details
                 "product": {
                     "name": application_data.get("product_name"),
@@ -207,39 +203,23 @@ class FertilizerIntegration:
                     "N": application_data.get("nitrogen_percent", 0.0),
                     "P": application_data.get("phosphorus_percent", 0.0),
                     "K": application_data.get("potassium_percent", 0.0),
-                    "total_N_kg": quantity
-                    * application_data.get("nitrogen_percent", 0.0)
-                    / 100,
-                    "total_P_kg": quantity
-                    * application_data.get("phosphorus_percent", 0.0)
-                    / 100,
-                    "total_K_kg": quantity
-                    * application_data.get("potassium_percent", 0.0)
-                    / 100,
+                    "total_N_kg": quantity * application_data.get("nitrogen_percent", 0.0) / 100,
+                    "total_P_kg": quantity * application_data.get("phosphorus_percent", 0.0) / 100,
+                    "total_K_kg": quantity * application_data.get("potassium_percent", 0.0) / 100,
                 },
                 # Compliance checks
                 "compliance": {
-                    "equipment_calibrated": application_data.get(
-                        "equipment_calibrated", False
-                    ),
-                    "weather_suitable": self._check_weather_suitability(
-                        application_data
-                    ),
-                    "storage_documented": application_data.get(
-                        "storage_documented", False
-                    ),
+                    "equipment_calibrated": application_data.get("equipment_calibrated", False),
+                    "weather_suitable": self._check_weather_suitability(application_data),
+                    "storage_documented": application_data.get("storage_documented", False),
                     "within_plan": self._check_within_plan(application_data),
                     "mrl_compliant": self._check_fertilizer_mrl(application_data),
                 },
                 # Safety and environmental
                 "safety": {
                     "ppe_used": application_data.get("ppe_used", False),
-                    "buffer_zones_respected": application_data.get(
-                        "buffer_zones_respected", False
-                    ),
-                    "runoff_prevention": application_data.get(
-                        "runoff_prevention_measures", []
-                    ),
+                    "buffer_zones_respected": application_data.get("buffer_zones_respected", False),
+                    "runoff_prevention": application_data.get("runoff_prevention_measures", []),
                 },
             }
 
@@ -316,9 +296,7 @@ class FertilizerIntegration:
             Comprehensive nutrient management plan
         """
         try:
-            self.logger.info(
-                f"Generating nutrient management plan for field {field_id}"
-            )
+            self.logger.info(f"Generating nutrient management plan for field {field_id}")
 
             # Calculate nutrient requirements based on crop and yield
             nutrient_requirements = self._calculate_nutrient_requirements(
@@ -415,18 +393,14 @@ class FertilizerIntegration:
             total_heavy_metals = {}
 
             for app in applications:
-                total_nitrogen += (
-                    app.npk_composition.get("N", 0.0) * app.quantity_kg / 100
-                )
+                total_nitrogen += app.npk_composition.get("N", 0.0) * app.quantity_kg / 100
 
                 # Check for heavy metals (if organic fertilizer)
                 if app.fertilizer_type == FertilizerType.ORGANIC:
                     # Organic fertilizers may contain heavy metals
                     heavy_metal_content = self._estimate_heavy_metal_content(app)
                     for metal, amount in heavy_metal_content.items():
-                        total_heavy_metals[metal] = (
-                            total_heavy_metals.get(metal, 0.0) + amount
-                        )
+                        total_heavy_metals[metal] = total_heavy_metals.get(metal, 0.0) + amount
 
             # Check nitrogen accumulation risk
             if total_nitrogen > 200:  # kg N per hectare (example threshold)
@@ -508,24 +482,19 @@ class FertilizerIntegration:
 
             # Count application types
             organic_count = sum(
-                1
-                for app in applications
-                if app.fertilizer_type == FertilizerType.ORGANIC
+                1 for app in applications if app.fertilizer_type == FertilizerType.ORGANIC
             )
             inorganic_count = len(applications) - organic_count
 
             # Calculate total nutrients applied
             total_n = sum(
-                app.npk_composition.get("N", 0.0) * app.quantity_kg / 100
-                for app in applications
+                app.npk_composition.get("N", 0.0) * app.quantity_kg / 100 for app in applications
             )
             total_p = sum(
-                app.npk_composition.get("P", 0.0) * app.quantity_kg / 100
-                for app in applications
+                app.npk_composition.get("P", 0.0) * app.quantity_kg / 100 for app in applications
             )
             total_k = sum(
-                app.npk_composition.get("K", 0.0) * app.quantity_kg / 100
-                for app in applications
+                app.npk_composition.get("K", 0.0) * app.quantity_kg / 100 for app in applications
             )
 
             # Check compliance factors
@@ -565,9 +534,7 @@ class FertilizerIntegration:
                 assessment_data=asdict(report),
             )
 
-            self.logger.info(
-                f"Input management report generated: {report.compliance_status}"
-            )
+            self.logger.info(f"Input management report generated: {report.compliance_status}")
             return report
 
         except Exception as e:
@@ -654,9 +621,7 @@ class FertilizerIntegration:
             },
         ]
 
-    def _validate_nutrient_balance(
-        self, nutrient_requirements: dict[str, float]
-    ) -> bool:
+    def _validate_nutrient_balance(self, nutrient_requirements: dict[str, float]) -> bool:
         """التحقق من توازن المغذيات - Validate nutrient balance"""
         n = nutrient_requirements["N"]
         p = nutrient_requirements["P"]
@@ -672,9 +637,7 @@ class FertilizerIntegration:
         # Reasonable ranges for most crops
         return 2 <= n_p_ratio <= 10 and 0.5 <= n_k_ratio <= 3
 
-    def _estimate_heavy_metal_content(
-        self, application: FertilizerApplication
-    ) -> dict[str, float]:
+    def _estimate_heavy_metal_content(self, application: FertilizerApplication) -> dict[str, float]:
         """تقدير محتوى المعادن الثقيلة - Estimate heavy metal content"""
         # This should use actual lab data or regulatory limits
         # Placeholder estimates for organic fertilizers

@@ -186,9 +186,7 @@ class BaselineComparator:
 
         comparisons = []
 
-        all_categories = set(current_categories.keys()) | set(
-            baseline_categories.keys()
-        )
+        all_categories = set(current_categories.keys()) | set(baseline_categories.keys())
 
         for category in all_categories:
             current_score = current_categories.get(category, 0.0)
@@ -204,7 +202,9 @@ class BaselineComparator:
                     "status": (
                         "regression"
                         if change < -5.0
-                        else "improvement" if change > 5.0 else "stable"
+                        else "improvement"
+                        if change > 5.0
+                        else "stable"
                     ),
                 }
             )
@@ -289,9 +289,7 @@ class BaselineComparator:
 
 def main():
     """Main execution"""
-    parser = argparse.ArgumentParser(
-        description="Compare evaluation results with baseline"
-    )
+    parser = argparse.ArgumentParser(description="Compare evaluation results with baseline")
     parser.add_argument(
         "--current",
         type=Path,

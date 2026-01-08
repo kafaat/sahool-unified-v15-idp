@@ -87,9 +87,7 @@ class TestFieldCRUD:
             client.post("/fields", json=data)
 
         # Get page with limit 2
-        response = client.get(
-            f"/fields?tenant_id={sample_field_data['tenant_id']}&limit=2"
-        )
+        response = client.get(f"/fields?tenant_id={sample_field_data['tenant_id']}&limit=2")
         body = response.json()
 
         assert body["total"] == 3

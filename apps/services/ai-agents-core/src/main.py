@@ -7,6 +7,7 @@ FastAPI service exposing the hierarchical multi-agent system.
 
 import logging
 import os
+import sys
 from datetime import datetime
 from typing import Any
 
@@ -20,8 +21,13 @@ from agents import (
     MobileAgent,
 )
 from fastapi import FastAPI, HTTPException
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -33,6 +39,10 @@ app = FastAPI(
     description="Hierarchical Multi-Agent System for Smart Agriculture",
     version="1.0.0",
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS - Configure allowed origins from environment
 CORS_ORIGINS = os.getenv(

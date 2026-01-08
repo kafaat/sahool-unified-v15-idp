@@ -58,6 +58,12 @@ export default async function RootLayout({
         />
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:start-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg"
+        >
+          {direction === 'rtl' ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'}
+        </a>
         <ErrorBoundary>
           <NextIntlClientProvider messages={messages} locale={locale}>
             <Providers>{children}</Providers>

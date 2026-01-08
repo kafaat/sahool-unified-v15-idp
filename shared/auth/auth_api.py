@@ -37,9 +37,7 @@ class LoginRequest(BaseModel):
 
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., description="User password", min_length=6)
-    totp_code: str | None = Field(
-        None, description="6-digit TOTP code if 2FA is enabled"
-    )
+    totp_code: str | None = Field(None, description="6-digit TOTP code if 2FA is enabled")
 
     class Config:
         json_schema_extra = {
@@ -58,9 +56,7 @@ class LoginResponse(BaseModel):
     token_type: str = Field(default="bearer", description="Token type")
     user: dict = Field(..., description="User information")
     requires_2fa: bool = Field(default=False, description="Whether 2FA is required")
-    temp_token: str | None = Field(
-        None, description="Temporary token for 2FA verification"
-    )
+    temp_token: str | None = Field(None, description="Temporary token for 2FA verification")
 
     class Config:
         json_schema_extra = {
@@ -85,9 +81,7 @@ class TwoFALoginRequest(BaseModel):
     totp_code: str = Field(..., description="6-digit TOTP code or backup code")
 
     class Config:
-        json_schema_extra = {
-            "example": {"temp_token": "temp_token_here", "totp_code": "123456"}
-        }
+        json_schema_extra = {"example": {"temp_token": "temp_token_here", "totp_code": "123456"}}
 
 
 class RefreshTokenRequest(BaseModel):
@@ -219,18 +213,14 @@ async def login(request: LoginRequest):
                 twofa_service = get_twofa_service()
 
                 # Try TOTP verification
-                is_valid_totp = twofa_service.verify_totp(
-                    user.twofa_secret, request.totp_code
-                )
+                is_valid_totp = twofa_service.verify_totp(user.twofa_secret, request.totp_code)
 
                 # Try backup code if TOTP fails
                 is_valid_backup = False
                 used_backup_hash = None
                 if not is_valid_totp and user.twofa_backup_codes:
-                    is_valid_backup, used_backup_hash = (
-                        twofa_service.verify_backup_code(
-                            request.totp_code, user.twofa_backup_codes
-                        )
+                    is_valid_backup, used_backup_hash = twofa_service.verify_backup_code(
+                        request.totp_code, user.twofa_backup_codes
                     )
 
                 if not is_valid_totp and not is_valid_backup:
@@ -399,9 +389,7 @@ async def get_current_user_info(user_id: str):
         user = user_service.get_user(user_id)
 
         if not user:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
         return {
             "success": True,

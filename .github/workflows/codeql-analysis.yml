@@ -1,0 +1,99 @@
+# CodeQL Security Analysis for SAHOOL
+# فحص الأمان باستخدام CodeQL من GitHub
+#
+# CodeQL is GitHub's most advanced semantic code analysis engine
+# It finds security vulnerabilities in:
+# - Python (FastAPI, Django)
+# - TypeScript/JavaScript (NestJS, Node.js)
+# - OWASP Top 10 vulnerabilities
+
+name: CodeQL Security Analysis
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run weekly on Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['python', 'javascript-typescript']
+        # CodeQL supports: cpp, csharp, go, java, javascript, python, ruby, swift
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # Use extended queries for more comprehensive security coverage
+          queries: +security-extended,security-and-quality
+          # Specify source root for better analysis
+          source-root: .
+
+      # For Python, we need to set up the environment
+      - name: Set up Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # For TypeScript/JavaScript, set up Node
+      - name: Set up Node.js
+        if: matrix.language == 'javascript-typescript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Autobuild attempts to build any compiled languages
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+          # Upload results to GitHub Security tab
+          upload: true
+
+  # Summary job
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: analyze
+    if: always()
+    steps:
+      - name: Create Summary
+        run: |
+          echo "## 🛡️ CodeQL Security Analysis Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Languages Analyzed:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐍 Python (FastAPI services)" >> $GITHUB_STEP_SUMMARY
+          echo "- 📘 TypeScript/JavaScript (NestJS services)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### What CodeQL Checks:" >> $GITHUB_STEP_SUMMARY
+          echo "- SQL Injection vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          echo "- Cross-Site Scripting (XSS)" >> $GITHUB_STEP_SUMMARY
+          echo "- Command Injection" >> $GITHUB_STEP_SUMMARY
+          echo "- Path Traversal" >> $GITHUB_STEP_SUMMARY
+          echo "- Insecure Deserialization" >> $GITHUB_STEP_SUMMARY
+          echo "- Hardcoded Credentials" >> $GITHUB_STEP_SUMMARY
+          echo "- OWASP Top 10" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📊 View detailed results in the **Security** tab" >> $GITHUB_STEP_SUMMARY

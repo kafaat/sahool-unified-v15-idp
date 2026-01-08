@@ -42,8 +42,7 @@ class QdrantVectorStore(VectorStore):
         """
         if not QDRANT_AVAILABLE:
             raise RuntimeError(
-                "qdrant-client not installed. "
-                "Install with: pip install qdrant-client"
+                "qdrant-client not installed. Install with: pip install qdrant-client"
             )
         self._client = QdrantClient(url=url)
         self._vector_size = vector_size
@@ -98,9 +97,7 @@ class QdrantVectorStore(VectorStore):
 
         self._client.upsert(collection_name=collection, points=points)
 
-    def search(
-        self, collection: str, query: str, limit: int
-    ) -> list[tuple[DocChunk, float]]:
+    def search(self, collection: str, query: str, limit: int) -> list[tuple[DocChunk, float]]:
         """Search for similar chunks.
 
         NOTE: Uses placeholder zero vector for query. In production:

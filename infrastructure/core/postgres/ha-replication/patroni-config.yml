@@ -1,0 +1,155 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - PostgreSQL HA Configuration with Patroni
+# تكوين عالي التوفر لقاعدة البيانات PostgreSQL باستخدام Patroni
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Purpose: Provides PostgreSQL streaming replication with automated failover
+# ═══════════════════════════════════════════════════════════════════════════════
+
+scope: sahool-postgres-cluster
+namespace: /sahool/
+name: ${PATRONI_NAME}
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: ${PATRONI_RESTAPI_CONNECT_ADDRESS}:8008
+
+etcd3:
+  hosts: ${ETCD_HOSTS}
+  protocol: http
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576  # 1MB
+    master_start_timeout: 300
+    synchronous_mode: true  # Ensures zero data loss
+    synchronous_mode_strict: false  # Allow async fallback if sync replica unavailable
+
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        # Connection Settings
+        max_connections: 200
+        superuser_reserved_connections: 5
+
+        # Memory Settings
+        shared_buffers: 2GB
+        effective_cache_size: 6GB
+        maintenance_work_mem: 512MB
+        work_mem: 10MB
+
+        # WAL Settings for PITR and Replication
+        wal_level: replica
+        wal_log_hints: on
+        wal_compression: on
+        wal_buffers: 16MB
+        max_wal_size: 4GB
+        min_wal_size: 1GB
+
+        # Replication Settings
+        max_wal_senders: 10
+        max_replication_slots: 10
+        hot_standby: on
+        hot_standby_feedback: on
+        wal_keep_size: 1GB
+
+        # Archive Settings for PITR
+        archive_mode: on
+        archive_command: '/usr/local/bin/wal-archive.sh %p %f'
+        archive_timeout: 300  # 5 minutes
+        restore_command: '/usr/local/bin/wal-restore.sh %f %p'
+
+        # Checkpointing
+        checkpoint_timeout: 15min
+        checkpoint_completion_target: 0.9
+
+        # Logging
+        log_destination: stderr
+        logging_collector: on
+        log_directory: /var/log/postgresql
+        log_filename: postgresql-%Y-%m-%d_%H%M%S.log
+        log_rotation_age: 1d
+        log_rotation_size: 100MB
+        log_line_prefix: '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+        log_checkpoints: on
+        log_connections: on
+        log_disconnections: on
+        log_lock_waits: on
+        log_replication_commands: on
+        log_temp_files: 0
+        log_autovacuum_min_duration: 0
+
+        # Performance
+        random_page_cost: 1.1  # SSD optimized
+        effective_io_concurrency: 200
+
+        # PostGIS Specific
+        shared_preload_libraries: 'pg_stat_statements'
+
+      pg_hba:
+        - host all all 0.0.0.0/0 scram-sha-256
+        - host replication replicator 0.0.0.0/0 scram-sha-256
+        - local all all trust
+        - host all all 127.0.0.1/32 trust
+        - host all all ::1/128 trust
+
+  initdb:
+    - encoding: UTF8
+    - locale: en_US.UTF-8
+    - data-checksums
+
+  post_bootstrap: /usr/local/bin/post-bootstrap.sh
+
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: ${PATRONI_POSTGRESQL_CONNECT_ADDRESS}:5432
+  data_dir: /var/lib/postgresql/data
+  bin_dir: /usr/lib/postgresql/16/bin
+
+  authentication:
+    replication:
+      username: replicator
+      password: ${REPLICATION_PASSWORD}
+    superuser:
+      username: postgres
+      password: ${POSTGRES_PASSWORD}
+    rewind:
+      username: replicator
+      password: ${REPLICATION_PASSWORD}
+
+  parameters:
+    unix_socket_directories: '/var/run/postgresql'
+
+  # Callback scripts
+  callbacks:
+    on_start: /usr/local/bin/on-start.sh
+    on_stop: /usr/local/bin/on-stop.sh
+    on_restart: /usr/local/bin/on-restart.sh
+    on_role_change: /usr/local/bin/on-role-change.sh
+
+  # Recovery settings
+  recovery_conf:
+    restore_command: '/usr/local/bin/wal-restore.sh %f %p'
+
+  # Replication slots
+  create_replica_methods:
+    - basebackup
+  basebackup:
+    - waldir: /var/lib/postgresql/wal
+    - checkpoint: fast
+    - max-rate: 100M
+
+tags:
+  nofailover: false
+  noloadbalance: false
+  clonefrom: false
+  nosync: false
+
+watchdog:
+  mode: required  # or 'automatic', 'off'
+  device: /dev/watchdog
+  safety_margin: 5

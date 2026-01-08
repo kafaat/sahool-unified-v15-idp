@@ -352,7 +352,7 @@ To store results in InfluxDB for historical analysis:
 
 ```bash
 export INFLUXDB_URL=http://localhost:8086
-export INFLUXDB_TOKEN=sahool-k6-token
+export INFLUXDB_TOKEN=${INFLUXDB_ADMIN_TOKEN}
 export INFLUXDB_ORG=sahool
 export INFLUXDB_BUCKET=k6
 

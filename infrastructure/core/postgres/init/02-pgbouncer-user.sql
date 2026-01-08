@@ -5,19 +5,50 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Create pgbouncer user if it doesn't exist
--- Password will be set to match POSTGRES_PASSWORD for compatibility with edoburu/pgbouncer image
+-- Note: This user is NOT used for auth_query in the current configuration.
+-- The auth_user (POSTGRES_USER, defaults to 'sahool') is used instead.
+-- This pgbouncer user is kept for backwards compatibility and future use.
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'pgbouncer') THEN
+        -- Create user with a temporary password
+        -- Note: This user is not actively used in the current PgBouncer configuration
+        CREATE USER pgbouncer WITH PASSWORD 'temp_password_not_used';
+        -- Grant necessary permissions (for potential future use)
+        GRANT pg_monitor TO pgbouncer;
+        RAISE NOTICE 'Created pgbouncer user (not actively used - auth_user is sahool)';
+    ELSE
+        -- If user exists, ensure it has the correct permissions
+        GRANT pg_monitor TO pgbouncer;
+        RAISE NOTICE 'Pgbouncer user already exists (not actively used - auth_user is sahool)';
+    END IF;
+END
+$$;
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Grant pg_monitor to main database user for auth_query support
+-- The main DB user (POSTGRES_USER, defaults to 'sahool') is used as auth_user
+-- by PgBouncer to run auth_query against pg_shadow
+-- ═══════════════════════════════════════════════════════════════════════════════
 DO $$
 DECLARE
-    postgres_password TEXT;
+    main_user TEXT;
 BEGIN
-    -- Get POSTGRES_PASSWORD from environment (set via ALTER USER after creation)
-    -- For now, create with a placeholder that will be updated
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'pgbouncer') THEN
-        -- Create user - password will be set to POSTGRES_PASSWORD via ALTER USER
-        -- This allows edoburu/pgbouncer image to use DB_PASSWORD for auth_user connection
-        CREATE USER pgbouncer WITH PASSWORD 'temp_password_will_be_updated';
-        -- Grant necessary permissions for auth_query to read pg_shadow
-        GRANT pg_monitor TO pgbouncer;
+    -- Get the main database user (the user running this script)
+    main_user := current_user;
+
+    -- Grant pg_monitor role to main user for auth_query access to pg_shadow
+    -- This allows PgBouncer to authenticate users via auth_query
+    IF main_user IS NOT NULL AND main_user != 'postgres' THEN
+        EXECUTE format('GRANT pg_monitor TO %I', main_user);
+        RAISE NOTICE 'Granted pg_monitor to main database user: %', main_user;
+    END IF;
+
+    -- Also grant to 'sahool' user explicitly (default POSTGRES_USER)
+    -- This ensures compatibility even when script runs as a different user
+    IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'sahool') THEN
+        GRANT pg_monitor TO sahool;
+        RAISE NOTICE 'Granted pg_monitor to sahool user';
     END IF;
 END
 $$;

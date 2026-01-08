@@ -226,6 +226,10 @@ class FeatureGrid extends StatelessWidget {
         route: '/alerts',
         badge: '3',
       ),
+      FeatureItem(
+        key: 'astronomical',
+        route: '/astronomical',
+      ),
     ];
   }
 }

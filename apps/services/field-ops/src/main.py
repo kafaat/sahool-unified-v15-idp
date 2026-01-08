@@ -6,12 +6,36 @@ Port: 8080
 
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from pydantic import BaseModel, Field
+
+# Import authentication dependencies
+try:
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    User = None
+
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
+
 
 # Import API routers - استيراد موجهات الواجهة البرمجية
 from .api.v1.field_health import router as field_health_router
@@ -25,7 +49,14 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting Field Operations Service...")
+    logger.warning("=" * 80)
+    logger.warning("⚠️  DEPRECATION WARNING: field-ops service is DEPRECATED")
+    logger.warning("=" * 80)
+    logger.warning("This service has been migrated to field-management-service:3000")
+    logger.warning("Please update your applications to use field-management-service")
+    logger.warning("This service will be removed in a future release")
+    logger.warning("=" * 80)
+    logger.info("Starting Field Operations Service (DEPRECATED)...")
     # Initialize connections
     app.state.db_connected = False
     app.state.nats_connected = False
@@ -36,9 +67,7 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10
-            )
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Database connected")
         except Exception as e:
@@ -75,6 +104,10 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # ============== Register API Routers ==============
 # تسجيل موجهات الواجهة البرمجية
@@ -168,7 +201,9 @@ _operations: dict = {}
 
 
 @app.post("/fields", response_model=FieldResponse)
-async def create_field(field: FieldCreate):
+async def create_field(
+    field: FieldCreate, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """Create a new agricultural field"""
     field_id = str(uuid4())
     now = datetime.now(UTC).isoformat()
@@ -195,9 +230,7 @@ async def create_field(field: FieldCreate):
 
             await app.state.nc.publish(
                 "sahool.fields.created",
-                json.dumps(
-                    {"field_id": field_id, "tenant_id": field.tenant_id}
-                ).encode(),
+                json.dumps({"field_id": field_id, "tenant_id": field.tenant_id}).encode(),
             )
         except Exception:
             pass
@@ -206,7 +239,9 @@ async def create_field(field: FieldCreate):
 
 
 @app.get("/fields/{field_id}", response_model=FieldResponse)
-async def get_field(field_id: str):
+async def get_field(
+    field_id: str, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+):
     """Get field by ID"""
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="Field not found")
@@ -218,6 +253,7 @@ async def list_fields(
     tenant_id: str = Query(...),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """List fields for a tenant"""
     tenant_fields = [f for f in _fields.values() if f["tenant_id"] == tenant_id]

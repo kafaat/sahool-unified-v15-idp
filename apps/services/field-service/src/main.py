@@ -10,17 +10,20 @@ from contextlib import asynccontextmanager, suppress
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 
-# Add path to shared config
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
-try:
-    from cors_config import setup_cors_middleware
-except ImportError:
-    # Fallback if shared config not available
-    setup_cors_middleware = None
-
+# Add path to shared middleware and config
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../.."))
 import logging
+
+from shared.middleware import (
+    RequestLoggingMiddleware,
+    TenantContextMiddleware,
+    setup_cors,
+)
+from shared.observability.middleware import (
+    ObservabilityMiddleware,
+)
 
 from .events import get_publisher
 from .geo import (
@@ -61,14 +64,12 @@ logger = logging.getLogger(__name__)
 
 # ============== Authentication ==============
 
+from shared.middleware.tenant_context import get_current_tenant_id
 
-def get_tenant_id(
-    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
-) -> str:
-    """Extract and validate tenant ID from X-Tenant-Id header"""
-    if not x_tenant_id:
-        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
-    return x_tenant_id
+
+def get_tenant_id() -> str:
+    """Get tenant ID from context (set by TenantContextMiddleware)"""
+    return get_current_tenant_id()
 
 
 # ============== In-Memory Data Store ==============
@@ -118,6 +119,9 @@ app = FastAPI(
     ## الميزات الرئيسية
 
     - إدارة الحقول (إنشاء، تحديث، حذف)
+
+# Setup unified error handling
+setup_exception_handlers(app)
     - إدارة الحدود الجغرافية (GeoJSON)
     - تقسيم الحقول إلى مناطق
     - تتبع مواسم المحاصيل
@@ -128,24 +132,34 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS - Use centralized secure configuration
-if setup_cors_middleware:
-    setup_cors_middleware(app)
-else:
-    # Fallback CORS configuration if shared config not available
-    from fastapi.middleware.cors import CORSMiddleware
+# ============== Middleware Setup ==============
+# Middleware order: Last added = First executed
+# Execution order: CORS -> Observability -> Logging -> Tenant Context -> Routes
 
-    CORS_ORIGINS = os.getenv(
-        "CORS_ALLOWED_ORIGINS",
-        "http://localhost:3000,http://localhost:3001,http://localhost:8080",
-    ).split(",")
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=CORS_ORIGINS,
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
-        allow_headers=["*"],
-    )
+# 1. CORS - Secure cross-origin configuration
+setup_cors(app)
+
+# 2. Observability - Tracing, metrics, and monitoring
+app.add_middleware(
+    ObservabilityMiddleware,
+    service_name="field-service",
+    metrics_collector=None,  # Add metrics collector if available
+)
+
+# 3. Request Logging - Correlation IDs and structured logging
+app.add_middleware(
+    RequestLoggingMiddleware,
+    service_name="field-service",
+    log_request_body=os.getenv("LOG_REQUEST_BODY", "false").lower() == "true",
+    log_response_body=False,
+)
+
+# 4. Tenant Context - Multi-tenancy isolation
+app.add_middleware(
+    TenantContextMiddleware,
+    require_tenant=True,  # All endpoints require tenant
+    exempt_paths=["/health", "/healthz", "/readyz", "/docs", "/redoc", "/openapi.json"],
+)
 
 
 # ============== Health Endpoints ==============
@@ -221,9 +235,7 @@ async def create_field(field: FieldCreate, tenant_id: str = Depends(get_tenant_i
         "boundary": field.boundary.model_dump() if field.boundary else None,
         "area_hectares": field.area_hectares,
         "soil_type": field.soil_type.value if field.soil_type else None,
-        "irrigation_source": (
-            field.irrigation_source.value if field.irrigation_source else None
-        ),
+        "irrigation_source": (field.irrigation_source.value if field.irrigation_source else None),
         "current_crop": field.current_crop,
         "metadata": field.metadata or {},
         "created_at": now,
@@ -329,9 +341,7 @@ async def list_fields(
 
 
 @app.patch("/fields/{field_id}", response_model=FieldResponse)
-async def update_field(
-    field_id: str, update: FieldUpdate, tenant_id: str = Depends(get_tenant_id)
-):
+async def update_field(field_id: str, update: FieldUpdate, tenant_id: str = Depends(get_tenant_id)):
     """تحديث بيانات حقل"""
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
@@ -346,9 +356,7 @@ async def update_field(
     for key, value in update_dict.items():
         if value is not None:
             if key == "location":
-                field_data[key] = (
-                    value.model_dump() if hasattr(value, "model_dump") else value
-                )
+                field_data[key] = value.model_dump() if hasattr(value, "model_dump") else value
             elif key in ["soil_type", "irrigation_source", "status"]:
                 field_data[key] = value.value if hasattr(value, "value") else value
             else:
@@ -389,9 +397,7 @@ async def delete_field(field_id: str, tenant_id: str = Depends(get_tenant_id)):
     for z_id in zones_to_delete:
         del _zones[z_id]
 
-    seasons_to_delete = [
-        s_id for s_id, s in _seasons.items() if s["field_id"] == field_id
-    ]
+    seasons_to_delete = [s_id for s_id, s in _seasons.items() if s["field_id"] == field_id]
     for s_id in seasons_to_delete:
         del _seasons[s_id]
 
@@ -573,9 +579,7 @@ async def export_field_geojson(field_id: str):
 # ============== Crop Season Endpoints ==============
 
 
-@app.post(
-    "/fields/{field_id}/crops", response_model=CropSeasonResponse, status_code=201
-)
+@app.post("/fields/{field_id}/crops", response_model=CropSeasonResponse, status_code=201)
 async def start_crop_season(field_id: str, season: CropSeasonCreate):
     """بدء موسم محصول جديد"""
     if field_id not in _fields:
@@ -588,9 +592,7 @@ async def start_crop_season(field_id: str, season: CropSeasonCreate):
         if s["field_id"] == field_id and s["status"] == CropSeasonStatus.ACTIVE.value
     ]
     if active_seasons:
-        raise HTTPException(
-            status_code=400, detail="يوجد موسم نشط بالفعل. يجب إنهاءه أولاً"
-        )
+        raise HTTPException(status_code=400, detail="يوجد موسم نشط بالفعل. يجب إنهاءه أولاً")
 
     season_id = str(uuid4())
     now = datetime.now(UTC).isoformat()
@@ -674,9 +676,7 @@ async def close_crop_season(field_id: str, close_data: CropSeasonClose):
     season_data["harvest_date"] = close_data.harvest_date
     season_data["actual_yield_kg"] = close_data.actual_yield_kg
     if close_data.notes:
-        season_data["notes"] = (
-            season_data.get("notes") or ""
-        ) + f"\n{close_data.notes}"
+        season_data["notes"] = (season_data.get("notes") or "") + f"\n{close_data.notes}"
 
     _seasons[season_id] = season_data
 
@@ -752,9 +752,7 @@ async def list_zones(field_id: str):
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
 
-    field_zones = [
-        ZoneResponse(**z) for z in _zones.values() if z["field_id"] == field_id
-    ]
+    field_zones = [ZoneResponse(**z) for z in _zones.values() if z["field_id"] == field_id]
 
     return {
         "field_id": field_id,

@@ -11,3 +11,13 @@ python-dotenv==1.0.1
 
 # Service-specific dependencies
 python-multipart==0.0.18
+
+# Database dependencies
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Caching
+redis==5.0.1
+
+structlog>=24.1.0

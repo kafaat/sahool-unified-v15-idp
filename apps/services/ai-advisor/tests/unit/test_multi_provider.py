@@ -36,9 +36,7 @@ class TestAnthropicProvider:
         provider = AnthropicProvider()
         assert provider.is_configured is False
 
-    @patch.dict(
-        "os.environ", {"ANTHROPIC_API_KEY": "test_key", "CLAUDE_MODEL": "claude-3-opus"}
-    )
+    @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key", "CLAUDE_MODEL": "claude-3-opus"})
     def test_default_model(self):
         """Test default model configuration"""
         provider = AnthropicProvider()
@@ -94,9 +92,7 @@ class TestOpenAIProvider:
         provider = OpenAIProvider()
         assert provider.is_configured is False
 
-    @patch.dict(
-        "os.environ", {"OPENAI_API_KEY": "test_key", "OPENAI_MODEL": "gpt-4-turbo"}
-    )
+    @patch.dict("os.environ", {"OPENAI_API_KEY": "test_key", "OPENAI_MODEL": "gpt-4-turbo"})
     def test_default_model(self):
         """Test default model configuration"""
         provider = OpenAIProvider()
@@ -196,17 +192,13 @@ class TestMultiLLMService:
             assert len(result.failed_providers) == 0
 
     @pytest.mark.asyncio
-    @patch.dict(
-        "os.environ", {"ANTHROPIC_API_KEY": "test_key", "OPENAI_API_KEY": "test_key2"}
-    )
+    @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key", "OPENAI_API_KEY": "test_key2"})
     async def test_fallback_mechanism(self, mock_openai_client):
         """Test fallback to secondary provider when primary fails"""
         with patch("llm.multi_provider.AsyncAnthropic") as mock_anthropic_class:
             # Make Anthropic fail
             mock_anthropic = AsyncMock()
-            mock_anthropic.messages.create = AsyncMock(
-                side_effect=Exception("Anthropic API error")
-            )
+            mock_anthropic.messages.create = AsyncMock(side_effect=Exception("Anthropic API error"))
             mock_anthropic_class.return_value = mock_anthropic
 
             with patch("llm.multi_provider.AsyncOpenAI") as mock_openai_class:
@@ -243,9 +235,7 @@ class TestMultiLLMService:
             assert len(result.failed_providers) > 0
 
     @pytest.mark.asyncio
-    @patch.dict(
-        "os.environ", {"ANTHROPIC_API_KEY": "test_key", "OPENAI_API_KEY": "test_key2"}
-    )
+    @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key", "OPENAI_API_KEY": "test_key2"})
     async def test_specific_provider_selection(self, mock_openai_client):
         """Test forcing specific provider"""
         with patch("llm.multi_provider.AsyncOpenAI") as mock_class:
@@ -273,9 +263,7 @@ class TestMultiLLMService:
             assert result.success is True
             assert result.data.content == "Test response from Claude"
 
-    @patch.dict(
-        "os.environ", {"ANTHROPIC_API_KEY": "test_key1", "OPENAI_API_KEY": "test_key2"}
-    )
+    @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key1", "OPENAI_API_KEY": "test_key2"})
     def test_get_available_providers(self):
         """Test getting available providers information"""
         service = MultiLLMService()

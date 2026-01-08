@@ -12,7 +12,6 @@ Tests for professional package services:
 Author: SAHOOL Platform Team
 """
 
-
 import httpx
 import pytest
 
@@ -79,9 +78,7 @@ class TestSatelliteImagery:
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get imagery dates: {response.text}"
+        assert response.status_code == 200, f"Failed to get imagery dates: {response.text}"
         data = response.json()
         assert isinstance(data, list | dict)
 
@@ -148,9 +145,7 @@ class TestNDVIAnalysis:
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get NDVI timeseries: {response.text}"
+        assert response.status_code == 200, f"Failed to get NDVI timeseries: {response.text}"
         data = response.json()
         assert isinstance(data, list | dict)
 
@@ -172,9 +167,7 @@ class TestNDVIAnalysis:
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get health score: {response.text}"
+        assert response.status_code == 200, f"Failed to get health score: {response.text}"
         data = response.json()
         assert "health_score" in data or "score" in data or "status" in data
 
@@ -382,9 +375,7 @@ class TestInventoryManagement:
         # Arrange - Create item first
         item_data = inventory_factory.create()
         create_url = f"{service_urls['inventory_service']}/api/v1/inventory"
-        create_response = await http_client.post(
-            create_url, json=item_data, headers=auth_headers
-        )
+        create_response = await http_client.post(create_url, json=item_data, headers=auth_headers)
 
         if create_response.status_code not in (200, 201):
             pytest.skip("Inventory item creation failed")
@@ -393,13 +384,9 @@ class TestInventoryManagement:
         item_id = created_item.get("id") or created_item.get("item_id")
 
         # Act - Update quantity
-        update_url = (
-            f"{service_urls['inventory_service']}/api/v1/inventory/{item_id}/quantity"
-        )
+        update_url = f"{service_urls['inventory_service']}/api/v1/inventory/{item_id}/quantity"
         update_data = {"quantity": 500, "reason": "restock"}
-        response = await http_client.put(
-            update_url, json=update_data, headers=auth_headers
-        )
+        response = await http_client.put(update_url, json=update_data, headers=auth_headers)
 
         # Assert
         assert response.status_code in (
@@ -424,9 +411,7 @@ class TestInventoryManagement:
         response = await http_client.get(url, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get low stock items: {response.text}"
+        assert response.status_code == 200, f"Failed to get low stock items: {response.text}"
         data = response.json()
         assert isinstance(data, list | dict)
 

@@ -293,6 +293,4 @@ class TestWebSocketMessageHandler:
         assert handler._validate_broadcast_permission("conn_001", "tenant:tenant_001")
 
         # Should not broadcast to inaccessible rooms
-        assert not handler._validate_broadcast_permission(
-            "conn_001", "tenant:tenant_999"
-        )
+        assert not handler._validate_broadcast_permission("conn_001", "tenant:tenant_999")

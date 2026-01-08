@@ -81,12 +81,8 @@ def test_user_metrics():
         EventType.RECOMMENDATION_APPLIED,
         metadata={"recommendation_id": "rec_001"},
     )
-    analytics.track_event(
-        user_id, EventType.ALERT_RECEIVED, metadata={"alert_id": "alert_001"}
-    )
-    analytics.track_event(
-        user_id, EventType.ALERT_ACKNOWLEDGED, metadata={"alert_id": "alert_001"}
-    )
+    analytics.track_event(user_id, EventType.ALERT_RECEIVED, metadata={"alert_id": "alert_001"})
+    analytics.track_event(user_id, EventType.ALERT_ACKNOWLEDGED, metadata={"alert_id": "alert_001"})
 
     # تسجيل الخروج - Logout
     analytics.track_session(user_id, "session_001", "end")
@@ -96,9 +92,7 @@ def test_user_metrics():
 
     assert metrics.total_events >= 7, "Should have at least 7 events"
     assert metrics.fields_created >= 1, "Should have created at least 1 field"
-    assert (
-        metrics.recommendation_application_rate == 1.0
-    ), "Should have 100% recommendation rate"
+    assert metrics.recommendation_application_rate == 1.0, "Should have 100% recommendation rate"
 
     print("✓ تم حساب المقاييس بنجاح - Metrics calculated successfully")
     print(f"  Total Events: {metrics.total_events}")
@@ -188,9 +182,7 @@ def test_farmer_analytics():
     user_id = "farmer_test_001"
 
     # إنشاء أحداث مزارع - Create farmer events
-    analytics.track_event(
-        user_id, EventType.CROP_PLANTED, crop_type="tomato", field_id="field_001"
-    )
+    analytics.track_event(user_id, EventType.CROP_PLANTED, crop_type="tomato", field_id="field_001")
     analytics.track_event(
         user_id, EventType.CROP_PLANTED, crop_type="cucumber", field_id="field_002"
     )
@@ -214,9 +206,7 @@ def test_farmer_analytics():
     assert crops_count >= 2, "Should have at least 2 crops"
     assert follow_rate == 1.0, "Should have 100% follow rate"
 
-    print(
-        "✓ تم حساب تحليلات المزارعين بنجاح - Farmer analytics calculated successfully"
-    )
+    print("✓ تم حساب تحليلات المزارعين بنجاح - Farmer analytics calculated successfully")
     print(f"  Crops Monitored: {crops_count}")
     print(f"  Recommendation Follow Rate: {follow_rate:.2%}")
     print()
@@ -241,9 +231,7 @@ def test_regional_analytics():
         analytics.track_event(
             user_id, EventType.FIELD_VIEWED, governorate=gov, field_id=f"field_{i}"
         )
-        analytics.track_event(
-            user_id, EventType.CROP_PLANTED, governorate=gov, crop_type="tomato"
-        )
+        analytics.track_event(user_id, EventType.CROP_PLANTED, governorate=gov, crop_type="tomato")
 
     # اختبار التوزيع الإقليمي - Test regional distribution
     users_by_gov = analytics.users_by_governorate()
@@ -253,9 +241,7 @@ def test_regional_analytics():
     assert len(users_by_gov) >= 3, "Should have users in at least 3 governorates"
     assert len(crop_dist) >= 1, "Should have at least 1 crop type"
 
-    print(
-        "✓ تم حساب التحليلات الإقليمية بنجاح - Regional analytics calculated successfully"
-    )
+    print("✓ تم حساب التحليلات الإقليمية بنجاح - Regional analytics calculated successfully")
     print(f"  Users by Governorate: {dict(users_by_gov)}")
     print(f"  Fields by Region: {dict(fields_by_region)}")
     print(f"  Crop Distribution: {crop_dist}")

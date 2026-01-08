@@ -29,9 +29,7 @@ test_cases = [
 ]
 
 for text, should_detect in test_cases:
-    detected = any(
-        re.search(pattern, text, re.IGNORECASE) for pattern in prompt_injection_patterns
-    )
+    detected = any(re.search(pattern, text, re.IGNORECASE) for pattern in prompt_injection_patterns)
     status = "✓" if detected == should_detect else "✗"
     print(f"{status} '{text[:40]}...' - Detected: {detected}")
     assert detected == should_detect, f"Failed for: {text}"
@@ -138,9 +136,7 @@ test_cases = [
 ]
 
 for text, should_detect in test_cases:
-    detected = any(
-        re.search(pattern, text, re.IGNORECASE) for pattern in uncertainty_markers
-    )
+    detected = any(re.search(pattern, text, re.IGNORECASE) for pattern in uncertainty_markers)
     status = "✓" if detected == should_detect else "✗"
     print(f"{status} '{text[:40]}...' - Has markers: {detected}")
     assert detected == should_detect, f"Failed for: {text}"
@@ -152,9 +148,7 @@ print("Test 6: Trust Level Determination")
 print("-" * 40)
 
 
-def get_trust_level(
-    roles=None, is_premium=False, is_verified=False, account_age_days=0
-):
+def get_trust_level(roles=None, is_premium=False, is_verified=False, account_age_days=0):
     """Simplified trust level determination"""
     roles = roles or []
 

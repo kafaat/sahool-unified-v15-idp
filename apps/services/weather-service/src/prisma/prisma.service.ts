@@ -3,7 +3,7 @@
  * خدمة الاتصال بقاعدة البيانات
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 @Injectable()
@@ -11,19 +11,44 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger(PrismaService.name);
+
   constructor() {
     super({
-      log: ['query', 'info', 'warn', 'error'],
+      log: [
+        { level: 'error', emit: 'stdout' },
+        { level: 'warn', emit: 'stdout' },
+        { level: 'info', emit: 'stdout' },
+      ],
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
     });
   }
 
   async onModuleInit() {
     await this.$connect();
-    console.log('📦 Weather Database connected successfully');
+    this.logger.log('Weather Database connected successfully');
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
+    this.logger.log('Weather Database disconnected');
+  }
+
+  /**
+   * Get current connection status
+   */
+  async getConnectionStatus() {
+    try {
+      await this.$queryRaw`SELECT 1`;
+      return { connected: true, timestamp: new Date().toISOString() };
+    } catch (error) {
+      this.logger.error('Database connection check failed:', error);
+      return { connected: false, timestamp: new Date().toISOString() };
+    }
   }
 
   /**
@@ -42,7 +67,7 @@ export class PrismaService
       },
     });
 
-    console.log(`🧹 Cleaned up ${result.count} old weather observations`);
+    this.logger.log(`Cleaned up ${result.count} old weather observations`);
     return result;
   }
 
@@ -62,7 +87,7 @@ export class PrismaService
       },
     });
 
-    console.log(`🧹 Cleaned up ${result.count} old weather forecasts`);
+    this.logger.log(`Cleaned up ${result.count} old weather forecasts`);
     return result;
   }
 
@@ -82,7 +107,7 @@ export class PrismaService
       },
     });
 
-    console.log(`🧹 Cleaned up ${result.count} expired weather alerts`);
+    this.logger.log(`Cleaned up ${result.count} expired weather alerts`);
     return result;
   }
 }

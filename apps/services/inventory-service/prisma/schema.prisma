@@ -2,8 +2,14 @@
 // مخطط قاعدة بيانات خدمة المخزون
 
 datasource db {
-  url      = env("DATABASE_URL")
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer connection pooler)
+  directUrl = env("DATABASE_URL_DIRECT")
+  // TLS/SSL enforcement for secure connections
+  // Requires DATABASE_URL to include sslmode=require parameter
+  // Connection pooling parameters are configured in DATABASE_URL
+  // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=8&pool_timeout=20&connect_timeout=10
 }
 
 generator client {
@@ -68,6 +74,7 @@ model InventoryItem {
   @@index([category])
   @@index([quantity])
   @@index([expiryDate])
+  @@index([tenantId, category, quantity], name: "idx_inventory_tenant_cat_qty")
   @@map("inventory_items")
 }
 
@@ -123,6 +130,8 @@ model InventoryMovement {
   @@index([tenantId])
   @@index([type])
   @@index([createdAt])
+  @@index([itemId, createdAt], name: "idx_movement_item_date")
+  @@index([tenantId, type, createdAt], name: "idx_movement_tenant_type_date")
   @@map("inventory_movements")
 }
 
@@ -282,6 +291,9 @@ model Warehouse {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
+  @@index([isActive], name: "idx_warehouse_active")
+  @@index([warehouseType], name: "idx_warehouse_type")
+  @@index([latitude, longitude], name: "idx_warehouse_location")
   @@map("warehouses")
 }
 

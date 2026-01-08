@@ -11,37 +11,11 @@
 
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-
-// Local HttpExceptionFilter for unified error handling
-@Catch()
-class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
-    const request = ctx.getRequest();
-
-    const status = exception instanceof HttpException
-      ? exception.getStatus()
-      : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    const message = exception instanceof HttpException
-      ? exception.message
-      : 'خطأ داخلي في الخادم';
-
-    response.status(status).json({
-      success: false,
-      error: {
-        code: `ERR_${status}`,
-        message,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      },
-    });
-  }
-}
+import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -56,6 +30,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // ============== Middleware Setup ==============
+  // Global request logging interceptor with correlation IDs
+  app.useGlobalInterceptors(new RequestLoggingInterceptor('marketplace-service'));
 
   // CORS - Secure configuration using environment variable
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
@@ -104,13 +82,42 @@ async function bootstrap() {
 
   console.log(`
   ╔═══════════════════════════════════════════════════════════════╗
-  ║   🛒 SAHOOL Marketplace & FinTech Service v15.3               ║
+  ║   🛒 SAHOOL Marketplace & FinTech Service v16.0.0              ║
   ║   سوق سهول والخدمات المالية                                   ║
   ╠═══════════════════════════════════════════════════════════════╣
   ║   Server running on: http://localhost:${port}                   ║
-  ║   API Documentation: http://localhost:${port}/api/v1            ║
+  ║   API Documentation: http://localhost:${port}/docs              ║
   ╚═══════════════════════════════════════════════════════════════╝
   `);
+
+  // Graceful shutdown handlers
+  let isShuttingDown = false;
+
+  async function gracefulShutdown(signal: string) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+
+    console.log(`\nReceived ${signal}, starting graceful shutdown...`);
+
+    try {
+      // Close NestJS application
+      // This will:
+      // - Stop accepting new requests
+      // - Wait for existing requests to complete
+      // - Trigger OnModuleDestroy hooks (including Prisma $disconnect)
+      // - Close all connections
+      await app.close();
+
+      console.log('Marketplace & FinTech Service shutdown complete');
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+      process.exit(1);
+    }
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 bootstrap();

@@ -74,19 +74,11 @@ class AlertCreate(BaseModel):
     type: AlertType = Field(..., description="نوع التنبيه")
     severity: AlertSeverity = Field(..., description="مستوى الخطورة")
     title: str = Field(..., min_length=1, max_length=200, description="عنوان التنبيه")
-    title_en: str | None = Field(
-        None, max_length=200, description="العنوان بالإنجليزية"
-    )
-    message: str = Field(
-        ..., min_length=1, max_length=2000, description="رسالة التنبيه"
-    )
-    message_en: str | None = Field(
-        None, max_length=2000, description="الرسالة بالإنجليزية"
-    )
+    title_en: str | None = Field(None, max_length=200, description="العنوان بالإنجليزية")
+    message: str = Field(..., min_length=1, max_length=2000, description="رسالة التنبيه")
+    message_en: str | None = Field(None, max_length=2000, description="الرسالة بالإنجليزية")
     recommendations: list[str] | None = Field(default=[], description="التوصيات")
-    recommendations_en: list[str] | None = Field(
-        default=[], description="التوصيات بالإنجليزية"
-    )
+    recommendations_en: list[str] | None = Field(default=[], description="التوصيات بالإنجليزية")
     metadata: dict[str, Any] | None = Field(default={}, description="بيانات إضافية")
     expires_at: datetime | None = Field(None, description="تاريخ انتهاء الصلاحية")
     source_service: str | None = Field(None, description="الخدمة المصدر")
@@ -109,9 +101,7 @@ class RuleCondition(BaseModel):
     metric: str = Field(..., description="اسم المقياس (مثل: soil_moisture, ndvi)")
     operator: ConditionOperator = Field(..., description="عامل المقارنة")
     value: float = Field(..., description="القيمة للمقارنة")
-    duration_minutes: int | None = Field(
-        0, ge=0, description="المدة بالدقائق قبل الإطلاق"
-    )
+    duration_minutes: int | None = Field(0, ge=0, description="المدة بالدقائق قبل الإطلاق")
 
 
 class AlertRuleConfig(BaseModel):

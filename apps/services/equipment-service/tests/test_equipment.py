@@ -204,9 +204,7 @@ class TestEquipmentTelemetry:
 
     def test_update_telemetry(self, client):
         """Test updating equipment telemetry data"""
-        response = client.post(
-            "/api/v1/equipment/eq_001/telemetry?fuel_percent=80&hours=1300"
-        )
+        response = client.post("/api/v1/equipment/eq_001/telemetry?fuel_percent=80&hours=1300")
         assert response.status_code == 200
         data = response.json()
         assert data["current_fuel_percent"] == 80

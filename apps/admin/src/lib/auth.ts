@@ -2,14 +2,21 @@
  * SAHOOL Admin Authentication Utilities
  * أدوات التوثيق للوحة الإدارة
  *
- * NOTE: This file is kept for backward compatibility.
- * New code should use the AuthProvider context from @/stores/auth.store
+ * UPDATED: This file now exports server-side authorization utilities
+ * as well as legacy client-side utilities for backward compatibility.
+ *
+ * SECURITY NOTE: Auth tokens are now stored in httpOnly cookies via server-side
+ * API routes (/api/auth/*) for enhanced security. Direct cookie manipulation
+ * from client-side code is no longer recommended.
  */
 
-import Cookies from 'js-cookie';
 import { logger } from './logger';
 
-const AUTH_TOKEN_KEY = 'sahool_admin_token';
+// Re-export server-side authorization utilities
+export * from './auth/jwt-verify';
+export * from './auth/route-protection';
+export * from './auth/api-middleware';
+
 const AUTH_USER_KEY = 'sahool_admin_user';
 
 // API URL - configurable via environment
@@ -45,28 +52,36 @@ export interface LoginCredentials {
  * تسجيل الدخول بالبريد وكلمة المرور
  *
  * @deprecated Use the useAuth hook from @/stores/auth.store instead
+ * This function now uses server-side API routes for secure httpOnly cookie management
  */
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
-  const response = await fetch(`${API_URL}/api/v1/auth/login`, {
+  // Use server-side login endpoint that sets httpOnly cookies
+  const response = await fetch('/api/auth/login', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'same-origin',
     body: JSON.stringify(credentials),
   });
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'فشل تسجيل الدخول' }));
-    throw new Error(error.message || error.detail || 'فشل تسجيل الدخول');
+    throw new Error(error.message || error.error || 'فشل تسجيل الدخول');
   }
 
-  const data: AuthResponse = await response.json();
+  const data = await response.json();
 
-  // Store token and user
-  setToken(data.access_token);
-  setUser(data.user);
+  if (data.user) {
+    setUser(data.user);
+  }
 
-  return data;
+  // Return mock response for backward compatibility
+  return {
+    access_token: 'stored_in_httponly_cookie',
+    token_type: 'Bearer',
+    user: data.user,
+  };
 }
 
 /**
@@ -74,14 +89,21 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
  * تسجيل الخروج
  *
  * @deprecated Use the useAuth hook from @/stores/auth.store instead
+ * This function now uses server-side API routes to clear httpOnly cookies
  */
-export function logout(): void {
-  Cookies.remove(AUTH_TOKEN_KEY);
+export async function logout(): Promise<void> {
+  // Use server-side logout endpoint to clear httpOnly cookies
+  try {
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'same-origin',
+    });
+  } catch (error) {
+    logger.error('Logout error:', error);
+  }
+
   if (typeof window !== 'undefined') {
     localStorage.removeItem(AUTH_USER_KEY);
-  }
-  // Redirect to login
-  if (typeof window !== 'undefined') {
     window.location.href = '/login';
   }
 }
@@ -89,22 +111,25 @@ export function logout(): void {
 /**
  * Get stored token
  * الحصول على التوكن المخزن
+ *
+ * @deprecated Token is now stored in httpOnly cookie and not accessible from client-side
+ * Returns undefined as tokens are now managed server-side
  */
 export function getToken(): string | undefined {
-  return Cookies.get(AUTH_TOKEN_KEY);
+  logger.warn('getToken() is deprecated. Tokens are now stored in httpOnly cookies and not accessible from client-side.');
+  return undefined;
 }
 
 /**
  * Set token in cookies
  * حفظ التوكن في الكوكيز
+ *
+ * @deprecated Use server-side /api/auth/login endpoint instead
+ * Tokens are now set via httpOnly cookies from server-side for security
  */
 export function setToken(token: string): void {
-  // Set cookie with secure options
-  Cookies.set(AUTH_TOKEN_KEY, token, {
-    expires: 7, // 7 days
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  });
+  logger.warn('setToken() is deprecated. Use /api/auth/login endpoint to set tokens securely via httpOnly cookies.');
+  // No-op - tokens are now managed server-side only
 }
 
 /**

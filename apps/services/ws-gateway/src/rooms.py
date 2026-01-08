@@ -106,9 +106,7 @@ class RoomManager:
         # Auto-join user room
         await self.join_room(connection_id, f"{RoomType.USER}:{user_id}")
 
-        logger.info(
-            f"Connection {connection_id} added. User: {user_id}, Tenant: {tenant_id}"
-        )
+        logger.info(f"Connection {connection_id} added. User: {user_id}, Tenant: {tenant_id}")
 
     async def remove_connection(self, connection_id: str):
         """
@@ -200,9 +198,7 @@ class RoomManager:
             if await self._send_to_connection(conn_id, message):
                 sent_count += 1
 
-        logger.debug(
-            f"Broadcasted to room {room_id}: {sent_count}/{room.connection_count} sent"
-        )
+        logger.debug(f"Broadcasted to room {room_id}: {sent_count}/{room.connection_count} sent")
         return sent_count
 
     async def send_to_user(self, user_id: str, message: dict) -> int:

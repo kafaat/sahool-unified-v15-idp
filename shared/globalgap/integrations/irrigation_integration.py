@@ -112,21 +112,13 @@ class WaterUsageRecord(BaseModel):
     tenant_id: UUID = Field(..., description="Tenant ID")
 
     # Water usage
-    water_volume_m3: float = Field(
-        ..., ge=0, description="Water volume in cubic meters"
-    )
+    water_volume_m3: float = Field(..., ge=0, description="Water volume in cubic meters")
     water_source: WaterSource = Field(..., description="Water source")
-    water_source_name: str | None = Field(
-        None, description="Specific water source name"
-    )
+    water_source_name: str | None = Field(None, description="Specific water source name")
 
     # Quality
-    water_quality_status: WaterQualityStatus = Field(
-        ..., description="Water quality test status"
-    )
-    water_quality_test_date: date | None = Field(
-        None, description="Last water quality test date"
-    )
+    water_quality_status: WaterQualityStatus = Field(..., description="Water quality test status")
+    water_quality_test_date: date | None = Field(None, description="Last water quality test date")
     water_quality_certificate_url: str | None = Field(
         None, description="Water quality certificate URL"
     )
@@ -137,26 +129,16 @@ class WaterUsageRecord(BaseModel):
     usage_period_end: date | None = Field(None, description="Usage period end")
 
     # Irrigation details
-    irrigation_method: IrrigationMethod | None = Field(
-        None, description="Irrigation method used"
-    )
-    irrigation_duration_hours: float | None = Field(
-        None, ge=0, description="Irrigation duration"
-    )
+    irrigation_method: IrrigationMethod | None = Field(None, description="Irrigation method used")
+    irrigation_duration_hours: float | None = Field(None, ge=0, description="Irrigation duration")
     irrigation_efficiency: float | None = Field(
         None, ge=0, le=100, description="Irrigation efficiency %"
     )
 
     # Compliance fields
-    water_rights_documented: bool = Field(
-        default=False, description="Water rights documented"
-    )
-    water_rights_document_url: str | None = Field(
-        None, description="Water rights document URL"
-    )
-    spring_compliant: bool = Field(
-        ..., description="SPRING water requirement compliance"
-    )
+    water_rights_documented: bool = Field(default=False, description="Water rights documented")
+    water_rights_document_url: str | None = Field(None, description="Water rights document URL")
+    spring_compliant: bool = Field(..., description="SPRING water requirement compliance")
 
     # Metadata
     recorded_by: UUID | None = Field(None, description="User who recorded")
@@ -178,9 +160,7 @@ class WaterUsageReport(BaseModel):
     تقرير استخدام المياه لتدقيق GlobalGAP
     """
 
-    report_id: str = Field(
-        default_factory=lambda: str(uuid4()), description="Report ID"
-    )
+    report_id: str = Field(default_factory=lambda: str(uuid4()), description="Report ID")
     farm_id: UUID = Field(..., description="Farm ID")
     tenant_id: UUID = Field(..., description="Tenant ID")
     ggn: str | None = Field(None, description="GlobalGAP Number")
@@ -190,15 +170,11 @@ class WaterUsageReport(BaseModel):
     report_end_date: date = Field(..., description="Report period end")
 
     # Summary statistics
-    total_water_volume_m3: float = Field(
-        ..., ge=0, description="Total water volume in m³"
-    )
+    total_water_volume_m3: float = Field(..., ge=0, description="Total water volume in m³")
     total_irrigated_area_ha: float = Field(
         ..., ge=0, description="Total irrigated area in hectares"
     )
-    average_water_per_ha: float = Field(
-        ..., ge=0, description="Average water per hectare (m³/ha)"
-    )
+    average_water_per_ha: float = Field(..., ge=0, description="Average water per hectare (m³/ha)")
 
     # Water sources breakdown
     water_by_source: dict[str, float] = Field(
@@ -227,20 +203,14 @@ class WaterUsageReport(BaseModel):
         ..., ge=0, le=100, description="Water rights compliance %"
     )
 
-    spring_compliant_records: int = Field(
-        ..., ge=0, description="SPRING compliant records"
-    )
-    spring_compliance_rate: float = Field(
-        ..., ge=0, le=100, description="SPRING compliance %"
-    )
+    spring_compliant_records: int = Field(..., ge=0, description="SPRING compliant records")
+    spring_compliance_rate: float = Field(..., ge=0, le=100, description="SPRING compliance %")
 
     # Overall compliance
     overall_compliance_score: float = Field(
         ..., ge=0, le=100, description="Overall water management compliance %"
     )
-    is_compliant: bool = Field(
-        ..., description="Meets GlobalGAP water management requirements"
-    )
+    is_compliant: bool = Field(..., description="Meets GlobalGAP water management requirements")
 
     # Issues and recommendations
     non_compliant_sources: list[str] = Field(
@@ -280,24 +250,16 @@ class SPRINGCompliance(BaseModel):
     compliance_period_end: date = Field(..., description="Compliance period end")
 
     # SPRING requirements
-    water_management_plan_exists: bool = Field(
-        ..., description="Water management plan documented"
-    )
-    water_management_plan_url: str | None = Field(
-        None, description="Water management plan URL"
-    )
+    water_management_plan_exists: bool = Field(..., description="Water management plan documented")
+    water_management_plan_url: str | None = Field(None, description="Water management plan URL")
 
     irrigation_system_efficiency: float | None = Field(
         None, ge=0, le=100, description="Irrigation system efficiency %"
     )
-    target_efficiency: float = Field(
-        default=75.0, ge=0, le=100, description="Target efficiency %"
-    )
+    target_efficiency: float = Field(default=75.0, ge=0, le=100, description="Target efficiency %")
 
     # Water monitoring
-    water_usage_monitored: bool = Field(
-        ..., description="Water usage systematically monitored"
-    )
+    water_usage_monitored: bool = Field(..., description="Water usage systematically monitored")
     monitoring_frequency_days: int | None = Field(
         None, ge=1, description="Monitoring frequency in days"
     )
@@ -306,26 +268,16 @@ class SPRINGCompliance(BaseModel):
     water_quality_tested_annually: bool = Field(
         ..., description="Water quality tested at least annually"
     )
-    last_quality_test_date: date | None = Field(
-        None, description="Last quality test date"
-    )
-    days_since_last_test: int | None = Field(
-        None, description="Days since last quality test"
-    )
+    last_quality_test_date: date | None = Field(None, description="Last quality test date")
+    days_since_last_test: int | None = Field(None, description="Days since last quality test")
 
     # Legal compliance
-    water_rights_authorized: bool = Field(
-        ..., description="Legal water rights/authorization"
-    )
-    water_usage_within_limits: bool = Field(
-        ..., description="Water usage within authorized limits"
-    )
+    water_rights_authorized: bool = Field(..., description="Legal water rights/authorization")
+    water_usage_within_limits: bool = Field(..., description="Water usage within authorized limits")
 
     # Overall compliance
     is_spring_compliant: bool = Field(..., description="Overall SPRING compliance")
-    compliance_score: float = Field(
-        ..., ge=0, le=100, description="SPRING compliance score %"
-    )
+    compliance_score: float = Field(..., ge=0, le=100, description="SPRING compliance score %")
 
     # Issues
     non_compliance_issues_en: list[str] = Field(
@@ -382,9 +334,7 @@ class IrrigationIntegration:
             True if connected successfully
         """
         if self.publisher is None:
-            self.publisher = EventPublisher(
-                service_name="globalgap-irrigation-integration"
-            )
+            self.publisher = EventPublisher(service_name="globalgap-irrigation-integration")
 
         if not self.publisher.is_connected:
             self._connected = await self.publisher.connect()
@@ -474,22 +424,16 @@ class IrrigationIntegration:
                 field_id=field_id,
                 water_volume_m3=water_volume_m3,
                 water_source=water_source.value,
-                water_quality_tested=(
-                    water_quality_status == WaterQualityStatus.TESTED_COMPLIANT
-                ),
+                water_quality_tested=(water_quality_status == WaterQualityStatus.TESTED_COMPLIANT),
                 recording_date=record.recording_date,
-                irrigation_method=(
-                    irrigation_method.value if irrigation_method else None
-                ),
+                irrigation_method=(irrigation_method.value if irrigation_method else None),
                 irrigation_efficiency=irrigation_efficiency,
                 spring_water_requirement_met=spring_compliant,
                 water_rights_documented=water_rights_documented,
                 recorded_by=recorded_by,
             )
 
-            await self.publisher.publish_event(
-                GlobalGAPSubjects.WATER_USAGE_RECORDED, event
-            )
+            await self.publisher.publish_event(GlobalGAPSubjects.WATER_USAGE_RECORDED, event)
 
         return record
 
@@ -561,9 +505,7 @@ class IrrigationIntegration:
         # Calculate summary statistics
         total_water = sum(r.water_volume_m3 for r in records)
         avg_water_per_ha = (
-            total_water / total_irrigated_area_ha
-            if total_irrigated_area_ha > 0
-            else 0.0
+            total_water / total_irrigated_area_ha if total_irrigated_area_ha > 0 else 0.0
         )
 
         # Water by source
@@ -574,9 +516,7 @@ class IrrigationIntegration:
                 if isinstance(record.water_source, WaterSource)
                 else record.water_source
             )
-            water_by_source[source] = (
-                water_by_source.get(source, 0.0) + record.water_volume_m3
-            )
+            water_by_source[source] = water_by_source.get(source, 0.0) + record.water_volume_m3
 
         # Water by irrigation method
         water_by_method: dict[str, float] = {}
@@ -587,43 +527,27 @@ class IrrigationIntegration:
                     if isinstance(record.irrigation_method, IrrigationMethod)
                     else record.irrigation_method
                 )
-                water_by_method[method] = (
-                    water_by_method.get(method, 0.0) + record.water_volume_m3
-                )
+                water_by_method[method] = water_by_method.get(method, 0.0) + record.water_volume_m3
 
         # Compliance metrics
         total_records = len(records)
         records_with_quality_tests = sum(
-            1
-            for r in records
-            if r.water_quality_status == WaterQualityStatus.TESTED_COMPLIANT
+            1 for r in records if r.water_quality_status == WaterQualityStatus.TESTED_COMPLIANT
         )
         records_with_water_rights = sum(1 for r in records if r.water_rights_documented)
         spring_compliant_records = sum(1 for r in records if r.spring_compliant)
 
         quality_test_rate = (
-            (records_with_quality_tests / total_records * 100)
-            if total_records > 0
-            else 0.0
+            (records_with_quality_tests / total_records * 100) if total_records > 0 else 0.0
         )
         water_rights_rate = (
-            (records_with_water_rights / total_records * 100)
-            if total_records > 0
-            else 0.0
+            (records_with_water_rights / total_records * 100) if total_records > 0 else 0.0
         )
-        spring_rate = (
-            (spring_compliant_records / total_records * 100)
-            if total_records > 0
-            else 0.0
-        )
+        spring_rate = (spring_compliant_records / total_records * 100) if total_records > 0 else 0.0
 
         # Overall compliance score (weighted average)
-        overall_compliance = (
-            quality_test_rate * 0.4 + water_rights_rate * 0.3 + spring_rate * 0.3
-        )
-        is_compliant = (
-            overall_compliance >= 95.0
-        )  # GlobalGAP requires 95%+ for Major Must
+        overall_compliance = quality_test_rate * 0.4 + water_rights_rate * 0.3 + spring_rate * 0.3
+        is_compliant = overall_compliance >= 95.0  # GlobalGAP requires 95%+ for Major Must
 
         # Identify issues
         non_compliant_sources = [
@@ -640,8 +564,7 @@ class IrrigationIntegration:
             source
             for source, _ in water_by_source.items()
             if not any(
-                r.water_source.value == source and r.water_rights_documented
-                for r in records
+                r.water_source.value == source and r.water_rights_documented for r in records
             )
         ]
 
@@ -793,9 +716,7 @@ class IrrigationIntegration:
                 issues_en.append(
                     f"Water quality test overdue ({days_since_test} days since last test)"
                 )
-                issues_ar.append(
-                    f"اختبار جودة المياه متأخر ({days_since_test} يوم منذ آخر اختبار)"
-                )
+                issues_ar.append(f"اختبار جودة المياه متأخر ({days_since_test} يوم منذ آخر اختبار)")
         else:
             issues_en.append("No water quality test date recorded")
             issues_ar.append("لا يوجد تاريخ اختبار جودة المياه مسجل")

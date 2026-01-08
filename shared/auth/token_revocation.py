@@ -71,8 +71,7 @@ class RedisTokenRevocationStore:
         """
         if not REDIS_AVAILABLE:
             raise ImportError(
-                "redis is required for token revocation. "
-                "Install with: pip install redis[asyncio]"
+                "redis is required for token revocation. Install with: pip install redis[asyncio]"
             )
 
         self._redis: aioredis.Redis | None = None
@@ -175,12 +174,12 @@ class RedisTokenRevocationStore:
         try:
             # Store with TTL (auto-cleanup)
             await self._redis.setex(
-                key, ttl, str(value)  # Store as string for simplicity
+                key,
+                ttl,
+                str(value),  # Store as string for simplicity
             )
 
-            logger.info(
-                f"Token revoked: jti={jti[:8]}..., " f"reason={reason}, ttl={ttl}s"
-            )
+            logger.info(f"Token revoked: jti={jti[:8]}..., reason={reason}, ttl={ttl}s")
             return True
 
         except Exception as e:
@@ -415,9 +414,7 @@ class RedisTokenRevocationStore:
             # Store with long TTL (30 days)
             await self._redis.setex(key, 2592000, str(value))
 
-            logger.warning(
-                f"All tenant tokens revoked: tenant_id={tenant_id}, " f"reason={reason}"
-            )
+            logger.warning(f"All tenant tokens revoked: tenant_id={tenant_id}, reason={reason}")
             return True
 
         except Exception as e:

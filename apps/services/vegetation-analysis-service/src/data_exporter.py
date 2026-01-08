@@ -79,9 +79,7 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=(
-                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
-            ),
+            size_bytes=(len(data.encode("utf-8")) if isinstance(data, str) else len(data)),
             generated_at=datetime.now(),
         )
 
@@ -126,9 +124,7 @@ class DataExporter:
                             "coordinates": [point["longitude"], point["latitude"]],
                         },
                         "properties": {
-                            k: v
-                            for k, v in point.items()
-                            if k not in ["latitude", "longitude"]
+                            k: v for k, v in point.items() if k not in ["latitude", "longitude"]
                         },
                     }
                     features.append(feature)
@@ -153,9 +149,7 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=(
-                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
-            ),
+            size_bytes=(len(data.encode("utf-8")) if isinstance(data, str) else len(data)),
             generated_at=datetime.now(),
         )
 
@@ -185,9 +179,7 @@ class DataExporter:
                         },
                     ),
                     "properties": {
-                        k: v
-                        for k, v in boundary.items()
-                        if k not in ["geometry", "coordinates"]
+                        k: v for k, v in boundary.items() if k not in ["geometry", "coordinates"]
                     },
                 }
                 features.append(feature)
@@ -225,9 +217,7 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=(
-                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
-            ),
+            size_bytes=(len(data.encode("utf-8")) if isinstance(data, str) else len(data)),
             generated_at=datetime.now(),
         )
 
@@ -264,9 +254,7 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=(
-                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
-            ),
+            size_bytes=(len(data.encode("utf-8")) if isinstance(data, str) else len(data)),
             generated_at=datetime.now(),
         )
 
@@ -306,9 +294,7 @@ class DataExporter:
                             "coordinates": [change["longitude"], change["latitude"]],
                         },
                         "properties": {
-                            k: v
-                            for k, v in change.items()
-                            if k not in ["latitude", "longitude"]
+                            k: v for k, v in change.items() if k not in ["latitude", "longitude"]
                         },
                     }
                     features.append(feature)
@@ -332,9 +318,7 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=(
-                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
-            ),
+            size_bytes=(len(data.encode("utf-8")) if isinstance(data, str) else len(data)),
             generated_at=datetime.now(),
         )
 
@@ -371,8 +355,7 @@ class DataExporter:
         properties = {
             k: v
             for k, v in data.items()
-            if k
-            not in ["latitude", "longitude", "lat", "lon", "coordinates", "geometry"]
+            if k not in ["latitude", "longitude", "lat", "lon", "coordinates", "geometry"]
         }
 
         feature = {"type": "Feature", "geometry": geometry, "properties": properties}
@@ -623,9 +606,7 @@ class DataExporter:
 
         return flat
 
-    def generate_filename(
-        self, prefix: str, field_id: str, format: ExportFormat
-    ) -> str:
+    def generate_filename(self, prefix: str, field_id: str, format: ExportFormat) -> str:
         """
         Generate filename with timestamp.
 

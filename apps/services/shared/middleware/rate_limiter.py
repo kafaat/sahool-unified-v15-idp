@@ -123,24 +123,18 @@ class InMemoryRateLimiter:
             return
 
         # Cleanup minute windows older than 2 minutes
-        expired_minute = [
-            k for k, v in self._minute_windows.items() if now - v.window_start > 120
-        ]
+        expired_minute = [k for k, v in self._minute_windows.items() if now - v.window_start > 120]
         for key in expired_minute:
             del self._minute_windows[key]
 
         # Cleanup hour windows older than 2 hours
-        expired_hour = [
-            k for k, v in self._hour_windows.items() if now - v.window_start > 7200
-        ]
+        expired_hour = [k for k, v in self._hour_windows.items() if now - v.window_start > 7200]
         for key in expired_hour:
             del self._hour_windows[key]
 
         self._last_cleanup = now
 
-    def check_rate_limit(
-        self, key: str, config: RateLimitConfig
-    ) -> tuple[bool, int, int, int]:
+    def check_rate_limit(self, key: str, config: RateLimitConfig) -> tuple[bool, int, int, int]:
         """Check if request is within rate limits.
 
         Args:

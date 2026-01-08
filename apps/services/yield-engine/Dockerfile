@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY requirements.txt .
+COPY apps/services/yield-engine/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
@@ -50,8 +50,11 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Copy shared modules
+COPY apps/services/shared ./shared/
+
 # Copy source code
-COPY src/ .
+COPY apps/services/yield-engine/src/ .
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash --uid 1000 sahool && \

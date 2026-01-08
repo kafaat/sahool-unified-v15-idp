@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 import '../utils/app_logger.dart';
 
@@ -113,13 +115,21 @@ class WebSocketService {
         throw Exception('Token or tenant ID not available');
       }
 
-      // Build WebSocket URL
+      // Build WebSocket URL without token (security fix: token moved to header)
       final wsUrl = baseUrl.replaceFirst('http', 'ws');
-      final uri = Uri.parse('$wsUrl/ws?tenant_id=$tenantId&token=$token');
+      final uri = Uri.parse('$wsUrl/ws?tenant_id=$tenantId');
 
-      AppLogger.info('Connecting to WebSocket: ${uri.toString().replaceAll(RegExp(r'token=[^&]+'), 'token=***')}');
+      AppLogger.info('Connecting to WebSocket: $uri');
 
-      _channel = WebSocketChannel.connect(uri);
+      // Connect with Authorization header for security
+      final socket = await WebSocket.connect(
+        uri.toString(),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      _channel = IOWebSocketChannel(socket);
 
       // Listen to messages
       _channel!.stream.listen(

@@ -49,14 +49,10 @@ class PreferencesService:
                     "channels": pref.channels or [],
                     "enabled": pref.enabled,
                     "quiet_hours_start": (
-                        pref.quiet_hours_start.strftime("%H:%M")
-                        if pref.quiet_hours_start
-                        else None
+                        pref.quiet_hours_start.strftime("%H:%M") if pref.quiet_hours_start else None
                     ),
                     "quiet_hours_end": (
-                        pref.quiet_hours_end.strftime("%H:%M")
-                        if pref.quiet_hours_end
-                        else None
+                        pref.quiet_hours_end.strftime("%H:%M") if pref.quiet_hours_end else None
                     ),
                     "metadata": pref.metadata,
                     "created_at": pref.created_at.isoformat(),

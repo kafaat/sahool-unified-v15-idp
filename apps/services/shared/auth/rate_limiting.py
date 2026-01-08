@@ -158,16 +158,12 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, username)
-        allowed, remaining, limit, reset = (
-            await self._limiter._in_memory.check_rate_limit(
-                key, AUTH_RATE_CONFIGS.LOGIN
-            )
+        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
+            key, AUTH_RATE_CONFIGS.LOGIN
         )
 
         if not allowed:
-            logger.warning(
-                f"Login rate limit exceeded for {username} from {request.client.host}"
-            )
+            logger.warning(f"Login rate limit exceeded for {username} from {request.client.host}")
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={
@@ -198,10 +194,8 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, email)
-        allowed, remaining, limit, reset = (
-            await self._limiter._in_memory.check_rate_limit(
-                key, AUTH_RATE_CONFIGS.PASSWORD_RESET
-            )
+        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
+            key, AUTH_RATE_CONFIGS.PASSWORD_RESET
         )
 
         if not allowed:
@@ -238,16 +232,12 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, email)
-        allowed, remaining, limit, reset = (
-            await self._limiter._in_memory.check_rate_limit(
-                key, AUTH_RATE_CONFIGS.REGISTRATION
-            )
+        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
+            key, AUTH_RATE_CONFIGS.REGISTRATION
         )
 
         if not allowed:
-            logger.warning(
-                f"Registration rate limit exceeded from {request.client.host}"
-            )
+            logger.warning(f"Registration rate limit exceeded from {request.client.host}")
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={
@@ -278,10 +268,8 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, user_id)
-        allowed, remaining, limit, reset = (
-            await self._limiter._in_memory.check_rate_limit(
-                key, AUTH_RATE_CONFIGS.TOKEN_REFRESH
-            )
+        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
+            key, AUTH_RATE_CONFIGS.TOKEN_REFRESH
         )
 
         if not allowed:

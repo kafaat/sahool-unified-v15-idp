@@ -259,6 +259,244 @@ groups:
           description: "Deadlock rate: {{ $value }}/sec"
           description_ar: "معدل الجمود: {{ $value }}/ثانية"
 
+      # ─────────────────────────────────────────────────────────────────────────
+      # Advanced Database Health Alerts - تنبيهات متقدمة لصحة قاعدة البيانات
+      # ─────────────────────────────────────────────────────────────────────────
+
+      - alert: DatabaseWALSizeHigh
+        expr: pg_wal_size_bytes > 1073741824  # 1GB
+        for: 10m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "PostgreSQL WAL size is high"
+          summary_ar: "حجم WAL لـ PostgreSQL عالي"
+          description: "WAL directory size is {{ $value | humanize1024 }}B (threshold: 1GB)"
+          description_ar: "حجم دليل WAL هو {{ $value | humanize1024 }}B (الحد: 1GB)"
+          impact: "Risk of disk space exhaustion"
+          impact_ar: "خطر استنفاد مساحة القرص"
+          action: "Check for replication lag or archiving issues. Consider increasing wal_keep_size or fixing replication."
+          action_ar: "تحقق من تأخر النسخ المتماثل أو مشاكل الأرشفة"
+
+      - alert: DatabaseWALSizeCritical
+        expr: pg_wal_size_bytes > 5368709120  # 5GB
+        for: 5m
+        labels:
+          severity: critical
+          category: database
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: PostgreSQL WAL size is critically high"
+          summary_ar: "حرج: حجم WAL لـ PostgreSQL عالي جداً"
+          description: "WAL directory size is {{ $value | humanize1024 }}B (threshold: 5GB)"
+          description_ar: "حجم دليل WAL هو {{ $value | humanize1024 }}B (الحد: 5GB)"
+          action: "URGENT: WAL files are accumulating. Check replication and archiving immediately."
+          action_ar: "عاجل: ملفات WAL تتراكم. تحقق من النسخ المتماثل والأرشفة فوراً"
+
+      - alert: DatabaseAutovacuumNotRunning
+        expr: pg_autovacuum_activity_seconds_since_last_autovacuum > 86400  # 24 hours
+        for: 1h
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Autovacuum has not run recently on table {{ $labels.relname }}"
+          summary_ar: "التنظيف التلقائي لم يعمل مؤخراً على الجدول {{ $labels.relname }}"
+          description: "Table {{ $labels.schemaname }}.{{ $labels.relname }} has not been vacuumed in {{ $value | humanizeDuration }}"
+          description_ar: "الجدول {{ $labels.schemaname }}.{{ $labels.relname }} لم يتم تنظيفه منذ {{ $value | humanizeDuration }}"
+          impact: "Table bloat may be increasing, degrading query performance"
+          impact_ar: "قد يزداد انتفاخ الجدول، مما يؤثر على أداء الاستعلامات"
+          action: "Check autovacuum settings or run manual VACUUM"
+          action_ar: "تحقق من إعدادات التنظيف التلقائي أو قم بتشغيل VACUUM يدوياً"
+
+      - alert: DatabaseHighDeadTuples
+        expr: pg_autovacuum_activity_dead_tuple_ratio > 0.20  # 20% dead tuples
+        for: 15m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "High dead tuple ratio on table {{ $labels.relname }}"
+          summary_ar: "نسبة عالية من الصفوف الميتة على الجدول {{ $labels.relname }}"
+          description: "Table {{ $labels.schemaname }}.{{ $labels.relname }} has {{ $value | humanizePercentage }} dead tuples"
+          description_ar: "الجدول {{ $labels.schemaname }}.{{ $labels.relname }} لديه {{ $value | humanizePercentage }} صفوف ميتة"
+          impact: "Query performance degradation and bloat"
+          impact_ar: "تدهور أداء الاستعلامات والانتفاخ"
+          action: "Run VACUUM on this table"
+          action_ar: "قم بتشغيل VACUUM على هذا الجدول"
+
+      - alert: DatabaseBufferCacheHitRatioLow
+        expr: pg_buffer_cache_hit_ratio_cache_hit_ratio < 0.90
+        for: 10m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Database buffer cache hit ratio is low for {{ $labels.datname }}"
+          summary_ar: "نسبة إصابة ذاكرة التخزين المؤقت منخفضة لقاعدة البيانات {{ $labels.datname }}"
+          description: "Cache hit ratio is {{ $value | humanizePercentage }} (threshold: 90%)"
+          description_ar: "نسبة إصابة الذاكرة المؤقتة {{ $value | humanizePercentage }} (الحد: 90%)"
+          impact: "Database is reading from disk more than optimal"
+          impact_ar: "قاعدة البيانات تقرأ من القرص أكثر من الأمثل"
+          action: "Consider increasing shared_buffers or reviewing query patterns"
+          action_ar: "فكر في زيادة shared_buffers أو مراجعة أنماط الاستعلامات"
+
+      - alert: DatabaseDiskSpaceLow
+        expr: |
+          (
+            node_filesystem_avail_bytes{mountpoint=~".*postgres.*|.*data.*"}
+            /
+            node_filesystem_size_bytes{mountpoint=~".*postgres.*|.*data.*"}
+          ) < 0.15
+        for: 5m
+        labels:
+          severity: critical
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Database disk space is critically low"
+          summary_ar: "مساحة قرص قاعدة البيانات منخفضة جداً"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining on {{ $labels.mountpoint }}"
+          description_ar: "فقط {{ $value | humanizePercentage }} من مساحة القرص متبقية على {{ $labels.mountpoint }}"
+          action: "URGENT: Free up disk space, expand volume, or archive old data"
+          action_ar: "عاجل: حرر مساحة القرص، وسّع المجلد، أو أرشف البيانات القديمة"
+
+      - alert: DatabaseDiskSpaceWarning
+        expr: |
+          (
+            node_filesystem_avail_bytes{mountpoint=~".*postgres.*|.*data.*"}
+            /
+            node_filesystem_size_bytes{mountpoint=~".*postgres.*|.*data.*"}
+          ) < 0.25
+        for: 10m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Database disk space is running low"
+          summary_ar: "مساحة قرص قاعدة البيانات تنفد"
+          description: "{{ $value | humanizePercentage }} disk space remaining on {{ $labels.mountpoint }}"
+          description_ar: "{{ $value | humanizePercentage }} من مساحة القرص متبقية على {{ $labels.mountpoint }}"
+          action: "Plan for disk space expansion or data cleanup"
+          action_ar: "خطط لتوسيع مساحة القرص أو تنظيف البيانات"
+
+      - alert: DatabaseReplicationLagHigh
+        expr: pg_replication_lag_lag_seconds > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Replication lag is high for {{ $labels.application_name }}"
+          summary_ar: "تأخر النسخ المتماثل عالي لـ {{ $labels.application_name }}"
+          description: "Replica {{ $labels.client_addr }} is {{ $value }}s behind primary"
+          description_ar: "النسخة المتماثلة {{ $labels.client_addr }} متأخرة {{ $value }} ثانية عن الأساسية"
+          impact: "Read replicas may serve stale data"
+          impact_ar: "نسخ القراءة قد تقدم بيانات قديمة"
+          action: "Check network connectivity and replica performance"
+          action_ar: "تحقق من اتصال الشبكة وأداء النسخة المتماثلة"
+
+      - alert: DatabaseReplicationLagCritical
+        expr: pg_replication_lag_lag_seconds > 60
+        for: 2m
+        labels:
+          severity: critical
+          category: database
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Replication lag is very high for {{ $labels.application_name }}"
+          summary_ar: "حرج: تأخر النسخ المتماثل عالي جداً لـ {{ $labels.application_name }}"
+          description: "Replica {{ $labels.client_addr }} is {{ $value }}s behind primary"
+          description_ar: "النسخة المتماثلة {{ $labels.client_addr }} متأخرة {{ $value }} ثانية"
+          action: "URGENT: Investigate replication issues immediately"
+          action_ar: "عاجل: تحقق من مشاكل النسخ المتماثل فوراً"
+
+      - alert: DatabaseTransactionWraparoundWarning
+        expr: pg_txid_wraparound_txid_remaining < 500000000  # 500M transactions left
+        for: 1h
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Transaction ID wraparound approaching for {{ $labels.datname }}"
+          summary_ar: "اقتراب الالتفاف حول معرف المعاملة لقاعدة البيانات {{ $labels.datname }}"
+          description: "Only {{ $value }} transactions until wraparound (threshold: 500M)"
+          description_ar: "فقط {{ $value }} معاملة حتى الالتفاف (الحد: 500M)"
+          impact: "Database may shut down to prevent data corruption"
+          impact_ar: "قد تتوقف قاعدة البيانات لمنع تلف البيانات"
+          action: "Run aggressive VACUUM FREEZE on database"
+          action_ar: "قم بتشغيل VACUUM FREEZE على قاعدة البيانات"
+
+      - alert: DatabaseTransactionWraparoundCritical
+        expr: pg_txid_wraparound_txid_remaining < 100000000  # 100M transactions left
+        for: 10m
+        labels:
+          severity: critical
+          category: database
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Transaction ID wraparound imminent for {{ $labels.datname }}"
+          summary_ar: "حرج: الالتفاف حول معرف المعاملة وشيك لقاعدة البيانات {{ $labels.datname }}"
+          description: "ONLY {{ $value }} transactions until wraparound!"
+          description_ar: "فقط {{ $value }} معاملة حتى الالتفاف!"
+          action: "URGENT: Run VACUUM FREEZE immediately to prevent database shutdown"
+          action_ar: "عاجل: قم بتشغيل VACUUM FREEZE فوراً لمنع إيقاف قاعدة البيانات"
+
+      - alert: DatabaseUnusedIndexes
+        expr: pg_index_usage_idx_scan < 10 and pg_index_usage_index_size_bytes > 10485760  # < 10 scans and > 10MB
+        for: 24h
+        labels:
+          severity: info
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Potentially unused index {{ $labels.indexname }} on {{ $labels.tablename }}"
+          summary_ar: "فهرس غير مستخدم محتمل {{ $labels.indexname }} على الجدول {{ $labels.tablename }}"
+          description: "Index has only {{ $value }} scans but occupies significant space"
+          description_ar: "الفهرس لديه فقط {{ $value }} مسح ولكنه يشغل مساحة كبيرة"
+          action: "Consider dropping this index if not needed"
+          action_ar: "فكر في حذف هذا الفهرس إذا لم يكن مطلوباً"
+
+      - alert: DatabaseLongRunningQueries
+        expr: pg_long_running_queries_max_duration_seconds > 300  # 5 minutes
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Long-running queries detected in {{ $labels.datname }}"
+          summary_ar: "تم اكتشاف استعلامات طويلة التشغيل في {{ $labels.datname }}"
+          description: "{{ $labels.query_count }} queries running for more than {{ $value }}s"
+          description_ar: "{{ $labels.query_count }} استعلامات تعمل لأكثر من {{ $value }} ثانية"
+          action: "Check pg_stat_activity for slow queries and consider optimization"
+          action_ar: "تحقق من pg_stat_activity للاستعلامات البطيئة وفكر في التحسين"
+
+      - alert: DatabaseCheckpointTooFrequent
+        expr: rate(pg_checkpoint_stats_checkpoints_req[10m]) > rate(pg_checkpoint_stats_checkpoints_timed[10m]) * 2
+        for: 30m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "PostgreSQL checkpoints are too frequent"
+          summary_ar: "نقاط التفتيش في PostgreSQL متكررة جداً"
+          description: "Requested checkpoints exceed timed checkpoints significantly"
+          description_ar: "نقاط التفتيش المطلوبة تتجاوز نقاط التفتيش المجدولة بشكل كبير"
+          impact: "Performance degradation due to frequent I/O operations"
+          impact_ar: "تدهور الأداء بسبب عمليات I/O المتكررة"
+          action: "Consider increasing max_wal_size or checkpoint_timeout"
+          action_ar: "فكر في زيادة max_wal_size أو checkpoint_timeout"
+
   # ═══════════════════════════════════════════════════════════════════════════
   # Redis Alerts - تنبيهات Redis
   # ═══════════════════════════════════════════════════════════════════════════
@@ -392,6 +630,95 @@ groups:
           summary_ar: "مستهلك NATS يعالج ببطء"
           description: "Processing rate: {{ $value }} messages/sec"
           description_ar: "معدل المعالجة: {{ $value }} رسالة/ثانية"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Backup Monitoring Alerts - تنبيهات مراقبة النسخ الاحتياطي
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_backup_alerts
+    interval: 60s
+    rules:
+      - alert: DatabaseBackupOld
+        expr: postgres_backup_age_seconds > 86400  # 24 hours
+        for: 1h
+        labels:
+          severity: critical
+          category: backup
+          platform: sahool
+        annotations:
+          summary: "Database backup is outdated"
+          summary_ar: "النسخة الاحتياطية لقاعدة البيانات قديمة"
+          description: "Last backup was {{ $value | humanizeDuration }} ago (threshold: 24 hours)"
+          description_ar: "آخر نسخة احتياطية كانت منذ {{ $value | humanizeDuration }} (الحد: 24 ساعة)"
+          impact: "Risk of data loss in case of disaster"
+          impact_ar: "خطر فقدان البيانات في حالة الكارثة"
+          action: "Check backup job and run manual backup if needed"
+          action_ar: "تحقق من مهمة النسخ الاحتياطي وقم بتشغيل نسخة احتياطية يدوية إذا لزم الأمر"
+
+      - alert: DatabaseBackupMissing
+        expr: postgres_backup_status == 0
+        for: 30m
+        labels:
+          severity: critical
+          category: backup
+          platform: sahool
+        annotations:
+          summary: "No database backup found"
+          summary_ar: "لم يتم العثور على نسخة احتياطية لقاعدة البيانات"
+          description: "No backup files found in backup directory"
+          description_ar: "لم يتم العثور على ملفات نسخ احتياطي في دليل النسخ الاحتياطي"
+          impact: "CRITICAL: No backup available for disaster recovery"
+          impact_ar: "حرج: لا توجد نسخة احتياطية متاحة للاسترداد من الكوارث"
+          action: "URGENT: Investigate backup system failure and create backup immediately"
+          action_ar: "عاجل: تحقق من فشل نظام النسخ الاحتياطي وأنشئ نسخة احتياطية فوراً"
+
+      - alert: DatabaseBackupTooSmall
+        expr: postgres_backup_size_bytes < 10485760 and postgres_backup_status == 1  # < 10MB
+        for: 15m
+        labels:
+          severity: warning
+          category: backup
+          platform: sahool
+        annotations:
+          summary: "Database backup file is suspiciously small"
+          summary_ar: "ملف النسخة الاحتياطية لقاعدة البيانات صغير بشكل مريب"
+          description: "Backup size is only {{ $value | humanize1024 }}B (threshold: 10MB)"
+          description_ar: "حجم النسخة الاحتياطية فقط {{ $value | humanize1024 }}B (الحد: 10MB)"
+          impact: "Backup may be incomplete or corrupted"
+          impact_ar: "قد تكون النسخة الاحتياطية غير كاملة أو تالفة"
+          action: "Verify backup integrity and re-run backup if necessary"
+          action_ar: "تحقق من سلامة النسخة الاحتياطية وأعد تشغيل النسخ الاحتياطي إذا لزم الأمر"
+
+      - alert: DatabaseBackupCorrupted
+        expr: postgres_backup_integrity == 0
+        for: 5m
+        labels:
+          severity: critical
+          category: backup
+          platform: sahool
+        annotations:
+          summary: "Database backup integrity check failed"
+          summary_ar: "فشل فحص سلامة النسخة الاحتياطية لقاعدة البيانات"
+          description: "Backup file failed integrity verification"
+          description_ar: "فشل ملف النسخة الاحتياطية في التحقق من السلامة"
+          impact: "Backup cannot be used for restoration"
+          impact_ar: "لا يمكن استخدام النسخة الاحتياطية للاستعادة"
+          action: "URGENT: Create new backup immediately"
+          action_ar: "عاجل: أنشئ نسخة احتياطية جديدة فوراً"
+
+      - alert: DatabaseBackupMonitoringStale
+        expr: (time() - postgres_backup_monitoring_timestamp_seconds) > 1800  # 30 minutes
+        for: 10m
+        labels:
+          severity: warning
+          category: backup
+          platform: sahool
+        annotations:
+          summary: "Backup monitoring has not run recently"
+          summary_ar: "لم يتم تشغيل مراقبة النسخ الاحتياطي مؤخراً"
+          description: "Backup monitoring script has not reported in {{ $value | humanizeDuration }}"
+          description_ar: "لم يبلغ سكريبت مراقبة النسخ الاحتياطي منذ {{ $value | humanizeDuration }}"
+          action: "Check backup monitoring cron job or script health"
+          action_ar: "تحقق من مهمة cron لمراقبة النسخ الاحتياطي أو صحة السكريبت"
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Infrastructure Health - صحة البنية التحتية

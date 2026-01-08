@@ -319,9 +319,7 @@ def example_drift_detection():
         )
         readings.append(reading)
 
-    drift_detected, drift_magnitude = aggregator.detect_sensor_drift(
-        readings, window_size=10
-    )
+    drift_detected, drift_magnitude = aggregator.detect_sensor_drift(readings, window_size=10)
 
     print(f"\nالانحراف مكتشف - Drift detected: {drift_detected}")
     if drift_magnitude:

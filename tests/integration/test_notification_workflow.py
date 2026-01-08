@@ -68,9 +68,7 @@ async def test_create_notification_workflow(
     )
 
     # Assert - التحقق من النتائج
-    assert (
-        response.status_code == 200
-    ), f"Failed to create notification: {response.text}"
+    assert response.status_code == 200, f"Failed to create notification: {response.text}"
 
     created_notification = response.json()
 
@@ -125,9 +123,7 @@ async def test_weather_alert_workflow(
     )
 
     # Assert
-    assert (
-        response.status_code == 200
-    ), f"Failed to create weather alert: {response.text}"
+    assert response.status_code == 200, f"Failed to create weather alert: {response.text}"
 
     alert = response.json()
 
@@ -238,9 +234,7 @@ async def test_irrigation_reminder_workflow(
     )
 
     # Assert
-    assert (
-        response.status_code == 200
-    ), f"Failed to create irrigation reminder: {response.text}"
+    assert response.status_code == 200, f"Failed to create irrigation reminder: {response.text}"
 
     reminder = response.json()
 
@@ -368,18 +362,12 @@ async def test_farmer_notification_retrieval_workflow(
     if len(farmer_notifications["notifications"]) > 1:
         for i in range(len(farmer_notifications["notifications"]) - 1):
             current = datetime.fromisoformat(
-                farmer_notifications["notifications"][i]["created_at"].replace(
-                    "Z", "+00:00"
-                )
+                farmer_notifications["notifications"][i]["created_at"].replace("Z", "+00:00")
             )
             next_notif = datetime.fromisoformat(
-                farmer_notifications["notifications"][i + 1]["created_at"].replace(
-                    "Z", "+00:00"
-                )
+                farmer_notifications["notifications"][i + 1]["created_at"].replace("Z", "+00:00")
             )
-            assert (
-                current >= next_notif
-            ), "Notifications should be sorted by created_at descending"
+            assert current >= next_notif, "Notifications should be sorted by created_at descending"
 
 
 @pytest.mark.integration
@@ -713,9 +701,7 @@ async def test_notification_statistics_workflow(
     notification_url = service_urls.get("notification_service", "http://localhost:8110")
 
     # Get statistics - الحصول على الإحصائيات
-    stats_response = await http_client.get(
-        f"{notification_url}/v1/stats", headers=auth_headers
-    )
+    stats_response = await http_client.get(f"{notification_url}/v1/stats", headers=auth_headers)
 
     assert stats_response.status_code == 200
     stats = stats_response.json()

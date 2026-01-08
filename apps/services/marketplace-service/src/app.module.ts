@@ -10,6 +10,10 @@ import { AppController } from './app.controller';
 import { PrismaService } from './prisma/prisma.service';
 import { MarketService } from './market/market.service';
 import { FintechService } from './fintech/fintech.service';
+import { WalletService } from './fintech/wallet.service';
+import { CreditService } from './fintech/credit.service';
+import { LoanService } from './fintech/loan.service';
+import { EscrowService } from './fintech/escrow.service';
 import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
 import { ProfilesModule } from './profiles/profiles.module';
 import { ReviewsModule } from './reviews/reviews.module';
@@ -50,6 +54,10 @@ import { EventsModule } from './events/events.module';
   providers: [
     PrismaService,
     MarketService,
+    WalletService,
+    CreditService,
+    LoanService,
+    EscrowService,
     FintechService,
     JwtAuthGuard,
     OptionalJwtAuthGuard,

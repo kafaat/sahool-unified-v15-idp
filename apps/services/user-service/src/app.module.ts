@@ -1,6 +1,12 @@
 /**
  * SAHOOL User Service App Module
  * وحدة التطبيق الرئيسية
+ *
+ * Includes:
+ * - Authentication with JWT and token revocation
+ * - User management
+ * - Rate limiting
+ * - Health checks
  */
 
 import { Module } from '@nestjs/common';
@@ -8,7 +14,15 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 import { HealthController } from './health/health.controller';
+import { JwtService, JwtModule } from '@nestjs/jwt';
+import { Reflector } from '@nestjs/core';
+
+// Import token revocation guard from local utils
+import { TokenRevocationGuard } from './utils/token-revocation.guard';
+import { RedisTokenRevocationStore } from './utils/token-revocation';
+import { JWTConfig } from './utils/jwt.config';
 
 @Module({
   imports: [
@@ -30,7 +44,12 @@ import { HealthController } from './health/health.controller';
         limit: 1000, // 1000 requests per hour
       },
     ]),
+    // JWT Module for token decoding in revocation guard
+    JwtModule.register({
+      secret: JWTConfig.getVerificationKey(),
+    }),
     PrismaModule,
+    AuthModule, // Authentication module with token revocation
     UsersModule,
   ],
   controllers: [HealthController],
@@ -39,6 +58,11 @@ import { HealthController } from './health/health.controller';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global token revocation guard (checks all authenticated requests)
+    {
+      provide: APP_GUARD,
+      useClass: TokenRevocationGuard,
     },
   ],
 })

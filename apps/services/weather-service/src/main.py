@@ -15,6 +15,10 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from pydantic import BaseModel, Field
 
 # Add shared modules to path
@@ -26,7 +30,7 @@ if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
 
 # Import unified error handling
-from errors_py import (
+from shared.errors_py import (
     ExternalServiceException,
     InternalServerException,
     add_request_id_middleware,
@@ -395,9 +399,7 @@ async def get_providers():
     else:
         return {
             "multi_provider_enabled": False,
-            "providers": [
-                {"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}
-            ],
+            "providers": [{"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}],
             "total": 1,
             "configured": 1,
         }

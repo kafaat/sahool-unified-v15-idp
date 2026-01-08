@@ -193,9 +193,7 @@ PERM_SENSOR_MANAGE = Permission(
 )
 
 # Irrigation permissions
-PERM_IRRIGATION_VIEW = Permission(
-    "irrigation:view", "View irrigation", "irrigation", ["read"]
-)
+PERM_IRRIGATION_VIEW = Permission("irrigation:view", "View irrigation", "irrigation", ["read"])
 PERM_IRRIGATION_CONTROL = Permission(
     "irrigation:control", "Control irrigation", "irrigation", ["update"]
 )
@@ -212,15 +210,11 @@ PERM_BILLING_MANAGE = Permission(
 
 # User management permissions
 PERM_USER_READ = Permission("user:read", "View users", "user", ["read"])
-PERM_USER_MANAGE = Permission(
-    "user:manage", "Manage users", "user", ["create", "update", "delete"]
-)
+PERM_USER_MANAGE = Permission("user:manage", "Manage users", "user", ["create", "update", "delete"])
 
 # Role management permissions
 PERM_ROLE_READ = Permission("role:read", "View roles", "role", ["read"])
-PERM_ROLE_MANAGE = Permission(
-    "role:manage", "Manage roles", "role", ["create", "update", "delete"]
-)
+PERM_ROLE_MANAGE = Permission("role:manage", "Manage roles", "role", ["create", "update", "delete"])
 
 # System permissions
 PERM_SYSTEM_ADMIN = Permission("system:admin", "System administration", "system", ["*"])

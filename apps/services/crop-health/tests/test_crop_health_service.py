@@ -3,7 +3,6 @@ Comprehensive Tests for Crop Health Service
 اختبارات شاملة لخدمة صحة المحاصيل
 """
 
-
 import pytest
 from fastapi.testclient import TestClient
 from src.main import app
@@ -136,9 +135,7 @@ class TestObservationsIngest:
         )
 
         # Then list observations
-        response = client.get(
-            "/api/v1/fields/test_field2/zones/test_zone2/observations"
-        )
+        response = client.get("/api/v1/fields/test_field2/zones/test_zone2/observations")
 
         assert response.status_code == 200
         data = response.json()
@@ -152,9 +149,7 @@ class TestFieldDiagnosis:
 
     def test_get_field_diagnosis(self, client):
         """Test getting field diagnosis"""
-        response = client.get(
-            "/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"})
 
         assert response.status_code == 200
         data = response.json()
@@ -165,9 +160,7 @@ class TestFieldDiagnosis:
 
     def test_diagnosis_summary_structure(self, client):
         """Test diagnosis summary structure"""
-        response = client.get(
-            "/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"})
 
         summary = response.json()["summary"]
         assert "zones_total" in summary
@@ -185,9 +178,7 @@ class TestFieldDiagnosis:
 
     def test_diagnosis_nonexistent_field(self, client):
         """Test diagnosis for non-existent field"""
-        response = client.get(
-            "/api/v1/fields/nonexistent/diagnosis", params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/nonexistent/diagnosis", params={"date": "2025-12-14"})
 
         assert response.status_code == 404
 
@@ -234,9 +225,7 @@ class TestVRTExport:
 
     def test_export_vrt(self, client):
         """Test VRT export"""
-        response = client.get(
-            "/api/v1/fields/field_demo/vrt", params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/field_demo/vrt", params={"date": "2025-12-14"})
 
         assert response.status_code == 200
         data = response.json()
@@ -257,9 +246,7 @@ class TestVRTExport:
 
     def test_vrt_export_metadata(self, client):
         """Test VRT export metadata structure"""
-        response = client.get(
-            "/api/v1/fields/field_demo/vrt", params={"date": "2025-12-14"}
-        )
+        response = client.get("/api/v1/fields/field_demo/vrt", params={"date": "2025-12-14"})
 
         metadata = response.json()["metadata"]
         assert "field_id" in metadata
@@ -323,13 +310,9 @@ class TestDecisionEngine:
             diagnose_zone,
         )
 
-        indices = Indices(
-            ndvi=0.80, evi=0.70, ndre=0.30, lci=0.35, ndwi=0.05, savi=0.70
-        )
+        indices = Indices(ndvi=0.80, evi=0.70, ndre=0.30, lci=0.35, ndwi=0.05, savi=0.70)
 
-        obs = ZoneObservation(
-            zone_id="test_zone", growth_stage=GrowthStage.MID, indices=indices
-        )
+        obs = ZoneObservation(zone_id="test_zone", growth_stage=GrowthStage.MID, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -423,7 +406,5 @@ class TestCompleteWorkflow:
         assert timeline_response.status_code == 200
 
         # Step 5: Export VRT
-        vrt_response = client.get(
-            f"/api/v1/fields/{field_id}/vrt", params={"date": "2025-12-27"}
-        )
+        vrt_response = client.get(f"/api/v1/fields/{field_id}/vrt", params={"date": "2025-12-27"})
         assert vrt_response.status_code == 200

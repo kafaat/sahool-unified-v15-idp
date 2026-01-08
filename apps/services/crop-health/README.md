@@ -3,6 +3,10 @@
 This service has been deprecated and merged into `crop-intelligence-service`.
 Please update your references to use `crop-intelligence-service` on port 8095.
 
+**Deprecation Date**: 2026-01-06
+**Sunset Date**: 2026-06-01
+**Replacement**: `crop-intelligence-service` (Port 8095)
+
 ---
 
 

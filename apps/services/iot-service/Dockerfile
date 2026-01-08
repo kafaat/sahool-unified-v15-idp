@@ -9,24 +9,29 @@
 # ───────────────────────────────────────────
 FROM node:20-alpine AS builder
 
-WORKDIR /app
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
 
-# Copy package files
-COPY package.json ./
+# Use workspace structure to maintain relative paths for shared imports
+WORKDIR /workspace
+
+# Copy shared modules first (required for imports from ../../shared/)
+COPY apps/services/shared ./shared/
+
+# Copy service to maintain relative path: ../../shared/ from iot-service/src/
+COPY apps/services/iot-service ./iot-service/
+
+WORKDIR /workspace/iot-service
 
 # Install all dependencies with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
-# Copy Prisma schema and generate client
-COPY prisma ./prisma
+# Generate Prisma client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
     (sleep 10 && npx prisma generate) || \
     (echo "Prisma generate failed after retries" && exit 1)
-
-# Copy source
-COPY . .
 
 # Build NestJS application
 RUN npm run build
@@ -48,13 +53,13 @@ RUN apk add --no-cache curl
 WORKDIR /app
 
 # Copy package files
-COPY package.json ./
+COPY apps/services/iot-service/package.json ./
 
 # Install production dependencies with retry for network resilience
 RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
 
 # Copy Prisma schema and regenerate client for production
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /workspace/iot-service/prisma ./prisma
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
@@ -62,7 +67,7 @@ RUN npx prisma generate || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy built application
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /workspace/iot-service/dist ./dist
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \

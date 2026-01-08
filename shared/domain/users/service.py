@@ -140,9 +140,7 @@ class UserService:
             user.updated_at = datetime.now(UTC)
         return user
 
-    def update_backup_codes(
-        self, user_id: str, backup_codes: list[str]
-    ) -> User | None:
+    def update_backup_codes(self, user_id: str, backup_codes: list[str]) -> User | None:
         """Update user's backup codes"""
         user = self._users.get(user_id)
         if user:
@@ -154,8 +152,6 @@ class UserService:
         """Remove a used backup code"""
         user = self._users.get(user_id)
         if user and user.twofa_backup_codes:
-            user.twofa_backup_codes = [
-                c for c in user.twofa_backup_codes if c != code_hash
-            ]
+            user.twofa_backup_codes = [c for c in user.twofa_backup_codes if c != code_hash]
             user.updated_at = datetime.now(UTC)
         return user

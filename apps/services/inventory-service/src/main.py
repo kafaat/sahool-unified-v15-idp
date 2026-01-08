@@ -6,12 +6,18 @@ Port: 8116
 
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import date
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
@@ -33,9 +39,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     # Fallback for local development only - requires explicit opt-in
     if os.getenv("ALLOW_DEV_DEFAULTS", "false").lower() == "true":
-        DATABASE_URL = (
-            "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_inventory"
-        )
+        DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_inventory"
         logger.warning("⚠️ Using development database defaults - NOT FOR PRODUCTION")
     else:
         raise ValueError(
@@ -55,9 +59,7 @@ engine = create_async_engine(
     echo=os.getenv("SQL_ECHO", "false").lower() == "true",
     pool_pre_ping=True,
 )
-AsyncSessionLocal = async_sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
-)
+AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 async def get_db():
@@ -93,6 +95,10 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # CORS Configuration - secure origins from environment
 CORS_ORIGINS = os.getenv(
@@ -176,9 +182,7 @@ class ItemCategoryResponse(BaseModel):
 
 
 @app.post("/v1/categories", response_model=ItemCategoryResponse)
-async def create_category(
-    category: ItemCategoryCreate, db: AsyncSession = Depends(get_db)
-):
+async def create_category(category: ItemCategoryCreate, db: AsyncSession = Depends(get_db)):
     db_category = ItemCategory(
         name_en=category.name_en,
         name_ar=category.name_ar,
@@ -296,9 +300,7 @@ async def get_dead_stock(
 
 
 @app.get("/v1/analytics/abc-analysis")
-async def get_abc_analysis(
-    tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)
-):
+async def get_abc_analysis(tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)):
     analytics = InventoryAnalytics(db, tenant_id)
     analysis = await analytics.get_abc_analysis()
     return {"tenant_id": tenant_id, **analysis}
@@ -348,9 +350,7 @@ async def get_waste_analysis(
 
 
 @app.get("/v1/analytics/dashboard")
-async def get_dashboard_metrics(
-    tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)
-):
+async def get_dashboard_metrics(tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)):
     analytics = InventoryAnalytics(db, tenant_id)
     metrics = await analytics.generate_dashboard_metrics()
     return {"tenant_id": tenant_id, **metrics}

@@ -1,6 +1,7 @@
 // SAHOOL PII Filtering - Integration Examples
 // أمثلة تكامل نظام تصفية البيانات الشخصية
 
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'pii_filter.dart';
 import 'app_logger.dart';
@@ -50,7 +51,7 @@ void exampleNetworkLogging() {
 void exampleManualSanitization() {
   // Sanitize a string
   final sanitizedText = PiiFilter.sanitize('Contact: +966501234567');
-  print(sanitizedText); // 'Contact: +966****4567'
+  debugPrint(sanitizedText); // 'Contact: +966****4567'
 
   // Sanitize a map
   final userData = {
@@ -61,7 +62,7 @@ void exampleManualSanitization() {
   };
 
   final sanitizedData = PiiFilter.sanitize(userData);
-  print(sanitizedData);
+  debugPrint(sanitizedData.toString());
   // {
   //   'name': 'Ahmed',
   //   'email': 'ah****@example.com',
@@ -71,11 +72,11 @@ void exampleManualSanitization() {
 
   // Using string extension
   final phone = '+966501234567'.sanitizePii();
-  print(phone); // '+966****4567'
+  debugPrint(phone); // '+966****4567'
 
   // Check if text contains PII
   if ('ahmed@example.com'.containsPii()) {
-    print('Warning: PII detected!');
+    debugPrint('Warning: PII detected!');
   }
 }
 
@@ -178,20 +179,20 @@ void examplePiiDetectionAndStats() {
 
   // Check if contains PII
   if (PiiFilter.containsPii(text)) {
-    print('Warning: PII detected!');
+    debugPrint('Warning: PII detected!');
 
     // Get detailed statistics
     final summary = PiiFilter.getPiiSummary(text);
-    print('Found ${summary['phones']} phone numbers');
-    print('Found ${summary['emails']} email addresses');
-    print('Found ${summary['nationalIds']} national IDs');
-    print('Found ${summary['tokens']} tokens');
+    debugPrint('Found ${summary['phones']} phone numbers');
+    debugPrint('Found ${summary['emails']} email addresses');
+    debugPrint('Found ${summary['nationalIds']} national IDs');
+    debugPrint('Found ${summary['tokens']} tokens');
   }
 
   // Get logger statistics
   final loggerStats = AppLogger.getPiiStats();
-  print('PII Filtering Enabled: ${loggerStats['enabled']}');
-  print('Total PII Filtered: ${loggerStats['filtered_count']}');
+  debugPrint('PII Filtering Enabled: ${loggerStats['enabled']}');
+  debugPrint('Total PII Filtered: ${loggerStats['filtered_count']}');
 }
 
 /// Example 8: Safe Log Export
@@ -199,18 +200,18 @@ void examplePiiDetectionAndStats() {
 void exampleSafeLogExport() {
   // Export logs with PII filtering (recommended)
   final safeLogs = AppLogger.exportLogs(sanitize: true);
-  print('Safe logs for crash report:');
-  print(safeLogs);
+  debugPrint('Safe logs for crash report:');
+  debugPrint(safeLogs);
 
   // Export as JSON
   final jsonLogs = AppLogger.exportLogsAsJson(sanitize: true);
-  print('JSON logs for analytics:');
-  print(jsonLogs);
+  debugPrint('JSON logs for analytics:');
+  debugPrint(jsonLogs);
 
   // Get recent logs (automatically sanitized)
   final recentLogs = AppLogger.getRecentLogs(count: 50);
   for (final log in recentLogs) {
-    print(log.toString()); // Already sanitized
+    debugPrint(log.toString()); // Already sanitized
   }
 }
 

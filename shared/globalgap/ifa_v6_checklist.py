@@ -9,7 +9,6 @@ for Fruit & Vegetables certification.
 لشهادة الفواكه والخضروات.
 """
 
-
 from .constants import ComplianceLevel
 from .models import ChecklistCategory, ChecklistItem
 
@@ -1130,9 +1129,7 @@ def get_items_by_compliance_level(
     items = []
 
     categories_to_search = (
-        [IFA_V6_CHECKLIST[category_code]]
-        if category_code
-        else IFA_V6_CHECKLIST.values()
+        [IFA_V6_CHECKLIST[category_code]] if category_code else IFA_V6_CHECKLIST.values()
     )
 
     for category in categories_to_search:
@@ -1186,9 +1183,7 @@ def calculate_compliance_score(findings: list[dict[str, any]]) -> dict[str, any]
     results = {}
     for level, counts in stats.items():
         applicable = counts["total"] - counts["na"]
-        percentage = (
-            (counts["compliant"] / applicable * 100) if applicable > 0 else 100.0
-        )
+        percentage = (counts["compliant"] / applicable * 100) if applicable > 0 else 100.0
 
         results[level.value] = {
             "total_items": counts["total"],
@@ -1196,12 +1191,9 @@ def calculate_compliance_score(findings: list[dict[str, any]]) -> dict[str, any]
             "not_applicable": counts["na"],
             "applicable": applicable,
             "compliance_percentage": round(percentage, 2),
-            "threshold": COMPLIANCE_THRESHOLDS.get(
-                level.value.lower().replace("_", "_"), 0
-            ),
+            "threshold": COMPLIANCE_THRESHOLDS.get(level.value.lower().replace("_", "_"), 0),
             "passes": (
-                percentage
-                >= COMPLIANCE_THRESHOLDS.get(level.value.lower().replace("_", "_"), 0)
+                percentage >= COMPLIANCE_THRESHOLDS.get(level.value.lower().replace("_", "_"), 0)
                 if level != ComplianceLevel.RECOMMENDATION
                 else True
             ),

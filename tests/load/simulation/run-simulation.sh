@@ -98,7 +98,7 @@ start_infrastructure() {
     echo ""
     info "Access points:"
     echo "  - Grafana: http://localhost:3031 (admin/admin)"
-    echo "  - InfluxDB: http://localhost:8087 (admin/adminpassword123)"
+    echo "  - InfluxDB: http://localhost:8087 (see .env.influxdb.secret for credentials)"
     echo "  - PostgreSQL: localhost:5433"
     echo "  - Redis: localhost:6380"
     echo ""

@@ -21,9 +21,7 @@ class NdviService(Protocol):
     """بروتوكول خدمة NDVI."""
 
     def get_latest(self, field_id: UUID) -> dict[str, Any] | None: ...
-    def get_summary(
-        self, field_id: UUID, start: date, end: date
-    ) -> dict[str, Any] | None: ...
+    def get_summary(self, field_id: UUID, start: date, end: date) -> dict[str, Any] | None: ...
 
 
 class WeatherService(Protocol):
@@ -84,9 +82,7 @@ class AggregatedContext:
         ]
 
         if self.ndvi_current is not None:
-            lines.append(
-                f"NDVI: {self.ndvi_current:.2f} ({self.ndvi_health or 'غير محدد'})"
-            )
+            lines.append(f"NDVI: {self.ndvi_current:.2f} ({self.ndvi_health or 'غير محدد'})")
 
         if self.weather_summary:
             lines.append(f"الطقس: {self.weather_summary}")

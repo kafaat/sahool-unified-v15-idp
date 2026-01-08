@@ -39,10 +39,7 @@ from typing import Any, Optional
 
 import aiohttp
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("maintenance-mode")
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -58,6 +55,7 @@ DRAIN_WAIT_SECONDS = 10  # Wait for active requests to complete
 # ═══════════════════════════════════════════════════════════════════════════════
 # DATA MODELS
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @dataclass
 class MaintenanceState:
@@ -75,11 +73,11 @@ class MaintenanceState:
         return json.dumps(asdict(self), indent=2, ensure_ascii=False)
 
     @classmethod
-    def from_json(cls, data: str) -> 'MaintenanceState':
+    def from_json(cls, data: str) -> "MaintenanceState":
         return cls(**json.loads(data))
 
     @classmethod
-    def load(cls) -> Optional['MaintenanceState']:
+    def load(cls) -> Optional["MaintenanceState"]:
         if MAINTENANCE_FILE.exists():
             try:
                 return cls.from_json(MAINTENANCE_FILE.read_text())
@@ -94,9 +92,11 @@ class MaintenanceState:
         if MAINTENANCE_FILE.exists():
             MAINTENANCE_FILE.unlink()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # KONG MAINTENANCE MODE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class KongMaintenanceController:
     """Controls maintenance mode via Kong API Gateway."""
@@ -113,14 +113,17 @@ class KongMaintenanceController:
                 await self.disable()
 
                 # Create maintenance response body
-                response_body = json.dumps({
-                    "status": "maintenance",
-                    "message": state.message,
-                    "message_ar": state.message_ar,
-                    "retry_after": 60,
-                    "started_at": state.started_at,
-                    "estimated_end": state.ends_at,
-                }, ensure_ascii=False)
+                response_body = json.dumps(
+                    {
+                        "status": "maintenance",
+                        "message": state.message,
+                        "message_ar": state.message_ar,
+                        "retry_after": 60,
+                        "started_at": state.started_at,
+                        "estimated_end": state.ends_at,
+                    },
+                    ensure_ascii=False,
+                )
 
                 # Add request-termination plugin globally
                 plugin_config = {
@@ -137,7 +140,7 @@ class KongMaintenanceController:
                 async with session.post(
                     f"{self.admin_url}/plugins",
                     json=plugin_config,
-                    timeout=aiohttp.ClientTimeout(total=10)
+                    timeout=aiohttp.ClientTimeout(total=10),
                 ) as response:
                     if response.status in [200, 201]:
                         data = await response.json()
@@ -171,10 +174,7 @@ class KongMaintenanceController:
                 "paths": ["/health", "/healthz", "/readyz", "/.well-known/health"],
                 "tags": ["maintenance-bypass"],
             }
-            async with session.post(
-                f"{self.admin_url}/routes",
-                json=route_config
-            ) as response:
+            async with session.post(f"{self.admin_url}/routes", json=route_config) as response:
                 if response.status in [200, 201]:
                     logger.info("  ✅ Health check bypass enabled")
         except Exception as e:
@@ -194,8 +194,7 @@ class KongMaintenanceController:
             try:
                 # Find and delete maintenance plugins
                 async with session.get(
-                    f"{self.admin_url}/plugins",
-                    params={"tags": "maintenance-mode"}
+                    f"{self.admin_url}/plugins", params={"tags": "maintenance-mode"}
                 ) as response:
                     if response.status == 200:
                         data = await response.json()
@@ -206,8 +205,7 @@ class KongMaintenanceController:
 
                 # Remove bypass routes
                 async with session.get(
-                    f"{self.admin_url}/routes",
-                    params={"tags": "maintenance-bypass"}
+                    f"{self.admin_url}/routes", params={"tags": "maintenance-bypass"}
                 ) as response:
                     if response.status == 200:
                         data = await response.json()
@@ -227,8 +225,7 @@ class KongMaintenanceController:
         async with aiohttp.ClientSession() as session:
             try:
                 async with session.get(
-                    f"{self.admin_url}/plugins",
-                    params={"tags": "maintenance-mode"}
+                    f"{self.admin_url}/plugins", params={"tags": "maintenance-mode"}
                 ) as response:
                     if response.status == 200:
                         data = await response.json()
@@ -241,9 +238,11 @@ class KongMaintenanceController:
             except aiohttp.ClientError as e:
                 return {"enabled": False, "error": str(e)}
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # NGINX MAINTENANCE MODE (Fallback)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class NginxMaintenanceController:
     """Controls maintenance mode via Nginx configuration file."""
@@ -319,9 +318,11 @@ location @maintenance {{
             "config_exists": self.MAINTENANCE_CONF.exists(),
         }
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN CONTROLLER
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class MaintenanceModeController:
     """Main controller that manages both Kong and Nginx."""
@@ -427,9 +428,11 @@ class MaintenanceModeController:
             "nginx": nginx_status,
         }
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CLI INTERFACE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def main():
     parser = argparse.ArgumentParser(
@@ -440,14 +443,25 @@ async def main():
 
     # Enable command
     enable_parser = subparsers.add_parser("enable", help="Enable maintenance mode")
-    enable_parser.add_argument("--timeout", "-t", type=int, default=300,
-                               help="Auto-disable timeout in seconds (default: 300)")
-    enable_parser.add_argument("--message", "-m", default="System maintenance in progress",
-                               help="Maintenance message (English)")
-    enable_parser.add_argument("--message-ar", default="صيانة النظام جارية",
-                               help="Maintenance message (Arabic)")
-    enable_parser.add_argument("--reason", "-r", default="scheduled_maintenance",
-                               help="Reason for maintenance")
+    enable_parser.add_argument(
+        "--timeout",
+        "-t",
+        type=int,
+        default=300,
+        help="Auto-disable timeout in seconds (default: 300)",
+    )
+    enable_parser.add_argument(
+        "--message",
+        "-m",
+        default="System maintenance in progress",
+        help="Maintenance message (English)",
+    )
+    enable_parser.add_argument(
+        "--message-ar", default="صيانة النظام جارية", help="Maintenance message (Arabic)"
+    )
+    enable_parser.add_argument(
+        "--reason", "-r", default="scheduled_maintenance", help="Reason for maintenance"
+    )
 
     # Disable command
     subparsers.add_parser("disable", help="Disable maintenance mode")
@@ -473,6 +487,7 @@ async def main():
         print(json.dumps(status, indent=2, ensure_ascii=False))
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

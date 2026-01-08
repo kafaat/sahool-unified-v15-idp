@@ -1,0 +1,19 @@
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# InfluxDB Security Files - DO NOT COMMIT
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Secret environment files containing credentials
+.env.influxdb.secret
+.env.influxdb-advanced.secret
+*.secret
+
+# TLS private keys
+../ssl/*-key.pem
+
+# Backup files
+backups/
+*.backup
+*.bak
+
+# ═══════════════════════════════════════════════════════════════════════════════

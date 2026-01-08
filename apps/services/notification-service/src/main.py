@@ -25,14 +25,37 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from pydantic import BaseModel
 
 # Add shared middleware to path
-shared_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "shared")
-)
+shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 sys.path.insert(0, shared_path)
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+# Import authentication dependencies
+try:
+    from auth.dependencies import get_current_user, get_optional_user
+    from auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback if auth module not available
+    AUTH_AVAILABLE = False
+    User = None
+
+    def get_current_user():
+        """Placeholder when auth not available"""
+        return None
+
+    def get_optional_user():
+        """Placeholder when auth not available"""
+        return None
+
 
 # Database imports
 # Multi-channel support
@@ -379,9 +402,7 @@ async def create_notification(
             continue
 
         # Use preferred channels if available, otherwise use provided channels
-        final_channels = (
-            preferred_channels if preferred_channels else [ch.value for ch in channels]
-        )
+        final_channels = preferred_channels if preferred_channels else [ch.value for ch in channels]
 
         # Get primary channel from list
         channel = final_channels[0] if final_channels else "in_app"
@@ -426,9 +447,7 @@ async def create_notification(
                 logger.warning(f"Invalid channel type: {channel_name}")
                 continue
 
-    logger.info(
-        f"📬 Created {len(notifications)} notification(s) for {len(recipients)} farmer(s)"
-    )
+    logger.info(f"📬 Created {len(notifications)} notification(s) for {len(recipients)} farmer(s)")
 
     # Return first notification for API response compatibility
     return notifications[0] if notifications else None
@@ -487,9 +506,7 @@ async def send_sms_notification(notification, farmer_id: str):
             return
 
         # Send SMS
-        language = (
-            farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
-        )
+        language = farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
         message_sid = await sms_client.send_sms(
             to=farmer_profile.phone,
             body=notification.title + "\n" + notification.body,
@@ -547,19 +564,17 @@ async def send_email_notification(notification, farmer_id: str):
             return
 
         # Send Email
-        language = (
-            farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
-        )
+        language = farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
 
         # Create HTML email body
         html_body = f"""
         <html>
-            <body dir="{'rtl' if language == 'ar' else 'ltr'}">
-                <h2>{notification.title_ar if language == 'ar' else notification.title}</h2>
-                <p>{notification.body_ar if language == 'ar' else notification.body}</p>
+            <body dir="{"rtl" if language == "ar" else "ltr"}">
+                <h2>{notification.title_ar if language == "ar" else notification.title}</h2>
+                <p>{notification.body_ar if language == "ar" else notification.body}</p>
                 <br>
                 <p style="color: #666; font-size: 12px;">
-                    {"هذه رسالة آلية من منصة SAHOOL الزراعية" if language == 'ar' else "This is an automated message from SAHOOL Agriculture Platform"}
+                    {"هذه رسالة آلية من منصة SAHOOL الزراعية" if language == "ar" else "This is an automated message from SAHOOL Agriculture Platform"}
                 </p>
             </body>
         </html>
@@ -623,9 +638,7 @@ async def send_push_notification(notification, farmer_id: str):
 
         firebase_client = get_firebase_client()
         if not firebase_client._initialized:
-            logger.warning(
-                "Firebase client not initialized, skipping push notification"
-            )
+            logger.warning("Firebase client not initialized, skipping push notification")
             return
 
         # Determine priority
@@ -853,9 +866,7 @@ def create_notification_from_nats(notification_data: dict[str, Any]):
             "in_app": NotificationChannel.IN_APP,
         }
 
-        ntype = type_mapping.get(
-            notification_data.get("type", "system"), NotificationType.SYSTEM
-        )
+        ntype = type_mapping.get(notification_data.get("type", "system"), NotificationType.SYSTEM)
         priority = priority_mapping.get(
             notification_data.get("priority", "medium"), NotificationPriority.MEDIUM
         )
@@ -913,9 +924,7 @@ async def lifespan(app: FastAPI):
         if sms_client._initialized:
             logger.info("✅ SMS client initialized")
         else:
-            logger.info(
-                "ℹ️  SMS client not configured (set TWILIO_* env vars to enable)"
-            )
+            logger.info("ℹ️  SMS client not configured (set TWILIO_* env vars to enable)")
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize SMS client: {e}")
 
@@ -925,9 +934,7 @@ async def lifespan(app: FastAPI):
         if email_client._initialized:
             logger.info("✅ Email client initialized")
         else:
-            logger.info(
-                "ℹ️  Email client not configured (set SENDGRID_* env vars to enable)"
-            )
+            logger.info("ℹ️  Email client not configured (set SENDGRID_* env vars to enable)")
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize Email client: {e}")
 
@@ -966,6 +973,10 @@ app = FastAPI(
     description="Personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration.",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 # Include routers for multi-channel support
 app.include_router(channels_router)
@@ -1017,7 +1028,10 @@ async def health_check():
 
 
 @app.post("/v1/notifications")
-async def create_custom_notification(request: CreateNotificationRequest):
+async def create_custom_notification(
+    request: CreateNotificationRequest,
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
     """إنشاء إشعار مخصص"""
     notification = await create_notification(
         type=request.type,
@@ -1056,9 +1070,7 @@ async def create_custom_notification(request: CreateNotificationRequest):
 
 
 @app.post("/v1/alerts/weather")
-async def create_weather_alert(
-    request: WeatherAlertRequest, background_tasks: BackgroundTasks
-):
+async def create_weather_alert(request: WeatherAlertRequest, background_tasks: BackgroundTasks):
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
     # Get message for first governorate (can be customized per governorate)
@@ -1176,6 +1188,7 @@ async def get_farmer_notifications(
     type: NotificationType | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """الحصول على إشعارات مزارع معين"""
     # Get notifications from database
@@ -1233,17 +1246,13 @@ async def mark_notification_read(notification_id: str, farmer_id: str = Query(..
             raise HTTPException(status_code=404, detail="Notification not found")
 
         if notification.user_id != farmer_id:
-            raise HTTPException(
-                status_code=403, detail="Not authorized to mark this notification"
-            )
+            raise HTTPException(status_code=403, detail="Not authorized to mark this notification")
 
         # Mark as read
         success = await NotificationRepository.mark_as_read(notif_uuid)
 
         if not success:
-            raise HTTPException(
-                status_code=500, detail="Failed to mark notification as read"
-            )
+            raise HTTPException(status_code=500, detail="Failed to mark notification as read")
 
         return {
             "success": True,

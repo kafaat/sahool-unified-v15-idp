@@ -272,9 +272,7 @@ class ApplicationTracker:
             "wind_speed": kwargs.get("wind_speed"),
         }
         # Remove None values
-        weather_conditions = {
-            k: v for k, v in weather_conditions.items() if v is not None
-        }
+        weather_conditions = {k: v for k, v in weather_conditions.items() if v is not None}
 
         # Step 6: Create application record
         application_data = {
@@ -305,16 +303,12 @@ class ApplicationTracker:
             "notes": kwargs.get("notes"),
         }
 
-        application_record = await self.db.inputapplication.create(
-            data=application_data
-        )
+        application_record = await self.db.inputapplication.create(data=application_data)
 
         # Convert to dataclass
         return self._db_to_dataclass(application_record)
 
-    async def _deduct_from_batches(
-        self, item_id: str, quantity: float
-    ) -> str | None:
+    async def _deduct_from_batches(self, item_id: str, quantity: float) -> str | None:
         """
         Deduct quantity from batches using FIFO (First In, First Out)
 
@@ -455,9 +449,7 @@ class ApplicationTracker:
 
             # By purpose
             purpose = (
-                app.purpose.value
-                if isinstance(app.purpose, ApplicationPurpose)
-                else app.purpose
+                app.purpose.value if isinstance(app.purpose, ApplicationPurpose) else app.purpose
             )
             if purpose not in summary["by_purpose"]:
                 summary["by_purpose"][purpose] = {"count": 0, "total_cost": 0.0}
@@ -465,11 +457,7 @@ class ApplicationTracker:
             summary["by_purpose"][purpose]["total_cost"] += app.total_cost
 
             # By method
-            method = (
-                app.method.value
-                if isinstance(app.method, ApplicationMethod)
-                else app.method
-            )
+            method = app.method.value if isinstance(app.method, ApplicationMethod) else app.method
             if method not in summary["by_method"]:
                 summary["by_method"][method] = {"count": 0}
             summary["by_method"][method]["count"] += 1
@@ -492,9 +480,7 @@ class ApplicationTracker:
                 item_name = item.name_en
                 if item_name not in summary["fertilizer_details"]["by_type"]:
                     summary["fertilizer_details"]["by_type"][item_name] = 0.0
-                summary["fertilizer_details"]["by_type"][
-                    item_name
-                ] += app.quantity_applied
+                summary["fertilizer_details"]["by_type"][item_name] += app.quantity_applied
 
             # Pesticide details
             if category in ["PESTICIDE", "HERBICIDE", "FUNGICIDE"]:
@@ -502,9 +488,7 @@ class ApplicationTracker:
                 item_name = item.name_en
                 if item_name not in summary["pesticide_details"]["by_type"]:
                     summary["pesticide_details"]["by_type"][item_name] = 0.0
-                summary["pesticide_details"]["by_type"][
-                    item_name
-                ] += app.quantity_applied
+                summary["pesticide_details"]["by_type"][item_name] += app.quantity_applied
 
         # Sort timeline by date
         summary["timeline"].sort(key=lambda x: x["date"])
@@ -667,9 +651,7 @@ class ApplicationTracker:
                 max_wait_days = max(max_wait_days, days_remaining)
 
                 # Get item details
-                item = await self.db.inventoryitem.find_unique(
-                    where={"id": app.item_id}
-                )
+                item = await self.db.inventoryitem.find_unique(where={"id": app.item_id})
 
                 blocking.append(
                     {
@@ -712,9 +694,7 @@ class ApplicationTracker:
             ),
         }
 
-    async def get_application_by_id(
-        self, application_id: str
-    ) -> InputApplication | None:
+    async def get_application_by_id(self, application_id: str) -> InputApplication | None:
         """Get a single application by ID"""
         app = await self.db.inputapplication.find_unique(where={"id": application_id})
         if not app:

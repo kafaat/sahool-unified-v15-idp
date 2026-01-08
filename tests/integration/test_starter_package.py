@@ -12,7 +12,6 @@ Tests for starter package services:
 Author: SAHOOL Platform Team
 """
 
-
 import httpx
 import pytest
 
@@ -68,9 +67,7 @@ class TestFieldOperations:
         # Arrange - Create a field first
         field_data = field_factory.create()
         create_url = f"{service_urls['field_core']}/api/v1/fields"
-        create_response = await http_client.post(
-            create_url, json=field_data, headers=auth_headers
-        )
+        create_response = await http_client.post(create_url, json=field_data, headers=auth_headers)
 
         if create_response.status_code not in (200, 201):
             pytest.skip("Field creation failed, skipping get test")
@@ -101,9 +98,7 @@ class TestFieldOperations:
         # Arrange - Create a field first
         field_data = field_factory.create()
         create_url = f"{service_urls['field_core']}/api/v1/fields"
-        create_response = await http_client.post(
-            create_url, json=field_data, headers=auth_headers
-        )
+        create_response = await http_client.post(create_url, json=field_data, headers=auth_headers)
 
         if create_response.status_code not in (200, 201):
             pytest.skip("Field creation failed, skipping update test")
@@ -114,9 +109,7 @@ class TestFieldOperations:
         # Act - Update the field
         update_data = {"crop_type": "corn", "area_hectares": 50.0}
         update_url = f"{service_urls['field_core']}/api/v1/fields/{field_id}"
-        response = await http_client.put(
-            update_url, json=update_data, headers=auth_headers
-        )
+        response = await http_client.put(update_url, json=update_data, headers=auth_headers)
 
         # Assert
         assert response.status_code in (
@@ -173,9 +166,7 @@ class TestWeatherForecast:
         response = await http_client.get(url, params=location, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get current weather: {response.text}"
+        assert response.status_code == 200, f"Failed to get current weather: {response.text}"
         data = response.json()
         assert "temperature" in data or "temp" in data
         assert "humidity" in data
@@ -231,9 +222,7 @@ class TestAstronomicalCalendar:
         response = await http_client.get(url, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get lunar phase: {response.text}"
+        assert response.status_code == 200, f"Failed to get lunar phase: {response.text}"
         data = response.json()
         assert "phase" in data or "moon_phase" in data
 
@@ -255,9 +244,7 @@ class TestAstronomicalCalendar:
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get planting calendar: {response.text}"
+        assert response.status_code == 200, f"Failed to get planting calendar: {response.text}"
         data = response.json()
         assert isinstance(data, list | dict)
 
@@ -356,9 +343,7 @@ class TestNotifications:
         url = f"{service_urls['notification_service']}/api/v1/notifications"
 
         # Act
-        response = await http_client.post(
-            url, json=notification_data, headers=auth_headers
-        )
+        response = await http_client.post(url, json=notification_data, headers=auth_headers)
 
         # Assert
         assert response.status_code in (
@@ -387,9 +372,7 @@ class TestNotifications:
         response = await http_client.get(url, headers=auth_headers)
 
         # Assert
-        assert (
-            response.status_code == 200
-        ), f"Failed to get notifications: {response.text}"
+        assert response.status_code == 200, f"Failed to get notifications: {response.text}"
         data = response.json()
         assert isinstance(data, list | dict)
 

@@ -1,0 +1,483 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - PostgreSQL Exporter Custom Queries
+# استعلامات مخصصة لمُصدِّر PostgreSQL
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-01-06
+# Purpose: Deep database insights for monitoring and performance optimization
+#
+# This file provides custom queries for postgres_exporter to collect advanced
+# metrics that are not available by default. These metrics help monitor:
+# - Query performance trends (pg_stat_statements)
+# - Table and index bloat
+# - Autovacuum activity
+# - WAL (Write-Ahead Log) size
+# - Buffer cache efficiency
+# - Index usage statistics
+# - Replication lag
+#
+# Reference: https://github.com/prometheus-community/postgres_exporter
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Top Slow Queries - أبطأ الاستعلامات
+# Tracks the slowest queries based on total execution time
+# ─────────────────────────────────────────────────────────────────────────────
+pg_stat_statements_top_queries:
+  query: |
+    SELECT
+      queryid,
+      LEFT(query, 100) as query_short,
+      calls,
+      total_exec_time,
+      mean_exec_time,
+      max_exec_time,
+      stddev_exec_time,
+      rows
+    FROM pg_stat_statements
+    WHERE query NOT LIKE '%pg_stat_statements%'
+      AND query NOT LIKE '%pg_catalog%'
+    ORDER BY total_exec_time DESC
+    LIMIT 20
+  master: true
+  cache_seconds: 60
+  metrics:
+    - queryid:
+        usage: "LABEL"
+        description: "Query ID from pg_stat_statements"
+    - query_short:
+        usage: "LABEL"
+        description: "Query text (truncated to 100 chars)"
+    - calls:
+        usage: "COUNTER"
+        description: "Number of times the query was executed"
+    - total_exec_time:
+        usage: "COUNTER"
+        description: "Total execution time in milliseconds"
+    - mean_exec_time:
+        usage: "GAUGE"
+        description: "Mean execution time in milliseconds"
+    - max_exec_time:
+        usage: "GAUGE"
+        description: "Maximum execution time in milliseconds"
+    - stddev_exec_time:
+        usage: "GAUGE"
+        description: "Standard deviation of execution time"
+    - rows:
+        usage: "COUNTER"
+        description: "Total rows retrieved or affected"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Table Bloat Detection - كشف انتفاخ الجداول
+# Estimates table bloat (wasted space) in database tables
+# ─────────────────────────────────────────────────────────────────────────────
+pg_table_bloat:
+  query: |
+    SELECT
+      schemaname,
+      tablename,
+      pg_total_relation_size(schemaname||'.'||tablename) as total_bytes,
+      pg_relation_size(schemaname||'.'||tablename) as table_bytes,
+      pg_total_relation_size(schemaname||'.'||tablename) - pg_relation_size(schemaname||'.'||tablename) as bloat_bytes
+    FROM pg_tables
+    WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
+      AND pg_total_relation_size(schemaname||'.'||tablename) > 1048576  -- Tables > 1MB
+    ORDER BY bloat_bytes DESC
+    LIMIT 20
+  master: true
+  cache_seconds: 300
+  metrics:
+    - schemaname:
+        usage: "LABEL"
+        description: "Schema name"
+    - tablename:
+        usage: "LABEL"
+        description: "Table name"
+    - total_bytes:
+        usage: "GAUGE"
+        description: "Total size including indexes and TOAST"
+    - table_bytes:
+        usage: "GAUGE"
+        description: "Table size excluding indexes"
+    - bloat_bytes:
+        usage: "GAUGE"
+        description: "Estimated bloat size (indexes + TOAST)"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Index Bloat Detection - كشف انتفاخ الفهارس
+# Estimates index bloat for better storage management
+# ─────────────────────────────────────────────────────────────────────────────
+pg_index_bloat:
+  query: |
+    SELECT
+      schemaname,
+      tablename,
+      indexname,
+      pg_relation_size(indexrelid) as index_bytes
+    FROM pg_stat_user_indexes
+    WHERE pg_relation_size(indexrelid) > 1048576  -- Indexes > 1MB
+    ORDER BY index_bytes DESC
+    LIMIT 20
+  master: true
+  cache_seconds: 300
+  metrics:
+    - schemaname:
+        usage: "LABEL"
+        description: "Schema name"
+    - tablename:
+        usage: "LABEL"
+        description: "Table name"
+    - indexname:
+        usage: "LABEL"
+        description: "Index name"
+    - index_bytes:
+        usage: "GAUGE"
+        description: "Index size in bytes"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Autovacuum Activity - نشاط التنظيف التلقائي
+# Monitors autovacuum and autoanalyze operations
+# ─────────────────────────────────────────────────────────────────────────────
+pg_autovacuum_activity:
+  query: |
+    SELECT
+      schemaname,
+      relname,
+      COALESCE(EXTRACT(EPOCH FROM (NOW() - last_autovacuum)), -1) as seconds_since_last_autovacuum,
+      COALESCE(EXTRACT(EPOCH FROM (NOW() - last_autoanalyze)), -1) as seconds_since_last_autoanalyze,
+      n_tup_ins + n_tup_upd + n_tup_del as total_modifications,
+      n_tup_ins,
+      n_tup_upd,
+      n_tup_del,
+      n_live_tup,
+      n_dead_tup,
+      CASE WHEN n_live_tup > 0 THEN (n_dead_tup::float / n_live_tup::float) ELSE 0 END as dead_tuple_ratio
+    FROM pg_stat_user_tables
+    WHERE n_live_tup > 0
+    ORDER BY total_modifications DESC
+    LIMIT 20
+  master: true
+  cache_seconds: 60
+  metrics:
+    - schemaname:
+        usage: "LABEL"
+        description: "Schema name"
+    - relname:
+        usage: "LABEL"
+        description: "Table name"
+    - seconds_since_last_autovacuum:
+        usage: "GAUGE"
+        description: "Seconds since last autovacuum (-1 if never)"
+    - seconds_since_last_autoanalyze:
+        usage: "GAUGE"
+        description: "Seconds since last autoanalyze (-1 if never)"
+    - total_modifications:
+        usage: "COUNTER"
+        description: "Total number of tuple modifications"
+    - n_tup_ins:
+        usage: "COUNTER"
+        description: "Number of tuples inserted"
+    - n_tup_upd:
+        usage: "COUNTER"
+        description: "Number of tuples updated"
+    - n_tup_del:
+        usage: "COUNTER"
+        description: "Number of tuples deleted"
+    - n_live_tup:
+        usage: "GAUGE"
+        description: "Estimated number of live tuples"
+    - n_dead_tup:
+        usage: "GAUGE"
+        description: "Estimated number of dead tuples"
+    - dead_tuple_ratio:
+        usage: "GAUGE"
+        description: "Ratio of dead to live tuples"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WAL (Write-Ahead Log) Size - حجم سجل الكتابة المسبقة
+# Monitors WAL directory size to prevent disk space issues
+# ─────────────────────────────────────────────────────────────────────────────
+pg_wal_size:
+  query: |
+    SELECT
+      COALESCE(SUM(size), 0) as wal_size_bytes,
+      COUNT(*) as wal_file_count
+    FROM pg_ls_waldir()
+  master: true
+  cache_seconds: 60
+  metrics:
+    - wal_size_bytes:
+        usage: "GAUGE"
+        description: "Total size of WAL files in bytes"
+    - wal_file_count:
+        usage: "GAUGE"
+        description: "Number of WAL files"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Buffer Cache Hit Ratio - نسبة إصابة ذاكرة التخزين المؤقت
+# Measures database cache efficiency
+# ─────────────────────────────────────────────────────────────────────────────
+pg_buffer_cache_hit_ratio:
+  query: |
+    SELECT
+      datname,
+      blks_hit,
+      blks_read,
+      CASE
+        WHEN (blks_hit + blks_read) > 0
+        THEN (blks_hit::float / (blks_hit + blks_read)::float)
+        ELSE 0
+      END as cache_hit_ratio
+    FROM pg_stat_database
+    WHERE datname IS NOT NULL
+      AND datname NOT IN ('template0', 'template1')
+  master: true
+  cache_seconds: 60
+  metrics:
+    - datname:
+        usage: "LABEL"
+        description: "Database name"
+    - blks_hit:
+        usage: "COUNTER"
+        description: "Number of buffer cache hits"
+    - blks_read:
+        usage: "COUNTER"
+        description: "Number of disk reads"
+    - cache_hit_ratio:
+        usage: "GAUGE"
+        description: "Buffer cache hit ratio (0-1)"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Index Usage Statistics - إحصائيات استخدام الفهارس
+# Identifies unused or rarely used indexes
+# ─────────────────────────────────────────────────────────────────────────────
+pg_index_usage:
+  query: |
+    SELECT
+      schemaname,
+      tablename,
+      indexname,
+      idx_scan,
+      idx_tup_read,
+      idx_tup_fetch,
+      pg_relation_size(indexrelid) as index_size_bytes
+    FROM pg_stat_user_indexes
+    WHERE pg_relation_size(indexrelid) > 0
+    ORDER BY idx_scan ASC, index_size_bytes DESC
+    LIMIT 20
+  master: true
+  cache_seconds: 300
+  metrics:
+    - schemaname:
+        usage: "LABEL"
+        description: "Schema name"
+    - tablename:
+        usage: "LABEL"
+        description: "Table name"
+    - indexname:
+        usage: "LABEL"
+        description: "Index name"
+    - idx_scan:
+        usage: "COUNTER"
+        description: "Number of index scans"
+    - idx_tup_read:
+        usage: "COUNTER"
+        description: "Number of index entries returned by scans"
+    - idx_tup_fetch:
+        usage: "COUNTER"
+        description: "Number of live table rows fetched by index scans"
+    - index_size_bytes:
+        usage: "GAUGE"
+        description: "Index size in bytes"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Replication Lag - تأخر النسخ المتماثل
+# Monitors replication lag in seconds (for streaming replication)
+# ─────────────────────────────────────────────────────────────────────────────
+pg_replication_lag:
+  query: |
+    SELECT
+      application_name,
+      client_addr,
+      state,
+      COALESCE(EXTRACT(EPOCH FROM (NOW() - pg_last_xact_replay_timestamp())), 0) as lag_seconds,
+      pg_wal_lsn_diff(pg_current_wal_lsn(), replay_lsn) as lag_bytes
+    FROM pg_stat_replication
+    WHERE state = 'streaming'
+  master: true
+  cache_seconds: 15
+  metrics:
+    - application_name:
+        usage: "LABEL"
+        description: "Name of the replication application"
+    - client_addr:
+        usage: "LABEL"
+        description: "Client IP address"
+    - state:
+        usage: "LABEL"
+        description: "Replication state"
+    - lag_seconds:
+        usage: "GAUGE"
+        description: "Replication lag in seconds"
+    - lag_bytes:
+        usage: "GAUGE"
+        description: "Replication lag in bytes"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Transaction Wraparound Distance - مسافة الالتفاف حول المعاملات
+# Monitors distance to transaction ID wraparound (critical for database health)
+# ─────────────────────────────────────────────────────────────────────────────
+pg_txid_wraparound:
+  query: |
+    SELECT
+      datname,
+      age(datfrozenxid) as txid_age,
+      2000000000 - age(datfrozenxid) as txid_remaining
+    FROM pg_database
+    WHERE datname IS NOT NULL
+      AND datname NOT IN ('template0', 'template1')
+  master: true
+  cache_seconds: 300
+  metrics:
+    - datname:
+        usage: "LABEL"
+        description: "Database name"
+    - txid_age:
+        usage: "GAUGE"
+        description: "Age of oldest frozen transaction ID"
+    - txid_remaining:
+        usage: "GAUGE"
+        description: "Transactions remaining until wraparound"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Checkpoint Statistics - إحصائيات نقاط التفتيش
+# Monitors checkpoint activity for performance tuning
+# ─────────────────────────────────────────────────────────────────────────────
+pg_checkpoint_stats:
+  query: |
+    SELECT
+      checkpoints_timed,
+      checkpoints_req,
+      checkpoint_write_time,
+      checkpoint_sync_time,
+      buffers_checkpoint,
+      buffers_clean,
+      buffers_backend,
+      buffers_backend_fsync
+    FROM pg_stat_bgwriter
+  master: true
+  cache_seconds: 60
+  metrics:
+    - checkpoints_timed:
+        usage: "COUNTER"
+        description: "Number of scheduled checkpoints"
+    - checkpoints_req:
+        usage: "COUNTER"
+        description: "Number of requested checkpoints"
+    - checkpoint_write_time:
+        usage: "COUNTER"
+        description: "Time spent writing checkpoint files (ms)"
+    - checkpoint_sync_time:
+        usage: "COUNTER"
+        description: "Time spent syncing checkpoint files (ms)"
+    - buffers_checkpoint:
+        usage: "COUNTER"
+        description: "Buffers written during checkpoints"
+    - buffers_clean:
+        usage: "COUNTER"
+        description: "Buffers written by background writer"
+    - buffers_backend:
+        usage: "COUNTER"
+        description: "Buffers written by backends"
+    - buffers_backend_fsync:
+        usage: "COUNTER"
+        description: "Times backends had to execute own fsync"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Lock Statistics - إحصائيات الأقفال
+# Monitors database locks and potential contention
+# ─────────────────────────────────────────────────────────────────────────────
+pg_lock_stats:
+  query: |
+    SELECT
+      mode,
+      COUNT(*) as lock_count
+    FROM pg_locks
+    WHERE database IS NOT NULL
+    GROUP BY mode
+  master: true
+  cache_seconds: 30
+  metrics:
+    - mode:
+        usage: "LABEL"
+        description: "Lock mode"
+    - lock_count:
+        usage: "GAUGE"
+        description: "Number of locks in this mode"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Long Running Queries - الاستعلامات طويلة التشغيل
+# Detects queries running longer than normal
+# ─────────────────────────────────────────────────────────────────────────────
+pg_long_running_queries:
+  query: |
+    SELECT
+      datname,
+      usename,
+      state,
+      COUNT(*) as query_count,
+      MAX(EXTRACT(EPOCH FROM (NOW() - query_start))) as max_duration_seconds
+    FROM pg_stat_activity
+    WHERE state != 'idle'
+      AND query NOT LIKE '%pg_stat_activity%'
+      AND backend_type = 'client backend'
+      AND (NOW() - query_start) > interval '30 seconds'
+    GROUP BY datname, usename, state
+  master: true
+  cache_seconds: 30
+  metrics:
+    - datname:
+        usage: "LABEL"
+        description: "Database name"
+    - usename:
+        usage: "LABEL"
+        description: "User name"
+    - state:
+        usage: "LABEL"
+        description: "Query state"
+    - query_count:
+        usage: "GAUGE"
+        description: "Number of long-running queries"
+    - max_duration_seconds:
+        usage: "GAUGE"
+        description: "Maximum query duration in seconds"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Database Size Growth - نمو حجم قاعدة البيانات
+# Tracks database size for capacity planning
+# ─────────────────────────────────────────────────────────────────────────────
+pg_database_size:
+  query: |
+    SELECT
+      datname,
+      pg_database_size(datname) as size_bytes
+    FROM pg_database
+    WHERE datname IS NOT NULL
+      AND datname NOT IN ('template0', 'template1')
+  master: true
+  cache_seconds: 300
+  metrics:
+    - datname:
+        usage: "LABEL"
+        description: "Database name"
+    - size_bytes:
+        usage: "GAUGE"
+        description: "Database size in bytes"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Notes:
+# - Queries marked with 'master: true' only run on primary database
+# - cache_seconds prevents excessive query execution
+# - All queries are optimized to minimize performance impact
+# - Metrics are designed to work with Prometheus and Grafana
+# ═══════════════════════════════════════════════════════════════════════════════

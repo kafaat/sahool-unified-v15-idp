@@ -90,9 +90,7 @@ class TestFieldCreation:
         if boundary:
             coords = boundary.get("coordinates", [[]])[0]
             if len(coords) < 4:
-                raise ValueError(
-                    "Invalid boundary: polygon must have at least 4 points"
-                )
+                raise ValueError("Invalid boundary: polygon must have at least 4 points")
 
         return {
             "id": str(uuid4()),
@@ -128,9 +126,7 @@ class TestFieldBoundary:
         # Simple 10x10 square at equator
         boundary = {
             "type": "Polygon",
-            "coordinates": [
-                [[0, 0], [0.0001, 0], [0.0001, 0.0001], [0, 0.0001], [0, 0]]
-            ],
+            "coordinates": [[[0, 0], [0.0001, 0], [0.0001, 0.0001], [0, 0.0001], [0, 0]]],
         }
 
         # At equator, 0.0001 degrees ≈ 11 meters
@@ -294,9 +290,7 @@ class TestFieldCropRotation:
         field = {
             "id": "field-1",
             "crop_type": "wheat",
-            "crop_history": [
-                {"crop": "barley", "start": "2023-01-01", "end": "2023-06-01"}
-            ],
+            "crop_history": [{"crop": "barley", "start": "2023-01-01", "end": "2023-06-01"}],
         }
 
         updated = self._update_crop(field, "corn", "2024-03-01")

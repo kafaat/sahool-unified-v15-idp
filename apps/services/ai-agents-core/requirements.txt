@@ -15,3 +15,5 @@ aiohttp>=3.9.0
 tensorflow>=2.13.0  # For TensorFlow support
 # torch>=2.0.0  # For PyTorch support
 # torchvision>=0.15.0  # For PyTorch vision utilities
+
+structlog>=24.1.0

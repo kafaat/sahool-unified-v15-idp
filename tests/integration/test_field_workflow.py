@@ -69,9 +69,7 @@ async def test_create_field_workflow(
     assert created_field["area_hectares"] > 0
 
     # Step 2: Retrieve field details - استرجاع تفاصيل الحقل
-    get_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}", headers=headers
-    )
+    get_response = await http_client.get(f"{field_service_url}/fields/{field_id}", headers=headers)
 
     assert get_response.status_code == 200
     field_details = get_response.json()
@@ -122,9 +120,7 @@ async def test_link_field_to_satellite_data(
     # Add boundary coordinates for satellite analysis
     field_data["boundary"] = {
         "type": "Polygon",
-        "coordinates": [
-            [[44.0, 15.0], [44.01, 15.0], [44.01, 15.01], [44.0, 15.01], [44.0, 15.0]]
-        ],
+        "coordinates": [[[44.0, 15.0], [44.01, 15.0], [44.01, 15.01], [44.0, 15.01], [44.0, 15.0]]],
     }
 
     headers = {**auth_headers, "X-Tenant-Id": "test-tenant-123"}

@@ -206,9 +206,7 @@ class TestProfitabilityAPI:
 
     def test_get_benchmarks(self):
         """Test regional benchmarks"""
-        response = client.get(
-            "/v1/profitability/benchmarks/coffee", params={"region": "sanaa"}
-        )
+        response = client.get("/v1/profitability/benchmarks/coffee", params={"region": "sanaa"})
         assert response.status_code == 200
 
         data = response.json()
@@ -228,9 +226,7 @@ class TestProfitabilityAPI:
 
     def test_cost_breakdown(self):
         """Test cost breakdown"""
-        response = client.get(
-            "/v1/profitability/cost-breakdown/wheat", params={"area_ha": 2.5}
-        )
+        response = client.get("/v1/profitability/cost-breakdown/wheat", params={"area_ha": 2.5})
         assert response.status_code == 200
 
         data = response.json()
@@ -243,9 +239,7 @@ class TestProfitabilityAPI:
 
     def test_historical_profitability(self):
         """Test historical profitability"""
-        response = client.get(
-            "/v1/profitability/history/field-001/wheat", params={"years": 3}
-        )
+        response = client.get("/v1/profitability/history/field-001/wheat", params={"years": 3})
         assert response.status_code == 200
 
         data = response.json()

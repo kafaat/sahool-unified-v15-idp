@@ -40,9 +40,7 @@ async def test_create_subscription_workflow(
     billing_url = service_urls.get("billing_core", "http://localhost:8089")
 
     # Step 1: List available plans - قائمة الخطط المتاحة
-    plans_response = await http_client.get(
-        f"{billing_url}/v1/plans", headers=auth_headers
-    )
+    plans_response = await http_client.get(f"{billing_url}/v1/plans", headers=auth_headers)
 
     assert plans_response.status_code == 200
     plans_data = plans_response.json()
@@ -51,9 +49,7 @@ async def test_create_subscription_workflow(
     assert len(plans_data["plans"]) > 0
 
     # Get starter plan
-    starter_plan = next(
-        (p for p in plans_data["plans"] if p["plan_id"] == "starter"), None
-    )
+    starter_plan = next((p for p in plans_data["plans"] if p["plan_id"] == "starter"), None)
     assert starter_plan is not None
 
     # Step 2: Create tenant with subscription - إنشاء مستأجر مع اشتراك

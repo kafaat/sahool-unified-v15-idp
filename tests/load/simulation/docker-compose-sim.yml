@@ -24,20 +24,20 @@ x-app-common-env: &app-common-env
   NODE_ENV: production
   LOG_LEVEL: info
   # Database - through PgBouncer
-  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-simulation_password_123}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_sim}?pool_timeout=60
+  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_sim}?pool_timeout=60
   DB_HOST: sahool-pgbouncer
   DB_PORT: "6432"
   DB_USER: ${POSTGRES_USER:-sahool_admin}
-  DB_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
   DB_NAME: ${POSTGRES_DB:-sahool_sim}
   # Redis session store
-  REDIS_URL: redis://:${REDIS_PASSWORD:-sim_redis_pass_123}@sahool-redis:6379
+  REDIS_URL: redis://:${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}@sahool-redis:6379
   REDIS_HOST: sahool-redis
   REDIS_PORT: "6379"
-  REDIS_PASSWORD: ${REDIS_PASSWORD:-sim_redis_pass_123}
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}
   # Session configuration
   SESSION_STORE_TYPE: redis
-  SESSION_SECRET: simulation_session_secret_key_123
+  SESSION_SECRET: CHANGE_THIS_SESSION_SECRET
   # Connection pool settings (HikariCP equivalent for Node.js)
   DB_POOL_MIN: "5"
   DB_POOL_MAX: "20"
@@ -49,7 +49,7 @@ x-app-common-env: &app-common-env
   SERVER_MIN_SPARE_THREADS: "10"
   SERVER_MAX_CONNECTIONS: "10000"
   # JWT configuration
-  JWT_SECRET: simulation_jwt_secret_key_for_testing_only
+  JWT_SECRET: CHANGE_THIS_JWT_SECRET_MIN_32_CHARS
   JWT_EXPIRY: "3600"
   # Tenant
   DEFAULT_TENANT_ID: tenant_simulation
@@ -83,7 +83,7 @@ services:
     container_name: sahool_db_sim
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sahool_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-sahool_sim}
       # Performance tuning for simulation
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
@@ -137,7 +137,7 @@ services:
       DB_HOST: sahool-db
       DB_PORT: "5432"
       DB_USER: ${POSTGRES_USER:-sahool_admin}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB:-sahool_sim}
       # Pool mode: transaction for better concurrency
       POOL_MODE: transaction
@@ -178,7 +178,7 @@ services:
     command: >
       redis-server
       --appendonly yes
-      --requirepass ${REDIS_PASSWORD:-sim_redis_pass_123}
+      --requirepass ${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}
       --maxmemory 512mb
       --maxmemory-policy allkeys-lru
       --tcp-keepalive 60
@@ -193,7 +193,7 @@ services:
       sahool-sim-network:
         ipv4_address: 172.30.0.12
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-sim_redis_pass_123}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -340,15 +340,37 @@ services:
     image: influxdb:2.7-alpine
     container_name: sahool_influxdb_sim
     environment:
+      # Setup mode
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword123
-      DOCKER_INFLUXDB_INIT_ORG: sahool
-      DOCKER_INFLUXDB_INIT_BUCKET: k6
-      DOCKER_INFLUXDB_INIT_RETENTION: 7d
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: sahool-sim-k6-token
+      # Admin credentials - MUST use secrets from .env file
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_ADMIN_USERNAME:-admin}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+      # Organization and bucket
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-sahool}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      DOCKER_INFLUXDB_INIT_RETENTION: ${INFLUXDB_RETENTION:-7d}
+      # TLS Configuration (uncomment when certificates are generated)
+      # INFLUXD_TLS_CERT: ${INFLUXDB_TLS_CERT_PATH:-/etc/ssl/influxdb-cert.pem}
+      # INFLUXD_TLS_KEY: ${INFLUXDB_TLS_KEY_PATH:-/etc/ssl/influxdb-key.pem}
+      # Performance and security settings
+      INFLUXD_STORAGE_CACHE_MAX_MEMORY_SIZE: "1073741824"  # 1GB cache
+      INFLUXD_STORAGE_CACHE_SNAPSHOT_MEMORY_SIZE: "26214400"  # 25MB
+      INFLUXD_HTTP_READ_TIMEOUT: "30s"
+      INFLUXD_HTTP_WRITE_TIMEOUT: "30s"
+      INFLUXD_HTTP_IDLE_TIMEOUT: "120s"
+      INFLUXD_QUERY_CONCURRENCY: "100"
+      INFLUXD_LOG_LEVEL: "info"
+      # Enable metrics endpoint for Prometheus
+      INFLUXD_METRICS_DISABLED: "false"
     volumes:
       - sim_influxdb_data:/var/lib/influxdb2
+      # Mount TLS certificates (uncomment when certificates are generated)
+      # - ../ssl/influxdb-sim-cert.pem:/etc/ssl/influxdb-cert.pem:ro
+      # - ../ssl/influxdb-sim-key.pem:/etc/ssl/influxdb-key.pem:ro
+    env_file:
+      # Load secrets from environment file (NOT committed to git)
+      - .env.influxdb.secret
     ports:
       - "127.0.0.1:8087:8086"
     networks:
@@ -359,7 +381,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
 
   # Grafana for metrics visualization
   sahool-grafana:
@@ -399,11 +430,14 @@ services:
     image: grafana/k6:0.48.0
     container_name: sahool_k6_sim
     environment:
+      # InfluxDB output configuration
+      # Use HTTPS when TLS is enabled: influxdb=https://sahool-influxdb:8086/k6
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_INSECURE: "false"
-      K6_INFLUXDB_TOKEN: sahool-sim-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_INSECURE: "false"  # Set to true only for self-signed certs
+      # Use write-only token from secrets file
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       # Simulation endpoints
       BASE_URL: http://sahool-nginx:80
       AUTH_URL: http://sahool-nginx:80
@@ -448,7 +482,7 @@ services:
 #    Open http://localhost:3031 (admin/admin)
 #
 # 5. View InfluxDB:
-#    Open http://localhost:8087 (admin/adminpassword123)
+#    Open http://localhost:8087 (credentials in .env.influxdb.secret)
 #
 # 6. Stop everything:
 #    docker-compose -f docker-compose-sim.yml down

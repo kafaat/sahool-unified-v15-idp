@@ -3,43 +3,59 @@
  * خدمة الاتصال بقاعدة البيانات
  */
 
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
-// NOTE: Soft delete middleware requires @sahool/shared-db package
-// Enable when Docker build supports shared packages monorepo context
-// import { createSoftDeleteMiddleware } from '@sahool/shared-db';
 
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger(PrismaService.name);
+
   constructor() {
     super({
-      log: ['query', 'info', 'warn', 'error'],
+      log: [
+        { level: 'error', emit: 'stdout' },
+        { level: 'warn', emit: 'stdout' },
+        { level: 'info', emit: 'stdout' },
+      ],
+      // Connection pool configuration
+      // High traffic service: marketplace transactions
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
     });
-
-    // NOTE: Soft delete middleware disabled until shared packages are available
-    // Apply soft delete middleware
-    // Exclude audit tables and logs from soft delete behavior
-    // this.$use(
-    //   createSoftDeleteMiddleware({
-    //     excludedModels: [
-    //       'WalletAuditLog',
-    //       'CreditEvent',
-    //       'Transaction', // Keep transaction history permanent
-    //     ],
-    //     enableLogging: process.env.NODE_ENV === 'development',
-    //   })
-    // );
   }
 
   async onModuleInit() {
     await this.$connect();
-    console.log('Database connected successfully');
+    this.logger.log('Marketplace Database connected successfully');
   }
 
   async onModuleDestroy() {
     await this.$disconnect();
+    this.logger.log('Marketplace Database disconnected');
+  }
+
+  /**
+   * Get current connection status
+   */
+  async getConnectionStatus() {
+    try {
+      await this.$queryRaw`SELECT 1`;
+      return {
+        connected: true,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      this.logger.error('Database connection check failed:', error);
+      return {
+        connected: false,
+        timestamp: new Date().toISOString(),
+      };
+    }
   }
 }

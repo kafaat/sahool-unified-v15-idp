@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, AlertTriangle } from 'lucide-react';
 import { useYieldAnalysis } from '../hooks/useAnalytics';
@@ -16,6 +17,7 @@ interface YieldAnalysisProps {
 }
 
 export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
+  const t = useTranslations('analytics');
   const [chartType, setChartType] = useState<'line' | 'bar'>('bar');
   const { data: yieldData, isLoading } = useYieldAnalysis(filters);
 
@@ -30,8 +32,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
   if (!yieldData || yieldData.length === 0) {
     return (
       <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
-        <p className="text-gray-600">لا توجد بيانات محصول متاحة</p>
-        <p className="text-sm text-gray-500 mt-1">No yield data available</p>
+        <p className="text-gray-600">{t('noYieldData')}</p>
       </div>
     );
   }
@@ -50,7 +51,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">
-            تحليل المحصول
+            {t('yieldAnalysis')}
           </h3>
           <div className="flex gap-2">
             <button
@@ -61,7 +62,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              أعمدة
+              {t('bars')}
             </button>
             <button
               onClick={() => setChartType('line')}
@@ -71,7 +72,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              خطوط
+              {t('lines')}
             </button>
           </div>
         </div>
@@ -85,8 +86,8 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="actual" fill="#10b981" name="المحصول الفعلي" />
-                <Bar dataKey="expected" fill="#94a3b8" name="المحصول المتوقع" />
+                <Bar dataKey="actual" fill="#10b981" name={t('actualYield')} />
+                <Bar dataKey="expected" fill="#94a3b8" name={t('expectedYield')} />
               </BarChart>
             ) : (
               <LineChart data={chartData}>
@@ -100,14 +101,14 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
                   dataKey="actual"
                   stroke="#10b981"
                   strokeWidth={2}
-                  name="المحصول الفعلي"
+                  name={t('actualYield')}
                 />
                 <Line
                   type="monotone"
                   dataKey="expected"
                   stroke="#94a3b8"
                   strokeWidth={2}
-                  name="المحصول المتوقع"
+                  name={t('expectedYield')}
                 />
               </LineChart>
             )}
@@ -148,21 +149,21 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
 
               <div className="mt-4 space-y-3">
                 <div>
-                  <p className="text-sm text-gray-600">المحصول الفعلي</p>
+                  <p className="text-sm text-gray-600">{t('actualYield')}</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {field.totalYield.toLocaleString('ar-SA')} كجم
+                    {field.totalYield.toLocaleString('ar-SA')} {t('kg')}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600">الإنتاجية (كجم/هكتار)</p>
+                  <p className="text-sm text-gray-600">{t('productivity')} ({t('kgPerHectare')})</p>
                   <p className="text-xl font-semibold text-gray-900">
                     {field.yieldPerHectare.toLocaleString('ar-SA')}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-gray-600">الفرق عن المتوقع</p>
+                  <p className="text-sm text-gray-600">{t('varianceFromExpected')}</p>
                   <p
                     className={`text-lg font-semibold ${
                       variance > 0 ? 'text-green-600' : variance < 0 ? 'text-red-600' : 'text-gray-600'
@@ -175,10 +176,10 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
 
                 <div className="pt-3 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
-                    المساحة: {field.area.toLocaleString('ar-SA')} هكتار
+                    {t('totalArea')}: {field.area.toLocaleString('ar-SA')} {t('hectare')}
                   </p>
                   <p className="text-xs text-gray-500 mt-1">
-                    الموسم: {field.season}
+                    {t('season')}: {field.season}
                   </p>
                 </div>
               </div>

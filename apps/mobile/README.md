@@ -314,7 +314,7 @@ flutter test test/integration/
 flutter test --coverage
 ```
 
-## بناء APK
+## بناء APK (Android)
 
 ```bash
 # Debug APK
@@ -328,6 +328,82 @@ flutter build apk --release --split-per-abi
 
 # App Bundle للـ Play Store
 flutter build appbundle --release
+```
+
+## بناء IPA (iOS)
+
+### المتطلبات
+- macOS مع Xcode 14.0+
+- حساب Apple Developer مفعل
+- شهادة توزيع (Distribution Certificate)
+- Provisioning Profile للتطبيق
+
+### معرف الحزمة (Bundle Identifier)
+
+تم تكوين التطبيق بمعرف حزمة الإنتاج:
+
+```
+Bundle ID: io.sahool.field
+Test Bundle ID: io.sahool.field.RunnerTests
+```
+
+**ملاحظة مهمة للـ App Store:**
+- معرف الحزمة مكون في `/apps/mobile/ios/Runner.xcodeproj/project.pbxproj`
+- يجب أن يتطابق مع معرف التطبيق المسجل في Apple Developer Console
+- لتغيير معرف الحزمة، قم بتحديث `PRODUCT_BUNDLE_IDENTIFIER` في جميع التكوينات (Debug, Release, Profile)
+
+### بناء للـ App Store
+
+```bash
+# من مجلد apps/mobile
+cd /home/user/sahool-unified-v15-idp/apps/mobile
+
+# بناء IPA للإصدار
+flutter build ios --release
+
+# أو بناء وأرشفة من Xcode
+cd ios
+xcodebuild -workspace Runner.xcworkspace \
+  -scheme Runner \
+  -configuration Release \
+  -archivePath build/Runner.xcarchive \
+  archive
+
+# تصدير IPA
+xcodebuild -exportArchive \
+  -archivePath build/Runner.xcarchive \
+  -exportPath build/ipa \
+  -exportOptionsPlist ExportOptions.plist
+```
+
+### قائمة التحقق قبل النشر على App Store
+
+- [ ] تحديث رقم الإصدار في `pubspec.yaml`
+- [ ] التأكد من معرف الحزمة صحيح: `io.sahool.field`
+- [ ] تحديث شهادات SSL Pinning (راجع `ios/README_CERTIFICATE_PINNING.md`)
+- [ ] التأكد من جميع الـ SPKI hashes محدثة في `Info.plist`
+- [ ] اختبار التطبيق على أجهزة iOS فعلية
+- [ ] التأكد من جميع الأذونات موثقة في `Info.plist`:
+  - `NSCameraUsageDescription` - للكاميرا
+  - `NSPhotoLibraryUsageDescription` - لمكتبة الصور
+  - `NSLocationWhenInUseUsageDescription` - للموقع
+- [ ] مراجعة إعدادات App Transport Security
+- [ ] التأكد من عدم وجود مفاتيح API مشفرة في الكود
+- [ ] بناء في وضع Release واختبار الأداء
+- [ ] إعداد لقطات الشاشة ووصف التطبيق للـ App Store
+- [ ] مراجعة إرشادات مراجعة App Store من Apple
+
+### ملفات مهمة للـ iOS
+
+```
+ios/
+├── Runner/
+│   ├── Info.plist                    # إعدادات التطبيق والأذونات
+│   └── Assets.xcassets/              # الأيقونات والصور
+├── Runner.xcodeproj/
+│   └── project.pbxproj               # إعدادات المشروع (Bundle ID هنا)
+├── Runner.xcworkspace/               # مساحة عمل Xcode
+└── README_CERTIFICATE_PINNING.md     # دليل تثبيت الشهادات
 ```
 
 ## مصفوفة التوافق

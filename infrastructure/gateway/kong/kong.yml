@@ -459,7 +459,8 @@ upstreams:
     algorithm: round-robin
     slots: 10000
     targets:
-      - target: code-review-service:8096
+      # FIX: Changed port from 8096 to 8102 to match docker-compose.yml
+      - target: code-review-service:8102
         weight: 100
     healthchecks:
       active:
@@ -483,7 +484,32 @@ upstreams:
           tcp_failures: 3
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # NEW UPSTREAMS - 17 Missing Services
+  # WARNING: NON-EXISTENT SERVICE UPSTREAMS (Code Engineer 2026-01-08)
+  # ═══════════════════════════════════════════════════════════════════════════
+  # The following 16 upstreams reference services NOT defined in docker-compose.yml
+  # These routes will return 503 Service Unavailable when accessed
+  # They are kept here as placeholders for future service implementations
+  #
+  # To fix: Either implement the services in docker-compose.yml OR
+  #         comment out these upstreams and their corresponding services/routes
+  #
+  # Services not implemented:
+  #   - user-service:3025
+  #   - agent-registry:8150
+  #   - ai-agents-core:8122
+  #   - globalgap-compliance:8153
+  #   - analytics-service:8154
+  #   - reporting-service:8155
+  #   - integration-service:8156
+  #   - audit-service:8157
+  #   - export-service:8158
+  #   - import-service:8159
+  #   - admin-dashboard:3001
+  #   - monitoring-service:8160
+  #   - logging-service:8161
+  #   - tracing-service:8162
+  #   - cache-service:8163
+  #   - search-service:8164
   # ═══════════════════════════════════════════════════════════════════════════
 
   - name: user-service-upstream

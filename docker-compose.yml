@@ -371,7 +371,10 @@ services:
 
   # Ollama with DeepSeek Coder - Local LLM for Docker Log Analysis
   # Supports 20+ concurrent agents for parallel analysis
+  # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
   ollama:
+    profiles:
+      - gpu
     image: ollama/ollama:0.5.4
     container_name: sahool-ollama
     volumes:
@@ -419,7 +422,10 @@ services:
 
   # Ollama Model Loader - Downloads deepseek model on startup
   # تحميل نموذج DeepSeek عند بدء التشغيل
+  # NOTE: Only runs when gpu profile is active
   ollama-model-loader:
+    profiles:
+      - gpu
     image: curlimages/curl:8.11.1
     container_name: sahool-ollama-model-loader
     depends_on:
@@ -451,7 +457,10 @@ services:
 
   # Real-time Code Review Service - Monitors codebase and reviews with DeepSeek
   # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
+  # NOTE: Requires Ollama with GPU. Use: docker compose --profile gpu up -d
   code-review-service:
+    profiles:
+      - gpu
     build:
       context: .
       dockerfile: apps/services/code-review-service/Dockerfile

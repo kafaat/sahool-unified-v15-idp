@@ -140,11 +140,27 @@ def diagnose_zone(obs: ZoneObservation) -> list[dict[str, Any]]:
                     "priority": "P1",
                     "title": "تسميد نيتروجيني موضعي (VRT)",
                     "title_en": "Variable Rate Technology N-fertilization",
-                    "reason": "جوع خفي: NDRE منخفض بينما NDVI مرتفع",
-                    "reason_en": "Hidden hunger: Low NDRE while NDVI is high",
+                    "reason": "جوع خفي: نقص نيتروجين - NDRE منخفض بينما NDVI مرتفع",
+                    "reason_en": "Hidden hunger: nitrogen deficiency - Low NDRE while NDVI is high",
                     "evidence": {"ndre": idx.ndre, "ndvi": ndvi},
                     "recommended_dose_hint": _dose_hint_from_ndre(idx.ndre),
                     "severity": "warning",
+                }
+            )
+        # Severe nitrogen deficiency even with moderate NDVI
+        elif idx.ndre <= 0.20:
+            actions.append(
+                {
+                    "zone_id": obs.zone_id,
+                    "type": "fertilization",
+                    "priority": "P2",
+                    "title": "تسميد نيتروجيني",
+                    "title_en": "Nitrogen fertilization recommended",
+                    "reason": "نقص نيتروجين: NDRE منخفض جداً",
+                    "reason_en": "Nitrogen deficiency: Very low NDRE",
+                    "evidence": {"ndre": idx.ndre, "ndvi": ndvi},
+                    "recommended_dose_hint": _dose_hint_from_ndre(idx.ndre),
+                    "severity": "moderate",
                 }
             )
 
@@ -170,7 +186,24 @@ def diagnose_zone(obs: ZoneObservation) -> list[dict[str, Any]]:
     # ═══════════════════════════════════════════════════════════════
     # القاعدة 4: ضعف عام (NDVI منخفض جداً)
     # ═══════════════════════════════════════════════════════════════
-    if ndvi < 0.35:
+    if ndvi < 0.25:
+        # Critical vegetation loss - P0 priority
+        actions.append(
+            {
+                "zone_id": obs.zone_id,
+                "type": "scouting",
+                "priority": "P0",
+                "title": "تفقد ميداني عاجل: فقدان حاد بالغطاء",
+                "title_en": "Urgent field scouting: critical canopy loss",
+                "reason": "NDVI منخفض جداً - خطورة عالية (قد يكون مرض/آفات/فراغات/تربة عارية)",
+                "reason_en": "Very low NDVI - high risk (may be disease/pests/gaps/bare soil)",
+                "evidence": {"ndvi": ndvi, "evi": evi},
+                "recommended_window_hours": 24,
+                "severity": "critical",
+            }
+        )
+    elif ndvi < 0.35:
+        # Severe weakness - P2 priority
         actions.append(
             {
                 "zone_id": obs.zone_id,

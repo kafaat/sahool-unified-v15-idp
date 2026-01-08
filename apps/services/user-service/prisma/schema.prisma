@@ -88,7 +88,8 @@ model UserProfile {
   @@map("user_profiles")
 }
 
-// Role Model (for custom roles and permissions)
+// Custom Role Model (for custom roles and permissions)
+// This is separate from the UserRole enum which defines basic role types
 model Role {
   id          String   @id @default(uuid())
   name        String   @unique

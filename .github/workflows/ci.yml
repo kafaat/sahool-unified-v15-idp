@@ -450,31 +450,31 @@ jobs:
         run: |
           # CI test defaults - these are ONLY used for integration testing
           # In production, proper secrets must be configured
-          cat > .env << 'ENVEOF'
-          POSTGRES_USER=postgres
-          POSTGRES_PASSWORD=test_postgres_password_ci
-          POSTGRES_DB=sahool
-          REDIS_PASSWORD=test_redis_password_ci
-          JWT_SECRET_KEY=test_jwt_secret_key_for_ci_only_32chars
-          JWT_ALGORITHM=HS256
-          MQTT_PASSWORD=test_mqtt_password_ci
-          GRAFANA_ADMIN_PASSWORD=test_grafana_password_ci
-          ETCD_ROOT_USERNAME=root
-          ETCD_ROOT_PASSWORD=test_etcd_password_ci_32chars_min
-          NATS_USER=sahool_app_ci
-          NATS_PASSWORD=test_nats_password_ci_32_chars_min
-          NATS_ADMIN_USER=nats_admin_ci
-          NATS_ADMIN_PASSWORD=test_nats_admin_password_ci_32_chars
-          NATS_MONITOR_USER=nats_monitor_ci
-          NATS_MONITOR_PASSWORD=test_nats_monitor_password_ci_32_chars
-          NATS_CLUSTER_USER=nats_cluster_ci
-          NATS_CLUSTER_PASSWORD=test_nats_cluster_password_ci_32_chars
-          NATS_SYSTEM_USER=nats_system_ci
-          NATS_SYSTEM_PASSWORD=test_nats_system_password_ci_32_chars
-          NATS_JETSTREAM_KEY=test_jetstream_key_ci_32_chars_min
-          MINIO_ROOT_USER=test_minio_ci_user
-          MINIO_ROOT_PASSWORD=test_minio_ci_password_32chars_min
-          ENVEOF
+          echo "POSTGRES_USER=postgres" > .env
+          echo "POSTGRES_PASSWORD=test_postgres_password_ci" >> .env
+          echo "POSTGRES_DB=sahool" >> .env
+          echo "REDIS_PASSWORD=test_redis_password_ci" >> .env
+          echo "JWT_SECRET_KEY=test_jwt_secret_key_for_ci_only_32chars" >> .env
+          echo "JWT_ALGORITHM=HS256" >> .env
+          echo "MQTT_PASSWORD=test_mqtt_password_ci" >> .env
+          echo "GRAFANA_ADMIN_PASSWORD=test_grafana_password_ci" >> .env
+          echo "ETCD_ROOT_USERNAME=root" >> .env
+          echo "ETCD_ROOT_PASSWORD=test_etcd_password_ci_32chars_min" >> .env
+          echo "NATS_USER=sahool_app_ci" >> .env
+          echo "NATS_PASSWORD=test_nats_password_ci_32_chars_min" >> .env
+          echo "NATS_ADMIN_USER=nats_admin_ci" >> .env
+          echo "NATS_ADMIN_PASSWORD=test_nats_admin_password_ci_32_chars" >> .env
+          echo "NATS_MONITOR_USER=nats_monitor_ci" >> .env
+          echo "NATS_MONITOR_PASSWORD=test_nats_monitor_password_ci_32_chars" >> .env
+          echo "NATS_CLUSTER_USER=nats_cluster_ci" >> .env
+          echo "NATS_CLUSTER_PASSWORD=test_nats_cluster_password_ci_32_chars" >> .env
+          echo "NATS_SYSTEM_USER=nats_system_ci" >> .env
+          echo "NATS_SYSTEM_PASSWORD=test_nats_system_password_ci_32_chars" >> .env
+          echo "NATS_JETSTREAM_KEY=test_jetstream_key_ci_32_chars_min" >> .env
+          echo "MINIO_ROOT_USER=test_minio_ci_user" >> .env
+          echo "MINIO_ROOT_PASSWORD=test_minio_ci_password_32chars_min" >> .env
+          cat .env
+          echo "✅ Created .env file"
 
       - name: Start services
         run: |

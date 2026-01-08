@@ -164,13 +164,14 @@ export function SanitizePlainText() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// User Role and Status Enums (when Prisma is not available)
+// User Role and Status Enums (must match Prisma schema)
 // ═══════════════════════════════════════════════════════════════════════════
 
 export enum UserRole {
   ADMIN = 'ADMIN',
   MANAGER = 'MANAGER',
-  OPERATOR = 'OPERATOR',
+  FARMER = 'FARMER',
+  WORKER = 'WORKER',
   VIEWER = 'VIEWER',
 }
 

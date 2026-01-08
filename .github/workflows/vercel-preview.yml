@@ -45,18 +45,18 @@ jobs:
 
       - name: Pull Vercel Environment
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/frontend/web
+        working-directory: apps/web
 
       - name: Build Project
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/frontend/web
+        working-directory: apps/web
 
       - name: Deploy to Vercel
         id: deploy
         run: |
           DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
-        working-directory: apps/frontend/web
+        working-directory: apps/web
 
       - name: Comment Preview URL
         if: github.event_name == 'pull_request'
@@ -134,12 +134,12 @@ jobs:
 
       - name: Pull Vercel Environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/frontend/web
+        working-directory: apps/web
 
       - name: Build Project
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/frontend/web
+        working-directory: apps/web
 
       - name: Deploy to Production
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: apps/frontend/web
+        working-directory: apps/web

@@ -52,11 +52,14 @@ RUN apk add --no-cache curl openssl openssl-dev
 
 WORKDIR /app
 
-# Copy package files
-COPY apps/services/iot-service/package.json ./
+# Copy package files from builder (includes generated package-lock.json)
+# NOTE: Using npm ci for deterministic builds
+COPY --from=builder /workspace/iot-service/package.json ./
+COPY --from=builder /workspace/iot-service/package-lock.json ./
 
 # Install production dependencies with retry for network resilience
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
 
 # Copy Prisma schema and regenerate client for production
 COPY --from=builder /workspace/iot-service/prisma ./prisma

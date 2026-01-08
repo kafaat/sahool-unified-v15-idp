@@ -34,9 +34,12 @@ WORKDIR /app
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Copy package files
+# Copy package files and install production dependencies
+# NOTE: Using npm ci for deterministic builds with package-lock.json
 COPY apps/services/lai-estimation/package.json ./
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+COPY apps/services/lai-estimation/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy built application
 COPY --from=builder /workspace/lai-estimation/dist ./dist

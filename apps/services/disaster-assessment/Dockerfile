@@ -34,9 +34,12 @@ WORKDIR /app
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Copy package files
-COPY apps/services/disaster-assessment/package.json ./
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Copy package files from builder (includes generated package-lock.json)
+# NOTE: Using npm ci for deterministic builds
+COPY --from=builder /workspace/disaster-assessment/package.json ./
+COPY --from=builder /workspace/disaster-assessment/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy built application
 COPY --from=builder /workspace/disaster-assessment/dist ./dist

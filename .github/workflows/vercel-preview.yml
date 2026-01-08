@@ -10,12 +10,15 @@
 name: Vercel Preview
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  push:
-    branches:
-      - main
-      - master
+  # Temporarily disabled - Vercel secrets not configured
+  # To enable: Add VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID secrets
+  workflow_dispatch:  # Manual trigger only
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
+  # push:
+  #   branches:
+  #     - main
+  #     - master
 
 permissions:
   contents: read

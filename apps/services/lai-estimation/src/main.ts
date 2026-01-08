@@ -5,6 +5,10 @@
 // Reference: Artificial Intelligence in Agriculture Journal (2025)
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// CRITICAL: reflect-metadata must be imported FIRST before any NestJS imports
+// Required for decorators and dependency injection to work
+import 'reflect-metadata';
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';

@@ -1,7 +1,6 @@
 # ============================================================================
-# NOTE: This file mirrors /infra/kong/kong.yml
+# NOTE: This file should mirror /infra/kong/kong.yml
 # The canonical configuration is in /infra/kong/kong.yml
-# Last synced: 2026-01-06 - Added 17 missing service routes
 # ============================================================================
 
 _format_version: "3.0"
@@ -954,11 +953,6 @@ services:
         config:
           claims_to_verify:
             - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1003,14 +997,6 @@ services:
           - POST
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1049,14 +1035,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1093,14 +1071,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1133,14 +1103,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1182,14 +1144,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1225,14 +1179,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1267,14 +1213,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1309,14 +1247,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1348,14 +1278,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1387,14 +1309,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1426,14 +1340,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1465,14 +1371,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1505,14 +1403,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1552,14 +1442,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1596,14 +1478,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1640,14 +1514,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1685,14 +1551,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1729,14 +1587,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1776,14 +1626,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1824,14 +1666,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1863,14 +1697,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1906,14 +1732,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1949,14 +1767,6 @@ services:
           - https
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -1989,14 +1799,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2029,14 +1831,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2068,14 +1862,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2109,14 +1895,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2149,14 +1927,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2188,14 +1958,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2228,14 +1990,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2305,14 +2059,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2344,14 +2090,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2384,14 +2122,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2424,14 +2154,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2464,14 +2186,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2502,14 +2216,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2543,14 +2249,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2586,14 +2284,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2642,20 +2332,6 @@ services:
           - PATCH
           - DELETE
     plugins:
-      # SECURITY FIX: JWT authentication is required for user management
-      # Note: /api/v1/auth endpoints handle their own authentication internally
-      # The user-service validates tokens server-side for auth endpoints
-      - name: jwt
-        config:
-          # Auth endpoints (/api/v1/auth/*) are excluded from JWT check at the service level
-          # as they need to be accessible for login/register operations
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2700,14 +2376,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2746,14 +2414,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2792,14 +2452,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2834,14 +2486,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2876,14 +2520,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2917,14 +2553,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2958,14 +2586,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -2999,14 +2619,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3039,14 +2651,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3080,14 +2684,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3126,14 +2722,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3166,14 +2754,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3209,14 +2789,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3254,14 +2826,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3294,14 +2858,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3334,14 +2890,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3374,14 +2922,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:
@@ -3414,14 +2954,6 @@ services:
         strip_path: false
     plugins:
       - name: jwt
-        config:
-          claims_to_verify:
-            - exp
-            - sub
-            - aud
-            - iss
-          key_claim_name: iss
-          secret_is_base64: false
       - name: acl
         config:
           allow:

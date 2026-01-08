@@ -34,7 +34,7 @@
 param(
     [string]$Services = "",
     [int]$Lines = 100,
-    [int]$Parallel = 20,
+    [int]$Parallel = 5,
     [switch]$OnlyErrors,
     [string]$OutputFile = ""
 )
@@ -91,7 +91,7 @@ function Test-DeepSeekModel {
 function Install-DeepSeekModel {
     Write-ColorOutput "Downloading deepseek-coder:6.7b model..." "Yellow"
     try {
-        $body = @{ name = "deepseek-coder:6.7b" } | ConvertTo-Json
+        $body = @{ name = "deepseek-coder" } | ConvertTo-Json
         $response = Invoke-RestMethod -Uri "http://localhost:11434/api/pull" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 3600
         Write-ColorOutput "Model downloaded successfully!" "Green"
         return $true
@@ -175,9 +175,10 @@ function Test-HasErrors {
 function Invoke-LogAnalysis {
     param([string]$ServiceName, [string]$Logs)
 
-    # Truncate logs if too long (keep last 4000 characters to avoid prompt truncation)
-    if ($Logs.Length -gt 4000) {
-        $Logs = "...[TRUNCATED - showing last 4000 chars]...`n" + $Logs.Substring($Logs.Length - 4000)
+    # Truncate logs if too long (keep last 2500 characters to avoid prompt truncation and reduce processing time)
+    # Reduced from 4000 to 2500 for CPU-only Ollama performance
+    if ($Logs.Length -gt 2500) {
+        $Logs = "...[TRUNCATED - showing last 2500 chars]...`n" + $Logs.Substring($Logs.Length - 2500)
     }
 
     $prompt = @"
@@ -203,12 +204,30 @@ Provide your analysis in a structured format with clear sections.
             stream = $false
             options = @{
                 temperature = 0.3
-                num_predict = 2048
-                num_ctx = 4096
+                num_predict = 1024
+                num_ctx = 3072
             }
         } | ConvertTo-Json -Depth 3
 
-        $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 300
+        # Retry logic for timeout resilience (CPU-only Ollama is slower)
+        $maxRetries = 2
+        $retryCount = 0
+        $response = $null
+        
+        while ($retryCount -le $maxRetries) {
+            try {
+                $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 600
+                break
+            }
+            catch {
+                $retryCount++
+                if ($retryCount -gt $maxRetries) {
+                    throw
+                }
+                Start-Sleep -Seconds (5 * $retryCount)
+            }
+        }
+        
         return $response.response
     }
     catch {
@@ -291,7 +310,7 @@ if ($serviceData.Count -eq 0) {
     exit 0
 }
 
-Write-Section "Analyzing Logs with DeepSeek Coder ($Parallel concurrent agents)"
+Write-Section "Analyzing Logs with DeepSeek Coder ($Parallel concurrent agents - reduced for CPU-only mode)"
 
 # Results storage
 $results = @{}
@@ -312,6 +331,12 @@ $runspacePool.Open()
 foreach ($service in $serviceData.Keys) {
     $powershell = [powershell]::Create().AddScript({
         param($ServiceName, $Logs)
+
+        # Truncate logs if too long (keep last 2500 characters to avoid prompt truncation and reduce processing time)
+        # Reduced from 4000 to 2500 for CPU-only Ollama performance
+        if ($Logs.Length -gt 2500) {
+            $Logs = "...[TRUNCATED - showing last 2500 chars]...`n" + $Logs.Substring($Logs.Length - 2500)
+        }
 
         $prompt = @"
 You are a Docker and DevOps expert analyzing logs from the '$ServiceName' container.
@@ -347,56 +372,35 @@ $Logs
 "@
 
         try {
-            # Truncate logs if too long (keep last 3000 characters to avoid prompt truncation)
-            if ($Logs.Length -gt 3000) {
-                $Logs = "..." + $Logs.Substring($Logs.Length - 3000)
-            }
-            
-            $prompt = @"
-You are a Docker and DevOps expert analyzing logs from the '$ServiceName' container.
-Analyze the following logs and provide:
-1. ERRORS FOUND: List each error with line reference
-2. ROOT CAUSE: Explain why each error occurred
-3. FIXES: Specific commands or code changes to fix each issue
-4. PRIORITY: Critical/High/Medium/Low for each issue
-
-If no errors are found, state: "SERVICE HEALTHY - No issues detected"
-
-Format your response as:
-## $ServiceName Analysis
-
-### Errors Found
-- [Error 1 description]
-- [Error 2 description]
-
-### Root Cause Analysis
-1. [Cause for Error 1]
-2. [Cause for Error 2]
-
-### Suggested Fixes
-1. [Fix for Error 1 with command/code]
-2. [Fix for Error 2 with command/code]
-
-### Priority
-- Error 1: [Priority Level]
-- Error 2: [Priority Level]
-
-LOGS:
-$Logs
-"@
-
             $body = @{
                 model = "deepseek-coder:6.7b"
                 prompt = $prompt
                 stream = $false
                 options = @{
                     temperature = 0.3
-                    num_predict = 2048
-                    num_ctx = 4096
+                    num_predict = 1024
+                    num_ctx = 3072
                 }
             } | ConvertTo-Json -Depth 3
 
-            $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 300
+            # Retry logic for timeout resilience (CPU-only Ollama is slower)
+            $maxRetries = 2
+            $retryCount = 0
+            $response = $null
+            
+            while ($retryCount -le $maxRetries) {
+                try {
+                    $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 600
+                    break
+                }
+                catch {
+                    $retryCount++
+                    if ($retryCount -gt $maxRetries) {
+                        throw
+                    }
+                    Start-Sleep -Seconds (5 * $retryCount)
+                }
+            }
             return @{
                 Service = $ServiceName
                 Analysis = $response.response

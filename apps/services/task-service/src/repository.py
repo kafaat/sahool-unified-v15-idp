@@ -263,7 +263,7 @@ class TaskRepository:
                 task.actual_duration_minutes = actual_duration_minutes
 
             if completion_metadata:
-                task.metadata = {**(task.metadata or {}), **completion_metadata}
+                task.task_metadata = {**(task.task_metadata or {}), **completion_metadata}
 
             self.db.commit()
             self.db.refresh(task)
@@ -306,7 +306,7 @@ class TaskRepository:
             task.updated_at = datetime.utcnow()
 
             if reason:
-                task.metadata = {**(task.metadata or {}), "cancel_reason": reason}
+                task.task_metadata = {**(task.task_metadata or {}), "cancel_reason": reason}
 
             self.db.commit()
             self.db.refresh(task)

@@ -17,8 +17,16 @@ from fastapi import FastAPI, HTTPException
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field, ValidationInfo, field_validator
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-from shared.middleware import setup_cors
+
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+except ImportError:
+    # Fallback if shared.errors_py is not available
+    def setup_exception_handlers(app):
+        pass
+
+    def add_request_id_middleware(app):
+        pass
 
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage

@@ -28,11 +28,14 @@ RUN groupadd --system sahool && \
 RUN pip install --upgrade pip || true
 
 # Install dependencies
-COPY requirements.txt .
+COPY apps/services/inventory-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared libraries
+COPY shared/ ./shared/
+
 # Copy source
-COPY src/ ./src/
+COPY apps/services/inventory-service/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app

@@ -48,13 +48,16 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Copy requirements first for caching
-COPY requirements.txt .
+COPY apps/services/ndvi-processor/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
+# Copy shared libraries
+COPY shared/ ./shared/
+
 # Copy source code
-COPY src/ ./src/
+COPY apps/services/ndvi-processor/src/ ./src/
 
 # Create temp directory
 RUN mkdir -p /tmp/ndvi && chown -R sahool:sahool /tmp/ndvi

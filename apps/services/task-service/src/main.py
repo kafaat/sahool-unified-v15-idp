@@ -23,12 +23,12 @@ import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from repository import TaskRepository
+from .repository import TaskRepository
 from sqlalchemy.orm import Session
 
 # Database imports
-from database import close_database, get_db, init_database, init_demo_data_if_needed
-from models import Task as TaskModel
+from .database import close_database, get_db, init_database, init_demo_data_if_needed
+from .models import Task as TaskModel
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -507,7 +507,7 @@ def db_task_to_dict(task: TaskModel) -> dict:
         "updated_at": task.updated_at,
         "completed_at": task.completed_at,
         "completion_notes": task.completion_notes,
-        "metadata": task.metadata,
+        "metadata": task.task_metadata,
         "astronomical_score": task.astronomical_score,
         "moon_phase_at_due_date": task.moon_phase_at_due_date,
         "lunar_mansion_at_due_date": task.lunar_mansion_at_due_date,
@@ -1331,7 +1331,7 @@ async def complete_task(
             evidence_db[evidence.evidence_id] = evidence
 
     if data.completion_metadata:
-        task.metadata = {**(task.metadata or {}), **data.completion_metadata}
+        task.task_metadata = {**(task.task_metadata or {}), **data.completion_metadata}
 
     tasks_db[task_id] = task
 
@@ -1399,7 +1399,7 @@ async def cancel_task(
     task.status = TaskStatus.CANCELLED
     task.updated_at = datetime.utcnow()
     if reason:
-        task.metadata = {**(task.metadata or {}), "cancel_reason": reason}
+        task.task_metadata = {**(task.task_metadata or {}), "cancel_reason": reason}
 
     tasks_db[task_id] = task
 

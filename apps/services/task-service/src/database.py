@@ -13,8 +13,13 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import QueuePool
 
 # Import shared database components
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
-from database.base import Base
+# Add apps/services/shared to path for database imports
+# Use absolute path to ensure it works
+shared_path = "/app/apps/services/shared"
+if shared_path not in sys.path:
+    sys.path.insert(0, shared_path)
+# Import from the database package (uses __init__.py exports)
+from database import Base
 
 # Import models to ensure they're registered with Base
 from .models import Task

@@ -46,13 +46,16 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Copy requirements first for caching
-COPY requirements.txt .
+COPY apps/services/field-service/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
+# Copy shared modules
+COPY shared/ ./shared/
+
 # Copy source code
-COPY src/ ./src/
+COPY apps/services/field-service/src/ ./src/
 
 # Change ownership
 RUN chown -R sahool:sahool /app

@@ -45,12 +45,13 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY apps/services/iot-gateway/requirements.txt .
 
 # Copy shared libraries
+COPY shared/ ./shared/
 
 # Copy source
-COPY src/ ./src/
+COPY apps/services/iot-gateway/src/ ./src/
 
 # Install dependencies and set ownership
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \

@@ -92,17 +92,22 @@ jobs:
               fi
 
               if [ -n "$main_py_path" ]; then
-                python3 << EOF > "${{ env.DOCS_DIR }}/openapi/${service}.json"
+                export MAIN_PY_PATH="$main_py_path"
+                export SERVICE_NAME="$service"
+                python3 << 'PYEOF' > "${{ env.DOCS_DIR }}/openapi/${service}.json"
 import sys
-sys.path.insert(0, "$main_py_path")
+import os
+main_path = os.environ.get('MAIN_PY_PATH', '.')
+sys.path.insert(0, main_path)
 try:
     from main import app
     import json
     print(json.dumps(app.openapi(), indent=2))
 except Exception as e:
-    print(f"# Error generating spec for $service: {e}", file=sys.stderr)
-    print('{"openapi":"3.0.0","info":{"title":"$service","version":"1.0.0"},"paths":{}}')
-EOF
+    service_name = os.environ.get('SERVICE_NAME', 'unknown')
+    print(f"# Error generating spec for {service_name}: {e}", file=sys.stderr)
+    print('{"openapi":"3.0.0","info":{"title":"unknown","version":"1.0.0"},"paths":{}}')
+PYEOF
               fi
             fi
           done

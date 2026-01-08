@@ -14,13 +14,13 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'apps/frontend/**'
+      - 'apps/web/**'
       - 'apps/mobile/**'
       - 'tests/e2e/**'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'apps/frontend/**'
+      - 'apps/web/**'
       - 'apps/mobile/**'
       - 'tests/e2e/**'
   workflow_dispatch:

@@ -1,0 +1,1741 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Certificate Rotation - Quick Start Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-certificate-rotation-quick-start-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Certificate Rotation - Quick Start Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-certificate-rotation-quick-start-guide">SAHOOL Certificate Rotation - Quick Start Guide<a class="headerlink" href="#sahool-certificate-rotation-quick-start-guide" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide provides a quick start for setting up automated certificate rotation for the SAHOOL platform. The system automatically manages TLS certificates for PostgreSQL, PgBouncer, Redis, NATS, and Kong Gateway.</p>
+<h2 id="what-was-created">What Was Created<a class="headerlink" href="#what-was-created" title="Permanent link">&para;</a></h2>
+<h3 id="scripts-scriptscerts">Scripts (<code>/scripts/certs/</code>)<a class="headerlink" href="#scripts-scriptscerts" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+<th>Executable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>generate-certs.sh</code></td>
+<td>Generate and manage TLS certificates</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>validate-certs.sh</code></td>
+<td>Validate certificates and check expiration</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>rotate-certs.sh</code></td>
+<td>Automate certificate rotation</td>
+<td>✓</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>Script documentation</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="infrastructure-infrastructurecerts">Infrastructure (<code>/infrastructure/certs/</code>)<a class="headerlink" href="#infrastructure-infrastructurecerts" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+<th>Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cert-rotation.service</code></td>
+<td>Systemd service unit</td>
+<td>systemd</td>
+</tr>
+<tr>
+<td><code>cert-rotation.timer</code></td>
+<td>Systemd timer (daily at 2 AM)</td>
+<td>systemd</td>
+</tr>
+<tr>
+<td><code>cert-rotation.cron</code></td>
+<td>Alternative cron configuration</td>
+<td>cron</td>
+</tr>
+<tr>
+<td><code>README.md</code></td>
+<td>Infrastructure setup guide</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="documentation-docs">Documentation (<code>/docs/</code>)<a class="headerlink" href="#documentation-docs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CERTIFICATE_ROTATION.md</code></td>
+<td>Complete rotation guide (22 KB)</td>
+</tr>
+<tr>
+<td><code>CERTIFICATE_ROTATION_QUICKSTART.md</code></td>
+<td>This quick start guide</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-minute-setup">5-Minute Setup<a class="headerlink" href="#5-minute-setup" title="Permanent link">&para;</a></h2>
+<h3 id="step-1-generate-initial-certificates">Step 1: Generate Initial Certificates<a class="headerlink" href="#step-1-generate-initial-certificates" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
+
+<span class="c1"># Generate certificates for all services</span>
+./scripts/certs/generate-certs.sh
+
+<span class="c1"># Expected output:</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════════</span>
+<span class="c1">#   SAHOOL Certificate Generation</span>
+<span class="c1">#   Platform: SAHOOL v16.0.0</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># [INFO] OpenSSL version: OpenSSL X.X.X</span>
+<span class="c1"># [STEP] Generating Certificate Authority (CA)</span>
+<span class="c1"># [SUCCESS] CA certificate generated successfully</span>
+<span class="c1"># [STEP] Generating certificate for: postgres</span>
+<span class="c1"># [SUCCESS] Certificate for postgres generated successfully</span>
+<span class="c1"># ...</span>
+</code></pre></div>
+
+<h3 id="step-2-validate-certificates">Step 2: Validate Certificates<a class="headerlink" href="#step-2-validate-certificates" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check all certificates</span>
+./scripts/certs/validate-certs.sh
+
+<span class="c1"># Expected output:</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════════</span>
+<span class="c1">#   SAHOOL Certificate Validation Report</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># [SUCCESS] postgres: Certificate valid for 825 days</span>
+<span class="c1"># [SUCCESS] pgbouncer: Certificate valid for 825 days</span>
+<span class="c1"># [SUCCESS] redis: Certificate valid for 825 days</span>
+<span class="c1"># [SUCCESS] nats: Certificate valid for 825 days</span>
+<span class="c1"># [SUCCESS] kong: Certificate valid for 825 days</span>
+<span class="c1">#</span>
+<span class="c1"># Summary:</span>
+<span class="c1">#   Total Certificates:   5</span>
+<span class="c1">#   Valid:                5</span>
+<span class="c1">#   Warnings:             0</span>
+<span class="c1">#   Errors/Critical:      0</span>
+</code></pre></div>
+
+<h3 id="step-3-enable-automated-rotation">Step 3: Enable Automated Rotation<a class="headerlink" href="#step-3-enable-automated-rotation" title="Permanent link">&para;</a></h3>
+<p><strong>Choose ONE of the following options:</strong></p>
+<h4 id="option-a-systemd-timer-recommended">Option A: Systemd Timer (Recommended)<a class="headerlink" href="#option-a-systemd-timer-recommended" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Copy systemd files</span>
+sudo<span class="w"> </span>cp<span class="w"> </span>infrastructure/certs/cert-rotation.service<span class="w"> </span>/etc/systemd/system/
+sudo<span class="w"> </span>cp<span class="w"> </span>infrastructure/certs/cert-rotation.timer<span class="w"> </span>/etc/systemd/system/
+
+<span class="c1"># Update paths (if not using /opt/sahool)</span>
+sudo<span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s|/opt/sahool|/home/user/sahool-unified-v15-idp|g&#39;</span><span class="w"> </span>/etc/systemd/system/cert-rotation.service
+
+<span class="c1"># Enable and start</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>daemon-reload
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>cert-rotation.timer
+sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>cert-rotation.timer
+
+<span class="c1"># Verify</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>cert-rotation.timer
+</code></pre></div>
+
+<h4 id="option-b-cron-job">Option B: Cron Job<a class="headerlink" href="#option-b-cron-job" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install cron configuration</span>
+sudo<span class="w"> </span>cp<span class="w"> </span>infrastructure/certs/cert-rotation.cron<span class="w"> </span>/etc/cron.d/sahool-cert-rotation
+sudo<span class="w"> </span>chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>/etc/cron.d/sahool-cert-rotation
+
+<span class="c1"># Update paths</span>
+sudo<span class="w"> </span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s|/opt/sahool|/home/user/sahool-unified-v15-idp|g&#39;</span><span class="w"> </span>/etc/cron.d/sahool-cert-rotation
+
+<span class="c1"># Verify</span>
+cat<span class="w"> </span>/etc/cron.d/sahool-cert-rotation
+</code></pre></div>
+
+<h3 id="step-4-configure-notifications-optional">Step 4: Configure Notifications (Optional)<a class="headerlink" href="#step-4-configure-notifications-optional" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create configuration file</span>
+sudo<span class="w"> </span>tee<span class="w"> </span>/etc/default/sahool-certs<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s"># Rotation threshold (days before expiration)</span>
+<span class="s">ROTATION_THRESHOLD_DAYS=30</span>
+
+<span class="s"># Email notifications</span>
+<span class="s">NOTIFICATION_EMAIL=admin@example.com</span>
+
+<span class="s"># Slack webhook (optional)</span>
+<span class="s"># SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL</span>
+
+<span class="s"># Backup retention</span>
+<span class="s">BACKUP_RETENTION=10</span>
+
+<span class="s"># Unattended mode (no prompts)</span>
+<span class="s">UNATTENDED=1</span>
+<span class="s">EOF</span>
+
+sudo<span class="w"> </span>chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/etc/default/sahool-certs
+</code></pre></div>
+
+<h3 id="step-5-test-the-system">Step 5: Test the System<a class="headerlink" href="#step-5-test-the-system" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Test rotation in dry-run mode</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--dry-run
+
+<span class="c1"># Expected output:</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════════</span>
+<span class="c1">#   SAHOOL Certificate Rotation</span>
+<span class="c1">#   Platform: SAHOOL v16.0.0</span>
+<span class="c1">#   Mode: DRY RUN (no changes will be made)</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># [STEP] Checking certificate expiration status</span>
+<span class="c1"># [INFO] postgres: Certificate valid for 825 days, no rotation needed</span>
+<span class="c1"># [INFO] pgbouncer: Certificate valid for 825 days, no rotation needed</span>
+<span class="c1"># [INFO] redis: Certificate valid for 825 days, no rotation needed</span>
+<span class="c1"># [INFO] nats: Certificate valid for 825 days, no rotation needed</span>
+<span class="c1"># [INFO] kong: Certificate valid for 825 days, no rotation needed</span>
+<span class="c1"># [SUCCESS] No certificates need rotation at this time</span>
+</code></pre></div>
+
+<h2 id="daily-operations">Daily Operations<a class="headerlink" href="#daily-operations" title="Permanent link">&para;</a></h2>
+<h3 id="check-certificate-status">Check Certificate Status<a class="headerlink" href="#check-certificate-status" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># View all certificates</span>
+./scripts/certs/validate-certs.sh
+
+<span class="c1"># Check specific service</span>
+./scripts/certs/validate-certs.sh<span class="w"> </span>--service<span class="w"> </span>redis
+
+<span class="c1"># JSON output for monitoring</span>
+./scripts/certs/validate-certs.sh<span class="w"> </span>--json
+</code></pre></div>
+
+<h3 id="manual-rotation">Manual Rotation<a class="headerlink" href="#manual-rotation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Rotate expiring certificates</span>
+./scripts/certs/rotate-certs.sh
+
+<span class="c1"># Force rotate specific service</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--force<span class="w"> </span>--service<span class="w"> </span>postgres
+
+<span class="c1"># Preview without changes</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--dry-run
+</code></pre></div>
+
+<h3 id="monitor-automated-rotation">Monitor Automated Rotation<a class="headerlink" href="#monitor-automated-rotation" title="Permanent link">&para;</a></h3>
+<p><strong>Systemd:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check timer status</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>cert-rotation.timer
+
+<span class="c1"># View next run time</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>list-timers<span class="w"> </span>cert-rotation.timer
+
+<span class="c1"># View rotation logs</span>
+sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>cert-rotation.service<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>
+
+<span class="c1"># Follow logs in real-time</span>
+sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>cert-rotation.service<span class="w"> </span>-f
+</code></pre></div>
+
+<p><strong>Cron:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># View rotation log</span>
+tail<span class="w"> </span>-f<span class="w"> </span>/var/log/sahool-cert-rotation.log
+
+<span class="c1"># Check cron execution in syslog</span>
+grep<span class="w"> </span>cert-rotation<span class="w"> </span>/var/log/syslog<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-20
+</code></pre></div>
+
+<h2 id="rotation-workflow">Rotation Workflow<a class="headerlink" href="#rotation-workflow" title="Permanent link">&para;</a></h2>
+<p>The automated rotation system works as follows:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">Daily</span><span class="w"> </span><span class="nv">Check</span><span class="w"> </span><span class="ss">(</span><span class="mi">2</span>:<span class="mi">00</span><span class="w"> </span><span class="nv">AM</span><span class="ss">)</span>
+<span class="w">    </span>↓
+<span class="nv">Check</span><span class="w"> </span><span class="nv">Certificate</span><span class="w"> </span><span class="nv">Expiration</span>
+<span class="w">    </span>↓
+<span class="nv">Expiring</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="nv">days</span>?<span class="w"> </span>───<span class="w"> </span><span class="nv">No</span><span class="w"> </span>──→<span class="w"> </span><span class="k">Exit</span><span class="w"> </span><span class="ss">(</span><span class="nv">No</span><span class="w"> </span><span class="nv">action</span><span class="ss">)</span>
+<span class="w">    </span>↓<span class="w"> </span><span class="nv">Yes</span>
+<span class="nv">Backup</span><span class="w"> </span><span class="nv">Current</span><span class="w"> </span><span class="nv">Certificate</span>
+<span class="w">    </span>↓
+<span class="nv">Generate</span><span class="w"> </span><span class="nv">New</span><span class="w"> </span><span class="nv">Certificate</span>
+<span class="w">    </span>↓
+<span class="nv">Validate</span><span class="w"> </span><span class="nv">New</span><span class="w"> </span><span class="nv">Certificate</span>
+<span class="w">    </span>↓
+<span class="nv">Restart</span><span class="w"> </span><span class="nv">Service</span><span class="w"> </span><span class="ss">(</span><span class="nv">Zero</span><span class="w"> </span><span class="nv">Downtime</span><span class="ss">)</span>
+<span class="w">    </span>↓
+<span class="nv">Verify</span><span class="w"> </span><span class="nv">Service</span><span class="w"> </span><span class="nv">Health</span>
+<span class="w">    </span>↓
+<span class="k">Send</span><span class="w"> </span><span class="nv">Success</span><span class="w"> </span><span class="nv">Notification</span>
+<span class="w">    </span>↓
+<span class="nv">Log</span><span class="w"> </span><span class="nv">Rotation</span><span class="w"> </span><span class="nv">Event</span>
+</code></pre></div>
+
+<h2 id="certificate-lifecycle">Certificate Lifecycle<a class="headerlink" href="#certificate-lifecycle" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Duration</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fresh</strong></td>
+<td>795+ days</td>
+<td>✓ No action needed</td>
+</tr>
+<tr>
+<td><strong>Valid</strong></td>
+<td>31-795 days</td>
+<td>✓ Monitor regularly</td>
+</tr>
+<tr>
+<td><strong>Warning</strong></td>
+<td>8-30 days</td>
+<td>⚠ Rotation scheduled</td>
+</tr>
+<tr>
+<td><strong>Critical</strong></td>
+<td>1-7 days</td>
+<td>🔴 Immediate rotation</td>
+</tr>
+<tr>
+<td><strong>Expired</strong></td>
+<td>&lt; 0 days</td>
+<td>🚨 Emergency rotation</td>
+</tr>
+</tbody>
+</table>
+<h2 id="common-commands">Common Commands<a class="headerlink" href="#common-commands" title="Permanent link">&para;</a></h2>
+<h3 id="generate-certificates">Generate Certificates<a class="headerlink" href="#generate-certificates" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># All services</span>
+./scripts/certs/generate-certs.sh
+
+<span class="c1"># Specific service</span>
+./scripts/certs/generate-certs.sh<span class="w"> </span>--service<span class="w"> </span>redis
+
+<span class="c1"># Force regenerate</span>
+./scripts/certs/generate-certs.sh<span class="w"> </span>--force
+
+<span class="c1"># View certificate info</span>
+./scripts/certs/generate-certs.sh<span class="w"> </span>--info<span class="w"> </span>postgres
+</code></pre></div>
+
+<h3 id="validate-certificates">Validate Certificates<a class="headerlink" href="#validate-certificates" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Validate all</span>
+./scripts/certs/validate-certs.sh
+
+<span class="c1"># Specific service</span>
+./scripts/certs/validate-certs.sh<span class="w"> </span>--service<span class="w"> </span>postgres
+
+<span class="c1"># Custom warning threshold (60 days)</span>
+./scripts/certs/validate-certs.sh<span class="w"> </span>--warning-days<span class="w"> </span><span class="m">60</span>
+
+<span class="c1"># JSON output</span>
+./scripts/certs/validate-certs.sh<span class="w"> </span>--json
+
+<span class="c1"># Nagios format</span>
+./scripts/certs/validate-certs.sh<span class="w"> </span>--nagios
+</code></pre></div>
+
+<h3 id="rotate-certificates">Rotate Certificates<a class="headerlink" href="#rotate-certificates" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Auto-rotate expiring certs</span>
+./scripts/certs/rotate-certs.sh
+
+<span class="c1"># Dry run</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--dry-run
+
+<span class="c1"># Force rotation</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--force
+
+<span class="c1"># Specific service</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--service<span class="w"> </span>redis
+
+<span class="c1"># No backup</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--no-backup
+
+<span class="c1"># No restart</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--skip-restart
+</code></pre></div>
+
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="certificate-generation-issues">Certificate Generation Issues<a class="headerlink" href="#certificate-generation-issues" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Verify OpenSSL is installed</span>
+openssl<span class="w"> </span>version
+
+<span class="c1"># Check permissions</span>
+ls<span class="w"> </span>-la<span class="w"> </span>config/certs/
+
+<span class="c1"># Force regenerate</span>
+./scripts/certs/generate-certs.sh<span class="w"> </span>--force<span class="w"> </span>--service<span class="w"> </span>postgres
+</code></pre></div>
+
+<h3 id="validation-failures">Validation Failures<a class="headerlink" href="#validation-failures" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check certificate expiration</span>
+openssl<span class="w"> </span>x509<span class="w"> </span>-in<span class="w"> </span>config/certs/postgres/server.crt<span class="w"> </span>-noout<span class="w"> </span>-dates
+
+<span class="c1"># Verify certificate chain</span>
+openssl<span class="w"> </span>verify<span class="w"> </span>-CAfile<span class="w"> </span>config/certs/ca/ca.crt<span class="w"> </span>config/certs/postgres/server.crt
+
+<span class="c1"># Check key matches certificate</span>
+./scripts/certs/validate-certs.sh<span class="w"> </span>--service<span class="w"> </span>postgres
+</code></pre></div>
+
+<h3 id="service-wont-start-after-rotation">Service Won't Start After Rotation<a class="headerlink" href="#service-wont-start-after-rotation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check Docker logs</span>
+docker-compose<span class="w"> </span>logs<span class="w"> </span>postgres
+
+<span class="c1"># Verify permissions</span>
+chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>config/certs/postgres/server.key
+chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>config/certs/postgres/server.crt
+
+<span class="c1"># Restore from backup</span>
+ls<span class="w"> </span>-lt<span class="w"> </span>config/certs/backups/postgres/
+cp<span class="w"> </span>config/certs/backups/postgres/server_TIMESTAMP.crt<span class="w"> </span>config/certs/postgres/server.crt
+cp<span class="w"> </span>config/certs/backups/postgres/server_TIMESTAMP.key<span class="w"> </span>config/certs/postgres/server.key
+docker-compose<span class="w"> </span>restart<span class="w"> </span>postgres
+</code></pre></div>
+
+<h3 id="systemd-timer-not-running">Systemd Timer Not Running<a class="headerlink" href="#systemd-timer-not-running" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check timer status</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>cert-rotation.timer
+
+<span class="c1"># Enable and start</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>cert-rotation.timer
+sudo<span class="w"> </span>systemctl<span class="w"> </span>start<span class="w"> </span>cert-rotation.timer
+
+<span class="c1"># View logs</span>
+sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>cert-rotation.service<span class="w"> </span>-xe
+</code></pre></div>
+
+<h3 id="cron-job-not-running">Cron Job Not Running<a class="headerlink" href="#cron-job-not-running" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Verify cron is running</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>cron
+
+<span class="c1"># Check cron logs</span>
+grep<span class="w"> </span>cert-rotation<span class="w"> </span>/var/log/syslog<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-20
+
+<span class="c1"># Test manually</span>
+sudo<span class="w"> </span>-u<span class="w"> </span>root<span class="w"> </span>/home/user/sahool-unified-v15-idp/scripts/certs/rotate-certs.sh<span class="w"> </span>--dry-run
+</code></pre></div>
+
+<h2 id="file-locations">File Locations<a class="headerlink" href="#file-locations" title="Permanent link">&para;</a></h2>
+<h3 id="generated-certificates">Generated Certificates<a class="headerlink" href="#generated-certificates" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>config/certs/
+├── ca/
+│   ├── ca.crt              # Root CA (10 years)
+│   └── ca.key              # CA private key (SECRET)
+├── postgres/
+│   ├── server.crt          # PostgreSQL cert (2.25 years)
+│   ├── server.key          # Private key (SECRET)
+│   └── ca.crt              # CA copy
+├── pgbouncer/              # PgBouncer certificates
+├── redis/                  # Redis certificates
+├── nats/                   # NATS certificates
+├── kong/                   # Kong certificates
+├── backups/                # Automatic backups (last 10)
+│   ├── postgres/
+│   ├── pgbouncer/
+│   ├── redis/
+│   ├── nats/
+│   └── kong/
+└── rotation.log            # Rotation history
+</code></pre></div>
+
+<h3 id="configuration-files">Configuration Files<a class="headerlink" href="#configuration-files" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">systemd</span><span class="o">/</span><span class="n">system</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">cert</span><span class="o">-</span><span class="n">rotation</span><span class="o">.</span><span class="n">service</span><span class="w">   </span><span class="c1"># Systemd service</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">cert</span><span class="o">-</span><span class="n">rotation</span><span class="o">.</span><span class="n">timer</span><span class="w">     </span><span class="c1"># Systemd timer</span>
+
+<span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">cron</span><span class="o">.</span><span class="n">d</span><span class="o">/</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">sahool</span><span class="o">-</span><span class="n">cert</span><span class="o">-</span><span class="n">rotation</span><span class="w">    </span><span class="c1"># Cron configuration</span>
+
+<span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">default</span><span class="o">/</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">sahool</span><span class="o">-</span><span class="n">certs</span><span class="w">            </span><span class="c1"># Environment variables</span>
+
+<span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">sahool</span><span class="o">-</span><span class="n">cert</span><span class="o">-</span><span class="n">rotation</span><span class="o">.</span><span class="n">log</span><span class="w">     </span><span class="c1"># Cron rotation log</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">sahool</span><span class="o">-</span><span class="n">cert</span><span class="o">-</span><span class="n">validation</span><span class="o">.</span><span class="n">log</span><span class="w">   </span><span class="c1"># Validation log</span>
+</code></pre></div>
+
+<h2 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Private keys (<code>.key</code>) are <strong>never</strong> committed to git</li>
+<li>[ ] Private keys have <code>600</code> permissions (owner read/write only)</li>
+<li>[ ] Certificates have <code>644</code> permissions (world-readable)</li>
+<li>[ ] CA private key is stored securely (offline backup)</li>
+<li>[ ] Automated rotation is enabled and tested</li>
+<li>[ ] Notifications are configured</li>
+<li>[ ] Monitoring is set up (Prometheus/Grafana/Nagios)</li>
+<li>[ ] Backups are enabled (default: last 10 kept)</li>
+<li>[ ] Rotation logs are monitored regularly</li>
+<li>[ ] Test rotation in staging before production</li>
+</ul>
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Review Documentation</strong></li>
+<li>Read full guide: <code>docs/CERTIFICATE_ROTATION.md</code></li>
+<li>Review script docs: <code>scripts/certs/README.md</code></li>
+<li>
+<p>Check infrastructure: <code>infrastructure/certs/README.md</code></p>
+</li>
+<li>
+<p><strong>Test in Staging</strong></p>
+</li>
+<li>Generate certificates</li>
+<li>Test rotation with <code>--dry-run</code></li>
+<li>Verify services restart correctly</li>
+<li>
+<p>Test rollback procedures</p>
+</li>
+<li>
+<p><strong>Production Deployment</strong></p>
+</li>
+<li>Generate production certificates</li>
+<li>Enable automated rotation</li>
+<li>Configure monitoring</li>
+<li>Set up notifications</li>
+<li>
+<p>Schedule regular audits</p>
+</li>
+<li>
+<p><strong>Ongoing Maintenance</strong></p>
+</li>
+<li>Monitor certificate expiration</li>
+<li>Review rotation logs weekly</li>
+<li>Test rotation quarterly</li>
+<li>Update CA before expiration (10 years)</li>
+<li>Keep backups in secure storage</li>
+</ol>
+<h2 id="support-resources">Support Resources<a class="headerlink" href="#support-resources" title="Permanent link">&para;</a></h2>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Complete Guide</strong>: <code>docs/CERTIFICATE_ROTATION.md</code> (comprehensive)</li>
+<li><strong>Script Reference</strong>: <code>scripts/certs/README.md</code> (script usage)</li>
+<li><strong>Infrastructure Setup</strong>: <code>infrastructure/certs/README.md</code> (systemd/cron)</li>
+<li><strong>TLS Setup</strong>: <code>config/certs/README.md</code> (certificate basics)</li>
+</ul>
+<h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Rotation Logs</strong>: <code>config/certs/rotation.log</code></li>
+<li><strong>Systemd Journal</strong>: <code>sudo journalctl -u cert-rotation.service</code></li>
+<li><strong>Cron Logs</strong>: <code>/var/log/sahool-cert-rotation.log</code></li>
+<li><strong>Syslog</strong>: <code>grep sahool-cert-rotation /var/log/syslog</code></li>
+</ul>
+<h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Validate</strong>: <code>./scripts/certs/validate-certs.sh</code></li>
+<li><strong>Dry Run</strong>: <code>./scripts/certs/rotate-certs.sh --dry-run</code></li>
+<li><strong>Timer Status</strong>: <code>sudo systemctl status cert-rotation.timer</code></li>
+<li><strong>Service Logs</strong>: <code>docker-compose logs &lt;service&gt;</code></li>
+</ul>
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>You now have a complete automated certificate rotation system with:</p>
+<p>✅ <strong>Automated Generation</strong> - Create certificates for all services
+✅ <strong>Validation</strong> - Check expiration and certificate health
+✅ <strong>Rotation</strong> - Automated renewal before expiration
+✅ <strong>Backup Management</strong> - Automatic backups with retention
+✅ <strong>Zero Downtime</strong> - Rolling service restarts
+✅ <strong>Monitoring</strong> - Multiple output formats (text, JSON, Nagios)
+✅ <strong>Notifications</strong> - Email and Slack integration
+✅ <strong>Scheduling</strong> - Systemd timer or cron job
+✅ <strong>Documentation</strong> - Comprehensive guides and references</p>
+<p>The system will automatically check daily at 2:00 AM and rotate any certificates expiring within 30 days, ensuring continuous security without manual intervention.</p>
+<hr />
+<p><strong>Quick Reference Commands:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate certificates</span>
+./scripts/certs/generate-certs.sh
+
+<span class="c1"># Validate certificates</span>
+./scripts/certs/validate-certs.sh
+
+<span class="c1"># Rotate certificates (dry run)</span>
+./scripts/certs/rotate-certs.sh<span class="w"> </span>--dry-run
+
+<span class="c1"># Check rotation status (systemd)</span>
+sudo<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>cert-rotation.timer
+
+<span class="c1"># View rotation logs</span>
+sudo<span class="w"> </span>journalctl<span class="w"> </span>-u<span class="w"> </span>cert-rotation.service<span class="w"> </span>-n<span class="w"> </span><span class="m">50</span>
+
+<span class="c1"># Manual rotation</span>
+./scripts/certs/rotate-certs.sh
+</code></pre></div>
+
+<hr />
+<p><strong>Version</strong>: 1.0
+<strong>Last Updated</strong>: 2026-01-07
+<strong>Maintainer</strong>: SAHOOL Platform Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

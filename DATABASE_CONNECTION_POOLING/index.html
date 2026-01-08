@@ -1,0 +1,1618 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Database Connection Pooling Optimization - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#database-connection-pooling-optimization" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Database Connection Pooling Optimization
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="database-connection-pooling-optimization">Database Connection Pooling Optimization<a class="headerlink" href="#database-connection-pooling-optimization" title="Permanent link">&para;</a></h1>
+<h1 id="_1">تحسين تجميع الاتصالات بقاعدة البيانات<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>Date:</strong> 2026-01-06
+<strong>Status:</strong> ✅ Implemented
+<strong>Services:</strong> All Prisma-based services (9 services)</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This document describes the database connection pooling optimizations implemented across the SAHOOL platform to improve database performance, reduce connection overhead, and prevent connection exhaustion.</p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#service-categorization">Service Categorization</a></li>
+<li><a href="#connection-pool-configuration">Connection Pool Configuration</a></li>
+<li><a href="#monitoring-and-metrics">Monitoring and Metrics</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ol>
+<hr />
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="two-tier-connection-pooling">Two-Tier Connection Pooling<a class="headerlink" href="#two-tier-connection-pooling" title="Permanent link">&para;</a></h3>
+<p>SAHOOL platform uses a two-tier connection pooling strategy:</p>
+<ol>
+<li><strong>PgBouncer (External Pool)</strong>: Connection pooler between services and PostgreSQL</li>
+<li>Session pooling mode</li>
+<li>Handles connection routing and pooling at the infrastructure level</li>
+<li>
+<p>Reduces direct connections to PostgreSQL</p>
+</li>
+<li>
+<p><strong>Prisma Client (Application Pool)</strong>: Per-service connection limits</p>
+</li>
+<li>Configured via <code>connection_limit</code> parameter</li>
+<li>Optimized based on service workload</li>
+<li>Built-in query engine connection management</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>┌─────────────────┐
+│   Services      │
+│  (9 services)   │
+└────────┬────────┘
+         │
+    ┌────▼────┐
+    │ Prisma  │  ← Application-level pooling (connection_limit)
+    │ Client  │
+    └────┬────┘
+         │
+    ┌────▼────────┐
+    │  PgBouncer  │  ← Infrastructure-level pooling
+    │  (Session)  │
+    └────┬────────┘
+         │
+    ┌────▼──────────┐
+    │  PostgreSQL   │
+    │   (Primary)   │
+    └───────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="service-categorization">Service Categorization<a class="headerlink" href="#service-categorization" title="Permanent link">&para;</a></h2>
+<p>Services are categorized by traffic patterns and allocated connection pool sizes accordingly:</p>
+<h3 id="high-traffic-services-10-connections">High Traffic Services (10 connections)<a class="headerlink" href="#high-traffic-services-10-connections" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>user-service</strong>: Authentication, user management (frequent queries)</li>
+<li><strong>chat-service</strong>: Real-time messaging (high read/write)</li>
+<li><strong>marketplace-service</strong>: Marketplace transactions (high concurrency)</li>
+</ul>
+<h3 id="medium-traffic-services-8-connections">Medium Traffic Services (8 connections)<a class="headerlink" href="#medium-traffic-services-8-connections" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>research-core</strong>: Research data management</li>
+<li><strong>inventory-service</strong>: Inventory tracking and alerts</li>
+<li><strong>field-management-service</strong>: Field operations</li>
+<li><strong>field-core</strong>: Field and farm management</li>
+</ul>
+<h3 id="low-traffic-services-6-connections">Low Traffic Services (6 connections)<a class="headerlink" href="#low-traffic-services-6-connections" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>weather-service</strong>: Periodic weather data fetching</li>
+<li><strong>iot-service</strong>: IoT device data collection</li>
+</ul>
+<hr />
+<h2 id="connection-pool-configuration">Connection Pool Configuration<a class="headerlink" href="#connection-pool-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="prisma-schema-configuration">Prisma Schema Configuration<a class="headerlink" href="#prisma-schema-configuration" title="Permanent link">&para;</a></h3>
+<p>All Prisma schemas have been updated with:</p>
+<div class="codehilite"><pre><span></span><code>datasource db {
+  provider = &quot;postgresql&quot;
+  url      = env(&quot;DATABASE_URL&quot;)
+  // Direct URL for migrations (bypasses PgBouncer)
+  directUrl = env(&quot;DATABASE_URL_DIRECT&quot;)
+}
+</code></pre></div>
+
+<p><strong>Why <code>directUrl</code>?</strong>
+- Prisma migrations require certain PostgreSQL features not supported through PgBouncer
+- <code>directUrl</code> allows migrations to connect directly to PostgreSQL
+- Runtime queries use <code>url</code> which goes through PgBouncer</p>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<h4 id="per-service-database_url">Per-Service DATABASE_URL<a class="headerlink" href="#per-service-database_url" title="Permanent link">&para;</a></h4>
+<p>Each service should use the appropriate connection URL based on its tier:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># High Traffic Services</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=10&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000&quot;</span>
+
+<span class="c1"># Medium Traffic Services</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=8&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000&quot;</span>
+
+<span class="c1"># Low Traffic Services</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@pgbouncer:6432/db?sslmode=require&amp;pgbouncer=true&amp;connection_limit=6&amp;pool_timeout=20&amp;connect_timeout=10&amp;statement_timeout=30000&quot;</span>
+
+<span class="c1"># For Migrations (all services)</span>
+<span class="nv">DATABASE_URL_DIRECT</span><span class="o">=</span><span class="s2">&quot;postgresql://user:pass@postgres:5432/db?sslmode=require&amp;connect_timeout=10&amp;keepalives=1&amp;keepalives_idle=30&amp;keepalives_interval=10&amp;keepalives_count=5&quot;</span>
+</code></pre></div>
+
+<h4 id="connection-pool-parameters">Connection Pool Parameters<a class="headerlink" href="#connection-pool-parameters" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>connection_limit</code></td>
+<td>6-10</td>
+<td>Max connections per Prisma Client instance</td>
+</tr>
+<tr>
+<td><code>pool_timeout</code></td>
+<td>20s</td>
+<td>Max time to wait for available connection</td>
+</tr>
+<tr>
+<td><code>connect_timeout</code></td>
+<td>10s</td>
+<td>Max time to establish initial connection</td>
+</tr>
+<tr>
+<td><code>statement_timeout</code></td>
+<td>30000ms</td>
+<td>Max query execution time</td>
+</tr>
+<tr>
+<td><code>sslmode</code></td>
+<td>require</td>
+<td>Enforce TLS/SSL connections</td>
+</tr>
+<tr>
+<td><code>pgbouncer</code></td>
+<td>true</td>
+<td>Enable PgBouncer compatibility mode</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tcp-keepalive-configuration">TCP Keepalive Configuration<a class="headerlink" href="#tcp-keepalive-configuration" title="Permanent link">&para;</a></h3>
+<p>TCP keepalive prevents connection drops through firewalls and load balancers:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In DATABASE_URL_DIRECT</span>
+<span class="nv">keepalives</span><span class="o">=</span><span class="m">1</span><span class="w">              </span><span class="c1"># Enable TCP keepalive</span>
+<span class="nv">keepalives_idle</span><span class="o">=</span><span class="m">30</span><span class="w">        </span><span class="c1"># Start probes after 30s of idle</span>
+<span class="nv">keepalives_interval</span><span class="o">=</span><span class="m">10</span><span class="w">    </span><span class="c1"># Probe every 10s</span>
+<span class="nv">keepalives_count</span><span class="o">=</span><span class="m">5</span><span class="w">        </span><span class="c1"># 5 failed probes = dead connection</span>
+</code></pre></div>
+
+<p><strong>Benefits:</strong>
+- Prevents connection drops in cloud environments
+- Early detection of network issues
+- Maintains connection health through NAT/firewalls</p>
+<h3 id="timeout-configuration">Timeout Configuration<a class="headerlink" href="#timeout-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Timeout Type</th>
+<th>Value</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connection Timeout</td>
+<td>10s</td>
+<td>Fail fast on connection issues</td>
+</tr>
+<tr>
+<td>Pool Timeout</td>
+<td>20s</td>
+<td>Wait for available connection</td>
+</tr>
+<tr>
+<td>Query Timeout</td>
+<td>30s</td>
+<td>Prevent long-running queries</td>
+</tr>
+<tr>
+<td>Idle Timeout</td>
+<td>600s</td>
+<td>Close unused connections</td>
+</tr>
+<tr>
+<td>Connection Lifetime</td>
+<td>3600s</td>
+<td>Prevent stale connections</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="monitoring-and-metrics">Monitoring and Metrics<a class="headerlink" href="#monitoring-and-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="built-in-prisma-metrics">Built-in Prisma Metrics<a class="headerlink" href="#built-in-prisma-metrics" title="Permanent link">&para;</a></h3>
+<p>All PrismaService classes now include automatic connection pool metrics collection:</p>
+<div class="codehilite"><pre><span></span><code><span class="cm">/**</span>
+<span class="cm"> * Get current connection pool metrics</span>
+<span class="cm"> */</span>
+<span class="k">async</span><span class="w"> </span><span class="nx">getPoolMetrics</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">metrics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">$metrics</span><span class="p">.</span><span class="nx">json</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">activeConnections</span><span class="o">:</span><span class="w"> </span><span class="c1">// Currently executing queries</span>
+<span class="w">      </span><span class="nx">waitingConnections</span><span class="o">:</span><span class="w"> </span><span class="c1">// Queries waiting for connection</span>
+<span class="w">      </span><span class="nx">totalQueries</span><span class="o">:</span><span class="w"> </span><span class="c1">// Total queries executed</span>
+<span class="w">      </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="kt">new</span><span class="w"> </span><span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">(),</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Failed to get pool metrics:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">error</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="automatic-metrics-logging">Automatic Metrics Logging<a class="headerlink" href="#automatic-metrics-logging" title="Permanent link">&para;</a></h3>
+<p>Each service logs connection pool metrics every 5 minutes:</p>
+<div class="codehilite"><pre><span></span><code><span class="nv">Connection</span><span class="w"> </span><span class="nv">Pool</span><span class="w"> </span><span class="nv">Metrics</span>:<span class="w"> </span>{
+<span class="w">  </span><span class="nv">pool</span>:<span class="w"> </span>{
+<span class="w">    </span><span class="nv">active</span>:<span class="w"> </span><span class="mi">3</span>,<span class="w">     </span><span class="o">//</span><span class="w"> </span><span class="nv">Active</span><span class="w"> </span><span class="nv">connections</span>
+<span class="w">    </span><span class="k">wait</span>:<span class="w"> </span><span class="mi">0</span>,<span class="w">       </span><span class="o">//</span><span class="w"> </span><span class="nv">Connections</span><span class="w"> </span><span class="nv">waiting</span>
+<span class="w">    </span><span class="nv">total</span>:<span class="w"> </span><span class="mi">1547</span><span class="w">    </span><span class="o">//</span><span class="w"> </span><span class="nv">Total</span><span class="w"> </span><span class="nv">queries</span>
+<span class="w">  </span>},
+<span class="w">  </span><span class="nv">timestamp</span>:<span class="w"> </span><span class="s2">&quot;2026-01-06T12:00:00.000Z&quot;</span>
+}
+</code></pre></div>
+
+<h3 id="prometheus-metrics-export">Prometheus Metrics Export<a class="headerlink" href="#prometheus-metrics-export" title="Permanent link">&para;</a></h3>
+<p>Prisma metrics are automatically exposed in Prometheus format:</p>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> HELP prisma_client_queries_active Number of currently active queries
+<span class="gh">#</span> TYPE prisma_client_queries_active gauge
+prisma_client_queries_active 3
+
+<span class="gh">#</span> HELP prisma_client_queries_wait Number of queries waiting for a connection
+<span class="gh">#</span> TYPE prisma_client_queries_wait gauge
+prisma_client_queries_wait 0
+
+<span class="gh">#</span> HELP prisma_client_queries_total Total number of queries
+<span class="gh">#</span> TYPE prisma_client_queries_total counter
+prisma_client_queries_total 1547
+</code></pre></div>
+
+<h3 id="grafana-dashboard">Grafana Dashboard<a class="headerlink" href="#grafana-dashboard" title="Permanent link">&para;</a></h3>
+<p>Monitor connection pool health through Grafana dashboards:
+- Active connections per service
+- Connection wait times
+- Pool saturation alerts
+- Query performance metrics</p>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-connection-pool-sizing">1. Connection Pool Sizing<a class="headerlink" href="#1-connection-pool-sizing" title="Permanent link">&para;</a></h3>
+<p><strong>Rule of Thumb:</strong></p>
+<div class="codehilite"><pre><span></span><code>Pool Size = ((Core Count × 2) + Effective Spindle Count)
+</code></pre></div>
+
+<p>For containerized environments:
+- <strong>CPU-bound workloads</strong>: <code>pool_size = cores × 2</code>
+- <strong>I/O-bound workloads</strong>: <code>pool_size = cores × 4</code></p>
+<p><strong>SAHOOL Platform:</strong>
+- High traffic: 10 connections (expected high concurrency)
+- Medium traffic: 8 connections (moderate load)
+- Low traffic: 6 connections (periodic operations)</p>
+<h3 id="2-avoid-connection-leaks">2. Avoid Connection Leaks<a class="headerlink" href="#2-avoid-connection-leaks" title="Permanent link">&para;</a></h3>
+<p>Always use Prisma's built-in lifecycle hooks:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">async</span><span class="w"> </span><span class="nx">onModuleDestroy</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">$disconnect</span><span class="p">();</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Database disconnected&#39;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="3-query-optimization">3. Query Optimization<a class="headerlink" href="#3-query-optimization" title="Permanent link">&para;</a></h3>
+<p>Monitor slow queries (&gt;1000ms threshold):</p>
+<div class="codehilite"><pre><span></span><code><span class="k">this</span><span class="p">.</span><span class="nx">$on</span><span class="p">(</span><span class="s1">&#39;query&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">duration</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mf">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="sb">`Slow query detected (</span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">duration</span><span class="si">}</span><span class="sb">ms): </span><span class="si">${</span><span class="nx">e</span><span class="p">.</span><span class="nx">query</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h3 id="4-connection-lifecycle">4. Connection Lifecycle<a class="headerlink" href="#4-connection-lifecycle" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">Connection</span><span class="w"> </span><span class="n">Request</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Pool</span><span class="w"> </span><span class="n">Check</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Available</span><span class="err">?</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Use</span><span class="w"> </span><span class="n">Connection</span>
+<span class="mf">3.</span><span class="w"> </span><span class="ow">Not</span><span class="w"> </span><span class="n">Available</span><span class="err">?</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="kr">Wait</span><span class="w"> </span><span class="p">(</span><span class="n">pool_timeout</span><span class="p">)</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Timeout</span><span class="err">?</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Error</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Query</span><span class="w"> </span><span class="n">Complete</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="kr">Return</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="n">Pool</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">Idle</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">idle_timeout</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="kr">Close</span><span class="w"> </span><span class="n">Connection</span>
+<span class="mf">7.</span><span class="w"> </span><span class="n">Age</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">connection_lifetime</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Replace</span><span class="w"> </span><span class="n">Connection</span>
+</code></pre></div>
+
+<h3 id="5-pgbouncer-integration">5. PgBouncer Integration<a class="headerlink" href="#5-pgbouncer-integration" title="Permanent link">&para;</a></h3>
+<p>When using PgBouncer:
+- ✅ <strong>DO</strong>: Add <code>pgbouncer=true</code> parameter
+- ✅ <strong>DO</strong>: Use session pooling mode
+- ✅ <strong>DO</strong>: Set reasonable <code>connection_limit</code>
+- ❌ <strong>DON'T</strong>: Use prepared statements across connections
+- ❌ <strong>DON'T</strong>: Use <code>SET</code> statements (not persisted)</p>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="issue-too-many-connections-error">Issue: "Too many connections" Error<a class="headerlink" href="#issue-too-many-connections-error" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">P1001</span><span class="o">:</span><span class="w"> </span><span class="n">Can</span><span class="err">&#39;</span><span class="n">t</span><span class="w"> </span><span class="n">reach</span><span class="w"> </span><span class="n">database</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="err">`</span><span class="n">pgbouncer</span><span class="o">:</span><span class="mi">6432</span><span class="err">`</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong>
+1. Check PgBouncer max_client_conn setting
+2. Reduce per-service <code>connection_limit</code>
+3. Verify PostgreSQL <code>max_connections</code>
+4. Check for connection leaks (monitor metrics)</p>
+<p><strong>Diagnostic:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check PgBouncer status</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>pgbouncer<span class="w"> </span>psql<span class="w"> </span>-p<span class="w"> </span><span class="m">6432</span><span class="w"> </span>-d<span class="w"> </span>pgbouncer<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SHOW POOLS;&quot;</span>
+
+<span class="c1"># Check PostgreSQL connections</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT count(*) FROM pg_stat_activity;&quot;</span>
+</code></pre></div>
+
+<h3 id="issue-connection-timeouts">Issue: Connection Timeouts<a class="headerlink" href="#issue-connection-timeouts" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Timed</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">trying</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">acquire</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">connection</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">pool</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong>
+1. Increase <code>pool_timeout</code> (current: 20s)
+2. Optimize slow queries
+3. Increase <code>connection_limit</code> for service
+4. Check database server load</p>
+<p><strong>Diagnostic:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Check pool metrics</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">metrics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">prismaService</span><span class="p">.</span><span class="nx">getPoolMetrics</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">metrics</span><span class="p">.</span><span class="nx">waitingConnections</span><span class="p">);</span><span class="w"> </span><span class="c1">// High number indicates pool exhaustion</span>
+</code></pre></div>
+
+<h3 id="issue-stale-connections">Issue: Stale Connections<a class="headerlink" href="#issue-stale-connections" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Error</span><span class="o">:</span><span class="w"> </span><span class="n">Connection</span><span class="w"> </span><span class="n">terminated</span><span class="w"> </span><span class="n">unexpectedly</span>
+</code></pre></div>
+
+<p><strong>Solutions:</strong>
+1. TCP keepalive is already enabled (✅)
+2. Check firewall/NAT timeout settings
+3. Verify <code>connection_lifetime</code> setting (current: 3600s)
+4. Monitor connection health</p>
+<p><strong>Diagnostic:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check PostgreSQL idle connections</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">  SELECT state, count(*)</span>
+<span class="s2">  FROM pg_stat_activity</span>
+<span class="s2">  WHERE datname = &#39;sahool&#39;</span>
+<span class="s2">  GROUP BY state;</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+
+<h3 id="issue-high-pool-wait-times">Issue: High Pool Wait Times<a class="headerlink" href="#issue-high-pool-wait-times" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms:</strong>
+- Queries queuing for connections
+- <code>prisma_client_queries_wait</code> &gt; 0 consistently</p>
+<p><strong>Solutions:</strong>
+1. Increase <code>connection_limit</code> for service tier
+2. Optimize query performance (add indexes)
+3. Implement caching for frequent queries
+4. Consider read replicas for read-heavy workloads</p>
+<hr />
+<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="running-migrations">Running Migrations<a class="headerlink" href="#running-migrations" title="Permanent link">&para;</a></h3>
+<p>Always use <code>DATABASE_URL_DIRECT</code> for migrations:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Set direct connection for migrations</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATABASE_URL</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DATABASE_URL_DIRECT</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># Run Prisma migrations</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>deploy
+
+<span class="c1"># Or using Prisma&#39;s built-in directUrl</span>
+npx<span class="w"> </span>prisma<span class="w"> </span>migrate<span class="w"> </span>deploy
+<span class="c1"># (automatically uses directUrl from schema)</span>
+</code></pre></div>
+
+<h3 id="rolling-updates">Rolling Updates<a class="headerlink" href="#rolling-updates" title="Permanent link">&para;</a></h3>
+<p>When updating connection pool settings:</p>
+<ol>
+<li>Update <code>.env</code> with new pool parameters</li>
+<li>Restart services one at a time (rolling restart)</li>
+<li>Monitor metrics during rollout</li>
+<li>Verify no connection errors</li>
+<li>Document changes</li>
+</ol>
+<hr />
+<h2 id="performance-impact">Performance Impact<a class="headerlink" href="#performance-impact" title="Permanent link">&para;</a></h2>
+<h3 id="before-optimization">Before Optimization<a class="headerlink" href="#before-optimization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Unlimited connections per service</li>
+<li>❌ No connection pooling at application level</li>
+<li>❌ Direct PostgreSQL connections</li>
+<li>❌ No connection lifecycle management</li>
+<li>❌ No pool metrics</li>
+</ul>
+<h3 id="after-optimization">After Optimization<a class="headerlink" href="#after-optimization" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Tiered connection limits (6-10 per service)</li>
+<li>✅ Application-level pooling (Prisma)</li>
+<li>✅ Infrastructure-level pooling (PgBouncer)</li>
+<li>✅ TCP keepalive for connection health</li>
+<li>✅ Comprehensive metrics and monitoring</li>
+<li>✅ Automatic pool health logging</li>
+</ul>
+<h3 id="expected-benefits">Expected Benefits<a class="headerlink" href="#expected-benefits" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>30-50% reduction</strong> in database connections</li>
+<li><strong>Improved query latency</strong> (reduced connection overhead)</li>
+<li><strong>Better resource utilization</strong> (connection reuse)</li>
+<li><strong>Enhanced stability</strong> (connection limits prevent exhaustion)</li>
+<li><strong>Proactive monitoring</strong> (metrics-driven optimization)</li>
+</ul>
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://www.prisma.io/docs/concepts/components/prisma-client/working-with-prismaclient/connection-management">Prisma Connection Management</a></li>
+<li><a href="https://www.postgresql.org/docs/current/runtime-config-connection.html">PostgreSQL Connection Pooling</a></li>
+<li><a href="https://www.pgbouncer.org/config.html">PgBouncer Documentation</a></li>
+<li><a href="https://tldp.org/HOWTO/TCP-Keepalive-HOWTO/">TCP Keepalive Guide</a></li>
+</ul>
+<hr />
+<h2 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h2>
+<h3 id="2026-01-06-initial-implementation">2026-01-06 - Initial Implementation<a class="headerlink" href="#2026-01-06-initial-implementation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Updated all 9 Prisma schemas with <code>directUrl</code> support</li>
+<li>✅ Configured connection pools by service tier (6-10 connections)</li>
+<li>✅ Added TCP keepalive to <code>DATABASE_URL_DIRECT</code></li>
+<li>✅ Implemented connection pool metrics in all PrismaService classes</li>
+<li>✅ Added automatic metrics logging (5-minute intervals)</li>
+<li>✅ Updated environment variable templates</li>
+<li>✅ Created comprehensive documentation</li>
+</ul>
+<hr />
+<p><strong>Maintained by:</strong> SAHOOL Platform Engineering
+<strong>Last Updated:</strong> 2026-01-06</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

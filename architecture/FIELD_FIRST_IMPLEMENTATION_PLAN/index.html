@@ -1,0 +1,1743 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>🚀 خطة تنفيذ ميثاق Field-First - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#field-first" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              🚀 خطة تنفيذ ميثاق Field-First
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="field-first">🚀 خطة تنفيذ ميثاق Field-First<a class="headerlink" href="#field-first" title="Permanent link">&para;</a></h1>
+<h2 id="sahool-platform-v155">SAHOOL Platform v15.5<a class="headerlink" href="#sahool-platform-v155" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="_1">📋 نظرة عامة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>هذه الخطة تحول ميثاق "Field-First, Analysis-Serves-Field" إلى إجراءات تنفيذية محددة.</p>
+<p><strong>المبدأ الأساسي:</strong></p>
+<blockquote>
+<p>المنصة ميدانية، والتحليل يخدم الميدان.</p>
+</blockquote>
+<hr />
+<h2 id="_2">🎯 الأهداف<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الهدف</th>
+<th>المقياس</th>
+<th>الهدف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Offline Reliability</td>
+<td>نسبة نجاح العمليات offline</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>Field Response Time</td>
+<td>وقت تنفيذ المهمة</td>
+<td>&lt; 2 ثانية</td>
+</tr>
+<tr>
+<td>Sync Success Rate</td>
+<td>نسبة نجاح المزامنة</td>
+<td>&gt; 99%</td>
+</tr>
+<tr>
+<td>Analysis to Task Conversion</td>
+<td>تحويل التحليل لمهام</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">📅 المراحل التنفيذية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="1">المرحلة 1: التأسيس المعماري<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<p><strong>المدة:</strong> أسبوع واحد</p>
+<h4 id="11">1.1 إنشاء ملف المبادئ المعمارية<a class="headerlink" href="#11" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="gh"># إنشاء: docs/architecture/PRINCIPLES.md</span>
+</code></pre></div>
+
+<p><strong>المحتوى:</strong>
+- القواعد الذهبية الثلاث
+- تصنيف الخدمات
+- معايير قبول الميزات</p>
+<h4 id="12-docker-composeyml">1.2 تحديث docker-compose.yml<a class="headerlink" href="#12-docker-composeyml" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة labels للتصنيف</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">field-service</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.layer=field-critical&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.priority=1&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.offline=required&quot;</span>
+
+<span class="w">  </span><span class="nt">indicators-service</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.layer=bridge&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.priority=2&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.offline=optional&quot;</span>
+
+<span class="w">  </span><span class="nt">crop-health-ai</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.layer=analysis&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.priority=3&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;sahool.offline=not-required&quot;</span>
+</code></pre></div>
+
+<h4 id="13-service-registry">1.3 إنشاء Service Registry<a class="headerlink" href="#13-service-registry" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إنشاء: config/service-registry.yaml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">field-critical</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-service</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<span class="w">      </span><span class="nt">offline</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">required</span>
+<span class="w">      </span><span class="nt">fallback</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local-cache</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">billing-core</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8089</span>
+<span class="w">      </span><span class="nt">offline</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">capability-based</span>
+<span class="w">      </span><span class="nt">fallback</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">last-known-state</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astronomical-calendar</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8111</span>
+<span class="w">      </span><span class="nt">offline</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">required</span>
+<span class="w">      </span><span class="nt">fallback</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local-calculation</span>
+
+<span class="w">  </span><span class="nt">bridge</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indicators-service</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8091</span>
+<span class="w">      </span><span class="nt">transforms</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ndvi → risk-score</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">weather → irrigation-advice</span><span class="p p-Indicator">]</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notification-service</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8110</span>
+<span class="w">      </span><span class="nt">channels</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">push</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">sms</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">in-app</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">analysis</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">satellite-service</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8090</span>
+<span class="w">      </span><span class="nt">async</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">cache-ttl</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24h</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-bridge-layer">المرحلة 2: Bridge Layer<a class="headerlink" href="#2-bridge-layer" title="Permanent link">&para;</a></h3>
+<p><strong>المدة:</strong> أسبوعان</p>
+<h4 id="21-indicators-service-bridge">2.1 تحديث indicators-service كـ Bridge رئيسي<a class="headerlink" href="#21-indicators-service-bridge" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/indicators-service/src/bridge.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalysisBridge</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    تحويل مخرجات التحليل إلى إجراءات قابلة للتنفيذ</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">transform_ndvi_to_action</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ndvi_result</span><span class="p">:</span> <span class="n">NDVIResult</span><span class="p">,</span>
+        <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FieldAction</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        NDVI → Risk Assessment → Recommended Action → Task</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">risk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_risk</span><span class="p">(</span><span class="n">ndvi_result</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">risk</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="s2">&quot;high&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">FieldAction</span><span class="p">(</span>
+                <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;urgent_inspection&quot;</span><span class="p">,</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;فحص عاجل مطلوب&quot;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;انخفاض NDVI بنسبة </span><span class="si">{</span><span class="n">risk</span><span class="o">.</span><span class="n">drop_percent</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="n">deadline</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">48</span><span class="p">),</span>
+                <span class="n">offline_executable</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">FieldAction</span><span class="p">(</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;routine_check&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;فحص روتيني&quot;</span><span class="p">,</span>
+            <span class="n">offline_executable</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">transform_weather_to_irrigation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">forecast</span><span class="p">:</span> <span class="n">WeatherForecast</span><span class="p">,</span>
+        <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IrrigationAdvice</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Weather Forecast → ET0 Calculation → Irrigation Schedule</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">et0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_et0</span><span class="p">(</span><span class="n">forecast</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">IrrigationAdvice</span><span class="p">(</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;irrigate&quot;</span> <span class="k">if</span> <span class="n">et0</span> <span class="o">&gt;</span> <span class="n">threshold</span> <span class="k">else</span> <span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+            <span class="n">amount_mm</span><span class="o">=</span><span class="n">et0</span> <span class="o">*</span> <span class="n">crop_coefficient</span><span class="p">,</span>
+            <span class="n">timing</span><span class="o">=</span><span class="s2">&quot;صباحاً&quot;</span> <span class="k">if</span> <span class="n">forecast</span><span class="o">.</span><span class="n">temp_max</span> <span class="o">&gt;</span> <span class="mi">35</span> <span class="k">else</span> <span class="s2">&quot;أي وقت&quot;</span><span class="p">,</span>
+            <span class="n">offline_executable</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<h4 id="22-action-templates">2.2 Action Templates<a class="headerlink" href="#22-action-templates" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/shared/action_templates.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ActionTemplate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    قوالب الإجراءات الميدانية</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">TEMPLATES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;water_stress&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;title_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;إجهاد مائي محتمل&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;title_en&quot;</span><span class="p">:</span> <span class="s2">&quot;Potential Water Stress&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;ري خلال 48 ساعة&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;offline_data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;last_irrigation&quot;</span><span class="p">,</span> <span class="s2">&quot;soil_moisture&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;proof_required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;photo&quot;</span><span class="p">,</span> <span class="s2">&quot;meter_reading&quot;</span><span class="p">]</span>
+        <span class="p">},</span>
+
+        <span class="s2">&quot;pest_detection&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;title_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;اشتباه آفة&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;title_en&quot;</span><span class="p">:</span> <span class="s2">&quot;Suspected Pest&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;فحص ومعالجة&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;urgent&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;offline_data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;pest_history&quot;</span><span class="p">,</span> <span class="s2">&quot;treatment_options&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;proof_required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;photo&quot;</span><span class="p">,</span> <span class="s2">&quot;notes&quot;</span><span class="p">]</span>
+        <span class="p">},</span>
+
+        <span class="s2">&quot;harvest_ready&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;title_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;جاهز للحصاد&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;title_en&quot;</span><span class="p">:</span> <span class="s2">&quot;Ready for Harvest&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;بدء الحصاد&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;priority&quot;</span><span class="p">:</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;offline_data&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;yield_estimate&quot;</span><span class="p">,</span> <span class="s2">&quot;market_prices&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;proof_required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;photo&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<h4 id="23-event-pipeline">2.3 Event Pipeline<a class="headerlink" href="#23-event-pipeline" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/indicators-service/src/pipeline.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AnalysisPipeline</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analysis → Bridge → Field Pipeline</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">AnalysisEvent</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        معالجة حدث تحليلي وتحويله لمهمة ميدانية</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 1. Normalize</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+        <span class="c1"># 2. Enrich with context</span>
+        <span class="n">enriched</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">enrich</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+
+        <span class="c1"># 3. Apply business rules</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_rules</span><span class="p">(</span><span class="n">enriched</span><span class="p">)</span>
+
+        <span class="c1"># 4. Create field task</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+
+        <span class="c1"># 5. Publish for mobile sync</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">publish_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+
+        <span class="c1"># 6. Send notification</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-mobile-enhancements">المرحلة 3: Mobile Enhancements<a class="headerlink" href="#3-mobile-enhancements" title="Permanent link">&para;</a></h3>
+<p><strong>المدة:</strong> أسبوع واحد</p>
+<h4 id="31-analysis-cache-layer">3.1 Analysis Cache Layer<a class="headerlink" href="#31-analysis-cache-layer" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/mobile/lib/core/cache/analysis_cache.dart</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">AnalysisCache</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">AppDatabase</span><span class="w"> </span><span class="n">_db</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">/// Cache analysis result with TTL</span>
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">cacheAnalysis</span><span class="p">({</span>
+<span class="w">    </span><span class="kd">required</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">required</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">analysisType</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">required</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">dynamic</span><span class="o">&gt;</span><span class="w"> </span><span class="n">result</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Duration</span><span class="w"> </span><span class="n">ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Duration</span><span class="p">(</span><span class="nl">hours:</span><span class="w"> </span><span class="m">24</span><span class="p">),</span>
+<span class="w">  </span><span class="p">})</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">analysisCache</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span>
+<span class="w">      </span><span class="n">AnalysisCacheEntry</span><span class="p">(</span>
+<span class="w">        </span><span class="nl">fieldId:</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">type:</span><span class="w"> </span><span class="n">analysisType</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">data:</span><span class="w"> </span><span class="n">jsonEncode</span><span class="p">(</span><span class="n">result</span><span class="p">),</span>
+<span class="w">        </span><span class="nl">cachedAt:</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">now</span><span class="p">(),</span>
+<span class="w">        </span><span class="nl">expiresAt:</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">now</span><span class="p">().</span><span class="n">add</span><span class="p">(</span><span class="n">ttl</span><span class="p">),</span>
+<span class="w">      </span><span class="p">),</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">/// Get cached analysis (returns null if expired)</span>
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">CachedAnalysis</span><span class="o">?&gt;</span><span class="w"> </span><span class="n">getAnalysis</span><span class="p">({</span>
+<span class="w">    </span><span class="kd">required</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span>
+<span class="w">    </span><span class="kd">required</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">analysisType</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">entry</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_db</span><span class="p">.</span><span class="n">analysisCache</span><span class="p">.</span><span class="n">getLatest</span><span class="p">(</span><span class="n">fieldId</span><span class="p">,</span><span class="w"> </span><span class="n">analysisType</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">entry</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">isExpired</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">now</span><span class="p">().</span><span class="n">isAfter</span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="n">expiresAt</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">CachedAnalysis</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">data:</span><span class="w"> </span><span class="n">jsonDecode</span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="n">data</span><span class="p">),</span>
+<span class="w">      </span><span class="nl">cachedAt:</span><span class="w"> </span><span class="n">entry</span><span class="p">.</span><span class="n">cachedAt</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">isStale:</span><span class="w"> </span><span class="n">isExpired</span><span class="p">,</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="32-fallback-ui-components">3.2 Fallback UI Components<a class="headerlink" href="#32-fallback-ui-components" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/mobile/lib/shared/widgets/offline_aware.dart</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">OfflineAwareWidget</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">StatelessWidget</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Widget</span><span class="w"> </span><span class="n">child</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Widget</span><span class="w"> </span><span class="n">offlineChild</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">DateTime</span><span class="o">?</span><span class="w"> </span><span class="n">lastUpdated</span><span class="p">;</span>
+
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Consumer</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">builder:</span><span class="w"> </span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">ref</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">isOnline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">(</span><span class="n">networkStatusProvider</span><span class="p">);</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">hasData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lastUpdated</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isOnline</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">hasData</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">offlineChild</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span>
+<span class="w">          </span><span class="nl">children:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">isOnline</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">hasData</span><span class="p">)</span>
+<span class="w">              </span><span class="n">StaleDataBanner</span><span class="p">(</span>
+<span class="w">                </span><span class="nl">lastUpdated:</span><span class="w"> </span><span class="n">lastUpdated</span><span class="o">!</span><span class="p">,</span>
+<span class="w">                </span><span class="nl">message:</span><span class="w"> </span><span class="s1">&#39;البيانات قديمة - ستُحدّث عند الاتصال&#39;</span><span class="p">,</span>
+<span class="w">              </span><span class="p">),</span>
+<span class="w">            </span><span class="n">child</span><span class="p">,</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">StaleDataBanner</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">StatelessWidget</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">lastUpdated</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">message</span><span class="p">;</span>
+
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Container</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">color:</span><span class="w"> </span><span class="n">Colors</span><span class="p">.</span><span class="n">orange</span><span class="p">.</span><span class="n">shade100</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">padding:</span><span class="w"> </span><span class="n">EdgeInsets</span><span class="p">.</span><span class="n">all</span><span class="p">(</span><span class="m">8</span><span class="p">),</span>
+<span class="w">      </span><span class="nl">child:</span><span class="w"> </span><span class="n">Row</span><span class="p">(</span>
+<span class="w">        </span><span class="nl">children:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="n">Icon</span><span class="p">(</span><span class="n">Icons</span><span class="p">.</span><span class="n">cloud_off</span><span class="p">,</span><span class="w"> </span><span class="nl">size:</span><span class="w"> </span><span class="m">16</span><span class="p">),</span>
+<span class="w">          </span><span class="n">SizedBox</span><span class="p">(</span><span class="nl">width:</span><span class="w"> </span><span class="m">8</span><span class="p">),</span>
+<span class="w">          </span><span class="n">Expanded</span><span class="p">(</span>
+<span class="w">            </span><span class="nl">child:</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span>
+<span class="w">              </span><span class="s1">&#39;</span><span class="si">$</span><span class="n">message</span><span class="s1"> (</span><span class="si">${</span><span class="n">_formatAge</span><span class="p">(</span><span class="n">lastUpdated</span><span class="p">)</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">,</span>
+<span class="w">              </span><span class="nl">style:</span><span class="w"> </span><span class="n">TextStyle</span><span class="p">(</span><span class="nl">fontSize:</span><span class="w"> </span><span class="m">12</span><span class="p">),</span>
+<span class="w">            </span><span class="p">),</span>
+<span class="w">          </span><span class="p">),</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">      </span><span class="p">),</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kt">String</span><span class="w"> </span><span class="n">_formatAge</span><span class="p">(</span><span class="n">DateTime</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">now</span><span class="p">().</span><span class="n">difference</span><span class="p">(</span><span class="n">dt</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diff</span><span class="p">.</span><span class="n">inHours</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inMinutes</span><span class="si">}</span><span class="s1"> دقيقة&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">diff</span><span class="p">.</span><span class="n">inDays</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inHours</span><span class="si">}</span><span class="s1"> ساعة&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;منذ </span><span class="si">${</span><span class="n">diff</span><span class="p">.</span><span class="n">inDays</span><span class="si">}</span><span class="s1"> يوم&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="33">3.3 تحديث الشاشات الرئيسية<a class="headerlink" href="#33" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/mobile/lib/features/field/ui/field_detail_screen.dart</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">FieldDetailScreen</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">ConsumerWidget</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">WidgetRef</span><span class="w"> </span><span class="n">ref</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">field</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">(</span><span class="n">fieldProvider</span><span class="p">(</span><span class="n">fieldId</span><span class="p">));</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">analysis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">(</span><span class="n">cachedAnalysisProvider</span><span class="p">(</span><span class="n">fieldId</span><span class="p">));</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Scaffold</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">body:</span><span class="w"> </span><span class="n">OfflineAwareWidget</span><span class="p">(</span>
+<span class="w">        </span><span class="nl">lastUpdated:</span><span class="w"> </span><span class="n">analysis</span><span class="o">?</span><span class="p">.</span><span class="n">cachedAt</span><span class="p">,</span>
+<span class="w">        </span><span class="nl">offlineChild:</span><span class="w"> </span><span class="n">FieldOfflinePlaceholder</span><span class="p">(),</span>
+<span class="w">        </span><span class="nl">child:</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span>
+<span class="w">          </span><span class="nl">children:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="c1">// Field info (always available offline)</span>
+<span class="w">            </span><span class="n">FieldInfoCard</span><span class="p">(</span><span class="nl">field:</span><span class="w"> </span><span class="n">field</span><span class="p">),</span>
+
+<span class="w">            </span><span class="c1">// Analysis with stale indicator</span>
+<span class="w">            </span><span class="n">AnalysisCard</span><span class="p">(</span>
+<span class="w">              </span><span class="nl">analysis:</span><span class="w"> </span><span class="n">analysis</span><span class="p">,</span>
+<span class="w">              </span><span class="nl">isStale:</span><span class="w"> </span><span class="n">analysis</span><span class="o">?</span><span class="p">.</span><span class="n">isStale</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="p">),</span>
+
+<span class="w">            </span><span class="c1">// Actions (always executable offline)</span>
+<span class="w">            </span><span class="n">ActionButtons</span><span class="p">(</span><span class="nl">fieldId:</span><span class="w"> </span><span class="n">fieldId</span><span class="p">),</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">        </span><span class="p">),</span>
+<span class="w">      </span><span class="p">),</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-testing-validation">المرحلة 4: Testing &amp; Validation<a class="headerlink" href="#4-testing-validation" title="Permanent link">&para;</a></h3>
+<p><strong>المدة:</strong> أسبوع واحد</p>
+<h4 id="41-offline-scenarios-test">4.1 Offline Scenarios Test<a class="headerlink" href="#41-offline-scenarios-test" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// test/integration/offline_scenarios_test.dart</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;Offline Scenarios&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;Task creation works offline&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Simulate offline</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">networkController</span><span class="p">.</span><span class="n">goOffline</span><span class="p">();</span>
+
+<span class="w">      </span><span class="c1">// Create task</span>
+<span class="w">      </span><span class="kd">final</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">taskService</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">testTask</span><span class="p">);</span>
+
+<span class="w">      </span><span class="c1">// Verify in outbox</span>
+<span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">task</span><span class="p">.</span><span class="n">syncStatus</span><span class="p">,</span><span class="w"> </span><span class="n">SyncStatus</span><span class="p">.</span><span class="n">pending</span><span class="p">);</span>
+<span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="kd">await</span><span class="w"> </span><span class="n">outbox</span><span class="p">.</span><span class="n">count</span><span class="p">(),</span><span class="w"> </span><span class="m">1</span><span class="p">);</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;Analysis shows stale data offline&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Cache analysis</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">analysisCache</span><span class="p">.</span><span class="n">cache</span><span class="p">(</span><span class="n">testAnalysis</span><span class="p">);</span>
+
+<span class="w">      </span><span class="c1">// Go offline</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">networkController</span><span class="p">.</span><span class="n">goOffline</span><span class="p">();</span>
+
+<span class="w">      </span><span class="c1">// Verify stale indicator</span>
+<span class="w">      </span><span class="kd">final</span><span class="w"> </span><span class="n">cached</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">analysisCache</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="n">fieldId</span><span class="p">);</span>
+<span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">cached</span><span class="p">.</span><span class="n">isStale</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span><span class="w"> </span><span class="c1">// Not stale yet</span>
+
+<span class="w">      </span><span class="c1">// Advance time</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">clock</span><span class="p">.</span><span class="n">advance</span><span class="p">(</span><span class="n">Duration</span><span class="p">(</span><span class="nl">hours:</span><span class="w"> </span><span class="m">25</span><span class="p">));</span>
+
+<span class="w">      </span><span class="kd">final</span><span class="w"> </span><span class="n">stale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">analysisCache</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="n">fieldId</span><span class="p">);</span>
+<span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="n">stale</span><span class="p">.</span><span class="n">isStale</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="n">test</span><span class="p">(</span><span class="s1">&#39;Sync resumes on reconnect&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Create offline tasks</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">networkController</span><span class="p">.</span><span class="n">goOffline</span><span class="p">();</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">taskService</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">task1</span><span class="p">);</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">taskService</span><span class="p">.</span><span class="n">create</span><span class="p">(</span><span class="n">task2</span><span class="p">);</span>
+
+<span class="w">      </span><span class="c1">// Reconnect</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">networkController</span><span class="p">.</span><span class="n">goOnline</span><span class="p">();</span>
+
+<span class="w">      </span><span class="c1">// Wait for sync</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">syncEngine</span><span class="p">.</span><span class="n">waitForComplete</span><span class="p">();</span>
+
+<span class="w">      </span><span class="c1">// Verify synced</span>
+<span class="w">      </span><span class="n">expect</span><span class="p">(</span><span class="kd">await</span><span class="w"> </span><span class="n">outbox</span><span class="p">.</span><span class="n">count</span><span class="p">(),</span><span class="w"> </span><span class="m">0</span><span class="p">);</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="42-field-testing-checklist">4.2 Field Testing Checklist<a class="headerlink" href="#42-field-testing-checklist" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="gu">## قائمة اختبار ميداني</span>
+
+<span class="gu">### سيناريو 1: لا يوجد اتصال</span>
+<span class="k">- [ ]</span> فتح التطبيق
+<span class="k">- [ ]</span> عرض الحقول المحفوظة
+<span class="k">- [ ]</span> إنشاء مهمة جديدة
+<span class="k">- [ ]</span> التقاط صورة
+<span class="k">- [ ]</span> حفظ ملاحظات
+<span class="k">- [ ]</span> التحقق من Outbox
+
+<span class="gu">### سيناريو 2: اتصال متقطع</span>
+<span class="k">- [ ]</span> بدء sync
+<span class="k">- [ ]</span> قطع الاتصال منتصف العملية
+<span class="k">- [ ]</span> التحقق من عدم فقدان البيانات
+<span class="k">- [ ]</span> إعادة الاتصال
+<span class="k">- [ ]</span> التحقق من استكمال sync
+
+<span class="gu">### سيناريو 3: بيانات تحليلية قديمة</span>
+<span class="k">- [ ]</span> عرض NDVI محفوظ
+<span class="k">- [ ]</span> التحقق من مؤشر &quot;قديم&quot;
+<span class="k">- [ ]</span> تنفيذ مهمة بناءً على بيانات قديمة
+<span class="k">- [ ]</span> تحديث عند الاتصال
+</code></pre></div>
+
+<hr />
+<h2 id="_4">📊 مؤشرات النجاح<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الهدف</th>
+<th>طريقة القياس</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Offline Task Success</td>
+<td>&gt; 95%</td>
+<td><code>tasks_created_offline / total_offline_tasks</code></td>
+</tr>
+<tr>
+<td>Sync Failure Rate</td>
+<td>&lt; 1%</td>
+<td><code>failed_syncs / total_syncs</code></td>
+</tr>
+<tr>
+<td>Stale Data Usage</td>
+<td>&lt; 5%</td>
+<td><code>decisions_on_stale / total_decisions</code></td>
+</tr>
+<tr>
+<td>Field Response Time</td>
+<td>&lt; 2s</td>
+<td><code>avg(task_creation_time)</code></td>
+</tr>
+<tr>
+<td>User Satisfaction</td>
+<td>&gt; 4.5/5</td>
+<td>Field surveys</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">🔧 متطلبات تقنية<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="backend">Backend<a class="headerlink" href="#backend" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Bridge endpoints في indicators-service</li>
+<li>[ ] Action Templates في shared</li>
+<li>[ ] Event pipeline للتحويل</li>
+</ul>
+<h3 id="mobile">Mobile<a class="headerlink" href="#mobile" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Analysis Cache</li>
+<li>[ ] Offline-aware widgets</li>
+<li>[ ] Stale data indicators</li>
+</ul>
+<h3 id="infrastructure">Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Service labels في docker-compose</li>
+<li>[ ] Priority-based restart policies</li>
+<li>[ ] Monitoring للـ offline metrics</li>
+</ul>
+<hr />
+<h2 id="_6">⚠️ المخاطر والتخفيف<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المخاطر</th>
+<th>الاحتمال</th>
+<th>التأثير</th>
+<th>التخفيف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تعقيد Bridge Layer</td>
+<td>متوسط</td>
+<td>متوسط</td>
+<td>بدء بسيط وتوسيع تدريجي</td>
+</tr>
+<tr>
+<td>زيادة حجم التخزين المحلي</td>
+<td>منخفض</td>
+<td>منخفض</td>
+<td>TTL + cleanup</td>
+</tr>
+<tr>
+<td>تعارض البيانات</td>
+<td>منخفض</td>
+<td>متوسط</td>
+<td>Conflict resolution موجود</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_7">✅ الخطوات التالية<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>الآن:</strong> اعتماد الميثاق رسمياً</li>
+<li><strong>هذا الأسبوع:</strong> إنشاء ملفات التوثيق</li>
+<li><strong>الأسبوع القادم:</strong> بدء Bridge Layer</li>
+<li><strong>خلال شهر:</strong> اكتمال التنفيذ</li>
+</ol>
+<hr />
+<p align="center">
+  <strong>خطة تنفيذ Field-First</strong>
+  <br>
+  <sub>SAHOOL Platform - December 2025</sub>
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

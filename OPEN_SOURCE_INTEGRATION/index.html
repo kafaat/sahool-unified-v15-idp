@@ -1,0 +1,1665 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Open Source Integration Recommendations for SAHOOL - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#open-source-integration-recommendations-for-sahool" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Open Source Integration Recommendations for SAHOOL
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="open-source-integration-recommendations-for-sahool">Open Source Integration Recommendations for SAHOOL<a class="headerlink" href="#open-source-integration-recommendations-for-sahool" title="Permanent link">&para;</a></h1>
+<h2 id="priority-1-immediate-integration-high-value-low-effort">Priority 1: Immediate Integration (High Value, Low Effort)<a class="headerlink" href="#priority-1-immediate-integration-high-value-low-effort" title="Permanent link">&para;</a></h2>
+<h3 id="1-pyeto-et0-calculation">1. pyETo - ET0 Calculation<a class="headerlink" href="#1-pyeto-et0-calculation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Repository</strong>: https://github.com/woodcrafty/PyETo</li>
+<li><strong>License</strong>: MIT</li>
+<li><strong>Integration Point</strong>: <code>water-balance</code> service</li>
+<li><strong>Benefit</strong>: Replace custom ET0 calculation with FAO-56 compliant library</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Installation</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">pyeto</span>
+
+<span class="c1"># Usage in water-balance service</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyeto</span><span class="w"> </span><span class="kn">import</span> <span class="n">fao</span>
+<span class="n">et0</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">et0</span><span class="p">(</span><span class="n">net_rad</span><span class="p">,</span> <span class="n">temp</span><span class="p">,</span> <span class="n">ws</span><span class="p">,</span> <span class="n">svp</span><span class="p">,</span> <span class="n">avp</span><span class="p">,</span> <span class="n">delta_svp</span><span class="p">,</span> <span class="n">psy</span><span class="p">,</span> <span class="n">shf</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2-open-meteo-api">2. Open-Meteo API<a class="headerlink" href="#2-open-meteo-api" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>API</strong>: https://open-meteo.com/</li>
+<li><strong>License</strong>: Free for non-commercial, CC-BY for commercial</li>
+<li><strong>Integration Point</strong>: <code>weather-service</code></li>
+<li><strong>Benefit</strong>: Free weather forecasts, historical data, no API key needed</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Example endpoint</span>
+<span class="n">GET</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">api</span><span class="o">.</span><span class="n">open</span><span class="o">-</span><span class="n">meteo</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">forecast</span><span class="err">?</span><span class="n">latitude</span><span class="o">=</span><span class="mf">15.35</span><span class="o">&amp;</span><span class="n">longitude</span><span class="o">=</span><span class="mf">44.21</span><span class="o">&amp;</span><span class="n">hourly</span><span class="o">=</span><span class="n">temperature_2m</span><span class="p">,</span><span class="n">precipitation</span>
+</code></pre></div>
+
+<h3 id="3-brapi-standard">3. BrAPI Standard<a class="headerlink" href="#3-brapi-standard" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Repository</strong>: https://github.com/plantbreeding/BrAPI</li>
+<li><strong>License</strong>: MIT</li>
+<li><strong>Integration Point</strong>: <code>research-core</code> API</li>
+<li><strong>Benefit</strong>: Standardized API for germplasm and breeding data exchange</li>
+<li><strong>Key Endpoints to Implement</strong>:</li>
+<li><code>/brapi/v2/germplasm</code></li>
+<li><code>/brapi/v2/studies</code></li>
+<li><code>/brapi/v2/observations</code></li>
+</ul>
+<hr />
+<h2 id="priority-2-medium-term-integration-2-4-weeks">Priority 2: Medium-Term Integration (2-4 weeks)<a class="headerlink" href="#priority-2-medium-term-integration-2-4-weeks" title="Permanent link">&para;</a></h2>
+<h3 id="4-wofost-crop-growth-model">4. WOFOST Crop Growth Model<a class="headerlink" href="#4-wofost-crop-growth-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Repository</strong>: https://github.com/ajwdewit/pcse</li>
+<li><strong>License</strong>: EUPL</li>
+<li><strong>Integration Point</strong>: <code>crop-growth-model</code> service</li>
+<li><strong>Benefit</strong>: Scientifically validated crop growth simulation</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Installation</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">pcse</span>
+
+<span class="c1"># Usage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pcse.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Wofost72_WLP_FD</span>
+<span class="n">wofost</span> <span class="o">=</span> <span class="n">Wofost72_WLP_FD</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">weather</span><span class="p">,</span> <span class="n">agromanagement</span><span class="p">)</span>
+<span class="n">wofost</span><span class="o">.</span><span class="n">run_till_terminate</span><span class="p">()</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">wofost</span><span class="o">.</span><span class="n">get_output</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="5-eo-learn-for-satellite-processing">5. eo-learn for Satellite Processing<a class="headerlink" href="#5-eo-learn-for-satellite-processing" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Repository</strong>: https://github.com/sentinel-hub/eo-learn</li>
+<li><strong>License</strong>: MIT</li>
+<li><strong>Integration Point</strong>: <code>satellite-service</code></li>
+<li><strong>Benefit</strong>: Efficient Sentinel-2 data processing pipelines</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Key features</span>
+<span class="o">-</span> <span class="n">NDVI</span> <span class="n">calculation</span> <span class="n">workflows</span>
+<span class="o">-</span> <span class="n">Cloud</span> <span class="n">masking</span>
+<span class="o">-</span> <span class="n">Time</span> <span class="n">series</span> <span class="n">analysis</span>
+<span class="o">-</span> <span class="n">Field</span> <span class="n">boundary</span> <span class="n">detection</span>
+</code></pre></div>
+
+<h3 id="6-plantvillage-disease-dataset">6. PlantVillage Disease Dataset<a class="headerlink" href="#6-plantvillage-disease-dataset" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Dataset</strong>: https://github.com/spMohanty/PlantVillage-Dataset</li>
+<li><strong>License</strong>: CC0 1.0</li>
+<li><strong>Integration Point</strong>: <code>disease-detection</code> (new service)</li>
+<li><strong>Benefit</strong>: 54,306 images across 38 disease classes</li>
+<li><strong>Yemen Crops Covered</strong>: Tomato, Potato, Pepper, Grape, Corn</li>
+</ul>
+<hr />
+<h2 id="priority-3-long-term-considerations-1-3-months">Priority 3: Long-Term Considerations (1-3 months)<a class="headerlink" href="#priority-3-long-term-considerations-1-3-months" title="Permanent link">&para;</a></h2>
+<h3 id="7-farmos-data-model">7. farmOS Data Model<a class="headerlink" href="#7-farmos-data-model" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Repository</strong>: https://github.com/farmOS/farmOS</li>
+<li><strong>License</strong>: GPL-2.0</li>
+<li><strong>Study Points</strong>:</li>
+<li>Asset tracking (fields, equipment, animals)</li>
+<li>Log system (observations, activities, harvests)</li>
+<li>Quantity/unit standardization</li>
+<li>Location hierarchy</li>
+</ul>
+<h3 id="8-opendronemap-for-uav-processing">8. OpenDroneMap for UAV Processing<a class="headerlink" href="#8-opendronemap-for-uav-processing" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Repository</strong>: https://github.com/OpenDroneMap/ODM</li>
+<li><strong>License</strong>: AGPL-3.0</li>
+<li><strong>Integration Point</strong>: <code>drone-service</code> (future)</li>
+<li><strong>Benefit</strong>: Generate orthophotos, DEMs, NDVI from drone imagery</li>
+</ul>
+<h3 id="9-grin-global-for-genebank">9. GRIN-Global for Genebank<a class="headerlink" href="#9-grin-global-for-genebank" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Repository</strong>: https://github.com/USDA/GRIN-Global</li>
+<li><strong>License</strong>: Public Domain</li>
+<li><strong>Integration Point</strong>: <code>research-core</code> seed bank module</li>
+<li><strong>Benefit</strong>: Standard genebank management system</li>
+</ul>
+<hr />
+<h2 id="architecture-integration-diagram">Architecture Integration Diagram<a class="headerlink" href="#architecture-integration-diagram" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│                        SAHOOL Platform                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐ │
+│  │  weather-service │◄───│   Open-Meteo    │    │   pyETo     │ │
+│  │                 │    │   (External)    │    │  (Library)  │ │
+│  └────────┬────────┘    └─────────────────┘    └──────┬──────┘ │
+│           │                                           │        │
+│           ▼                                           ▼        │
+│  ┌─────────────────┐                        ┌─────────────────┐│
+│  │  water-balance  │◄───────────────────────│ FAO-56 ET0     ││
+│  └────────┬────────┘                        └─────────────────┘│
+│           │                                                    │
+│           ▼                                                    │
+│  ┌─────────────────┐    ┌─────────────────┐                   │
+│  │crop-growth-model│◄───│     WOFOST      │                   │
+│  │                 │    │   (PCSE Lib)    │                   │
+│  └────────┬────────┘    └─────────────────┘                   │
+│           │                                                    │
+│           ▼                                                    │
+│  ┌─────────────────┐    ┌─────────────────┐                   │
+│  │satellite-service│◄───│    eo-learn     │                   │
+│  │                 │    │   (Sentinel)    │                   │
+│  └─────────────────┘    └─────────────────┘                   │
+│                                                                │
+│  ┌─────────────────┐    ┌─────────────────┐                   │
+│  │  research-core  │◄───│  BrAPI v2.1     │                   │
+│  │                 │    │  (Standard)     │                   │
+│  └─────────────────┘    └─────────────────┘                   │
+│                                                                │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="implementation-roadmap">Implementation Roadmap<a class="headerlink" href="#implementation-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-foundation-week-1-2">Phase 1: Foundation (Week 1-2)<a class="headerlink" href="#phase-1-foundation-week-1-2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Integrate pyETo in water-balance service</li>
+<li>[ ] Add Open-Meteo as weather data source</li>
+<li>[ ] Update requirements.txt files</li>
+</ul>
+<h3 id="phase-2-research-standards-week-3-4">Phase 2: Research Standards (Week 3-4)<a class="headerlink" href="#phase-2-research-standards-week-3-4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Implement BrAPI v2.1 endpoints in research-core</li>
+<li>[ ] Add MIAPPE-compliant export for experiments</li>
+<li>[ ] Update API documentation</li>
+</ul>
+<h3 id="phase-3-advanced-models-week-5-8">Phase 3: Advanced Models (Week 5-8)<a class="headerlink" href="#phase-3-advanced-models-week-5-8" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Integrate PCSE/WOFOST for crop growth simulation</li>
+<li>[ ] Add eo-learn pipeline for satellite processing</li>
+<li>[ ] Create disease detection service with PlantVillage model</li>
+</ul>
+<h3 id="phase-4-ecosystem-week-9-12">Phase 4: Ecosystem (Week 9-12)<a class="headerlink" href="#phase-4-ecosystem-week-9-12" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Study farmOS data model for potential adoption</li>
+<li>[ ] Evaluate GRIN-Global for genebank management</li>
+<li>[ ] Consider OpenDroneMap for UAV support</li>
+</ul>
+<hr />
+<h2 id="license-compatibility-matrix">License Compatibility Matrix<a class="headerlink" href="#license-compatibility-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>License</th>
+<th>Compatible with SAHOOL?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pyETo</td>
+<td>MIT</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Open-Meteo</td>
+<td>CC-BY</td>
+<td>✅ Yes (with attribution)</td>
+</tr>
+<tr>
+<td>BrAPI</td>
+<td>MIT</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>PCSE/WOFOST</td>
+<td>EUPL</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>eo-learn</td>
+<td>MIT</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>PlantVillage</td>
+<td>CC0</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>farmOS</td>
+<td>GPL-2.0</td>
+<td>⚠️ Study only</td>
+</tr>
+<tr>
+<td>OpenDroneMap</td>
+<td>AGPL-3.0</td>
+<td>⚠️ Separate service only</td>
+</tr>
+<tr>
+<td>GRIN-Global</td>
+<td>Public Domain</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="quick-start-pyeto-integration">Quick Start: pyETo Integration<a class="headerlink" href="#quick-start-pyeto-integration" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/water-balance/src/et0_calculator.py</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyeto</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">fao</span><span class="p">,</span>
+    <span class="n">convert</span><span class="p">,</span>
+    <span class="n">thornthwaite</span>
+<span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FAO56Calculator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;FAO-56 Penman-Monteith ET0 Calculator using pyETo&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">altitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latitude</span> <span class="o">=</span> <span class="n">convert</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">latitude</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">altitude</span> <span class="o">=</span> <span class="n">altitude</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_et0</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">day_of_year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">temp_min</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">temp_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">humidity_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">wind_speed_2m</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">solar_radiation</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate reference evapotranspiration using FAO-56 method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            day_of_year: Julian day (1-365)</span>
+<span class="sd">            temp_min: Minimum temperature (°C)</span>
+<span class="sd">            temp_max: Maximum temperature (°C)</span>
+<span class="sd">            humidity_mean: Mean relative humidity (%)</span>
+<span class="sd">            wind_speed_2m: Wind speed at 2m height (m/s)</span>
+<span class="sd">            solar_radiation: Solar radiation (MJ/m²/day), optional</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ET0 in mm/day</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temp_mean</span> <span class="o">=</span> <span class="p">(</span><span class="n">temp_min</span> <span class="o">+</span> <span class="n">temp_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+
+        <span class="c1"># Atmospheric pressure from altitude</span>
+        <span class="n">atmos_pres</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">atm_pressure</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">altitude</span><span class="p">)</span>
+
+        <span class="c1"># Psychrometric constant</span>
+        <span class="n">psy</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">psy_const</span><span class="p">(</span><span class="n">atmos_pres</span><span class="p">)</span>
+
+        <span class="c1"># Saturation vapor pressure</span>
+        <span class="n">svp_min</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">svp_from_t</span><span class="p">(</span><span class="n">temp_min</span><span class="p">)</span>
+        <span class="n">svp_max</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">svp_from_t</span><span class="p">(</span><span class="n">temp_max</span><span class="p">)</span>
+        <span class="n">svp</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">mean_svp</span><span class="p">(</span><span class="n">svp_min</span><span class="p">,</span> <span class="n">svp_max</span><span class="p">)</span>
+
+        <span class="c1"># Actual vapor pressure from humidity</span>
+        <span class="n">avp</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">avp_from_rhmin_rhmax</span><span class="p">(</span><span class="n">svp_min</span><span class="p">,</span> <span class="n">svp_max</span><span class="p">,</span> <span class="n">humidity_mean</span><span class="p">,</span> <span class="n">humidity_mean</span><span class="p">)</span>
+
+        <span class="c1"># Slope of saturation vapor pressure curve</span>
+        <span class="n">delta_svp</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">delta_svp</span><span class="p">(</span><span class="n">temp_mean</span><span class="p">)</span>
+
+        <span class="c1"># Solar radiation (estimate if not provided)</span>
+        <span class="k">if</span> <span class="n">solar_radiation</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sol_dec</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">sol_dec</span><span class="p">(</span><span class="n">day_of_year</span><span class="p">)</span>
+            <span class="n">sha</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">sunset_hour_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">sol_dec</span><span class="p">)</span>
+            <span class="n">ird</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">inv_rel_dist_earth_sun</span><span class="p">(</span><span class="n">day_of_year</span><span class="p">)</span>
+            <span class="n">et_rad</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">et_rad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">sol_dec</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">ird</span><span class="p">)</span>
+            <span class="n">solar_radiation</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">sol_rad_from_t</span><span class="p">(</span><span class="n">et_rad</span><span class="p">,</span> <span class="n">temp_min</span><span class="p">,</span> <span class="n">temp_max</span><span class="p">,</span> <span class="n">coastal</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Net radiation</span>
+        <span class="n">sol_dec</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">sol_dec</span><span class="p">(</span><span class="n">day_of_year</span><span class="p">)</span>
+        <span class="n">sha</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">sunset_hour_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">sol_dec</span><span class="p">)</span>
+        <span class="n">ird</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">inv_rel_dist_earth_sun</span><span class="p">(</span><span class="n">day_of_year</span><span class="p">)</span>
+        <span class="n">et_rad</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">et_rad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">sol_dec</span><span class="p">,</span> <span class="n">sha</span><span class="p">,</span> <span class="n">ird</span><span class="p">)</span>
+
+        <span class="n">cs_rad</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">cs_rad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">altitude</span><span class="p">,</span> <span class="n">et_rad</span><span class="p">)</span>
+        <span class="n">ni_sw_rad</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">net_in_sol_rad</span><span class="p">(</span><span class="n">solar_radiation</span><span class="p">)</span>
+        <span class="n">no_lw_rad</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">net_out_lw_rad</span><span class="p">(</span>
+            <span class="n">temp_min</span><span class="p">,</span> <span class="n">temp_max</span><span class="p">,</span> <span class="n">solar_radiation</span><span class="p">,</span> <span class="n">cs_rad</span><span class="p">,</span> <span class="n">avp</span>
+        <span class="p">)</span>
+        <span class="n">net_rad</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">net_rad</span><span class="p">(</span><span class="n">ni_sw_rad</span><span class="p">,</span> <span class="n">no_lw_rad</span><span class="p">)</span>
+
+        <span class="c1"># FAO-56 Penman-Monteith ET0</span>
+        <span class="n">et0</span> <span class="o">=</span> <span class="n">fao</span><span class="o">.</span><span class="n">fao56_penman_monteith</span><span class="p">(</span>
+            <span class="n">net_rad</span><span class="o">=</span><span class="n">net_rad</span><span class="p">,</span>
+            <span class="n">t</span><span class="o">=</span><span class="n">temp_mean</span><span class="p">,</span>
+            <span class="n">ws</span><span class="o">=</span><span class="n">wind_speed_2m</span><span class="p">,</span>
+            <span class="n">svp</span><span class="o">=</span><span class="n">svp</span><span class="p">,</span>
+            <span class="n">avp</span><span class="o">=</span><span class="n">avp</span><span class="p">,</span>
+            <span class="n">delta_svp</span><span class="o">=</span><span class="n">delta_svp</span><span class="p">,</span>
+            <span class="n">psy</span><span class="o">=</span><span class="n">psy</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">et0</span>
+
+
+<span class="c1"># Yemen-specific locations</span>
+<span class="n">YEMEN_STATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sanaa&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">15.35</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">2250</span><span class="p">},</span>
+    <span class="s2">&quot;aden&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">12.78</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+    <span class="s2">&quot;taiz&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">13.58</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">1400</span><span class="p">},</span>
+    <span class="s2">&quot;hodeidah&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">14.80</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
+    <span class="s2">&quot;mukalla&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">14.54</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">},</span>
+    <span class="s2">&quot;ibb&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">13.97</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">2050</span><span class="p">},</span>
+    <span class="s2">&quot;dhamar&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">14.55</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">2400</span><span class="p">},</span>
+    <span class="s2">&quot;sayun&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">15.94</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span> <span class="mi">700</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_yemen_calculator</span><span class="p">(</span><span class="n">station</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FAO56Calculator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get ET0 calculator for a Yemen weather station.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">station</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">YEMEN_STATIONS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown station: </span><span class="si">{</span><span class="n">station</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">loc</span> <span class="o">=</span> <span class="n">YEMEN_STATIONS</span><span class="p">[</span><span class="n">station</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">FAO56Calculator</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">altitude</span><span class="o">=</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;alt&quot;</span><span class="p">])</span>
+</code></pre></div>
+
+<hr />
+<h2 id="quick-start-open-meteo-integration">Quick Start: Open-Meteo Integration<a class="headerlink" href="#quick-start-open-meteo-integration" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/weather-service/src/providers/open_meteo.py</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WeatherData</span><span class="p">:</span>
+    <span class="n">timestamp</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">humidity</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">precipitation</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">wind_speed</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">solar_radiation</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">et0</span><span class="p">:</span> <span class="nb">float</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OpenMeteoProvider</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Free weather data from Open-Meteo API&quot;&quot;&quot;</span>
+
+    <span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;https://api.open-meteo.com/v1&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_forecast</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">WeatherData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get weather forecast for location.&quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">latitude</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">longitude</span><span class="p">,</span>
+            <span class="s2">&quot;hourly&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;temperature_2m&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;relative_humidity_2m&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;precipitation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;wind_speed_10m&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;et0_fao_evapotranspiration&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;forecast_days&quot;</span><span class="p">:</span> <span class="n">days</span><span class="p">,</span>
+            <span class="s2">&quot;timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia/Aden&quot;</span>
+        <span class="p">}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span><span class="si">}</span><span class="s2">/forecast&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">params</span>
+        <span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+        <span class="n">hourly</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hourly&quot;</span><span class="p">]</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">time_str</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hourly</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]):</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">WeatherData</span><span class="p">(</span>
+                <span class="n">timestamp</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">time_str</span><span class="p">),</span>
+                <span class="n">temperature</span><span class="o">=</span><span class="n">hourly</span><span class="p">[</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">humidity</span><span class="o">=</span><span class="n">hourly</span><span class="p">[</span><span class="s2">&quot;relative_humidity_2m&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">precipitation</span><span class="o">=</span><span class="n">hourly</span><span class="p">[</span><span class="s2">&quot;precipitation&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">wind_speed</span><span class="o">=</span><span class="n">hourly</span><span class="p">[</span><span class="s2">&quot;wind_speed_10m&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">solar_radiation</span><span class="o">=</span><span class="n">hourly</span><span class="p">[</span><span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">et0</span><span class="o">=</span><span class="n">hourly</span><span class="p">[</span><span class="s2">&quot;et0_fao_evapotranspiration&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span>
+            <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_historical</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">start_date</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+        <span class="n">end_date</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">WeatherData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get historical weather data.&quot;&quot;&quot;</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">latitude</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">longitude</span><span class="p">,</span>
+            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;end_date&quot;</span><span class="p">:</span> <span class="n">end_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;daily&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;temperature_2m_max&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;temperature_2m_min&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;precipitation_sum&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;et0_fao_evapotranspiration&quot;</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;timezone&quot;</span><span class="p">:</span> <span class="s2">&quot;Asia/Aden&quot;</span>
+        <span class="p">}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">BASE_URL</span><span class="si">}</span><span class="s2">/archive&quot;</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">params</span>
+        <span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+
+<span class="c1"># Yemen major cities coordinates</span>
+<span class="n">YEMEN_LOCATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sanaa&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">15.3694</span><span class="p">,</span> <span class="mf">44.1910</span><span class="p">),</span>
+    <span class="s2">&quot;aden&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">12.7855</span><span class="p">,</span> <span class="mf">45.0187</span><span class="p">),</span>
+    <span class="s2">&quot;taiz&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">13.5789</span><span class="p">,</span> <span class="mf">44.0219</span><span class="p">),</span>
+    <span class="s2">&quot;hodeidah&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">14.7979</span><span class="p">,</span> <span class="mf">42.9536</span><span class="p">),</span>
+    <span class="s2">&quot;mukalla&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">14.5425</span><span class="p">,</span> <span class="mf">49.1257</span><span class="p">),</span>
+    <span class="s2">&quot;ibb&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">13.9667</span><span class="p">,</span> <span class="mf">44.1667</span><span class="p">),</span>
+    <span class="s2">&quot;dhamar&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">14.5500</span><span class="p">,</span> <span class="mf">44.4000</span><span class="p">),</span>
+    <span class="s2">&quot;sayun&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">15.9432</span><span class="p">,</span> <span class="mf">48.7883</span><span class="p">),</span>
+    <span class="s2">&quot;marib&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">15.4642</span><span class="p">,</span> <span class="mf">45.3497</span><span class="p">),</span>
+    <span class="s2">&quot;hajjah&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">15.6917</span><span class="p">,</span> <span class="mf">43.6028</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="recommended-dependencies-update">Recommended Dependencies Update<a class="headerlink" href="#recommended-dependencies-update" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code># apps/services/water-balance/requirements.txt
+pyeto&gt;=0.2.0
+
+# apps/services/weather-service/requirements.txt
+httpx&gt;=0.24.0
+
+# apps/services/satellite-service/requirements.txt
+eo-learn-core&gt;=1.4.0
+eo-learn-io&gt;=1.4.0
+eo-learn-mask&gt;=1.4.0
+eo-learn-features&gt;=1.4.0
+sentinelhub&gt;=3.9.0
+
+# apps/services/crop-growth-model/requirements.txt
+pcse&gt;=5.5.0
+</code></pre></div>
+
+<hr />
+<h2 id="contact-resources">Contact &amp; Resources<a class="headerlink" href="#contact-resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>BrAPI Community</strong>: https://brapi.org/</li>
+<li><strong>MIAPPE Standard</strong>: https://www.miappe.org/</li>
+<li><strong>FAO GAEZ</strong>: https://gaez.fao.org/</li>
+<li><strong>Open-Meteo Docs</strong>: https://open-meteo.com/en/docs</li>
+<li><strong>WOFOST Docs</strong>: https://pcse.readthedocs.io/</li>
+</ul>
+<hr />
+<p><em>Document created: 2025-12-25</em>
+<em>For SAHOOL Agricultural Platform v15</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

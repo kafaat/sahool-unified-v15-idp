@@ -1,0 +1,2622 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform - Complete Services API Documentation - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-complete-services-api-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform - Complete Services API Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-complete-services-api-documentation">SAHOOL Platform - Complete Services API Documentation<a class="headerlink" href="#sahool-platform-complete-services-api-documentation" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> 15.5.0<br />
+<strong>Last Updated:</strong> December 2025<br />
+<strong>Platform:</strong> SAHOOL Unified Agricultural Platform</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#infrastructure-services">Infrastructure Services</a></li>
+<li><a href="#core-services">Core Services</a></li>
+<li><a href="#application-services">Application Services</a></li>
+<li><a href="#ai--analysis-services">AI &amp; Analysis Services</a></li>
+<li><a href="#business-services">Business Services</a></li>
+<li><a href="#observability-services">Observability Services</a></li>
+</ol>
+<hr />
+<h2 id="infrastructure-services">Infrastructure Services<a class="headerlink" href="#infrastructure-services" title="Permanent link">&para;</a></h2>
+<h3 id="1-postgresql-with-postgis">1. PostgreSQL with PostGIS<a class="headerlink" href="#1-postgresql-with-postgis" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-postgres</code><br />
+<strong>Port:</strong> 5432<br />
+<strong>Image:</strong> <code>postgis/postgis:16-3.4</code></p>
+<h4 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Primary geospatial database for all agricultural data</li>
+<li>PostGIS extension for spatial queries</li>
+<li>Multi-tenant data isolation</li>
+<li>ACID compliance</li>
+</ul>
+<h4 id="inputoutput">Input/Output<a class="headerlink" href="#inputoutput" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Input:</strong> SQL queries via connection string</li>
+<li><strong>Output:</strong> Query results with geospatial data (PostGIS geometry types)</li>
+<li><strong>Connection:</strong> <code>postgresql://USER:PASSWORD@postgres:5432/DB_NAME</code></li>
+</ul>
+<h4 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">POSTGRES_USER</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Required</span>
+<span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Required</span>
+<span class="nt">POSTGRES_DB</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool (default)</span>
+</code></pre></div>
+
+<h4 id="error-reports-recommendations">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations" title="Permanent link">&para;</a></h4>
+<p><strong>Error: Connection refused</strong>
+- <strong>Cause:</strong> Service not ready or network issues
+- <strong>Fix:</strong> Check healthcheck, verify network connectivity
+- <strong>Recommendation:</strong> Use healthcheck endpoint before connecting</p>
+<p><strong>Error: PostGIS extension not found</strong>
+- <strong>Cause:</strong> Extension not initialized
+- <strong>Fix:</strong> Run <code>CREATE EXTENSION postgis;</code> in init script
+- <strong>Recommendation:</strong> Include in <code>/docker-entrypoint-initdb.d/</code> scripts</p>
+<p><strong>Error: Authentication failed</strong>
+- <strong>Cause:</strong> Wrong credentials
+- <strong>Fix:</strong> Verify POSTGRES_PASSWORD in .env file
+- <strong>Recommendation:</strong> Use strong passwords, rotate regularly</p>
+<hr />
+<h3 id="2-kong-api-gateway">2. Kong API Gateway<a class="headerlink" href="#2-kong-api-gateway" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-kong</code><br />
+<strong>Port:</strong> 8000 (proxy), 127.0.0.1:8001 (admin)<br />
+<strong>Image:</strong> <code>kong:3.9</code></p>
+<h4 id="functions_1">Functions<a class="headerlink" href="#functions_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>API routing and load balancing</li>
+<li>Rate limiting and authentication</li>
+<li>Request/response transformation</li>
+<li>Declarative configuration</li>
+</ul>
+<h4 id="inputoutput_1">Input/Output<a class="headerlink" href="#inputoutput_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Input:</strong> HTTP requests from clients</li>
+<li><strong>Output:</strong> Routed requests to backend services</li>
+<li><strong>Config:</strong> <code>/infra/kong/kong.yml</code></li>
+</ul>
+<h4 id="error-reports-recommendations_1">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_1" title="Permanent link">&para;</a></h4>
+<p><strong>Error: Service unavailable (503)</strong>
+- <strong>Cause:</strong> Backend service not responding
+- <strong>Fix:</strong> Check backend service health
+- <strong>Recommendation:</strong> Implement circuit breakers</p>
+<p><strong>Error: Rate limit exceeded (429)</strong>
+- <strong>Cause:</strong> Too many requests
+- <strong>Fix:</strong> Adjust rate limit configuration
+- <strong>Recommendation:</strong> Implement client-side retry with exponential backoff</p>
+<hr />
+<h3 id="3-nats-message-broker">3. NATS Message Broker<a class="headerlink" href="#3-nats-message-broker" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-nats</code><br />
+<strong>Port:</strong> 4222 (client), 8222 (monitoring)<br />
+<strong>Image:</strong> <code>nats:2.10.24-alpine</code></p>
+<h4 id="functions_2">Functions<a class="headerlink" href="#functions_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Pub/sub messaging between services</li>
+<li>JetStream for event persistence</li>
+<li>Real-time event streaming</li>
+</ul>
+<h4 id="inputoutput_2">Input/Output<a class="headerlink" href="#inputoutput_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Input:</strong> Events from services (JSON)</li>
+<li><strong>Output:</strong> Published events to subscribers</li>
+<li><strong>Topics:</strong> <code>sahool.fields.*</code>, <code>sahool.operations.*</code>, etc.</li>
+</ul>
+<h4 id="error-reports-recommendations_2">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_2" title="Permanent link">&para;</a></h4>
+<p><strong>Error: Connection timeout</strong>
+- <strong>Cause:</strong> NATS not ready or network issues
+- <strong>Fix:</strong> Wait for healthcheck, verify NATS_URL
+- <strong>Recommendation:</strong> Implement reconnection logic</p>
+<hr />
+<h3 id="4-redis-cache">4. Redis Cache<a class="headerlink" href="#4-redis-cache" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-redis</code><br />
+<strong>Port:</strong> 127.0.0.1:6379<br />
+<strong>Image:</strong> <code>redis:7.4-alpine</code></p>
+<h4 id="functions_3">Functions<a class="headerlink" href="#functions_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Session storage</li>
+<li>Cache layer for frequently accessed data</li>
+<li>Rate limiting counters</li>
+</ul>
+<h4 id="inputoutput_3">Input/Output<a class="headerlink" href="#inputoutput_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Input:</strong> Key-value pairs (strings, hashes, sets)</li>
+<li><strong>Output:</strong> Cached data or cache operations</li>
+<li><strong>Connection:</strong> <code>redis://:PASSWORD@redis:6379/0</code></li>
+</ul>
+<h4 id="error-reports-recommendations_3">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_3" title="Permanent link">&para;</a></h4>
+<p><strong>Error: Authentication required</strong>
+- <strong>Cause:</strong> Missing or wrong password
+- <strong>Fix:</strong> Set REDIS_PASSWORD in .env
+- <strong>Recommendation:</strong> Use strong passwords</p>
+<hr />
+<h3 id="5-mqtt-broker">5. MQTT Broker<a class="headerlink" href="#5-mqtt-broker" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-mqtt</code><br />
+<strong>Port:</strong> 1883 (MQTT), 9001 (WebSocket)<br />
+<strong>Image:</strong> <code>eclipse-mosquitto:2</code></p>
+<h4 id="functions_4">Functions<a class="headerlink" href="#functions_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li>IoT device connectivity</li>
+<li>Sensor data ingestion</li>
+<li>Real-time telemetry</li>
+</ul>
+<h4 id="inputoutput_4">Input/Output<a class="headerlink" href="#inputoutput_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Input:</strong> MQTT messages from sensors</li>
+<li><strong>Output:</strong> Published data to subscribers</li>
+<li><strong>Topics:</strong> <code>sahool/sensors/#</code></li>
+</ul>
+<h4 id="error-reports-recommendations_4">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_4" title="Permanent link">&para;</a></h4>
+<p><strong>Error: Connection refused</strong>
+- <strong>Cause:</strong> Broker not ready or config error
+- <strong>Fix:</strong> Check mosquitto.conf, verify port mapping
+- <strong>Recommendation:</strong> Use authentication for production</p>
+<hr />
+<h2 id="core-services">Core Services<a class="headerlink" href="#core-services" title="Permanent link">&para;</a></h2>
+<h3 id="6-field-core-service">6. Field Core Service<a class="headerlink" href="#6-field-core-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-field-core</code><br />
+<strong>Port:</strong> 3000<br />
+<strong>Stack:</strong> Node.js + TypeScript + Express + TypeORM + PostGIS</p>
+<h4 id="functions_5">Functions<a class="headerlink" href="#functions_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Geospatial field boundary management</li>
+<li>Field CRUD operations with optimistic locking (ETags)</li>
+<li>Field boundary history tracking</li>
+<li>Area calculations</li>
+<li>Multi-tenant field isolation</li>
+</ul>
+<h4 id="api-endpoints">API Endpoints<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h4>
+<p><strong>GET <code>/api/v1/fields</code></strong>
+- <strong>Description:</strong> List all fields with filtering
+- <strong>Query Parameters:</strong>
+  - <code>tenantId</code> (string, optional): Filter by tenant
+  - <code>status</code> (string, optional): Filter by status
+  - <code>cropType</code> (string, optional): Filter by crop type
+  - <code>limit</code> (number, default: 100): Pagination limit
+  - <code>offset</code> (number, default: 0): Pagination offset
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;North Field&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tenantId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cropType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;areaHectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;boundary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="err">la</span><span class="kc">t</span><span class="p">,</span><span class="w"> </span><span class="err">lo</span><span class="kc">n</span><span class="p">],</span><span class="w"> </span><span class="err">...</span><span class="p">]]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;createdAt&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-01T00:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/api/v1/fields/:id</code></strong>
+- <strong>Description:</strong> Get single field by ID
+- <strong>Response:</strong> Field object with ETag header
+- <strong>Headers:</strong>
+  - <code>ETag</code>: "field-id:version" (for optimistic locking)</p>
+<p><strong>POST <code>/api/v1/fields</code></strong>
+- <strong>Description:</strong> Create new field
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;South Field&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tenantId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cropType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="err">la</span><span class="kc">t</span><span class="p">,</span><span class="w"> </span><span class="err">lo</span><span class="kc">n</span><span class="p">],</span><span class="w"> </span><span class="err">...</span><span class="p">]],</span>
+<span class="w">  </span><span class="nt">&quot;ownerId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;irrigationType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;drip&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soilType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loamy&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;plantingDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;expectedHarvest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-05-15&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong> Created field with ID and ETag</li>
+</ul>
+<p><strong>PUT <code>/api/v1/fields/:id</code></strong>
+- <strong>Description:</strong> Update field (requires If-Match header)
+- <strong>Headers:</strong>
+  - <code>If-Match</code>: ETag value from GET request
+- <strong>Response:</strong> Updated field with new ETag</p>
+<p><strong>DELETE <code>/api/v1/fields/:id</code></strong>
+- <strong>Description:</strong> Delete field
+- <strong>Response:</strong> 204 No Content</p>
+<h4 id="inputoutput-data-types">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types" title="Permanent link">&para;</a></h4>
+<p><strong>Field Model:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">(</span><span class="nx">UUID</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span>
+<span class="w">  </span><span class="nx">cropType</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">(</span><span class="kd">enum</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">boundary</span><span class="o">:</span><span class="w"> </span><span class="kt">GeoJSON</span><span class="w"> </span><span class="nx">Polygon</span>
+<span class="w">  </span><span class="nx">areaHectares</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span>
+<span class="w">  </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;inactive&quot;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s2">&quot;archived&quot;</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="w"> </span><span class="p">(</span><span class="k">for</span><span class="w"> </span><span class="nx">optimistic</span><span class="w"> </span><span class="nx">locking</span><span class="p">)</span>
+<span class="w">  </span><span class="nx">createdAt</span><span class="o">:</span><span class="w"> </span><span class="kt">ISO</span><span class="w"> </span><span class="mf">8601</span><span class="w"> </span><span class="nx">datetime</span>
+<span class="w">  </span><span class="nx">updatedAt</span><span class="o">:</span><span class="w"> </span><span class="kt">ISO</span><span class="w"> </span><span class="mf">8601</span><span class="w"> </span><span class="nx">datetime</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="error-reports-recommendations_5">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_5" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 409 Conflict</strong>
+- <strong>Cause:</strong> ETag mismatch (optimistic locking conflict)
+- <strong>Fix:</strong> Fetch latest version, reapply changes
+- <strong>Recommendation:</strong> Implement conflict resolution UI</p>
+<p><strong>Error: 400 Invalid GeoJSON</strong>
+- <strong>Cause:</strong> Invalid polygon coordinates
+- <strong>Fix:</strong> Validate coordinates before sending
+- <strong>Recommendation:</strong> Use map UI for boundary drawing</p>
+<p><strong>Error: 404 Field not found</strong>
+- <strong>Cause:</strong> Field ID doesn't exist
+- <strong>Fix:</strong> Verify field ID
+- <strong>Recommendation:</strong> Refresh field list</p>
+<hr />
+<h3 id="7-field-operations-service">7. Field Operations Service<a class="headerlink" href="#7-field-operations-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-field-ops</code><br />
+<strong>Port:</strong> 8080<br />
+<strong>Stack:</strong> Python + FastAPI</p>
+<h4 id="functions_6">Functions<a class="headerlink" href="#functions_6" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Field operation tracking</li>
+<li>Task scheduling and assignment</li>
+<li>Activity logging</li>
+<li>NATS event publishing</li>
+</ul>
+<h4 id="api-endpoints_1">API Endpoints<a class="headerlink" href="#api-endpoints_1" title="Permanent link">&para;</a></h4>
+<p><strong>GET <code>/fields</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>tenant_id</code> (required): Filter by tenant
+  - <code>skip</code> (default: 0): Pagination
+  - <code>limit</code> (default: 50, max: 100): Page size
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;North Field&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-01T00:00:00Z&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;skip&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/fields</code></strong>
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;New Field&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;حقل جديد&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="err">la</span><span class="kc">t</span><span class="p">,</span><span class="w"> </span><span class="err">lo</span><span class="kc">n</span><span class="p">],</span><span class="w"> </span><span class="err">...</span><span class="p">]]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong> Created field object</li>
+</ul>
+<p><strong>GET <code>/operations</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>field_id</code> (required)
+  - <code>status</code> (optional): Filter by status
+  - <code>skip</code>, <code>limit</code>: Pagination
+- <strong>Response:</strong> List of operations</p>
+<p><strong>POST <code>/operations</code></strong>
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;operation_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;irrigation&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;scheduled_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T08:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;notes&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Sector C needs water&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/operations/{operation_id}/complete</code></strong>
+- <strong>Description:</strong> Mark operation as completed
+- <strong>Response:</strong> Updated operation with completion date</p>
+<h4 id="inputoutput-data-types_1">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_1" title="Permanent link">&para;</a></h4>
+<p><strong>FieldCreate:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+  <span class="s2">&quot;area_hectares&quot;</span><span class="p">:</span> <span class="nb">float</span> <span class="p">(</span><span class="n">must</span> <span class="n">be</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span>
+  <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+  <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>
+  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>OperationCreate:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="s2">&quot;tenant_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+  <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># planting, irrigation, fertilizing, etc.</span>
+  <span class="s2">&quot;scheduled_date&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ISO</span> <span class="n">datetime</span><span class="p">],</span>
+  <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+  <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="error-reports-recommendations_6">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_6" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 422 Validation Error</strong>
+- <strong>Cause:</strong> Invalid input data
+- <strong>Fix:</strong> Validate area_hectares &gt; 0, required fields present
+- <strong>Recommendation:</strong> Client-side validation before API call</p>
+<p><strong>Error: 404 Field not found</strong>
+- <strong>Cause:</strong> Field ID doesn't exist
+- <strong>Fix:</strong> Verify field_id before creating operation
+- <strong>Recommendation:</strong> Use field list endpoint to verify IDs</p>
+<p><strong>Error: NATS connection failed</strong>
+- <strong>Cause:</strong> NATS service unavailable
+- <strong>Fix:</strong> Check NATS health, verify NATS_URL
+- <strong>Recommendation:</strong> Make event publishing optional (graceful degradation)</p>
+<hr />
+<h3 id="8-task-service">8. Task Service<a class="headerlink" href="#8-task-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-task-service</code><br />
+<strong>Port:</strong> 8103<br />
+<strong>Stack:</strong> Python + FastAPI</p>
+<h4 id="functions_7">Functions<a class="headerlink" href="#functions_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Agricultural task management</li>
+<li>Task assignment and tracking</li>
+<li>Evidence attachment (photos, notes)</li>
+<li>Task filtering and search</li>
+</ul>
+<h4 id="api-endpoints_2">API Endpoints<a class="headerlink" href="#api-endpoints_2" title="Permanent link">&para;</a></h4>
+<p><strong>GET <code>/api/v1/tasks</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>field_id</code> (optional): Filter by field
+  - <code>status</code> (optional): pending, in_progress, completed, cancelled, overdue
+  - <code>task_type</code> (optional): irrigation, fertilization, spraying, scouting, etc.
+  - <code>priority</code> (optional): low, medium, high, urgent
+  - <code>assigned_to</code> (optional): User ID
+  - <code>due_before</code>, <code>due_after</code> (optional): Date filters
+  - <code>limit</code> (default: 50, max: 100)
+  - <code>offset</code> (default: 0)
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;task_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Irrigate North Field&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ري الحقل الشمالي&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;task_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;irrigation&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pending&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;assigned_to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_ahmed&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T08:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;scheduled_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;08:00&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;estimated_duration_minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;created_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-14T10:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;pump_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pump_2&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;water_volume_m3&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/api/v1/tasks</code></strong>
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pest Inspection&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;فحص الحشرات&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Weekly inspection&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;task_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;scouting&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;assigned_to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_ahmed&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-16T10:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;scheduled_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10:30&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;estimated_duration_minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong> Created task with task_id</li>
+</ul>
+<p><strong>POST <code>/api/v1/tasks/{task_id}/complete</code></strong>
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;notes&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;No pests found&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;notes_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;لم يتم العثور على حشرات&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;photo_urls&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://cdn.sahool.io/photos/task_001_1.jpg&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;actual_duration_minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/api/v1/tasks/{task_id}/start</code></strong>
+- <strong>Description:</strong> Mark task as in progress</p>
+<p><strong>GET <code>/api/v1/tasks/today</code></strong>
+- <strong>Description:</strong> Get tasks due today</p>
+<p><strong>GET <code>/api/v1/tasks/stats</code></strong>
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pending&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;in_progress&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;overdue&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;week_progress&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;percentage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">75</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="inputoutput-data-types_2">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_2" title="Permanent link">&para;</a></h4>
+<p><strong>TaskType Enum:</strong>
+- irrigation, fertilization, spraying, scouting, maintenance, sampling, harvest, planting, other</p>
+<p><strong>TaskPriority Enum:</strong>
+- low, medium, high, urgent</p>
+<p><strong>TaskStatus Enum:</strong>
+- pending, in_progress, completed, cancelled, overdue</p>
+<h4 id="error-reports-recommendations_7">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_7" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 400 Task is not pending</strong>
+- <strong>Cause:</strong> Trying to start non-pending task
+- <strong>Fix:</strong> Check task status before starting
+- <strong>Recommendation:</strong> Disable start button for non-pending tasks</p>
+<p><strong>Error: 422 Validation Error</strong>
+- <strong>Cause:</strong> Invalid due_date format or missing required fields
+- <strong>Fix:</strong> Validate datetime format (ISO 8601)
+- <strong>Recommendation:</strong> Use date/time picker components</p>
+<hr />
+<h3 id="9-equipment-service">9. Equipment Service<a class="headerlink" href="#9-equipment-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-equipment-service</code><br />
+<strong>Port:</strong> 8101<br />
+<strong>Stack:</strong> Python + FastAPI</p>
+<h4 id="functions_8">Functions<a class="headerlink" href="#functions_8" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Equipment/asset management (tractors, pumps, drones)</li>
+<li>Maintenance tracking and alerts</li>
+<li>Real-time status (fuel, hours, location)</li>
+<li>QR code registration</li>
+</ul>
+<h4 id="api-endpoints_3">API Endpoints<a class="headerlink" href="#api-endpoints_3" title="Permanent link">&para;</a></h4>
+<p><strong>GET <code>/api/v1/equipment</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>equipment_type</code> (optional): tractor, pump, drone, harvester, etc.
+  - <code>status</code> (optional): operational, maintenance, inactive, repair
+  - <code>field_id</code> (optional): Filter by field
+  - <code>limit</code> (default: 50), <code>offset</code> (default: 0)
+- <strong>Response:</strong> List of equipment</p>
+<p><strong>POST <code>/api/v1/equipment</code></strong>
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John Deere 8R 410&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;جون ديري 8R 410&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;equipment_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tractor&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;brand&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John Deere&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8R 410&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;serial_number&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;JD8R410-2023-001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;year&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2023</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;horsepower&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">410</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;fuel_capacity_liters&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">800</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/api/v1/equipment/alerts</code></strong>
+- <strong>Response:</strong> List of maintenance alerts</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;alerts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;alert_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;alert_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;equipment_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eq_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;equipment_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;John Deere 8R&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;maintenance_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oil_change&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Engine oil change required&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;due_hours&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1300</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;is_overdue&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;overdue_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/api/v1/equipment/{equipment_id}/telemetry</code></strong>
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;fuel_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">75.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;hours&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1250.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/api/v1/equipment/qr/{qr_code}</code></strong>
+- <strong>Description:</strong> Get equipment by QR code</p>
+<p><strong>POST <code>/api/v1/equipment/{equipment_id}/maintenance</code></strong>
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;maintenance_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oil_change&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Changed engine oil&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;performed_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_tech&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">150.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;parts_replaced&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Oil filter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Engine oil 5W-30&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="inputoutput-data-types_3">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_3" title="Permanent link">&para;</a></h4>
+<p><strong>EquipmentType Enum:</strong>
+- tractor, pump, drone, harvester, sprayer, pivot, sensor, vehicle, other</p>
+<p><strong>EquipmentStatus Enum:</strong>
+- operational, maintenance, inactive, repair</p>
+<p><strong>MaintenanceType Enum:</strong>
+- oil_change, filter_change, tire_check, battery_check, calibration, general_service, repair, other</p>
+<h4 id="error-reports-recommendations_8">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_8" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 404 Equipment not found</strong>
+- <strong>Cause:</strong> Invalid equipment_id or QR code
+- <strong>Fix:</strong> Verify equipment ID or scan QR code again
+- <strong>Recommendation:</strong> Implement QR scanner with error handling</p>
+<p><strong>Error: 422 Invalid telemetry data</strong>
+- <strong>Cause:</strong> Fuel percent out of range (0-100) or invalid coordinates
+- <strong>Fix:</strong> Validate ranges before sending
+- <strong>Recommendation:</strong> Client-side validation for telemetry input</p>
+<hr />
+<h2 id="application-services">Application Services<a class="headerlink" href="#application-services" title="Permanent link">&para;</a></h2>
+<h3 id="10-satellite-service">10. Satellite Service<a class="headerlink" href="#10-satellite-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-satellite-service</code><br />
+<strong>Port:</strong> 8090<br />
+<strong>Stack:</strong> Python + FastAPI + eo-learn</p>
+<h4 id="functions_9">Functions<a class="headerlink" href="#functions_9" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Multi-satellite imagery analysis (Sentinel-2, Landsat-8/9, MODIS)</li>
+<li>NDVI, NDWI, EVI, SAVI, LAI calculations</li>
+<li>Vegetation health scoring</li>
+<li>Anomaly detection</li>
+<li>Time series analysis</li>
+</ul>
+<h4 id="api-endpoints_4">API Endpoints<a class="headerlink" href="#api-endpoints_4" title="Permanent link">&para;</a></h4>
+<p><strong>POST <code>/v1/analyze</code></strong>
+- <strong>Description:</strong> Analyze field using satellite imagery
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;satellite&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sentinel-2&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;start_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-01&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;end_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cloud_cover_max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">20.0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;analysis_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T10:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;satellite&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sentinel-2&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;imagery&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;imagery_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;img_001&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;acquisition_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-12T10:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;cloud_cover_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.2</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scene_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;S2A_MSIL2A_20250112T103000&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;indices&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;ndvi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.72</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;ndwi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.45</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;evi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.68</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;savi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.70</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;lai&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;ndmi&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.38</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;health_score&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">85.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;health_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;excellent&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;anomalies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;recommendations_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;المحصول في حالة ممتازة&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;recommendations_en&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Crop health is excellent&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/v1/timeseries/{field_id}</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>start_date</code> (optional)
+  - <code>end_date</code> (optional)
+  - <code>satellite</code> (optional): sentinel-2, landsat-8, landsat-9, modis
+- <strong>Response:</strong> Time series data with NDVI trends</p>
+<p><strong>GET <code>/v1/satellites</code></strong>
+- <strong>Response:</strong> List of available satellites with configurations</p>
+<p><strong>POST <code>/v1/imagery/request</code></strong>
+- <strong>Description:</strong> Request satellite imagery for specific location
+- <strong>Response:</strong> Imagery request ID and status</p>
+<h4 id="inputoutput-data-types_4">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_4" title="Permanent link">&para;</a></h4>
+<p><strong>SatelliteSource Enum:</strong>
+- sentinel-2, landsat-8, landsat-9, modis</p>
+<p><strong>VegetationIndices:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="s2">&quot;ndvi&quot;</span><span class="p">:</span> <span class="nb">float</span> <span class="p">(</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+  <span class="s2">&quot;ndwi&quot;</span><span class="p">:</span> <span class="nb">float</span> <span class="p">(</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+  <span class="s2">&quot;evi&quot;</span><span class="p">:</span> <span class="nb">float</span> <span class="p">(</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+  <span class="s2">&quot;savi&quot;</span><span class="p">:</span> <span class="nb">float</span> <span class="p">(</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+  <span class="s2">&quot;lai&quot;</span><span class="p">:</span> <span class="nb">float</span> <span class="p">(</span><span class="n">Leaf</span> <span class="n">Area</span> <span class="n">Index</span><span class="p">),</span>
+  <span class="s2">&quot;ndmi&quot;</span><span class="p">:</span> <span class="nb">float</span> <span class="p">(</span><span class="mi">0</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="error-reports-recommendations_9">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_9" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 400 Invalid coordinates</strong>
+- <strong>Cause:</strong> Latitude or longitude out of range
+- <strong>Fix:</strong> Validate coordinates: lat [-90, 90], lon [-180, 180]
+- <strong>Recommendation:</strong> Use map picker or GPS for coordinates</p>
+<p><strong>Error: 503 Service unavailable (EO-learn not configured)</strong>
+- <strong>Cause:</strong> Sentinel Hub credentials missing
+- <strong>Fix:</strong> Set PLANET_API_KEY and PLANET_CLIENT_ID
+- <strong>Recommendation:</strong> Graceful degradation - return mock data if credentials missing</p>
+<p><strong>Error: 504 Gateway timeout</strong>
+- <strong>Cause:</strong> Satellite data processing takes too long
+- <strong>Fix:</strong> Use background task processing, return analysis_id
+- <strong>Recommendation:</strong> Implement async pattern with status polling</p>
+<hr />
+<h3 id="11-weather-advanced-service">11. Weather Advanced Service<a class="headerlink" href="#11-weather-advanced-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-weather-advanced</code><br />
+<strong>Port:</strong> 8092<br />
+<strong>Stack:</strong> Python + FastAPI + Open-Meteo/OpenWeatherMap</p>
+<h4 id="functions_10">Functions<a class="headerlink" href="#functions_10" title="Permanent link">&para;</a></h4>
+<ul>
+<li>7-day weather forecasting</li>
+<li>Agricultural weather alerts</li>
+<li>Evapotranspiration calculation</li>
+<li>Spray window identification</li>
+<li>Crop-specific calendar</li>
+</ul>
+<h4 id="api-endpoints_5">API Endpoints<a class="headerlink" href="#api-endpoints_5" title="Permanent link">&para;</a></h4>
+<p><strong>GET <code>/v1/current/{location_id}</code></strong>
+- <strong>Description:</strong> Get current weather for Yemen location
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;location_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sanaa&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;location_name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;صنعاء&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T12:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;temperature_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">22.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;feels_like_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">21.8</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;humidity_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pressure_hpa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1013.25</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;wind_speed_kmh&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;wind_direction&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;NW&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;clear&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;condition_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;صافي&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/v1/forecast/{location_id}</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>days</code> (default: 7, max: 14): Forecast days
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;location_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sanaa&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;generated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T12:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;current&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* CurrentWeather object */</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;hourly_forecast&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;datetime&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T13:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;temperature_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">23.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;precipitation_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;humidity_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;wind_speed_kmh&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">14.5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;clear&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;daily_forecast&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;temp_max_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">25.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;temp_min_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">18.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;precipitation_total_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;condition&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;clear&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;agricultural_summary_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;طقس مناسب للري&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;alerts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;growing_degree_days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;evapotranspiration_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;spray_window_hours&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;06:00-08:00&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;18:00-20:00&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;irrigation_recommendation_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;يمكن الري خلال ساعات الصباح&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/v1/alerts/{location_id}</code></strong>
+- <strong>Response:</strong> List of weather alerts (heat waves, frost, storms, etc.)</p>
+<p><strong>GET <code>/v1/locations</code></strong>
+- <strong>Response:</strong> List of all 22 Yemen governorates with coordinates</p>
+<h4 id="inputoutput-data-types_5">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_5" title="Permanent link">&para;</a></h4>
+<p><strong>Yemen Locations:</strong>
+- sanaa, aden, taiz, hodeidah, ibb, dhamar, hadramaut, marib, hajjah, saadah, lahj, abyan, and 10 more</p>
+<p><strong>AlertType Enum:</strong>
+- heat_wave, frost, heavy_rain, drought, high_wind, high_humidity, low_humidity, dust_storm</p>
+<h4 id="error-reports-recommendations_10">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_10" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 404 Location not found</strong>
+- <strong>Cause:</strong> Invalid location_id
+- <strong>Fix:</strong> Use <code>/v1/locations</code> to get valid location IDs
+- <strong>Recommendation:</strong> Auto-detect location from GPS or use location picker</p>
+<p><strong>Error: 503 Weather API unavailable</strong>
+- <strong>Cause:</strong> External weather API (Open-Meteo/OpenWeatherMap) down
+- <strong>Fix:</strong> Check API keys, implement fallback
+- <strong>Recommendation:</strong> Cache weather data, use last known values</p>
+<hr />
+<h3 id="12-crop-health-ai-service-sahool-vision">12. Crop Health AI Service (Sahool Vision)<a class="headerlink" href="#12-crop-health-ai-service-sahool-vision" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-crop-health-ai</code><br />
+<strong>Port:</strong> 8095<br />
+<strong>Stack:</strong> Python + FastAPI + TensorFlow Lite</p>
+<h4 id="functions_11">Functions<a class="headerlink" href="#functions_11" title="Permanent link">&para;</a></h4>
+<ul>
+<li>AI-powered plant disease diagnosis from images</li>
+<li>Batch image processing</li>
+<li>Disease treatment recommendations</li>
+<li>Crop-specific disease database</li>
+</ul>
+<h4 id="api-endpoints_6">API Endpoints<a class="headerlink" href="#api-endpoints_6" title="Permanent link">&para;</a></h4>
+<p><strong>POST <code>/v1/diagnose</code></strong>
+- <strong>Description:</strong> Diagnose plant disease from image
+- <strong>Content-Type:</strong> <code>multipart/form-data</code>
+- <strong>Form Data:</strong>
+  - <code>image</code> (file, required): Plant image (max 10MB)
+  - <code>field_id</code> (string, optional)
+  - <code>crop_type</code> (enum, optional): tomato, wheat, coffee, etc.
+  - <code>symptoms</code> (string, optional): Description of symptoms
+  - <code>governorate</code> (string, optional): Yemen governorate
+  - <code>lat</code>, <code>lng</code> (float, optional): GPS coordinates
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;diagnosis_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;diag_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;disease_detected&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;disease_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;early_blight&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;disease_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Early Blight&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;disease_name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;اللفحة المبكرة&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;confidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.92</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;moderate&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;treatment&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;treatment_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;treat_001&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;recommendations_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;رش مبيد فطري مانكوزيب&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;إزالة الأوراق المصابة&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;تحسين التهوية&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;recommendations_en&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="s2">&quot;Spray mancozeb fungicide&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;Remove infected leaves&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="s2">&quot;Improve ventilation&quot;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;chemicals&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mancozeb&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;مانكوزيب&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;rate_ml_ha&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2500</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;frequency&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Every 7-10 days&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;prevention_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;استخدام بذور مقاومة&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;تجنب الري العلوي&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;image_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://cdn.sahool.io/diagnosis/diag_001.jpg&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;diagnosed_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T10:30:00Z&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/v1/diagnose/batch</code></strong>
+- <strong>Description:</strong> Diagnose multiple images (max 20)
+- <strong>Form Data:</strong>
+  - <code>images</code> (files[]): Multiple image files
+  - <code>field_id</code> (optional)
+- <strong>Response:</strong> Array of diagnosis results</p>
+<p><strong>GET <code>/v1/crops</code></strong>
+- <strong>Response:</strong> List of supported crop types</p>
+<p><strong>GET <code>/v1/diseases</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>crop_type</code> (optional): Filter by crop
+- <strong>Response:</strong> List of diseases with details</p>
+<p><strong>GET <code>/v1/treatment/{treatment_id}</code></strong>
+- <strong>Response:</strong> Detailed treatment information</p>
+<h4 id="inputoutput-data-types_6">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_6" title="Permanent link">&para;</a></h4>
+<p><strong>CropType Enum:</strong>
+- tomato, wheat, coffee, qat, banana, cucumber, pepper, potato, corn, grapes, date_palm, mango, onion, garlic</p>
+<p><strong>Image Requirements:</strong>
+- Format: JPEG, PNG
+- Max size: 10MB
+- Recommended: Clear, well-lit photos of affected leaves/plants</p>
+<h4 id="error-reports-recommendations_11">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_11" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 400 Invalid image format</strong>
+- <strong>Cause:</strong> File is not an image or unsupported format
+- <strong>Fix:</strong> Validate image format client-side before upload
+- <strong>Recommendation:</strong> Use image picker with format validation</p>
+<p><strong>Error: 400 Image too large</strong>
+- <strong>Cause:</strong> File size &gt; 10MB
+- <strong>Fix:</strong> Compress/resize image before upload
+- <strong>Recommendation:</strong> Implement client-side image compression</p>
+<p><strong>Error: 503 Model not loaded</strong>
+- <strong>Cause:</strong> TensorFlow model failed to load
+- <strong>Fix:</strong> Check MODEL_PATH, verify model file exists
+- <strong>Recommendation:</strong> Health check should verify model loaded</p>
+<hr />
+<h3 id="13-virtual-sensors-service">13. Virtual Sensors Service<a class="headerlink" href="#13-virtual-sensors-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-virtual-sensors</code><br />
+<strong>Port:</strong> 8096<br />
+<strong>Stack:</strong> Python + FastAPI</p>
+<h4 id="functions_12">Functions<a class="headerlink" href="#functions_12" title="Permanent link">&para;</a></h4>
+<ul>
+<li>FAO-56 Penman-Monteith ET0 calculations (without physical sensors)</li>
+<li>Crop evapotranspiration (ETc) calculations</li>
+<li>Soil moisture estimation</li>
+<li>Irrigation recommendations</li>
+</ul>
+<h4 id="api-endpoints_7">API Endpoints<a class="headerlink" href="#api-endpoints_7" title="Permanent link">&para;</a></h4>
+<p><strong>POST <code>/v1/et0/calculate</code></strong>
+- <strong>Description:</strong> Calculate reference evapotranspiration
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;temperature_max_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">28.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;temperature_min_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">18.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;humidity_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">50.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;wind_speed_kmh&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;solar_radiation_mj_m2&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">22.5</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;et0_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;calculated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T12:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FAO-56 Penman-Monteith&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;inputs_used&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;temperature_avg_c&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">23.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;humidity_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">50.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;wind_speed_kmh&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.0</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/v1/etc/calculate</code></strong>
+- <strong>Description:</strong> Calculate crop evapotranspiration
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid_season&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;et0_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;etc_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4.83</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;kc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.15</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop_name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الطماطم&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;growth_stage_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;منتصف الموسم&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/v1/irrigation/recommend</code></strong>
+- <strong>Description:</strong> Get irrigation recommendation
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid_season&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soil_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loam&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;last_irrigation_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-10&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;current_soil_moisture_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* optional */</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;recommendation_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rec_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;irrigation_needed&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;urgency&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;urgency_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;متوسط&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;recommended_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-16&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;water_amount_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">25.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;water_amount_m3&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1250.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;reasoning_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;رطوبة التربة منخفضة، المحصول في مرحلة حساسة&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;recommendations_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;الري خلال ساعات الصباح الباكر&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;استخدام نظام التنقيط لتوفير المياه&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/v1/crops</code></strong>
+- <strong>Response:</strong> List of crops with Kc coefficients</p>
+<h4 id="inputoutput-data-types_7">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_7" title="Permanent link">&para;</a></h4>
+<p><strong>Crop Coefficients (Kc):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+  <span class="s2">&quot;crop&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># wheat, tomato, coffee, etc.</span>
+  <span class="s2">&quot;kc_initial&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># 0.3-0.9</span>
+  <span class="s2">&quot;kc_mid&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># 0.9-1.2</span>
+  <span class="s2">&quot;kc_end&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>  <span class="c1"># 0.25-0.9</span>
+  <span class="s2">&quot;root_depth_max&quot;</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># meters</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="error-reports-recommendations_12">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_12" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 422 Invalid growth stage</strong>
+- <strong>Cause:</strong> Growth stage not valid for crop
+- <strong>Fix:</strong> Use <code>/v1/crops</code> to get valid growth stages
+- <strong>Recommendation:</strong> Dropdown menu with valid stages</p>
+<p><strong>Error: 400 Invalid soil moisture</strong>
+- <strong>Cause:</strong> Soil moisture out of range (0-100%)
+- <strong>Fix:</strong> Validate input range
+- <strong>Recommendation:</strong> Use slider component (0-100%)</p>
+<hr />
+<h3 id="14-irrigation-smart-service">14. Irrigation Smart Service<a class="headerlink" href="#14-irrigation-smart-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-irrigation-smart</code><br />
+<strong>Port:</strong> 8094<br />
+<strong>Stack:</strong> Python + FastAPI</p>
+<h4 id="functions_13">Functions<a class="headerlink" href="#functions_13" title="Permanent link">&para;</a></h4>
+<ul>
+<li>AI-powered irrigation scheduling</li>
+<li>Water conservation optimization</li>
+<li>Multi-method irrigation support</li>
+<li>Water balance tracking</li>
+</ul>
+<h4 id="api-endpoints_8">API Endpoints<a class="headerlink" href="#api-endpoints_8" title="Permanent link">&para;</a></h4>
+<p><strong>POST <code>/v1/calculate</code></strong>
+- <strong>Description:</strong> Calculate irrigation needs
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid_season&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soil_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loamy&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;irrigation_method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;drip&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;current_soil_moisture&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;last_irrigation_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-10&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;schedule_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sched_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;irrigation_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-16&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;start_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;06:00&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;duration_minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;water_amount_liters&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1250000.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;water_amount_m3&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1250.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;urgency&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;urgency_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;متوسط&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;drip&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;method_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ري بالتنقيط&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;reasoning_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;رطوبة التربة 45% أقل من المثالية 60%&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;weather_adjusted&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;savings_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.5</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/v1/water-balance/{field_id}</code></strong>
+- <strong>Description:</strong> Get water balance for field
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;et_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;rainfall_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;irrigation_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soil_moisture_change_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-4.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;water_deficit_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4.2</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cumulative_deficit_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">12.5</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="inputoutput-data-types_8">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_8" title="Permanent link">&para;</a></h4>
+<p><strong>IrrigationMethod Enum:</strong>
+- flood, drip, sprinkler, furrow, traditional</p>
+<p><strong>UrgencyLevel Enum:</strong>
+- low, medium, high, critical</p>
+<h4 id="error-reports-recommendations_13">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_13" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 422 Invalid crop type</strong>
+- <strong>Cause:</strong> Crop not supported
+- <strong>Fix:</strong> Use supported crop types from enum
+- <strong>Recommendation:</strong> Crop selection dropdown</p>
+<hr />
+<h2 id="business-services">Business Services<a class="headerlink" href="#business-services" title="Permanent link">&para;</a></h2>
+<h3 id="15-billing-core-service">15. Billing Core Service<a class="headerlink" href="#15-billing-core-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-billing-core</code><br />
+<strong>Port:</strong> 8089<br />
+<strong>Stack:</strong> Python + FastAPI + Stripe</p>
+<h4 id="functions_14">Functions<a class="headerlink" href="#functions_14" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Subscription plan management</li>
+<li>Tenant/subscription lifecycle</li>
+<li>Usage-based billing</li>
+<li>Invoice generation</li>
+<li>Payment processing (Stripe, bank transfer, mobile money)</li>
+</ul>
+<h4 id="api-endpoints_9">API Endpoints<a class="headerlink" href="#api-endpoints_9" title="Permanent link">&para;</a></h4>
+<p><strong>GET <code>/v1/plans</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>active_only</code> (default: true)
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;plans&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;plan_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;free&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Free&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;مجاني&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;free&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;pricing&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;monthly_usd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;monthly_yer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;yearly_usd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;yearly_yer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;limits&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fields&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;satellite_analyses_per_month&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;storage_gb&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;trial_days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;plan_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;starter&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Starter&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;المبتدئ&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;tier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;starter&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;pricing&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;monthly_usd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">29.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;monthly_yer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">7250.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;yearly_usd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">290.0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;yearly_yer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">72500.0</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;limits&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fields&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;satellite_analyses_per_month&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;ai_diagnoses_per_month&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;trial_days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/v1/tenants</code></strong>
+- <strong>Description:</strong> Create new tenant with subscription
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ahmed Farm&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;مزرعة أحمد&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ahmed@example.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;phone&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;+967712345678&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;plan_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;starter&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;billing_cycle&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;monthly&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;subscription_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sub_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;trial&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;trial_ends&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-29&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;مرحباً مزرعة أحمد! تم إنشاء حسابك بنجاح.&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/v1/tenants/{tenant_id}/quota</code></strong>
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;plan&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Starter&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;plan_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;المبتدئ&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;subscription_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;fields&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;used&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;remaining&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;percentage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">50.0</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;satellite_analyses_per_month&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;used&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;remaining&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;percentage&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">30.0</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;billing_cycle_ends&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-02-15&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/v1/tenants/{tenant_id}/invoices</code></strong>
+- <strong>Response:</strong> List of invoices</p>
+<p><strong>POST <code>/v1/payments</code></strong>
+- <strong>Description:</strong> Process payment
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;invoice_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;inv_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;amount&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">29.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;credit_card&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;stripe_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tok_visa&quot;</span><span class="w">  </span><span class="c1">// Optional for Stripe</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="inputoutput-data-types_9">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_9" title="Permanent link">&para;</a></h4>
+<p><strong>PlanTier Enum:</strong>
+- free, starter, professional, enterprise</p>
+<p><strong>BillingCycle Enum:</strong>
+- monthly, quarterly, yearly</p>
+<p><strong>Currency Enum:</strong>
+- USD, YER (1 USD = 250 YER default)</p>
+<p><strong>PaymentMethod Enum:</strong>
+- credit_card, bank_transfer, mobile_money, cash</p>
+<h4 id="error-reports-recommendations_14">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_14" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 429 Quota exceeded</strong>
+- <strong>Cause:</strong> Usage limit reached
+- <strong>Fix:</strong> Upgrade plan or wait for next billing cycle
+- <strong>Recommendation:</strong> Show upgrade prompt when limit reached</p>
+<p><strong>Error: 404 Tenant not found</strong>
+- <strong>Cause:</strong> Invalid tenant_id
+- <strong>Fix:</strong> Verify tenant_id from authentication token
+- <strong>Recommendation:</strong> Extract tenant_id from JWT token automatically</p>
+<p><strong>Error: 400 Payment failed</strong>
+- <strong>Cause:</strong> Stripe payment declined or insufficient funds
+- <strong>Fix:</strong> Verify payment method, check card details
+- <strong>Recommendation:</strong> Show user-friendly error messages</p>
+<hr />
+<h3 id="16-notification-service">16. Notification Service<a class="headerlink" href="#16-notification-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-notification-service</code><br />
+<strong>Port:</strong> 8110<br />
+<strong>Stack:</strong> Python + FastAPI + Firebase FCM</p>
+<h4 id="functions_15">Functions<a class="headerlink" href="#functions_15" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Multi-channel notifications (Push, SMS, In-App)</li>
+<li>Personalized alerts based on farmer profile</li>
+<li>Weather warnings</li>
+<li>Pest outbreak alerts</li>
+<li>Irrigation reminders</li>
+</ul>
+<h4 id="api-endpoints_10">API Endpoints<a class="headerlink" href="#api-endpoints_10" title="Permanent link">&para;</a></h4>
+<p><strong>GET <code>/v1/notifications</code></strong>
+- <strong>Query Parameters:</strong>
+  - <code>page</code> (default: 1)
+  - <code>limit</code> (default: 20)
+  - <code>unread_only</code> (default: false)
+- <strong>Response:</strong> List of notifications</p>
+<p><strong>POST <code>/v1/notifications</code></strong>
+- <strong>Description:</strong> Create custom notification
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;user_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;user_001&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;تنبيه الري&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;حان وقت ري الحقل رقم 1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;irrigation&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;channels&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;push&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;in_app&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>GET <code>/v1/notifications/unread/count</code></strong>
+- <strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>POST <code>/v1/notifications/{notification_id}/read</code></strong>
+- <strong>Description:</strong> Mark notification as read</p>
+<p><strong>POST <code>/push/register</code></strong>
+- <strong>Description:</strong> Register FCM token for push notifications
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;fcm_token_here&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;android&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;device-001&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="inputoutput-data-types_10">Input/Output Data Types<a class="headerlink" href="#inputoutput-data-types_10" title="Permanent link">&para;</a></h4>
+<p><strong>NotificationType Enum:</strong>
+- weather_alert, pest_outbreak, irrigation_reminder, crop_health, market_price, system, task_reminder</p>
+<p><strong>NotificationPriority Enum:</strong>
+- low, medium, high, critical</p>
+<h4 id="error-reports-recommendations_15">Error Reports &amp; Recommendations<a class="headerlink" href="#error-reports-recommendations_15" title="Permanent link">&para;</a></h4>
+<p><strong>Error: 400 Invalid FCM token</strong>
+- <strong>Cause:</strong> FCM token expired or invalid
+- <strong>Fix:</strong> Re-register token
+- <strong>Recommendation:</strong> Auto-refresh FCM token on app start</p>
+<hr />
+<h2 id="ai-analysis-services">AI &amp; Analysis Services<a class="headerlink" href="#ai-analysis-services" title="Permanent link">&para;</a></h2>
+<h3 id="17-yield-engine-service">17. Yield Engine Service<a class="headerlink" href="#17-yield-engine-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-yield-engine</code><br />
+<strong>Port:</strong> 8098<br />
+<strong>Stack:</strong> Python + FastAPI + ML Models</p>
+<h4 id="functions_16">Functions<a class="headerlink" href="#functions_16" title="Permanent link">&para;</a></h4>
+<ul>
+<li>ML-based crop yield prediction</li>
+<li>Historical yield analysis</li>
+<li>Yield forecasting</li>
+</ul>
+<h4 id="api-endpoints_11">API Endpoints<a class="headerlink" href="#api-endpoints_11" title="Permanent link">&para;</a></h4>
+<p><strong>POST <code>/v1/predict</code></strong>
+- <strong>Description:</strong> Predict crop yield
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;planting_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-11-01&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soil_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;ph&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;nitrogen_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">120.0</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;weather_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* historical/forecast */</span><span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;prediction_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pred_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;predicted_yield_kg_ha&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3200.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;predicted_yield_total_kg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">16000.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;confidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.85</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;factors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;weather_impact&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;favorable&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;soil_quality&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="18-fertilizer-advisor-service">18. Fertilizer Advisor Service<a class="headerlink" href="#18-fertilizer-advisor-service" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-fertilizer-advisor</code><br />
+<strong>Port:</strong> 8093<br />
+<strong>Stack:</strong> Python + FastAPI</p>
+<h4 id="functions_17">Functions<a class="headerlink" href="#functions_17" title="Permanent link">&para;</a></h4>
+<ul>
+<li>NPK fertilizer recommendations</li>
+<li>Soil analysis interpretation</li>
+<li>Fertilization scheduling</li>
+<li>Cost estimation</li>
+</ul>
+<h4 id="api-endpoints_12">API Endpoints<a class="headerlink" href="#api-endpoints_12" title="Permanent link">&para;</a></h4>
+<p><strong>POST <code>/v1/recommend</code></strong>
+- <strong>Description:</strong> Get fertilizer recommendation
+- <strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vegetative&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soil_analysis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;ph&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;nitrogen_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">80.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;phosphorus_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;potassium_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">120.0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;organic_matter_percent&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;soil_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loamy&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;target_yield_kg_ha&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">50000.0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Response:</strong></li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;plan_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;plan_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;recommendations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;fertilizer_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npk_20_20_20&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;fertilizer_name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;سماد NPK 20-20-20&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;quantity_kg_per_hectare&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">200.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;quantity_kg_per_donum&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">20.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;application_method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;side_dressing&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;application_method_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;تسميد جانبي&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;timing_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;بعد 3 أسابيع من الزراعة&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;npk_content&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;N&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;P&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;K&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;cost_estimate_yer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">150000.0</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;total_nitrogen_kg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;total_phosphorus_kg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;total_potassium_kg&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;total_cost_yer&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">150000.0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="observability-services">Observability Services<a class="headerlink" href="#observability-services" title="Permanent link">&para;</a></h2>
+<h3 id="19-prometheus">19. Prometheus<a class="headerlink" href="#19-prometheus" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-prometheus</code><br />
+<strong>Port:</strong> 9090<br />
+<strong>Image:</strong> <code>prom/prometheus:v2.48.0</code></p>
+<h4 id="functions_18">Functions<a class="headerlink" href="#functions_18" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Metrics collection and storage</li>
+<li>Alerting</li>
+<li>Time-series data storage</li>
+</ul>
+<hr />
+<h3 id="20-grafana">20. Grafana<a class="headerlink" href="#20-grafana" title="Permanent link">&para;</a></h3>
+<p><strong>Container:</strong> <code>sahool-grafana</code><br />
+<strong>Port:</strong> 3002<br />
+<strong>Image:</strong> <code>grafana/grafana:10.2.0</code></p>
+<h4 id="functions_19">Functions<a class="headerlink" href="#functions_19" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Metrics visualization</li>
+<li>Custom dashboards</li>
+<li>Alert management</li>
+</ul>
+<hr />
+<h2 id="common-error-patterns-solutions">Common Error Patterns &amp; Solutions<a class="headerlink" href="#common-error-patterns-solutions" title="Permanent link">&para;</a></h2>
+<h3 id="authentication-errors">Authentication Errors<a class="headerlink" href="#authentication-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Error: 401 Unauthorized</strong>
+- <strong>Cause:</strong> Missing or invalid JWT token
+- <strong>Fix:</strong> Include <code>Authorization: Bearer &lt;token&gt;</code> header
+- <strong>Recommendation:</strong> Auto-refresh tokens before expiration</p>
+<h3 id="rate-limiting">Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h3>
+<p><strong>Error: 429 Too Many Requests</strong>
+- <strong>Cause:</strong> API rate limit exceeded
+- <strong>Fix:</strong> Implement exponential backoff retry
+- <strong>Recommendation:</strong> Cache responses, batch requests</p>
+<h3 id="network-errors">Network Errors<a class="headerlink" href="#network-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Error: Connection timeout</strong>
+- <strong>Cause:</strong> Service unavailable or network issues
+- <strong>Fix:</strong> Check service health, implement retry logic
+- <strong>Recommendation:</strong> Circuit breaker pattern for resilience</p>
+<h3 id="validation-errors">Validation Errors<a class="headerlink" href="#validation-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Error: 422 Unprocessable Entity</strong>
+- <strong>Cause:</strong> Invalid request data
+- <strong>Fix:</strong> Validate input client-side before sending
+- <strong>Recommendation:</strong> Use Pydantic models for validation</p>
+<hr />
+<h2 id="api-best-practices">API Best Practices<a class="headerlink" href="#api-best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Always include headers:</strong></li>
+<li><code>Authorization: Bearer &lt;token&gt;</code></li>
+<li><code>X-Tenant-Id: &lt;tenant_id&gt;</code></li>
+<li>
+<p><code>Content-Type: application/json</code></p>
+</li>
+<li>
+<p><strong>Handle errors gracefully:</strong></p>
+</li>
+<li>Check status codes</li>
+<li>Parse error messages</li>
+<li>
+<p>Show user-friendly messages</p>
+</li>
+<li>
+<p><strong>Implement pagination:</strong></p>
+</li>
+<li>Use <code>limit</code> and <code>offset</code> for large datasets</li>
+<li>
+<p>Default limit: 50, max: 100</p>
+</li>
+<li>
+<p><strong>Cache when possible:</strong></p>
+</li>
+<li>Cache static data (crops, diseases, locations)</li>
+<li>
+<p>Use ETags for optimistic locking</p>
+</li>
+<li>
+<p><strong>Use health checks:</strong></p>
+</li>
+<li>Check <code>/healthz</code> before critical operations</li>
+<li>Implement service discovery</li>
+</ol>
+<hr />
+<p><strong>End of Documentation</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

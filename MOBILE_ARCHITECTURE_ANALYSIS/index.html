@@ -1,0 +1,1569 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>تحليل بنية تطبيق الموبايل SAHOOL - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تحليل بنية تطبيق الموبايل SAHOOL
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool">تحليل بنية تطبيق الموبايل SAHOOL<a class="headerlink" href="#sahool" title="Permanent link">&para;</a></h1>
+<p><strong>تاريخ التحليل:</strong> 2025-12-21
+<strong>الإصدار:</strong> 15.5.0</p>
+<hr />
+<h2 id="_1">ملخص تنفيذي<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>تطبيق SAHOOL Mobile يتبع <strong>Clean Architecture جزئياً</strong> مع نمط <strong>Offline-First</strong> متكامل.</p>
+<table>
+<thead>
+<tr>
+<th>الجانب</th>
+<th>الحالة</th>
+<th>التفاصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clean Architecture</td>
+<td>جزئي (60%)</td>
+<td>معظم الميزات الرئيسية تتبعه</td>
+</tr>
+<tr>
+<td>فصل الطبقات</td>
+<td>جيد</td>
+<td>domain/data/presentation واضحة</td>
+</tr>
+<tr>
+<td>تدفق البيانات</td>
+<td>ممتاز</td>
+<td>Offline-First مع Outbox</td>
+</tr>
+<tr>
+<td>إدارة الحالة</td>
+<td>ممتاز</td>
+<td>Riverpod متكامل</td>
+</tr>
+<tr>
+<td>نظام المزامنة</td>
+<td>ممتاز</td>
+<td>Outbox + ETag</td>
+</tr>
+<tr>
+<td>الذكاء الاصطناعي</td>
+<td>متقدم</td>
+<td>تحليل صحة المحاصيل + أوامر صوتية</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1">1. البنية المعمارية<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="_2">هيكل المجلدات<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>lib/
+├── core/                      # البنية التحتية المشتركة
+│   ├── auth/                 # خدمات المصادقة (Secure + Biometric)
+│   ├── config/               # الإعدادات والتكوين
+│   ├── di/                   # حقن التبعيات
+│   ├── domain/models/        # النماذج الموحدة (CreditTier)
+│   ├── http/                 # عميل API (Dio)
+│   ├── storage/              # قاعدة البيانات (Drift ORM)
+│   ├── sync/                 # محرك المزامنة (Outbox)
+│   ├── voice/                # خدمة الأوامر الصوتية
+│   └── map/                  # خدمات الخرائط
+│
+├── features/                  # الوحدات الوظيفية
+│   ├── auth/                 # تسجيل الدخول
+│   ├── crop_health/          # تحليل صحة المحاصيل (AI)
+│   ├── field/                # كيانات الحقول (GIS)
+│   ├── fields/               # شاشات الحقول
+│   ├── home/                 # الشاشة الرئيسية
+│   ├── market/               # السوق والمالية
+│   ├── notifications/        # الإشعارات
+│   ├── tasks/                # المهام
+│   ├── wallet/               # المحفظة
+│   └── weather/              # الطقس
+│
+└── main.dart                  # نقطة البداية
+</code></pre></div>
+
+<hr />
+<h2 id="2">2. مكونات الذكاء الاصطناعي<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21-crop_health">2.1 تحليل صحة المحاصيل (<code>crop_health/</code>)<a class="headerlink" href="#21-crop_health" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// المؤشرات النباتية المدعومة</span>
+<span class="nl">VegetationIndices:</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">NDVI</span><span class="w"> </span><span class="p">(</span><span class="n">Normalized</span><span class="w"> </span><span class="n">Difference</span><span class="w"> </span><span class="n">Vegetation</span><span class="w"> </span><span class="n">Index</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">EVI</span><span class="w">  </span><span class="p">(</span><span class="n">Enhanced</span><span class="w"> </span><span class="n">Vegetation</span><span class="w"> </span><span class="n">Index</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">NDRE</span><span class="w"> </span><span class="p">(</span><span class="n">Normalized</span><span class="w"> </span><span class="n">Difference</span><span class="w"> </span><span class="n">Red</span><span class="w"> </span><span class="n">Edge</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">LCI</span><span class="w">  </span><span class="p">(</span><span class="n">Leaf</span><span class="w"> </span><span class="n">Chlorophyll</span><span class="w"> </span><span class="n">Index</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">NDWI</span><span class="w"> </span><span class="p">(</span><span class="n">Normalized</span><span class="w"> </span><span class="n">Difference</span><span class="w"> </span><span class="n">Water</span><span class="w"> </span><span class="n">Index</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">SAVI</span><span class="w"> </span><span class="p">(</span><span class="n">Soil</span><span class="w"> </span><span class="n">Adjusted</span><span class="w"> </span><span class="n">Vegetation</span><span class="w"> </span><span class="n">Index</span><span class="p">)</span>
+
+<span class="c1">// تشخيص الحقل</span>
+<span class="nl">FieldDiagnosis:</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="err">تحليل</span><span class="w"> </span><span class="err">المناطق</span><span class="w"> </span><span class="p">(</span><span class="n">Zones</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="err">إجراءات</span><span class="w"> </span><span class="err">موصى</span><span class="w"> </span><span class="err">بها</span><span class="w"> </span><span class="err">بأولويات</span><span class="w"> </span><span class="p">(</span><span class="n">P0</span><span class="o">-</span><span class="n">P3</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="err">طبقات</span><span class="w"> </span><span class="err">خريطة</span><span class="w"> </span><span class="n">Raster</span><span class="w"> </span><span class="p">(</span><span class="n">NDVI</span><span class="p">,</span><span class="w"> </span><span class="n">NDWI</span><span class="p">,</span><span class="w"> </span><span class="n">NDRE</span><span class="p">)</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="err">تصدير</span><span class="w"> </span><span class="n">VRT</span><span class="w"> </span><span class="err">للزراعة</span><span class="w"> </span><span class="err">الدقيقة</span>
+</code></pre></div>
+
+<h3 id="22-corevoice">2.2 الأوامر الصوتية (<code>core/voice/</code>)<a class="headerlink" href="#22-corevoice" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// أوامر مدعومة باللهجة اليمنية</span>
+<span class="nl">VoiceCommandType:</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">openField</span><span class="w">        </span><span class="c1">// &quot;افتح حقل رقم 1&quot;</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">cropStatus</span><span class="w">       </span><span class="c1">// &quot;كيف المحصول&quot;</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">recordIrrigation</span><span class="w"> </span><span class="c1">// &quot;سجل ري&quot;</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">showTasks</span><span class="w">        </span><span class="c1">// &quot;عرض المهام&quot;</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">weather</span><span class="w">          </span><span class="c1">// &quot;كيف الطقس&quot;</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">startScout</span><span class="w">       </span><span class="c1">// &quot;ابدأ مسح&quot;</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">capturePhoto</span><span class="w">     </span><span class="c1">// &quot;التقط صورة&quot;</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="n">dailySummary</span><span class="w">     </span><span class="c1">// &quot;ملخص اليوم&quot;</span>
+</code></pre></div>
+
+<h3 id="23-ai">2.3 خدمة AI الخلفية<a class="headerlink" href="#23-ai" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// نقطة نهاية AI</span>
+<span class="n">EnvConfig</span><span class="p">.</span><span class="nl">aiServiceUrl:</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="nl">Development:</span><span class="w"> </span><span class="nl">http:</span><span class="c1">//10.0.2.2:8085</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="nl">Staging:</span><span class="w"> </span><span class="nl">https:</span><span class="c1">//ai-staging.sahool.app</span>
+<span class="w">  </span><span class="o">-</span><span class="w"> </span><span class="nl">Production:</span><span class="w"> </span><span class="nl">https:</span><span class="c1">//ai.sahool.app</span>
+</code></pre></div>
+
+<hr />
+<h2 id="3-offline-first">3. تدفق البيانات (Offline-First)<a class="headerlink" href="#3-offline-first" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                    </span><span class="err">طبقة</span><span class="w"> </span><span class="err">العرض</span><span class="w"> </span><span class="p">(</span><span class="n">PRESENTATION</span><span class="p">)</span><span class="w">                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">         </span><span class="n">ConsumerWidget</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="err">إعادة</span><span class="w"> </span><span class="err">البناء</span><span class="w">           </span><span class="err">│</span>
+<span class="err">└──────────────────────┬──────────────────────────────────────────┘</span>
+<span class="w">                       </span><span class="err">│</span>
+<span class="w">                       </span><span class="err">▼</span>
+<span class="err">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                   </span><span class="err">إدارة</span><span class="w"> </span><span class="err">الحالة</span><span class="w"> </span><span class="p">(</span><span class="n">Riverpod</span><span class="p">)</span><span class="w">                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">StateNotifierProvider</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">FutureProvider</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">StreamProvider</span><span class="w">        </span><span class="err">│</span>
+<span class="err">└──────────────────────┬──────────────────────────────────────────┘</span>
+<span class="w">                       </span><span class="err">│</span>
+<span class="w">                       </span><span class="err">▼</span>
+<span class="err">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">             </span><span class="err">طبقة</span><span class="w"> </span><span class="err">المستودع</span><span class="w"> </span><span class="p">(</span><span class="n">Offline</span><span class="o">-</span><span class="kr">First</span><span class="p">)</span><span class="w">                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">1.</span><span class="w"> </span><span class="err">حفظ</span><span class="w"> </span><span class="err">محلي</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="n">SQLite</span><span class="w">                                          </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">2.</span><span class="w"> </span><span class="err">إضافة</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="n">Outbox</span><span class="w"> </span><span class="err">للمزامنة</span><span class="w">                                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="mf">3.</span><span class="w"> </span><span class="err">إرجاع</span><span class="w"> </span><span class="err">البيانات</span><span class="w"> </span><span class="err">المحلية</span><span class="w"> </span><span class="err">فوراً</span><span class="w">                                </span><span class="err">│</span>
+<span class="err">└──────────────────────┬──────────────────────────────────────────┘</span>
+<span class="w">                       </span><span class="err">│</span>
+<span class="w">        </span><span class="err">┌──────────────┼──────────────┐</span>
+<span class="w">        </span><span class="err">│</span><span class="w">              </span><span class="err">│</span><span class="w">              </span><span class="err">│</span>
+<span class="w">        </span><span class="err">▼</span><span class="w">              </span><span class="err">▼</span><span class="w">              </span><span class="err">▼</span>
+<span class="w">   </span><span class="err">┌────────┐</span><span class="w">  </span><span class="err">┌──────────┐</span><span class="w">  </span><span class="err">┌──────────────┐</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="n">SQLite</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w"> </span><span class="n">Outbox</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="n">API</span><span class="w"> </span><span class="n">Client</span><span class="w">  </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="p">(</span><span class="n">Drift</span><span class="p">)</span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">  </span><span class="n">Queue</span><span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">│</span><span class="w">    </span><span class="p">(</span><span class="n">Dio</span><span class="p">)</span><span class="w">     </span><span class="err">│</span>
+<span class="w">   </span><span class="err">└────────┘</span><span class="w">  </span><span class="err">└──────────┘</span><span class="w">  </span><span class="err">└──────────────┘</span>
+</code></pre></div>
+
+<h3 id="offline-first">نمط الكتابة (Offline-First)<a class="headerlink" href="#offline-first" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">المستخدم</span><span class="w"> </span><span class="err">يُنشئ</span><span class="w"> </span><span class="err">حقل</span>
+<span class="w">    </span><span class="err">↓</span>
+<span class="n">saveLocally</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">INSERT</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="err">جدول</span><span class="w"> </span><span class="n">Fields</span>
+<span class="w">    </span><span class="err">↓</span>
+<span class="n">createGeoJSON</span><span class="w"> </span><span class="n">payload</span>
+<span class="w">    </span><span class="err">↓</span>
+<span class="n">queueForSync</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">INSERT</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="err">جدول</span><span class="w"> </span><span class="n">Outbox</span>
+<span class="w">    </span><span class="err">↓</span>
+<span class="n">syncEngine</span><span class="o">.</span><span class="n">runOnce</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="err">إذا</span><span class="w"> </span><span class="err">متصل،</span><span class="w"> </span><span class="err">معالجة</span><span class="w"> </span><span class="n">Outbox</span>
+<span class="w">    </span><span class="err">↓</span>
+<span class="n">POST</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">fields</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="err">تعليم</span><span class="w"> </span><span class="err">كـ</span><span class="w"> </span><span class="n">synced</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4">4. خدمات الخلفية<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>المسار</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong Gateway</td>
+<td>8000</td>
+<td>/api/v1/*</td>
+<td>بوابة API الموحدة</td>
+</tr>
+<tr>
+<td>Field Service</td>
+<td>3000</td>
+<td>/fields, /gis</td>
+<td>خدمة الحقول</td>
+</tr>
+<tr>
+<td>Weather Service</td>
+<td>8092</td>
+<td>/weather</td>
+<td>خدمة الطقس</td>
+</tr>
+<tr>
+<td>Marketplace</td>
+<td>3010</td>
+<td>/market, /fintech</td>
+<td>السوق والمالية</td>
+</tr>
+<tr>
+<td>AI Service</td>
+<td>8085</td>
+<td>/predict, /diagnose</td>
+<td>الذكاء الاصطناعي</td>
+</tr>
+<tr>
+<td>WebSocket</td>
+<td>8090</td>
+<td>ws://</td>
+<td>التحديثات الفورية</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5">5. قاعدة البيانات المحلية<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="drift-orm">جداول Drift ORM<a class="headerlink" href="#drift-orm" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- الجداول الرئيسية</span>
+<span class="n">Tasks</span><span class="w">         </span><span class="c1">-- المهام مع GeoJSON</span>
+<span class="n">Fields</span><span class="w">        </span><span class="c1">-- الحقول مع Polygon boundaries</span>
+<span class="n">Outbox</span><span class="w">        </span><span class="c1">-- طابور المزامنة مع ETag</span>
+<span class="n">SyncLogs</span><span class="w">      </span><span class="c1">-- سجل التدقيق</span>
+<span class="n">SyncEvents</span><span class="w">    </span><span class="c1">-- تتبع التعارضات</span>
+</code></pre></div>
+
+<h3 id="gis">دعم GIS<a class="headerlink" href="#gis" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// تحويل GeoJSON &lt;-&gt; List&lt;LatLng&gt;</span>
+<span class="n">TextColumn</span><span class="w"> </span><span class="kd">get</span><span class="w"> </span><span class="n">boundary</span><span class="w"> </span><span class="o">=&gt;</span>
+<span class="w">    </span><span class="n">text</span><span class="p">().</span><span class="n">map</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">GeoPolygonConverter</span><span class="p">())();</span>
+</code></pre></div>
+
+<hr />
+<h2 id="6-riverpod">6. إدارة الحالة (Riverpod)<a class="headerlink" href="#6-riverpod" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>الاستخدام</th>
+<th>مثال</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Provider&lt;T&gt;</code></td>
+<td>قراءة فقط</td>
+<td><code>fieldsRepoProvider</code></td>
+</tr>
+<tr>
+<td><code>StateProvider&lt;T&gt;</code></td>
+<td>حالة بسيطة</td>
+<td><code>selectedFieldIdProvider</code></td>
+</tr>
+<tr>
+<td><code>StateNotifierProvider</code></td>
+<td>منطق معقد</td>
+<td><code>walletProvider</code></td>
+</tr>
+<tr>
+<td><code>FutureProvider&lt;T&gt;</code></td>
+<td>async لمرة واحدة</td>
+<td><code>diagnosisProvider</code></td>
+</tr>
+<tr>
+<td><code>StreamProvider&lt;T&gt;</code></td>
+<td>تحديثات حية</td>
+<td><code>fieldsStreamProvider</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7">7. الملفات المحذوفة وتحليلها<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h3 id="_3">ملفات تم حذفها بأمان:<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الملف</th>
+<th>السبب</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>core/notifications/notification_provider.dart</code></td>
+<td>مكرر مبسط</td>
+<td>✅ لا تأثير</td>
+</tr>
+<tr>
+<td><code>core/services/auth_service.dart</code></td>
+<td>نسخة قديمة بدون Biometric</td>
+<td>✅ لا تأثير</td>
+</tr>
+<tr>
+<td><code>features/wallet/ui/wallet_screen.dart</code></td>
+<td>StatefulWidget مكرر</td>
+<td>✅ لا تأثير</td>
+</tr>
+<tr>
+<td><code>features/home_v16/*</code></td>
+<td>غير مربوط بالRouter</td>
+<td>⚠️ كان يحتوي KPI جميل</td>
+</tr>
+<tr>
+<td><code>features/notifications/notification_provider.dart</code></td>
+<td>مكرر</td>
+<td>⚠️ كان يحتوي NotificationType enum</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">ملاحظات مهمة:<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>home_v16</strong> كان يحتوي على شاشة رئيسية حديثة بـ:</li>
+<li>KPI Grid (NDVI, Alerts, Tasks, Weather)</li>
+<li>Quick Actions</li>
+<li>Alerts Preview</li>
+<li>
+<p><strong>لكنه لم يكن مستخدماً في Router</strong></p>
+</li>
+<li>
+<p><strong>notification_provider.dart</strong> كان يحتوي على:</p>
+</li>
+<li><code>NotificationType</code> enum مفصل</li>
+<li><code>NotificationPriority</code> enum</li>
+<li>نموذج <code>AppNotification</code> أغنى</li>
+<li><strong>تم استبداله بـ domain/entities</strong></li>
+</ol>
+<hr />
+<h2 id="8">8. التوصيات<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<h3 id="_5">أولوية عالية:<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✅ توحيد هيكل الـ features</li>
+<li>⬜ إضافة طبقة Use Cases</li>
+<li>⬜ توحيد معالجة الأخطاء</li>
+</ol>
+<h3 id="_6">أولوية متوسطة:<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<ol>
+<li>⬜ توحيد تسمية المجلدات (ui vs presentation)</li>
+<li>⬜ مركزة جميع Providers</li>
+<li>⬜ استخراج Magic Strings</li>
+</ol>
+<h3 id="_7">تحسينات أداء:<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<ol>
+<li>⬜ استخدام Stream لحالة الشبكة</li>
+<li>⬜ تحسين Drift queries</li>
+</ol>
+<hr />
+<h2 id="9">9. مقارنة قبل وبعد<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>قبل</th>
+<th>بعد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ملفات مكررة</td>
+<td>8</td>
+<td>0</td>
+</tr>
+<tr>
+<td>خدمات Auth</td>
+<td>2</td>
+<td>1 (موحد)</td>
+</tr>
+<tr>
+<td>مزودات Notification</td>
+<td>3</td>
+<td>1</td>
+</tr>
+<tr>
+<td>CreditTier enum</td>
+<td>2</td>
+<td>1 (موحد)</td>
+</tr>
+<tr>
+<td>شاشات Wallet</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10">10. الخلاصة<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<p>التطبيق يمتلك بنية قوية للذكاء الاصطناعي:
+- ✅ تحليل صحة المحاصيل (NDVI, EVI, etc.)
+- ✅ أوامر صوتية عربية
+- ✅ VRT export للزراعة الدقيقة
+- ✅ Offline-First مع مزامنة ذكية</p>
+<p>الملفات المحذوفة <strong>لم تحتوِ على منطق AI أساسي</strong> - كانت:
+- نسخ UI مكررة
+- خدمات بميزات أقل
+- كود غير مستخدم</p>
+<p><strong>لم يتم حذف أي كود AI أو ML أو بنية حديثة مهمة.</strong></p>
+<hr />
+<p><strong>SAHOOL - سهول الزراعية</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

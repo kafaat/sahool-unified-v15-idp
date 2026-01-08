@@ -1,0 +1,1500 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL v15.3.2 Operations Runbook - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-v1532-operations-runbook" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL v15.3.2 Operations Runbook
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-v1532-operations-runbook">SAHOOL v15.3.2 Operations Runbook<a class="headerlink" href="#sahool-v1532-operations-runbook" title="Permanent link">&para;</a></h1>
+<h2 id="service-management">Service Management<a class="headerlink" href="#service-management" title="Permanent link">&para;</a></h2>
+<h3 id="starting-services">Starting Services<a class="headerlink" href="#starting-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># All services</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Specific service</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>field_ops
+
+<span class="c1"># With logs</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>field_ops
+</code></pre></div>
+
+<h3 id="stopping-services">Stopping Services<a class="headerlink" href="#stopping-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Stop all</span>
+docker<span class="w"> </span>compose<span class="w"> </span>down
+
+<span class="c1"># Stop without removing volumes</span>
+docker<span class="w"> </span>compose<span class="w"> </span>stop
+
+<span class="c1"># Stop specific service</span>
+docker<span class="w"> </span>compose<span class="w"> </span>stop<span class="w"> </span>field_ops
+</code></pre></div>
+
+<h3 id="restarting-services">Restarting Services<a class="headerlink" href="#restarting-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Graceful restart</span>
+docker<span class="w"> </span>compose<span class="w"> </span>restart<span class="w"> </span>field_ops
+
+<span class="c1"># Force recreate</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--force-recreate<span class="w"> </span>field_ops
+</code></pre></div>
+
+<h3 id="viewing-logs">Viewing Logs<a class="headerlink" href="#viewing-logs" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># All services</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f
+
+<span class="c1"># Specific service</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>field_ops
+
+<span class="c1"># Last 100 lines</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span><span class="w"> </span>field_ops
+
+<span class="c1"># Since timestamp</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>--since<span class="w"> </span><span class="m">2024</span>-01-15T10:00:00<span class="w"> </span>field_ops
+</code></pre></div>
+
+<h2 id="health-monitoring">Health Monitoring<a class="headerlink" href="#health-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="health-check-endpoints">Health Check Endpoints<a class="headerlink" href="#health-check-endpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Health URL</th>
+<th>Ready URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field_ops</td>
+<td>:8080/healthz</td>
+<td>:8080/readyz</td>
+</tr>
+<tr>
+<td>ndvi_engine</td>
+<td>:8097/healthz</td>
+<td>:8097/readyz</td>
+</tr>
+<tr>
+<td>weather_core</td>
+<td>:8098/healthz</td>
+<td>:8098/readyz</td>
+</tr>
+<tr>
+<td>field_chat</td>
+<td>:8099/healthz</td>
+<td>:8099/readyz</td>
+</tr>
+<tr>
+<td>iot_gateway</td>
+<td>:8094/healthz</td>
+<td>:8094/readyz</td>
+</tr>
+<tr>
+<td>agro_advisor</td>
+<td>:8095/healthz</td>
+<td>:8095/readyz</td>
+</tr>
+<tr>
+<td>ws_gateway</td>
+<td>:8090/healthz</td>
+<td>:8090/readyz</td>
+</tr>
+</tbody>
+</table>
+<h3 id="health-check-script">Health Check Script<a class="headerlink" href="#health-check-script" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>./tools/release/smoke_test.sh
+</code></pre></div>
+
+<h3 id="manual-health-checks">Manual Health Checks<a class="headerlink" href="#manual-health-checks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Quick check all services</span>
+<span class="k">for</span><span class="w"> </span>port<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">8080</span><span class="w"> </span><span class="m">8097</span><span class="w"> </span><span class="m">8098</span><span class="w"> </span><span class="m">8099</span><span class="w"> </span><span class="m">8094</span><span class="w"> </span><span class="m">8095</span><span class="w"> </span><span class="m">8090</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;Port </span><span class="nv">$port</span><span class="s2">: &quot;</span>
+<span class="w">  </span>curl<span class="w"> </span>-sf<span class="w"> </span>http://localhost:<span class="nv">$port</span>/healthz<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;OK&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;FAIL&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<h2 id="database-operations">Database Operations<a class="headerlink" href="#database-operations" title="Permanent link">&para;</a></h2>
+<h3 id="connection">Connection<a class="headerlink" href="#connection" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Interactive psql</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool
+
+<span class="c1"># Run single query</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT count(*) FROM tasks&quot;</span>
+</code></pre></div>
+
+<h3 id="migrations">Migrations<a class="headerlink" href="#migrations" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run all migrations</span>
+./tools/env/migrate.sh
+
+<span class="c1"># Check migration status</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT * FROM _migrations ORDER BY applied_at&quot;</span>
+</code></pre></div>
+
+<h3 id="backup">Backup<a class="headerlink" href="#backup" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Full backup</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>pg_dump<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span>&gt;<span class="w"> </span>backup_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d_%H%M%S<span class="k">)</span>.sql
+
+<span class="c1"># Compressed backup</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>pg_dump<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span><span class="p">|</span><span class="w"> </span>gzip<span class="w"> </span>&gt;<span class="w"> </span>backup_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.sql.gz
+
+<span class="c1"># Specific tables</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>pg_dump<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-t<span class="w"> </span>tasks<span class="w"> </span>-t<span class="w"> </span>fields<span class="w"> </span>sahool<span class="w"> </span>&gt;<span class="w"> </span>tasks_fields.sql
+</code></pre></div>
+
+<h3 id="restore">Restore<a class="headerlink" href="#restore" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Full restore (WARNING: destructive)</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-i<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span>&lt;<span class="w"> </span>backup.sql
+
+<span class="c1"># Restore to new database</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>createdb<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool_restored
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-i<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool_restored<span class="w"> </span>&lt;<span class="w"> </span>backup.sql
+</code></pre></div>
+
+<h2 id="nats-operations">NATS Operations<a class="headerlink" href="#nats-operations" title="Permanent link">&para;</a></h2>
+<h3 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Server info</span>
+curl<span class="w"> </span>http://localhost:8222/varz
+
+<span class="c1"># Connections</span>
+curl<span class="w"> </span>http://localhost:8222/connz
+
+<span class="c1"># Subscriptions</span>
+curl<span class="w"> </span>http://localhost:8222/subsz
+</code></pre></div>
+
+<h3 id="jetstream">JetStream<a class="headerlink" href="#jetstream" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># List streams (requires nats CLI)</span>
+nats<span class="w"> </span>stream<span class="w"> </span>ls
+
+<span class="c1"># Stream info</span>
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>SAHOOL_EVENTS
+
+<span class="c1"># Consumer info</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>ls<span class="w"> </span>SAHOOL_EVENTS
+</code></pre></div>
+
+<h3 id="purging-messages">Purging Messages<a class="headerlink" href="#purging-messages" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Purge stream (WARNING: data loss)</span>
+nats<span class="w"> </span>stream<span class="w"> </span>purge<span class="w"> </span>SAHOOL_EVENTS<span class="w"> </span>--force
+</code></pre></div>
+
+<h2 id="redis-operations">Redis Operations<a class="headerlink" href="#redis-operations" title="Permanent link">&para;</a></h2>
+<h3 id="connection_1">Connection<a class="headerlink" href="#connection_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Interactive redis-cli</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli
+
+<span class="c1"># Single command</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>INFO
+</code></pre></div>
+
+<h3 id="memory-check">Memory Check<a class="headerlink" href="#memory-check" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>INFO<span class="w"> </span>memory
+</code></pre></div>
+
+<h3 id="cache-flush">Cache Flush<a class="headerlink" href="#cache-flush" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Flush all (WARNING: clears all cache)</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>FLUSHALL
+
+<span class="c1"># Flush specific pattern</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>KEYS<span class="w"> </span><span class="s2">&quot;session:*&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>DEL
+</code></pre></div>
+
+<h2 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h2>
+<h3 id="service-wont-start">Service Won't Start<a class="headerlink" href="#service-wont-start" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms</strong>: Container exits immediately</p>
+<p><strong>Diagnosis</strong>:</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>field_ops<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span>
+docker<span class="w"> </span>inspect<span class="w"> </span>sahool-field-ops<span class="w"> </span>--format<span class="o">=</span><span class="s1">&#39;{{.State.ExitCode}}&#39;</span>
+</code></pre></div>
+
+<p><strong>Common Causes</strong>:
+1. Database not ready - wait for postgres healthcheck
+2. Missing environment variables
+3. Port already in use</p>
+<h3 id="database-connection-errors">Database Connection Errors<a class="headerlink" href="#database-connection-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms</strong>: "connection refused" or timeout</p>
+<p><strong>Diagnosis</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check postgres is running</span>
+docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> </span>postgres
+
+<span class="c1"># Test connectivity</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-field-ops<span class="w"> </span>nc<span class="w"> </span>-zv<span class="w"> </span>postgres<span class="w"> </span><span class="m">5432</span>
+</code></pre></div>
+
+<p><strong>Solutions</strong>:
+1. Restart postgres: <code>docker compose restart postgres</code>
+2. Check network: <code>docker network inspect sahool-network</code></p>
+<h3 id="high-memory-usage">High Memory Usage<a class="headerlink" href="#high-memory-usage" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms</strong>: OOM kills, slow responses</p>
+<p><strong>Diagnosis</strong>:</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>stats
+docker<span class="w"> </span>compose<span class="w"> </span>top
+</code></pre></div>
+
+<p><strong>Solutions</strong>:
+1. Increase container limits in docker-compose.yml
+2. Add more replicas for load distribution
+3. Check for memory leaks in logs</p>
+<h3 id="nats-connection-issues">NATS Connection Issues<a class="headerlink" href="#nats-connection-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Symptoms</strong>: Events not flowing</p>
+<p><strong>Diagnosis</strong>:</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/connz
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>nats<span class="w"> </span>--tail<span class="o">=</span><span class="m">50</span>
+</code></pre></div>
+
+<p><strong>Solutions</strong>:
+1. Restart NATS: <code>docker compose restart nats</code>
+2. Check JetStream is enabled
+3. Verify network connectivity</p>
+<h2 id="performance-tuning">Performance Tuning<a class="headerlink" href="#performance-tuning" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql">PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Connection pool size (in service env)</span>
+<span class="nv">DATABASE_POOL_SIZE</span><span class="o">=</span><span class="m">20</span>
+<span class="nv">DATABASE_MAX_OVERFLOW</span><span class="o">=</span><span class="m">10</span>
+</code></pre></div>
+
+<h3 id="nats">NATS<a class="headerlink" href="#nats" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In docker-compose.yml</span>
+<span class="nt">nats</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">command</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--jetstream&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--max_memory_store=1G&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--max_file_store=10G&quot;</span>
+</code></pre></div>
+
+<h3 id="redis">Redis<a class="headerlink" href="#redis" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Max memory</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>CONFIG<span class="w"> </span>SET<span class="w"> </span>maxmemory<span class="w"> </span>512mb
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>CONFIG<span class="w"> </span>SET<span class="w"> </span>maxmemory-policy<span class="w"> </span>allkeys-lru
+</code></pre></div>
+
+<h2 id="scheduled-tasks">Scheduled Tasks<a class="headerlink" href="#scheduled-tasks" title="Permanent link">&para;</a></h2>
+<h3 id="recommended-cron-jobs">Recommended Cron Jobs<a class="headerlink" href="#recommended-cron-jobs" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> Backup database daily at 2 AM
+0 2 <span class="gs">* *</span> * /path/to/backup.sh
+
+<span class="gh">#</span> Rotate logs weekly
+0 0 <span class="gs">* *</span> 0 docker compose logs --no-color &gt; /logs/sahool_$(date +\%Y\%W).log
+
+<span class="gh">#</span> Health check every 5 minutes
+*/5 <span class="gs">* *</span> * <span class="gs">* /path/to/health_check.sh</span>
+
+<span class="gs"># Clean old audit logs monthly</span>
+<span class="gs">0 3 1 *</span> * /path/to/cleanup_audit.sh
+</code></pre></div>
+
+<h2 id="disaster-recovery">Disaster Recovery<a class="headerlink" href="#disaster-recovery" title="Permanent link">&para;</a></h2>
+<h3 id="complete-system-recovery">Complete System Recovery<a class="headerlink" href="#complete-system-recovery" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Stop all services</strong>
+   <code>bash
+   docker compose down</code></p>
+</li>
+<li>
+<p><strong>Restore database</strong>
+   <code>bash
+   docker compose up -d postgres
+   sleep 10
+   docker exec -i sahool-postgres psql -U sahool sahool &lt; backup.sql</code></p>
+</li>
+<li>
+<p><strong>Restore NATS streams</strong> (if backed up)
+   <code>bash
+   docker compose up -d nats
+   nats stream restore /backups/nats/</code></p>
+</li>
+<li>
+<p><strong>Start all services</strong>
+   <code>bash
+   docker compose up -d</code></p>
+</li>
+<li>
+<p><strong>Verify</strong>
+   <code>bash
+   ./tools/release/smoke_test.sh</code></p>
+</li>
+</ol>
+<h3 id="rollback-deployment">Rollback Deployment<a class="headerlink" href="#rollback-deployment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Tag current state</span>
+docker<span class="w"> </span>compose<span class="w"> </span>down
+docker<span class="w"> </span>tag<span class="w"> </span>sahool/field-ops:15.3.2<span class="w"> </span>sahool/field-ops:rollback-<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
+
+<span class="c1"># Restore previous version</span>
+docker<span class="w"> </span>compose<span class="w"> </span>pull<span class="w">  </span><span class="c1"># Get previous version</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<h2 id="contacts">Contacts<a class="headerlink" href="#contacts" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>On-Call</strong>: See PagerDuty rotation</li>
+<li><strong>Database Issues</strong>: DBA team</li>
+<li><strong>Security Incidents</strong>: security@sahool.io</li>
+<li><strong>Platform Issues</strong>: platform-team@sahool.io</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

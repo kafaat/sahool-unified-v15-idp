@@ -1,0 +1,1742 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform - Rate Limiting Documentation - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-rate-limiting-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform - Rate Limiting Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-rate-limiting-documentation">SAHOOL Platform - Rate Limiting Documentation<a class="headerlink" href="#sahool-platform-rate-limiting-documentation" title="Permanent link">&para;</a></h1>
+<h1 id="-">توثيق تحديد المعدل - منصة سهول<a class="headerlink" href="#-" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> v16.0.0<br />
+<strong>Last Updated:</strong> 2026-01-05<br />
+<strong>Status:</strong> Production Ready ✅</p>
+<hr />
+<h2 id="overview">📋 Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>SAHOOL platform implements a comprehensive rate limiting system to protect APIs from abuse and ensure fair resource allocation.</p>
+<p>تنفذ منصة سهول نظام شامل لتحديد المعدل لحماية واجهات برمجة التطبيقات من الإساءة وضمان التوزيع العادل للموارد.</p>
+<h3 id="features">Features | الميزات<a class="headerlink" href="#features" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>Redis-backed</strong> - Distributed rate limiting across multiple servers</li>
+<li>✅ <strong>In-memory fallback</strong> - Works without Redis in development</li>
+<li>✅ <strong>Multiple tiers</strong> - Free, Basic, Pro, Enterprise, Internal</li>
+<li>✅ <strong>Flexible algorithms</strong> - Token Bucket + Sliding Window</li>
+<li>✅ <strong>Per-endpoint customization</strong> - Different limits for different APIs</li>
+<li>✅ <strong>Real-time monitoring</strong> - Track usage via headers and metrics</li>
+<li>✅ <strong>Graceful degradation</strong> - Continues working if Redis fails</li>
+</ul>
+<hr />
+<h2 id="rate-limit-tiers">🎯 Rate Limit Tiers | مستويات تحديد المعدل<a class="headerlink" href="#rate-limit-tiers" title="Permanent link">&para;</a></h2>
+<h3 id="tier-comparison">Tier Comparison | مقارنة المستويات<a class="headerlink" href="#tier-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>RPM (Requests/Min)</th>
+<th>RPH (Requests/Hour)</th>
+<th>Burst</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Free</strong></td>
+<td>30</td>
+<td>500</td>
+<td>5</td>
+<td>Public API, Testing</td>
+</tr>
+<tr>
+<td><strong>Basic</strong></td>
+<td>60</td>
+<td>2,000</td>
+<td>10</td>
+<td>Small farms, Individual users</td>
+</tr>
+<tr>
+<td><strong>Pro</strong></td>
+<td>120</td>
+<td>5,000</td>
+<td>20</td>
+<td>Medium farms, Business users</td>
+</tr>
+<tr>
+<td><strong>Enterprise</strong></td>
+<td>500</td>
+<td>20,000</td>
+<td>50</td>
+<td>Large operations, Partners</td>
+</tr>
+<tr>
+<td><strong>Internal</strong></td>
+<td>1,000</td>
+<td>50,000</td>
+<td>100</td>
+<td>Service-to-service calls</td>
+</tr>
+</tbody>
+</table>
+<p><strong>RPM:</strong> Requests per minute (طلبات في الدقيقة)<br />
+<strong>RPH:</strong> Requests per hour (طلبات في الساعة)<br />
+<strong>Burst:</strong> Temporary spike allowance (السماح بالارتفاع المؤقت)</p>
+<hr />
+<h2 id="configuration">⚙️ Configuration | التكوين<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="environment-variables">Environment Variables | المتغيرات البيئية<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable/Disable Rate Limiting</span>
+<span class="nv">RATE_LIMIT_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+
+<span class="c1"># Redis Configuration (Required for production)</span>
+<span class="nv">REDIS_URL</span><span class="o">=</span><span class="s2">&quot;redis://:password@redis:6379/0&quot;</span>
+<span class="nv">REDIS_RATE_LIMIT_DB</span><span class="o">=</span><span class="m">1</span><span class="w">  </span><span class="c1"># Separate DB for rate limiting</span>
+
+<span class="c1"># Free Tier Limits</span>
+<span class="nv">RATE_LIMIT_FREE_RPM</span><span class="o">=</span><span class="m">30</span>
+<span class="nv">RATE_LIMIT_FREE_RPH</span><span class="o">=</span><span class="m">500</span>
+<span class="nv">RATE_LIMIT_FREE_BURST</span><span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># Basic Tier Limits</span>
+<span class="nv">RATE_LIMIT_BASIC_RPM</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">RATE_LIMIT_BASIC_RPH</span><span class="o">=</span><span class="m">2000</span>
+<span class="nv">RATE_LIMIT_BASIC_BURST</span><span class="o">=</span><span class="m">10</span>
+
+<span class="c1"># Pro Tier Limits</span>
+<span class="nv">RATE_LIMIT_PRO_RPM</span><span class="o">=</span><span class="m">120</span>
+<span class="nv">RATE_LIMIT_PRO_RPH</span><span class="o">=</span><span class="m">5000</span>
+<span class="nv">RATE_LIMIT_PRO_BURST</span><span class="o">=</span><span class="m">20</span>
+
+<span class="c1"># Enterprise Tier Limits</span>
+<span class="nv">RATE_LIMIT_ENTERPRISE_RPM</span><span class="o">=</span><span class="m">500</span>
+<span class="nv">RATE_LIMIT_ENTERPRISE_RPH</span><span class="o">=</span><span class="m">20000</span>
+<span class="nv">RATE_LIMIT_ENTERPRISE_BURST</span><span class="o">=</span><span class="m">50</span>
+
+<span class="c1"># Internal Service Limits</span>
+<span class="nv">RATE_LIMIT_INTERNAL_RPM</span><span class="o">=</span><span class="m">1000</span>
+<span class="nv">RATE_LIMIT_INTERNAL_RPH</span><span class="o">=</span><span class="m">50000</span>
+<span class="nv">RATE_LIMIT_INTERNAL_BURST</span><span class="o">=</span><span class="m">100</span>
+
+<span class="c1"># Rate Limit Response Headers</span>
+<span class="nv">RATE_LIMIT_HEADERS_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+
+<span class="c1"># Ban on Excessive Violations</span>
+<span class="nv">RATE_LIMIT_BAN_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">RATE_LIMIT_BAN_THRESHOLD</span><span class="o">=</span><span class="m">10</span><span class="w">  </span><span class="c1"># violations before ban (adjustable based on tier)</span>
+<span class="nv">RATE_LIMIT_BAN_DURATION</span><span class="o">=</span><span class="m">3600</span><span class="w">  </span><span class="c1"># ban duration in seconds (1 hour)</span>
+
+<span class="c1"># Note: Ban threshold of 10 is conservative to avoid false positives from legitimate</span>
+<span class="c1"># traffic spikes or network issues. For stricter control, reduce to 5-7 violations.</span>
+<span class="c1"># Consider implementing tier-based thresholds (e.g., Free: 5, Pro: 15).</span>
+</code></pre></div>
+
+<hr />
+<h2 id="usage-examples">🚀 Usage Examples | أمثلة الاستخدام<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<h3 id="1-apply-to-all-routes">1. Apply to All Routes | تطبيق على جميع المسارات<a class="headerlink" href="#1-apply-to-all-routes" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RateLimitMiddleware</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;SAHOOL Field Service&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add rate limiting middleware</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">RateLimitMiddleware</span><span class="p">,</span>
+    <span class="n">tier</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">,</span>  <span class="c1"># Default tier for all routes</span>
+    <span class="n">redis_url</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">REDIS_URL</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2-per-endpoint-rate-limiting">2. Per-Endpoint Rate Limiting | تحديد المعدل لكل نقطة نهاية<a class="headerlink" href="#2-per-endpoint-rate-limiting" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIRouter</span><span class="p">,</span> <span class="n">Depends</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit</span>
+
+<span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">()</span>
+
+<span class="c1"># Public endpoint - Free tier</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/public/fields&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;free&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_public_fields</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List fields - Free tier (30 req/min)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+<span class="c1"># Authenticated endpoint - Basic tier</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_fields</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List user&#39;s fields - Basic tier (60 req/min)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span>
+
+<span class="c1"># Premium feature - Pro tier</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields/analytics&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;pro&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_field_analytics</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Advanced analytics - Pro tier (120 req/min)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;analytics&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+<span class="c1"># Internal API - Internal tier</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/internal/sync&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;internal&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">internal_sync</span><span class="p">(</span><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">verify_internal_key</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Internal sync endpoint - Internal tier (1000 req/min)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;synced&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="3-custom-rate-limits">3. Custom Rate Limits | حدود مخصصة<a class="headerlink" href="#3-custom-rate-limits" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit</span><span class="p">,</span> <span class="n">RateLimitConfig</span>
+
+<span class="c1"># Custom rate limit for expensive operation</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/fields/</span><span class="si">{field_id}</span><span class="s2">/analyze&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">RateLimitConfig</span><span class="p">(</span>
+        <span class="n">requests_per_minute</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">requests_per_hour</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">burst_size</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analyze_field</span><span class="p">(</span><span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expensive AI analysis - Custom limits (10 req/min)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">run_ai_analysis</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
+
+<span class="c1"># Different limits for different HTTP methods</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/inventory&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">)</span>  <span class="c1"># 60 req/min for GET</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_inventory</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/inventory&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;pro&quot;</span><span class="p">)</span>  <span class="c1"># 120 req/min for POST</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_inventory_item</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">InventoryItem</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;new-item-id&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="4-user-based-rate-limiting">4. User-Based Rate Limiting | تحديد المعدل حسب المستخدم<a class="headerlink" href="#4-user-based-rate-limiting" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit_by_user</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/profile&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit_by_user</span><span class="p">(</span><span class="n">tier_field</span><span class="o">=</span><span class="s2">&quot;subscription_tier&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_profile</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rate limit based on user&#39;s subscription tier.</span>
+<span class="sd">    Free users: 30 req/min</span>
+<span class="sd">    Basic users: 60 req/min</span>
+<span class="sd">    Pro users: 120 req/min</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">profile</span>
+</code></pre></div>
+
+<h3 id="5-ip-based-rate-limiting-ip">5. IP-Based Rate Limiting | تحديد المعدل حسب IP<a class="headerlink" href="#5-ip-based-rate-limiting-ip" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit_by_ip</span>
+
+<span class="c1"># Protect login endpoint from brute force</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/auth/login&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit_by_ip</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">RateLimitConfig</span><span class="p">(</span>
+        <span class="n">requests_per_minute</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">requests_per_hour</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">burst_size</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">login</span><span class="p">(</span><span class="n">credentials</span><span class="p">:</span> <span class="n">LoginRequest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Login - 5 attempts per minute per IP&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="response-headers">📊 Response Headers | رؤوس الاستجابة<a class="headerlink" href="#response-headers" title="Permanent link">&para;</a></h2>
+<p>When rate limiting is enabled, the following headers are included in responses:</p>
+<p>عند تفعيل تحديد المعدل، يتم تضمين الرؤوس التالية في الاستجابات:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">X-RateLimit-Limit: 60          # Max requests per window</span>
+<span class="err">X-RateLimit-Remaining: 45      # Remaining requests</span>
+<span class="err">X-RateLimit-Reset: 1609459200  # Unix timestamp when limit resets</span>
+<span class="err">X-RateLimit-Tier: basic        # Current tier</span>
+<span class="err">Retry-After: 30                # Seconds to wait (only when rate limited)</span>
+</code></pre></div>
+
+<h3 id="example-response">Example Response | مثال على الاستجابة<a class="headerlink" href="#example-response" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Successful request</span>
+curl<span class="w"> </span>-i<span class="w"> </span>https://api.sahool.com/fields
+
+HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+X-RateLimit-Limit:<span class="w"> </span><span class="m">60</span>
+X-RateLimit-Remaining:<span class="w"> </span><span class="m">59</span>
+X-RateLimit-Reset:<span class="w"> </span><span class="m">1704492000</span>
+X-RateLimit-Tier:<span class="w"> </span>basic
+Content-Type:<span class="w"> </span>application/json
+
+<span class="o">{</span><span class="s2">&quot;fields&quot;</span>:<span class="w"> </span><span class="o">[</span>...<span class="o">]}</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1"># Rate limited request</span>
+curl<span class="w"> </span>-i<span class="w"> </span>https://api.sahool.com/fields
+
+HTTP/1.1<span class="w"> </span><span class="m">429</span><span class="w"> </span>Too<span class="w"> </span>Many<span class="w"> </span>Requests
+X-RateLimit-Limit:<span class="w"> </span><span class="m">60</span>
+X-RateLimit-Remaining:<span class="w"> </span><span class="m">0</span>
+X-RateLimit-Reset:<span class="w"> </span><span class="m">1704492060</span>
+X-RateLimit-Tier:<span class="w"> </span>basic
+Retry-After:<span class="w"> </span><span class="m">60</span>
+Content-Type:<span class="w"> </span>application/json
+
+<span class="o">{</span>
+<span class="w">  </span><span class="s2">&quot;error&quot;</span>:<span class="w"> </span><span class="s2">&quot;rate_limit_exceeded&quot;</span>,
+<span class="w">  </span><span class="s2">&quot;message&quot;</span>:<span class="w"> </span><span class="s2">&quot;Too many requests. Please try again later.&quot;</span>,
+<span class="w">  </span><span class="s2">&quot;retry_after&quot;</span>:<span class="w"> </span><span class="m">60</span>
+<span class="o">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="monitoring-metrics">🔍 Monitoring &amp; Metrics | المراقبة والمقاييس<a class="headerlink" href="#monitoring-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="prometheus-metrics-prometheus">Prometheus Metrics | مقاييس Prometheus<a class="headerlink" href="#prometheus-metrics-prometheus" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Total requests by tier</span>
+<span class="nv">rate_limit_requests_total</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">&quot;</span><span class="s">basic</span><span class="p">&quot;}</span>
+
+<span class="c1"># Rate limit violations</span>
+<span class="nv">rate_limit_violations_total</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">&quot;</span><span class="s">basic</span><span class="p">&quot;}</span>
+
+<span class="c1"># Current rate limit usage</span>
+<span class="nv">rate_limit_current_usage</span><span class="p">{</span><span class="nl">tier</span><span class="o">=</span><span class="p">&quot;</span><span class="s">basic</span><span class="p">&quot;}</span>
+
+<span class="c1"># Redis connection status</span>
+<span class="nv">rate_limit_redis_connected</span>
+</code></pre></div>
+
+<h3 id="logging">Logging | السجلات<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Rate limit violation logs</span>
+<span class="p">{</span>
+  <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;warning&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Rate limit exceeded&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;user-123&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;ip&quot;</span><span class="p">:</span> <span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;tier&quot;</span><span class="p">:</span> <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;endpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;/fields&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
+  <span class="s2">&quot;current&quot;</span><span class="p">:</span> <span class="mi">61</span><span class="p">,</span>
+  <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-01-05T21:00:00Z&quot;</span>
+<span class="p">}</span>
+
+<span class="c1"># Ban event logs</span>
+<span class="p">{</span>
+  <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;error&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;User banned for excessive violations&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;user-456&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;violations&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+  <span class="s2">&quot;ban_duration&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+  <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-01-05T21:05:00Z&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="security-features">🛡️ Security Features | ميزات الأمان<a class="headerlink" href="#security-features" title="Permanent link">&para;</a></h2>
+<h3 id="1-automatic-ip-banning-ip">1. Automatic IP Banning | الحظر التلقائي لعنوان IP<a class="headerlink" href="#1-automatic-ip-banning-ip" title="Permanent link">&para;</a></h3>
+<p>Users who exceed rate limits excessively can be automatically banned:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Configuration</span>
+<span class="n">RATE_LIMIT_BAN_ENABLED</span><span class="o">=</span><span class="n">true</span>
+<span class="n">RATE_LIMIT_BAN_THRESHOLD</span><span class="o">=</span><span class="mi">10</span>  <span class="c1"># 10 violations within window</span>
+<span class="n">RATE_LIMIT_BAN_DURATION</span><span class="o">=</span><span class="mi">3600</span>  <span class="c1"># 1 hour ban</span>
+
+<span class="c1"># Programmatic ban</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ban_ip</span><span class="p">,</span> <span class="n">unban_ip</span>
+
+<span class="c1"># Ban an IP</span>
+<span class="n">ban_ip</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;abuse&quot;</span><span class="p">)</span>
+
+<span class="c1"># Unban an IP</span>
+<span class="n">unban_ip</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">)</span>
+
+<span class="c1"># Check if IP is banned</span>
+<span class="n">is_banned</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_ip_banned</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2-whitelist-blacklist">2. Whitelist / Blacklist | القائمة البيضاء / السوداء<a class="headerlink" href="#2-whitelist-blacklist" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">add_to_whitelist</span><span class="p">,</span>
+    <span class="n">add_to_blacklist</span><span class="p">,</span>
+    <span class="n">remove_from_whitelist</span><span class="p">,</span>
+    <span class="n">remove_from_blacklist</span>
+<span class="p">)</span>
+
+<span class="c1"># Whitelist an IP (bypass rate limits)</span>
+<span class="n">add_to_whitelist</span><span class="p">(</span><span class="s2">&quot;192.168.1.50&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;trusted_partner&quot;</span><span class="p">)</span>
+
+<span class="c1"># Blacklist an IP (always deny)</span>
+<span class="n">add_to_blacklist</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;malicious_activity&quot;</span><span class="p">)</span>
+
+<span class="c1"># Remove from lists</span>
+<span class="n">remove_from_whitelist</span><span class="p">(</span><span class="s2">&quot;192.168.1.50&quot;</span><span class="p">)</span>
+<span class="n">remove_from_blacklist</span><span class="p">(</span><span class="s2">&quot;192.168.1.100&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="3-burst-protection">3. Burst Protection | حماية من الانفجار<a class="headerlink" href="#3-burst-protection" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Token bucket algorithm with burst protection</span>
+<span class="c1"># Allows temporary spikes but prevents sustained abuse</span>
+
+<span class="c1"># Example: Basic tier allows burst of 10 requests</span>
+<span class="c1"># - User can send 10 requests instantly</span>
+<span class="c1"># - Then limited to 1 request per second (60/min)</span>
+<span class="c1"># - Bucket refills at 1 token/second</span>
+</code></pre></div>
+
+<hr />
+<h2 id="advanced-configuration">🔧 Advanced Configuration | التكوين المتقدم<a class="headerlink" href="#advanced-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="custom-rate-limit-strategy">Custom Rate Limit Strategy | استراتيجية مخصصة<a class="headerlink" href="#custom-rate-limit-strategy" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RateLimiter</span><span class="p">,</span> <span class="n">RateLimitStrategy</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomRateLimitStrategy</span><span class="p">(</span><span class="n">RateLimitStrategy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Custom strategy: Different limits for weekdays vs weekends&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+        <span class="n">is_weekend</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">weekday</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">5</span>
+
+        <span class="k">if</span> <span class="n">is_weekend</span><span class="p">:</span>
+            <span class="c1"># Double limits on weekends</span>
+            <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">tier</span><span class="o">.</span><span class="n">rpm</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">tier</span><span class="o">.</span><span class="n">rph</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">tier</span><span class="o">.</span><span class="n">rpm</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">tier</span><span class="o">.</span><span class="n">rph</span>
+
+<span class="c1"># Use custom strategy</span>
+<span class="n">limiter</span> <span class="o">=</span> <span class="n">RateLimiter</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="n">CustomRateLimitStrategy</span><span class="p">())</span>
+</code></pre></div>
+
+<h3 id="dynamic-rate-limits">Dynamic Rate Limits | حدود ديناميكية<a class="headerlink" href="#dynamic-rate-limits" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">dynamic_rate_limit</span>
+
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+<span class="nd">@dynamic_rate_limit</span><span class="p">(</span>
+    <span class="n">calculate_limit</span><span class="o">=</span><span class="k">lambda</span> <span class="n">user</span><span class="p">:</span> <span class="p">(</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">subscription_tier</span><span class="o">.</span><span class="n">rpm</span><span class="p">,</span>
+        <span class="n">user</span><span class="o">.</span><span class="n">subscription_tier</span><span class="o">.</span><span class="n">rph</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_fields</span><span class="p">(</span><span class="n">user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rate limit based on user&#39;s subscription tier&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">fields</span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="testing">🧪 Testing | الاختبار<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<h3 id="unit-tests">Unit Tests | اختبارات الوحدة<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">RateLimiter</span><span class="p">,</span> <span class="n">RateLimitConfig</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_rate_limit_enforcement</span><span class="p">():</span>
+    <span class="n">limiter</span> <span class="o">=</span> <span class="n">RateLimiter</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">RateLimitConfig</span><span class="p">(</span>
+            <span class="n">requests_per_minute</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">requests_per_hour</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">burst_size</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># First 7 requests should pass (5 + 2 burst)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span>
+
+    <span class="c1"># 8th request should be rate limited</span>
+    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">asyncio</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_rate_limit_reset</span><span class="p">():</span>
+    <span class="n">limiter</span> <span class="o">=</span> <span class="n">RateLimiter</span><span class="p">(</span><span class="n">redis_url</span><span class="o">=</span><span class="s2">&quot;redis://localhost&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Consume all requests</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">):</span>
+        <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Should be rate limited</span>
+    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span>
+
+    <span class="c1"># Wait for reset</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">61</span><span class="p">)</span>
+
+    <span class="c1"># Should work again</span>
+    <span class="k">assert</span> <span class="k">await</span> <span class="n">limiter</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="s2">&quot;test-user&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span>
+</code></pre></div>
+
+<h3 id="integration-tests">Integration Tests | اختبارات التكامل<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.testclient</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestClient</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_rate_limit_headers</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">TestClient</span><span class="p">):</span>
+    <span class="c1"># First request</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span>
+    <span class="k">assert</span> <span class="s2">&quot;X-RateLimit-Limit&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
+    <span class="k">assert</span> <span class="s2">&quot;X-RateLimit-Remaining&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
+    <span class="k">assert</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;X-RateLimit-Remaining&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">59</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_rate_limit_exceeded</span><span class="p">(</span><span class="n">client</span><span class="p">:</span> <span class="n">TestClient</span><span class="p">):</span>
+    <span class="c1"># Exhaust rate limit</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">):</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Next request should be rate limited</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span>
+    <span class="k">assert</span> <span class="s2">&quot;Retry-After&quot;</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;rate_limit_exceeded&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="troubleshooting">🚨 Troubleshooting | حل المشاكل<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues | المشاكل الشائعة<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<h4 id="1-rate-limits-not-working">1. Rate Limits Not Working<a class="headerlink" href="#1-rate-limits-not-working" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check if Redis is running</span>
+redis-cli<span class="w"> </span>ping
+
+<span class="c1"># Check rate limit configuration</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$RATE_LIMIT_ENABLED</span>
+
+<span class="c1"># Check logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>field-service<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>rate_limit
+</code></pre></div>
+
+<h4 id="2-too-strict-limits">2. Too Strict Limits<a class="headerlink" href="#2-too-strict-limits" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Increase limits temporarily</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RATE_LIMIT_BASIC_RPM</span><span class="o">=</span><span class="m">120</span>
+
+<span class="c1"># Or upgrade user tier</span>
+UPDATE<span class="w"> </span>users<span class="w"> </span>SET<span class="w"> </span><span class="nv">subscription_tier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;pro&#39;</span><span class="w"> </span>WHERE<span class="w"> </span><span class="nv">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;user-123&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<h4 id="3-redis-connection-issues">3. Redis Connection Issues<a class="headerlink" href="#3-redis-connection-issues" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Fallback to in-memory rate limiting</span>
+<span class="n">RATE_LIMIT_FALLBACK_TO_MEMORY</span><span class="o">=</span><span class="n">true</span>
+
+<span class="c1"># Or check Redis connection</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">redis</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">))</span>
+<span class="n">r</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span>  <span class="c1"># Should return True</span>
+</code></pre></div>
+
+<hr />
+<h2 id="api-reference-api">📚 API Reference | مرجع API<a class="headerlink" href="#api-reference-api" title="Permanent link">&para;</a></h2>
+<h3 id="ratelimiter-class">RateLimiter Class<a class="headerlink" href="#ratelimiter-class" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RateLimiter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main rate limiter class&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">redis_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">RateLimitConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">strategy</span><span class="p">:</span> <span class="n">RateLimitStrategy</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize rate limiter&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">cost</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if request should be allowed&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get current usage statistics&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset rate limit for key&quot;&quot;&quot;</span>
+</code></pre></div>
+
+<h3 id="decorators">Decorators<a class="headerlink" href="#decorators" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;basic&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit_by_user</span><span class="p">(</span><span class="n">tier_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subscription_tier&quot;</span><span class="p">)</span>
+<span class="nd">@rate_limit_by_ip</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">RateLimitConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span>
+<span class="nd">@dynamic_rate_limit</span><span class="p">(</span><span class="n">calculate_limit</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="migration-from-old-system">🔄 Migration from Old System | الترحيل من النظام القديم<a class="headerlink" href="#migration-from-old-system" title="Permanent link">&para;</a></h2>
+<p>If you're migrating from an older rate limiting implementation:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Old code</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">old_rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit</span> <span class="k">as</span> <span class="n">old_rate_limit</span>
+
+<span class="nd">@old_rate_limit</span><span class="p">(</span><span class="n">max_requests</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_endpoint</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="c1"># New code</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.rate_limiter</span><span class="w"> </span><span class="kn">import</span> <span class="n">rate_limit</span>
+
+<span class="nd">@rate_limit</span><span class="p">(</span><span class="n">tier</span><span class="o">=</span><span class="s2">&quot;basic&quot;</span><span class="p">)</span>  <span class="c1"># 60 req/min</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_endpoint</span><span class="p">():</span>
+    <span class="k">pass</span>
+</code></pre></div>
+
+<hr />
+<h2 id="references">📖 References | المراجع<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../GAPS_AND_RECOMMENDATIONS.md">GAPS_AND_RECOMMENDATIONS.md</a> - Original recommendations</li>
+<li><a href="../shared/middleware/security_headers.py">Security Headers</a> - Security middleware</li>
+<li><a href="../PRODUCTION_DEPLOYMENT/">Production Deployment</a> - Deployment guide</li>
+<li><a href="../shared/middleware/RATE_LIMITING_GUIDE.md">Rate Limiting Guide</a> - Original guide</li>
+<li><a href="https://owasp.org/www-community/controls/Blocking_Brute_Force_Attacks">OWASP Rate Limiting</a></li>
+</ul>
+<hr />
+<p><strong>Author:</strong> GitHub Copilot Agent<br />
+<strong>Version:</strong> v1.0<br />
+<strong>Last Updated:</strong> 2026-01-05</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

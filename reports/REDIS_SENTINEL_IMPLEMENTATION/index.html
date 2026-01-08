@@ -1,0 +1,1748 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Redis Sentinel High Availability Implementation Summary - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#redis-sentinel-high-availability-implementation-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Redis Sentinel High Availability Implementation Summary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="redis-sentinel-high-availability-implementation-summary">Redis Sentinel High Availability Implementation Summary<a class="headerlink" href="#redis-sentinel-high-availability-implementation-summary" title="Permanent link">&para;</a></h1>
+<h1 id="redis-sentinel">ملخص تنفيذ Redis Sentinel للتوافر العالي<a class="headerlink" href="#redis-sentinel" title="Permanent link">&para;</a></h1>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>تم بنجاح إضافة <strong>Redis Sentinel</strong> للتوافر العالي (High Availability) لمنصة صحول. يوفر هذا النظام:</p>
+<ul>
+<li>✅ <strong>Automatic Failover</strong>: انتقال تلقائي عند فشل Master</li>
+<li>✅ <strong>Data Replication</strong>: نسخ البيانات عبر 3 نسخ</li>
+<li>✅ <strong>Connection Pooling</strong>: إدارة فعالة للاتصالات</li>
+<li>✅ <strong>Circuit Breaker</strong>: حماية من الأخطاء المتكررة</li>
+<li>✅ <strong>Health Monitoring</strong>: مراقبة صحة النظام</li>
+<li>✅ <strong>Read/Write Separation</strong>: فصل عمليات القراءة والكتابة</li>
+</ul>
+<hr />
+<h2 id="created-files">الملفات المُنشأة | Created Files<a class="headerlink" href="#created-files" title="Permanent link">&para;</a></h2>
+<h3 id="1-docker-compose-configuration">1. Docker Compose Configuration<a class="headerlink" href="#1-docker-compose-configuration" title="Permanent link">&para;</a></h3>
+<h4 id="docker-composeredis-hayml-438"><code>/docker-compose.redis-ha.yml</code> (438 سطر)<a class="headerlink" href="#docker-composeredis-hayml-438" title="Permanent link">&para;</a></h4>
+<p>ملف Docker Compose الرئيسي يحتوي على:
+- <strong>Redis Master</strong> (1 instance) - المخدم الرئيسي
+- <strong>Redis Replicas</strong> (2 instances) - النسخ الاحتياطية
+- <strong>Redis Sentinels</strong> (3 instances) - المراقبين
+- <strong>Redis Exporter</strong> - للمراقبة عبر Prometheus</p>
+<p><strong>الميزات:</strong>
+- Health checks متقدمة
+- Resource limits محددة
+- Volume persistence
+- Network isolation
+- Environment variables validation</p>
+<hr />
+<h3 id="2-python-client-library">2. Python Client Library<a class="headerlink" href="#2-python-client-library" title="Permanent link">&para;</a></h3>
+<h4 id="sharedcacheredis_sentinelpy-967"><code>/shared/cache/redis_sentinel.py</code> (967 سطر)<a class="headerlink" href="#sharedcacheredis_sentinelpy-967" title="Permanent link">&para;</a></h4>
+<p>مكتبة Python كاملة للاتصال بـ Redis Sentinel:</p>
+<p><strong>Classes:</strong>
+- <code>RedisSentinelConfig</code>: إدارة التكوين
+- <code>CircuitBreaker</code>: نمط Circuit Breaker للحماية
+- <code>RedisSentinelClient</code>: العميل الرئيسي</p>
+<p><strong>Features:</strong>
+- ✅ Connection pooling
+- ✅ Automatic failover handling
+- ✅ Retry logic with exponential backoff
+- ✅ Read/Write separation (Master/Slave)
+- ✅ Pipeline support
+- ✅ Health monitoring
+- ✅ Comprehensive error handling</p>
+<p><strong>Operations Supported:</strong>
+- Basic: <code>set</code>, <code>get</code>, <code>delete</code>, <code>exists</code>, <code>expire</code>, <code>ttl</code>
+- Hash: <code>hset</code>, <code>hget</code>, <code>hgetall</code>, <code>hdel</code>
+- List: <code>lpush</code>, <code>rpush</code>, <code>lpop</code>, <code>rpop</code>, <code>lrange</code>
+- Set: <code>sadd</code>, <code>smembers</code>, <code>srem</code>
+- Sorted Set: <code>zadd</code>, <code>zrange</code>, <code>zrem</code>
+- Pipeline: batch operations</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_redis_client</span>
+
+<span class="n">redis</span> <span class="o">=</span> <span class="n">get_redis_client</span><span class="p">()</span>
+<span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">ex</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="n">use_slave</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-typescript-client-library">3. TypeScript Client Library<a class="headerlink" href="#3-typescript-client-library" title="Permanent link">&para;</a></h3>
+<h4 id="sharedcacheredis-sentinelts-873"><code>/shared/cache/redis-sentinel.ts</code> (873 سطر)<a class="headerlink" href="#sharedcacheredis-sentinelts-873" title="Permanent link">&para;</a></h4>
+<p>مكتبة TypeScript/Node.js كاملة:</p>
+<p><strong>Classes:</strong>
+- <code>RedisSentinelClient</code>: العميل الرئيسي
+- <code>CircuitBreaker</code>: نمط Circuit Breaker
+- <code>RateLimiter</code>: تحديد معدل الطلبات
+- <code>DistributedLock</code>: قفل موزع
+- <code>SessionManager</code>: إدارة الجلسات</p>
+<p><strong>Features:</strong>
+- ✅ Full TypeScript types
+- ✅ ioredis integration
+- ✅ Automatic reconnection
+- ✅ Event handling
+- ✅ Promise-based API</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/cache&#39;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="p">();</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;value&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">60</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-configuration-files">4. Configuration Files<a class="headerlink" href="#4-configuration-files" title="Permanent link">&para;</a></h3>
+<h4 id="infraredis-haconfigsentinelconf"><code>/infra/redis-ha/config/sentinel.conf</code><a class="headerlink" href="#infraredis-haconfigsentinelconf" title="Permanent link">&para;</a></h4>
+<p>تكوين Sentinel الأساسي:
+- Port: 26379
+- Quorum: 2
+- Down-after: 5000ms
+- Failover timeout: 10000ms</p>
+<h4 id="infraredis-haenvexample"><code>/infra/redis-ha/.env.example</code><a class="headerlink" href="#infraredis-haenvexample" title="Permanent link">&para;</a></h4>
+<p>مثال متغيرات البيئة مع جميع الخيارات المتاحة</p>
+<h4 id="sharedcachepackagejson"><code>/shared/cache/package.json</code><a class="headerlink" href="#sharedcachepackagejson" title="Permanent link">&para;</a></h4>
+<p>Package definition للـ TypeScript module</p>
+<h4 id="sharedcachetsconfigjson"><code>/shared/cache/tsconfig.json</code><a class="headerlink" href="#sharedcachetsconfigjson" title="Permanent link">&para;</a></h4>
+<p>TypeScript configuration</p>
+<h4 id="sharedcacherequirementstxt"><code>/shared/cache/requirements.txt</code><a class="headerlink" href="#sharedcacherequirementstxt" title="Permanent link">&para;</a></h4>
+<p>Python dependencies</p>
+<hr />
+<h3 id="5-scripts-tools">5. Scripts &amp; Tools<a class="headerlink" href="#5-scripts-tools" title="Permanent link">&para;</a></h3>
+<h4 id="infraredis-hahealth-checksh"><code>/infra/redis-ha/health-check.sh</code> (قابل للتنفيذ)<a class="headerlink" href="#infraredis-hahealth-checksh" title="Permanent link">&para;</a></h4>
+<p>سكريبت شامل لفحص الصحة:
+- ✅ Check Redis Master
+- ✅ Check Redis Replicas
+- ✅ Check Sentinels
+- ✅ Display replication info
+- ✅ Display Sentinel master info
+- ✅ Color-coded output</p>
+<p><strong>Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>infra/redis-ha
+./health-check.sh
+</code></pre></div>
+
+<h4 id="infraredis-hatest-failoversh"><code>/infra/redis-ha/test-failover.sh</code> (قابل للتنفيذ)<a class="headerlink" href="#infraredis-hatest-failoversh" title="Permanent link">&para;</a></h4>
+<p>سكريبت اختبار Failover تلقائي:
+- ✅ Get current master
+- ✅ Stop master container
+- ✅ Monitor failover process
+- ✅ Verify new master
+- ✅ Test data preservation
+- ✅ Restart old master
+- ✅ Verify replication</p>
+<p><strong>Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>infra/redis-ha
+./test-failover.sh
+</code></pre></div>
+
+<h4 id="infraredis-hamakefile"><code>/infra/redis-ha/Makefile</code><a class="headerlink" href="#infraredis-hamakefile" title="Permanent link">&para;</a></h4>
+<p>أوامر إدارة سهلة:</p>
+<div class="codehilite"><pre><span></span><code>make<span class="w"> </span>setup<span class="w">          </span><span class="c1"># إعداد البيئة</span>
+make<span class="w"> </span>start<span class="w">          </span><span class="c1"># بدء النظام</span>
+make<span class="w"> </span>stop<span class="w">           </span><span class="c1"># إيقاف النظام</span>
+make<span class="w"> </span>restart<span class="w">        </span><span class="c1"># إعادة التشغيل</span>
+make<span class="w"> </span>status<span class="w">         </span><span class="c1"># عرض الحالة</span>
+make<span class="w"> </span>logs<span class="w">           </span><span class="c1"># عرض السجلات</span>
+make<span class="w"> </span>health<span class="w">         </span><span class="c1"># فحص الصحة</span>
+make<span class="w"> </span>test-failover<span class="w">  </span><span class="c1"># اختبار Failover</span>
+make<span class="w"> </span>backup<span class="w">         </span><span class="c1"># نسخ احتياطي</span>
+make<span class="w"> </span>restore<span class="w">        </span><span class="c1"># استعادة</span>
+make<span class="w"> </span>info<span class="w">           </span><span class="c1"># معلومات النظام</span>
+</code></pre></div>
+
+<hr />
+<h3 id="6-documentation">6. Documentation<a class="headerlink" href="#6-documentation" title="Permanent link">&para;</a></h3>
+<h4 id="sharedcachereadmemd-800"><code>/shared/cache/README.md</code> (800+ سطر)<a class="headerlink" href="#sharedcachereadmemd-800" title="Permanent link">&para;</a></h4>
+<p>توثيق شامل يتضمن:
+- ✅ نظرة عامة ومخططات معمارية
+- ✅ دليل التثبيت والإعداد
+- ✅ أمثلة استخدام Python
+- ✅ أمثلة استخدام TypeScript
+- ✅ دليل اختبار Failover
+- ✅ المراقبة والصيانة
+- ✅ استكشاف الأخطاء
+- ✅ أفضل الممارسات
+- ✅ أمثلة متقدمة</p>
+<h4 id="infraredis-hareadmemd"><code>/infra/redis-ha/README.md</code><a class="headerlink" href="#infraredis-hareadmemd" title="Permanent link">&para;</a></h4>
+<p>توثيق البنية التحتية:
+- ✅ محتويات المجلد
+- ✅ الهندسة المعمارية
+- ✅ المنافذ والتكوين
+- ✅ المراقبة والصيانة
+- ✅ الأمان
+- ✅ استكشاف الأخطاء</p>
+<h4 id="infraredis-haquickstartmd"><code>/infra/redis-ha/QUICKSTART.md</code><a class="headerlink" href="#infraredis-haquickstartmd" title="Permanent link">&para;</a></h4>
+<p>دليل البدء السريع:
+- ✅ التثبيت في 3 خطوات
+- ✅ أمثلة سريعة
+- ✅ الأوامر الأساسية
+- ✅ استكشاف الأخطاء السريع</p>
+<hr />
+<h3 id="7-examples">7. Examples<a class="headerlink" href="#7-examples" title="Permanent link">&para;</a></h3>
+<h4 id="sharedcacheexamplespy-600"><code>/shared/cache/examples.py</code> (600+ سطر)<a class="headerlink" href="#sharedcacheexamplespy-600" title="Permanent link">&para;</a></h4>
+<p>أمثلة Python شاملة:
+- ✅ Cache Decorator
+- ✅ Rate Limiter
+- ✅ Distributed Lock
+- ✅ Session Manager
+- ✅ Pub/Sub Event System
+- ✅ Usage examples</p>
+<h4 id="sharedcacheexamplests-600"><code>/shared/cache/examples.ts</code> (600+ سطر)<a class="headerlink" href="#sharedcacheexamplests-600" title="Permanent link">&para;</a></h4>
+<p>أمثلة TypeScript شاملة:
+- ✅ Cache Decorator
+- ✅ Rate Limiter
+- ✅ Distributed Lock
+- ✅ Session Manager
+- ✅ Cache Service
+- ✅ Usage examples</p>
+<hr />
+<h3 id="8-monitoring-configuration">8. Monitoring Configuration<a class="headerlink" href="#8-monitoring-configuration" title="Permanent link">&para;</a></h3>
+<h4 id="infraredis-haprometheus-redis-exporteryml"><code>/infra/redis-ha/prometheus-redis-exporter.yml</code><a class="headerlink" href="#infraredis-haprometheus-redis-exporteryml" title="Permanent link">&para;</a></h4>
+<p>تكوين Prometheus:
+- ✅ Scrape configs
+- ✅ Alert rules
+- ✅ Grafana queries
+- ✅ Custom metrics</p>
+<p><strong>Alert Rules:</strong>
+- Redis Down
+- High Memory Usage
+- Replication Lag
+- High Connection Count
+- Rejected Connections
+- Slow Commands
+- Sentinel Master Changed</p>
+<hr />
+<h3 id="9-additional-files">9. Additional Files<a class="headerlink" href="#9-additional-files" title="Permanent link">&para;</a></h3>
+<h4 id="sharedcache__init__py"><code>/shared/cache/__init__.py</code><a class="headerlink" href="#sharedcache__init__py" title="Permanent link">&para;</a></h4>
+<p>Python module initialization</p>
+<h4 id="infraredis-hadocker-composeoverrideexampleyml"><code>/infra/redis-ha/docker-compose.override.example.yml</code><a class="headerlink" href="#infraredis-hadocker-composeoverrideexampleyml" title="Permanent link">&para;</a></h4>
+<p>مثال تخصيص التكوين</p>
+<hr />
+<h2 id="architecture">الهندسة المعمارية | Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="system-diagram">System Diagram<a class="headerlink" href="#system-diagram" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                   Application Layer                          │
+├─────────────────────────────────────────────────────────────┤
+│  Python Services  │  Node.js Services  │  Other Services    │
+└────────┬──────────┴──────────┬─────────┴───────────┬────────┘
+         │                     │                      │
+         └─────────────────────┼──────────────────────┘
+                               │
+                    ┌──────────▼──────────┐
+                    │  Client Libraries   │
+                    │  - redis_sentinel.py│
+                    │  - redis-sentinel.ts│
+                    └──────────┬──────────┘
+                               │
+         ┌─────────────────────┼─────────────────────┐
+         │                     │                      │
+    ┌────▼────┐           ┌────▼────┐           ┌────▼────┐
+    │Sentinel1│           │Sentinel2│           │Sentinel3│
+    │Port:26379          │Port:26380│          │Port:26381│
+    └────┬────┘           └────┬────┘           └────┬────┘
+         │                     │                      │
+         └─────────────────────┴──────────────────────┘
+                               │
+                          [Quorum = 2]
+                               │
+              ┌────────────────┼────────────────┐
+              ▼                ▼                ▼
+        ┌──────────┐    ┌──────────┐    ┌──────────┐
+        │  Master  │───▶│Replica 1 │    │Replica 2 │
+        │Port: 6379│    │Port: 6380│◀───│Port: 6381│
+        └────┬─────┘    └──────────┘    └──────────┘
+             │
+             ▼
+      ┌─────────────┐
+      │Redis Exporter│
+      │ Port: 9121   │
+      └──────┬───────┘
+             ▼
+       ┌──────────┐
+       │Prometheus│
+       └────┬─────┘
+            ▼
+       ┌─────────┐
+       │ Grafana │
+       └─────────┘
+</code></pre></div>
+
+<h3 id="failover-process">Failover Process<a class="headerlink" href="#failover-process" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">Master</span><span class="w"> </span><span class="n">Failure</span><span class="w"> </span><span class="n">Detection</span>
+<span class="w">   </span><span class="err">├─</span><span class="w"> </span><span class="n">Sentinel</span><span class="w"> </span><span class="mf">1</span><span class="w"> </span><span class="n">detects</span><span class="w"> </span><span class="n">master</span><span class="w"> </span><span class="n">down</span><span class="w"> </span><span class="p">(</span><span class="mf">5</span><span class="n">s</span><span class="p">)</span>
+<span class="w">   </span><span class="err">├─</span><span class="w"> </span><span class="n">Sentinel</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="n">detects</span><span class="w"> </span><span class="n">master</span><span class="w"> </span><span class="n">down</span><span class="w"> </span><span class="p">(</span><span class="mf">5</span><span class="n">s</span><span class="p">)</span>
+<span class="w">   </span><span class="err">└─</span><span class="w"> </span><span class="n">Sentinel</span><span class="w"> </span><span class="mf">3</span><span class="w"> </span><span class="n">detects</span><span class="w"> </span><span class="n">master</span><span class="w"> </span><span class="n">down</span><span class="w"> </span><span class="p">(</span><span class="mf">5</span><span class="n">s</span><span class="p">)</span>
+
+<span class="mf">2.</span><span class="w"> </span><span class="n">Quorum</span><span class="w"> </span><span class="n">Agreement</span>
+<span class="w">   </span><span class="err">└─</span><span class="w"> </span><span class="mf">2</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="mf">3</span><span class="w"> </span><span class="n">sentinels</span><span class="w"> </span><span class="n">agree</span><span class="w"> </span><span class="p">(</span><span class="n">Quorum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2</span><span class="p">)</span>
+
+<span class="mf">3.</span><span class="w"> </span><span class="n">Leader</span><span class="w"> </span><span class="n">Election</span>
+<span class="w">   </span><span class="err">└─</span><span class="w"> </span><span class="kr">On</span><span class="n">e</span><span class="w"> </span><span class="n">sentinel</span><span class="w"> </span><span class="n">elected</span><span class="w"> </span><span class="n">as</span><span class="w"> </span><span class="n">leader</span>
+
+<span class="mf">4.</span><span class="w"> </span><span class="n">Replica</span><span class="w"> </span><span class="n">Promotion</span>
+<span class="w">   </span><span class="err">├─</span><span class="w"> </span><span class="n">Select</span><span class="w"> </span><span class="n">best</span><span class="w"> </span><span class="n">replica</span><span class="w"> </span><span class="n">based</span><span class="w"> </span><span class="kr">on</span><span class="p">:</span>
+<span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">├─</span><span class="w"> </span><span class="n">Replication</span><span class="w"> </span><span class="n">offset</span>
+<span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">├─</span><span class="w"> </span><span class="n">Priority</span>
+<span class="w">   </span><span class="err">│</span><span class="w">  </span><span class="err">└─</span><span class="w"> </span><span class="n">Connection</span><span class="w"> </span><span class="n">status</span>
+<span class="w">   </span><span class="err">└─</span><span class="w"> </span><span class="n">Promote</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="n">master</span>
+
+<span class="mf">5.</span><span class="w"> </span><span class="n">Configuration</span><span class="w"> </span><span class="n">Update</span>
+<span class="w">   </span><span class="err">├─</span><span class="w"> </span><span class="n">Update</span><span class="w"> </span><span class="n">other</span><span class="w"> </span><span class="n">replicas</span><span class="w"> </span><span class="kr">to</span><span class="w"> </span><span class="n">follow</span><span class="w"> </span><span class="kr">new</span><span class="w"> </span><span class="n">master</span>
+<span class="w">   </span><span class="err">└─</span><span class="w"> </span><span class="ow">Not</span><span class="kr">if</span><span class="n">y</span><span class="w"> </span><span class="n">clients</span><span class="w"> </span><span class="n">via</span><span class="w"> </span><span class="n">Pub</span><span class="o">/</span><span class="n">Sub</span>
+
+<span class="mf">6.</span><span class="w"> </span><span class="n">Old</span><span class="w"> </span><span class="n">Master</span><span class="w"> </span><span class="n">Recovery</span>
+<span class="w">   </span><span class="err">└─</span><span class="w"> </span><span class="n">When</span><span class="w"> </span><span class="n">old</span><span class="w"> </span><span class="n">master</span><span class="w"> </span><span class="n">comes</span><span class="w"> </span><span class="n">back</span><span class="p">,</span><span class="w"> </span><span class="n">becomes</span><span class="w"> </span><span class="n">replica</span>
+</code></pre></div>
+
+<hr />
+<h2 id="setup-usage">الإعداد والتشغيل | Setup &amp; Usage<a class="headerlink" href="#setup-usage" title="Permanent link">&para;</a></h2>
+<h3 id="quick-setup">Quick Setup<a class="headerlink" href="#quick-setup" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Navigate to redis-ha directory</span>
+<span class="nb">cd</span><span class="w"> </span>infra/redis-ha
+
+<span class="c1"># 2. Setup environment</span>
+make<span class="w"> </span>setup
+
+<span class="c1"># 3. Update password in .env</span>
+nano<span class="w"> </span>.env
+<span class="c1"># Change REDIS_PASSWORD to a secure value</span>
+
+<span class="c1"># 4. Start the system</span>
+make<span class="w"> </span>start
+
+<span class="c1"># 5. Verify health</span>
+make<span class="w"> </span>health
+
+<span class="c1"># 6. Test failover (optional)</span>
+make<span class="w"> </span>test-failover
+</code></pre></div>
+
+<h3 id="python-usage">Python Usage<a class="headerlink" href="#python-usage" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_redis_client</span>
+
+<span class="c1"># Initialize client</span>
+<span class="n">redis</span> <span class="o">=</span> <span class="n">get_redis_client</span><span class="p">()</span>
+
+<span class="c1"># Basic operations</span>
+<span class="n">redis</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;user:1000&#39;</span><span class="p">,</span> <span class="s1">&#39;Ahmed&#39;</span><span class="p">,</span> <span class="n">ex</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span>
+<span class="n">user</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user:1000&#39;</span><span class="p">,</span> <span class="n">use_slave</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Hash operations</span>
+<span class="n">redis</span><span class="o">.</span><span class="n">hset</span><span class="p">(</span><span class="s1">&#39;user:1000:profile&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;Ahmed&#39;</span><span class="p">)</span>
+<span class="n">profile</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">hgetall</span><span class="p">(</span><span class="s1">&#39;user:1000:profile&#39;</span><span class="p">)</span>
+
+<span class="c1"># Health check</span>
+<span class="n">health</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">health_check</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Status: </span><span class="si">{</span><span class="n">health</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="typescript-usage">TypeScript Usage<a class="headerlink" href="#typescript-usage" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@sahool/cache&#39;</span><span class="p">;</span>
+
+<span class="c1">// Initialize client</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">redis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getRedisSentinelClient</span><span class="p">();</span>
+
+<span class="c1">// Basic operations</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s1">&#39;user:1000&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Ahmed&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ex</span><span class="o">:</span><span class="w"> </span><span class="kt">3600</span><span class="w"> </span><span class="p">});</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;user:1000&#39;</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+
+<span class="c1">// Hash operations</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hset</span><span class="p">(</span><span class="s1">&#39;user:1000:profile&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Ahmed&#39;</span><span class="p">);</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">profile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">hgetall</span><span class="p">(</span><span class="s1">&#39;user:1000:profile&#39;</span><span class="p">);</span>
+
+<span class="c1">// Health check</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">health</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">redis</span><span class="p">.</span><span class="nx">healthCheck</span><span class="p">();</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Status: </span><span class="si">${</span><span class="nx">health</span><span class="p">.</span><span class="nx">status</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h2 id="key-features">الميزات الرئيسية | Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h2>
+<h3 id="1-automatic-failover">1. Automatic Failover<a class="headerlink" href="#1-automatic-failover" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Detection time: 5 seconds</li>
+<li>✅ Automatic promotion of replica</li>
+<li>✅ Zero manual intervention</li>
+<li>✅ Data preservation</li>
+</ul>
+<h3 id="2-connection-pooling">2. Connection Pooling<a class="headerlink" href="#2-connection-pooling" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Max connections: 50 (configurable)</li>
+<li>✅ Connection reuse</li>
+<li>✅ Health checks</li>
+<li>✅ Automatic reconnection</li>
+</ul>
+<h3 id="3-circuit-breaker">3. Circuit Breaker<a class="headerlink" href="#3-circuit-breaker" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Failure threshold: 5</li>
+<li>✅ Recovery timeout: 60s</li>
+<li>✅ Half-open state testing</li>
+<li>✅ Protection from cascading failures</li>
+</ul>
+<h3 id="4-retry-logic">4. Retry Logic<a class="headerlink" href="#4-retry-logic" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Max retries: 3</li>
+<li>✅ Exponential backoff</li>
+<li>✅ Configurable delays</li>
+<li>✅ Error handling</li>
+</ul>
+<h3 id="5-readwrite-separation">5. Read/Write Separation<a class="headerlink" href="#5-readwrite-separation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Write to master only</li>
+<li>✅ Read from slaves (optional)</li>
+<li>✅ Load distribution</li>
+<li>✅ Better performance</li>
+</ul>
+<h3 id="6-monitoring">6. Monitoring<a class="headerlink" href="#6-monitoring" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Prometheus metrics</li>
+<li>✅ Health checks</li>
+<li>✅ Alert rules</li>
+<li>✅ Grafana dashboards</li>
+</ul>
+<hr />
+<h2 id="security">الأمان | Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<h3 id="implemented-security-measures">Implemented Security Measures<a class="headerlink" href="#implemented-security-measures" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Authentication</strong></li>
+<li>✅ Password protection (REDIS_PASSWORD)</li>
+<li>✅ Master auth for replication</li>
+<li>
+<p>✅ Environment variable validation</p>
+</li>
+<li>
+<p><strong>Network Security</strong></p>
+</li>
+<li>✅ Localhost binding (127.0.0.1)</li>
+<li>✅ Isolated Docker network</li>
+<li>
+<p>✅ Port restrictions</p>
+</li>
+<li>
+<p><strong>Access Control</strong></p>
+</li>
+<li>✅ Protected mode enabled</li>
+<li>✅ Sentinel script reconfig denied</li>
+<li>
+<p>✅ Resource limits</p>
+</li>
+<li>
+<p><strong>Data Security</strong></p>
+</li>
+<li>✅ AOF persistence</li>
+<li>✅ RDB snapshots</li>
+<li>✅ Backup scripts</li>
+</ol>
+<hr />
+<h2 id="performance">الأداء | Performance<a class="headerlink" href="#performance" title="Permanent link">&para;</a></h2>
+<h3 id="resource-allocation">Resource Allocation<a class="headerlink" href="#resource-allocation" title="Permanent link">&para;</a></h3>
+<p><strong>Redis Master:</strong>
+- CPU: 0.5-2 cores
+- Memory: 512M-2G
+- Disk: Persistent volume</p>
+<p><strong>Redis Replicas:</strong>
+- CPU: 0.5-2 cores each
+- Memory: 512M-1.5G each
+- Disk: Persistent volumes</p>
+<p><strong>Sentinels:</strong>
+- CPU: 0.1-0.5 cores each
+- Memory: 64M-256M each
+- Minimal disk</p>
+<p><strong>Redis Exporter:</strong>
+- CPU: 0.05-0.25 cores
+- Memory: 32M-128M
+- No disk</p>
+<h3 id="performance-optimizations">Performance Optimizations<a class="headerlink" href="#performance-optimizations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Maxmemory policy: allkeys-lru</li>
+<li>✅ TCP keepalive: 60s</li>
+<li>✅ Appendfsync: everysec</li>
+<li>✅ Replication optimization</li>
+<li>✅ Connection pooling</li>
+</ul>
+<hr />
+<h2 id="testing">الاختبارات | Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<h3 id="manual-testing">Manual Testing<a class="headerlink" href="#manual-testing" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Test connection</span>
+make<span class="w"> </span>test-connection
+
+<span class="c1"># 2. Test health</span>
+make<span class="w"> </span>health
+
+<span class="c1"># 3. Test failover</span>
+make<span class="w"> </span>test-failover
+
+<span class="c1"># 4. Monitor logs</span>
+make<span class="w"> </span>logs
+</code></pre></div>
+
+<h3 id="automated-testing">Automated Testing<a class="headerlink" href="#automated-testing" title="Permanent link">&para;</a></h3>
+<p>يتضمن <code>test-failover.sh</code>:
+1. ✅ Get current master
+2. ✅ Stop master
+3. ✅ Monitor failover
+4. ✅ Verify new master
+5. ✅ Test data preservation
+6. ✅ Restart old master
+7. ✅ Verify replication</p>
+<hr />
+<h2 id="maintenance">الصيانة | Maintenance<a class="headerlink" href="#maintenance" title="Permanent link">&para;</a></h2>
+<h3 id="backup-strategy">Backup Strategy<a class="headerlink" href="#backup-strategy" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Manual backup</span>
+make<span class="w"> </span>backup
+
+<span class="c1"># Automated backup (cron)</span>
+<span class="m">0</span><span class="w"> </span><span class="m">2</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/path/to/infra/redis-ha<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>backup
+</code></pre></div>
+
+<h3 id="update-process">Update Process<a class="headerlink" href="#update-process" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Pull latest images</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.redis-ha.yml<span class="w"> </span>pull
+
+<span class="c1"># 2. Backup data</span>
+make<span class="w"> </span>backup
+
+<span class="c1"># 3. Update one replica at a time</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.redis-ha.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>redis-replica-1
+sleep<span class="w"> </span><span class="m">30</span>
+
+<span class="c1"># 4. Failover to updated replica</span>
+redis-cli<span class="w"> </span>-p<span class="w"> </span><span class="m">26379</span><span class="w"> </span>SENTINEL<span class="w"> </span>failover<span class="w"> </span>sahool-master
+
+<span class="c1"># 5. Update old master</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.redis-ha.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>redis-master
+</code></pre></div>
+
+<hr />
+<h2 id="monitoring">المراقبة | Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="prometheus-metrics">Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Permanent link">&para;</a></h3>
+<p>Available at: <code>http://localhost:9121/metrics</code></p>
+<p>Key metrics:
+- <code>redis_up</code>: Redis instance status
+- <code>redis_connected_clients</code>: Number of clients
+- <code>redis_used_memory_bytes</code>: Memory usage
+- <code>redis_commands_processed_total</code>: Total commands
+- <code>redis_connected_slaves</code>: Number of replicas</p>
+<h3 id="grafana-dashboards">Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Permanent link">&para;</a></h3>
+<p>Recommended dashboards:
+- <strong>11835</strong>: Redis Dashboard for Prometheus
+- <strong>763</strong>: Redis Sentinel Dashboard</p>
+<h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># System health</span>
+make<span class="w"> </span>health
+
+<span class="c1"># Detailed info</span>
+make<span class="w"> </span>info
+
+<span class="c1"># Sentinel info</span>
+make<span class="w"> </span>sentinel-info
+
+<span class="c1"># Real-time stats</span>
+make<span class="w"> </span>stats
+</code></pre></div>
+
+<hr />
+<h2 id="support">الدعم | Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>📖 Main README: <code>/shared/cache/README.md</code></li>
+<li>📖 Infra README: <code>/infra/redis-ha/README.md</code></li>
+<li>📖 Quick Start: <code>/infra/redis-ha/QUICKSTART.md</code></li>
+</ul>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<ul>
+<li>🐍 Python: <code>/shared/cache/examples.py</code></li>
+<li>📘 TypeScript: <code>/shared/cache/examples.ts</code></li>
+</ul>
+<h3 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h3>
+<ul>
+<li>⚙️ Makefile: <code>/infra/redis-ha/Makefile</code></li>
+<li>🏥 Health Check: <code>/infra/redis-ha/health-check.sh</code></li>
+<li>🔄 Failover Test: <code>/infra/redis-ha/test-failover.sh</code></li>
+</ul>
+<h3 id="contact">Contact<a class="headerlink" href="#contact" title="Permanent link">&para;</a></h3>
+<ul>
+<li>📧 Email: support@sahool.platform</li>
+<li>📝 GitHub Issues</li>
+<li>📖 Documentation: docs.sahool.platform</li>
+</ul>
+<hr />
+<h2 id="summary">الملخص | Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>تم بنجاح تنفيذ نظام <strong>Redis Sentinel</strong> متكامل للتوافر العالي مع:</p>
+<p>✅ <strong>20+ ملف</strong> تم إنشاؤه
+✅ <strong>4000+ سطر</strong> من الكود والتوثيق
+✅ <strong>Python + TypeScript</strong> client libraries
+✅ <strong>Automatic failover</strong> في أقل من 10 ثواني
+✅ <strong>Health monitoring</strong> شامل
+✅ <strong>Documentation</strong> مفصلة بالعربية والإنجليزية
+✅ <strong>Testing tools</strong> متقدمة
+✅ <strong>Production-ready</strong> للاستخدام الفوري</p>
+<p>النظام جاهز للاستخدام في بيئة الإنتاج! 🚀</p>
+<hr />
+<p><strong>تم إنشاؤه بواسطة فريق منصة صحول | Created by Sahool Platform Team</strong></p>
+<p>Version: 1.0.0
+Date: December 2024</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2677 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Field Management APIs - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#field-management-apis" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Field Management APIs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="field-management-apis">Field Management APIs<a class="headerlink" href="#field-management-apis" title="Permanent link">&para;</a></h1>
+<h1 id="_1">واجهات برمجة تطبيقات إدارة الحقول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Field Management APIs provide comprehensive tools for managing agricultural fields, including:
+- Field registration and boundaries
+- Crop profitability analysis
+- Cost and revenue tracking
+- Historical data and trends
+- Regional benchmarks</p>
+<p>توفر واجهات إدارة الحقول أدوات شاملة لإدارة الحقول الزراعية، بما في ذلك:
+- تسجيل الحقول والحدود
+- تحليل ربحية المحاصيل
+- تتبع التكاليف والإيرادات
+- البيانات التاريخية والاتجاهات
+- المقاييس الإقليمية</p>
+<h2 id="base-url">Base URL<a class="headerlink" href="#base-url" title="Permanent link">&para;</a></h2>
+<p><strong>Field Management Service:</strong> <code>http://localhost:8090</code></p>
+<h2 id="authentication">Authentication | المصادقة<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<p>All endpoints require JWT authentication:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">Authorization</span><span class="o">:</span><span class="w"> </span><span class="n">Bearer</span><span class="w"> </span><span class="o">&lt;</span><span class="n">access_token</span><span class="o">&gt;</span>
+</code></pre></div>
+
+<h2 id="endpoints">Endpoints | نقاط النهاية<a class="headerlink" href="#endpoints" title="Permanent link">&para;</a></h2>
+<h3 id="post-fields">POST /fields<a class="headerlink" href="#post-fields" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Update Boundary</p>
+<h4 id="parameters">Parameters | المعاملات<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>boundaryupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request">Example Request<a class="headerlink" href="#example-request" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/fields<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fields">GET /fields<a class="headerlink" href="#get-fields" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Update Boundary</p>
+<h4 id="parameters_1">Parameters | المعاملات<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>boundaryupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_1">Example Request<a class="headerlink" href="#example-request_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-fieldscheck-overlap">POST /fields/check-overlap<a class="headerlink" href="#post-fieldscheck-overlap" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Check Overlap</p>
+<h4 id="example-request_2">Example Request<a class="headerlink" href="#example-request_2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/fields/check-overlap<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_id">GET /fields/{field_id}<a class="headerlink" href="#get-fieldsfield_id" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Update Boundary</p>
+<h4 id="parameters_2">Parameters | المعاملات<a class="headerlink" href="#parameters_2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>boundaryupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_3">Example Request<a class="headerlink" href="#example-request_3" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="patch-fieldsfield_id">PATCH /fields/{field_id}<a class="headerlink" href="#patch-fieldsfield_id" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Update Boundary</p>
+<h4 id="parameters_3">Parameters | المعاملات<a class="headerlink" href="#parameters_3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>boundaryupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_4">Example Request<a class="headerlink" href="#example-request_4" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>PATCH<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="delete-fieldsfield_id">DELETE /fields/{field_id}<a class="headerlink" href="#delete-fieldsfield_id" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Update Boundary</p>
+<h4 id="parameters_4">Parameters | المعاملات<a class="headerlink" href="#parameters_4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>boundaryupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_5">Example Request<a class="headerlink" href="#example-request_5" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_idarea">GET /fields/{field_id}/area<a class="headerlink" href="#get-fieldsfield_idarea" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Calculate Field Area</p>
+<h4 id="parameters_5">Parameters | المعاملات<a class="headerlink" href="#parameters_5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_6">Example Request<a class="headerlink" href="#example-request_6" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/area<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="put-fieldsfield_idboundary">PUT /fields/{field_id}/boundary<a class="headerlink" href="#put-fieldsfield_idboundary" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Update Boundary</p>
+<h4 id="parameters_6">Parameters | المعاملات<a class="headerlink" href="#parameters_6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>boundaryupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_7">Example Request<a class="headerlink" href="#example-request_7" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/boundary<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-fieldsfield_idcrops">POST /fields/{field_id}/crops<a class="headerlink" href="#post-fieldsfield_idcrops" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Start Crop Season</p>
+<h4 id="parameters_7">Parameters | المعاملات<a class="headerlink" href="#parameters_7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>season</code></td>
+<td>cropseasoncreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_8">Example Request<a class="headerlink" href="#example-request_8" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/crops<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-fieldsfield_idcropscurrentclose">POST /fields/{field_id}/crops/current/close<a class="headerlink" href="#post-fieldsfield_idcropscurrentclose" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Close Crop Season</p>
+<h4 id="parameters_8">Parameters | المعاملات<a class="headerlink" href="#parameters_8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>close_data</code></td>
+<td>cropseasonclose</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_9">Example Request<a class="headerlink" href="#example-request_9" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/crops/current/close<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_idcropshistory">GET /fields/{field_id}/crops/history<a class="headerlink" href="#get-fieldsfield_idcropshistory" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Get Crop History</p>
+<h4 id="parameters_9">Parameters | المعاملات<a class="headerlink" href="#parameters_9" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>close_data</code></td>
+<td>cropseasonclose</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_10">Example Request<a class="headerlink" href="#example-request_10" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/crops/history<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_idexportgeojson">GET /fields/{field_id}/export/geojson<a class="headerlink" href="#get-fieldsfield_idexportgeojson" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Export Field Geojson</p>
+<h4 id="parameters_10">Parameters | المعاملات<a class="headerlink" href="#parameters_10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>season</code></td>
+<td>cropseasoncreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_11">Example Request<a class="headerlink" href="#example-request_11" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/export/geojson<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_idexportkml">GET /fields/{field_id}/export/kml<a class="headerlink" href="#get-fieldsfield_idexportkml" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Export Field Kml</p>
+<h4 id="parameters_11">Parameters | المعاملات<a class="headerlink" href="#parameters_11" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_12">Example Request<a class="headerlink" href="#example-request_12" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/export/kml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-fieldsfield_idndvi">POST /fields/{field_id}/ndvi<a class="headerlink" href="#post-fieldsfield_idndvi" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Add Ndvi Record</p>
+<h4 id="parameters_12">Parameters | المعاملات<a class="headerlink" href="#parameters_12" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>record</code></td>
+<td>ndvirecord</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_13">Example Request<a class="headerlink" href="#example-request_13" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/ndvi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_idndvihistory">GET /fields/{field_id}/ndvi/history<a class="headerlink" href="#get-fieldsfield_idndvihistory" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Add Ndvi Record</p>
+<h4 id="parameters_13">Parameters | المعاملات<a class="headerlink" href="#parameters_13" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>record</code></td>
+<td>ndvirecord</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_14">Example Request<a class="headerlink" href="#example-request_14" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/ndvi/history<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_idstats">GET /fields/{field_id}/stats<a class="headerlink" href="#get-fieldsfield_idstats" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Get Field Stats</p>
+<h4 id="parameters_14">Parameters | المعاملات<a class="headerlink" href="#parameters_14" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_15">Example Request<a class="headerlink" href="#example-request_15" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/stats<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-fieldsfield_idzones">POST /fields/{field_id}/zones<a class="headerlink" href="#post-fieldsfield_idzones" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Create Zone</p>
+<h4 id="parameters_15">Parameters | المعاملات<a class="headerlink" href="#parameters_15" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>zone</code></td>
+<td>zonecreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_16">Example Request<a class="headerlink" href="#example-request_16" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/zones<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_idzones">GET /fields/{field_id}/zones<a class="headerlink" href="#get-fieldsfield_idzones" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> List Zones</p>
+<h4 id="parameters_16">Parameters | المعاملات<a class="headerlink" href="#parameters_16" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>zone_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_17">Example Request<a class="headerlink" href="#example-request_17" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/fields/<span class="o">{</span>field_id<span class="o">}</span>/zones<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-health">GET /health<a class="headerlink" href="#get-health" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> فحص الصحة - Health check with dependencies</p>
+<p><strong>الملخص:</strong> فحص الصحة - Health check with dependencies</p>
+<h4 id="example-request_18">Example Request<a class="headerlink" href="#example-request_18" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/health<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-healthz">GET /healthz<a class="headerlink" href="#get-healthz" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> فحص الصحة - Kubernetes liveness probe</p>
+<p><strong>الملخص:</strong> فحص الصحة - Kubernetes liveness probe</p>
+<h4 id="parameters_17">Parameters | المعاملات<a class="headerlink" href="#parameters_17" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field</code></td>
+<td>fieldcreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>boundary</code></td>
+<td>is_valid</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_19">Example Request<a class="headerlink" href="#example-request_19" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/healthz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-readyz">GET /readyz<a class="headerlink" href="#get-readyz" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> فحص الجاهزية - Kubernetes readiness probe</p>
+<p><strong>الملخص:</strong> فحص الجاهزية - Kubernetes readiness probe</p>
+<h4 id="parameters_18">Parameters | المعاملات<a class="headerlink" href="#parameters_18" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field</code></td>
+<td>fieldcreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>boundary</code></td>
+<td>is_valid</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_20">Example Request<a class="headerlink" href="#example-request_20" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/readyz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="delete-zoneszone_id">DELETE /zones/{zone_id}<a class="headerlink" href="#delete-zoneszone_id" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-service (Port: 3000)</p>
+<p><strong>Summary:</strong> Delete Zone</p>
+<h4 id="parameters_19">Parameters | المعاملات<a class="headerlink" href="#parameters_19" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>limit</code></td>
+<td>string</td>
+<td></td>
+<td>query</td>
+<td></td>
+</tr>
+<tr>
+<td><code>zone_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_21">Example Request<a class="headerlink" href="#example-request_21" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span>http://localhost:3000/zones/<span class="o">{</span>zone_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-fields_1">POST /fields<a class="headerlink" href="#post-fields_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Create Field</p>
+<h4 id="parameters_20">Parameters | المعاملات<a class="headerlink" href="#parameters_20" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field</code></td>
+<td>fieldcreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_22">Example Request<a class="headerlink" href="#example-request_22" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/fields<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fields_1">GET /fields<a class="headerlink" href="#get-fields_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Update Field</p>
+<h4 id="parameters_21">Parameters | المعاملات<a class="headerlink" href="#parameters_21" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>fieldupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>op</code></td>
+<td>operationcreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_23">Example Request<a class="headerlink" href="#example-request_23" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8080/fields<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-fieldsfield_id_1">GET /fields/{field_id}<a class="headerlink" href="#get-fieldsfield_id_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Get Field</p>
+<h4 id="parameters_22">Parameters | المعاملات<a class="headerlink" href="#parameters_22" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tenant_id</code></td>
+<td>string</td>
+<td>✓</td>
+<td>query</td>
+<td></td>
+</tr>
+<tr>
+<td><code>skip</code></td>
+<td>string</td>
+<td></td>
+<td>query</td>
+<td></td>
+</tr>
+<tr>
+<td><code>limit</code></td>
+<td>string</td>
+<td></td>
+<td>query</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>fieldupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_24">Example Request<a class="headerlink" href="#example-request_24" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8080/fields/<span class="o">{</span>field_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="put-fieldsfield_id">PUT /fields/{field_id}<a class="headerlink" href="#put-fieldsfield_id" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Update Field</p>
+<h4 id="parameters_23">Parameters | المعاملات<a class="headerlink" href="#parameters_23" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>update</code></td>
+<td>fieldupdate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>op</code></td>
+<td>operationcreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_25">Example Request<a class="headerlink" href="#example-request_25" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>PUT<span class="w"> </span>http://localhost:8080/fields/<span class="o">{</span>field_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="delete-fieldsfield_id_1">DELETE /fields/{field_id}<a class="headerlink" href="#delete-fieldsfield_id_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Delete Field</p>
+<h4 id="parameters_24">Parameters | المعاملات<a class="headerlink" href="#parameters_24" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>op</code></td>
+<td>operationcreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_26">Example Request<a class="headerlink" href="#example-request_26" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>DELETE<span class="w"> </span>http://localhost:8080/fields/<span class="o">{</span>field_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-healthz_1">GET /healthz<a class="headerlink" href="#get-healthz_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Health</p>
+<h4 id="example-request_27">Example Request<a class="headerlink" href="#example-request_27" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8080/healthz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-operations">POST /operations<a class="headerlink" href="#post-operations" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Create Operation</p>
+<h4 id="parameters_25">Parameters | المعاملات<a class="headerlink" href="#parameters_25" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>string</td>
+<td>✓</td>
+<td>query</td>
+<td></td>
+</tr>
+<tr>
+<td><code>op</code></td>
+<td>operationcreate</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>operation_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_28">Example Request<a class="headerlink" href="#example-request_28" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/operations<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-operations">GET /operations<a class="headerlink" href="#get-operations" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Complete Operation</p>
+<h4 id="parameters_26">Parameters | المعاملات<a class="headerlink" href="#parameters_26" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>operation_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_29">Example Request<a class="headerlink" href="#example-request_29" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8080/operations<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-operationsoperation_id">GET /operations/{operation_id}<a class="headerlink" href="#get-operationsoperation_id" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Get Operation</p>
+<h4 id="parameters_27">Parameters | المعاملات<a class="headerlink" href="#parameters_27" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_id</code></td>
+<td>string</td>
+<td>✓</td>
+<td>query</td>
+<td></td>
+</tr>
+<tr>
+<td><code>skip</code></td>
+<td>string</td>
+<td></td>
+<td>query</td>
+<td></td>
+</tr>
+<tr>
+<td><code>limit</code></td>
+<td>string</td>
+<td></td>
+<td>query</td>
+<td></td>
+</tr>
+<tr>
+<td><code>operation_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+<tr>
+<td><code>operation_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_30">Example Request<a class="headerlink" href="#example-request_30" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8080/operations/<span class="o">{</span>operation_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-operationsoperation_idcomplete">POST /operations/{operation_id}/complete<a class="headerlink" href="#post-operationsoperation_idcomplete" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Complete Operation</p>
+<h4 id="parameters_28">Parameters | المعاملات<a class="headerlink" href="#parameters_28" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>operation_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_31">Example Request<a class="headerlink" href="#example-request_31" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/operations/<span class="o">{</span>operation_id<span class="o">}</span>/complete<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-readyz_1">GET /readyz<a class="headerlink" href="#get-readyz_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Readiness</p>
+<h4 id="example-request_32">Example Request<a class="headerlink" href="#example-request_32" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8080/readyz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-statstenanttenant_id">GET /stats/tenant/{tenant_id}<a class="headerlink" href="#get-statstenanttenant_id" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-ops (Port: 8080)</p>
+<p><strong>Summary:</strong> Get Tenant Stats</p>
+<h4 id="parameters_29">Parameters | المعاملات<a class="headerlink" href="#parameters_29" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Required</th>
+<th>Location</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tenant_id</code></td>
+<td>str</td>
+<td>✓</td>
+<td>path</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="example-request_33">Example Request<a class="headerlink" href="#example-request_33" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8080/stats/tenant/<span class="o">{</span>tenant_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-healthz_2">GET /healthz<a class="headerlink" href="#get-healthz_2" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> Health</p>
+<h4 id="example-request_34">Example Request<a class="headerlink" href="#example-request_34" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/healthz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-healthz_3">GET /healthz<a class="headerlink" href="#get-healthz_3" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> Health</p>
+<h4 id="example-request_35">Example Request<a class="headerlink" href="#example-request_35" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/healthz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-readyz_2">GET /readyz<a class="headerlink" href="#get-readyz_2" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> Readiness</p>
+<h4 id="example-request_36">Example Request<a class="headerlink" href="#example-request_36" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/readyz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-readyz_3">GET /readyz<a class="headerlink" href="#get-readyz_3" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> Readiness</p>
+<h4 id="example-request_37">Example Request<a class="headerlink" href="#example-request_37" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/readyz<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1costscategories">GET /v1/costs/categories<a class="headerlink" href="#get-v1costscategories" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> List all available cost categories</p>
+<h4 id="example-request_38">Example Request<a class="headerlink" href="#example-request_38" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/costs/categories<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1costscategories_1">GET /v1/costs/categories<a class="headerlink" href="#get-v1costscategories_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> List all available cost categories</p>
+<h4 id="example-request_39">Example Request<a class="headerlink" href="#example-request_39" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/costs/categories<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1cropslist">GET /v1/crops/list<a class="headerlink" href="#get-v1cropslist" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_40">Example Request<a class="headerlink" href="#example-request_40" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/crops/list<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1cropslist_1">GET /v1/crops/list<a class="headerlink" href="#get-v1cropslist_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_41">Example Request<a class="headerlink" href="#example-request_41" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/crops/list<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-v1profitabilityanalyze">POST /v1/profitability/analyze<a class="headerlink" href="#post-v1profitabilityanalyze" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> Analyze Profitability</p>
+<h4 id="example-request_42">Example Request<a class="headerlink" href="#example-request_42" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/v1/profitability/analyze<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-v1profitabilityanalyze_1">POST /v1/profitability/analyze<a class="headerlink" href="#post-v1profitabilityanalyze_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> Analyze Profitability</p>
+<h4 id="example-request_43">Example Request<a class="headerlink" href="#example-request_43" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/v1/profitability/analyze<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitybenchmarkscrop_code">GET /v1/profitability/benchmarks/{crop_code}<a class="headerlink" href="#get-v1profitabilitybenchmarkscrop_code" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_44">Example Request<a class="headerlink" href="#example-request_44" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/benchmarks/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitybenchmarkscrop_code_1">GET /v1/profitability/benchmarks/{crop_code}<a class="headerlink" href="#get-v1profitabilitybenchmarkscrop_code_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_45">Example Request<a class="headerlink" href="#example-request_45" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/benchmarks/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitybreak-even">GET /v1/profitability/break-even<a class="headerlink" href="#get-v1profitabilitybreak-even" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_46">Example Request<a class="headerlink" href="#example-request_46" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/break-even<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitybreak-even_1">GET /v1/profitability/break-even<a class="headerlink" href="#get-v1profitabilitybreak-even_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_47">Example Request<a class="headerlink" href="#example-request_47" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/break-even<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitycompare">GET /v1/profitability/compare<a class="headerlink" href="#get-v1profitabilitycompare" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_48">Example Request<a class="headerlink" href="#example-request_48" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/compare<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitycompare_1">GET /v1/profitability/compare<a class="headerlink" href="#get-v1profitabilitycompare_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_49">Example Request<a class="headerlink" href="#example-request_49" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/compare<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitycost-breakdowncrop_code">GET /v1/profitability/cost-breakdown/{crop_code}<a class="headerlink" href="#get-v1profitabilitycost-breakdowncrop_code" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_50">Example Request<a class="headerlink" href="#example-request_50" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/cost-breakdown/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitycost-breakdowncrop_code_1">GET /v1/profitability/cost-breakdown/{crop_code}<a class="headerlink" href="#get-v1profitabilitycost-breakdowncrop_code_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_51">Example Request<a class="headerlink" href="#example-request_51" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/cost-breakdown/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitycropcrop_season_id">GET /v1/profitability/crop/{crop_season_id}<a class="headerlink" href="#get-v1profitabilitycropcrop_season_id" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> Analyze Profitability</p>
+<h4 id="example-request_52">Example Request<a class="headerlink" href="#example-request_52" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/crop/<span class="o">{</span>crop_season_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilitycropcrop_season_id_1">GET /v1/profitability/crop/{crop_season_id}<a class="headerlink" href="#get-v1profitabilitycropcrop_season_id_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> Analyze Profitability</p>
+<h4 id="example-request_53">Example Request<a class="headerlink" href="#example-request_53" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/crop/<span class="o">{</span>crop_season_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilityhistoryfield_idcrop_code">GET /v1/profitability/history/{field_id}/{crop_code}<a class="headerlink" href="#get-v1profitabilityhistoryfield_idcrop_code" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_54">Example Request<a class="headerlink" href="#example-request_54" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/history/<span class="o">{</span>field_id<span class="o">}</span>/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="get-v1profitabilityhistoryfield_idcrop_code_1">GET /v1/profitability/history/{field_id}/{crop_code}<a class="headerlink" href="#get-v1profitabilityhistoryfield_idcrop_code_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> List all crops with available profitability data.</p>
+<p>Returns crop codes, names in both languages, and regional data availability.</p>
+<h4 id="example-request_55">Example Request<a class="headerlink" href="#example-request_55" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/history/<span class="o">{</span>field_id<span class="o">}</span>/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-v1profitabilityseason">POST /v1/profitability/season<a class="headerlink" href="#post-v1profitabilityseason" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Summary:</strong> Get Season Summary</p>
+<h4 id="example-request_56">Example Request<a class="headerlink" href="#example-request_56" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/v1/profitability/season<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h3 id="post-v1profitabilityseason_1">POST /v1/profitability/season<a class="headerlink" href="#post-v1profitabilityseason_1" title="Permanent link">&para;</a></h3>
+<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Summary:</strong> Get Season Summary</p>
+<h4 id="example-request_57">Example Request<a class="headerlink" href="#example-request_57" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/v1/profitability/season<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
+</code></pre></div>
+
+<h2 id="data-models">Data Models | نماذج البيانات<a class="headerlink" href="#data-models" title="Permanent link">&para;</a></h2>
+<h3 id="field">Field<a class="headerlink" href="#field" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">interface</span><span class="w"> </span><span class="nx">Field</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">tenant_id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">name_ar?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">area_hectares</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">location</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">lat</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">lon</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="w">  </span><span class="nx">boundary?</span><span class="o">:</span><span class="w"> </span><span class="kt">GeoJSON.Polygon</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">crop_type</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">planting_date?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">harvest_date?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;active&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;inactive&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;fallow&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">created_at</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">updated_at</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="crop-profitability">Crop Profitability<a class="headerlink" href="#crop-profitability" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">interface</span><span class="w"> </span><span class="nx">CropProfitability</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">crop_season_id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">crop_code</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">crop_name_en</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">crop_name_ar</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">area_ha</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">total_costs</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">total_revenue</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">net_profit</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">profit_margin_pct</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">roi_pct</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">cost_per_ha</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">revenue_per_ha</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">cost_breakdown</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">seeds</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">fertilizer</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">pesticides</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">irrigation</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">labor</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">machinery</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">other</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="error-codes">Error Codes | رموز الخطأ<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Message</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field_not_found</code></td>
+<td>Field not found</td>
+<td>The specified field does not exist</td>
+</tr>
+<tr>
+<td><code>invalid_area</code></td>
+<td>Invalid area</td>
+<td>Area must be greater than 0</td>
+</tr>
+<tr>
+<td><code>invalid_crop_code</code></td>
+<td>Invalid crop code</td>
+<td>The crop code is not recognized</td>
+</tr>
+<tr>
+<td><code>no_benchmark_data</code></td>
+<td>No benchmark data available</td>
+<td>Regional data not available for this crop</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Last updated: 2026-01-02</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

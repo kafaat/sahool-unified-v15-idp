@@ -1,0 +1,1777 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>خطة استثمار الأصول غير المستغلة - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              خطة استثمار الأصول غير المستغلة
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">خطة استثمار الأصول غير المستغلة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="under-utilized-assets-investment-plan">Under-Utilized Assets Investment Plan<a class="headerlink" href="#under-utilized-assets-investment-plan" title="Permanent link">&para;</a></h1>
+<p><strong>الإصدار:</strong> 1.0.0
+<strong>التاريخ:</strong> ديسمبر 2025
+<strong>المنهج:</strong> Field-First Asset Monetization</p>
+<hr />
+<h2 id="_2">الملخص التنفيذي<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>SAHOOL لا يعاني من نقص موارد، بل من موارد قوية لم تُفعّل بعد</strong></p>
+</blockquote>
+<p>بناءً على المراجعة الاستراتيجية للكود، تم تأكيد وجود <strong>5 فئات من الأصول غير المستغلة</strong> يمكن تحويلها إلى قيمة ميدانية مباشرة دون إعادة كتابة.</p>
+<hr />
+<h2 id="_3">📊 نتائج التحليل الفعلي<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="1-event-infrastructure-nats">1. Event Infrastructure (NATS)<a class="headerlink" href="#1-event-infrastructure-nats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ملفات تستخدم NATS</td>
+<td>35 ملف</td>
+</tr>
+<tr>
+<td>في الخدمات النشطة</td>
+<td>❌ معظمها في <code>archive/</code></td>
+</tr>
+<tr>
+<td>في shared/libs</td>
+<td>✅ بنية جاهزة غير مفعّلة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الفجوة:</strong> البنية التحتية للأحداث موجودة في <code>shared/libs/events/</code> لكن الخدمات النشطة تستخدم REST مباشرة.</p>
+<h3 id="2-analysis-services-output">2. Analysis Services Output<a class="headerlink" href="#2-analysis-services-output" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>نوع المخرج</th>
+<th>Action Template</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fertilizer-advisor</td>
+<td><code>FertilizerRecommendation</code></td>
+<td>❌ غير موجود</td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td><code>IrrigationSchedule</code></td>
+<td>❌ غير موجود</td>
+</tr>
+<tr>
+<td>crop-health-ai</td>
+<td>Disease detection</td>
+<td>❌ غير موجود</td>
+</tr>
+<tr>
+<td>yield-engine</td>
+<td>Yield prediction</td>
+<td>❌ غير موجود</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الفجوة:</strong> التحليلات تُنتج Insights لكن لا تُترجم إلى Tasks قابلة للتنفيذ.</p>
+<h3 id="3-shared-packages-adoption">3. Shared Packages Adoption<a class="headerlink" href="#3-shared-packages-adoption" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>apps/web</th>
+<th>apps/admin</th>
+<th>apps/mobile</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@sahool/shared-ui</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>@sahool/shared-hooks</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Offline Components</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الفجوة:</strong> لا توجد مكونات Offline موحدة في المكتبات المشتركة.</p>
+<h3 id="4-historical-data-usage">4. Historical Data Usage<a class="headerlink" href="#4-historical-data-usage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>بيانات تاريخية</th>
+<th>Trend Analysis</th>
+<th>Seasonal Comparison</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>satellite-service</td>
+<td>✅ timeseries</td>
+<td>⚠️ بسيط (improving/declining)</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>weather-advanced</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>indicators-service</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الفجوة:</strong> البيانات التاريخية مخزنة لكن لا تُستخدم للمقارنات الموسمية أو اكتشاف الأنماط.</p>
+<hr />
+<h2 id="_4">🎯 خطة التنفيذ<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-quick-wins-0-30">Phase 1: Quick Wins (0-30 يوم)<a class="headerlink" href="#phase-1-quick-wins-0-30" title="Permanent link">&para;</a></h3>
+<h4 id="11-action-template-standard">1.1 Action Template Standard<a class="headerlink" href="#11-action-template-standard" title="Permanent link">&para;</a></h4>
+<p><strong>الهدف:</strong> كل تحليل يُنتج قالب إجراء قابل للتنفيذ</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># shared/contracts/action_template.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ActionTemplate</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;قالب الإجراء الموحد&quot;&quot;&quot;</span>
+
+    <span class="n">action_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()))</span>
+    <span class="n">action_type</span><span class="p">:</span> <span class="n">ActionType</span>  <span class="c1"># IRRIGATION, FERTILIZATION, SPRAY, INSPECTION</span>
+
+    <span class="c1"># What</span>
+    <span class="n">title_ar</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">title_en</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description_ar</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description_en</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># Why (Analysis Source)</span>
+    <span class="n">source_service</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">source_analysis_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># When</span>
+    <span class="n">urgency</span><span class="p">:</span> <span class="n">UrgencyLevel</span>
+    <span class="n">deadline</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span>
+    <span class="n">optimal_window</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TimeWindow</span><span class="p">]</span>
+
+    <span class="c1"># How</span>
+    <span class="n">steps</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActionStep</span><span class="p">]</span>
+    <span class="n">resources_needed</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Resource</span><span class="p">]</span>
+    <span class="n">estimated_duration_minutes</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="c1"># Fallback (Field-First)</span>
+    <span class="n">offline_executable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">fallback_instructions</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># Tracking</span>
+    <span class="n">created_at</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">)</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">ActionStatus</span> <span class="o">=</span> <span class="n">ActionStatus</span><span class="o">.</span><span class="n">PENDING</span>
+</code></pre></div>
+
+<p><strong>الملفات المتأثرة:</strong>
+- <code>shared/contracts/action_template.py</code> (جديد)
+- <code>apps/services/fertilizer-advisor/src/main.py</code> (تحديث المخرجات)
+- <code>apps/services/irrigation-smart/src/main.py</code> (تحديث المخرجات)
+- <code>apps/services/crop-health-ai/src/main.py</code> (تحديث المخرجات)</p>
+<hr />
+<h4 id="12-nats-as-notification-spine">1.2 NATS as Notification Spine<a class="headerlink" href="#12-nats-as-notification-spine" title="Permanent link">&para;</a></h4>
+<p><strong>الهدف:</strong> تفعيل NATS للتنبيهات بدلاً من REST المباشر</p>
+<div class="codehilite"><pre><span></span><code><span class="err">قبل</span><span class="o">:</span>
+<span class="w">  </span><span class="n">analysis</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">REST</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">notification</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">mobile</span>
+
+<span class="err">بعد</span><span class="o">:</span>
+<span class="w">  </span><span class="n">analysis</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">NATS</span><span class="w"> </span><span class="o">(</span><span class="n">analysis</span><span class="o">.</span><span class="na">completed</span><span class="o">)</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">notification</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">mobile</span>
+</code></pre></div>
+
+<p><strong>التنفيذ:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/satellite-service/src/events.py</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.libs.events.producer</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventProducer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.libs.events.envelope</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventEnvelope</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SatelliteEventPublisher</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nats_client</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">producer</span> <span class="o">=</span> <span class="n">EventProducer</span><span class="p">(</span><span class="n">nats_client</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_ndvi_computed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ndvi_value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">ActionTemplate</span><span class="p">):</span>
+        <span class="n">envelope</span> <span class="o">=</span> <span class="n">EventEnvelope</span><span class="p">(</span>
+            <span class="n">event_type</span><span class="o">=</span><span class="s2">&quot;ndvi.computed.v1&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="n">field_id</span><span class="p">,</span>
+                <span class="s2">&quot;ndvi_value&quot;</span><span class="p">:</span> <span class="n">ndvi_value</span><span class="p">,</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span> <span class="k">if</span> <span class="n">action</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">producer</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">envelope</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>الملفات المتأثرة:</strong>
+- <code>apps/services/satellite-service/src/events.py</code> (جديد)
+- <code>apps/services/notification-service/src/subscribers.py</code> (جديد)
+- <code>docker-compose.yml</code> (تفعيل NATS)</p>
+<hr />
+<h4 id="13-unified-offline-ux-components">1.3 Unified Offline UX Components<a class="headerlink" href="#13-unified-offline-ux-components" title="Permanent link">&para;</a></h4>
+<p><strong>الهدف:</strong> مكونات موحدة للتعامل مع حالة عدم الاتصال</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// packages/shared-ui/src/components/offline/index.ts</span>
+
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineBanner</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./OfflineBanner&#39;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">StaleDataBadge</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./StaleDataBadge&#39;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">SyncStatusIndicator</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./SyncStatusIndicator&#39;</span><span class="p">;</span>
+<span class="k">export</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">OfflineAwareWrapper</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./OfflineAwareWrapper&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1">// packages/shared-ui/src/components/offline/OfflineAwareWrapper.tsx</span>
+
+<span class="kd">interface</span><span class="w"> </span><span class="nx">OfflineAwareWrapperProps</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">children</span><span class="o">:</span><span class="w"> </span><span class="kt">React.ReactNode</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">lastUpdated?</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">staleThresholdMinutes?</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">offlineFallback?</span><span class="o">:</span><span class="w"> </span><span class="kt">React.ReactNode</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">OfflineAwareWrapper</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">children</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">lastUpdated</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">staleThresholdMinutes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">30</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">offlineFallback</span>
+<span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="nx">OfflineAwareWrapperProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">isOnline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useOnlineStatus</span><span class="p">();</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">isStale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">lastUpdated</span><span class="w"> </span><span class="o">&amp;&amp;</span>
+<span class="w">    </span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">lastUpdated</span><span class="p">.</span><span class="nx">getTime</span><span class="p">())</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nx">staleThresholdMinutes</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">60</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1000</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;relative&quot;</span><span class="o">&gt;</span>
+<span class="w">      </span><span class="p">{</span><span class="o">!</span><span class="nx">isOnline</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">&lt;</span><span class="nx">OfflineBanner</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">}</span>
+<span class="w">      </span><span class="p">{</span><span class="nx">isStale</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">&lt;</span><span class="nx">StaleDataBadge</span><span class="w"> </span><span class="nx">lastUpdated</span><span class="o">=</span><span class="p">{</span><span class="nx">lastUpdated</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">}</span>
+<span class="w">      </span><span class="p">{</span><span class="o">!</span><span class="nx">isOnline</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">offlineFallback</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">offlineFallback</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">children</span><span class="p">}</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="err">/div&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>الملفات الجديدة:</strong>
+- <code>packages/shared-ui/src/components/offline/OfflineBanner.tsx</code>
+- <code>packages/shared-ui/src/components/offline/StaleDataBadge.tsx</code>
+- <code>packages/shared-ui/src/components/offline/SyncStatusIndicator.tsx</code>
+- <code>packages/shared-ui/src/components/offline/OfflineAwareWrapper.tsx</code>
+- <code>packages/shared-ui/src/components/offline/index.ts</code></p>
+<hr />
+<h3 id="phase-2-medium-investment-31-60">Phase 2: Medium Investment (31-60 يوم)<a class="headerlink" href="#phase-2-medium-investment-31-60" title="Permanent link">&para;</a></h3>
+<h4 id="21-historical-geospatial-intelligence">2.1 Historical Geospatial Intelligence<a class="headerlink" href="#21-historical-geospatial-intelligence" title="Permanent link">&para;</a></h4>
+<p><strong>الهدف:</strong> تفعيل المقارنات التاريخية والموسمية</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/satellite-service/src/historical.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">HistoricalAnalyzer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;محلل البيانات التاريخية&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">compare_seasons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">current_date</span><span class="p">:</span> <span class="n">date</span><span class="p">,</span>
+        <span class="n">lookback_years</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeasonalComparison</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;مقارنة الموسم الحالي بالمواسم السابقة&quot;&quot;&quot;</span>
+
+        <span class="n">current_season</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_season_data</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">current_date</span><span class="p">)</span>
+        <span class="n">historical_seasons</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">lookback_years</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">past_date</span> <span class="o">=</span> <span class="n">current_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">current_date</span><span class="o">.</span><span class="n">year</span> <span class="o">-</span> <span class="n">year</span><span class="p">)</span>
+            <span class="n">season</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_season_data</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">past_date</span><span class="p">)</span>
+            <span class="n">historical_seasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">season</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">SeasonalComparison</span><span class="p">(</span>
+            <span class="n">current</span><span class="o">=</span><span class="n">current_season</span><span class="p">,</span>
+            <span class="n">historical</span><span class="o">=</span><span class="n">historical_seasons</span><span class="p">,</span>
+            <span class="n">deviation_percent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_calculate_deviation</span><span class="p">(</span><span class="n">current_season</span><span class="p">,</span> <span class="n">historical_seasons</span><span class="p">),</span>
+            <span class="n">risk_areas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_identify_risk_areas</span><span class="p">(</span><span class="n">current_season</span><span class="p">,</span> <span class="n">historical_seasons</span><span class="p">),</span>
+            <span class="n">insights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_generate_insights</span><span class="p">(</span><span class="n">current_season</span><span class="p">,</span> <span class="n">historical_seasons</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">detect_chronic_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ChronicIssue</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;اكتشاف المشاكل المزمنة في الحقل&quot;&quot;&quot;</span>
+
+        <span class="c1"># Analyze 3 years of data</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ndvi_history</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ndvi_history</span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span> <span class="n">years</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="c1"># Find zones that consistently underperform</span>
+        <span class="k">for</span> <span class="n">zone</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_identify_zones</span><span class="p">(</span><span class="n">ndvi_history</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">zone</span><span class="o">.</span><span class="n">avg_ndvi</span> <span class="o">&lt;</span> <span class="mf">0.4</span> <span class="ow">and</span> <span class="n">zone</span><span class="o">.</span><span class="n">consistency</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ChronicIssue</span><span class="p">(</span>
+                    <span class="n">zone_geometry</span><span class="o">=</span><span class="n">zone</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+                    <span class="n">issue_type</span><span class="o">=</span><span class="s2">&quot;chronic_low_vigor&quot;</span><span class="p">,</span>
+                    <span class="n">severity</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_calculate_severity</span><span class="p">(</span><span class="n">zone</span><span class="p">),</span>
+                    <span class="n">recommended_actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_suggest_remediation</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span>
+                <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+
+<p><strong>Endpoint جديد:</strong></p>
+<div class="codehilite"><pre><span></span><code>GET /api/v1/fields/{field_id}/historical-analysis
+GET /api/v1/fields/{field_id}/seasonal-comparison
+GET /api/v1/fields/{field_id}/chronic-issues
+</code></pre></div>
+
+<hr />
+<h4 id="22-docs-as-guardrails">2.2 Docs as Guardrails<a class="headerlink" href="#22-docs-as-guardrails" title="Permanent link">&para;</a></h4>
+<p><strong>الهدف:</strong> تحويل الوثائق إلى فحوصات تلقائية</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># .github/PULL_REQUEST_TEMPLATE.md</span>
+
+<span class="c1">## Field-First Checklist</span>
+
+<span class="c1">### Required (Block Merge if Not Checked)</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Does this change work offline? (أو يوجد fallback)</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="nt">If analysis service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Does it output ActionTemplate?</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="nt">If frontend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Does it use OfflineAwareWrapper?</span>
+
+<span class="c1">### Recommended</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Uses NATS for async communication</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Has Field-First tests</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="p p-Indicator">]</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Updates relevant documentation</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1"># .github/workflows/field-first-check.yml</span>
+
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Field-First Architecture Check</span>
+
+<span class="nt">on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">pull_request</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">check</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check for offline support</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">if grep -r &quot;fetch\|axios&quot; apps/mobile/; then</span>
+<span class="w">            </span><span class="no">if ! grep -r &quot;OfflineAware\|offline\|cache&quot; apps/mobile/; then</span>
+<span class="w">              </span><span class="no">echo &quot;::warning::Mobile code uses network calls without offline handling&quot;</span>
+<span class="w">            </span><span class="no">fi</span>
+<span class="w">          </span><span class="no">fi</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check analysis services</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">for service in apps/services/*-advisor apps/services/*-engine; do</span>
+<span class="w">            </span><span class="no">if [ -d &quot;$service&quot; ]; then</span>
+<span class="w">              </span><span class="no">if ! grep -q &quot;ActionTemplate&quot; &quot;$service/src/main.py&quot;; then</span>
+<span class="w">                </span><span class="no">echo &quot;::warning::$service does not output ActionTemplate&quot;</span>
+<span class="w">              </span><span class="no">fi</span>
+<span class="w">            </span><span class="no">fi</span>
+<span class="w">          </span><span class="no">done</span>
+</code></pre></div>
+
+<hr />
+<h3 id="phase-3-strategic-investment-61-90">Phase 3: Strategic Investment (61-90 يوم)<a class="headerlink" href="#phase-3-strategic-investment-61-90" title="Permanent link">&para;</a></h3>
+<h4 id="31-event-driven-playbooks">3.1 Event-Driven Playbooks<a class="headerlink" href="#31-event-driven-playbooks" title="Permanent link">&para;</a></h4>
+<p><strong>الهدف:</strong> سلاسل إجراءات تلقائية بناءً على الأحداث</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># shared/playbooks/engine.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PlaybookEngine</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;محرك Playbooks للإجراءات التلقائية&quot;&quot;&quot;</span>
+
+    <span class="n">playbooks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;drought_response&quot;</span><span class="p">:</span> <span class="n">DroughtResponsePlaybook</span><span class="p">(),</span>
+        <span class="s2">&quot;disease_outbreak&quot;</span><span class="p">:</span> <span class="n">DiseaseOutbreakPlaybook</span><span class="p">(),</span>
+        <span class="s2">&quot;yield_optimization&quot;</span><span class="p">:</span> <span class="n">YieldOptimizationPlaybook</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">trigger</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">EventEnvelope</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;تفعيل Playbook بناءً على الحدث&quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">playbook</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">playbooks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">playbook</span><span class="o">.</span><span class="n">matches</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+                <span class="k">await</span> <span class="n">playbook</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DroughtResponsePlaybook</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Playbook الاستجابة للجفاف&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">EventEnvelope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="s2">&quot;ndvi.computed.v1&quot;</span> <span class="ow">and</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ndvi_value&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.3</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">event_type</span> <span class="o">==</span> <span class="s2">&quot;weather.alert.v1&quot;</span> <span class="ow">and</span>
+            <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alert_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;drought&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">EventEnvelope</span><span class="p">):</span>
+        <span class="n">field_id</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;field_id&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Step 1: Get irrigation recommendation</span>
+        <span class="n">irrigation</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">irrigation_service</span><span class="o">.</span><span class="n">get_emergency_schedule</span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span>
+
+        <span class="c1"># Step 2: Create tasks</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ActionTemplate</span><span class="p">(</span>
+                <span class="n">action_type</span><span class="o">=</span><span class="n">ActionType</span><span class="o">.</span><span class="n">IRRIGATION</span><span class="p">,</span>
+                <span class="n">title_ar</span><span class="o">=</span><span class="s2">&quot;ري طوارئ - جفاف&quot;</span><span class="p">,</span>
+                <span class="n">urgency</span><span class="o">=</span><span class="n">UrgencyLevel</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">,</span>
+                <span class="n">steps</span><span class="o">=</span><span class="n">irrigation</span><span class="o">.</span><span class="n">steps</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Step 3: Notify</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">notification_service</span><span class="o">.</span><span class="n">send_critical_alert</span><span class="p">(</span>
+            <span class="n">field_id</span><span class="o">=</span><span class="n">field_id</span><span class="p">,</span>
+            <span class="n">alert_type</span><span class="o">=</span><span class="s2">&quot;drought_response&quot;</span><span class="p">,</span>
+            <span class="n">tasks</span><span class="o">=</span><span class="n">tasks</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Step 4: Log playbook execution</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">audit_service</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;playbook.executed&quot;</span><span class="p">,</span>
+            <span class="n">playbook</span><span class="o">=</span><span class="s2">&quot;drought_response&quot;</span><span class="p">,</span>
+            <span class="n">field_id</span><span class="o">=</span><span class="n">field_id</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h4 id="32-operations-analytics">3.2 Operations Analytics<a class="headerlink" href="#32-operations-analytics" title="Permanent link">&para;</a></h4>
+<p><strong>الهدف:</strong> قياس فعالية التوصيات</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/analytics-service/src/operations.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OperationsAnalytics</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;تحليلات العمليات&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_recommendation_effectiveness</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">date_range</span><span class="p">:</span> <span class="n">DateRange</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EffectivenessReport</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;قياس فعالية التوصيات&quot;&quot;&quot;</span>
+
+        <span class="c1"># Get all recommendations issued</span>
+        <span class="n">recommendations</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_recommendations</span><span class="p">(</span>
+            <span class="n">tenant_id</span><span class="o">=</span><span class="n">tenant_id</span><span class="p">,</span>
+            <span class="n">date_range</span><span class="o">=</span><span class="n">date_range</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Track execution</span>
+        <span class="n">executed</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recommendations</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;executed&quot;</span><span class="p">]</span>
+        <span class="n">ignored</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">recommendations</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;ignored&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Calculate outcomes</span>
+        <span class="k">return</span> <span class="n">EffectivenessReport</span><span class="p">(</span>
+            <span class="n">total_recommendations</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">recommendations</span><span class="p">),</span>
+            <span class="n">executed_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">executed</span><span class="p">),</span>
+            <span class="n">execution_rate</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">executed</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">recommendations</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+
+            <span class="c1"># By type</span>
+            <span class="n">by_type</span><span class="o">=</span><span class="p">{</span>
+                <span class="n">ActionType</span><span class="o">.</span><span class="n">IRRIGATION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_type</span><span class="p">(</span><span class="n">recommendations</span><span class="p">,</span> <span class="n">ActionType</span><span class="o">.</span><span class="n">IRRIGATION</span><span class="p">),</span>
+                <span class="n">ActionType</span><span class="o">.</span><span class="n">FERTILIZATION</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_type</span><span class="p">(</span><span class="n">recommendations</span><span class="p">,</span> <span class="n">ActionType</span><span class="o">.</span><span class="n">FERTILIZATION</span><span class="p">),</span>
+                <span class="n">ActionType</span><span class="o">.</span><span class="n">SPRAY</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_analyze_type</span><span class="p">(</span><span class="n">recommendations</span><span class="p">,</span> <span class="n">ActionType</span><span class="o">.</span><span class="n">SPRAY</span><span class="p">)</span>
+            <span class="p">},</span>
+
+            <span class="c1"># Time to action</span>
+            <span class="n">avg_time_to_action_hours</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_calculate_avg_time</span><span class="p">(</span><span class="n">executed</span><span class="p">),</span>
+
+            <span class="c1"># Impact correlation</span>
+            <span class="n">ndvi_improvement_after_action</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_correlate_ndvi_improvement</span><span class="p">(</span><span class="n">executed</span><span class="p">),</span>
+
+            <span class="c1"># Recommendations</span>
+            <span class="n">improvement_suggestions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_suggest_improvements</span><span class="p">(</span><span class="n">recommendations</span><span class="p">)</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="roi-matrix">📈 ROI Matrix<a class="headerlink" href="#roi-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المورد</th>
+<th>الجهد</th>
+<th>الأثر</th>
+<th>ROI Score</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Action Template Standard</td>
+<td>🟢 منخفض</td>
+<td>🔴 عالي جدًا</td>
+<td>9/10</td>
+<td>🥇 1</td>
+</tr>
+<tr>
+<td>NATS Notification Spine</td>
+<td>🟡 متوسط</td>
+<td>🔴 عالي</td>
+<td>8/10</td>
+<td>🥈 2</td>
+</tr>
+<tr>
+<td>Unified Offline UX</td>
+<td>🟢 منخفض</td>
+<td>🟡 متوسط</td>
+<td>7/10</td>
+<td>🥉 3</td>
+</tr>
+<tr>
+<td>Historical Intelligence</td>
+<td>🟡 متوسط</td>
+<td>🟡 متوسط</td>
+<td>6/10</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Docs as Guardrails</td>
+<td>🟢 منخفض</td>
+<td>🟡 متوسط</td>
+<td>7/10</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Event-Driven Playbooks</td>
+<td>🔴 عالي</td>
+<td>🔴 عالي جدًا</td>
+<td>7/10</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Operations Analytics</td>
+<td>🟡 متوسط</td>
+<td>🟡 متوسط</td>
+<td>5/10</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_5">📁 الملفات الجديدة المطلوبة<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1">Phase 1<a class="headerlink" href="#phase-1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">shared</span><span class="o">/</span><span class="nx">contracts</span><span class="o">/</span><span class="nx">action_template</span><span class="p">.</span><span class="nx">py</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Action</span><span class="w"> </span><span class="nx">Template</span><span class="w"> </span><span class="nx">Standard</span>
+<span class="nx">shared</span><span class="o">/</span><span class="nx">contracts</span><span class="o">/</span><span class="nx">action_types</span><span class="p">.</span><span class="nx">py</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Action</span><span class="w"> </span><span class="nx">Types</span><span class="w"> </span><span class="nx">Enum</span>
+<span class="nx">packages</span><span class="o">/</span><span class="nx">shared</span><span class="o">-</span><span class="nx">ui</span><span class="o">/</span><span class="nx">src</span><span class="o">/</span><span class="nx">components</span><span class="o">/</span><span class="nx">offline</span><span class="o">/</span><span class="w">   </span><span class="err">#</span><span class="w"> </span><span class="nx">Offline</span><span class="w"> </span><span class="nx">Components</span>
+<span class="nx">apps</span><span class="o">/</span><span class="nx">services</span><span class="o">/*/</span><span class="nx">src</span><span class="o">/</span><span class="nx">events</span><span class="p">.</span><span class="nx">py</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">Event</span><span class="w"> </span><span class="nx">Publishers</span>
+</code></pre></div>
+
+<h3 id="phase-2">Phase 2<a class="headerlink" href="#phase-2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nf">apps</span><span class="err">/</span><span class="no">services</span><span class="err">/</span><span class="no">satellite-service</span><span class="err">/</span><span class="no">src</span><span class="err">/</span><span class="no">historical.py</span>
+<span class="na">.github</span><span class="err">/</span><span class="no">PULL_REQUEST_TEMPLATE.md</span>
+<span class="na">.github</span><span class="err">/</span><span class="no">workflows</span><span class="err">/</span><span class="no">field-first-check.yml</span>
+</code></pre></div>
+
+<h3 id="phase-3">Phase 3<a class="headerlink" href="#phase-3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>shared/playbooks/                            # Playbook Engine
+apps/services/analytics-service/             # Operations Analytics
+</code></pre></div>
+
+<hr />
+<h2 id="_6">✅ معايير النجاح<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-kpis">Phase 1 KPIs<a class="headerlink" href="#phase-1-kpis" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 100% من خدمات التحليل تُنتج ActionTemplate</li>
+<li>[ ] NATS يحمل 80% من التنبيهات</li>
+<li>[ ] مكونات Offline مستخدمة في Web و Mobile</li>
+</ul>
+<h3 id="phase-2-kpis">Phase 2 KPIs<a class="headerlink" href="#phase-2-kpis" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] مقارنات موسمية متاحة لكل حقل</li>
+<li>[ ] 100% من PRs تمر بـ Field-First check</li>
+</ul>
+<h3 id="phase-3-kpis">Phase 3 KPIs<a class="headerlink" href="#phase-3-kpis" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 3+ Playbooks نشطة</li>
+<li>[ ] تقارير فعالية أسبوعية</li>
+</ul>
+<hr />
+<h2 id="_7">الخطوة التالية<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<p>ابدأ بـ <strong>Phase 1.1: Action Template Standard</strong> لأنه:
+1. أقل جهد
+2. أعلى عائد
+3. أساس لكل المراحل اللاحقة</p>
+<hr />
+<p align="center">
+  <sub>SAHOOL Asset Investment Plan v1.0.0</sub>
+  <br>
+  <sub>ديسمبر 2025</sub>
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

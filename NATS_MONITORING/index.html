@@ -1,0 +1,2152 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>NATS Monitoring Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nats-monitoring-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              NATS Monitoring Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="nats-monitoring-guide">NATS Monitoring Guide<a class="headerlink" href="#nats-monitoring-guide" title="Permanent link">&para;</a></h1>
+<h1 id="nats">دليل مراقبة NATS<a class="headerlink" href="#nats" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> 1.0.0
+<strong>Date:</strong> 2026-01-07
+<strong>Platform:</strong> SAHOOL Agricultural Platform</p>
+<hr />
+<h2 id="table-of-contents-">Table of Contents - جدول المحتويات<a class="headerlink" href="#table-of-contents-" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#setup--installation">Setup &amp; Installation</a></li>
+<li><a href="#metrics--monitoring">Metrics &amp; Monitoring</a></li>
+<li><a href="#alerting-rules">Alerting Rules</a></li>
+<li><a href="#dashboards">Dashboards</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#reference">Reference</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>NATS is the message queue backbone of the SAHOOL platform, enabling event-driven communication between 39+ microservices. This document describes the comprehensive monitoring solution for NATS JetStream.</p>
+<h3 id="_1">نظرة عامة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>NATS هو العمود الفقري لنظام الرسائل في منصة سهول، مما يتيح الاتصال الموجه بالأحداث بين أكثر من 39 خدمة صغيرة. يصف هذا المستند حل المراقبة الشامل لـ NATS JetStream.</p>
+<h3 id="key-features-">Key Features - الميزات الرئيسية<a class="headerlink" href="#key-features-" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ <strong>Real-time Metrics</strong>: Prometheus-based metrics collection</li>
+<li>✅ <strong>JetStream Monitoring</strong>: Stream and consumer-level visibility</li>
+<li>✅ <strong>Comprehensive Alerts</strong>: 30+ alerting rules for proactive monitoring</li>
+<li>✅ <strong>Performance Tracking</strong>: Message rates, latency, and throughput</li>
+<li>✅ <strong>Health Checks</strong>: Server, cluster, and connection monitoring</li>
+<li>✅ <strong>Resource Monitoring</strong>: CPU, memory, and storage tracking</li>
+</ul>
+<hr />
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="monitoring-stack-">Monitoring Stack - مكونات المراقبة<a class="headerlink" href="#monitoring-stack-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                     NATS Monitoring Stack                    │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────┐      ┌──────────────┐                     │
+│  │              │      │              │                     │
+│  │  NATS Server │◄─────┤  NATS        │                     │
+│  │  (Port 4222) │      │  Prometheus  │                     │
+│  │              │      │  Exporter    │                     │
+│  └──────┬───────┘      └──────┬───────┘                     │
+│         │                     │                             │
+│         │ HTTP Metrics        │ Enhanced Metrics            │
+│         │ (Port 8222)         │ (Port 7777)                 │
+│         │                     │                             │
+│         ▼                     ▼                             │
+│  ┌─────────────────────────────────────┐                   │
+│  │                                       │                   │
+│  │      Prometheus                       │                   │
+│  │      (Port 9090)                      │                   │
+│  │                                       │                   │
+│  │  - Scrapes metrics every 15s          │                   │
+│  │  - Evaluates 30+ alert rules          │                   │
+│  │  - Stores 30 days of data             │                   │
+│  │                                       │                   │
+│  └───────────────┬──────────────────────┘                   │
+│                  │                                           │
+│                  ▼                                           │
+│  ┌───────────────────────────┬─────────────────────────┐   │
+│  │                           │                         │   │
+│  │      Alertmanager         │       Grafana           │   │
+│  │      (Port 9093)          │       (Port 3002)       │   │
+│  │                           │                         │   │
+│  │  - Routes alerts          │  - Visualizes metrics   │   │
+│  │  - De-duplicates          │  - Real-time dashboards │   │
+│  │  - Sends notifications    │  - Historical analysis  │   │
+│  │                           │                         │   │
+│  └───────────────────────────┴─────────────────────────┘   │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="components-">Components - المكونات<a class="headerlink" href="#components-" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>NATS Server (nats:2.10-alpine)</strong></li>
+<li>Exposes HTTP monitoring endpoint on port 8222</li>
+<li>Provides <code>/metrics</code>, <code>/varz</code>, <code>/connz</code>, <code>/jsz</code> endpoints</li>
+<li>
+<p>JetStream enabled with encryption at rest</p>
+</li>
+<li>
+<p><strong>NATS Prometheus Exporter (natsio/prometheus-nats-exporter:0.14.0)</strong></p>
+</li>
+<li>Scrapes NATS monitoring endpoints</li>
+<li>Transforms to Prometheus format</li>
+<li>
+<p>Exposes enhanced metrics on port 7777</p>
+</li>
+<li>
+<p><strong>Prometheus</strong></p>
+</li>
+<li>Scrapes both NATS direct metrics and exporter metrics</li>
+<li>Evaluates alerting rules every 15-30 seconds</li>
+<li>
+<p>Stores metrics for 30 days</p>
+</li>
+<li>
+<p><strong>Alertmanager</strong></p>
+</li>
+<li>Receives alerts from Prometheus</li>
+<li>Routes to appropriate channels (Slack, Email, PagerDuty)</li>
+<li>
+<p>Handles alert de-duplication and grouping</p>
+</li>
+<li>
+<p><strong>Grafana</strong></p>
+</li>
+<li>Visualizes NATS metrics</li>
+<li>Pre-built dashboards for streams and consumers</li>
+<li>Real-time and historical analysis</li>
+</ol>
+<hr />
+<h2 id="setup-installation">Setup &amp; Installation<a class="headerlink" href="#setup-installation" title="Permanent link">&para;</a></h2>
+<h3 id="prerequisites-">Prerequisites - المتطلبات الأساسية<a class="headerlink" href="#prerequisites-" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Docker &amp; Docker Compose</li>
+<li>SAHOOL platform running</li>
+<li>Monitoring stack deployed</li>
+<li>Environment variables configured</li>
+</ul>
+<h3 id="quick-start-">Quick Start - البدء السريع<a class="headerlink" href="#quick-start-" title="Permanent link">&para;</a></h3>
+<h4 id="1-deploy-nats-monitoring">1. Deploy NATS Monitoring<a class="headerlink" href="#1-deploy-nats-monitoring" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Start the main platform (if not already running)</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># The NATS exporter is included in the main docker-compose.yml</span>
+<span class="c1"># It will start automatically with the platform</span>
+
+<span class="c1"># Verify NATS exporter is running</span>
+docker<span class="w"> </span>ps<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nats-prometheus-exporter
+
+<span class="c1"># Check exporter metrics endpoint</span>
+curl<span class="w"> </span>http://localhost:7777/metrics
+</code></pre></div>
+
+<h4 id="2-verify-prometheus-scraping">2. Verify Prometheus Scraping<a class="headerlink" href="#2-verify-prometheus-scraping" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check Prometheus targets</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.activeTargets[] | select(.labels.component == &quot;message-queue&quot;)&#39;</span>
+
+<span class="c1"># Verify NATS metrics are being collected</span>
+curl<span class="w"> </span>-G<span class="w"> </span>http://localhost:9090/api/v1/query<span class="w"> </span>--data-urlencode<span class="w"> </span><span class="s1">&#39;query=gnatsd_varz_connections&#39;</span>
+</code></pre></div>
+
+<h4 id="3-load-grafana-dashboards">3. Load Grafana Dashboards<a class="headerlink" href="#3-load-grafana-dashboards" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Open Grafana</span>
+open<span class="w"> </span>http://localhost:3002
+
+<span class="c1"># Login with credentials from .env</span>
+<span class="c1"># Username: admin</span>
+<span class="c1"># Password: [GRAFANA_ADMIN_PASSWORD]</span>
+
+<span class="c1"># Import NATS Dashboard</span>
+<span class="c1"># Go to: Dashboards &gt; Import &gt; Enter ID: 2279</span>
+<span class="c1"># Select Prometheus datasource</span>
+
+<span class="c1"># Import JetStream Dashboard</span>
+<span class="c1"># Go to: Dashboards &gt; Import &gt; Enter ID: 14522</span>
+</code></pre></div>
+
+<h4 id="4-test-alerting">4. Test Alerting<a class="headerlink" href="#4-test-alerting" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check alert rules are loaded</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/rules<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.groups[] | select(.name | contains(&quot;nats&quot;))&#39;</span>
+
+<span class="c1"># Verify no active alerts (in healthy state)</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/alerts<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.alerts[] | select(.labels.component == &quot;message-queue&quot;)&#39;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="metrics-monitoring">Metrics &amp; Monitoring<a class="headerlink" href="#metrics-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="core-nats-metrics-nats">Core NATS Metrics - مقاييس NATS الأساسية<a class="headerlink" href="#core-nats-metrics-nats" title="Permanent link">&para;</a></h3>
+<h4 id="server-health-metrics">Server Health Metrics<a class="headerlink" href="#server-health-metrics" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Type</th>
+<th>Arabic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gnatsd_varz_connections</code></td>
+<td>Current active connections</td>
+<td>Gauge</td>
+<td>الاتصالات النشطة</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_total_connections</code></td>
+<td>Total connections since start</td>
+<td>Counter</td>
+<td>إجمالي الاتصالات</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_in_msgs</code></td>
+<td>Incoming messages</td>
+<td>Counter</td>
+<td>الرسائل الواردة</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_out_msgs</code></td>
+<td>Outgoing messages</td>
+<td>Counter</td>
+<td>الرسائل الصادرة</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_in_bytes</code></td>
+<td>Incoming bytes</td>
+<td>Counter</td>
+<td>البايتات الواردة</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_out_bytes</code></td>
+<td>Outgoing bytes</td>
+<td>Counter</td>
+<td>البايتات الصادرة</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_slow_consumers</code></td>
+<td>Number of slow consumers</td>
+<td>Gauge</td>
+<td>المستهلكون البطيئون</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_subscriptions</code></td>
+<td>Active subscriptions</td>
+<td>Gauge</td>
+<td>الاشتراكات النشطة</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_cpu</code></td>
+<td>CPU usage percentage</td>
+<td>Gauge</td>
+<td>استخدام المعالج</td>
+</tr>
+<tr>
+<td><code>gnatsd_varz_mem</code></td>
+<td>Memory usage in bytes</td>
+<td>Gauge</td>
+<td>استخدام الذاكرة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="jetstream-metrics">JetStream Metrics<a class="headerlink" href="#jetstream-metrics" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Type</th>
+<th>Arabic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gnatsd_jetstream_enabled</code></td>
+<td>JetStream status (1=enabled, 0=disabled)</td>
+<td>Gauge</td>
+<td>حالة JetStream</td>
+</tr>
+<tr>
+<td><code>gnatsd_jetstream_memory_used</code></td>
+<td>JetStream memory usage</td>
+<td>Gauge</td>
+<td>استخدام ذاكرة JetStream</td>
+</tr>
+<tr>
+<td><code>gnatsd_jetstream_storage_used</code></td>
+<td>JetStream storage usage</td>
+<td>Gauge</td>
+<td>استخدام تخزين JetStream</td>
+</tr>
+<tr>
+<td><code>gnatsd_jetstream_streams</code></td>
+<td>Number of streams</td>
+<td>Gauge</td>
+<td>عدد التدفقات</td>
+</tr>
+<tr>
+<td><code>gnatsd_jetstream_consumers</code></td>
+<td>Number of consumers</td>
+<td>Gauge</td>
+<td>عدد المستهلكين</td>
+</tr>
+<tr>
+<td><code>gnatsd_jetstream_messages</code></td>
+<td>Total messages in all streams</td>
+<td>Gauge</td>
+<td>إجمالي الرسائل</td>
+</tr>
+</tbody>
+</table>
+<h4 id="per-stream-metrics">Per-Stream Metrics<a class="headerlink" href="#per-stream-metrics" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Labels</th>
+<th>Arabic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nats_jetstream_stream_messages</code></td>
+<td>Messages in stream</td>
+<td>stream, account</td>
+<td>الرسائل في التدفق</td>
+</tr>
+<tr>
+<td><code>nats_jetstream_stream_bytes</code></td>
+<td>Bytes in stream</td>
+<td>stream, account</td>
+<td>بايتات التدفق</td>
+</tr>
+<tr>
+<td><code>nats_jetstream_stream_first_seq</code></td>
+<td>First sequence number</td>
+<td>stream</td>
+<td>أول رقم تسلسلي</td>
+</tr>
+<tr>
+<td><code>nats_jetstream_stream_last_seq</code></td>
+<td>Last sequence number</td>
+<td>stream</td>
+<td>آخر رقم تسلسلي</td>
+</tr>
+</tbody>
+</table>
+<h4 id="per-consumer-metrics">Per-Consumer Metrics<a class="headerlink" href="#per-consumer-metrics" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>Labels</th>
+<th>Arabic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nats_jetstream_consumer_num_pending</code></td>
+<td>Pending messages</td>
+<td>stream, consumer</td>
+<td>الرسائل المعلقة</td>
+</tr>
+<tr>
+<td><code>nats_jetstream_consumer_num_ack_pending</code></td>
+<td>Unacknowledged messages</td>
+<td>stream, consumer</td>
+<td>الرسائل غير المؤكدة</td>
+</tr>
+<tr>
+<td><code>nats_jetstream_consumer_delivered</code></td>
+<td>Delivered messages</td>
+<td>stream, consumer</td>
+<td>الرسائل المسلمة</td>
+</tr>
+<tr>
+<td><code>nats_jetstream_consumer_redelivered</code></td>
+<td>Redelivered messages</td>
+<td>stream, consumer</td>
+<td>الرسائل المعاد تسليمها</td>
+</tr>
+</tbody>
+</table>
+<h3 id="useful-promql-queries-promql">Useful PromQL Queries - استعلامات PromQL مفيدة<a class="headerlink" href="#useful-promql-queries-promql" title="Permanent link">&para;</a></h3>
+<h4 id="message-rate">Message Rate<a class="headerlink" href="#message-rate" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Messages per second (incoming)</span>
+<span class="kr">rate</span><span class="o">(</span><span class="nv">gnatsd_varz_in_msgs</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+
+<span class="c1"># Messages per second (outgoing)</span>
+<span class="kr">rate</span><span class="o">(</span><span class="nv">gnatsd_varz_out_msgs</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+
+<span class="c1"># Bytes per second (throughput)</span>
+<span class="kr">rate</span><span class="o">(</span><span class="nv">gnatsd_varz_in_bytes</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+</code></pre></div>
+
+<h4 id="connection-monitoring">Connection Monitoring<a class="headerlink" href="#connection-monitoring" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Current connections</span>
+<span class="nv">gnatsd_varz_connections</span>
+
+<span class="c1"># Connection rate</span>
+<span class="kr">rate</span><span class="o">(</span><span class="nv">gnatsd_varz_total_connections</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+
+<span class="c1"># Connection utilization (percentage)</span>
+<span class="o">(</span><span class="nv">gnatsd_varz_connections</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">gnatsd_varz_max_connections</span><span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span>
+</code></pre></div>
+
+<h4 id="jetstream-health">JetStream Health<a class="headerlink" href="#jetstream-health" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Memory usage percentage</span>
+<span class="o">(</span><span class="nv">gnatsd_jetstream_memory_used</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1073741824</span><span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="w">  </span><span class="c1"># Assuming 1GB limit</span>
+
+<span class="c1"># Storage usage percentage</span>
+<span class="o">(</span><span class="nv">gnatsd_jetstream_storage_used</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">10737418240</span><span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="w">  </span><span class="c1"># Assuming 10GB limit</span>
+
+<span class="c1"># Total pending messages across all consumers</span>
+<span class="k">sum</span><span class="o">(</span><span class="nv">nats_jetstream_consumer_num_pending</span><span class="o">)</span>
+</code></pre></div>
+
+<h4 id="consumer-performance">Consumer Performance<a class="headerlink" href="#consumer-performance" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Consumer processing rate</span>
+<span class="kr">rate</span><span class="o">(</span><span class="nv">nats_jetstream_consumer_delivered</span><span class="p">{</span><span class="nl">stream</span><span class="o">=</span><span class="p">&quot;</span><span class="s">my-stream</span><span class="p">&quot;}[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+
+<span class="c1"># Consumer lag (pending messages)</span>
+<span class="nv">nats_jetstream_consumer_num_pending</span><span class="p">{</span><span class="nl">stream</span><span class="o">=</span><span class="p">&quot;</span><span class="s">my-stream</span><span class="p">&quot;,</span><span class="w"> </span><span class="nl">consumer</span><span class="o">=</span><span class="p">&quot;</span><span class="s">my-consumer</span><span class="p">&quot;}</span>
+
+<span class="c1"># Redelivery rate (indicates processing failures)</span>
+<span class="kr">rate</span><span class="o">(</span><span class="nv">nats_jetstream_consumer_redelivered</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="alerting-rules">Alerting Rules<a class="headerlink" href="#alerting-rules" title="Permanent link">&para;</a></h2>
+<h3 id="alert-severity-levels-">Alert Severity Levels - مستويات خطورة التنبيهات<a class="headerlink" href="#alert-severity-levels-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Description</th>
+<th>Response Time</th>
+<th>Arabic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Critical</strong></td>
+<td>Service down, data loss imminent</td>
+<td>Immediate (&lt; 5 min)</td>
+<td>حرج</td>
+</tr>
+<tr>
+<td><strong>Warning</strong></td>
+<td>Degraded performance, attention needed</td>
+<td>Within 1 hour</td>
+<td>تحذير</td>
+</tr>
+<tr>
+<td><strong>Info</strong></td>
+<td>Informational, for awareness</td>
+<td>Best effort</td>
+<td>معلومات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="critical-alerts-">Critical Alerts - تنبيهات حرجة<a class="headerlink" href="#critical-alerts-" title="Permanent link">&para;</a></h3>
+<h4 id="natsserverdown">NATSServerDown<a class="headerlink" href="#natsserverdown" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NATSServerDown</span>
+<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up{service=&quot;nats&quot;} == 0</span>
+<span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1m</span>
+<span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> All async messaging stopped, platform-wide communication failure.
+<strong>Action:</strong> Check NATS container logs, restart service immediately.</p>
+<h4 id="jetstreammemorycritical">JetStreamMemoryCritical<a class="headerlink" href="#jetstreammemorycritical" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">JetStreamMemoryCritical</span>
+<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gnatsd_jetstream_memory_used &gt; 966367642</span><span class="w">  </span><span class="c1"># 900MB (90% of 1GB)</span>
+<span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2m</span>
+<span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> New messages may be rejected, message loss possible.
+<strong>Action:</strong> Increase memory limit or purge old streams immediately.</p>
+<h4 id="natsconnectionlimitreached">NATSConnectionLimitReached<a class="headerlink" href="#natsconnectionlimitreached" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NATSConnectionLimitReached</span>
+<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gnatsd_varz_connections &gt;= gnatsd_varz_max_connections * 0.95</span>
+<span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2m</span>
+<span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> New clients cannot connect, service degradation.
+<strong>Action:</strong> Increase max_connections or fix connection leaks.</p>
+<h3 id="warning-alerts-">Warning Alerts - تنبيهات تحذيرية<a class="headerlink" href="#warning-alerts-" title="Permanent link">&para;</a></h3>
+<h4 id="jetstreamstreambacklog">JetStreamStreamBacklog<a class="headerlink" href="#jetstreamstreambacklog" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">JetStreamStreamBacklog</span>
+<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats_jetstream_stream_messages &gt; 100000</span>
+<span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10m</span>
+<span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> Messages not being consumed fast enough.
+<strong>Action:</strong> Scale consumers, check processing capacity.</p>
+<h4 id="natshighcpuusage">NATSHighCPUUsage<a class="headerlink" href="#natshighcpuusage" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NATSHighCPUUsage</span>
+<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gnatsd_varz_cpu &gt; 80</span>
+<span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> Message processing may be slowed.
+<strong>Action:</strong> Check for message backlog, consider scaling cluster.</p>
+<h4 id="natsslowconsumersdetected">NATSSlowConsumersDetected<a class="headerlink" href="#natsslowconsumersdetected" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NATSSlowConsumersDetected</span>
+<span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gnatsd_varz_slow_consumers &gt; 0</span>
+<span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3m</span>
+<span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+</code></pre></div>
+
+<p><strong>Impact:</strong> Message delivery may be delayed or dropped.
+<strong>Action:</strong> Identify and fix slow consumer services.</p>
+<h3 id="alert-handling-">Alert Handling - معالجة التنبيهات<a class="headerlink" href="#alert-handling-" title="Permanent link">&para;</a></h3>
+<h4 id="alert-routing-alertmanager-configuration">Alert Routing (Alertmanager Configuration)<a class="headerlink" href="#alert-routing-alertmanager-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">route</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">group_by</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&#39;alertname&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;component&#39;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&#39;severity&#39;</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">group_wait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">  </span><span class="nt">group_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="w">  </span><span class="nt">repeat_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4h</span>
+<span class="w">  </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;default&#39;</span>
+
+<span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Critical NATS alerts - page on-call</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">        </span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message-queue</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pagerduty-critical&#39;</span>
+<span class="w">      </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">    </span><span class="c1"># Warning alerts - Slack only</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">        </span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">message-queue</span>
+<span class="w">      </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;slack-monitoring&#39;</span>
+
+<span class="nt">receivers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pagerduty-critical&#39;</span>
+<span class="w">    </span><span class="nt">pagerduty_configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">service_key</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&lt;pagerduty-key&gt;&#39;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;slack-monitoring&#39;</span>
+<span class="w">    </span><span class="nt">slack_configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">channel</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;#monitoring-alerts&#39;</span>
+<span class="w">        </span><span class="nt">text</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{{</span><span class="nv"> </span><span class="s">range</span><span class="nv"> </span><span class="s">.Alerts</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">.Annotations.summary</span><span class="nv"> </span><span class="s">}}{{</span><span class="nv"> </span><span class="s">end</span><span class="nv"> </span><span class="s">}}&#39;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="dashboards">Dashboards<a class="headerlink" href="#dashboards" title="Permanent link">&para;</a></h2>
+<h3 id="grafana-nats-dashboard">Grafana NATS Dashboard<a class="headerlink" href="#grafana-nats-dashboard" title="Permanent link">&para;</a></h3>
+<h4 id="official-nats-dashboard-id-2279">Official NATS Dashboard (ID: 2279)<a class="headerlink" href="#official-nats-dashboard-id-2279" title="Permanent link">&para;</a></h4>
+<p><strong>Panels:</strong>
+- Server overview (connections, messages, throughput)
+- CPU and memory usage
+- Message rates (in/out)
+- Connection breakdown by client
+- Subscription statistics</p>
+<p><strong>Import Steps:</strong>
+1. Open Grafana: http://localhost:3002
+2. Navigate to: Dashboards → Import
+3. Enter Dashboard ID: <code>2279</code>
+4. Select Prometheus datasource
+5. Click Import</p>
+<h4 id="jetstream-dashboard-id-14522">JetStream Dashboard (ID: 14522)<a class="headerlink" href="#jetstream-dashboard-id-14522" title="Permanent link">&para;</a></h4>
+<p><strong>Panels:</strong>
+- JetStream memory and storage usage
+- Stream list with message counts
+- Consumer lag and processing rates
+- Redelivery rates
+- Acknowledgment pending</p>
+<p><strong>Import Steps:</strong>
+1. Open Grafana: http://localhost:3002
+2. Navigate to: Dashboards → Import
+3. Enter Dashboard ID: <code>14522</code>
+4. Select Prometheus datasource
+5. Click Import</p>
+<h3 id="custom-dashboard-panels">Custom Dashboard Panels<a class="headerlink" href="#custom-dashboard-panels" title="Permanent link">&para;</a></h3>
+<h4 id="stream-health-panel">Stream Health Panel<a class="headerlink" href="#stream-health-panel" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Stream Message Count&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nats_jetstream_stream_messages&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{ stream }}&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="consumer-lag-panel">Consumer Lag Panel<a class="headerlink" href="#consumer-lag-panel" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Consumer Pending Messages&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;targets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;expr&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;nats_jetstream_consumer_num_pending&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;legendFormat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{{ stream }}/{{ consumer }}&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;graph&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;alert&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;conditions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;evaluator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gt&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10000</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;operator&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;and&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;5m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;now&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;query&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues-">Common Issues - المشاكل الشائعة<a class="headerlink" href="#common-issues-" title="Permanent link">&para;</a></h3>
+<h4 id="1-nats-exporter-not-starting">1. NATS Exporter Not Starting<a class="headerlink" href="#1-nats-exporter-not-starting" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong>
+- Container exits immediately
+- No metrics at http://localhost:7777/metrics
+- Error in logs: "connection refused"</p>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check NATS is accessible</span>
+curl<span class="w"> </span>http://localhost:8222/varz
+
+<span class="c1"># Check exporter logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats-prometheus-exporter
+
+<span class="c1"># Verify network connectivity</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-nats-prometheus-exporter<span class="w"> </span>wget<span class="w"> </span>-O-<span class="w"> </span>http://nats:8222/varz
+</code></pre></div>
+
+<p><strong>Solution:</strong>
+1. Ensure NATS is running and healthy
+2. Verify NATS monitoring port (8222) is accessible
+3. Check Docker network connectivity
+4. Restart exporter: <code>docker-compose restart nats-prometheus-exporter</code></p>
+<h4 id="2-metrics-not-appearing-in-prometheus">2. Metrics Not Appearing in Prometheus<a class="headerlink" href="#2-metrics-not-appearing-in-prometheus" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong>
+- Prometheus shows target as "down"
+- No NATS metrics in Prometheus UI
+- Queries return no data</p>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check Prometheus targets</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.activeTargets[] | select(.labels.job == &quot;nats-exporter&quot;)&#39;</span>
+
+<span class="c1"># Test exporter endpoint manually</span>
+curl<span class="w"> </span>http://localhost:7777/metrics<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nats
+
+<span class="c1"># Check Prometheus logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-monitoring-prometheus<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>nats
+</code></pre></div>
+
+<p><strong>Solution:</strong>
+1. Verify scrape config in <code>prometheus.yml</code>
+2. Ensure exporter is in correct Docker network
+3. Reload Prometheus config: <code>curl -X POST http://localhost:9090/-/reload</code>
+4. Check firewall/network policies</p>
+<h4 id="3-high-memory-usage">3. High Memory Usage<a class="headerlink" href="#3-high-memory-usage" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong>
+- JetStream memory alerts firing
+- NATS container memory at limit
+- Messages being rejected</p>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check JetStream memory usage</span>
+curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.memory&#39;</span>
+
+<span class="c1"># Check stream details</span>
+curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="p">&amp;</span><span class="nv">streams</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.streams[] | {name, state}&#39;</span>
+
+<span class="c1"># List streams sorted by message count</span>
+curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP<span class="p">&amp;</span><span class="nv">streams</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.streams[] | &quot;\(.state.messages) \(.config.name)&quot;&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-rn
+</code></pre></div>
+
+<p><strong>Solution:</strong>
+1. Review retention policies on streams
+2. Purge old messages: <code>nats stream purge &lt;stream-name&gt;</code>
+3. Increase JetStream memory limit in config
+4. Archive old streams to object storage</p>
+<h4 id="4-slow-consumer-issues">4. Slow Consumer Issues<a class="headerlink" href="#4-slow-consumer-issues" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong>
+- <code>NATSSlowConsumersDetected</code> alert firing
+- Messages being dropped
+- Consumer lag increasing</p>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check slow consumers</span>
+curl<span class="w"> </span>http://localhost:8222/connz?state<span class="o">=</span>slow<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.&#39;</span>
+
+<span class="c1"># Identify slow consumer services</span>
+docker<span class="w"> </span>ps<span class="w"> </span>--filter<span class="w"> </span><span class="s2">&quot;label=com.sahool.tier=application&quot;</span><span class="w"> </span>--format<span class="w"> </span><span class="s2">&quot;{{.Names}}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-I<span class="w"> </span><span class="o">{}</span><span class="w"> </span>docker<span class="w"> </span>logs<span class="w"> </span><span class="o">{}</span><span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;slow consumer&quot;</span>
+
+<span class="c1"># Check consumer processing rate</span>
+curl<span class="w"> </span>-G<span class="w"> </span>http://localhost:9090/api/v1/query<span class="w"> </span>--data-urlencode<span class="w"> </span><span class="s1">&#39;query=rate(nats_jetstream_consumer_delivered[5m])&#39;</span>
+</code></pre></div>
+
+<p><strong>Solution:</strong>
+1. Scale consumer service horizontally
+2. Optimize message processing logic
+3. Increase consumer max_ack_pending
+4. Review consumer configuration (batch size, timeout)</p>
+<h4 id="5-connection-limit-reached">5. Connection Limit Reached<a class="headerlink" href="#5-connection-limit-reached" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms:</strong>
+- New connections being rejected
+- "maximum connections exceeded" errors
+- Services can't connect to NATS</p>
+<p><strong>Diagnosis:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check current connections</span>
+curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;{connections, max_connections}&#39;</span>
+
+<span class="c1"># List connections by client</span>
+curl<span class="w"> </span>http://localhost:8222/connz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.connections[] | {ip, name, subscriptions}&#39;</span>
+
+<span class="c1"># Find connection leaks</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-nats<span class="w"> </span>nats<span class="w"> </span>server<span class="w"> </span>list<span class="w"> </span>connections
+</code></pre></div>
+
+<p><strong>Solution:</strong>
+1. Increase <code>max_connections</code> in NATS config
+2. Review services for connection leaks
+3. Implement connection pooling in clients
+4. Check for zombie connections and cleanup</p>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="performance-optimization-">Performance Optimization - تحسين الأداء<a class="headerlink" href="#performance-optimization-" title="Permanent link">&para;</a></h3>
+<h4 id="1-connection-pooling">1. Connection Pooling<a class="headerlink" href="#1-connection-pooling" title="Permanent link">&para;</a></h4>
+<p><strong>Python Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nats.aio.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span> <span class="k">as</span> <span class="n">NATS</span>
+
+<span class="c1"># Create connection pool</span>
+<span class="n">nc</span> <span class="o">=</span> <span class="n">NATS</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">():</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+        <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://nats:4222&quot;</span><span class="p">],</span>
+        <span class="n">max_reconnect_attempts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Infinite reconnects</span>
+        <span class="n">reconnect_time_wait</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>      <span class="c1"># 2 seconds between attempts</span>
+        <span class="n">ping_interval</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>           <span class="c1"># Keep-alive ping</span>
+        <span class="n">max_outstanding_pings</span><span class="o">=</span><span class="mi">3</span>      <span class="c1"># Max missed pings before disconnect</span>
+    <span class="p">)</span>
+
+<span class="c1"># Reuse connection across requests</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_message</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+</code></pre></div>
+
+<h4 id="2-message-batching">2. Message Batching<a class="headerlink" href="#2-message-batching" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Bad: Publishing one message at a time</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;message-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+
+<span class="c1"># Good: Batch publishing</span>
+<span class="n">messages</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;message-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="n">messages</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+<span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>  <span class="c1"># Single flush for all messages</span>
+</code></pre></div>
+
+<h4 id="3-stream-configuration">3. Stream Configuration<a class="headerlink" href="#3-stream-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create stream with appropriate limits</span>
+nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="w"> </span><span class="s2">&quot;sahool.events.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--retention<span class="w"> </span>limits<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-msgs<span class="w"> </span><span class="m">1000000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-bytes<span class="w"> </span>10GB<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-age<span class="w"> </span>7d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--storage<span class="w"> </span>file<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replicas<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--discard<span class="w"> </span>old<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dupe-window<span class="w"> </span>2m
+</code></pre></div>
+
+<h4 id="4-consumer-configuration">4. Consumer Configuration<a class="headerlink" href="#4-consumer-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create consumer with optimal settings</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>add<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--stream<span class="w"> </span>EVENTS<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--filter<span class="w"> </span><span class="s2">&quot;sahool.events.critical&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--deliver<span class="w"> </span>all<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ack<span class="w"> </span>explicit<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-deliver<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-ack-pending<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replay<span class="w"> </span>instant
+</code></pre></div>
+
+<h3 id="monitoring-best-practices-">Monitoring Best Practices - أفضل ممارسات المراقبة<a class="headerlink" href="#monitoring-best-practices-" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Set Retention Policies</strong></li>
+<li>Define appropriate message retention for each stream</li>
+<li>Balance between data availability and storage costs</li>
+<li>
+<p>Use time-based or count-based limits</p>
+</li>
+<li>
+<p><strong>Monitor Consumer Lag</strong></p>
+</li>
+<li>Set alerts for consumer lag thresholds</li>
+<li>Track processing rates over time</li>
+<li>
+<p>Identify bottlenecks early</p>
+</li>
+<li>
+<p><strong>Capacity Planning</strong></p>
+</li>
+<li>Track growth trends in message volume</li>
+<li>Plan storage expansion proactively</li>
+<li>
+<p>Monitor connection count growth</p>
+</li>
+<li>
+<p><strong>Alert Tuning</strong></p>
+</li>
+<li>Adjust thresholds based on workload patterns</li>
+<li>Reduce false positives with appropriate <code>for</code> durations</li>
+<li>
+<p>Group related alerts to reduce noise</p>
+</li>
+<li>
+<p><strong>Regular Audits</strong></p>
+</li>
+<li>Review unused streams and consumers</li>
+<li>Clean up old data regularly</li>
+<li>Optimize stream configurations</li>
+</ol>
+<h3 id="security-best-practices-">Security Best Practices - أفضل ممارسات الأمان<a class="headerlink" href="#security-best-practices-" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Use Authentication</strong></li>
+<li>Always use user/password or NKeys</li>
+<li>Rotate credentials regularly</li>
+<li>
+<p>Use separate accounts per service</p>
+</li>
+<li>
+<p><strong>Enable TLS</strong></p>
+</li>
+<li>Enforce TLS for all connections</li>
+<li>Use valid certificates</li>
+<li>
+<p>Disable non-TLS ports in production</p>
+</li>
+<li>
+<p><strong>Restrict Monitoring Access</strong></p>
+</li>
+<li>Limit access to monitoring port (8222)</li>
+<li>Use firewall rules to restrict access</li>
+<li>
+<p>Don't expose monitoring port publicly</p>
+</li>
+<li>
+<p><strong>Implement Authorization</strong></p>
+</li>
+<li>Use granular subject-based permissions</li>
+<li>Follow principle of least privilege</li>
+<li>
+<p>Use separate accounts for different services</p>
+</li>
+<li>
+<p><strong>Enable At-Rest Encryption</strong></p>
+</li>
+<li>Use JetStream encryption with strong keys</li>
+<li>Rotate encryption keys periodically</li>
+<li>Secure key storage (environment variables, secrets)</li>
+</ol>
+<hr />
+<h2 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h2>
+<h3 id="file-locations-">File Locations - مواقع الملفات<a class="headerlink" href="#file-locations-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Path</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NATS Config</strong></td>
+<td><code>/home/user/sahool-unified-v15-idp/config/nats/nats-secure.conf</code></td>
+<td>Main NATS configuration</td>
+</tr>
+<tr>
+<td><strong>Exporter Config</strong></td>
+<td><code>/home/user/sahool-unified-v15-idp/infrastructure/monitoring/prometheus/nats-exporter.yml</code></td>
+<td>Prometheus scrape configuration</td>
+</tr>
+<tr>
+<td><strong>Alert Rules</strong></td>
+<td><code>/home/user/sahool-unified-v15-idp/infrastructure/monitoring/prometheus/rules/nats-alerts.yml</code></td>
+<td>NATS alerting rules</td>
+</tr>
+<tr>
+<td><strong>Docker Compose</strong></td>
+<td><code>/home/user/sahool-unified-v15-idp/infrastructure/monitoring/docker-compose.nats-monitoring.yml</code></td>
+<td>NATS monitoring stack</td>
+</tr>
+<tr>
+<td><strong>Main Compose</strong></td>
+<td><code>/home/user/sahool-unified-v15-idp/docker-compose.yml</code></td>
+<td>Main platform compose (includes exporter)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="useful-commands-">Useful Commands - أوامر مفيدة<a class="headerlink" href="#useful-commands-" title="Permanent link">&para;</a></h3>
+<h4 id="nats-cli-commands">NATS CLI Commands<a class="headerlink" href="#nats-cli-commands" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install NATS CLI</span>
+curl<span class="w"> </span>-sf<span class="w"> </span>https://binaries.nats.dev/nats-io/natscli/nats@latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+
+<span class="c1"># Connect to NATS</span>
+nats<span class="w"> </span>context<span class="w"> </span>save<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--server<span class="w"> </span>nats://localhost:4222<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--user<span class="w"> </span><span class="nv">$NATS_USER</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--password<span class="w"> </span><span class="nv">$NATS_PASSWORD</span>
+
+<span class="c1"># List streams</span>
+nats<span class="w"> </span>stream<span class="w"> </span>list
+
+<span class="c1"># View stream info</span>
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>&lt;stream-name&gt;
+
+<span class="c1"># List consumers</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>list<span class="w"> </span>&lt;stream-name&gt;
+
+<span class="c1"># Purge stream</span>
+nats<span class="w"> </span>stream<span class="w"> </span>purge<span class="w"> </span>&lt;stream-name&gt;
+
+<span class="c1"># Publish test message</span>
+nats<span class="w"> </span>pub<span class="w"> </span>sahool.test<span class="w"> </span><span class="s2">&quot;Test message&quot;</span>
+
+<span class="c1"># Subscribe to subject</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;&quot;</span>
+
+<span class="c1"># Check server info</span>
+nats<span class="w"> </span>server<span class="w"> </span>list
+</code></pre></div>
+
+<h4 id="docker-commands">Docker Commands<a class="headerlink" href="#docker-commands" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># View NATS logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats<span class="w"> </span>-f
+
+<span class="c1"># View exporter logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats-prometheus-exporter<span class="w"> </span>-f
+
+<span class="c1"># Restart NATS</span>
+docker-compose<span class="w"> </span>restart<span class="w"> </span>nats
+
+<span class="c1"># Restart exporter</span>
+docker-compose<span class="w"> </span>restart<span class="w"> </span>nats-prometheus-exporter
+
+<span class="c1"># Check NATS container stats</span>
+docker<span class="w"> </span>stats<span class="w"> </span>sahool-nats
+</code></pre></div>
+
+<h4 id="metrics-endpoints">Metrics Endpoints<a class="headerlink" href="#metrics-endpoints" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># NATS native metrics</span>
+curl<span class="w"> </span>http://localhost:8222/metrics
+
+<span class="c1"># Server variables</span>
+curl<span class="w"> </span>http://localhost:8222/varz
+
+<span class="c1"># Connections</span>
+curl<span class="w"> </span>http://localhost:8222/connz
+
+<span class="c1"># JetStream info</span>
+curl<span class="w"> </span>http://localhost:8222/jsz?acc<span class="o">=</span>APP
+
+<span class="c1"># Exporter metrics</span>
+curl<span class="w"> </span>http://localhost:7777/metrics
+</code></pre></div>
+
+<h3 id="external-resources-">External Resources - موارد خارجية<a class="headerlink" href="#external-resources-" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>NATS Documentation</strong>: https://docs.nats.io/</li>
+<li><strong>JetStream Guide</strong>: https://docs.nats.io/nats-concepts/jetstream</li>
+<li><strong>Prometheus Exporter</strong>: https://github.com/nats-io/prometheus-nats-exporter</li>
+<li><strong>Grafana Dashboards</strong>: https://grafana.com/grafana/dashboards/?search=nats</li>
+<li><strong>NATS Community</strong>: https://natsio.slack.com/</li>
+</ul>
+<h3 id="support-">Support - الدعم<a class="headerlink" href="#support-" title="Permanent link">&para;</a></h3>
+<p>For issues with NATS monitoring:
+1. Check this documentation first
+2. Review Docker logs for errors
+3. Consult NATS documentation
+4. Contact platform team: platform@sahool.io</p>
+<hr />
+<p><strong>Document Version:</strong> 1.0.0
+<strong>Last Updated:</strong> 2026-01-07
+<strong>Maintained by:</strong> SAHOOL Platform Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

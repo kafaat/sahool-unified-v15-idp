@@ -1,0 +1,1618 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>GitHub Secrets Setup Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#github-secrets-setup-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GitHub Secrets Setup Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="github-secrets-setup-guide">GitHub Secrets Setup Guide<a class="headerlink" href="#github-secrets-setup-guide" title="Permanent link">&para;</a></h1>
+<p>This guide provides step-by-step instructions for setting up all required secrets in your GitHub repository for the SAHOOL Unified Platform.</p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#github-repository-secrets">GitHub Repository Secrets</a></li>
+<li><a href="#kubernetes-configuration-secrets">Kubernetes Configuration Secrets</a></li>
+<li><a href="#database-secrets">Database Secrets</a></li>
+<li><a href="#external-api-secrets">External API Secrets</a></li>
+<li><a href="#environment-specific-secrets">Environment-Specific Secrets</a></li>
+<li><a href="#verification">Verification</a></li>
+</ul>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>GitHub Secrets are encrypted environment variables that you create in a repository. These secrets are used by GitHub Actions workflows to deploy and configure your application securely.</p>
+<p><strong>Security Best Practices:</strong>
+- Never commit secrets to your repository
+- Use strong, randomly generated passwords
+- Rotate secrets regularly
+- Use different secrets for staging and production
+- Limit access to secrets to necessary team members</p>
+<h2 id="github-repository-secrets">GitHub Repository Secrets<a class="headerlink" href="#github-repository-secrets" title="Permanent link">&para;</a></h2>
+<h3 id="how-to-add-secrets-to-github">How to Add Secrets to GitHub<a class="headerlink" href="#how-to-add-secrets-to-github" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Navigate to your repository on GitHub</li>
+<li>Click on <strong>Settings</strong> (top navigation)</li>
+<li>In the left sidebar, click <strong>Secrets and variables</strong> &gt; <strong>Actions</strong></li>
+<li>Click <strong>New repository secret</strong></li>
+<li>Enter the secret <strong>Name</strong> and <strong>Value</strong></li>
+<li>Click <strong>Add secret</strong></li>
+</ol>
+<h3 id="required-secrets-list">Required Secrets List<a class="headerlink" href="#required-secrets-list" title="Permanent link">&para;</a></h3>
+<p>Below is a complete list of all required secrets for the SAHOOL platform:</p>
+<table>
+<thead>
+<tr>
+<th>Secret Name</th>
+<th>Description</th>
+<th>Environment</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KUBE_CONFIG_STAGING</code></td>
+<td>Base64 encoded kubeconfig for staging cluster</td>
+<td>Staging</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>KUBE_CONFIG_PRODUCTION</code></td>
+<td>Base64 encoded kubeconfig for production cluster</td>
+<td>Production</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>POSTGRES_PASSWORD</code></td>
+<td>PostgreSQL database password</td>
+<td>Both</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>REDIS_PASSWORD</code></td>
+<td>Redis cache password</td>
+<td>Both</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>JWT_SECRET</code></td>
+<td>JWT token signing secret</td>
+<td>Both</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>OPENWEATHER_API_KEY</code></td>
+<td>OpenWeather API key for weather data</td>
+<td>Both</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>SENTINEL_HUB_ID</code></td>
+<td>Sentinel Hub client ID for satellite imagery</td>
+<td>Both</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>SENTINEL_HUB_SECRET</code></td>
+<td>Sentinel Hub client secret</td>
+<td>Both</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>STRIPE_SECRET_KEY</code></td>
+<td>Stripe payment processing secret key</td>
+<td>Production</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>STRIPE_TEST_SECRET_KEY</code></td>
+<td>Stripe test mode secret key</td>
+<td>Staging</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td><code>SLACK_WEBHOOK_URL</code></td>
+<td>Slack webhook URL for notifications</td>
+<td>Both</td>
+<td>Optional</td>
+</tr>
+</tbody>
+</table>
+<h2 id="kubernetes-configuration-secrets">Kubernetes Configuration Secrets<a class="headerlink" href="#kubernetes-configuration-secrets" title="Permanent link">&para;</a></h2>
+<h3 id="generating-kubeconfig-for-cicd">Generating Kubeconfig for CI/CD<a class="headerlink" href="#generating-kubeconfig-for-cicd" title="Permanent link">&para;</a></h3>
+<p>The <code>KUBE_CONFIG_STAGING</code> and <code>KUBE_CONFIG_PRODUCTION</code> secrets contain base64-encoded Kubernetes configuration files that allow GitHub Actions to deploy to your clusters.</p>
+<h4 id="method-1-using-the-provided-script">Method 1: Using the Provided Script<a class="headerlink" href="#method-1-using-the-provided-script" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Make the script executable</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>scripts/generate-kubeconfig.sh
+
+<span class="c1"># Generate for staging</span>
+./scripts/generate-kubeconfig.sh<span class="w"> </span>--cluster<span class="w"> </span>staging<span class="w"> </span>--namespace<span class="w"> </span>sahool-staging
+
+<span class="c1"># Generate for production</span>
+./scripts/generate-kubeconfig.sh<span class="w"> </span>--cluster<span class="w"> </span>production<span class="w"> </span>--namespace<span class="w"> </span>sahool-production
+</code></pre></div>
+
+<p>The script will output:
+- The base64 encoded kubeconfig
+- Instructions for adding to GitHub
+- Suggested secret name</p>
+<h4 id="method-2-manual-generation">Method 2: Manual Generation<a class="headerlink" href="#method-2-manual-generation" title="Permanent link">&para;</a></h4>
+<p><strong>Step 1: Switch to the correct cluster context</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># For staging</span>
+kubectl<span class="w"> </span>config<span class="w"> </span>use-context<span class="w"> </span>staging-cluster
+
+<span class="c1"># For production</span>
+kubectl<span class="w"> </span>config<span class="w"> </span>use-context<span class="w"> </span>production-cluster
+</code></pre></div>
+
+<p><strong>Step 2: Generate kubeconfig file</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Get current context config</span>
+kubectl<span class="w"> </span>config<span class="w"> </span>view<span class="w"> </span>--minify<span class="w"> </span>--flatten<span class="w"> </span>&gt;<span class="w"> </span>kubeconfig-staging.yaml
+</code></pre></div>
+
+<p><strong>Step 3: Encode to base64</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Linux/Mac</span>
+cat<span class="w"> </span>kubeconfig-staging.yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-w<span class="w"> </span><span class="m">0</span><span class="w"> </span>&gt;<span class="w"> </span>kubeconfig-staging-base64.txt
+
+<span class="c1"># The content of kubeconfig-staging-base64.txt is your secret value</span>
+</code></pre></div>
+
+<p><strong>Step 4: Add to GitHub</strong>
+- Secret Name: <code>KUBE_CONFIG_STAGING</code>
+- Secret Value: Content of <code>kubeconfig-staging-base64.txt</code></p>
+<p><strong>Step 5: Clean up</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Remove temporary files</span>
+rm<span class="w"> </span>kubeconfig-staging.yaml<span class="w"> </span>kubeconfig-staging-base64.txt
+</code></pre></div>
+
+<p><strong>Repeat for production:</strong>
+- Secret Name: <code>KUBE_CONFIG_PRODUCTION</code></p>
+<h4 id="verifying-kubeconfig">Verifying Kubeconfig<a class="headerlink" href="#verifying-kubeconfig" title="Permanent link">&para;</a></h4>
+<p>To verify your kubeconfig works:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Decode and test</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&lt;base64-string&gt;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="w"> </span>&gt;<span class="w"> </span>test-kubeconfig.yaml
+kubectl<span class="w"> </span>--kubeconfig<span class="o">=</span>test-kubeconfig.yaml<span class="w"> </span>get<span class="w"> </span>nodes
+
+<span class="c1"># Clean up</span>
+rm<span class="w"> </span>test-kubeconfig.yaml
+</code></pre></div>
+
+<h2 id="database-secrets">Database Secrets<a class="headerlink" href="#database-secrets" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-password">PostgreSQL Password<a class="headerlink" href="#postgresql-password" title="Permanent link">&para;</a></h3>
+<p>Generate a strong PostgreSQL password:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate a secure password</span>
+openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span>
+</code></pre></div>
+
+<p><strong>Add to GitHub:</strong>
+- Secret Name: <code>POSTGRES_PASSWORD</code>
+- Secret Value: The generated password</p>
+<p><strong>Important Notes:</strong>
+- Use the same password for both staging and production, OR
+- Create separate secrets: <code>POSTGRES_PASSWORD_STAGING</code> and <code>POSTGRES_PASSWORD_PRODUCTION</code>
+- Keep this password secure - it protects all your data
+- Store it in a password manager as backup</p>
+<h3 id="redis-password">Redis Password<a class="headerlink" href="#redis-password" title="Permanent link">&para;</a></h3>
+<p>Generate a strong Redis password:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate a secure password</span>
+openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span>
+</code></pre></div>
+
+<p><strong>Add to GitHub:</strong>
+- Secret Name: <code>REDIS_PASSWORD</code>
+- Secret Value: The generated password</p>
+<p><strong>Important Notes:</strong>
+- Redis password is used for cache authentication
+- Can use separate passwords for staging/production if needed</p>
+<h3 id="jwt-secret">JWT Secret<a class="headerlink" href="#jwt-secret" title="Permanent link">&para;</a></h3>
+<p>Generate a JWT signing secret:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate a secure JWT secret (longer for better security)</span>
+openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span>
+</code></pre></div>
+
+<p><strong>Add to GitHub:</strong>
+- Secret Name: <code>JWT_SECRET</code>
+- Secret Value: The generated secret</p>
+<p><strong>Important Notes:</strong>
+- This secret signs all authentication tokens
+- <strong>NEVER</strong> share or expose this secret
+- Changing this will invalidate all existing user sessions
+- Use different secrets for staging and production</p>
+<h2 id="external-api-secrets">External API Secrets<a class="headerlink" href="#external-api-secrets" title="Permanent link">&para;</a></h2>
+<h3 id="openweather-api-key">OpenWeather API Key<a class="headerlink" href="#openweather-api-key" title="Permanent link">&para;</a></h3>
+<p><strong>Obtaining the API Key:</strong></p>
+<ol>
+<li>Visit <a href="https://openweathermap.org/">OpenWeather</a></li>
+<li>Sign up for a free account</li>
+<li>Navigate to API Keys section</li>
+<li>Generate a new API key or use the default one</li>
+<li>Wait for activation (can take up to 2 hours)</li>
+</ol>
+<p><strong>Add to GitHub:</strong>
+- Secret Name: <code>OPENWEATHER_API_KEY</code>
+- Secret Value: Your API key (e.g., <code>abc123def456...</code>)</p>
+<p><strong>Usage Notes:</strong>
+- Free tier: 60 calls/minute, 1,000,000 calls/month
+- Used for weather data in agricultural planning
+- Same key can be used for staging and production</p>
+<h3 id="sentinel-hub-credentials">Sentinel Hub Credentials<a class="headerlink" href="#sentinel-hub-credentials" title="Permanent link">&para;</a></h3>
+<p><strong>Obtaining the Credentials:</strong></p>
+<ol>
+<li>Visit <a href="https://www.sentinel-hub.com/">Sentinel Hub</a></li>
+<li>Create an account</li>
+<li>Navigate to Dashboard</li>
+<li>Create a new OAuth client</li>
+<li>Copy the Client ID and Client Secret</li>
+</ol>
+<p><strong>Add to GitHub:</strong>
+- Secret Name: <code>SENTINEL_HUB_ID</code>
+- Secret Value: Your client ID</p>
+<ul>
+<li>Secret Name: <code>SENTINEL_HUB_SECRET</code></li>
+<li>Secret Value: Your client secret</li>
+</ul>
+<p><strong>Usage Notes:</strong>
+- Used for satellite imagery and land analysis
+- Free tier available with limited processing units
+- Consider separate credentials for staging and production</p>
+<h3 id="stripe-secret-key">Stripe Secret Key<a class="headerlink" href="#stripe-secret-key" title="Permanent link">&para;</a></h3>
+<p><strong>Obtaining the Secret Key:</strong></p>
+<ol>
+<li>Visit <a href="https://dashboard.stripe.com/">Stripe Dashboard</a></li>
+<li>Sign up or log in</li>
+<li>Navigate to Developers &gt; API keys</li>
+<li>Copy the <strong>Secret key</strong> (starts with <code>sk_</code>)</li>
+</ol>
+<p><strong>For Production:</strong>
+- Use the <strong>Live mode</strong> secret key
+- Secret Name: <code>STRIPE_SECRET_KEY</code>
+- Secret Value: Your live secret key (e.g., <code>sk_live_...</code>)</p>
+<p><strong>For Staging:</strong>
+- Use the <strong>Test mode</strong> secret key
+- Secret Name: <code>STRIPE_TEST_SECRET_KEY</code>
+- Secret Value: Your test secret key (e.g., <code>sk_test_...</code>)</p>
+<p><strong>Important Notes:</strong>
+- <strong>NEVER</strong> expose the secret key in client-side code
+- Use test mode for staging/development
+- Monitor Stripe dashboard for suspicious activity
+- Rotate keys if compromised</p>
+<h3 id="slack-webhook-url">Slack Webhook URL<a class="headerlink" href="#slack-webhook-url" title="Permanent link">&para;</a></h3>
+<p><strong>Creating a Webhook:</strong></p>
+<ol>
+<li>Visit <a href="https://api.slack.com/apps">Slack API</a></li>
+<li>Create a new app or select existing</li>
+<li>Navigate to <strong>Incoming Webhooks</strong></li>
+<li>Activate incoming webhooks</li>
+<li>Click <strong>Add New Webhook to Workspace</strong></li>
+<li>Select the channel for notifications</li>
+<li>Copy the webhook URL</li>
+</ol>
+<p><strong>Add to GitHub:</strong>
+- Secret Name: <code>SLACK_WEBHOOK_URL</code>
+- Secret Value: Your webhook URL (e.g., <code>https://hooks.slack.com/services/...</code>)</p>
+<p><strong>Usage Notes:</strong>
+- Used for deployment notifications and alerts
+- Can use the same webhook for staging and production, OR
+- Create separate webhooks: <code>SLACK_WEBHOOK_STAGING</code> and <code>SLACK_WEBHOOK_PRODUCTION</code>
+- Test the webhook before deploying</p>
+<p><strong>Testing the Webhook:</strong></p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s1">&#39;Content-type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data<span class="w"> </span><span class="s1">&#39;{&quot;text&quot;:&quot;Test message from SAHOOL&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>YOUR_WEBHOOK_URL
+</code></pre></div>
+
+<h2 id="environment-specific-secrets">Environment-Specific Secrets<a class="headerlink" href="#environment-specific-secrets" title="Permanent link">&para;</a></h2>
+<h3 id="staging-environment">Staging Environment<a class="headerlink" href="#staging-environment" title="Permanent link">&para;</a></h3>
+<p>For staging, you may want to use test/development versions of external services:</p>
+<div class="codehilite"><pre><span></span><code>KUBE_CONFIG_STAGING=&lt;base64-encoded-kubeconfig&gt;
+POSTGRES_PASSWORD=&lt;staging-password&gt;
+REDIS_PASSWORD=&lt;staging-password&gt;
+JWT_SECRET=&lt;staging-jwt-secret&gt;
+OPENWEATHER_API_KEY=&lt;api-key&gt;
+SENTINEL_HUB_ID=&lt;staging-client-id&gt;
+SENTINEL_HUB_SECRET=&lt;staging-client-secret&gt;
+STRIPE_TEST_SECRET_KEY=&lt;stripe-test-key&gt;
+SLACK_WEBHOOK_URL=&lt;staging-webhook&gt;
+</code></pre></div>
+
+<h3 id="production-environment">Production Environment<a class="headerlink" href="#production-environment" title="Permanent link">&para;</a></h3>
+<p>For production, use live/production credentials:</p>
+<div class="codehilite"><pre><span></span><code>KUBE_CONFIG_PRODUCTION=&lt;base64-encoded-kubeconfig&gt;
+POSTGRES_PASSWORD=&lt;production-password&gt;
+REDIS_PASSWORD=&lt;production-password&gt;
+JWT_SECRET=&lt;production-jwt-secret&gt;
+OPENWEATHER_API_KEY=&lt;api-key&gt;
+SENTINEL_HUB_ID=&lt;production-client-id&gt;
+SENTINEL_HUB_SECRET=&lt;production-client-secret&gt;
+STRIPE_SECRET_KEY=&lt;stripe-live-key&gt;
+SLACK_WEBHOOK_URL=&lt;production-webhook&gt;
+</code></pre></div>
+
+<h3 id="using-environment-specific-secrets-in-workflows">Using Environment-Specific Secrets in Workflows<a class="headerlink" href="#using-environment-specific-secrets-in-workflows" title="Permanent link">&para;</a></h3>
+<p>In your GitHub Actions workflow, reference secrets like this:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deploy to Staging</span>
+<span class="w">  </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">KUBE_CONFIG</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.KUBE_CONFIG_STAGING }}</span>
+<span class="w">    </span><span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.POSTGRES_PASSWORD }}</span>
+<span class="w">    </span><span class="nt">JWT_SECRET</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.JWT_SECRET }}</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no"># Deployment commands</span>
+</code></pre></div>
+
+<h2 id="verification">Verification<a class="headerlink" href="#verification" title="Permanent link">&para;</a></h2>
+<h3 id="verify-secrets-are-set">Verify Secrets Are Set<a class="headerlink" href="#verify-secrets-are-set" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Go to your repository on GitHub</li>
+<li>Navigate to <strong>Settings</strong> &gt; <strong>Secrets and variables</strong> &gt; <strong>Actions</strong></li>
+<li>You should see all required secrets listed</li>
+<li>Note: You cannot view secret values after creation (for security)</li>
+</ol>
+<h3 id="test-secrets-in-workflow">Test Secrets in Workflow<a class="headerlink" href="#test-secrets-in-workflow" title="Permanent link">&para;</a></h3>
+<p>Create a test workflow to verify secrets are accessible:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Test Secrets</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check Secrets</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">echo &quot;Checking secrets availability...&quot;</span>
+
+<span class="w">          </span><span class="no"># Check if secrets are set (will show true/false, not the actual values)</span>
+<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.KUBE_CONFIG_STAGING }}&quot; ] &amp;&amp; echo &quot;✓ KUBE_CONFIG_STAGING is set&quot; || echo &quot;✗ KUBE_CONFIG_STAGING is missing&quot;</span>
+<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.POSTGRES_PASSWORD }}&quot; ] &amp;&amp; echo &quot;✓ POSTGRES_PASSWORD is set&quot; || echo &quot;✗ POSTGRES_PASSWORD is missing&quot;</span>
+<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.REDIS_PASSWORD }}&quot; ] &amp;&amp; echo &quot;✓ REDIS_PASSWORD is set&quot; || echo &quot;✗ REDIS_PASSWORD is missing&quot;</span>
+<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.JWT_SECRET }}&quot; ] &amp;&amp; echo &quot;✓ JWT_SECRET is set&quot; || echo &quot;✗ JWT_SECRET is missing&quot;</span>
+<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.OPENWEATHER_API_KEY }}&quot; ] &amp;&amp; echo &quot;✓ OPENWEATHER_API_KEY is set&quot; || echo &quot;✗ OPENWEATHER_API_KEY is missing&quot;</span>
+<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.SENTINEL_HUB_ID }}&quot; ] &amp;&amp; echo &quot;✓ SENTINEL_HUB_ID is set&quot; || echo &quot;✗ SENTINEL_HUB_ID is missing&quot;</span>
+<span class="w">          </span><span class="no">[ -n &quot;${{ secrets.SENTINEL_HUB_SECRET }}&quot; ] &amp;&amp; echo &quot;✓ SENTINEL_HUB_SECRET is set&quot; || echo &quot;✗ SENTINEL_HUB_SECRET is missing&quot;</span>
+
+<span class="w">          </span><span class="no">echo &quot;✓ All required secrets are configured!&quot;</span>
+</code></pre></div>
+
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<p><strong>Secret not found:</strong>
+- Verify the secret name matches exactly (case-sensitive)
+- Check that the secret is created in the correct repository
+- Ensure you have permissions to access secrets</p>
+<p><strong>Kubeconfig not working:</strong>
+- Verify base64 encoding is correct
+- Check that cluster URL is accessible from GitHub Actions
+- Ensure cluster credentials are still valid</p>
+<p><strong>External API errors:</strong>
+- Verify API keys are active
+- Check API rate limits
+- Ensure correct API endpoints are configured</p>
+<h2 id="secret-rotation">Secret Rotation<a class="headerlink" href="#secret-rotation" title="Permanent link">&para;</a></h2>
+<h3 id="when-to-rotate-secrets">When to Rotate Secrets<a class="headerlink" href="#when-to-rotate-secrets" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Immediately</strong>: If a secret is compromised or exposed</li>
+<li><strong>Regularly</strong>: Every 90 days for critical secrets (JWT, passwords)</li>
+<li><strong>After team changes</strong>: When team members leave</li>
+<li><strong>After security incidents</strong>: As part of incident response</li>
+</ul>
+<h3 id="how-to-rotate-secrets">How to Rotate Secrets<a class="headerlink" href="#how-to-rotate-secrets" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Generate new secret value</li>
+<li>Update in Kubernetes cluster first</li>
+<li>Update in GitHub secrets</li>
+<li>Trigger redeployment</li>
+<li>Verify services are working</li>
+<li>Revoke old secret</li>
+</ol>
+<h3 id="example-rotating-jwt-secret">Example: Rotating JWT Secret<a class="headerlink" href="#example-rotating-jwt-secret" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Generate new JWT secret</span>
+<span class="nv">NEW_JWT_SECRET</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">64</span><span class="k">)</span>
+
+<span class="c1"># 2. Update in Kubernetes</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>sahool-jwt-secret<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="o">=</span>sahool-staging<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span>jwt-secret<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$NEW_JWT_SECRET</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dry-run<span class="o">=</span>client<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>-
+
+<span class="c1"># 3. Update in GitHub (manual step)</span>
+<span class="c1"># Go to Settings &gt; Secrets &gt; JWT_SECRET &gt; Update</span>
+
+<span class="c1"># 4. Redeploy services</span>
+kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment<span class="w"> </span>-n<span class="w"> </span>sahool-staging
+
+<span class="c1"># 5. Verify</span>
+kubectl<span class="w"> </span>rollout<span class="w"> </span>status<span class="w"> </span>deployment<span class="w"> </span>-n<span class="w"> </span>sahool-staging
+</code></pre></div>
+
+<h2 id="security-checklist">Security Checklist<a class="headerlink" href="#security-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] All required secrets are created</li>
+<li>[ ] Strong passwords are used (minimum 32 characters)</li>
+<li>[ ] Secrets are not committed to version control</li>
+<li>[ ] Different secrets for staging and production</li>
+<li>[ ] Secrets are stored in a password manager</li>
+<li>[ ] Team members have appropriate access levels</li>
+<li>[ ] Secret rotation schedule is established</li>
+<li>[ ] Monitoring is set up for failed authentications</li>
+<li>[ ] Backup of critical secrets exists in secure location</li>
+</ul>
+<h2 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.github.com/en/actions/security-guides/encrypted-secrets">GitHub Secrets Documentation</a></li>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/secret/">Kubernetes Secrets</a></li>
+<li><a href="https://openweathermap.org/api">OpenWeather API</a></li>
+<li><a href="https://docs.sentinel-hub.com/">Sentinel Hub Documentation</a></li>
+<li><a href="https://stripe.com/docs/keys">Stripe API Keys</a></li>
+<li><a href="https://api.slack.com/messaging/webhooks">Slack Webhooks</a></li>
+</ul>
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>If you encounter issues setting up secrets:
+1. Check the troubleshooting section in <a href="../INFRASTRUCTURE/">INFRASTRUCTURE.md</a>
+2. Verify you have the correct permissions
+3. Contact the DevOps team
+4. Open an issue on GitHub with details (never include actual secret values)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

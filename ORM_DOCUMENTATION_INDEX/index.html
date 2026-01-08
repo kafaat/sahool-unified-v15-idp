@@ -1,0 +1,1428 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>ORM Standardization - Documentation Index - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#orm-standardization-documentation-index" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ORM Standardization - Documentation Index
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="orm-standardization-documentation-index">ORM Standardization - Documentation Index<a class="headerlink" href="#orm-standardization-documentation-index" title="Permanent link">&para;</a></h1>
+<p><strong>Created</strong>: 2025-12-31
+<strong>Status</strong>: Complete and Ready for Implementation</p>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This documentation suite provides comprehensive guidance for standardizing ORM usage across all SAHOOL services, recommending <strong>Prisma</strong> as the standard ORM and providing detailed migration paths for services currently using TypeORM.</p>
+<hr />
+<h2 id="documentation-suite">Documentation Suite<a class="headerlink" href="#documentation-suite" title="Permanent link">&para;</a></h2>
+<h3 id="1-orm_standardizationmd-main-guide">1. ORM_STANDARDIZATION.md (Main Guide)<a class="headerlink" href="#1-orm_standardizationmd-main-guide" title="Permanent link">&para;</a></h3>
+<p><strong>Path</strong>: <code>/docs/ORM_STANDARDIZATION.md</code>
+<strong>Length</strong>: 782 lines
+<strong>Audience</strong>: Developers, Architects</p>
+<p><strong>Contents</strong>:
+- Complete analysis of current ORM usage across all services
+- Detailed justification for Prisma as the standard
+- Comprehensive migration guide from TypeORM to Prisma
+- Step-by-step instructions for field-core and field-management-service
+- Code migration patterns and examples
+- Best practices and recommendations
+- Testing strategies
+- Deployment procedures</p>
+<p><strong>When to Use</strong>: Primary reference for understanding the standardization effort and executing migrations.</p>
+<hr />
+<h3 id="2-orm_audit_summarymd-executive-summary">2. ORM_AUDIT_SUMMARY.md (Executive Summary)<a class="headerlink" href="#2-orm_audit_summarymd-executive-summary" title="Permanent link">&para;</a></h3>
+<p><strong>Path</strong>: <code>/docs/ORM_AUDIT_SUMMARY.md</code>
+<strong>Audience</strong>: Technical Leads, Project Managers, Stakeholders</p>
+<p><strong>Contents</strong>:
+- Executive summary of findings
+- Service breakdown by ORM type
+- Risk assessment
+- Cost-benefit analysis
+- Implementation roadmap
+- Success metrics</p>
+<p><strong>When to Use</strong>: For high-level understanding and decision-making.</p>
+<hr />
+<h3 id="3-orm_migration_quick_referencemd">3. ORM_MIGRATION_QUICK_REFERENCE.md<a class="headerlink" href="#3-orm_migration_quick_referencemd" title="Permanent link">&para;</a></h3>
+<p><strong>Path</strong>: <code>/docs/ORM_MIGRATION_QUICK_REFERENCE.md</code>
+<strong>Audience</strong>: Developers performing migrations</p>
+<p><strong>Contents</strong>:
+- Quick start guide
+- Essential migration patterns
+- Files to update/create/remove
+- Testing checklist
+- Rollback procedures</p>
+<p><strong>When to Use</strong>: As a quick reference during active migration work.</p>
+<hr />
+<h3 id="4-prisma_service_templatemd">4. PRISMA_SERVICE_TEMPLATE.md<a class="headerlink" href="#4-prisma_service_templatemd" title="Permanent link">&para;</a></h3>
+<p><strong>Path</strong>: <code>/docs/PRISMA_SERVICE_TEMPLATE.md</code>
+<strong>Audience</strong>: Developers creating new services</p>
+<p><strong>Contents</strong>:
+- Complete service template with Prisma
+- package.json configuration
+- Prisma schema templates (standard and PostGIS)
+- Client setup patterns
+- Environment configuration
+- Usage examples (CRUD, transactions, raw SQL)
+- Docker configuration
+- Testing setup
+- Best practices</p>
+<p><strong>When to Use</strong>: When creating new services or adding Prisma to existing services.</p>
+<hr />
+<h2 id="quick-navigation">Quick Navigation<a class="headerlink" href="#quick-navigation" title="Permanent link">&para;</a></h2>
+<h3 id="for-decision-makers">For Decision Makers<a class="headerlink" href="#for-decision-makers" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Start with: <code>ORM_AUDIT_SUMMARY.md</code></li>
+<li>Review: Executive Summary and Risk Assessment sections</li>
+<li>Approve: Implementation roadmap</li>
+</ol>
+<h3 id="for-migration-engineers">For Migration Engineers<a class="headerlink" href="#for-migration-engineers" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Read: <code>ORM_STANDARDIZATION.md</code> (full guide)</li>
+<li>Reference: <code>ORM_MIGRATION_QUICK_REFERENCE.md</code> (during work)</li>
+<li>Test: Follow testing checklist in both documents</li>
+</ol>
+<h3 id="for-new-service-development">For New Service Development<a class="headerlink" href="#for-new-service-development" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Use: <code>PRISMA_SERVICE_TEMPLATE.md</code></li>
+<li>Reference: <code>ORM_STANDARDIZATION.md</code> best practices section</li>
+<li>Examples: See <code>/apps/services/chat-service</code> and <code>/apps/services/marketplace-service</code></li>
+</ol>
+<hr />
+<h2 id="key-findings">Key Findings<a class="headerlink" href="#key-findings" title="Permanent link">&para;</a></h2>
+<h3 id="services-breakdown">Services Breakdown<a class="headerlink" href="#services-breakdown" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Using Prisma</strong> (✅ Standard)</td>
+<td>8</td>
+<td>chat-service, crop-growth-model, disaster-assessment, lai-estimation, marketplace-service, research-core, yield-prediction, yield-prediction-service</td>
+</tr>
+<tr>
+<td><strong>Using TypeORM</strong> (⚠️ Migration Needed)</td>
+<td>2</td>
+<td>field-core, field-management-service</td>
+</tr>
+<tr>
+<td><strong>No ORM</strong> (ℹ️ No Action)</td>
+<td>37</td>
+<td>community-chat, iot-service, and 35 others</td>
+</tr>
+</tbody>
+</table>
+<h3 id="migration-status">Migration Status<a class="headerlink" href="#migration-status" title="Permanent link">&para;</a></h3>
+<p><strong>Good News</strong>: Both TypeORM services (field-core and field-management-service) already have complete Prisma schemas defined. Migration is ready to execute!</p>
+<p><strong>Complexity</strong>: Medium
+<strong>Timeline</strong>: 3-5 days for both services
+<strong>Risk</strong>: Low-Medium (schemas validated, rollback strategy in place)</p>
+<hr />
+<h2 id="implementation-timeline">Implementation Timeline<a class="headerlink" href="#implementation-timeline" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>Week 1:
+├─ Day 1: Review documentation &amp; setup staging
+├─ Day 2-4: Migrate field-core
+└─ Day 5: Testing &amp; validation
+
+Week 2:
+├─ Day 1-2: Migrate field-management-service
+├─ Day 3: Testing &amp; validation
+├─ Day 4: Cleanup &amp; documentation
+└─ Day 5: Production deployment &amp; monitoring
+</code></pre></div>
+
+<hr />
+<h2 id="critical-files-for-migration">Critical Files for Migration<a class="headerlink" href="#critical-files-for-migration" title="Permanent link">&para;</a></h2>
+<h3 id="field-core">field-core<a class="headerlink" href="#field-core" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Schema</strong>: <code>/apps/services/field-core/prisma/schema.prisma</code> ✅ Ready</li>
+<li><strong>Data Source (Remove)</strong>: <code>/apps/services/field-core/src/data-source.ts</code></li>
+<li><strong>Entities (Remove)</strong>: <code>/apps/services/field-core/src/entity/*.ts</code></li>
+<li><strong>Main Service</strong>: <code>/apps/services/field-core/src/index.ts</code> (Update)</li>
+</ul>
+<h3 id="field-management-service">field-management-service<a class="headerlink" href="#field-management-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Schema</strong>: <code>/apps/services/field-management-service/prisma/schema.prisma</code> ✅ Ready</li>
+<li><strong>Data Source (Remove)</strong>: <code>/apps/services/field-management-service/src/data-source.ts</code></li>
+<li><strong>Entities (Remove)</strong>: <code>/apps/services/field-management-service/src/entity/*.ts</code></li>
+<li><strong>Main Service</strong>: <code>/apps/services/field-management-service/src/index.ts</code> (Update)</li>
+</ul>
+<hr />
+<h2 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h2>
+<p>Migration is successful when:</p>
+<ul>
+<li>[ ] All database operations use Prisma Client</li>
+<li>[ ] TypeORM dependencies removed from package.json</li>
+<li>[ ] All entity files removed</li>
+<li>[ ] All tests passing</li>
+<li>[ ] Performance metrics acceptable (&lt; 5% degradation)</li>
+<li>[ ] No increase in error rates</li>
+<li>[ ] Prisma migrations tracked in version control</li>
+<li>[ ] Documentation updated</li>
+</ul>
+<hr />
+<h2 id="support-resources">Support Resources<a class="headerlink" href="#support-resources" title="Permanent link">&para;</a></h2>
+<h3 id="official-prisma-resources">Official Prisma Resources<a class="headerlink" href="#official-prisma-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Documentation: https://www.prisma.io/docs</li>
+<li>Migration Guide: https://www.prisma.io/docs/guides/migrate-to-prisma/migrate-from-typeorm</li>
+<li>Schema Reference: https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference</li>
+</ul>
+<h3 id="internal-resources">Internal Resources<a class="headerlink" href="#internal-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Example Services:</li>
+<li><code>/apps/services/chat-service</code> - Clean Prisma implementation</li>
+<li><code>/apps/services/marketplace-service</code> - Complex relations</li>
+<li><code>/apps/services/field-core/prisma/schema.prisma</code> - PostGIS example</li>
+</ul>
+<h3 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">&para;</a></h3>
+<ul>
+<li>SAHOOL Architecture Team</li>
+<li>This documentation suite</li>
+<li>Prisma Discord Community</li>
+</ul>
+<hr />
+<h2 id="change-log">Change Log<a class="headerlink" href="#change-log" title="Permanent link">&para;</a></h2>
+<h3 id="version-10-2025-12-31">Version 1.0 (2025-12-31)<a class="headerlink" href="#version-10-2025-12-31" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Initial documentation suite created</li>
+<li>Comprehensive audit completed</li>
+<li>Migration guide published</li>
+<li>Service template provided</li>
+<li>Ready for implementation</li>
+</ul>
+<hr />
+<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Immediate</strong> (This Week):</li>
+<li>[ ] Review all documentation</li>
+<li>[ ] Approve migration plan</li>
+<li>[ ] Schedule migration sprint</li>
+<li>
+<p>[ ] Set up staging environments</p>
+</li>
+<li>
+<p><strong>Short-term</strong> (Next 2 Weeks):</p>
+</li>
+<li>[ ] Execute field-core migration</li>
+<li>[ ] Execute field-management-service migration</li>
+<li>[ ] Deploy to production</li>
+<li>
+<p>[ ] Monitor and validate</p>
+</li>
+<li>
+<p><strong>Medium-term</strong> (Next Month):</p>
+</li>
+<li>[ ] Team training on Prisma</li>
+<li>[ ] Update service templates</li>
+<li>[ ] Establish best practices</li>
+<li>
+<p>[ ] Share learnings</p>
+</li>
+<li>
+<p><strong>Long-term</strong> (Next Quarter):</p>
+</li>
+<li>[ ] Evaluate advanced Prisma features (Accelerate, Pulse)</li>
+<li>[ ] Optimize performance</li>
+<li>[ ] Continuous improvement</li>
+</ol>
+<hr />
+<h2 id="document-maintenance">Document Maintenance<a class="headerlink" href="#document-maintenance" title="Permanent link">&para;</a></h2>
+<p><strong>Owner</strong>: SAHOOL Architecture Team
+<strong>Review Frequency</strong>: Quarterly
+<strong>Last Review</strong>: 2025-12-31
+<strong>Next Review</strong>: 2025-03-31</p>
+<p><strong>Update Triggers</strong>:
+- Prisma version updates
+- New migration experiences
+- Best practice changes
+- Team feedback</p>
+<hr />
+<h2 id="approval-sign-off">Approval &amp; Sign-off<a class="headerlink" href="#approval-sign-off" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[x] Technical Documentation Complete</li>
+<li>[x] Migration Guide Validated</li>
+<li>[x] Risk Assessment Complete</li>
+<li>[x] Ready for Implementation</li>
+</ul>
+<p><strong>Approved By</strong>: SAHOOL Engineering Team
+<strong>Date</strong>: 2025-12-31
+<strong>Status</strong>: ✅ APPROVED FOR IMPLEMENTATION</p>
+<hr />
+<h2 id="contact">Contact<a class="headerlink" href="#contact" title="Permanent link">&para;</a></h2>
+<p><strong>Questions or Feedback?</strong>
+- Architecture Team
+- Create an issue in the repository
+- Refer to this documentation suite</p>
+<hr />
+<p><strong>End of Documentation Index</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

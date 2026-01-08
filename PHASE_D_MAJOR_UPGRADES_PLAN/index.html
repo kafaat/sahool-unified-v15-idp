@@ -1,0 +1,1569 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>خطة المرحلة D - ترقية Next.js 16 و Tailwind CSS 4 - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#d-nextjs-16-tailwind-css-4" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              خطة المرحلة D - ترقية Next.js 16 و Tailwind CSS 4
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="d-nextjs-16-tailwind-css-4">خطة المرحلة D - ترقية Next.js 16 و Tailwind CSS 4<a class="headerlink" href="#d-nextjs-16-tailwind-css-4" title="Permanent link">&para;</a></h1>
+<h1 id="phase-d-plan-nextjs-16-tailwind-css-4-upgrades">Phase D Plan - Next.js 16 &amp; Tailwind CSS 4 Upgrades<a class="headerlink" href="#phase-d-plan-nextjs-16-tailwind-css-4-upgrades" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ:</strong> 20 ديسمبر 2025
+<strong>المنصة:</strong> SAHOOL Unified v15-IDP
+<strong>الحالة:</strong> 📋 مخطط</p>
+<hr />
+<h2 id="important-warning">⚠️ تحذير هام | Important Warning<a class="headerlink" href="#important-warning" title="Permanent link">&para;</a></h2>
+<p>هذه الترقيات تعتبر <strong>عالية المخاطر</strong> وتتطلب:
+- اختبارًا شاملًا قبل الدمج
+- مراجعة جميع الميزات المتأثرة
+- تخصيص وقت كافٍ للتعامل مع المشاكل غير المتوقعة</p>
+<hr />
+<h2 id="1-overview">1. نظرة عامة | Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
+<h3 id="_1">الترقيات المخططة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الحزمة</th>
+<th>الحالي</th>
+<th>المستهدف</th>
+<th>مستوى المخاطر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Next.js</td>
+<td>15.1.2</td>
+<td>16.x</td>
+<td>🔴 مرتفع</td>
+</tr>
+<tr>
+<td>Tailwind CSS</td>
+<td>3.4.17</td>
+<td>4.x</td>
+<td>🔴 مرتفع</td>
+</tr>
+<tr>
+<td>eslint-config-next</td>
+<td>15.1.2</td>
+<td>16.x</td>
+<td>🟡 متوسط</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-nextjs-16-">2. Next.js 16 - تفاصيل الترقية<a class="headerlink" href="#2-nextjs-16-" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 المتطلبات الأساسية<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>✅ Node.js 20.9.0+ (لدينا: 22.21.1) - متوافق
+✅ React 19.0.0 (لدينا: 19.0.0) - متوافق
+</code></pre></div>
+
+<h3 id="22">2.2 الميزات الجديدة<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cache Components</strong></td>
+<td>تخزين مؤقت صريح باستخدام "use cache" directive</td>
+</tr>
+<tr>
+<td><strong>Turbopack (Stable)</strong></td>
+<td>أسرع 10x في Fast Refresh، 2-5x في Production builds</td>
+</tr>
+<tr>
+<td><strong>Next.js DevTools MCP</strong></td>
+<td>تكامل AI لتشخيص المشاكل</td>
+</tr>
+<tr>
+<td><strong>proxy.ts</strong></td>
+<td>بديل middleware.ts مع Node.js runtime</td>
+</tr>
+<tr>
+<td><strong>Incremental Prefetching</strong></td>
+<td>تحسين prefetch للروابط</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-breaking-changes">2.3 التغييرات الكسرية (Breaking Changes)<a class="headerlink" href="#23-breaking-changes" title="Permanent link">&para;</a></h3>
+<h4 id="231-middlewarets-proxyts">2.3.1 middleware.ts → proxy.ts<a class="headerlink" href="#231-middlewarets-proxyts" title="Permanent link">&para;</a></h4>
+<p><strong>الملفات المتأثرة:</strong>
+- <code>apps/admin/src/middleware.ts</code></p>
+<p><strong>التغييرات المطلوبة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// قبل (Next.js 15)</span>
+<span class="c1">// apps/admin/src/middleware.ts</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">middleware</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">NextRequest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// بعد (Next.js 16)</span>
+<span class="c1">// apps/admin/src/proxy.ts</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">proxy</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">NextRequest</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+
+<p><strong>خطة الترحيل:</strong>
+1. إعادة تسمية الملف: <code>middleware.ts</code> → <code>proxy.ts</code>
+2. تغيير اسم الدالة: <code>middleware</code> → <code>proxy</code>
+3. تحديث أي imports أو references</p>
+<h4 id="232-async-params-searchparams">2.3.2 async params &amp; searchParams<a class="headerlink" href="#232-async-params-searchparams" title="Permanent link">&para;</a></h4>
+<p><strong>الملفات المتأثرة:</strong> جميع صفحات Server Components التي تستخدم params</p>
+<p><strong>التغييرات المطلوبة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// قبل</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">Page</span><span class="p">({</span><span class="w"> </span><span class="nx">params</span><span class="w"> </span><span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">params</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/div&gt;</span>
+<span class="p">}</span>
+
+<span class="c1">// بعد</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">Page</span><span class="p">({</span><span class="w"> </span><span class="nx">params</span><span class="w"> </span><span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">params</span><span class="o">:</span><span class="w"> </span><span class="kt">Promise</span><span class="o">&lt;</span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">}</span><span class="o">&gt;</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">id</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">params</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="o">&lt;</span><span class="nx">div</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">id</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/div&gt;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>تحليل الحالة الحالية:</strong>
+- <code>apps/admin/src/app/diseases/page.tsx</code> - ✅ يستخدم <code>useSearchParams()</code> (client-side hook) - لا يحتاج تغيير
+- <code>apps/admin/src/app/login/page.tsx</code> - ✅ يستخدم <code>useSearchParams()</code> (client-side hook) - لا يحتاج تغيير</p>
+<p><strong>الفحص المطلوب:</strong> البحث عن صفحات تستخدم <code>params</code> أو <code>searchParams</code> كـ props</p>
+<h4 id="233-amp">2.3.3 إزالة دعم AMP<a class="headerlink" href="#233-amp" title="Permanent link">&para;</a></h4>
+<p><strong>الحالة:</strong> ✅ لا نستخدم AMP في المشروع</p>
+<h3 id="24">2.4 خطوات الترقية<a class="headerlink" href="#24" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الخطوة 1: تحديث الحزم</span>
+npm<span class="w"> </span>install<span class="w"> </span>next@16<span class="w"> </span>eslint-config-next@16
+
+<span class="c1"># الخطوة 2: تشغيل codemod (اختياري)</span>
+npx<span class="w"> </span>@next/codemod@latest<span class="w"> </span>upgrade
+
+<span class="c1"># الخطوة 3: إعادة تسمية middleware → proxy</span>
+mv<span class="w"> </span>apps/admin/src/middleware.ts<span class="w"> </span>apps/admin/src/proxy.ts
+
+<span class="c1"># الخطوة 4: تحديث الدالة</span>
+<span class="c1"># تغيير export function middleware → export function proxy</span>
+
+<span class="c1"># الخطوة 5: اختبار البناء</span>
+npm<span class="w"> </span>run<span class="w"> </span>build
+</code></pre></div>
+
+<hr />
+<h2 id="3-tailwind-css-4-">3. Tailwind CSS 4 - تفاصيل الترقية<a class="headerlink" href="#3-tailwind-css-4-" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 المتطلبات الأساسية<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>✅ Node.js 20+ (لدينا: 22.21.1) - متوافق
+⚠️ متصفحات حديثة فقط: Safari 16.4+, Chrome 111+, Firefox 128+
+</code></pre></div>
+
+<h3 id="32">3.2 الميزات الجديدة<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Oxide Engine (Rust)</strong></td>
+<td>أسرع 5x في full builds، 100x+ في incremental</td>
+</tr>
+<tr>
+<td><strong>CSS-First Config</strong></td>
+<td>إعدادات CSS بدلاً من JavaScript</td>
+</tr>
+<tr>
+<td><strong>Modern CSS</strong></td>
+<td>cascade layers, @property, color-mix()</td>
+</tr>
+<tr>
+<td><strong>Auto Content Detection</strong></td>
+<td>لا حاجة لتحديد مسارات content</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-breaking-changes">3.3 التغييرات الكسرية (Breaking Changes)<a class="headerlink" href="#33-breaking-changes" title="Permanent link">&para;</a></h3>
+<h4 id="331-import-syntax">3.3.1 Import Syntax<a class="headerlink" href="#331-import-syntax" title="Permanent link">&para;</a></h4>
+<p><strong>الملفات المتأثرة:</strong>
+- <code>apps/web/src/app/globals.css</code>
+- <code>apps/admin/src/app/globals.css</code></p>
+<p><strong>التغييرات المطلوبة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c">/* قبل (Tailwind 3) */</span>
+<span class="p">@</span><span class="k">tailwind</span><span class="w"> </span><span class="nt">base</span><span class="p">;</span>
+<span class="p">@</span><span class="k">tailwind</span><span class="w"> </span><span class="nt">components</span><span class="p">;</span>
+<span class="p">@</span><span class="k">tailwind</span><span class="w"> </span><span class="nt">utilities</span><span class="p">;</span>
+
+<span class="c">/* بعد (Tailwind 4) */</span>
+<span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">&quot;tailwindcss&quot;</span><span class="p">;</span>
+</code></pre></div>
+
+<h4 id="332-configuration-migration">3.3.2 Configuration Migration<a class="headerlink" href="#332-configuration-migration" title="Permanent link">&para;</a></h4>
+<p><strong>الملفات المتأثرة:</strong>
+- <code>packages/tailwind-config/index.js</code> (shared config)
+- <code>apps/web/tailwind.config.ts</code>
+- <code>apps/admin/tailwind.config.ts</code></p>
+<p><strong>التغييرات المطلوبة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c">/* قبل: tailwind.config.ts */</span>
+<span class="nt">module</span><span class="p">.</span><span class="nc">exports</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">theme</span><span class="p">:</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="n">extend</span><span class="o">:</span><span class="w"> </span><span class="err">{</span>
+<span class="w">      </span><span class="n">colors</span><span class="o">:</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="n">sahool</span><span class="o">:</span><span class="w"> </span><span class="err">{</span><span class="w"> </span><span class="mi">500</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;#22c55e&#39;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="err">}</span>
+<span class="w">    </span><span class="err">}</span>
+<span class="w">  </span><span class="err">}</span>
+<span class="err">}</span>
+
+<span class="c">/* بعد: في globals.css */</span>
+<span class="p">@</span><span class="k">import</span><span class="w"> </span><span class="s2">&quot;tailwindcss&quot;</span><span class="p">;</span>
+
+<span class="p">@</span><span class="k">theme</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">--color-sahool-500</span><span class="o">:</span><span class="w"> </span><span class="p">#</span><span class="nn">22c55e</span><span class="o">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="333-breaking-utility-changes">3.3.3 Breaking Utility Changes<a class="headerlink" href="#333-breaking-utility-changes" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Utility</th>
+<th>Tailwind 3</th>
+<th>Tailwind 4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>border color</td>
+<td>gray-200</td>
+<td>currentColor</td>
+</tr>
+<tr>
+<td>ring width</td>
+<td>3px</td>
+<td>1px</td>
+</tr>
+<tr>
+<td>ring color</td>
+<td>blue-500</td>
+<td>currentColor</td>
+</tr>
+<tr>
+<td>placeholder</td>
+<td>gray-400</td>
+<td>50% opacity</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التأثير:</strong> يجب مراجعة جميع استخدامات <code>border</code>, <code>ring</code>, <code>placeholder</code> في الكود</p>
+<h4 id="334">3.3.4 حزم منفصلة<a class="headerlink" href="#334" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Tailwind 4 يتطلب تثبيت PostCSS plugin بشكل منفصل</span>
+npm<span class="w"> </span>install<span class="w"> </span>tailwindcss<span class="w"> </span>@tailwindcss/postcss
+
+<span class="c1"># تحديث postcss.config.js</span>
+<span class="nb">export</span><span class="w"> </span>default<span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>plugins:<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="s1">&#39;@tailwindcss/postcss&#39;</span>:<span class="w"> </span><span class="o">{}</span>,
+<span class="w">  </span><span class="o">}</span>,
+<span class="o">}</span>
+</code></pre></div>
+
+<h3 id="34-css-preprocessors">3.4 ملاحظة مهمة: CSS Preprocessors<a class="headerlink" href="#34-css-preprocessors" title="Permanent link">&para;</a></h3>
+<p>⛔ <strong>Tailwind 4 غير متوافق مع Sass/Less/Stylus</strong></p>
+<p><strong>الحالة الحالية:</strong> ✅ نستخدم CSS عادي - لا توجد مشكلة</p>
+<h3 id="35">3.5 خطوات الترقية<a class="headerlink" href="#35" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الخطوة 1: تشغيل أداة الترقية التلقائية</span>
+npx<span class="w"> </span>@tailwindcss/upgrade
+
+<span class="c1"># الخطوة 2: تحديث الحزم يدوياً إذا لزم الأمر</span>
+npm<span class="w"> </span>install<span class="w"> </span>tailwindcss@4<span class="w"> </span>@tailwindcss/postcss
+
+<span class="c1"># الخطوة 3: مراجعة التغييرات التلقائية</span>
+
+<span class="c1"># الخطوة 4: اختبار البناء</span>
+npm<span class="w"> </span>run<span class="w"> </span>build
+
+<span class="c1"># الخطوة 5: مراجعة visual regression للـ UI</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4">4. استراتيجية الترقية المقترحة<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="a">الخيار A: ترقية تدريجية (موصى به) ⭐<a class="headerlink" href="#a" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">الأسبوع</span><span class="w"> </span><span class="mh">1</span><span class="o">:</span><span class="w"> </span><span class="n">Next</span><span class="p">.</span><span class="n">js</span><span class="w"> </span><span class="mh">16</span><span class="w"> </span><span class="err">فقط</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">ترقية</span><span class="w"> </span><span class="n">Next</span><span class="p">.</span><span class="n">js</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">تحويل</span><span class="w"> </span><span class="n">middleware</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">proxy</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">اختبار</span><span class="w"> </span><span class="err">شامل</span>
+<span class="err">└──</span><span class="w"> </span><span class="err">دمج</span>
+
+<span class="err">الأسبوع</span><span class="w"> </span><span class="mh">2</span><span class="o">:</span><span class="w"> </span><span class="n">Tailwind</span><span class="w"> </span><span class="mh">4</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">ترقية</span><span class="w"> </span><span class="n">Tailwind</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">تحويل</span><span class="w"> </span><span class="n">configs</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="n">CSS</span>
+<span class="err">├──</span><span class="w"> </span><span class="err">إصلاح</span><span class="w"> </span><span class="n">visual</span><span class="w"> </span><span class="n">regressions</span>
+<span class="err">└──</span><span class="w"> </span><span class="err">دمج</span>
+</code></pre></div>
+
+<p><strong>المميزات:</strong>
+- عزل المشاكل
+- rollback أسهل
+- اختبار مركز</p>
+<h3 id="b">الخيار B: ترقية متزامنة<a class="headerlink" href="#b" title="Permanent link">&para;</a></h3>
+<p><strong>غير موصى به</strong> بسبب:
+- صعوبة تشخيص المشاكل
+- rollback معقد
+- احتمال تعارضات</p>
+<hr />
+<h2 id="5">5. قائمة التحقق قبل الترقية<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="nextjs-16-checklist">Next.js 16 Checklist<a class="headerlink" href="#nextjs-16-checklist" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] فحص جميع ملفات <code>middleware.ts</code></li>
+<li>[ ] فحص صفحات Server Components التي تستخدم <code>params</code></li>
+<li>[ ] التأكد من عدم استخدام AMP</li>
+<li>[ ] مراجعة استخدامات <code>next/server</code> imports</li>
+<li>[ ] إنشاء feature branch للترقية</li>
+<li>[ ] تشغيل test suite قبل الترقية</li>
+</ul>
+<h3 id="tailwind-4-checklist">Tailwind 4 Checklist<a class="headerlink" href="#tailwind-4-checklist" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إحصاء ملفات CSS التي تستخدم <code>@tailwind</code></li>
+<li>[ ] مراجعة <code>tailwind.config.*</code> files</li>
+<li>[ ] فحص استخدامات <code>border</code>, <code>ring</code>, <code>placeholder</code></li>
+<li>[ ] التأكد من دعم المتصفحات المستهدفة</li>
+<li>[ ] إنشاء feature branch للترقية</li>
+<li>[ ] تحضير visual regression tests</li>
+</ul>
+<hr />
+<h2 id="6">6. المخاطر والتخفيف<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المخاطر</th>
+<th>الاحتمال</th>
+<th>التأثير</th>
+<th>التخفيف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>middleware breakage</td>
+<td>متوسط</td>
+<td>مرتفع</td>
+<td>اختبار auth flow شامل</td>
+</tr>
+<tr>
+<td>UI visual regressions</td>
+<td>مرتفع</td>
+<td>متوسط</td>
+<td>مقارنة screenshots</td>
+</tr>
+<tr>
+<td>Third-party plugin incompatibility</td>
+<td>منخفض</td>
+<td>متوسط</td>
+<td>فحص compatibility قبل الترقية</td>
+</tr>
+<tr>
+<td>Build failures</td>
+<td>متوسط</td>
+<td>مرتفع</td>
+<td>feature branch + CI checks</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7">7. التوصيات<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<h3 id="71">7.1 توقيت الترقية<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<p>🟡 <strong>التوصية:</strong> تأجيل الترقية إلى Q1 2026</p>
+<p><strong>الأسباب:</strong>
+1. Next.js 16 صدر حديثاً (أكتوبر 2025) - ينتظر استقرار
+2. Tailwind 4 يتطلب تغييرات واسعة في الـ config
+3. المشروع في حالة مستقرة حالياً
+4. الترقيات الحالية (React 19, ESLint 9) تحتاج اختباراً</p>
+<h3 id="72">7.2 إذا كانت الترقية عاجلة<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<ol>
+<li>ابدأ بـ Next.js 16 فقط</li>
+<li>انتظر أسبوعًا للاستقرار</li>
+<li>ثم Tailwind 4 في PR منفصل</li>
+</ol>
+<h3 id="73">7.3 البدائل المؤقتة<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>للأمان:</strong> ترقية Next.js إلى 15.2.x (patch) بدلاً من 16</li>
+<li><strong>للأداء:</strong> تفعيل Turbopack في Next.js 15</li>
+</ul>
+<hr />
+<h2 id="8-references">8. المراجع | References<a class="headerlink" href="#8-references" title="Permanent link">&para;</a></h2>
+<h3 id="nextjs-16">Next.js 16<a class="headerlink" href="#nextjs-16" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://nextjs.org/blog/next-16">Next.js 16 Blog</a></li>
+<li><a href="https://nextjs.org/docs/app/building-your-application/upgrading">Next.js 16 Migration</a></li>
+<li><a href="https://www.infoq.com/news/2025/12/nextjs-16-release/">InfoQ: Next.js 16 Release</a></li>
+</ul>
+<h3 id="tailwind-css-4">Tailwind CSS 4<a class="headerlink" href="#tailwind-css-4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://tailwindcss.com/blog/tailwindcss-v4">Tailwind CSS 4.0 Blog</a></li>
+<li><a href="https://tailwindcss.com/docs/upgrade-guide">Official Upgrade Guide</a></li>
+<li><a href="https://dev.to/kasenda/whats-new-and-migration-guide-tailwind-css-v40-3kag">Migration Guide (DEV Community)</a></li>
+</ul>
+<hr />
+<p><em>تم إنشاء هذا التقرير بواسطة Claude في 20 ديسمبر 2025</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

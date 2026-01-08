@@ -1,0 +1,1791 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Field-First Architecture - العمارة الميدانية أولاً - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#field-first-architecture-" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Field-First Architecture - العمارة الميدانية أولاً
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="field-first-architecture-">Field-First Architecture - العمارة الميدانية أولاً<a class="headerlink" href="#field-first-architecture-" title="Permanent link">&para;</a></h1>
+<h2 id="sahool-unified-platform-v155">SAHOOL Unified Platform v15.5<a class="headerlink" href="#sahool-unified-platform-v155" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>المبدأ الأساسي:</strong> المنصة ميدانية، والتحليل يخدم الميدان</p>
+<p><strong>Core Principle:</strong> The platform is field-first; analysis serves the field</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">📋 جدول المحتويات | Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview">نظرة عامة | Overview</a></li>
+<li><a href="#core-components">المكونات الأساسية | Core Components</a></li>
+<li><a href="#service-map">خريطة الخدمات | Service Map</a></li>
+<li><a href="#data-flow">تدفق البيانات | Data Flow</a></li>
+<li><a href="#action-template">قالب الإجراء | ActionTemplate</a></li>
+<li><a href="#bridge-layer">طبقة الجسر | Bridge Layer</a></li>
+<li><a href="#integration-guide">دليل التكامل | Integration Guide</a></li>
+</ol>
+<hr />
+<h2 id="overview"><a name="overview"></a>🎯 نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h3 id="the-problem">المشكلة | The Problem<a class="headerlink" href="#the-problem" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">التحليلات</span><span class="w"> </span><span class="n">المتقدمة</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="n">لوحات</span><span class="w"> </span><span class="n">البيانات</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="o">[</span><span class="n">فجوة</span><span class="o">]</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="n">عمل</span><span class="w"> </span><span class="n">الميدان</span>
+<span class="n">Advanced</span><span class="w"> </span><span class="n">Analytics</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Dashboards</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="o">[</span><span class="n">GAP</span><span class="o">]</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">Field</span><span class="w"> </span><span class="k">Action</span>
+</code></pre></div>
+
+<h3 id="the-solution">الحل | The Solution<a class="headerlink" href="#the-solution" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>التحليل ← ActionTemplate ← NATS ← الإشعارات ← التطبيق المحمول ← المزارع
+Analysis → ActionTemplate → NATS → Notifications → Mobile App → Farmer
+</code></pre></div>
+
+<h3 id="golden-rules">القواعد الذهبية | Golden Rules<a class="headerlink" href="#golden-rules" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>القاعدة</th>
+<th>Rule</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🎯 <strong>الإجراء أولاً</strong></td>
+<td>Action First</td>
+<td>كل تحليل ينتج ActionTemplate</td>
+</tr>
+<tr>
+<td>📱 <strong>قابل للتنفيذ</strong></td>
+<td>Executable</td>
+<td>التعليمات واضحة ومحددة</td>
+</tr>
+<tr>
+<td>🔌 <strong>يعمل بدون إنترنت</strong></td>
+<td>Offline Ready</td>
+<td>Fallback لكل إجراء</td>
+</tr>
+<tr>
+<td>⏰ <strong>متى وليس فقط كيف</strong></td>
+<td>When not just How</td>
+<td>قرارات التوقيت واضحة</td>
+</tr>
+<tr>
+<td>🏷️ <strong>الشفافية</strong></td>
+<td>Transparency</td>
+<td>Badges توضح مصدر البيانات</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="core-components"><a name="core-components"></a>🏗️ المكونات الأساسية | Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h2>
+<h3 id="1-actiontemplate-">1. ActionTemplate - قالب الإجراء<a class="headerlink" href="#1-actiontemplate-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                     </span><span class="nx">ActionTemplate</span><span class="w">                          </span><span class="err">│</span>
+<span class="err">├─────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">  </span><span class="err">📌</span><span class="w"> </span><span class="nx">WHAT</span><span class="w"> </span><span class="p">(</span><span class="nx">ماذا</span><span class="p">)</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="s">&quot;إجراء ري طارئ&quot;</span><span class="w">                        </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">❓</span><span class="w"> </span><span class="nx">WHY</span><span class="w"> </span><span class="p">(</span><span class="nx">لماذا</span><span class="p">)</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="s">&quot;رطوبة التربة منخفضة (22%)&quot;</span><span class="w">           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">⏰</span><span class="w"> </span><span class="nx">WHEN</span><span class="w"> </span><span class="p">(</span><span class="nx">متى</span><span class="p">)</span><span class="w">     </span><span class="err">│</span><span class="w"> </span><span class="s">&quot;خلال 6 ساعات&quot;</span><span class="w">                         </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">📝</span><span class="w"> </span><span class="nx">HOW</span><span class="w"> </span><span class="p">(</span><span class="nx">كيف</span><span class="p">)</span><span class="w">      </span><span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;شغل المضخة&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;اسقِ 15 دقيقة&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">]</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">🔌</span><span class="w"> </span><span class="nx">FALLBACK</span><span class="w">       </span><span class="err">│</span><span class="w"> </span><span class="s">&quot;إذا لم تتوفر المضخة: ري يدوي عميق&quot;</span><span class="w">   </span><span class="err">│</span>
+<span class="err">├─────────────────────────────────────────────────────────────┤</span>
+<span class="err">│</span><span class="w">  </span><span class="err">🏷️</span><span class="w"> </span><span class="nx">Badge</span><span class="w">          </span><span class="err">│</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;virtual_estimate&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="p">}</span><span class="w">      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">📊</span><span class="w"> </span><span class="nx">Confidence</span><span class="w">     </span><span class="err">│</span><span class="w"> </span><span class="m m-Double">0.75</span><span class="w">                                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">🚨</span><span class="w"> </span><span class="nx">Priority</span><span class="w">       </span><span class="err">│</span><span class="w"> </span><span class="s">&quot;high&quot;</span><span class="w">                                 </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<h3 id="2-nats-event-spine-">2. NATS Event Spine - العمود الفقري للأحداث<a class="headerlink" href="#2-nats-event-spine-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐
+│   Analysis   │───▶│    NATS      │───▶│ Notification Service │
+│   Service    │    │   Broker     │    │                      │
+└──────────────┘    └──────────────┘    └──────────┬───────────┘
+                                                    │
+                    sahool.analysis.completed       │
+                    sahool.alerts.created           ▼
+                                            ┌──────────────┐
+                                            │  Mobile App  │
+                                            │  (Firebase)  │
+                                            └──────────────┘
+</code></pre></div>
+
+<h3 id="3-badge-system-">3. Badge System - نظام الشارات<a class="headerlink" href="#3-badge-system-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الشارة</th>
+<th>Badge</th>
+<th>اللون</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🛰️ قراءة قمر صناعي</td>
+<td>Satellite Reading</td>
+<td><code>#10B981</code></td>
+<td>بيانات مباشرة من القمر الصناعي</td>
+</tr>
+<tr>
+<td>📡 قراءة حساس</td>
+<td>IoT Reading</td>
+<td><code>#3B82F6</code></td>
+<td>بيانات من أجهزة IoT</td>
+</tr>
+<tr>
+<td>🧮 تقدير افتراضي</td>
+<td>Virtual Estimate</td>
+<td><code>#6366F1</code></td>
+<td>حساب برمجي بدون حساس</td>
+</tr>
+<tr>
+<td>⚠️ تقدير تاريخي</td>
+<td>Historical Estimate</td>
+<td><code>#F59E0B</code></td>
+<td>بناء على بيانات سابقة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="service-map"><a name="service-map"></a>🗺️ خريطة الخدمات | Service Map<a class="headerlink" href="#service-map" title="Permanent link">&para;</a></h2>
+<h3 id="activated-services">الخدمات المُفعّلة | Activated Services<a class="headerlink" href="#activated-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────┐
+│                    FIELD-FIRST ACTIVATED SERVICES                   │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐ │
+│  │ satellite       │    │ virtual-sensors │    │ crop-growth     │ │
+│  │ service         │    │                 │    │ timing          │ │
+│  │ :8090           │    │ :8085           │    │ :8098           │ │
+│  │                 │    │                 │    │                 │ │
+│  │ ✅ ActionTemplate│    │ ✅ ActionTemplate│    │ ✅ ActionTemplate│ │
+│  │ ✅ NATS Events  │    │ ✅ NATS Events  │    │ ✅ NATS Events  │ │
+│  │ ✅ Badges       │    │ ✅ Badges       │    │ ✅ Badges       │ │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘ │
+│                                                                     │
+│  ┌─────────────────┐    ┌─────────────────┐                        │
+│  │ notification    │    │ irrigation      │                        │
+│  │ service         │    │ smart           │                        │
+│  │ :8083           │    │ :8086           │                        │
+│  │                 │    │                 │                        │
+│  │ ✅ NATS Sub     │    │ ✅ ActionTemplate│                        │
+│  │ ✅ Firebase Push│    │ ✅ NATS Events  │                        │
+│  └─────────────────┘    └─────────────────┘                        │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="services-to-activate">الخدمات المطلوب تفعيلها | Services to Activate<a class="headerlink" href="#services-to-activate" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Service</th>
+<th>المنفذ</th>
+<th>الأولوية</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>yield-prediction</td>
+<td>توقع الإنتاجية</td>
+<td>8091</td>
+<td>🔴 عالية</td>
+<td>📋 مخطط</td>
+</tr>
+<tr>
+<td>lai-estimation</td>
+<td>تقدير LAI</td>
+<td>8093</td>
+<td>🟡 متوسطة</td>
+<td>📋 مخطط</td>
+</tr>
+<tr>
+<td>disaster-assessment</td>
+<td>تقييم الكوارث</td>
+<td>8094</td>
+<td>🟡 متوسطة</td>
+<td>📋 مخطط</td>
+</tr>
+<tr>
+<td>weather-advanced</td>
+<td>الطقس المتقدم</td>
+<td>8092</td>
+<td>🟢 منخفضة</td>
+<td>📋 مخطط</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="data-flow"><a name="data-flow"></a>🔄 تدفق البيانات | Data Flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h2>
+<h3 id="_1">سيناريو: توصية ري طارئة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                     </span><span class="nx">IRRIGATION</span><span class="w"> </span><span class="nx">ALERT</span><span class="w"> </span><span class="nx">FLOW</span><span class="w">                           </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────┘</span>
+
+<span class="mi">1</span><span class="err">️⃣</span><span class="w"> </span><span class="nx">الطلب</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">Request</span>
+<span class="w">   </span><span class="err">┌──────────────────────────────────────────────────────────────┐</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">v1</span><span class="o">/</span><span class="nx">irrigation</span><span class="o">/</span><span class="nx">recommend</span><span class="o">-</span><span class="nx">with</span><span class="o">-</span><span class="nx">action</span><span class="w">                    </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;field-001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="o">...</span><span class="p">}</span><span class="w"> </span><span class="p">}</span><span class="w">              </span><span class="err">│</span>
+<span class="w">   </span><span class="err">└──────────────────────────────────────────────────────────────┘</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                                    </span><span class="err">▼</span>
+<span class="mi">2</span><span class="err">️⃣</span><span class="w"> </span><span class="nx">التحليل</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">Analysis</span>
+<span class="w">   </span><span class="err">┌──────────────────────────────────────────────────────────────┐</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="kd">virtual</span><span class="o">-</span><span class="nx">sensors</span><span class="w"> </span><span class="p">:</span><span class="mi">8085</span><span class="w">                                        </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="nx">حساب</span><span class="w"> </span><span class="nx">ET₀</span><span class="w"> </span><span class="nx">باستخدام</span><span class="w"> </span><span class="nx">FAO</span><span class="o">-</span><span class="mi">56</span><span class="w"> </span><span class="nx">Penman</span><span class="o">-</span><span class="nx">Monteith</span><span class="w">                  </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="nx">تقدير</span><span class="w"> </span><span class="nx">رطوبة</span><span class="w"> </span><span class="nx">التربة</span><span class="w"> </span><span class="p">(</span><span class="nx">بدون</span><span class="w"> </span><span class="nx">IoT</span><span class="p">)</span><span class="w">                              </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="nx">إنشاء</span><span class="w"> </span><span class="nx">ActionTemplate</span><span class="w"> </span><span class="nx">مع</span><span class="w"> </span><span class="nx">badge</span><span class="w"> </span><span class="s">&quot;تقدير افتراضي&quot;</span><span class="w">              </span><span class="err">│</span>
+<span class="w">   </span><span class="err">└──────────────────────────────────────────────────────────────┘</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                                    </span><span class="err">▼</span>
+<span class="mi">3</span><span class="err">️⃣</span><span class="w"> </span><span class="nx">نشر</span><span class="w"> </span><span class="nx">الحدث</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">Event</span><span class="w"> </span><span class="nx">Publishing</span>
+<span class="w">   </span><span class="err">┌──────────────────────────────────────────────────────────────┐</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="nx">NATS</span><span class="p">:</span><span class="w"> </span><span class="nx">sahool</span><span class="p">.</span><span class="nx">analysis</span><span class="p">.</span><span class="nx">completed</span><span class="w">                              </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="p">{</span><span class="w">                                                            </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="s">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;irrigation_recommendation&quot;</span><span class="p">,</span><span class="w">                       </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="s">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;field-001&quot;</span><span class="p">,</span><span class="w">                                  </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="s">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;high&quot;</span><span class="p">,</span><span class="w">                                        </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="s">&quot;action_template&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="p">}</span><span class="w">                                 </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="p">}</span><span class="w">                                                            </span><span class="err">│</span>
+<span class="w">   </span><span class="err">└──────────────────────────────────────────────────────────────┘</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                                    </span><span class="err">▼</span>
+<span class="mi">4</span><span class="err">️⃣</span><span class="w"> </span><span class="nx">الإشعار</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">Notification</span>
+<span class="w">   </span><span class="err">┌──────────────────────────────────────────────────────────────┐</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="nx">notification</span><span class="o">-</span><span class="nx">service</span><span class="w"> </span><span class="p">:</span><span class="mi">8083</span><span class="w">                                   </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="nx">استقبال</span><span class="w"> </span><span class="nx">من</span><span class="w"> </span><span class="nx">NATS</span><span class="w">                                            </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="nx">إرسال</span><span class="w"> </span><span class="nx">Firebase</span><span class="w"> </span><span class="nx">Push</span><span class="w">                                        </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">•</span><span class="w"> </span><span class="nx">حفظ</span><span class="w"> </span><span class="nx">في</span><span class="w"> </span><span class="nx">قاعدة</span><span class="w"> </span><span class="nx">البيانات</span><span class="w">                                      </span><span class="err">│</span>
+<span class="w">   </span><span class="err">└──────────────────────────────────────────────────────────────┘</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                                    </span><span class="err">▼</span>
+<span class="mi">5</span><span class="err">️⃣</span><span class="w"> </span><span class="nx">التطبيق</span><span class="w"> </span><span class="nx">المحمول</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">Mobile</span><span class="w"> </span><span class="nx">App</span>
+<span class="w">   </span><span class="err">┌──────────────────────────────────────────────────────────────┐</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">📱</span><span class="w"> </span><span class="nx">إشعار</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;تنبيه ري - حقل الوادي&quot;</span><span class="w">                            </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">                                                              </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">🏷️</span><span class="w"> </span><span class="nx">تقدير</span><span class="w"> </span><span class="nx">افتراضي</span><span class="w"> </span><span class="p">(</span><span class="nx">بدون</span><span class="w"> </span><span class="nx">حساس</span><span class="p">)</span><span class="w">                                </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">                                                              </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">⏰</span><span class="w"> </span><span class="nx">متى</span><span class="p">:</span><span class="w"> </span><span class="nx">خلال</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="nx">ساعات</span><span class="w">                                        </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">📝</span><span class="w"> </span><span class="nx">كيف</span><span class="p">:</span><span class="w">                                                      </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="mi">1</span><span class="p">.</span><span class="w"> </span><span class="nx">شغ</span><span class="err">ّ</span><span class="nx">ل</span><span class="w"> </span><span class="nx">المضخة</span><span class="w"> </span><span class="nx">الرئيسية</span><span class="w">                                   </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="mi">2</span><span class="p">.</span><span class="w"> </span><span class="nx">اسق</span><span class="err">ِ</span><span class="w"> </span><span class="nx">لمدة</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="nx">دقيقة</span><span class="w">                                     </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">    </span><span class="mi">3</span><span class="p">.</span><span class="w"> </span><span class="nx">راقب</span><span class="w"> </span><span class="nx">تشرب</span><span class="w"> </span><span class="nx">التربة</span><span class="w">                                       </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">                                                              </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="err">🔌</span><span class="w"> </span><span class="nx">بدون</span><span class="w"> </span><span class="nx">مضخة</span><span class="p">:</span><span class="w"> </span><span class="nx">ري</span><span class="w"> </span><span class="nx">يدوي</span><span class="w"> </span><span class="nx">عميق</span><span class="w"> </span><span class="nx">حول</span><span class="w"> </span><span class="nx">الجذور</span><span class="w">                       </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w">                                                              </span><span class="err">│</span>
+<span class="w">   </span><span class="err">│</span><span class="w"> </span><span class="p">[</span><span class="err">✅</span><span class="w"> </span><span class="nx">تم</span><span class="w"> </span><span class="nx">التنفيذ</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="err">⏰</span><span class="w"> </span><span class="nx">تأجيل</span><span class="p">]</span><span class="w"> </span><span class="p">[</span><span class="err">❌</span><span class="w"> </span><span class="nx">تجاهل</span><span class="p">]</span><span class="w">                         </span><span class="err">│</span>
+<span class="w">   </span><span class="err">└──────────────────────────────────────────────────────────────┘</span>
+</code></pre></div>
+
+<h3 id="_2">سيناريو: توقيت النمو<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                     </span><span class="nx">GROWTH</span><span class="w"> </span><span class="nx">TIMING</span><span class="w"> </span><span class="nx">FLOW</span><span class="w">                              </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────┘</span>
+
+<span class="mi">1</span><span class="err">️⃣</span><span class="w"> </span><span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">v1</span><span class="o">/</span><span class="nx">analyze</span><span class="o">-</span><span class="nx">timing</span>
+<span class="w">   </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;field-001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;wheat&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="w"> </span><span class="p">}</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                                    </span><span class="err">▼</span>
+<span class="mi">2</span><span class="err">️⃣</span><span class="w"> </span><span class="nx">crop</span><span class="o">-</span><span class="nx">growth</span><span class="o">-</span><span class="nx">timing</span><span class="w"> </span><span class="p">:</span><span class="mi">8098</span>
+<span class="w">   </span><span class="err">•</span><span class="w"> </span><span class="nx">تحديد</span><span class="w"> </span><span class="nx">مرحلة</span><span class="w"> </span><span class="nx">النمو</span><span class="w"> </span><span class="nx">الحالية</span><span class="w"> </span><span class="p">(</span><span class="nx">التفريع</span><span class="p">)</span>
+<span class="w">   </span><span class="err">•</span><span class="w"> </span><span class="nx">تحليل</span><span class="w"> </span><span class="nx">نافذة</span><span class="w"> </span><span class="nx">المخاطر</span><span class="w"> </span><span class="p">(</span><span class="mi">7</span><span class="w"> </span><span class="nx">أيام</span><span class="p">)</span>
+<span class="w">   </span><span class="err">•</span><span class="w"> </span><span class="nx">توليد</span><span class="w"> </span><span class="nx">توصيات</span><span class="w"> </span><span class="nx">التوقيت</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                                    </span><span class="err">▼</span>
+<span class="mi">3</span><span class="err">️⃣</span><span class="w"> </span><span class="nx">ActionTemplate</span>
+<span class="w">   </span><span class="p">{</span>
+<span class="w">     </span><span class="s">&quot;what&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;تطبيق الدفعة الأولى من السماد&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="s">&quot;why&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;المحصول في مرحلة التفريع - الوقت المثالي للتسميد&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="s">&quot;when&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="s">&quot;deadline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2024-01-25&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="s">&quot;optimal_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;صباحاً قبل الحرارة&quot;</span>
+<span class="w">     </span><span class="p">},</span>
+<span class="w">     </span><span class="s">&quot;how&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s">&quot;استخدم سماد NPK 15-15-15&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="s">&quot;الكمية: 50 كجم/هكتار&quot;</span><span class="p">,</span>
+<span class="w">       </span><span class="s">&quot;وزّع بالتساوي حول النباتات&quot;</span>
+<span class="w">     </span><span class="p">],</span>
+<span class="w">     </span><span class="s">&quot;fallback&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;إذا لم يتوفر NPK: استخدم يوريا 25 كجم&quot;</span>
+<span class="w">   </span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="actiontemplate"><a name="action-template"></a>📋 قالب الإجراء | ActionTemplate<a class="headerlink" href="#actiontemplate" title="Permanent link">&para;</a></h2>
+<h3 id="full-structure">البنية الكاملة | Full Structure<a class="headerlink" href="#full-structure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ActionTemplate</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;قالب الإجراء الميداني&quot;&quot;&quot;</span>
+
+    <span class="c1"># === الهوية | Identity ===</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>                          <span class="c1"># معرف فريد</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">ActionType</span>                 <span class="c1"># نوع الإجراء</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="n">Priority</span>               <span class="c1"># الأولوية</span>
+
+    <span class="c1"># === السياق | Context ===</span>
+    <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>                    <span class="c1"># معرف الحقل</span>
+    <span class="n">source_analysis</span><span class="p">:</span> <span class="nb">str</span>             <span class="c1"># مصدر التحليل</span>
+
+    <span class="c1"># === المحتوى | Content ===</span>
+    <span class="n">what</span><span class="p">:</span> <span class="nb">str</span>                        <span class="c1"># ماذا نفعل</span>
+    <span class="n">why</span><span class="p">:</span> <span class="nb">str</span>                         <span class="c1"># لماذا</span>
+    <span class="n">when</span><span class="p">:</span> <span class="n">ActionTiming</span>               <span class="c1"># متى (deadline, optimal_window)</span>
+    <span class="n">how</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                   <span class="c1"># خطوات التنفيذ</span>
+    <span class="n">fallback</span><span class="p">:</span> <span class="nb">str</span>                    <span class="c1"># البديل بدون موارد</span>
+
+    <span class="c1"># === البيانات الوصفية | Metadata ===</span>
+    <span class="n">badge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Badge</span><span class="p">]</span>           <span class="c1"># شارة مصدر البيانات</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>                <span class="c1"># مستوى الثقة (0-1)</span>
+    <span class="n">expires_at</span><span class="p">:</span> <span class="n">datetime</span>             <span class="c1"># تاريخ انتهاء الصلاحية</span>
+
+    <span class="c1"># === التتبع | Tracking ===</span>
+    <span class="n">created_at</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">acknowledged_at</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span>
+    <span class="n">executed_at</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span>
+    <span class="n">execution_notes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="action-types">أنواع الإجراءات | Action Types<a class="headerlink" href="#action-types" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ActionType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="c1"># ري | Irrigation</span>
+    <span class="n">IRRIGATION_URGENT</span> <span class="o">=</span> <span class="s2">&quot;irrigation_urgent&quot;</span>
+    <span class="n">IRRIGATION_SCHEDULED</span> <span class="o">=</span> <span class="s2">&quot;irrigation_scheduled&quot;</span>
+
+    <span class="c1"># تسميد | Fertilization</span>
+    <span class="n">FERTILIZATION_TIMING</span> <span class="o">=</span> <span class="s2">&quot;fertilization_timing&quot;</span>
+    <span class="n">FERTILIZATION_URGENT</span> <span class="o">=</span> <span class="s2">&quot;fertilization_urgent&quot;</span>
+
+    <span class="c1"># حماية | Protection</span>
+    <span class="n">PEST_ALERT</span> <span class="o">=</span> <span class="s2">&quot;pest_alert&quot;</span>
+    <span class="n">DISEASE_ALERT</span> <span class="o">=</span> <span class="s2">&quot;disease_alert&quot;</span>
+    <span class="n">WEATHER_PROTECTION</span> <span class="o">=</span> <span class="s2">&quot;weather_protection&quot;</span>
+
+    <span class="c1"># حصاد | Harvest</span>
+    <span class="n">HARVEST_TIMING</span> <span class="o">=</span> <span class="s2">&quot;harvest_timing&quot;</span>
+    <span class="n">HARVEST_URGENT</span> <span class="o">=</span> <span class="s2">&quot;harvest_urgent&quot;</span>
+
+    <span class="c1"># مراقبة | Monitoring</span>
+    <span class="n">FIELD_INSPECTION</span> <span class="o">=</span> <span class="s2">&quot;field_inspection&quot;</span>
+    <span class="n">GROWTH_CHECK</span> <span class="o">=</span> <span class="s2">&quot;growth_check&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="bridge-layer"><a name="bridge-layer"></a>🌉 طبقة الجسر | Bridge Layer<a class="headerlink" href="#bridge-layer" title="Permanent link">&para;</a></h2>
+<h3 id="why-bridge-layer">لماذا طبقة الجسر؟ | Why Bridge Layer?<a class="headerlink" href="#why-bridge-layer" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│   خدمة TypeScript/NestJS          خدمة Python FastAPI              │
+│   ┌─────────────────────┐         ┌─────────────────────┐          │
+│   │ crop-growth-model   │         │ crop-growth-timing  │          │
+│   │ :8097               │         │ :8098 (Python)      │          │
+│   │                     │────────▶│                     │          │
+│   │ • محاكاة DSSAT      │         │ • قرارات &quot;متى&quot;      │          │
+│   │ • محاكاة AquaCrop   │         │ • ActionTemplates   │          │
+│   │ • نماذج معقدة       │         │ • NATS Publishing   │          │
+│   └─────────────────────┘         └─────────────────────┘          │
+│                                                                     │
+│   الخدمة الأصلية تبقى كما هي    الجسر يضيف Field-First            │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="when-to-use-bridge">متى نستخدم الجسر؟ | When to Use Bridge?<a class="headerlink" href="#when-to-use-bridge" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الحالة</th>
+<th>الحل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>خدمة Python موجودة</td>
+<td>إضافة endpoints مباشرة</td>
+</tr>
+<tr>
+<td>خدمة NestJS/TypeScript</td>
+<td>إنشاء Python Bridge</td>
+</tr>
+<tr>
+<td>خدمة Java/Go</td>
+<td>إنشاء Python Bridge أو TypeScript wrapper</td>
+</tr>
+<tr>
+<td>خدمة جديدة</td>
+<td>Python FastAPI من البداية</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="integration-guide"><a name="integration-guide"></a>📚 دليل التكامل | Integration Guide<a class="headerlink" href="#integration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="1-actiontemplate">1. إضافة ActionTemplate لخدمة موجودة<a class="headerlink" href="#1-actiontemplate" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الخطوة 1: استيراد المكتبات</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.contracts.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionTemplateFactory</span><span class="p">,</span> <span class="n">ActionType</span><span class="p">,</span> <span class="n">Priority</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.libs.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">publish_analysis_completed_sync</span><span class="p">,</span> <span class="n">NATS_AVAILABLE</span>
+
+<span class="c1"># الخطوة 2: إنشاء endpoint جديد</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/</span><span class="si">{analysis_type}</span><span class="s2">/with-action&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">analysis_with_action</span><span class="p">(</span>
+    <span class="n">request</span><span class="p">:</span> <span class="n">AnalysisRequest</span><span class="p">,</span>
+    <span class="n">background_tasks</span><span class="p">:</span> <span class="n">BackgroundTasks</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="c1"># الخطوة 3: تنفيذ التحليل</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">perform_analysis</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="c1"># الخطوة 4: إنشاء ActionTemplate</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">ActionTemplateFactory</span><span class="o">.</span><span class="n">create_recommendation</span><span class="p">(</span>
+        <span class="n">action_type</span><span class="o">=</span><span class="n">ActionType</span><span class="o">.</span><span class="n">IRRIGATION_URGENT</span><span class="p">,</span>
+        <span class="n">priority</span><span class="o">=</span><span class="n">Priority</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span>
+        <span class="n">field_id</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">field_id</span><span class="p">,</span>
+        <span class="n">source_analysis</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+        <span class="n">what</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+        <span class="n">why</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+        <span class="n">when</span><span class="o">=</span><span class="n">ActionTiming</span><span class="p">(</span><span class="n">deadline</span><span class="o">=...</span><span class="p">,</span> <span class="n">optimal_window</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">),</span>
+        <span class="n">how</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;step 1&quot;</span><span class="p">,</span> <span class="s2">&quot;step 2&quot;</span><span class="p">],</span>
+        <span class="n">fallback</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+        <span class="n">badge</span><span class="o">=</span><span class="n">Badge</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;virtual_estimate&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+        <span class="n">confidence</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># الخطوة 5: نشر إلى NATS (في الخلفية)</span>
+    <span class="k">if</span> <span class="n">NATS_AVAILABLE</span> <span class="ow">and</span> <span class="n">action</span><span class="o">.</span><span class="n">priority</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Priority</span><span class="o">.</span><span class="n">HIGH</span><span class="p">,</span> <span class="n">Priority</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">]:</span>
+        <span class="n">background_tasks</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+            <span class="n">publish_analysis_completed_sync</span><span class="p">,</span>
+            <span class="n">analysis_type</span><span class="o">=</span><span class="s2">&quot;my_analysis&quot;</span><span class="p">,</span>
+            <span class="n">field_id</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">field_id</span><span class="p">,</span>
+            <span class="n">priority</span><span class="o">=</span><span class="n">action</span><span class="o">.</span><span class="n">priority</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">action_template</span><span class="o">=</span><span class="n">action</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;result&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">,</span> <span class="s2">&quot;action_template&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="2">2. إنشاء خدمة جسر جديدة<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الهيكل</span>
+apps/services/existing-service/
+├──<span class="w"> </span>src/<span class="w">                    </span><span class="c1"># الكود الأصلي (NestJS/Java/etc)</span>
+└──<span class="w"> </span>python-bridge/
+<span class="w">    </span>├──<span class="w"> </span>main.py<span class="w">            </span><span class="c1"># FastAPI app</span>
+<span class="w">    </span>├──<span class="w"> </span>requirements.txt<span class="w">   </span><span class="c1"># Dependencies</span>
+<span class="w">    </span>└──<span class="w"> </span>Dockerfile<span class="w">         </span><span class="c1"># Container config</span>
+
+<span class="c1"># المنفذ: الخدمة الأصلية + 1</span>
+<span class="c1"># مثال: crop-growth-model :8097 → crop-growth-timing :8098</span>
+</code></pre></div>
+
+<h3 id="3-nats">3. تكوين NATS<a class="headerlink" href="#3-nats" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># shared/libs/events/nats_publisher.py</span>
+
+<span class="n">NATS_CONFIG</span> <span class="o">=</span> <span class="n">NATSConfig</span><span class="p">(</span>
+    <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">],</span>
+    <span class="n">subject_prefix</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># المواضيع | Subjects</span>
+<span class="c1"># sahool.analysis.completed     - تحليل اكتمل</span>
+<span class="c1"># sahool.alerts.created         - تنبيه جديد</span>
+<span class="c1"># sahool.actions.acknowledged   - إجراء تم الاعتراف به</span>
+<span class="c1"># sahool.actions.executed       - إجراء تم تنفيذه</span>
+</code></pre></div>
+
+<h3 id="4">4. اختبار التكامل<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. تشغيل NATS</span>
+docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </span><span class="m">4222</span>:4222<span class="w"> </span>nats:latest
+
+<span class="c1"># 2. تشغيل الخدمة</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/virtual-sensors
+python<span class="w"> </span>-m<span class="w"> </span>uvicorn<span class="w"> </span>src.main:app<span class="w"> </span>--port<span class="w"> </span><span class="m">8085</span>
+
+<span class="c1"># 3. اختبار الـ endpoint</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8085/v1/irrigation/recommend-with-action<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;field_id&quot;: &quot;field-001&quot;,</span>
+<span class="s1">    &quot;location&quot;: {&quot;lat&quot;: 15.35, &quot;lon&quot;: 44.21}</span>
+<span class="s1">  }&#39;</span>
+
+<span class="c1"># 4. التحقق من NATS (في terminal آخر)</span>
+nats<span class="w"> </span>sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="remaining-gaps">📊 الفجوات المتبقية | Remaining Gaps<a class="headerlink" href="#remaining-gaps" title="Permanent link">&para;</a></h2>
+<h3 id="high-priority">الأولوية العالية | High Priority<a class="headerlink" href="#high-priority" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفجوة</th>
+<th>Gap</th>
+<th>الحل المقترح</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>yield-prediction لا يُنتج ActionTemplate</td>
+<td>إضافة endpoint <code>/with-action</code></td>
+<td></td>
+</tr>
+<tr>
+<td>لا يوجد تنبيه قبل الحصاد</td>
+<td>ربط yield-prediction بـ NATS</td>
+<td></td>
+</tr>
+<tr>
+<td>lai-estimation غير متصل</td>
+<td>إضافة early-stress ActionTemplate</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="medium-priority">الأولوية المتوسطة | Medium Priority<a class="headerlink" href="#medium-priority" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفجوة</th>
+<th>Gap</th>
+<th>الحل المقترح</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>disaster-assessment بدون playbooks</td>
+<td>إنشاء Playbook ActionTemplates</td>
+<td></td>
+</tr>
+<tr>
+<td>weather-advanced لا يُجدول</td>
+<td>ربط بـ irrigation-smart للجدولة</td>
+<td></td>
+</tr>
+<tr>
+<td>لا يوجد تجميع للتنبيهات</td>
+<td>Alert aggregation في notification-service</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="low-priority">الأولوية المنخفضة | Low Priority<a class="headerlink" href="#low-priority" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الفجوة</th>
+<th>Gap</th>
+<th>الحل المقترح</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>لا يوجد تتبع تنفيذ</td>
+<td>إضافة execution tracking</td>
+<td></td>
+</tr>
+<tr>
+<td>لا يوجد تحليل أداء</td>
+<td>Performance analytics dashboard</td>
+<td></td>
+</tr>
+<tr>
+<td>لا يوجد تعلم من الملاحظات</td>
+<td>Feedback loop للتحسين</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="next-steps">🚀 الخطوات التالية | Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<h3 id="13-yield-prediction">المرحلة 1.3: تفعيل yield-prediction<a class="headerlink" href="#13-yield-prediction" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">-</span> [ ] إضافة /v1/predict-with-action endpoint
+<span class="k">-</span> [ ] إنشاء PRE_HARVEST_ALERT ActionType
+<span class="k">-</span> [ ] ربط بـ NATS للتنبيهات
+<span class="k">-</span> [ ] اختبار التكامل
+</code></pre></div>
+
+<h3 id="14-lai-estimation">المرحلة 1.4: تفعيل lai-estimation<a class="headerlink" href="#14-lai-estimation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">-</span> [ ] إضافة /v1/estimate-with-action endpoint
+<span class="k">-</span> [ ] إنشاء EARLY_STRESS_ALERT ActionType
+<span class="k">-</span> [ ] Badge: &quot;تقدير من القمر الصناعي&quot;
+<span class="k">-</span> [ ] اختبار التكامل
+</code></pre></div>
+
+<h3 id="15-disaster-assessment">المرحلة 1.5: تفعيل disaster-assessment<a class="headerlink" href="#15-disaster-assessment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>- [ ] إنشاء Playbook model
+- [ ] تعريف playbooks للكوارث الشائعة
+- [ ] ربط بـ NATS للطوارئ
+- [ ] اختبار التكامل
+</code></pre></div>
+
+<hr />
+<h2 id="references">📞 المراجع | References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="/shared/contracts/actions/">ActionTemplate Contract</a></li>
+<li><a href="/shared/libs/events/nats_publisher.py">NATS Publisher</a></li>
+<li><a href="/apps/services/notification-service/">Notification Service</a></li>
+<li><a href="/apps/services/virtual-sensors/">Virtual Sensors</a></li>
+<li><a href="/apps/services/crop-growth-model/python-bridge/">Crop Growth Timing</a></li>
+</ul>
+<hr />
+<p><strong>آخر تحديث | Last Updated:</strong> 2024-01-20
+<strong>الإصدار | Version:</strong> 15.5.0
+<strong>المؤلف | Author:</strong> KAFAAT Engineering Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

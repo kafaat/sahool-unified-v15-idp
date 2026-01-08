@@ -1,0 +1,1595 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>File Upload Validation - Implementation Summary - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#file-upload-validation-implementation-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              File Upload Validation - Implementation Summary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="file-upload-validation-implementation-summary">File Upload Validation - Implementation Summary<a class="headerlink" href="#file-upload-validation-implementation-summary" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Comprehensive file upload validation has been added to SAHOOL services to enhance security and prevent common file upload vulnerabilities.</p>
+<h2 id="what-was-implemented">What Was Implemented<a class="headerlink" href="#what-was-implemented" title="Permanent link">&para;</a></h2>
+<h3 id="1-shared-validation-module">1. Shared Validation Module<a class="headerlink" href="#1-shared-validation-module" title="Permanent link">&para;</a></h3>
+<p>Created a centralized file validation module at <code>/shared/file_validation/</code> with:</p>
+<ul>
+<li><strong>Core Validators</strong> (<code>validators.py</code>)</li>
+<li>File size validation (default 10MB limit)</li>
+<li>MIME type whitelist validation</li>
+<li>Magic bytes content validation</li>
+<li>Executable file detection</li>
+<li>Filename sanitization</li>
+<li>
+<p>Async validation support</p>
+</li>
+<li>
+<p><strong>MIME Type Support</strong> (<code>mime_types.py</code>)</p>
+</li>
+<li>Pre-configured MIME type whitelists (images, documents, archives, videos)</li>
+<li>Magic bytes signature detection</li>
+<li>MIME type matching validation</li>
+<li>
+<p>Support for 20+ common file types</p>
+</li>
+<li>
+<p><strong>Virus Scanner Integration</strong> (<code>virus_scanner.py</code>)</p>
+</li>
+<li>Abstract scanner interface</li>
+<li>ClamAV implementation (async)</li>
+<li>NoOp scanner for development</li>
+<li>
+<p>Cloud scanner stub for future integration</p>
+</li>
+<li>
+<p><strong>Documentation &amp; Examples</strong></p>
+</li>
+<li>Comprehensive README with usage examples</li>
+<li>Example code for common scenarios</li>
+<li>Best practices and security guidelines</li>
+</ul>
+<h2 id="updated-services">Updated Services<a class="headerlink" href="#updated-services" title="Permanent link">&para;</a></h2>
+<h3 id="1-crop-health-ai-service">1. Crop Health AI Service<a class="headerlink" href="#1-crop-health-ai-service" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>/apps/services/crop-health-ai/src/main.py</code></p>
+<p><strong>Updated Endpoints:</strong>
+1. <code>POST /v1/diagnose</code> - Single plant image diagnosis
+2. <code>POST /v1/diagnose/batch</code> - Batch image diagnosis (up to 20 images)
+3. <code>POST /v1/expert-review</code> - Expert review request with image
+4. <code>POST /v1/diagnose-with-action</code> - Diagnosis with action template (uses diagnose endpoint)</p>
+<p><strong>Validation Applied:</strong>
+- ✅ File size validation (10MB limit)
+- ✅ MIME type whitelist (image types only)
+- ✅ Magic bytes validation
+- ✅ Virus scanning integration point (configurable)
+- ✅ Filename sanitization
+- ✅ Executable blocking
+- ✅ Fallback to basic validation if module unavailable</p>
+<p><strong>Configuration:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Environment variables</span>
+<span class="n">VIRUS_SCANNER</span><span class="o">=</span><span class="n">clamav</span><span class="o">|</span><span class="n">noop</span>  <span class="c1"># Default: noop</span>
+<span class="n">CLAMAV_HOST</span><span class="o">=</span><span class="n">localhost</span>      <span class="c1"># Default: localhost</span>
+<span class="n">CLAMAV_PORT</span><span class="o">=</span><span class="mi">3310</span>          <span class="c1"># Default: 3310</span>
+</code></pre></div>
+
+<h2 id="validation-features">Validation Features<a class="headerlink" href="#validation-features" title="Permanent link">&para;</a></h2>
+<h3 id="1-file-size-limits">1. File Size Limits<a class="headerlink" href="#1-file-size-limits" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Default:</strong> 10MB</li>
+<li><strong>Configurable per service</strong></li>
+<li><strong>Error message:</strong> Bilingual (English/Arabic)</li>
+</ul>
+<h3 id="2-mime-type-validation">2. MIME Type Validation<a class="headerlink" href="#2-mime-type-validation" title="Permanent link">&para;</a></h3>
+<p><strong>Allowed image types:</strong>
+- image/jpeg
+- image/jpg
+- image/png
+- image/gif
+- image/webp
+- image/bmp
+- image/tiff</p>
+<p><strong>Validation process:</strong>
+1. Check declared MIME type against whitelist
+2. Validate content using magic bytes
+3. Ensure declared type matches actual content</p>
+<h3 id="3-magic-bytes-validation">3. Magic Bytes Validation<a class="headerlink" href="#3-magic-bytes-validation" title="Permanent link">&para;</a></h3>
+<p><strong>Detects actual file type by content:</strong>
+- JPEG: <code>FF D8 FF</code>
+- PNG: <code>89 50 4E 47 0D 0A 1A 0A</code>
+- GIF: <code>47 49 46 38</code>
+- PDF: <code>25 50 44 46</code>
+- And 15+ more types</p>
+<h3 id="4-content-validation">4. Content Validation<a class="headerlink" href="#4-content-validation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Checks first 32 bytes of file</li>
+<li>Prevents MIME type spoofing</li>
+<li>Strict and non-strict modes available</li>
+</ul>
+<h3 id="5-virus-scanning">5. Virus Scanning<a class="headerlink" href="#5-virus-scanning" title="Permanent link">&para;</a></h3>
+<p><strong>ClamAV Integration:</strong>
+- Async scanning via clamd
+- INSTREAM protocol for memory-safe scanning
+- Configurable timeout (30s default)
+- Health check support</p>
+<p><strong>Fallback modes:</strong>
+- Development: NoOp scanner (no actual scanning)
+- Production: ClamAV required for virus scanning</p>
+<h3 id="6-security-features">6. Security Features<a class="headerlink" href="#6-security-features" title="Permanent link">&para;</a></h3>
+<p><strong>Executable Detection:</strong>
+- Extension-based blocking (.exe, .bat, .sh, etc.)
+- Magic bytes detection (PE, ELF, scripts)
+- Prevents code execution attacks</p>
+<p><strong>Filename Sanitization:</strong>
+- Path traversal protection
+- Null byte filtering
+- Special character removal
+- Length limiting (255 chars)
+- Hidden file prevention</p>
+<h2 id="services-analyzed-no-file-uploads-found">Services Analyzed (No File Uploads Found)<a class="headerlink" href="#services-analyzed-no-file-uploads-found" title="Permanent link">&para;</a></h2>
+<p>The following services were analyzed but no file upload endpoints were found:</p>
+<h3 id="nestjs-services">NestJS Services<a class="headerlink" href="#nestjs-services" title="Permanent link">&para;</a></h3>
+<ul>
+<li>chat-service</li>
+<li>crop-growth-model</li>
+<li>disaster-assessment</li>
+<li>iot-service</li>
+<li>lai-estimation</li>
+<li>marketplace-service</li>
+<li>research-core</li>
+<li>user-service</li>
+<li>yield-prediction</li>
+<li>yield-prediction-service</li>
+</ul>
+<h3 id="fastapi-services-no-file-uploads">FastAPI Services (No File Uploads)<a class="headerlink" href="#fastapi-services-no-file-uploads" title="Permanent link">&para;</a></h3>
+<ul>
+<li>crop-intelligence-service</li>
+<li>field-ops</li>
+<li>satellite-service</li>
+<li>vegetation-analysis-service</li>
+<li>weather-service</li>
+<li>advisory-service</li>
+<li>agent-registry</li>
+<li>alert-service</li>
+<li>agro-advisor</li>
+<li>ai-advisor</li>
+<li>ai-agents-core (only has examples)</li>
+<li>astronomical-calendar</li>
+<li>billing-core</li>
+<li>equipment-service</li>
+<li>fertilizer-advisor</li>
+<li>field-chat</li>
+<li>field-intelligence</li>
+<li>field-management-service</li>
+<li>field-service</li>
+<li>globalgap-compliance</li>
+<li>indicators-service</li>
+<li>inventory-service</li>
+<li>iot-gateway</li>
+<li>irrigation-smart</li>
+<li>mcp-server</li>
+<li>ndvi-processor</li>
+<li>notification-service</li>
+<li>provider-config</li>
+<li>task-service</li>
+<li>virtual-sensors</li>
+<li>weather-advanced</li>
+<li>weather-core</li>
+<li>ws-gateway</li>
+<li>yield-engine</li>
+<li>field-core</li>
+<li>crop-health</li>
+<li>ndvi-engine</li>
+</ul>
+<p><strong>Note:</strong> The code-review-service has file path-based review but not traditional file uploads.</p>
+<h2 id="integration-guide">Integration Guide<a class="headerlink" href="#integration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="for-fastapi-services">For FastAPI Services<a class="headerlink" href="#for-fastapi-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">File</span><span class="p">,</span> <span class="n">UploadFile</span><span class="p">,</span> <span class="n">HTTPException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.file_validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FileValidator</span><span class="p">,</span>
+    <span class="n">FileValidationConfig</span><span class="p">,</span>
+    <span class="n">FileValidationError</span><span class="p">,</span>
+    <span class="n">ALLOWED_IMAGE_TYPES</span><span class="p">,</span>
+    <span class="n">get_virus_scanner</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">on_event</span><span class="p">(</span><span class="s2">&quot;startup&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">startup_event</span><span class="p">():</span>
+    <span class="c1"># Initialize virus scanner</span>
+    <span class="n">virus_scanner_type</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;VIRUS_SCANNER&quot;</span><span class="p">,</span> <span class="s2">&quot;noop&quot;</span><span class="p">)</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">virus_scanner</span> <span class="o">=</span> <span class="n">get_virus_scanner</span><span class="p">(</span>
+        <span class="n">virus_scanner_type</span><span class="p">,</span>
+        <span class="n">host</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLAMAV_HOST&quot;</span><span class="p">,</span> <span class="s2">&quot;localhost&quot;</span><span class="p">),</span>
+        <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;CLAMAV_PORT&quot;</span><span class="p">,</span> <span class="s2">&quot;3310&quot;</span><span class="p">))</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Initialize file validator</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">file_validator</span> <span class="o">=</span> <span class="n">FileValidator</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">FileValidationConfig</span><span class="p">(</span>
+            <span class="n">max_file_size</span><span class="o">=</span><span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 10MB</span>
+            <span class="n">allowed_mime_types</span><span class="o">=</span><span class="n">ALLOWED_IMAGE_TYPES</span><span class="p">,</span>
+            <span class="n">check_magic_bytes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">strict_mime_check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">scan_for_viruses</span><span class="o">=</span><span class="n">virus_scanner_type</span> <span class="o">!=</span> <span class="s2">&quot;noop&quot;</span><span class="p">,</span>
+            <span class="n">allow_executable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">sanitize_filename</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">virus_scanner</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">virus_scanner</span>
+    <span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/upload&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">upload_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">UploadFile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="o">...</span><span class="p">)):</span>
+    <span class="c1"># Read file content</span>
+    <span class="n">file_content</span> <span class="o">=</span> <span class="k">await</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="c1"># Validate</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">app</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">file_validator</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span>
+            <span class="n">file_content</span><span class="o">=</span><span class="n">file_content</span><span class="p">,</span>
+            <span class="n">filename</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">declared_mime_type</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">content_type</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Process validated file</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;safe_filename&quot;</span><span class="p">]}</span>
+    <span class="k">except</span> <span class="n">FileValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="for-nestjs-services">For NestJS Services<a class="headerlink" href="#for-nestjs-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Post</span><span class="p">,</span><span class="w"> </span><span class="nx">UseInterceptors</span><span class="p">,</span><span class="w"> </span><span class="nx">UploadedFile</span><span class="p">,</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">FileInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/platform-express&#39;</span><span class="p">;</span>
+
+<span class="kd">@Controller</span><span class="p">(</span><span class="s1">&#39;upload&#39;</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">UploadController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">@Post</span><span class="p">()</span>
+<span class="w">  </span><span class="kd">@UseInterceptors</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">FileInterceptor</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">limits</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">fileSize</span><span class="o">:</span><span class="w"> </span><span class="kt">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1024</span><span class="p">,</span><span class="w"> </span><span class="c1">// 10MB</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nx">fileFilter</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span><span class="w"> </span><span class="nx">file</span><span class="p">,</span><span class="w"> </span><span class="nx">cb</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">const</span><span class="w"> </span><span class="nx">allowedMimes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="s1">&#39;image/jpeg&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="s1">&#39;image/png&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="s1">&#39;image/gif&#39;</span><span class="p">,</span>
+<span class="w">          </span><span class="s1">&#39;image/webp&#39;</span>
+<span class="w">        </span><span class="p">];</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">allowedMimes</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">mimetype</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">cb</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="kc">true</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nx">cb</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span><span class="s1">&#39;Invalid file type&#39;</span><span class="p">),</span><span class="w"> </span><span class="kc">false</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">  </span><span class="p">)</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">uploadFile</span><span class="p">(</span><span class="kd">@UploadedFile</span><span class="p">()</span><span class="w"> </span><span class="nx">file</span><span class="o">:</span><span class="w"> </span><span class="kt">Express.Multer.File</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Additional validation for magic bytes</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">buffer</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isPNG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0x89</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0x50</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0xFF</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">buffer</span><span class="p">[</span><span class="mf">1</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mh">0xD8</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">isPNG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="nx">isJPEG</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">file</span><span class="p">.</span><span class="nx">mimetype</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;image/&#39;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">BadRequestException</span><span class="p">(</span><span class="s1">&#39;File content does not match declared type&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Process validated file</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">success</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">filename</span><span class="o">:</span><span class="w"> </span><span class="kt">file.originalname</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">size</span><span class="o">:</span><span class="w"> </span><span class="kt">file.size</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="environment-configuration">Environment Configuration<a class="headerlink" href="#environment-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># No virus scanning</span>
+<span class="nv">VIRUS_SCANNER</span><span class="o">=</span>noop
+</code></pre></div>
+
+<h3 id="production">Production<a class="headerlink" href="#production" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable ClamAV scanning</span>
+<span class="nv">VIRUS_SCANNER</span><span class="o">=</span>clamav
+<span class="nv">CLAMAV_HOST</span><span class="o">=</span>clamav-service
+<span class="nv">CLAMAV_PORT</span><span class="o">=</span><span class="m">3310</span>
+</code></pre></div>
+
+<h3 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clamav</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clamav/clamav:latest</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;3310:3310&quot;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">clamav-data:/var/lib/clamav</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;clamdscan&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;--ping&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+
+<span class="w">  </span><span class="nt">crop-health-ai</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./apps/services/crop-health-ai</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">VIRUS_SCANNER=clamav</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLAMAV_HOST=clamav</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CLAMAV_PORT=3310</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">clamav</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_healthy</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clamav-data</span><span class="p">:</span>
+</code></pre></div>
+
+<h2 id="error-responses">Error Responses<a class="headerlink" href="#error-responses" title="Permanent link">&para;</a></h2>
+<p>All validation errors return HTTP 400 with bilingual error messages:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت) / File too large. Maximum 10MB&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="error-codes">Error Codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>EMPTY_FILE</code>: File is empty</li>
+<li><code>FILE_TOO_LARGE</code>: Exceeds size limit</li>
+<li><code>INVALID_MIME_TYPE</code>: Type not in whitelist</li>
+<li><code>MIME_MISMATCH</code>: Declared type doesn't match content</li>
+<li><code>EXECUTABLE_NOT_ALLOWED</code>: Executable file detected</li>
+<li><code>VIRUS_DETECTED</code>: Virus found (ClamAV)</li>
+</ul>
+<h2 id="security-benefits">Security Benefits<a class="headerlink" href="#security-benefits" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Prevents MIME Type Spoofing:</strong> Magic bytes validation</li>
+<li><strong>Blocks Malicious Files:</strong> Virus scanning integration</li>
+<li><strong>Prevents Code Execution:</strong> Executable detection</li>
+<li><strong>Protects File System:</strong> Filename sanitization</li>
+<li><strong>Prevents DoS:</strong> File size limits</li>
+<li><strong>Defense in Depth:</strong> Multiple validation layers</li>
+</ol>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
+<h3 id="manual-testing">Manual Testing<a class="headerlink" href="#manual-testing" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Test valid image upload</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8095/v1/diagnose<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;image=@test_image.jpg&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;field_id=FIELD-001&quot;</span>
+
+<span class="c1"># Test invalid file type</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8095/v1/diagnose<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;image=@malicious.exe&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;field_id=FIELD-001&quot;</span>
+
+<span class="c1"># Test oversized file (&gt;10MB)</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8095/v1/diagnose<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;image=@large_file.jpg&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;field_id=FIELD-001&quot;</span>
+</code></pre></div>
+
+<h3 id="unit-testing">Unit Testing<a class="headerlink" href="#unit-testing" title="Permanent link">&para;</a></h3>
+<p>See <code>/shared/file_validation/examples.py</code> for comprehensive test examples.</p>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>File Size Validation:</strong> O(1) - instant</li>
+<li><strong>MIME Type Validation:</strong> O(1) - instant</li>
+<li><strong>Magic Bytes Check:</strong> O(1) - checks first 32 bytes only</li>
+<li><strong>Filename Sanitization:</strong> O(n) - where n is filename length</li>
+<li><strong>Virus Scanning:</strong> O(file_size) - can be slow for large files</li>
+</ol>
+<p><strong>Recommendations:</strong>
+- Disable virus scanning for files &lt; 1MB if performance critical
+- Use async processing for large files
+- Implement rate limiting on upload endpoints</p>
+<h2 id="future-improvements">Future Improvements<a class="headerlink" href="#future-improvements" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Cloud Virus Scanning:</strong> Integrate AWS S3 Malware Scanning or VirusTotal</li>
+<li><strong>Image Dimension Validation:</strong> Check resolution limits</li>
+<li><strong>File Format Validation:</strong> Deep file structure validation</li>
+<li><strong>Content Analysis:</strong> AI-based inappropriate content detection</li>
+<li><strong>Duplicate Detection:</strong> Hash-based duplicate file detection</li>
+<li><strong>Quarantine System:</strong> Automatic quarantine for suspicious files</li>
+</ol>
+<h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="metrics-to-track">Metrics to Track<a class="headerlink" href="#metrics-to-track" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Upload attempts per endpoint</li>
+<li>Validation failures by type</li>
+<li>File sizes distribution</li>
+<li>Virus detections (if any)</li>
+<li>Processing time per validation</li>
+</ul>
+<h3 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h3>
+<p>All validation failures are logged with:
+- Timestamp
+- Endpoint
+- Filename
+- Error code
+- Client IP (if available)</p>
+<h2 id="compliance">Compliance<a class="headerlink" href="#compliance" title="Permanent link">&para;</a></h2>
+<p>This implementation helps meet:
+- <strong>OWASP Top 10:</strong> Addresses unrestricted file upload vulnerabilities
+- <strong>PCI DSS:</strong> File upload security requirements
+- <strong>GDPR:</strong> Data protection through security measures
+- <strong>ISO 27001:</strong> Information security controls</p>
+<h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Full Documentation:</strong> <code>/shared/file_validation/README.md</code></li>
+<li><strong>Examples:</strong> <code>/shared/file_validation/examples.py</code></li>
+<li><strong>This Summary:</strong> <code>/docs/file-upload-validation-summary.md</code></li>
+</ul>
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For questions or issues:
+1. Check the README in <code>/shared/file_validation/</code>
+2. Review examples in <code>/shared/file_validation/examples.py</code>
+3. Create an issue in the SAHOOL repository</p>
+<hr />
+<p><strong>Implementation Date:</strong> January 2026
+<strong>Status:</strong> ✅ Complete
+<strong>Affected Services:</strong> 1 (crop-health-ai)
+<strong>Lines of Code Added:</strong> ~1,000+
+<strong>Security Level:</strong> High</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2405 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Backend Services - Complete Documentation - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-backend-services-complete-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Backend Services - Complete Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-backend-services-complete-documentation">SAHOOL Backend Services - Complete Documentation<a class="headerlink" href="#sahool-backend-services-complete-documentation" title="Permanent link">&para;</a></h1>
+<h1 id="_1">توثيق خدمات سهول الخلفية الشامل<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>Version: 15.5.0</strong>
+<strong>Date: 2025-12-21</strong></p>
+<hr />
+<h2 id="services-index">📋 فهرس الخدمات | Services Index<a class="headerlink" href="#services-index" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الخدمة</th>
+<th>Service</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>الطقس المتقدم</td>
+<td>weather-advanced</td>
+<td>8092</td>
+<td>تنبؤات 7 أيام، تنبيهات زراعية</td>
+</tr>
+<tr>
+<td>2</td>
+<td>الري الذكي</td>
+<td>irrigation-smart</td>
+<td>8094</td>
+<td>جدولة ذكية، توفير المياه</td>
+</tr>
+<tr>
+<td>3</td>
+<td>مستشار التسميد</td>
+<td>fertilizer-advisor</td>
+<td>8093</td>
+<td>توصيات NPK، تحليل التربة</td>
+</tr>
+<tr>
+<td>4</td>
+<td>المستشعرات الافتراضية</td>
+<td>virtual-sensors</td>
+<td>8096</td>
+<td>حساب ET0/ETc، رطوبة التربة</td>
+</tr>
+<tr>
+<td>5</td>
+<td>صحة المحاصيل</td>
+<td>crop-health-ai</td>
+<td>8095</td>
+<td>تشخيص الأمراض بالذكاء الاصطناعي</td>
+</tr>
+<tr>
+<td>6</td>
+<td>محرك الإنتاجية</td>
+<td>yield-engine</td>
+<td>8098</td>
+<td>التنبؤ بالإنتاج</td>
+</tr>
+<tr>
+<td>7</td>
+<td>الأقمار الصناعية</td>
+<td>satellite-service</td>
+<td>8090</td>
+<td>صور فضائية، مؤشرات نباتية</td>
+</tr>
+<tr>
+<td>8</td>
+<td>المؤشرات الزراعية</td>
+<td>indicators-service</td>
+<td>8091</td>
+<td>لوحة تحكم، KPIs</td>
+</tr>
+<tr>
+<td>9</td>
+<td>الإشعارات</td>
+<td>notification-service</td>
+<td>8110</td>
+<td>إشعارات مخصصة</td>
+</tr>
+<tr>
+<td>10</td>
+<td>الفوترة</td>
+<td>billing-core</td>
+<td>8089</td>
+<td>الخطط والاستخدام</td>
+</tr>
+<tr>
+<td>11</td>
+<td>التقويم الفلكي</td>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td>المنازل القمرية، الحكمة اليمنية</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-weather-advanced-service">🌤️ 1. خدمة الطقس المتقدم | Weather Advanced Service<a class="headerlink" href="#1-weather-advanced-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8092</code>
+<strong>الإصدار:</strong> <code>15.3.0</code>
+<strong>المسار:</strong> <code>apps/services/weather-advanced/</code></p>
+<h3 id="_2">الوصف<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>خدمة الطقس المتقدمة توفر تنبؤات 7 أيام مع تنبيهات زراعية وتوصيات خاصة بالمحاصيل.</p>
+<h3 id="_3">الميزات الرئيسية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ تنبؤات ساعية (48 ساعة)</li>
+<li>✅ تنبؤات يومية (7-14 يوم)</li>
+<li>✅ تنبيهات الطقس الزراعية (موجات حر، صقيع، أمطار غزيرة)</li>
+<li>✅ حساب التبخر-نتح المرجعي (ET0)</li>
+<li>✅ وحدات الحرارة التراكمية (GDD)</li>
+<li>✅ نوافذ الرش المثالية</li>
+<li>✅ تغطية 22 محافظة يمنية</li>
+</ul>
+<h3 id="api-endpoints">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET  /healthz                           - فحص صحة الخدمة
+GET  /v1/locations                      - قائمة المواقع المتاحة
+GET  /v1/current/{location_id}          - الطقس الحالي
+GET  /v1/forecast/{location_id}         - التقرير الزراعي الشامل
+GET  /v1/alerts/{location_id}           - تنبيهات الطقس
+GET  /v1/agricultural-calendar/{location_id} - التقويم الزراعي
+</code></pre></div>
+
+<h3 id="_4">هيكل البيانات الرئيسية<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CurrentWeather</span><span class="p">:</span>
+    <span class="n">location_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">location_name_ar</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">temperature_c</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">humidity_percent</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">wind_speed_kmh</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">condition</span><span class="p">:</span> <span class="n">WeatherCondition</span>
+    <span class="n">condition_ar</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AgriculturalWeatherReport</span><span class="p">:</span>
+    <span class="n">current</span><span class="p">:</span> <span class="n">CurrentWeather</span>
+    <span class="n">hourly_forecast</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">HourlyForecast</span><span class="p">]</span>
+    <span class="n">daily_forecast</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DailyForecast</span><span class="p">]</span>
+    <span class="n">alerts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">WeatherAlert</span><span class="p">]</span>
+    <span class="n">growing_degree_days</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">evapotranspiration_mm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">spray_window_hours</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">irrigation_recommendation_ar</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+
+<h3 id="_5">أنواع التنبيهات<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>الوصف</th>
+<th>الشدة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>heat_wave</code></td>
+<td>موجة حر (≥40°م)</td>
+<td>WARNING/EMERGENCY</td>
+</tr>
+<tr>
+<td><code>frost</code></td>
+<td>صقيع</td>
+<td>WARNING</td>
+</tr>
+<tr>
+<td><code>heavy_rain</code></td>
+<td>أمطار غزيرة (≥30 ملم)</td>
+<td>WATCH/WARNING</td>
+</tr>
+<tr>
+<td><code>high_humidity</code></td>
+<td>رطوبة عالية (≥85%)</td>
+<td>ADVISORY</td>
+</tr>
+<tr>
+<td><code>high_wind</code></td>
+<td>رياح قوية (≥40 كم/س)</td>
+<td>WATCH</td>
+</tr>
+<tr>
+<td><code>drought</code></td>
+<td>جفاف</td>
+<td>ADVISORY/WARNING</td>
+</tr>
+<tr>
+<td><code>dust_storm</code></td>
+<td>عاصفة غبارية</td>
+<td>WATCH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">المواقع المدعومة (22 محافظة)<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">YEMEN_LOCATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sanaa&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">15.3694</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="mf">44.1910</span><span class="p">,</span> <span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;صنعاء&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">:</span> <span class="mi">2250</span><span class="p">},</span>
+    <span class="s2">&quot;aden&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">12.7855</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="mf">45.0187</span><span class="p">,</span> <span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;عدن&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+    <span class="s2">&quot;taiz&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">13.5789</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="mf">44.0219</span><span class="p">,</span> <span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;تعز&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">:</span> <span class="mi">1400</span><span class="p">},</span>
+    <span class="s2">&quot;ibb&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="mf">13.9667</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="mf">44.1667</span><span class="p">,</span> <span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;إب&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation&quot;</span><span class="p">:</span> <span class="mi">2050</span><span class="p">},</span>
+    <span class="c1"># ... جميع الـ 22 محافظة</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="2-smart-irrigation-service">💧 2. خدمة الري الذكي | Smart Irrigation Service<a class="headerlink" href="#2-smart-irrigation-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8094</code>
+<strong>الإصدار:</strong> <code>15.3.0</code>
+<strong>المسار:</strong> <code>apps/services/irrigation-smart/</code></p>
+<h3 id="_6">الوصف<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p>خدمة الري بالذكاء الاصطناعي للجدولة الذكية والحفاظ على المياه.</p>
+<h3 id="_7">الميزات الرئيسية<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ حساب احتياجات المياه بدقة</li>
+<li>✅ جدولة ري متعددة الأيام</li>
+<li>✅ مقارنة كفاءة طرق الري</li>
+<li>✅ الميزان المائي للحقل</li>
+<li>✅ قراءات مستشعرات الرطوبة</li>
+<li>✅ توفير المياه حتى 45%</li>
+</ul>
+<h3 id="api-endpoints_1">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET  /healthz                           - فحص صحة الخدمة
+GET  /v1/crops                          - قائمة المحاصيل المدعومة
+GET  /v1/methods                        - طرق الري المتاحة
+POST /v1/calculate                      - حساب احتياجات الري
+GET  /v1/water-balance/{field_id}       - الميزان المائي
+POST /v1/sensor-reading                 - تسجيل قراءة مستشعر
+GET  /v1/efficiency-report/{field_id}   - تقرير كفاءة الري
+</code></pre></div>
+
+<h3 id="_8">المحاصيل المدعومة<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المحصول</th>
+<th>الاحتياج المائي (ملم/يوم) بمرحلة الإثمار</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>طماطم</td>
+<td>7.5</td>
+</tr>
+<tr>
+<td>موز</td>
+<td>8.0</td>
+</tr>
+<tr>
+<td>نخيل</td>
+<td>12.0</td>
+</tr>
+<tr>
+<td>قمح</td>
+<td>4.5</td>
+</tr>
+<tr>
+<td>بن</td>
+<td>5.5</td>
+</tr>
+<tr>
+<td>قات</td>
+<td>6.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">طرق الري وكفاءتها<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">IRRIGATION_EFFICIENCY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">IrrigationMethod</span><span class="o">.</span><span class="n">DRIP</span><span class="p">:</span> <span class="mf">0.90</span><span class="p">,</span>       <span class="c1"># 90% - الأكفأ</span>
+    <span class="n">IrrigationMethod</span><span class="o">.</span><span class="n">SPRINKLER</span><span class="p">:</span> <span class="mf">0.75</span><span class="p">,</span>  <span class="c1"># 75%</span>
+    <span class="n">IrrigationMethod</span><span class="o">.</span><span class="n">FURROW</span><span class="p">:</span> <span class="mf">0.60</span><span class="p">,</span>     <span class="c1"># 60%</span>
+    <span class="n">IrrigationMethod</span><span class="o">.</span><span class="n">FLOOD</span><span class="p">:</span> <span class="mf">0.50</span><span class="p">,</span>      <span class="c1"># 50%</span>
+    <span class="n">IrrigationMethod</span><span class="o">.</span><span class="n">TRADITIONAL</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span> <span class="c1"># 45% - الأقل كفاءة</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_10">هيكل خطة الري<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IrrigationPlan</span><span class="p">:</span>
+    <span class="n">plan_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">crop</span><span class="p">:</span> <span class="n">CropType</span>
+    <span class="n">crop_name_ar</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">growth_stage</span><span class="p">:</span> <span class="n">GrowthStage</span>
+    <span class="n">area_hectares</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">current_water_need_mm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">daily_et_mm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">schedules</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">IrrigationSchedule</span><span class="p">]</span>
+    <span class="n">total_water_m3</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">estimated_cost_yer</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">water_savings_m3</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">recommendations_ar</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">alerts_ar</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="_11">مستويات الإلحاح<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المستوى</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>critical</code></td>
+<td>ري فوري مطلوب - احتياج ≥3× اليومي</td>
+</tr>
+<tr>
+<td><code>high</code></td>
+<td>ري عاجل - احتياج ≥2× اليومي</td>
+</tr>
+<tr>
+<td><code>medium</code></td>
+<td>ري خلال 24 ساعة</td>
+</tr>
+<tr>
+<td><code>low</code></td>
+<td>ري وقائي</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-fertilizer-advisor-service">🧪 3. خدمة مستشار التسميد | Fertilizer Advisor Service<a class="headerlink" href="#3-fertilizer-advisor-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8093</code>
+<strong>الإصدار:</strong> <code>15.3.0</code>
+<strong>المسار:</strong> <code>apps/services/fertilizer-advisor/</code></p>
+<h3 id="_12">الوصف<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p>خدمة توصيات التسميد الشاملة مع تحليل التربة وجدولة التطبيق.</p>
+<h3 id="_13">الميزات الرئيسية<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ توصيات NPK حسب المحصول والمرحلة</li>
+<li>✅ تفسير نتائج تحليل التربة</li>
+<li>✅ جدولة التسميد</li>
+<li>✅ أعراض نقص العناصر</li>
+<li>✅ دعم الأسمدة العضوية</li>
+<li>✅ تقدير التكاليف بالريال اليمني</li>
+</ul>
+<h3 id="api-endpoints_2">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET  /healthz                           - فحص صحة الخدمة
+GET  /v1/crops                          - قائمة المحاصيل
+GET  /v1/fertilizers                    - قائمة الأسمدة
+POST /v1/recommend                      - الحصول على توصيات
+POST /v1/soil-analysis/interpret        - تفسير تحليل التربة
+GET  /v1/deficiency-symptoms/{crop}     - أعراض نقص العناصر
+</code></pre></div>
+
+<h3 id="_14">الأسمدة المدعومة<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">FERTILIZER_NPK</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">FertilizerType</span><span class="o">.</span><span class="n">UREA</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>           <span class="c1"># يوريا</span>
+    <span class="n">FertilizerType</span><span class="o">.</span><span class="n">DAP</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="mi">46</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>           <span class="c1"># داب</span>
+    <span class="n">FertilizerType</span><span class="o">.</span><span class="n">NPK_20_20_20</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span> <span class="c1"># مركب</span>
+    <span class="n">FertilizerType</span><span class="o">.</span><span class="n">POTASSIUM_SULFATE</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="n">FertilizerType</span><span class="o">.</span><span class="n">ORGANIC_COMPOST</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="n">FertilizerType</span><span class="o">.</span><span class="n">CHICKEN_MANURE</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="npk">احتياجات NPK للمحاصيل (كجم/هكتار)<a class="headerlink" href="#npk" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المحصول</th>
+<th>N</th>
+<th>P</th>
+<th>K</th>
+<th>الإنتاج المستهدف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>طماطم</td>
+<td>180</td>
+<td>80</td>
+<td>220</td>
+<td>40 طن/هكتار</td>
+</tr>
+<tr>
+<td>موز</td>
+<td>200</td>
+<td>60</td>
+<td>400</td>
+<td>35 طن/هكتار</td>
+</tr>
+<tr>
+<td>قمح</td>
+<td>120</td>
+<td>60</td>
+<td>40</td>
+<td>4 طن/هكتار</td>
+</tr>
+<tr>
+<td>بن</td>
+<td>100</td>
+<td>40</td>
+<td>120</td>
+<td>2 طن/هكتار</td>
+</tr>
+<tr>
+<td>قات</td>
+<td>150</td>
+<td>50</td>
+<td>100</td>
+<td>8 طن/هكتار</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_15">طرق التطبيق<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">APPLICATION_TRANSLATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">ApplicationMethod</span><span class="o">.</span><span class="n">BROADCAST</span><span class="p">:</span> <span class="s2">&quot;نثر&quot;</span><span class="p">,</span>
+    <span class="n">ApplicationMethod</span><span class="o">.</span><span class="n">SIDE_DRESSING</span><span class="p">:</span> <span class="s2">&quot;تسميد جانبي&quot;</span><span class="p">,</span>
+    <span class="n">ApplicationMethod</span><span class="o">.</span><span class="n">FERTIGATION</span><span class="p">:</span> <span class="s2">&quot;تسميد بالري&quot;</span><span class="p">,</span>
+    <span class="n">ApplicationMethod</span><span class="o">.</span><span class="n">FOLIAR</span><span class="p">:</span> <span class="s2">&quot;رش ورقي&quot;</span><span class="p">,</span>
+    <span class="n">ApplicationMethod</span><span class="o">.</span><span class="n">BAND</span><span class="p">:</span> <span class="s2">&quot;تسميد شريطي&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4-virtual-sensors-service">📡 4. خدمة المستشعرات الافتراضية | Virtual Sensors Service<a class="headerlink" href="#4-virtual-sensors-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8096</code>
+<strong>الإصدار:</strong> <code>15.3.0</code>
+<strong>المسار:</strong> <code>apps/services/virtual-sensors/</code></p>
+<h3 id="_16">الوصف<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p>خدمة حساب ET0/ETc ورطوبة التربة باستخدام معادلة FAO-56 Penman-Monteith.</p>
+<h3 id="_17">الميزات الرئيسية<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ حساب ET0 بطريقة FAO-56 Penman-Monteith</li>
+<li>✅ حساب ETc للمحاصيل المختلفة</li>
+<li>✅ تقدير رطوبة التربة</li>
+<li>✅ معاملات Kc لـ 15 محصول يمني</li>
+<li>✅ توصيات الري</li>
+</ul>
+<h3 id="api-endpoints_3">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET  /healthz                           - فحص صحة الخدمة
+POST /v1/et0/calculate                  - حساب ET0
+POST /v1/etc/calculate                  - حساب ETc
+POST /v1/soil-moisture/estimate         - تقدير رطوبة التربة
+POST /v1/irrigation/recommend           - توصيات الري
+GET  /v1/reference-data                 - البيانات المرجعية
+</code></pre></div>
+
+<h3 id="kc">معاملات المحاصيل (Kc)<a class="headerlink" href="#kc" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">CROP_COEFFICIENTS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;tomato&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Kc_ini&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s2">&quot;Kc_mid&quot;</span><span class="p">:</span> <span class="mf">1.15</span><span class="p">,</span> <span class="s2">&quot;Kc_end&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span>
+    <span class="s2">&quot;wheat&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Kc_ini&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span> <span class="s2">&quot;Kc_mid&quot;</span><span class="p">:</span> <span class="mf">1.15</span><span class="p">,</span> <span class="s2">&quot;Kc_end&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">},</span>
+    <span class="s2">&quot;coffee&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Kc_ini&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s2">&quot;Kc_mid&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span> <span class="s2">&quot;Kc_end&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">},</span>
+    <span class="s2">&quot;banana&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Kc_ini&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;Kc_mid&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s2">&quot;Kc_end&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s2">&quot;date_palm&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Kc_ini&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span> <span class="s2">&quot;Kc_mid&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;Kc_end&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+    <span class="s2">&quot;qat&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;Kc_ini&quot;</span><span class="p">:</span> <span class="mf">0.65</span><span class="p">,</span> <span class="s2">&quot;Kc_mid&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;Kc_end&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">},</span>
+    <span class="c1"># ... 15 محصول</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_18">خصائص التربة<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">SOIL_PROPERTIES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sandy&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;FC&quot;</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span> <span class="s2">&quot;WP&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s2">&quot;AWC&quot;</span><span class="p">:</span> <span class="mf">0.07</span><span class="p">,</span> <span class="s2">&quot;Ksat&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+    <span class="s2">&quot;loamy&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;FC&quot;</span><span class="p">:</span> <span class="mf">0.28</span><span class="p">,</span> <span class="s2">&quot;WP&quot;</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span> <span class="s2">&quot;AWC&quot;</span><span class="p">:</span> <span class="mf">0.16</span><span class="p">,</span> <span class="s2">&quot;Ksat&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">},</span>
+    <span class="s2">&quot;clay&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;FC&quot;</span><span class="p">:</span> <span class="mf">0.40</span><span class="p">,</span> <span class="s2">&quot;WP&quot;</span><span class="p">:</span> <span class="mf">0.22</span><span class="p">,</span> <span class="s2">&quot;AWC&quot;</span><span class="p">:</span> <span class="mf">0.18</span><span class="p">,</span> <span class="s2">&quot;Ksat&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+    <span class="c1"># FC = Field Capacity, WP = Wilting Point, AWC = Available Water Capacity</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="fao-56-penman-monteith">معادلة FAO-56 Penman-Monteith<a class="headerlink" href="#fao-56-penman-monteith" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>ET0 = [0.408 × Δ × (Rn - G) + γ × (900/(T+273)) × u2 × (es - ea)] / [Δ + γ × (1 + 0.34 × u2)]
+
+حيث:
+- Rn: صافي الإشعاع (MJ/m²/day)
+- G: تدفق الحرارة في التربة
+- T: متوسط درجة الحرارة (°م)
+- u2: سرعة الرياح على 2م (م/ث)
+- es: ضغط البخار المشبع (kPa)
+- ea: ضغط البخار الفعلي (kPa)
+- Δ: ميل منحنى ضغط البخار
+- γ: ثابت التبخر (kPa/°م)
+</code></pre></div>
+
+<hr />
+<h2 id="5-crop-health-ai-service">🔬 5. خدمة صحة المحاصيل | Crop Health AI Service<a class="headerlink" href="#5-crop-health-ai-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8095</code>
+<strong>الإصدار:</strong> <code>2.2.0</code>
+<strong>المسار:</strong> <code>apps/services/crop-health-ai/</code></p>
+<h3 id="_19">الوصف<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h3>
+<p>خدمة تشخيص أمراض النباتات بالذكاء الاصطناعي والرؤية الحاسوبية.</p>
+<h3 id="_20">الميزات الرئيسية<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ تشخيص الأمراض من الصور</li>
+<li>✅ تشخيص دفعات الصور</li>
+<li>✅ قاعدة بيانات الأمراض والعلاجات</li>
+<li>✅ طلب مراجعة خبير</li>
+<li>✅ مركز رصد الأوبئة</li>
+</ul>
+<h3 id="api-endpoints_4">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_4" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET  /healthz                           - فحص صحة الخدمة
+POST /v1/diagnose                       - تشخيص مرض
+POST /v1/diagnose/batch                 - تشخيص دفعة صور
+GET  /v1/diseases                       - قائمة الأمراض
+GET  /v1/crops                          - المحاصيل المدعومة
+GET  /v1/treatment/{disease_id}         - تفاصيل العلاج
+POST /v1/expert-review                  - طلب مراجعة خبير
+GET  /v1/diagnoses                      - سجل التشخيصات
+GET  /v1/diagnoses/stats                - إحصائيات
+PATCH /v1/diagnoses/{diagnosis_id}      - تحديث حالة التشخيص
+</code></pre></div>
+
+<h3 id="_21">هيكل نتيجة التشخيص<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DiagnosisResult</span><span class="p">:</span>
+    <span class="n">diagnosis_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">field_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">crop_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CropType</span><span class="p">]</span>
+    <span class="n">image_url</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">predictions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">DiseasePrediction</span><span class="p">]</span>
+    <span class="n">top_disease</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">top_disease_ar</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># mild, moderate, severe</span>
+    <span class="n">treatment_recommendations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">treatment_recommendations_ar</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">prevention_tips</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">prevention_tips_ar</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">timestamp</span><span class="p">:</span> <span class="n">datetime</span>
+</code></pre></div>
+
+<h3 id="_22">مستويات الخطورة<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المستوى</th>
+<th>الوصف</th>
+<th>الإجراء</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mild</code></td>
+<td>خفيف</td>
+<td>مراقبة</td>
+</tr>
+<tr>
+<td><code>moderate</code></td>
+<td>متوسط</td>
+<td>علاج فوري</td>
+</tr>
+<tr>
+<td><code>severe</code></td>
+<td>شديد</td>
+<td>تدخل عاجل + خبير</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-yield-engine-service">📊 6. محرك التنبؤ بالإنتاجية | Yield Engine Service<a class="headerlink" href="#6-yield-engine-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8098</code>
+<strong>الإصدار:</strong> <code>1.0.0</code>
+<strong>المسار:</strong> <code>apps/services/yield-engine/</code></p>
+<h3 id="_23">الوصف<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h3>
+<p>محرك التنبؤ بالإنتاجية الزراعية باستخدام التعلم الآلي.</p>
+<h3 id="_24">الميزات الرئيسية<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ التنبؤ بالإنتاجية</li>
+<li>✅ تقدير العائد المالي بالدولار والريال</li>
+<li>✅ معاملات الطقس والتربة والري</li>
+<li>✅ توصيات لتحسين الإنتاج</li>
+</ul>
+<h3 id="api-endpoints_5">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_5" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">GET</span><span class="w">  </span><span class="o">/</span><span class="nx">healthz</span><span class="w">                           </span><span class="o">-</span><span class="w"> </span><span class="nx">فحص</span><span class="w"> </span><span class="nx">صحة</span><span class="w"> </span><span class="nx">الخدمة</span>
+<span class="nx">POST</span><span class="w"> </span><span class="o">/</span><span class="nx">v1</span><span class="o">/</span><span class="nx">predict</span><span class="w">                        </span><span class="o">-</span><span class="w"> </span><span class="nx">التنبؤ</span><span class="w"> </span><span class="nx">بالإنتاجية</span>
+<span class="nx">GET</span><span class="w">  </span><span class="o">/</span><span class="nx">v1</span><span class="o">/</span><span class="nx">crops</span><span class="w">                          </span><span class="o">-</span><span class="w"> </span><span class="nx">المحاصيل</span><span class="w"> </span><span class="nx">المدعومة</span>
+<span class="nx">GET</span><span class="w">  </span><span class="o">/</span><span class="nx">v1</span><span class="o">/</span><span class="nx">price</span><span class="o">/</span><span class="p">{</span><span class="nx">crop_type</span><span class="p">}</span><span class="w">              </span><span class="o">-</span><span class="w"> </span><span class="nx">سعر</span><span class="w"> </span><span class="nx">المحصول</span>
+</code></pre></div>
+
+<h3 id="_25">بيانات المحاصيل<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">CROP_DATA</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">CropType</span><span class="o">.</span><span class="n">TOMATO</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;طماطم&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;base_yield_per_hectare&quot;</span><span class="p">:</span> <span class="mf">35.0</span><span class="p">,</span>  <span class="c1"># طن</span>
+        <span class="s2">&quot;price_usd_per_ton&quot;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>
+        <span class="s2">&quot;water_requirement&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span>
+    <span class="p">},</span>
+    <span class="n">CropType</span><span class="o">.</span><span class="n">COFFEE</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;بن يمني&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;base_yield_per_hectare&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="s2">&quot;price_usd_per_ton&quot;</span><span class="p">:</span> <span class="mi">8000</span><span class="p">,</span>  <span class="c1"># البن اليمني غالي</span>
+        <span class="s2">&quot;water_requirement&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span>
+    <span class="p">},</span>
+    <span class="n">CropType</span><span class="o">.</span><span class="n">DATE_PALM</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;نخيل (تمر)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;base_yield_per_hectare&quot;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>
+        <span class="s2">&quot;price_usd_per_ton&quot;</span><span class="p">:</span> <span class="mi">1500</span><span class="p">,</span>
+        <span class="s2">&quot;water_requirement&quot;</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_26">معاملات التعديل<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>العامل</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>أمطار مثالية</td>
+<td>+10%</td>
+</tr>
+<tr>
+<td>جفاف شديد</td>
+<td>-40%</td>
+</tr>
+<tr>
+<td>حرارة مثالية</td>
+<td>+5%</td>
+</tr>
+<tr>
+<td>تربة ممتازة</td>
+<td>+20%</td>
+</tr>
+<tr>
+<td>ري بالتنقيط</td>
+<td>+15%</td>
+</tr>
+<tr>
+<td>ري ذكي</td>
+<td>+20%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-satellite-service">🛰️ 7. خدمة الأقمار الصناعية | Satellite Service<a class="headerlink" href="#7-satellite-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8090</code>
+<strong>الإصدار:</strong> <code>15.4.0</code>
+<strong>المسار:</strong> <code>apps/services/satellite-service/</code></p>
+<h3 id="_27">الوصف<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<p>خدمة صور الأقمار الصناعية والمؤشرات النباتية مع تكامل eo-learn.</p>
+<h3 id="_28">الميزات الرئيسية<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ دعم Sentinel-2، Landsat-8/9، MODIS</li>
+<li>✅ المؤشرات النباتية (NDVI, EVI, NDWI, SAVI, LAI, NDMI)</li>
+<li>✅ تحليل صحة الحقل</li>
+<li>✅ السلاسل الزمنية</li>
+<li>✅ تكامل مع Sentinel Hub</li>
+</ul>
+<h3 id="api-endpoints_6">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">healthz</span><span class="w">                           </span><span class="o">-</span><span class="w"> </span><span class="err">فحص</span><span class="w"> </span><span class="err">صحة</span><span class="w"> </span><span class="err">الخدمة</span>
+<span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">eo</span><span class="o">-</span><span class="n">status</span><span class="w">                      </span><span class="o">-</span><span class="w"> </span><span class="err">حالة</span><span class="w"> </span><span class="err">تكامل</span><span class="w"> </span><span class="n">eo</span><span class="o">-</span><span class="n">learn</span>
+<span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">satellites</span><span class="w">                     </span><span class="o">-</span><span class="w"> </span><span class="err">الأقمار</span><span class="w"> </span><span class="err">الصناعية</span><span class="w"> </span><span class="err">المتاحة</span>
+<span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">regions</span><span class="w">                        </span><span class="o">-</span><span class="w"> </span><span class="err">المناطق</span><span class="w"> </span><span class="err">المراقبة</span>
+<span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">imagery</span><span class="o">/</span><span class="n">request</span><span class="w">                </span><span class="o">-</span><span class="w"> </span><span class="err">طلب</span><span class="w"> </span><span class="err">صور</span>
+<span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">analyze</span><span class="w">                        </span><span class="o">-</span><span class="w"> </span><span class="err">تحليل</span><span class="w"> </span><span class="err">شامل</span>
+<span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">analyze</span><span class="o">/</span><span class="kt">real</span><span class="w">                   </span><span class="o">-</span><span class="w"> </span><span class="err">تحليل</span><span class="w"> </span><span class="err">بيانات</span><span class="w"> </span><span class="err">حقيقية</span>
+<span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">timeseries</span><span class="o">/</span><span class="p">{</span><span class="n">field_id</span><span class="p">}</span><span class="w">          </span><span class="o">-</span><span class="w"> </span><span class="err">السلسلة</span><span class="w"> </span><span class="err">الزمنية</span>
+</code></pre></div>
+
+<h3 id="_29">الأقمار الصناعية المدعومة<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>القمر</th>
+<th>المشغل</th>
+<th>التكرار</th>
+<th>الدقة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sentinel-2 MSI</td>
+<td>ESA</td>
+<td>5 أيام</td>
+<td>10م</td>
+</tr>
+<tr>
+<td>Landsat-8 OLI</td>
+<td>NASA/USGS</td>
+<td>16 يوم</td>
+<td>30م</td>
+</tr>
+<tr>
+<td>MODIS</td>
+<td>NASA</td>
+<td>يومي</td>
+<td>250م</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_30">المؤشرات النباتية<a class="headerlink" href="#_30" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_ndvi</span><span class="p">(</span><span class="n">nir</span><span class="p">,</span> <span class="n">red</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;NDVI = (NIR - Red) / (NIR + Red)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">nir</span> <span class="o">-</span> <span class="n">red</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">nir</span> <span class="o">+</span> <span class="n">red</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_evi</span><span class="p">(</span><span class="n">nir</span><span class="p">,</span> <span class="n">red</span><span class="p">,</span> <span class="n">blue</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;EVI = 2.5 × (NIR - Red) / (NIR + 6×Red - 7.5×Blue + 1)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">2.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">nir</span> <span class="o">-</span> <span class="n">red</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">nir</span> <span class="o">+</span> <span class="mi">6</span><span class="o">*</span><span class="n">red</span> <span class="o">-</span> <span class="mf">7.5</span><span class="o">*</span><span class="n">blue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_ndwi</span><span class="p">(</span><span class="n">nir</span><span class="p">,</span> <span class="n">swir</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;NDWI = (NIR - SWIR) / (NIR + SWIR)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">nir</span> <span class="o">-</span> <span class="n">swir</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">nir</span> <span class="o">+</span> <span class="n">swir</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_lai</span><span class="p">(</span><span class="n">ndvi</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LAI from NDVI empirical relationship&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">ln</span><span class="p">((</span><span class="mf">0.69</span> <span class="o">-</span> <span class="n">ndvi</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.59</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.91</span>
+</code></pre></div>
+
+<h3 id="_31">تقييم صحة المحصول<a class="headerlink" href="#_31" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>القيمة المثالية</th>
+<th>دلالة النقص</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NDVI</td>
+<td>0.6 - 0.8</td>
+<td>غطاء نباتي منخفض</td>
+</tr>
+<tr>
+<td>NDWI</td>
+<td>&gt; 0</td>
+<td>إجهاد مائي</td>
+</tr>
+<tr>
+<td>EVI</td>
+<td>&gt; 0.4</td>
+<td>بنية مظلة ضعيفة</td>
+</tr>
+<tr>
+<td>LAI</td>
+<td>&gt; 3</td>
+<td>تغطية أوراق متناثرة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-indicators-service">📈 8. خدمة المؤشرات الزراعية | Indicators Service<a class="headerlink" href="#8-indicators-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8091</code>
+<strong>الإصدار:</strong> <code>15.3.0</code>
+<strong>المسار:</strong> <code>apps/services/indicators-service/</code></p>
+<h3 id="_32">الوصف<a class="headerlink" href="#_32" title="Permanent link">&para;</a></h3>
+<p>خدمة لوحة التحكم والمؤشرات الزراعية الشاملة.</p>
+<h3 id="_33">الميزات الرئيسية<a class="headerlink" href="#_33" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 18+ مؤشر زراعي</li>
+<li>✅ لوحة تحكم المستأجر</li>
+<li>✅ تنبيهات المؤشرات</li>
+<li>✅ اتجاهات تاريخية</li>
+<li>✅ تصنيف الحقول</li>
+</ul>
+<h3 id="api-endpoints_7">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_7" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET  /healthz                           - فحص صحة الخدمة
+GET  /v1/indicators/definitions         - تعريفات المؤشرات
+GET  /v1/field/{field_id}/indicators    - مؤشرات حقل
+GET  /v1/dashboard/{tenant_id}          - لوحة التحكم
+GET  /v1/alerts/{tenant_id}             - تنبيهات المستأجر
+GET  /v1/trends/{field_id}/{indicator}  - اتجاهات مؤشر
+</code></pre></div>
+
+<h3 id="_34">فئات المؤشرات<a class="headerlink" href="#_34" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IndicatorCategory</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">VEGETATION</span> <span class="o">=</span> <span class="s2">&quot;vegetation&quot;</span>      <span class="c1"># NDVI, EVI, LAI</span>
+    <span class="n">WATER</span> <span class="o">=</span> <span class="s2">&quot;water&quot;</span>               <span class="c1"># NDWI, رطوبة التربة, كفاءة الري</span>
+    <span class="n">SOIL</span> <span class="o">=</span> <span class="s2">&quot;soil&quot;</span>                 <span class="c1"># pH, N, P, K</span>
+    <span class="n">WEATHER</span> <span class="o">=</span> <span class="s2">&quot;weather&quot;</span>           <span class="c1"># حرارة, رطوبة, أمطار</span>
+    <span class="n">CROP_HEALTH</span> <span class="o">=</span> <span class="s2">&quot;crop_health&quot;</span>   <span class="c1"># خطر الأمراض, ضغط الآفات</span>
+    <span class="n">PRODUCTIVITY</span> <span class="o">=</span> <span class="s2">&quot;productivity&quot;</span> <span class="c1"># تقدير المحصول, تقدم المرحلة</span>
+    <span class="n">FINANCIAL</span> <span class="o">=</span> <span class="s2">&quot;financial&quot;</span>       <span class="c1"># التكلفة, العائد</span>
+</code></pre></div>
+
+<h3 id="_35">المؤشرات الرئيسية<a class="headerlink" href="#_35" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الوحدة</th>
+<th>النطاق المثالي</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NDVI</td>
+<td>index</td>
+<td>0.4 - 0.8</td>
+</tr>
+<tr>
+<td>رطوبة التربة</td>
+<td>%</td>
+<td>40 - 70</td>
+</tr>
+<tr>
+<td>pH التربة</td>
+<td>pH</td>
+<td>6.0 - 7.5</td>
+</tr>
+<tr>
+<td>النيتروجين</td>
+<td>kg/ha</td>
+<td>80 - 150</td>
+</tr>
+<tr>
+<td>خطر الأمراض</td>
+<td>%</td>
+<td>0 - 20</td>
+</tr>
+<tr>
+<td>كفاءة الري</td>
+<td>%</td>
+<td>75 - 95</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-notification-service">💬 9. خدمة الإشعارات | Notification Service<a class="headerlink" href="#9-notification-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8109</code>
+<strong>الإصدار:</strong> <code>15.3.0</code>
+<strong>المسار:</strong> <code>apps/services/notification-service/</code></p>
+<h3 id="_36">الوصف<a class="headerlink" href="#_36" title="Permanent link">&para;</a></h3>
+<p>خدمة الإشعارات المخصصة للمزارعين اليمنيين.</p>
+<h3 id="_37">الميزات الرئيسية<a class="headerlink" href="#_37" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ تنبيهات الطقس المخصصة</li>
+<li>✅ تنبيهات انتشار الآفات</li>
+<li>✅ تذكيرات الري</li>
+<li>✅ إشعارات صحة المحصول</li>
+<li>✅ أسعار السوق</li>
+<li>✅ قنوات متعددة (Push, SMS, In-App)</li>
+</ul>
+<h3 id="api-endpoints_8">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_8" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">healthz</span><span class="w">                           </span><span class="o">-</span><span class="w"> </span><span class="err">فحص</span><span class="w"> </span><span class="err">صحة</span><span class="w"> </span><span class="err">الخدمة</span>
+<span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">notifications</span><span class="w">                  </span><span class="o">-</span><span class="w"> </span><span class="err">إنشاء</span><span class="w"> </span><span class="err">إشعار</span>
+<span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">alerts</span><span class="o">/</span><span class="n">weather</span><span class="w">                 </span><span class="o">-</span><span class="w"> </span><span class="err">تنبيه</span><span class="w"> </span><span class="err">طقس</span>
+<span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">alerts</span><span class="o">/</span><span class="n">pest</span><span class="w">                    </span><span class="o">-</span><span class="w"> </span><span class="err">تنبيه</span><span class="w"> </span><span class="err">آفات</span>
+<span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">reminders</span><span class="o">/</span><span class="n">irrigation</span><span class="w">           </span><span class="o">-</span><span class="w"> </span><span class="err">تذكير</span><span class="w"> </span><span class="err">ري</span>
+<span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">notifications</span><span class="o">/</span><span class="n">farmer</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="w">      </span><span class="o">-</span><span class="w"> </span><span class="err">إشعارات</span><span class="w"> </span><span class="err">مزارع</span>
+<span class="n">PATCH</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">notifications</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">read</span><span class="w">       </span><span class="o">-</span><span class="w"> </span><span class="err">تحديد</span><span class="w"> </span><span class="err">كمقروء</span>
+<span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">notifications</span><span class="o">/</span><span class="n">broadcast</span><span class="w">        </span><span class="o">-</span><span class="w"> </span><span class="err">الإشعارات</span><span class="w"> </span><span class="err">العامة</span>
+<span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">farmers</span><span class="o">/</span><span class="n">register</span><span class="w">               </span><span class="o">-</span><span class="w"> </span><span class="err">تسجيل</span><span class="w"> </span><span class="err">مزارع</span>
+<span class="n">PUT</span><span class="w">  </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">farmers</span><span class="o">/</span><span class="p">{</span><span class="n">id</span><span class="p">}</span><span class="o">/</span><span class="n">preferences</span><span class="w">       </span><span class="o">-</span><span class="w"> </span><span class="err">تفضيلات</span><span class="w"> </span><span class="err">الإشعارات</span>
+<span class="n">GET</span><span class="w">  </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">stats</span><span class="w">                          </span><span class="o">-</span><span class="w"> </span><span class="err">الإحصائيات</span>
+</code></pre></div>
+
+<h3 id="_38">أنواع الإشعارات<a class="headerlink" href="#_38" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">NotificationType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">WEATHER_ALERT</span> <span class="o">=</span> <span class="s2">&quot;weather_alert&quot;</span>           <span class="c1"># تنبيه طقس</span>
+    <span class="n">PEST_OUTBREAK</span> <span class="o">=</span> <span class="s2">&quot;pest_outbreak&quot;</span>           <span class="c1"># انتشار آفات</span>
+    <span class="n">IRRIGATION_REMINDER</span> <span class="o">=</span> <span class="s2">&quot;irrigation_reminder&quot;</span><span class="c1"># تذكير ري</span>
+    <span class="n">CROP_HEALTH</span> <span class="o">=</span> <span class="s2">&quot;crop_health&quot;</span>               <span class="c1"># صحة المحصول</span>
+    <span class="n">MARKET_PRICE</span> <span class="o">=</span> <span class="s2">&quot;market_price&quot;</span>             <span class="c1"># أسعار السوق</span>
+    <span class="n">SYSTEM</span> <span class="o">=</span> <span class="s2">&quot;system&quot;</span>                         <span class="c1"># نظام</span>
+    <span class="n">TASK_REMINDER</span> <span class="o">=</span> <span class="s2">&quot;task_reminder&quot;</span>           <span class="c1"># تذكير مهمة</span>
+</code></pre></div>
+
+<h3 id="_39">مستويات الأولوية<a class="headerlink" href="#_39" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المستوى</th>
+<th>العربية</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>critical</code></td>
+<td>حرجة</td>
+<td>إجراء فوري</td>
+</tr>
+<tr>
+<td><code>high</code></td>
+<td>عالية</td>
+<td>إجراء عاجل</td>
+</tr>
+<tr>
+<td><code>medium</code></td>
+<td>متوسطة</td>
+<td>انتبه</td>
+</tr>
+<tr>
+<td><code>low</code></td>
+<td>منخفضة</td>
+<td>للعلم</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-billing-core-service">💰 10. خدمة الفوترة | Billing Core Service<a class="headerlink" href="#10-billing-core-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8089</code>
+<strong>الإصدار:</strong> <code>0.1.0</code>
+<strong>المسار:</strong> <code>apps/services/billing-core/</code></p>
+<h3 id="_40">الوصف<a class="headerlink" href="#_40" title="Permanent link">&para;</a></h3>
+<p>خدمة إدارة الخطط والمستأجرين والاستخدام.</p>
+<h3 id="_41">الميزات الرئيسية<a class="headerlink" href="#_41" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ إدارة الخطط</li>
+<li>✅ إدارة المستأجرين</li>
+<li>✅ تتبع الاستخدام</li>
+<li>✅ فرض الحصص</li>
+</ul>
+<h3 id="api-endpoints_9">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_9" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET  /healthz                           - فحص صحة الخدمة
+POST /plans                             - إنشاء خطة
+POST /tenants                           - إنشاء مستأجر
+GET  /tenants/{tenant_id}/quota         - الحصة والاستخدام
+POST /tenants/{tenant_id}/usage         - إضافة استخدام
+GET  /enforce                           - التحقق من الصلاحيات
+</code></pre></div>
+
+<h3 id="_42">هيكل الخطة<a class="headerlink" href="#_42" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Plan</span><span class="p">:</span>
+    <span class="n">plan_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">limits</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>  <span class="c1"># {&quot;ndvi_jobs_per_day&quot;: 100, &quot;fields&quot;: 500}</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Tenant</span><span class="p">:</span>
+    <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">plan_id</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div>
+
+<hr />
+<h2 id="11-astronomical-calendar-service">🌙 11. خدمة التقويم الفلكي | Astronomical Calendar Service<a class="headerlink" href="#11-astronomical-calendar-service" title="Permanent link">&para;</a></h2>
+<p><strong>المنفذ:</strong> <code>8111</code>
+<strong>الإصدار:</strong> <code>15.5.0</code>
+<strong>المسار:</strong> <code>apps/services/astronomical-calendar/</code></p>
+<h3 id="_43">الوصف<a class="headerlink" href="#_43" title="Permanent link">&para;</a></h3>
+<p>خدمة التقويم الفلكي التقليدي اليمني للزراعة.</p>
+<h3 id="_44">الميزات الرئيسية<a class="headerlink" href="#_44" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ مراحل القمر الـ 8</li>
+<li>✅ المنازل القمرية الـ 28</li>
+<li>✅ التحويل الهجري</li>
+<li>✅ الأبراج وخصوبتها</li>
+<li>✅ المواسم اليمنية</li>
+<li>✅ الأمثال الزراعية</li>
+<li>✅ النجوم المهمة (سهيل، الثريا، السماك)</li>
+</ul>
+<h3 id="api-endpoints_10">نقاط النهاية (API Endpoints)<a class="headerlink" href="#api-endpoints_10" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>GET  /healthz                           - فحص صحة الخدمة
+GET  /v1/today                          - بيانات اليوم الفلكية
+GET  /v1/date/{date}                    - بيانات تاريخ محدد
+GET  /v1/week                           - التوقعات الأسبوعية
+GET  /v1/best-days                      - أفضل الأيام لنشاط
+GET  /v1/moon-phase                     - مرحلة القمر
+GET  /v1/lunar-mansion                  - المنزلة القمرية
+GET  /v1/zodiac                         - البرج الشمسي
+GET  /v1/hijri                          - التاريخ الهجري
+GET  /v1/lunar-mansions                 - قائمة المنازل
+GET  /v1/hijri-months                   - الأشهر الهجرية
+GET  /v1/zodiac-farming                 - الأبراج والخصوبة
+GET  /v1/seasons                        - المواسم اليمنية
+GET  /v1/crops                          - المحاصيل
+GET  /v1/crop-calendar/{crop}           - تقويم محصول
+GET  /v1/integration/weather            - دمج الطقس
+</code></pre></div>
+
+<h3 id="28">المنازل القمرية الـ 28<a class="headerlink" href="#28" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المنزلة</th>
+<th>البرج</th>
+<th>درجة الزراعة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>الشرطين</td>
+<td>الحمل</td>
+<td>9/10</td>
+</tr>
+<tr>
+<td>2</td>
+<td>البطين</td>
+<td>الحمل</td>
+<td>7/10</td>
+</tr>
+<tr>
+<td>3</td>
+<td>الثريا</td>
+<td>الثور</td>
+<td><strong>10/10</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>الدبران</td>
+<td>الثور</td>
+<td>8/10</td>
+</tr>
+<tr>
+<td>5</td>
+<td>الهقعة</td>
+<td>الجوزاء</td>
+<td>5/10</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>22</td>
+<td>سعد الذابح</td>
+<td>الجدي</td>
+<td>7/10</td>
+</tr>
+<tr>
+<td>23</td>
+<td>سعد بلع</td>
+<td>الدلو</td>
+<td>8/10</td>
+</tr>
+<tr>
+<td>24</td>
+<td><strong>سعد السعود</strong></td>
+<td>الدلو</td>
+<td><strong>10/10</strong></td>
+</tr>
+<tr>
+<td>25</td>
+<td>سعد الأخبية</td>
+<td>الحوت</td>
+<td>8/10</td>
+</tr>
+<tr>
+<td>26</td>
+<td>المقدم</td>
+<td>الحوت</td>
+<td>6/10</td>
+</tr>
+<tr>
+<td>27</td>
+<td>المؤخر</td>
+<td>الحوت</td>
+<td>6/10</td>
+</tr>
+<tr>
+<td>28</td>
+<td>الرشا</td>
+<td>الحوت</td>
+<td>5/10</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_45">مراحل القمر<a class="headerlink" href="#_45" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">MOON_PHASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;new_moon&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;محاق&quot;</span><span class="p">,</span> <span class="s2">&quot;farming_score&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+    <span class="s2">&quot;waxing_crescent&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;هلال متزايد&quot;</span><span class="p">,</span> <span class="s2">&quot;farming_score&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">},</span>
+    <span class="s2">&quot;first_quarter&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;تربيع أول&quot;</span><span class="p">,</span> <span class="s2">&quot;farming_score&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">},</span>
+    <span class="s2">&quot;waxing_gibbous&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;أحدب متزايد&quot;</span><span class="p">,</span> <span class="s2">&quot;farming_score&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">},</span>
+    <span class="s2">&quot;full_moon&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;بدر&quot;</span><span class="p">,</span> <span class="s2">&quot;farming_score&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+    <span class="s2">&quot;waning_gibbous&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;أحدب متناقص&quot;</span><span class="p">,</span> <span class="s2">&quot;farming_score&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+    <span class="s2">&quot;last_quarter&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;تربيع أخير&quot;</span><span class="p">,</span> <span class="s2">&quot;farming_score&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+    <span class="s2">&quot;waning_crescent&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;name_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;هلال متناقص&quot;</span><span class="p">,</span> <span class="s2">&quot;farming_score&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_46">المواسم اليمنية<a class="headerlink" href="#_46" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الموسم</th>
+<th>الأشهر</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الصيف</td>
+<td>يونيو-سبتمبر</td>
+<td>موسم الأمطار الرئيسي</td>
+</tr>
+<tr>
+<td>الخريف</td>
+<td>أكتوبر-نوفمبر</td>
+<td>موسم الحصاد</td>
+</tr>
+<tr>
+<td>الشتاء</td>
+<td>ديسمبر-فبراير</td>
+<td>موسم الخضروات الشتوية</td>
+</tr>
+<tr>
+<td>الربيع</td>
+<td>مارس-مايو</td>
+<td>موسم الأزهار</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="service-integration">🔗 التكامل بين الخدمات | Service Integration<a class="headerlink" href="#service-integration" title="Permanent link">&para;</a></h2>
+<h3 id="_47">مخطط التكامل<a class="headerlink" href="#_47" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────┐     ┌─────────────────┐
+│  Mobile App     │────▶│   Kong Gateway  │
+│  (Flutter)      │     │   (Port 8000)   │
+└─────────────────┘     └────────┬────────┘
+                                 │
+        ┌────────────────────────┼────────────────────────┐
+        │                        │                        │
+        ▼                        ▼                        ▼
+┌───────────────┐    ┌───────────────────┐    ┌───────────────┐
+│ weather-adv   │◀──▶│ irrigation-smart  │◀──▶│ virtual-sens  │
+│   (8092)      │    │     (8094)        │    │   (8096)      │
+└───────────────┘    └───────────────────┘    └───────────────┘
+        │                        │                        │
+        ▼                        ▼                        ▼
+┌───────────────┐    ┌───────────────────┐    ┌───────────────┐
+│ astronomical  │    │ fertilizer-adv    │    │ crop-health   │
+│   (8111)      │    │     (8093)        │    │   (8095)      │
+└───────────────┘    └───────────────────┘    └───────────────┘
+        │                        │                        │
+        ▼                        ▼                        ▼
+┌───────────────┐    ┌───────────────────┐    ┌───────────────┐
+│ satellite-svc │    │  yield-engine     │    │ indicators    │
+│   (8090)      │    │     (8098)        │    │   (8091)      │
+└───────────────┘    └───────────────────┘    └───────────────┘
+                              │
+                              ▼
+                    ┌───────────────────┐
+                    │ notification-svc  │
+                    │     (8109)        │
+                    └───────────────────┘
+</code></pre></div>
+
+<h3 id="_48">سيناريوهات التكامل<a class="headerlink" href="#_48" title="Permanent link">&para;</a></h3>
+<h4 id="1">1. الري الذكي المتكامل<a class="headerlink" href="#1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">weather</span><span class="o">-</span><span class="n">advanced</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">توفير</span><span class="w"> </span><span class="n">ET0</span><span class="w"> </span><span class="n">وتوقعات</span><span class="w"> </span><span class="n">الأمطار</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">virtual</span><span class="o">-</span><span class="n">sensors</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">حساب</span><span class="w"> </span><span class="n">ETc</span><span class="w"> </span><span class="n">ورطوبة</span><span class="w"> </span><span class="n">التربة</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">irrigation</span><span class="o">-</span><span class="n">smart</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">جدولة</span><span class="w"> </span><span class="n">الري</span>
+<span class="mf">4.</span><span class="w"> </span><span class="ow">not</span><span class="kr">if</span><span class="n">ication</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">إرسال</span><span class="w"> </span><span class="n">تذكير</span><span class="w"> </span><span class="n">الري</span>
+</code></pre></div>
+
+<h4 id="2">2. التشخيص الشامل<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">crop</span><span class="o">-</span><span class="n">health</span><span class="o">-</span><span class="n">ai</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">تشخيص</span><span class="w"> </span><span class="n">المرض</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">satellite</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">التحقق</span><span class="w"> </span><span class="n">من</span><span class="w"> </span><span class="n">NDVI</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">indicators</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">تحديث</span><span class="w"> </span><span class="n">المؤشرات</span>
+<span class="mf">4.</span><span class="w"> </span><span class="ow">not</span><span class="kr">if</span><span class="n">ication</span><span class="o">-</span><span class="n">service</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">إشعار</span><span class="w"> </span><span class="n">المزارع</span>
+</code></pre></div>
+
+<h4 id="3">3. التوصيات الموسمية<a class="headerlink" href="#3" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">astronomical</span><span class="o">-</span><span class="n">calendar</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">المنزلة</span><span class="w"> </span><span class="n">والموسم</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">weather</span><span class="o">-</span><span class="n">advanced</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">التوقعات</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">fertilizer</span><span class="o">-</span><span class="n">advisor</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">جدول</span><span class="w"> </span><span class="n">التسميد</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">irrigation</span><span class="o">-</span><span class="n">smart</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">جدول</span><span class="w"> </span><span class="n">الري</span>
+</code></pre></div>
+
+<hr />
+<h2 id="docker-compose">🐳 Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">weather-advanced</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./weather-advanced</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8092:8092&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">irrigation-smart</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./irrigation-smart</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8094:8094&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">weather-advanced</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">fertilizer-advisor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./fertilizer-advisor</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8093:8093&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">virtual-sensors</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./virtual-sensors</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8096:8096&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">weather-advanced</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">crop-health-ai</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./crop-health-ai</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8095:8095&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">yield-engine</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./yield-engine</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8098:8098&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">satellite-service</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./satellite-service</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8090:8090&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">indicators-service</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./indicators-service</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8091:8091&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">notification-service</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./notification-service</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8109:8109&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">billing-core</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./billing-core</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8089:8089&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">astronomical-calendar</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./astronomical-calendar</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;8111:8111&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">weather-advanced</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_49">🚀 التشغيل المحلي<a class="headerlink" href="#_49" title="Permanent link">&para;</a></h2>
+<h3 id="_50">تشغيل خدمة واحدة<a class="headerlink" href="#_50" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># الطقس المتقدم</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/weather-advanced
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+uvicorn<span class="w"> </span>src.main:app<span class="w"> </span>--port<span class="w"> </span><span class="m">8092</span><span class="w"> </span>--reload
+
+<span class="c1"># الري الذكي</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/irrigation-smart
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+uvicorn<span class="w"> </span>src.main:app<span class="w"> </span>--port<span class="w"> </span><span class="m">8094</span><span class="w"> </span>--reload
+</code></pre></div>
+
+<h3 id="_51">تشغيل جميع الخدمات<a class="headerlink" href="#_51" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>apps/services
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<h3 id="_52">التحقق من الصحة<a class="headerlink" href="#_52" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># فحص جميع الخدمات</span>
+<span class="k">for</span><span class="w"> </span>port<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">8089</span><span class="w"> </span><span class="m">8090</span><span class="w"> </span><span class="m">8091</span><span class="w"> </span><span class="m">8092</span><span class="w"> </span><span class="m">8093</span><span class="w"> </span><span class="m">8094</span><span class="w"> </span><span class="m">8095</span><span class="w"> </span><span class="m">8096</span><span class="w"> </span><span class="m">8098</span><span class="w"> </span><span class="m">8109</span><span class="w"> </span><span class="m">8111</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Port </span><span class="nv">$port</span><span class="s2">: </span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:<span class="nv">$port</span>/healthz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span>.status<span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_53">📚 المراجع<a class="headerlink" href="#_53" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="http://www.fao.org/3/X0490E/x0490e00.htm">FAO Irrigation and Drainage Paper 56</a></li>
+<li><a href="http://www.fao.org/land-water/databases-and-software/crop-information/en/">FAO Crop Water Information</a></li>
+<li><a href="https://docs.sentinel-hub.com/">Sentinel Hub Documentation</a></li>
+<li><a href="https://websoilsurvey.nrcs.usda.gov/">USDA Web Soil Survey</a></li>
+</ul>
+<hr />
+<p><strong>© 2025 SAHOOL - سهول الزراعية</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

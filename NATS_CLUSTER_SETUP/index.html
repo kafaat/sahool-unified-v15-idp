@@ -1,0 +1,2160 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>NATS Cluster Setup Guide for SAHOOL Platform - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nats-cluster-setup-guide-for-sahool-platform" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              NATS Cluster Setup Guide for SAHOOL Platform
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="nats-cluster-setup-guide-for-sahool-platform">NATS Cluster Setup Guide for SAHOOL Platform<a class="headerlink" href="#nats-cluster-setup-guide-for-sahool-platform" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>High Availability Multi-Cluster NATS Configuration</strong>
+Version: 1.0
+Last Updated: 2026-01-07</p>
+</blockquote>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#docker-deployment">Docker Deployment</a></li>
+<li><a href="#kubernetes-deployment">Kubernetes Deployment</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#jetstream-setup">JetStream Setup</a></li>
+<li><a href="#security">Security</a></li>
+<li><a href="#monitoring--health-checks">Monitoring &amp; Health Checks</a></li>
+<li><a href="#operations">Operations</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#performance-tuning">Performance Tuning</a></li>
+<li><a href="#multi-region-setup">Multi-Region Setup</a></li>
+<li><a href="#backup--recovery">Backup &amp; Recovery</a></li>
+<li><a href="#migration-guide">Migration Guide</a></li>
+</ul>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide covers the setup and operation of a high-availability NATS cluster for the SAHOOL platform. The cluster consists of 3 nodes with JetStream enabled, providing:</p>
+<ul>
+<li><strong>High Availability</strong>: N+2 redundancy (can lose 2 nodes)</li>
+<li><strong>JetStream Replication</strong>: Replication factor 3 for data persistence</li>
+<li><strong>TLS Encryption</strong>: All communication encrypted (client, cluster, gateway)</li>
+<li><strong>Gateway Support</strong>: Super-cluster capability for multi-region deployments</li>
+<li><strong>Comprehensive Monitoring</strong>: Health checks, metrics, and alerting</li>
+</ul>
+<h3 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
+<p>✅ 3-node cluster with full mesh topology
+✅ JetStream with at-rest encryption (AES-256)
+✅ TLS 1.2+ with modern cipher suites
+✅ Granular authentication and authorization
+✅ Rate limiting and connection controls
+✅ Gateway configuration for geo-replication
+✅ Automated health monitoring
+✅ Prometheus metrics integration</p>
+<hr />
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="cluster-topology">Cluster Topology<a class="headerlink" href="#cluster-topology" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│                    SAHOOL NATS Cluster                          │
+│                                                                 │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐ │
+│  │   Node 1     │◄────►│   Node 2     │◄────►│   Node 3     │ │
+│  │              │      │              │      │              │ │
+│  │  JetStream   │      │  JetStream   │      │  JetStream   │ │
+│  │  Replica 1   │      │  Replica 2   │      │  Replica 3   │ │
+│  └──────┬───────┘      └──────┬───────┘      └──────┬───────┘ │
+│         │                     │                     │         │
+│         └─────────────────────┴─────────────────────┘         │
+│                    Full Mesh Cluster Routes                    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ Client Connections (TLS)
+                              ▼
+                    ┌──────────────────┐
+                    │  Load Balancer   │
+                    │  or Service      │
+                    └──────────────────┘
+                              │
+                              ▼
+                    ┌──────────────────┐
+                    │  Applications    │
+                    └──────────────────┘
+</code></pre></div>
+
+<h3 id="communication-ports">Communication Ports<a class="headerlink" href="#communication-ports" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Protocol</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4222</td>
+<td>TCP/TLS</td>
+<td>Client connections</td>
+</tr>
+<tr>
+<td>6222</td>
+<td>TCP/TLS</td>
+<td>Cluster routing (inter-node communication)</td>
+</tr>
+<tr>
+<td>7222</td>
+<td>TCP/TLS</td>
+<td>Gateway connections (super-cluster)</td>
+</tr>
+<tr>
+<td>8222</td>
+<td>HTTP</td>
+<td>Monitoring and health checks</td>
+</tr>
+<tr>
+<td>7777</td>
+<td>HTTP</td>
+<td>Prometheus metrics</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<h3 id="docker-deployment">Docker Deployment<a class="headerlink" href="#docker-deployment" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Docker Engine 20.10+</li>
+<li>Docker Compose 2.0+</li>
+<li>6GB+ available RAM</li>
+<li>150GB+ available storage for JetStream</li>
+<li>TLS certificates (or use self-signed for testing)</li>
+</ul>
+<h3 id="kubernetes-deployment">Kubernetes Deployment<a class="headerlink" href="#kubernetes-deployment" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Kubernetes 1.23+</li>
+<li>kubectl CLI configured</li>
+<li>Storage class with dynamic provisioning (e.g., <code>fast-ssd</code>)</li>
+<li>150GB+ persistent storage (50GB per node)</li>
+<li>TLS certificates in Kubernetes secrets</li>
+</ul>
+<h3 id="common-requirements">Common Requirements<a class="headerlink" href="#common-requirements" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>jq</code> (for health check script)</li>
+<li><code>curl</code> or <code>wget</code></li>
+<li>NATS CLI (optional, for management): <code>https://github.com/nats-io/natscli</code></li>
+</ul>
+<hr />
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="docker-deployment_1">Docker Deployment<a class="headerlink" href="#docker-deployment_1" title="Permanent link">&para;</a></h3>
+<h4 id="1-generate-certificates">1. Generate Certificates<a class="headerlink" href="#1-generate-certificates" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate self-signed certificates for testing</span>
+<span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
+./scripts/security/generate-nats-credentials.sh
+
+<span class="c1"># Or use your own certificates</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>config/certs/nats
+cp<span class="w"> </span>/path/to/server.crt<span class="w"> </span>config/certs/nats/
+cp<span class="w"> </span>/path/to/server.key<span class="w"> </span>config/certs/nats/
+cp<span class="w"> </span>/path/to/ca.crt<span class="w"> </span>config/certs/nats/
+</code></pre></div>
+
+<h4 id="2-configure-environment-variables">2. Configure Environment Variables<a class="headerlink" href="#2-configure-environment-variables" title="Permanent link">&para;</a></h4>
+<p>Create a <code>.env</code> file in the project root:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Authentication</span>
+<span class="nv">NATS_ADMIN_USER</span><span class="o">=</span>admin
+<span class="nv">NATS_ADMIN_PASSWORD</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">NATS_USER</span><span class="o">=</span>sahool
+<span class="nv">NATS_PASSWORD</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">NATS_MONITOR_USER</span><span class="o">=</span>monitor
+<span class="nv">NATS_MONITOR_PASSWORD</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">NATS_SYSTEM_USER</span><span class="o">=</span>system
+<span class="nv">NATS_SYSTEM_PASSWORD</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+
+<span class="c1"># Cluster Authentication</span>
+<span class="nv">NATS_CLUSTER_USER</span><span class="o">=</span>cluster_user
+<span class="nv">NATS_CLUSTER_PASSWORD</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+
+<span class="c1"># Gateway Authentication</span>
+<span class="nv">NATS_GATEWAY_USER</span><span class="o">=</span>gateway_user
+<span class="nv">NATS_GATEWAY_PASSWORD</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+
+<span class="c1"># JetStream Encryption (32-byte key, base64 encoded)</span>
+<span class="nv">NATS_JETSTREAM_KEY</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+</code></pre></div>
+
+<p><strong>Important</strong>: Save these credentials securely. You'll need them for client connections.</p>
+<h4 id="3-create-external-network">3. Create External Network<a class="headerlink" href="#3-create-external-network" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>network<span class="w"> </span>create<span class="w"> </span>sahool-network
+</code></pre></div>
+
+<h4 id="4-start-the-cluster">4. Start the Cluster<a class="headerlink" href="#4-start-the-cluster" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/docker-compose.nats-cluster.yml<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<h4 id="5-verify-cluster-health">5. Verify Cluster Health<a class="headerlink" href="#5-verify-cluster-health" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run health check</span>
+./scripts/nats/cluster-health-check.sh<span class="w"> </span>-e<span class="w"> </span>docker<span class="w"> </span>-v
+
+<span class="c1"># Check individual nodes</span>
+curl<span class="w"> </span>http://localhost:8222/varz<span class="w">  </span><span class="c1"># Node 1</span>
+curl<span class="w"> </span>http://localhost:8223/varz<span class="w">  </span><span class="c1"># Node 2</span>
+curl<span class="w"> </span>http://localhost:8224/varz<span class="w">  </span><span class="c1"># Node 3</span>
+
+<span class="c1"># Check cluster routes</span>
+curl<span class="w"> </span>http://localhost:8222/routez
+</code></pre></div>
+
+<h4 id="6-view-logs">6. View Logs<a class="headerlink" href="#6-view-logs" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># All nodes</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/docker-compose.nats-cluster.yml<span class="w"> </span>logs<span class="w"> </span>-f
+
+<span class="c1"># Specific node</span>
+docker<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>sahool-nats-node1
+</code></pre></div>
+
+<hr />
+<h3 id="kubernetes-deployment_1">Kubernetes Deployment<a class="headerlink" href="#kubernetes-deployment_1" title="Permanent link">&para;</a></h3>
+<h4 id="1-create-namespace">1. Create Namespace<a class="headerlink" href="#1-create-namespace" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>create<span class="w"> </span>namespace<span class="w"> </span>nats-system
+</code></pre></div>
+
+<h4 id="2-create-tls-certificates-secret">2. Create TLS Certificates Secret<a class="headerlink" href="#2-create-tls-certificates-secret" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Using cert-manager (recommended)</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">apiVersion: cert-manager.io/v1</span>
+<span class="s">kind: Certificate</span>
+<span class="s">metadata:</span>
+<span class="s">  name: nats-tls-certs</span>
+<span class="s">  namespace: nats-system</span>
+<span class="s">spec:</span>
+<span class="s">  secretName: nats-tls-certs</span>
+<span class="s">  issuerRef:</span>
+<span class="s">    name: letsencrypt-prod</span>
+<span class="s">    kind: ClusterIssuer</span>
+<span class="s">  dnsNames:</span>
+<span class="s">    - nats.nats-system.svc.cluster.local</span>
+<span class="s">    - &quot;*.nats.nats-system.svc.cluster.local&quot;</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Or create from existing certificates</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>tls<span class="w"> </span>nats-tls-certs<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cert<span class="o">=</span>/path/to/tls.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--key<span class="o">=</span>/path/to/tls.key<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>nats-system
+
+<span class="c1"># Add CA certificate</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>nats-ca-cert<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-file<span class="o">=</span>ca.crt<span class="o">=</span>/path/to/ca.crt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>nats-system
+</code></pre></div>
+
+<h4 id="3-update-credentials-secret">3. Update Credentials Secret<a class="headerlink" href="#3-update-credentials-secret" title="Permanent link">&para;</a></h4>
+<p>Edit <code>infrastructure/nats/kubernetes/nats-statefulset.yaml</code> and replace placeholder passwords in the <code>nats-credentials</code> secret:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate strong passwords</span>
+<span class="nv">ADMIN_PASS</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">USER_PASS</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">MONITOR_PASS</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">SYSTEM_PASS</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">CLUSTER_PASS</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">GATEWAY_PASS</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+<span class="nv">JS_KEY</span><span class="o">=</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span>
+
+<span class="c1"># Create secret</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>nats-credentials<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_ADMIN_USER</span><span class="o">=</span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$ADMIN_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_USER</span><span class="o">=</span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$USER_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_MONITOR_USER</span><span class="o">=</span>monitor<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_MONITOR_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$MONITOR_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_SYSTEM_USER</span><span class="o">=</span>system<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_SYSTEM_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SYSTEM_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_CLUSTER_USER</span><span class="o">=</span>cluster_user<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_CLUSTER_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$CLUSTER_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_GATEWAY_USER</span><span class="o">=</span>gateway_user<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_GATEWAY_PASSWORD</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$GATEWAY_PASS</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">NATS_JETSTREAM_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$JS_KEY</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>nats-system
+</code></pre></div>
+
+<h4 id="4-deploy-nats-cluster">4. Deploy NATS Cluster<a class="headerlink" href="#4-deploy-nats-cluster" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Deploy StatefulSet and Services</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/kubernetes/nats-statefulset.yaml
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/kubernetes/nats-service.yaml
+
+<span class="c1"># Wait for pods to be ready</span>
+kubectl<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--for<span class="o">=</span><span class="nv">condition</span><span class="o">=</span>ready<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>nats<span class="w"> </span>-n<span class="w"> </span>nats-system<span class="w"> </span>--timeout<span class="o">=</span>300s
+</code></pre></div>
+
+<h4 id="5-verify-deployment">5. Verify Deployment<a class="headerlink" href="#5-verify-deployment" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check pods</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>nats-system
+
+<span class="c1"># Check services</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>-n<span class="w"> </span>nats-system
+
+<span class="c1"># Check PVCs</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pvc<span class="w"> </span>-n<span class="w"> </span>nats-system
+
+<span class="c1"># Run health check</span>
+./scripts/nats/cluster-health-check.sh<span class="w"> </span>-e<span class="w"> </span>kubernetes<span class="w"> </span>-n<span class="w"> </span>nats-system<span class="w"> </span>-v
+</code></pre></div>
+
+<h4 id="6-access-monitoring">6. Access Monitoring<a class="headerlink" href="#6-access-monitoring" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Port forward to monitoring endpoint</span>
+kubectl<span class="w"> </span>port-forward<span class="w"> </span>-n<span class="w"> </span>nats-system<span class="w"> </span>nats-0<span class="w"> </span><span class="m">8222</span>:8222
+
+<span class="c1"># In another terminal, check status</span>
+curl<span class="w"> </span>http://localhost:8222/varz
+curl<span class="w"> </span>http://localhost:8222/routez
+curl<span class="w"> </span>http://localhost:8222/jsz
+</code></pre></div>
+
+<hr />
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="node-configuration-files">Node Configuration Files<a class="headerlink" href="#node-configuration-files" title="Permanent link">&para;</a></h3>
+<p>Each node has its own configuration file:</p>
+<ul>
+<li><strong>Node 1</strong>: <code>config/nats/nats-cluster-node1.conf</code></li>
+<li><strong>Node 2</strong>: <code>config/nats/nats-cluster-node2.conf</code></li>
+<li><strong>Node 3</strong>: <code>config/nats/nats-cluster-node3.conf</code></li>
+</ul>
+<h3 id="key-configuration-sections">Key Configuration Sections<a class="headerlink" href="#key-configuration-sections" title="Permanent link">&para;</a></h3>
+<h4 id="jetstream-configuration">JetStream Configuration<a class="headerlink" href="#jetstream-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>jetstream {
+    store_dir: /data/jetstream
+    max_memory_store: 2GB
+    max_file_store: 20GB
+    key: $NATS_JETSTREAM_KEY  # At-rest encryption
+    cipher: &quot;aes&quot;
+    domain: sahool
+    unique_tag: &quot;node-1&quot;
+    sync_interval: &quot;2m&quot;
+}
+</code></pre></div>
+
+<h4 id="cluster-configuration">Cluster Configuration<a class="headerlink" href="#cluster-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">cluster</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="n">sahool</span><span class="o">-</span><span class="n">cluster</span>
+<span class="w">    </span><span class="nl">listen</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0.0.0</span><span class="err">:</span><span class="mi">6222</span>
+
+<span class="w">    </span><span class="n">tls</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="nl">cert_file</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;/etc/nats/certs/server.crt&quot;</span>
+<span class="w">        </span><span class="nl">key_file</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;/etc/nats/certs/server.key&quot;</span>
+<span class="w">        </span><span class="nl">ca_file</span><span class="p">:</span><span class="w"> </span><span class="ss">&quot;/etc/nats/certs/ca.crt&quot;</span>
+<span class="w">        </span><span class="nl">verify</span><span class="p">:</span><span class="w"> </span><span class="k">true</span>
+<span class="w">    </span><span class="err">}</span>
+
+<span class="w">    </span><span class="k">authorization</span><span class="w"> </span><span class="err">{</span>
+<span class="w">        </span><span class="k">user</span><span class="err">:</span><span class="w"> </span><span class="err">$</span><span class="n">NATS_CLUSTER_USER</span>
+<span class="w">        </span><span class="nl">password</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="n">NATS_CLUSTER_PASSWORD</span>
+<span class="w">    </span><span class="err">}</span>
+
+<span class="w">    </span><span class="n">routes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span>
+<span class="n">        nats://$NATS_CLUSTER_USER:$NATS_CLUSTER_PASSWORD@nats-node2:6222</span>
+<span class="n">        nats://$NATS_CLUSTER_USER:$NATS_CLUSTER_PASSWORD@nats-node3:6222</span>
+<span class="n">    </span><span class="o">]</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h4 id="gateway-configuration-super-cluster">Gateway Configuration (Super-Cluster)<a class="headerlink" href="#gateway-configuration-super-cluster" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>gateway {
+    name: sahool-dc1
+    listen: 0.0.0.0:7222
+
+    tls {
+        cert_file: &quot;/etc/nats/certs/server.crt&quot;
+        key_file: &quot;/etc/nats/certs/server.key&quot;
+        ca_file: &quot;/etc/nats/certs/ca.crt&quot;
+        verify: true
+    }
+
+    authorization {
+        user: $NATS_GATEWAY_USER
+        password: $NATS_GATEWAY_PASSWORD
+    }
+}
+</code></pre></div>
+
+<hr />
+<h2 id="jetstream-setup">JetStream Setup<a class="headerlink" href="#jetstream-setup" title="Permanent link">&para;</a></h2>
+<h3 id="creating-streams">Creating Streams<a class="headerlink" href="#creating-streams" title="Permanent link">&para;</a></h3>
+<p>Streams should be created with replication factor 3 for high availability:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install NATS CLI</span>
+<span class="c1"># https://github.com/nats-io/natscli/releases</span>
+
+<span class="c1"># Connect to cluster</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NATS_URL</span><span class="o">=</span>nats://sahool:<span class="nv">$NATS_PASSWORD</span>@localhost:4222
+
+<span class="c1"># Create a stream with replication factor 3</span>
+nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;field.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-age<span class="o">=</span>7d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-msgs<span class="o">=</span>-1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-bytes<span class="o">=</span>10GB<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replicas<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>field_events
+
+<span class="c1"># Verify stream replication</span>
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>field_events
+</code></pre></div>
+
+<h3 id="example-streams-for-sahool-platform">Example Streams for SAHOOL Platform<a class="headerlink" href="#example-streams-for-sahool-platform" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Field Operations Stream</span>
+nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>field_events<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;field.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-age<span class="o">=</span>30d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-bytes<span class="o">=</span>50GB<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replicas<span class="o">=</span><span class="m">3</span>
+
+<span class="c1"># IoT Sensor Data Stream</span>
+nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>iot_data<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;iot.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-age<span class="o">=</span>7d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-bytes<span class="o">=</span>100GB<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replicas<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--discard<span class="o">=</span>old
+
+<span class="c1"># Notification Stream</span>
+nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>notifications<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;notification.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--retention<span class="o">=</span>work-queue<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-age<span class="o">=</span>24h<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replicas<span class="o">=</span><span class="m">3</span>
+
+<span class="c1"># Billing Events Stream</span>
+nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>billing<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;billing.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-age<span class="o">=</span>90d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replicas<span class="o">=</span><span class="m">3</span>
+
+<span class="c1"># Chat Messages Stream</span>
+nats<span class="w"> </span>stream<span class="w"> </span>add<span class="w"> </span>chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--subjects<span class="o">=</span><span class="s2">&quot;chat.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--storage<span class="o">=</span>file<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--retention<span class="o">=</span>limits<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-age<span class="o">=</span>365d<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-msgs<span class="o">=</span><span class="m">1000000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replicas<span class="o">=</span><span class="m">3</span>
+</code></pre></div>
+
+<h3 id="creating-consumers">Creating Consumers<a class="headerlink" href="#creating-consumers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create a durable consumer</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>add<span class="w"> </span>field_events<span class="w"> </span>field_processor<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--filter<span class="o">=</span><span class="s2">&quot;field.crop.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ack<span class="o">=</span>explicit<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pull<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--deliver<span class="o">=</span>all<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-deliver<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-pending<span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replay<span class="o">=</span>instant
+
+<span class="c1"># Create a push consumer</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>add<span class="w"> </span>iot_data<span class="w"> </span>iot_processor<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--filter<span class="o">=</span><span class="s2">&quot;iot.sensor.temperature&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ack<span class="o">=</span>explicit<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--target<span class="o">=</span><span class="s2">&quot;iot.process.temperature&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--deliver<span class="o">=</span>new<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-deliver<span class="o">=</span><span class="m">5</span>
+</code></pre></div>
+
+<hr />
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<h3 id="tlsssl-configuration">TLS/SSL Configuration<a class="headerlink" href="#tlsssl-configuration" title="Permanent link">&para;</a></h3>
+<p>All communication in the cluster uses TLS encryption:</p>
+<ul>
+<li><strong>Client Connections</strong>: TLS 1.2+ with certificate verification</li>
+<li><strong>Cluster Routes</strong>: Mutual TLS between nodes</li>
+<li><strong>Gateway Connections</strong>: TLS for inter-datacenter communication</li>
+</ul>
+<h3 id="authentication-authorization">Authentication &amp; Authorization<a class="headerlink" href="#authentication-authorization" title="Permanent link">&para;</a></h3>
+<p>The cluster uses a multi-account setup:</p>
+<h4 id="system-account-sys">System Account (SYS)<a class="headerlink" href="#system-account-sys" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Internal monitoring and metrics</li>
+<li>Not accessible to applications</li>
+</ul>
+<h4 id="application-account-app">Application Account (APP)<a class="headerlink" href="#application-account-app" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Admin User</strong>: Full access to all subjects</li>
+<li><strong>Application User</strong>: Granular permissions per subject namespace</li>
+<li><strong>Monitor User</strong>: Read-only access</li>
+</ul>
+<h3 id="subject-level-permissions">Subject-Level Permissions<a class="headerlink" href="#subject-level-permissions" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>permissions = {
+    publish = {
+        allow = [
+            &quot;sahool.&gt;&quot;,
+            &quot;field.&gt;&quot;,
+            &quot;weather.&gt;&quot;,
+            &quot;iot.&gt;&quot;,
+            &quot;notification.&gt;&quot;,
+            &quot;marketplace.&gt;&quot;,
+            &quot;billing.&gt;&quot;,
+            &quot;chat.&gt;&quot;,
+            &quot;alert.&gt;&quot;,
+            &quot;_INBOX.&gt;&quot;
+        ]
+        deny = [&quot;$SYS.&gt;&quot;, &quot;$JS.API.SYSTEM.&gt;&quot;]
+    }
+    subscribe = {
+        allow = [
+            &quot;sahool.&gt;&quot;,
+            &quot;field.&gt;&quot;,
+            # ... same as publish
+            &quot;$JS.API.CONSUMER.&gt;&quot;,
+            &quot;$JS.API.STREAM.&gt;&quot;
+        ]
+        deny = [&quot;$SYS.&gt;&quot;]
+    }
+}
+</code></pre></div>
+
+<h3 id="jetstream-encryption">JetStream Encryption<a class="headerlink" href="#jetstream-encryption" title="Permanent link">&para;</a></h3>
+<p>Data is encrypted at rest using AES-256:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate encryption key</span>
+openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="w"> </span>&gt;<span class="w"> </span>jetstream.key
+
+<span class="c1"># Set in environment</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NATS_JETSTREAM_KEY</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>jetstream.key<span class="k">)</span>
+</code></pre></div>
+
+<h3 id="security-best-practices">Security Best Practices<a class="headerlink" href="#security-best-practices" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Use Strong Passwords</strong>: Minimum 32 characters, randomly generated</li>
+<li><strong>Rotate Credentials</strong>: Regular rotation (quarterly recommended)</li>
+<li><strong>TLS Certificates</strong>: Use cert-manager for automatic renewal</li>
+<li><strong>Network Policies</strong>: Restrict access in Kubernetes</li>
+<li><strong>Audit Logging</strong>: Enable and monitor access logs</li>
+<li><strong>NKey Authentication</strong>: Consider migrating to NKey for enhanced security</li>
+</ol>
+<hr />
+<h2 id="monitoring-health-checks">Monitoring &amp; Health Checks<a class="headerlink" href="#monitoring-health-checks" title="Permanent link">&para;</a></h2>
+<h3 id="health-check-script">Health Check Script<a class="headerlink" href="#health-check-script" title="Permanent link">&para;</a></h3>
+<p>Run the automated health check:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Docker environment</span>
+./scripts/nats/cluster-health-check.sh<span class="w"> </span>-e<span class="w"> </span>docker<span class="w"> </span>-v
+
+<span class="c1"># Kubernetes environment</span>
+./scripts/nats/cluster-health-check.sh<span class="w"> </span>-e<span class="w"> </span>kubernetes<span class="w"> </span>-n<span class="w"> </span>nats-system<span class="w"> </span>-v
+
+<span class="c1"># Continuous monitoring (every 30 seconds)</span>
+./scripts/nats/cluster-health-check.sh<span class="w"> </span>-e<span class="w"> </span>docker<span class="w"> </span>-c
+
+<span class="c1"># With alert checking</span>
+./scripts/nats/cluster-health-check.sh<span class="w"> </span>-e<span class="w"> </span>docker<span class="w"> </span>-v<span class="w"> </span>-a
+</code></pre></div>
+
+<h3 id="monitoring-endpoints">Monitoring Endpoints<a class="headerlink" href="#monitoring-endpoints" title="Permanent link">&para;</a></h3>
+<h4 id="server-information-varz">Server Information (varz)<a class="headerlink" href="#server-information-varz" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+
+<p>Returns:
+- Server version and uptime
+- Connection count
+- Message statistics
+- Memory and CPU usage</p>
+<h4 id="cluster-routes-routez">Cluster Routes (routez)<a class="headerlink" href="#cluster-routes-routez" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/routez<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+
+<p>Returns:
+- Cluster topology
+- Route connections
+- Pending messages per route</p>
+<h4 id="connections-connz">Connections (connz)<a class="headerlink" href="#connections-connz" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/connz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+
+<p>Returns:
+- Active client connections
+- IP addresses and user info
+- Pending bytes per connection</p>
+<h4 id="jetstream-status-jsz">JetStream Status (jsz)<a class="headerlink" href="#jetstream-status-jsz" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8222/jsz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+
+<p>Returns:
+- JetStream enabled status
+- Stream and consumer counts
+- Memory and storage usage
+- Replica status</p>
+<h3 id="prometheus-metrics">Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Permanent link">&para;</a></h3>
+<p>Metrics are exposed on port 7777 by the NATS exporter:</p>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>http://localhost:7777/metrics
+</code></pre></div>
+
+<p>Key metrics:
+- <code>nats_up</code>: Server availability
+- <code>nats_varz_connections</code>: Connection count
+- <code>nats_varz_in_msgs</code>: Inbound messages
+- <code>nats_varz_out_msgs</code>: Outbound messages
+- <code>nats_varz_mem</code>: Memory usage
+- <code>nats_varz_cpu</code>: CPU usage
+- <code>nats_jetstream_streams</code>: Stream count
+- <code>nats_jetstream_consumers</code>: Consumer count</p>
+<h3 id="grafana-dashboards">Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Permanent link">&para;</a></h3>
+<p>Import the NATS dashboard:
+- Dashboard ID: 2279 (NATS Server)
+- Dashboard ID: 11187 (NATS JetStream)</p>
+<hr />
+<h2 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h2>
+<h3 id="client-connection">Client Connection<a class="headerlink" href="#client-connection" title="Permanent link">&para;</a></h3>
+<h4 id="connection-string">Connection String<a class="headerlink" href="#connection-string" title="Permanent link">&para;</a></h4>
+<p>For high availability, specify all nodes:</p>
+<div class="codehilite"><pre><span></span><code><span class="nl">nats</span><span class="p">:</span><span class="o">//</span><span class="nl">sahool</span><span class="p">:</span><span class="n">PASSWORD</span><span class="nv">@nats</span><span class="o">-</span><span class="nl">node1</span><span class="p">:</span><span class="mi">4222</span><span class="p">,</span><span class="nl">nats</span><span class="p">:</span><span class="o">//</span><span class="nl">sahool</span><span class="p">:</span><span class="n">PASSWORD</span><span class="nv">@nats</span><span class="o">-</span><span class="nl">node2</span><span class="p">:</span><span class="mi">4222</span><span class="p">,</span><span class="nl">nats</span><span class="p">:</span><span class="o">//</span><span class="nl">sahool</span><span class="p">:</span><span class="n">PASSWORD</span><span class="nv">@nats</span><span class="o">-</span><span class="nl">node3</span><span class="p">:</span><span class="mi">4222</span>
+</code></pre></div>
+
+<p>Kubernetes:</p>
+<div class="codehilite"><pre><span></span><code><span class="nl">nats</span><span class="p">:</span><span class="o">//</span><span class="nl">sahool</span><span class="p">:</span><span class="n">PASSWORD</span><span class="nv">@nats</span><span class="o">-</span><span class="n">client</span><span class="p">.</span><span class="n">nats</span><span class="o">-</span><span class="k">system</span><span class="p">.</span><span class="n">svc</span><span class="p">.</span><span class="n">cluster</span><span class="p">.</span><span class="k">local</span><span class="err">:</span><span class="mi">4222</span>
+</code></pre></div>
+
+<h4 id="application-examples">Application Examples<a class="headerlink" href="#application-examples" title="Permanent link">&para;</a></h4>
+<p><strong>Go:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">nc</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">nats</span><span class="p">.</span><span class="nx">Connect</span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;nats://nats-node1:4222,nats://nats-node2:4222,nats://nats-node3:4222&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">nats</span><span class="p">.</span><span class="nx">UserInfo</span><span class="p">(</span><span class="s">&quot;sahool&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;PASSWORD&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">nats</span><span class="p">.</span><span class="nx">Secure</span><span class="p">(</span><span class="o">&amp;</span><span class="nx">tls</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">MinVersion</span><span class="p">:</span><span class="w"> </span><span class="nx">tls</span><span class="p">.</span><span class="nx">VersionTLS12</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}),</span>
+<span class="w">    </span><span class="nx">nats</span><span class="p">.</span><span class="nx">MaxReconnects</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">nats</span><span class="p">.</span><span class="nx">ReconnectWait</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Python:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nats.aio.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span> <span class="k">as</span> <span class="n">NATS</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">connect</span><span class="p">():</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">NATS</span><span class="p">()</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+        <span class="n">servers</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">&quot;nats://nats-node1:4222&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nats://nats-node2:4222&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;nats://nats-node3:4222&quot;</span>
+        <span class="p">],</span>
+        <span class="n">user</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span><span class="p">,</span>
+        <span class="n">password</span><span class="o">=</span><span class="s2">&quot;PASSWORD&quot;</span><span class="p">,</span>
+        <span class="n">tls_required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">max_reconnect_attempts</span><span class="o">=-</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">nc</span>
+</code></pre></div>
+
+<p><strong>Node.js/TypeScript:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="p">,</span><span class="w"> </span><span class="nx">StringCodec</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;nats&#39;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">connect</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s1">&#39;nats://nats-node1:4222&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">&#39;nats://nats-node2:4222&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">&#39;nats://nats-node3:4222&#39;</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nx">user</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;sahool&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">pass</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;PASSWORD&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">tls</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">minVersion</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;TLSv1.2&#39;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">maxReconnectAttempts</span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">reconnectTimeWait</span><span class="o">:</span><span class="w"> </span><span class="kt">2000</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<h3 id="scaling-operations">Scaling Operations<a class="headerlink" href="#scaling-operations" title="Permanent link">&para;</a></h3>
+<h4 id="add-a-node-kubernetes">Add a Node (Kubernetes)<a class="headerlink" href="#add-a-node-kubernetes" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Scale the StatefulSet</span>
+kubectl<span class="w"> </span>scale<span class="w"> </span>statefulset<span class="w"> </span>nats<span class="w"> </span>-n<span class="w"> </span>nats-system<span class="w"> </span>--replicas<span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># Verify new pods</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>nats-system<span class="w"> </span>-w
+</code></pre></div>
+
+<h4 id="remove-a-node">Remove a Node<a class="headerlink" href="#remove-a-node" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Scale down</span>
+kubectl<span class="w"> </span>scale<span class="w"> </span>statefulset<span class="w"> </span>nats<span class="w"> </span>-n<span class="w"> </span>nats-system<span class="w"> </span>--replicas<span class="o">=</span><span class="m">3</span>
+
+<span class="c1"># Clean up PVC if needed</span>
+kubectl<span class="w"> </span>delete<span class="w"> </span>pvc<span class="w"> </span>data-nats-4<span class="w"> </span>-n<span class="w"> </span>nats-system
+</code></pre></div>
+
+<h3 id="upgrades">Upgrades<a class="headerlink" href="#upgrades" title="Permanent link">&para;</a></h3>
+<h4 id="rolling-update-kubernetes">Rolling Update (Kubernetes)<a class="headerlink" href="#rolling-update-kubernetes" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Update the image version</span>
+kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </span>image<span class="w"> </span>statefulset/nats<span class="w"> </span><span class="nv">nats</span><span class="o">=</span>nats:2.11-alpine<span class="w"> </span>-n<span class="w"> </span>nats-system
+
+<span class="c1"># Monitor the rollout</span>
+kubectl<span class="w"> </span>rollout<span class="w"> </span>status<span class="w"> </span>statefulset/nats<span class="w"> </span>-n<span class="w"> </span>nats-system
+</code></pre></div>
+
+<h4 id="docker-compose-update">Docker Compose Update<a class="headerlink" href="#docker-compose-update" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Pull new images</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/docker-compose.nats-cluster.yml<span class="w"> </span>pull
+
+<span class="c1"># Restart nodes one at a time</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/docker-compose.nats-cluster.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>nats-node1
+sleep<span class="w"> </span><span class="m">30</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/docker-compose.nats-cluster.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>nats-node2
+sleep<span class="w"> </span><span class="m">30</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/docker-compose.nats-cluster.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>nats-node3
+</code></pre></div>
+
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<h4 id="1-cluster-not-forming">1. Cluster Not Forming<a class="headerlink" href="#1-cluster-not-forming" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms</strong>: Nodes start but don't see each other</p>
+<p><strong>Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># View cluster routes</span>
+curl<span class="w"> </span>http://localhost:8222/routez
+
+<span class="c1"># Check logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats-node1<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>cluster
+</code></pre></div>
+
+<p><strong>Solution</strong>:
+- Verify network connectivity between nodes
+- Check cluster authentication credentials
+- Ensure cluster routes are correctly configured
+- Verify TLS certificates are valid</p>
+<h4 id="2-jetstream-sync-issues">2. JetStream Sync Issues<a class="headerlink" href="#2-jetstream-sync-issues" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms</strong>: Replicas out of sync</p>
+<p><strong>Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check stream info</span>
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>field_events
+
+<span class="c1"># Look for sync status</span>
+curl<span class="w"> </span>http://localhost:8222/jsz?streams<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.streams[].cluster&#39;</span>
+</code></pre></div>
+
+<p><strong>Solution</strong>:
+- Verify all nodes have JetStream enabled
+- Check storage capacity
+- Review logs for sync errors
+- Consider increasing <code>sync_interval</code></p>
+<h4 id="3-high-memory-usage">3. High Memory Usage<a class="headerlink" href="#3-high-memory-usage" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms</strong>: Memory consumption growing</p>
+<p><strong>Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check memory stats</span>
+curl<span class="w"> </span>http://localhost:8222/varz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.mem&#39;</span>
+
+<span class="c1"># Check JetStream usage</span>
+curl<span class="w"> </span>http://localhost:8222/jsz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.memory, .store&#39;</span>
+</code></pre></div>
+
+<p><strong>Solution</strong>:
+- Review stream retention policies
+- Implement message TTL
+- Increase max file storage
+- Add more nodes</p>
+<h4 id="4-connection-failures">4. Connection Failures<a class="headerlink" href="#4-connection-failures" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms</strong>: Clients can't connect</p>
+<p><strong>Check</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Test connection</span>
+telnet<span class="w"> </span>localhost<span class="w"> </span><span class="m">4222</span>
+
+<span class="c1"># Check TLS</span>
+openssl<span class="w"> </span>s_client<span class="w"> </span>-connect<span class="w"> </span>localhost:4222<span class="w"> </span>-servername<span class="w"> </span>nats-node1
+</code></pre></div>
+
+<p><strong>Solution</strong>:
+- Verify credentials
+- Check TLS certificates
+- Review firewall rules
+- Check connection limits</p>
+<h3 id="debug-mode">Debug Mode<a class="headerlink" href="#debug-mode" title="Permanent link">&para;</a></h3>
+<p>Enable debug logging:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">debug</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="nf">trace</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+</code></pre></div>
+
+<p>Restart the node and check logs:</p>
+<div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>sahool-nats-node1
+</code></pre></div>
+
+<hr />
+<h2 id="performance-tuning">Performance Tuning<a class="headerlink" href="#performance-tuning" title="Permanent link">&para;</a></h2>
+<h3 id="resource-limits">Resource Limits<a class="headerlink" href="#resource-limits" title="Permanent link">&para;</a></h3>
+<h4 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h4>
+<p>Update <code>docker-compose.nats-cluster.yml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nats-node1</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2.0&#39;</span>
+<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4G</span>
+<span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span>
+<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2G</span>
+</code></pre></div>
+
+<h4 id="kubernetes">Kubernetes<a class="headerlink" href="#kubernetes" title="Permanent link">&para;</a></h4>
+<p>Update resource requests/limits in StatefulSet:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">resources</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000m</span>
+<span class="w">    </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span>
+<span class="w">  </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000m</span>
+<span class="w">    </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8Gi</span>
+</code></pre></div>
+
+<h3 id="configuration-tuning">Configuration Tuning<a class="headerlink" href="#configuration-tuning" title="Permanent link">&para;</a></h3>
+<h4 id="connection-limits">Connection Limits<a class="headerlink" href="#connection-limits" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">max_connections</span><span class="p">:</span><span class="w"> </span><span class="mi">2000</span>
+<span class="n">max_connections_per_ip</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span>
+<span class="n">max_payload</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="n">MB</span>
+<span class="n">max_pending</span><span class="p">:</span><span class="w"> </span><span class="mi">64</span><span class="n">MB</span>
+</code></pre></div>
+
+<h4 id="write-performance">Write Performance<a class="headerlink" href="#write-performance" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="n">write_deadline</span><span class="o">:</span><span class="w"> </span><span class="mi">10</span><span class="n">s</span>
+<span class="n">max_control_line</span><span class="o">:</span><span class="w"> </span><span class="mi">4</span><span class="n">KB</span>
+</code></pre></div>
+
+<h4 id="jetstream-performance">JetStream Performance<a class="headerlink" href="#jetstream-performance" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>jetstream {
+    max_memory_store: 4GB
+    max_file_store: 100GB
+    sync_interval: &quot;2m&quot;
+}
+</code></pre></div>
+
+<h3 id="storage-performance">Storage Performance<a class="headerlink" href="#storage-performance" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use SSD storage for JetStream</li>
+<li>Consider NVMe for high-throughput workloads</li>
+<li>Use storage class with high IOPS in Kubernetes</li>
+</ul>
+<hr />
+<h2 id="multi-region-setup">Multi-Region Setup<a class="headerlink" href="#multi-region-setup" title="Permanent link">&para;</a></h2>
+<h3 id="gateway-configuration">Gateway Configuration<a class="headerlink" href="#gateway-configuration" title="Permanent link">&para;</a></h3>
+<p>Configure gateways to connect clusters across regions:</p>
+<p><strong>Region 1 (us-east-1):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">gateway</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="n">sahool</span><span class="o">-</span><span class="n">dc1</span>
+<span class="w">    </span><span class="nl">listen</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0.0.0</span><span class="err">:</span><span class="mi">7222</span>
+
+<span class="w">    </span><span class="nl">gateways</span><span class="p">:</span><span class="w"> </span><span class="o">[</span>
+<span class="n">        {</span>
+<span class="n">            name: &quot;sahool-dc2&quot;</span>
+<span class="n">            url: &quot;nats://gateway_user:PASSWORD@dc2-gateway.example.com:7222&quot;</span>
+<span class="n">        },</span>
+<span class="n">        {</span>
+<span class="n">            name: &quot;sahool-dc3&quot;</span>
+<span class="n">            url: &quot;nats://gateway_user:PASSWORD@dc3-gateway.example.com:7222&quot;</span>
+<span class="n">        }</span>
+<span class="n">    </span><span class="o">]</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<p><strong>Region 2 (eu-west-1):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">gateway</span><span class="w"> </span><span class="err">{</span>
+<span class="w">    </span><span class="nl">name</span><span class="p">:</span><span class="w"> </span><span class="n">sahool</span><span class="o">-</span><span class="n">dc2</span>
+<span class="w">    </span><span class="nl">listen</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0.0.0</span><span class="err">:</span><span class="mi">7222</span>
+
+<span class="w">    </span><span class="nl">gateways</span><span class="p">:</span><span class="w"> </span><span class="o">[</span>
+<span class="n">        {</span>
+<span class="n">            name: &quot;sahool-dc1&quot;</span>
+<span class="n">            url: &quot;nats://gateway_user:PASSWORD@dc1-gateway.example.com:7222&quot;</span>
+<span class="n">        }</span>
+<span class="n">    </span><span class="o">]</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<h3 id="subject-interest-propagation">Subject Interest Propagation<a class="headerlink" href="#subject-interest-propagation" title="Permanent link">&para;</a></h3>
+<p>Gateway connections propagate subject interest between clusters automatically. No additional configuration needed.</p>
+<hr />
+<h2 id="backup-recovery">Backup &amp; Recovery<a class="headerlink" href="#backup-recovery" title="Permanent link">&para;</a></h2>
+<h3 id="backup-jetstream-data">Backup JetStream Data<a class="headerlink" href="#backup-jetstream-data" title="Permanent link">&para;</a></h3>
+<h4 id="docker_1">Docker<a class="headerlink" href="#docker_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Backup all nodes</span>
+<span class="k">for</span><span class="w"> </span>node<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-v<span class="w"> </span>nats-node<span class="si">${</span><span class="nv">node</span><span class="si">}</span>-data:/data<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/backups:/backup<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>alpine<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tar<span class="w"> </span>czf<span class="w"> </span>/backup/nats-node<span class="si">${</span><span class="nv">node</span><span class="si">}</span>-<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.tar.gz<span class="w"> </span>-C<span class="w"> </span>/data<span class="w"> </span>.
+<span class="k">done</span>
+</code></pre></div>
+
+<h4 id="kubernetes_1">Kubernetes<a class="headerlink" href="#kubernetes_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Backup PVC data</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>nats-system<span class="w"> </span>nats-<span class="nv">$i</span><span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tar<span class="w"> </span>czf<span class="w"> </span>-<span class="w"> </span>/data/jetstream<span class="w"> </span>&gt;<span class="w"> </span>backup-nats-<span class="nv">$i</span>-<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.tar.gz
+<span class="k">done</span>
+</code></pre></div>
+
+<h3 id="restore-jetstream-data">Restore JetStream Data<a class="headerlink" href="#restore-jetstream-data" title="Permanent link">&para;</a></h3>
+<h4 id="docker_2">Docker<a class="headerlink" href="#docker_2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Stop the cluster</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/docker-compose.nats-cluster.yml<span class="w"> </span>down
+
+<span class="c1"># Restore data</span>
+<span class="k">for</span><span class="w"> </span>node<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-v<span class="w"> </span>nats-node<span class="si">${</span><span class="nv">node</span><span class="si">}</span>-data:/data<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/backups:/backup<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>alpine<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tar<span class="w"> </span>xzf<span class="w"> </span>/backup/nats-node<span class="si">${</span><span class="nv">node</span><span class="si">}</span>-backup.tar.gz<span class="w"> </span>-C<span class="w"> </span>/data
+<span class="k">done</span>
+
+<span class="c1"># Start the cluster</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/nats/docker-compose.nats-cluster.yml<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<h3 id="stream-backup-alternative">Stream Backup (Alternative)<a class="headerlink" href="#stream-backup-alternative" title="Permanent link">&para;</a></h3>
+<p>Use NATS CLI to backup/restore streams:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Backup stream</span>
+nats<span class="w"> </span>stream<span class="w"> </span>backup<span class="w"> </span>field_events<span class="w"> </span>field_events_backup.json
+
+<span class="c1"># Restore stream</span>
+nats<span class="w"> </span>stream<span class="w"> </span>restore<span class="w"> </span>field_events<span class="w"> </span>field_events_backup.json
+</code></pre></div>
+
+<hr />
+<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="migrating-from-single-node-to-cluster">Migrating from Single Node to Cluster<a class="headerlink" href="#migrating-from-single-node-to-cluster" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Backup existing data</strong>
+   <code>bash
+   nats stream backup --all</code></p>
+</li>
+<li>
+<p><strong>Deploy cluster</strong> (see Quick Start)</p>
+</li>
+<li>
+<p><strong>Restore streams with replication</strong>
+   <code>bash
+   nats stream restore field_events backup.json --replicas=3</code></p>
+</li>
+<li>
+<p><strong>Update application connection strings</strong> to use all nodes</p>
+</li>
+<li>
+<p><strong>Decommission old node</strong> once verified</p>
+</li>
+</ol>
+<h3 id="migrating-between-environments">Migrating Between Environments<a class="headerlink" href="#migrating-between-environments" title="Permanent link">&para;</a></h3>
+<h4 id="docker-to-kubernetes">Docker to Kubernetes<a class="headerlink" href="#docker-to-kubernetes" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Backup JetStream data</strong> from Docker volumes</li>
+<li><strong>Deploy Kubernetes cluster</strong></li>
+<li><strong>Create PVCs</strong> and copy data</li>
+<li><strong>Update DNS/connection strings</strong></li>
+<li><strong>Verify and cutover</strong></li>
+</ol>
+<hr />
+<h2 id="appendix">Appendix<a class="headerlink" href="#appendix" title="Permanent link">&para;</a></h2>
+<h3 id="file-locations">File Locations<a class="headerlink" href="#file-locations" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>sahool-unified-v15-idp/
+├── config/nats/
+│   ├── nats-cluster-node1.conf
+│   ├── nats-cluster-node2.conf
+│   └── nats-cluster-node3.conf
+├── infrastructure/nats/
+│   ├── docker-compose.nats-cluster.yml
+│   └── kubernetes/
+│       ├── nats-statefulset.yaml
+│       └── nats-service.yaml
+├── scripts/nats/
+│   └── cluster-health-check.sh
+└── docs/
+    └── NATS_CLUSTER_SETUP.md (this file)
+</code></pre></div>
+
+<h3 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://docs.nats.io/">NATS Documentation</a></li>
+<li><a href="https://docs.nats.io/nats-concepts/jetstream">JetStream Guide</a></li>
+<li><a href="https://github.com/nats-io/natscli">NATS CLI</a></li>
+<li><a href="https://docs.nats.io/running-a-nats-service/configuration/securing_nats">NATS Security</a></li>
+<li><a href="https://github.com/nats-io/prometheus-nats-exporter">Prometheus Exporter</a></li>
+</ul>
+<h3 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h3>
+<p>For issues or questions:
+- GitHub Issues: [SAHOOL Platform Repository]
+- NATS Slack: https://slack.nats.io
+- Email: platform-team@sahool.io</p>
+<hr />
+<p><strong>Document Version</strong>: 1.0
+<strong>Last Updated</strong>: 2026-01-07
+<strong>Maintained by</strong>: SAHOOL Platform Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

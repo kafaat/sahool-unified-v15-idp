@@ -1,0 +1,2911 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>تقرير المراجعة الشاملة لمنصة سهول الزراعية - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير المراجعة الشاملة لمنصة سهول الزراعية
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">تقرير المراجعة الشاملة لمنصة سهول الزراعية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-platform-comprehensive-review-report">SAHOOL Platform - Comprehensive Review Report<a class="headerlink" href="#sahool-platform-comprehensive-review-report" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ:</strong> ديسمبر 2024<br />
+<strong>الإصدار:</strong> v15.3.2<br />
+<strong>المراجع:</strong> نظام المراجعة الآلية المتقدم<br />
+<strong>حالة المشروع:</strong> جاهز للإنتاج مع بعض التحسينات المطلوبة</p>
+<hr />
+<h2 id="executive-summary">الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>منصة سهول هي نظام زراعي ذكي متكامل يعتمد على البنية الخدمية الدقيقة (Microservices) مع دعم كامل للعمل دون اتصال بالإنترنت. المشروع يتضمن:</p>
+<ul>
+<li><strong>25 خدمة دقيقة</strong> موزعة عبر طبقات متعددة</li>
+<li><strong>تطبيق موبايل Flutter</strong> بميزة offline-first</li>
+<li><strong>لوحة تحكم ويب</strong> للإدارة والتحليلات</li>
+<li><strong>بنية تحتية متكاملة</strong> (PostgreSQL/PostGIS, Kong, NATS, Redis)</li>
+<li><strong>نظام GitOps</strong> للنشر الآلي عبر Kubernetes</li>
+</ul>
+<h3 id="_2">التقييم الإجمالي<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المجال</th>
+<th>التقييم</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>البنية المعمارية</td>
+<td>9.5/10</td>
+<td>ممتاز ⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>جودة الكود</td>
+<td>8.5/10</td>
+<td>جيد جداً ⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>الأمان</td>
+<td>7.5/10</td>
+<td>جيد مع ثغرات قابلة للإصلاح ⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>الاختبارات</td>
+<td>6.0/10</td>
+<td>متوسط - يحتاج تحسين ⭐⭐⭐</td>
+</tr>
+<tr>
+<td>التوثيق</td>
+<td>8.5/10</td>
+<td>جيد جداً ⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>الأداء</td>
+<td>8.0/10</td>
+<td>جيد جداً ⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>قابلية التوسع</td>
+<td>9.0/10</td>
+<td>ممتاز ⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>المجموع الكلي</strong></td>
+<td><strong>8.1/10</strong></td>
+<td><strong>جيد جداً - جاهز للإنتاج</strong> ✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-architecture-analysis">1. تحليل البنية المعمارية | Architecture Analysis<a class="headerlink" href="#1-architecture-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="11-25">1.1 الخدمات المنشورة (25 خدمة فعالة)<a class="headerlink" href="#11-25" title="Permanent link">&para;</a></h3>
+<h4 id="core-services">الخدمات الأساسية (Core Services)<a class="headerlink" href="#core-services" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>التقنية</th>
+<th>الحالة</th>
+<th>الملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field_core</td>
+<td>3000</td>
+<td>Node.js</td>
+<td>✅ فعال</td>
+<td>خدمة الحقول الجغرافية</td>
+</tr>
+<tr>
+<td>field_ops</td>
+<td>8080</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>عمليات الحقول</td>
+</tr>
+<tr>
+<td>ndvi_engine</td>
+<td>8107</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>تحليل NDVI</td>
+</tr>
+<tr>
+<td>weather_core</td>
+<td>8108</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>بيانات الطقس</td>
+</tr>
+<tr>
+<td>field_chat</td>
+<td>8099</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>دردشة الفريق</td>
+</tr>
+<tr>
+<td>iot_gateway</td>
+<td>8106</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>بوابة IoT MQTT</td>
+</tr>
+<tr>
+<td>agro_advisor</td>
+<td>8105</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>المستشار الزراعي</td>
+</tr>
+<tr>
+<td>ws_gateway</td>
+<td>8089</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>WebSocket</td>
+</tr>
+<tr>
+<td>crop_health</td>
+<td>8100</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>صحة المحاصيل</td>
+</tr>
+<tr>
+<td>task_service</td>
+<td>8103</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>إدارة المهام</td>
+</tr>
+<tr>
+<td>equipment_service</td>
+<td>8101</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>المعدات</td>
+</tr>
+<tr>
+<td>community_service</td>
+<td>8102</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>المجتمع</td>
+</tr>
+<tr>
+<td>provider_config</td>
+<td>8104</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>تهيئة المزودين</td>
+</tr>
+</tbody>
+</table>
+<h4 id="v153-advanced-services">الخدمات المتقدمة v15.3 (Advanced Services)<a class="headerlink" href="#v153-advanced-services" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>التقنية</th>
+<th>الحالة</th>
+<th>المميزات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>satellite_service</td>
+<td>8090</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>صور الأقمار الصناعية</td>
+</tr>
+<tr>
+<td>indicators_service</td>
+<td>8091</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>20+ مؤشر KPI</td>
+</tr>
+<tr>
+<td>weather_advanced</td>
+<td>8092</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>توقعات 7 أيام</td>
+</tr>
+<tr>
+<td>fertilizer_advisor</td>
+<td>8093</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>توصيات NPK</td>
+</tr>
+<tr>
+<td>irrigation_smart</td>
+<td>8094</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>FAO-56 الري الذكي</td>
+</tr>
+<tr>
+<td>crop_health_ai</td>
+<td>8095</td>
+<td>Python + TensorFlow</td>
+<td>✅ فعال</td>
+<td>كشف الأمراض بالذكاء الاصطناعي</td>
+</tr>
+<tr>
+<td>virtual_sensors</td>
+<td>8096</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>حساب ET0/ETc</td>
+</tr>
+<tr>
+<td>community_chat</td>
+<td>8097</td>
+<td>Node.js + Socket.io</td>
+<td>✅ فعال</td>
+<td>دردشة مباشرة</td>
+</tr>
+<tr>
+<td>yield_engine</td>
+<td>8098</td>
+<td>Python + ML</td>
+<td>✅ فعال</td>
+<td>التنبؤ بالإنتاجية</td>
+</tr>
+<tr>
+<td>notification_service</td>
+<td>8110</td>
+<td>Python FastAPI</td>
+<td>✅ فعال</td>
+<td>الإشعارات والتنبيهات</td>
+</tr>
+</tbody>
+</table>
+<h4 id="legacy-">الخدمات القديمة (Legacy - يحتاج مراجعة)<a class="headerlink" href="#legacy-" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الحالة</th>
+<th>الإجراء المطلوب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>agro_rules</td>
+<td>⚠️ NATS worker فقط</td>
+<td>دمج مع agro_advisor أو تحديث</td>
+</tr>
+</tbody>
+</table>
+<h4 id="infrastructure">خدمات البنية التحتية (Infrastructure)<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الإصدار</th>
+<th>الحالة</th>
+<th>الملاحظات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PostgreSQL + PostGIS</td>
+<td>15-3.3</td>
+<td>✅ فعال</td>
+<td>قاعدة بيانات مكانية</td>
+</tr>
+<tr>
+<td>Kong API Gateway</td>
+<td>3.4</td>
+<td>✅ فعال</td>
+<td>بوابة API</td>
+</tr>
+<tr>
+<td>NATS</td>
+<td>2.10</td>
+<td>✅ فعال</td>
+<td>نظام الرسائل</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>7-alpine</td>
+<td>✅ فعال</td>
+<td>التخزين المؤقت</td>
+</tr>
+<tr>
+<td>MQTT Mosquitto</td>
+<td>2</td>
+<td>✅ فعال</td>
+<td>IoT messaging</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-frontend-applications">1.2 التطبيقات الأمامية (Frontend Applications)<a class="headerlink" href="#12-frontend-applications" title="Permanent link">&para;</a></h3>
+<h4 id="flutter">تطبيق الموبايل Flutter<a class="headerlink" href="#flutter" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>المسار:</strong> <code>mobile/sahool_field_app/</code></li>
+<li><strong>الإصدار:</strong> 15.3.0+1</li>
+<li><strong>Flutter SDK:</strong> &gt;=3.2.0 &lt;4.0.0</li>
+<li><strong>عدد الملفات:</strong> 195 ملف Dart</li>
+<li><strong>الميزات:</strong></li>
+<li>✅ Offline-First مع Drift Database</li>
+<li>✅ إدارة الحالة: Riverpod</li>
+<li>✅ مزامنة خلفية: Workmanager</li>
+<li>✅ خرائط تفاعلية: flutter_map</li>
+<li>✅ رسوم بيانية: fl_chart</li>
+<li>✅ كاميرا وصور: image_picker</li>
+</ul>
+<h4 id="web-admin">لوحة التحكم الإدارية (Web Admin)<a class="headerlink" href="#web-admin" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>المسار:</strong> <code>web_admin/</code></li>
+<li><strong>التقنية:</strong> Next.js 14.1 + React 18 + TypeScript</li>
+<li><strong>المنفذ:</strong> 3001</li>
+<li><strong>الميزات:</strong></li>
+<li>✅ لوحة تحكم تحليلية</li>
+<li>✅ خرائط: Leaflet + react-leaflet</li>
+<li>✅ رسوم بيانية: Recharts</li>
+<li>✅ استعلامات: TanStack React Query</li>
+<li>✅ مصادقة: JWT مع jose</li>
+</ul>
+<h4 id="dashboard">لوحة البيانات (Dashboard)<a class="headerlink" href="#dashboard" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>المسار:</strong> <code>frontend/dashboard/</code></li>
+<li><strong>التقنية:</strong> React + TypeScript</li>
+<li><strong>الحالة:</strong> ✅ جاهز للاستخدام</li>
+</ul>
+<hr />
+<h2 id="2-gaps-and-missing-items">2. الفجوات والنواقص | Gaps and Missing Items<a class="headerlink" href="#2-gaps-and-missing-items" title="Permanent link">&para;</a></h2>
+<h3 id="21-security-gaps">2.1 فجوات الأمان (Security Gaps) 🔴 حرجة<a class="headerlink" href="#21-security-gaps" title="Permanent link">&para;</a></h3>
+<h4 id="cors-wildcard-origins">مشاكل CORS - Wildcard Origins<a class="headerlink" href="#cors-wildcard-origins" title="Permanent link">&para;</a></h4>
+<p><strong>الخطورة:</strong> 🔴 عالية جداً<br />
+<strong>التأثير:</strong> يسمح بالوصول من أي نطاق</p>
+<p><strong>الخدمات المتأثرة:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># في 3 خدمات على الأقل:</span>
+<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="n">crop</span><span class="o">-</span><span class="n">health</span><span class="o">-</span><span class="n">ai</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>
+<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="k">yield</span><span class="o">-</span><span class="n">engine</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>       <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>
+<span class="n">kernel</span><span class="o">-</span><span class="n">services</span><span class="o">-</span><span class="n">v15</span><span class="mf">.3</span><span class="o">/</span><span class="n">virtual</span><span class="o">-</span><span class="n">sensors</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">:</span>    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<p><strong>الإصلاح المطلوب:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># يجب استبدال * بنطاقات محددة</span>
+<span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span>
+    <span class="s2">&quot;https://admin.sahool.io&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;https://app.sahool.io&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">,</span>  <span class="c1"># للتطوير فقط</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<h4 id="docker-compose">كلمات المرور الافتراضية في Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h4>
+<p><strong>الخطورة:</strong> 🔴 عالية<br />
+<strong>الموقع:</strong> <code>docker-compose.yml</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># موجود حالياً (خطر أمني):</span>
+<span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${POSTGRES_PASSWORD:-sahool}</span>
+<span class="nt">REDIS_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${REDIS_PASSWORD:-changeme}</span>
+
+<span class="c1"># يجب أن يكون:</span>
+<span class="nt">POSTGRES_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${POSTGRES_PASSWORD:?Required - must be set in .env}</span>
+<span class="nt">REDIS_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${REDIS_PASSWORD:?Required - must be set in .env}</span>
+</code></pre></div>
+
+<h4 id="websocket">مصادقة WebSocket ضعيفة<a class="headerlink" href="#websocket" title="Permanent link">&para;</a></h4>
+<p><strong>الخطورة:</strong> 🟠 متوسطة<br />
+<strong>الملف:</strong> <code>kernel/services/ws_gateway/src/main.py</code></p>
+<p><strong>المشكلة:</strong> لا يوجد تحقق كافٍ من رموز JWT</p>
+<p><strong>الإصلاح المطلوب:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_jwt_token</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate JWT token and return payload</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span>
+            <span class="n">token</span><span class="p">,</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">JWT_SECRET</span><span class="p">,</span>
+            <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HS256&quot;</span><span class="p">],</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;verify_exp&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">payload</span>
+    <span class="k">except</span> <span class="n">jwt</span><span class="o">.</span><span class="n">InvalidTokenError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">WebSocketDisconnect</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4001</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Invalid token: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="22-mobile-app-todos">2.2 الميزات الناقصة في التطبيق (Mobile App TODOs)<a class="headerlink" href="#22-mobile-app-todos" title="Permanent link">&para;</a></h3>
+<p>تم العثور على <strong>24 TODO</strong> في كود التطبيق:</p>
+<h4 id="wallet">محفظة المزارع (Wallet)<a class="headerlink" href="#wallet" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// mobile/sahool_field_app/lib/features/wallet/ui/wallet_screen.dart</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">تنفيذ</span><span class="w"> </span><span class="err">حوار</span><span class="w"> </span><span class="err">السحب</span><span class="w"> </span><span class="p">(</span><span class="n">Withdraw</span><span class="w"> </span><span class="n">Dialog</span><span class="p">)</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">تنفيذ</span><span class="w"> </span><span class="err">حوار</span><span class="w"> </span><span class="err">القرض</span><span class="w"> </span><span class="p">(</span><span class="n">Loan</span><span class="w"> </span><span class="n">Dialog</span><span class="p">)</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">ربط</span><span class="w"> </span><span class="err">مع</span><span class="w"> </span><span class="n">Marketplace</span><span class="w"> </span><span class="n">API</span>
+</code></pre></div>
+
+<h4 id="_3">الخرائط والحقول<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// mobile/sahool_field_app/lib/features/field/ui/field_map_screen.dart</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">تمركز</span><span class="w"> </span><span class="err">الخريطة</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="err">الحقل</span><span class="w"> </span><span class="err">المحدد</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">إضافة</span><span class="w"> </span><span class="err">طبقات</span><span class="w"> </span><span class="err">الخريطة</span><span class="w"> </span><span class="p">(</span><span class="n">Layers</span><span class="p">)</span>
+</code></pre></div>
+
+<h4 id="_4">المعدات<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// mobile/sahool_field_app/lib/features/equipment/ui/equipment_screen.dart</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">مسح</span><span class="w"> </span><span class="err">باركود</span><span class="w"> </span><span class="err">المعدات</span><span class="w"> </span><span class="p">(</span><span class="n">QR</span><span class="o">/</span><span class="n">Barcode</span><span class="w"> </span><span class="n">Scanner</span><span class="p">)</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">التنقل</span><span class="w"> </span><span class="err">إلى</span><span class="w"> </span><span class="err">موقع</span><span class="w"> </span><span class="err">المعدة</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="err">الخريطة</span>
+</code></pre></div>
+
+<h4 id="_5">الدردشة<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// mobile/sahool_field_app/lib/features/community/ui/chat_screen.dart</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">منتقي</span><span class="w"> </span><span class="err">المرفقات</span><span class="w"> </span><span class="p">(</span><span class="n">Attachment</span><span class="w"> </span><span class="n">Picker</span><span class="p">)</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">دعم</span><span class="w"> </span><span class="err">الصور</span><span class="w"> </span><span class="err">والملفات</span>
+</code></pre></div>
+
+<h4 id="marketplace">السوق الإلكتروني (Marketplace)<a class="headerlink" href="#marketplace" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">إكمال</span><span class="w"> </span><span class="err">عملية</span><span class="w"> </span><span class="err">الدفع</span><span class="w"> </span><span class="p">(</span><span class="n">Checkout</span><span class="w"> </span><span class="n">Flow</span><span class="p">)</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">ربط</span><span class="w"> </span><span class="err">مع</span><span class="w"> </span><span class="err">بوابة</span><span class="w"> </span><span class="err">الدفع</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">تتبع</span><span class="w"> </span><span class="err">الطلبات</span>
+</code></pre></div>
+
+<h4 id="_6">الملف الشخصي<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// mobile/sahool_field_app/lib/features/profile/ui/profile_screen.dart</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">تنفيذ</span><span class="w"> </span><span class="err">تسجيل</span><span class="w"> </span><span class="err">الخروج</span><span class="w"> </span><span class="p">(</span><span class="n">Logout</span><span class="p">)</span>
+<span class="o">-</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="err">مسح</span><span class="w"> </span><span class="err">البيانات</span><span class="w"> </span><span class="err">المحلية</span><span class="w"> </span><span class="err">عند</span><span class="w"> </span><span class="err">الخروج</span>
+</code></pre></div>
+
+<h3 id="23-test-coverage-gaps">2.3 نقص التغطية الاختبارية (Test Coverage Gaps)<a class="headerlink" href="#23-test-coverage-gaps" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th>الاختبارات الموجودة</th>
+<th>التغطية المقدرة</th>
+<th>المطلوب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Python Services</strong></td>
+<td>✅ 25 ملف اختبار</td>
+<td>~40%</td>
+<td>70%+</td>
+</tr>
+<tr>
+<td><strong>Mobile App</strong></td>
+<td>✅ 944 سطر اختبار</td>
+<td>~30%</td>
+<td>60%+</td>
+</tr>
+<tr>
+<td><strong>Web Admin</strong></td>
+<td>❌ لا يوجد</td>
+<td>0%</td>
+<td>50%+</td>
+</tr>
+<tr>
+<td><strong>Node.js Services</strong></td>
+<td>❌ لا يوجد</td>
+<td>0%</td>
+<td>60%+</td>
+</tr>
+<tr>
+<td><strong>E2E Tests</strong></td>
+<td>✅ 1,724 سطر</td>
+<td>موجود</td>
+<td>توسيع التغطية</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التوصية:</strong>
+- إضافة Jest للمشاريع Node.js والويب
+- زيادة اختبارات الوحدة للخدمات الحرجة
+- إضافة اختبارات التكامل بين الخدمات</p>
+<h3 id="24-missing-documentation">2.4 الوثائق الناقصة (Missing Documentation)<a class="headerlink" href="#24-missing-documentation" title="Permanent link">&para;</a></h3>
+<h4 id="_7">موجود ✅<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ README.md شامل</li>
+<li>✅ SERVICES_DOCUMENTATION.md</li>
+<li>✅ DEVELOPMENT_PLAN.md</li>
+<li>✅ FINAL_REVIEW_REPORT.md</li>
+<li>✅ 11 ملف توثيق في <code>/docs</code></li>
+<li>✅ 22 ملف README منتشرة في المشروع</li>
+</ul>
+<h4 id="_8">ناقص ❌<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ API Documentation (OpenAPI/Swagger) غير مكتملة</li>
+<li>❌ توثيق قاعدة البيانات (Schema Documentation)</li>
+<li>❌ Architecture Decision Records (ADRs)</li>
+<li>❌ دليل استكشاف الأخطاء (Troubleshooting Guide)</li>
+<li>❌ دليل الأمان للمطورين (Security Guidelines)</li>
+<li>❌ دليل المساهمة (CONTRIBUTING.md)</li>
+</ul>
+<hr />
+<h2 id="3-dependencies-analysis">3. تحليل التبعيات والإصدارات | Dependencies Analysis<a class="headerlink" href="#3-dependencies-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="31-python">3.1 تبعيات Python<a class="headerlink" href="#31-python" title="Permanent link">&para;</a></h3>
+<h4 id="_9">المشاكل المحتملة:<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>⚠️ FastAPI Versions Inconsistency:
+   - معظم الخدمات: 0.110.0 ✅
+   - crop-health-ai: 0.109.0 ⚠️
+   - yield-engine: 0.109.0 ⚠️
+
+⚠️ TensorFlow في crop-health-ai:
+   - tensorflow-cpu==2.15.0
+   - حجم الصورة كبير (~500MB)
+   - التوصية: استخدام TensorFlow Lite للإنتاج
+</code></pre></div>
+
+<h4 id="_10">التحديثات المقترحة:<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code># تحديث إلى إصدارات موحدة:
+fastapi==0.115.0  # أحدث إصدار مستقر
+uvicorn==0.32.0
+pydantic==2.10.0
+tortoise-orm==0.21.0
+</code></pre></div>
+
+<h3 id="32-nodejs">3.2 تبعيات Node.js<a class="headerlink" href="#32-nodejs" title="Permanent link">&para;</a></h3>
+<h4 id="web-admin-nextjs">Web Admin (Next.js)<a class="headerlink" href="#web-admin-nextjs" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;next&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;14.1.0&quot;</span><span class="p">,</span><span class="w">          </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">&quot;react&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^18.2.0&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">&quot;leaflet&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.9.4&quot;</span><span class="p">,</span><span class="w">       </span><span class="c1">// ✅ حديث</span>
+<span class="w">  </span><span class="nt">&quot;axios&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;^1.6.5&quot;</span><span class="w">          </span><span class="c1">// ⚠️ يوجد تحديث أمني (1.7.9)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>التوصية:</strong> تحديث axios إلى 1.7.9</p>
+<h3 id="33-flutter">3.3 تبعيات Flutter<a class="headerlink" href="#33-flutter" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">flutter_riverpod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.4.10</span><span class="w">   </span><span class="c1"># ✅ حديث</span>
+<span class="w">  </span><span class="nt">drift</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^2.15.0</span><span class="w">              </span><span class="c1"># ✅ حديث</span>
+<span class="w">  </span><span class="nt">dio</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^5.4.1</span><span class="w">                 </span><span class="c1"># ✅ حديث</span>
+<span class="w">  </span><span class="nt">workmanager</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^0.6.0</span><span class="w">         </span><span class="c1"># ✅ محدث مؤخراً</span>
+<span class="w">  </span><span class="nt">connectivity_plus</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^5.0.2</span><span class="w">   </span><span class="c1"># ✅ حديث</span>
+</code></pre></div>
+
+<p><strong>التقييم:</strong> التبعيات حديثة ومستقرة ✅</p>
+<hr />
+<h2 id="4-code-quality">4. جودة الكود | Code Quality<a class="headerlink" href="#4-code-quality" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 البنية والتنظيم<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<h4 id="_11">نقاط القوة ⭐<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <strong>Clean Architecture</strong> مطبقة بشكل صحيح في التطبيق</li>
+<li>✅ فصل واضح بين Domain, Data, Presentation</li>
+<li>✅ استخدام Dependency Injection (Riverpod)</li>
+<li>✅ معايير كود موحدة (Black, Ruff للبايثون)</li>
+<li>✅ TypeScript للكود JavaScript</li>
+<li>✅ نمط Monorepo منظم</li>
+</ul>
+<h4 id="_12">التحسينات المقترحة 📈<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🔧 توحيد معايير الكود عبر جميع الخدمات</li>
+<li>🔧 إضافة Pre-commit Hooks لفحص الكود</li>
+<li>🔧 إضافة Code Coverage للـ CI/CD</li>
+</ul>
+<h3 id="42-programming-patterns">4.2 أنماط البرمجة (Programming Patterns)<a class="headerlink" href="#42-programming-patterns" title="Permanent link">&para;</a></h3>
+<h4 id="_13">المستخدمة بنجاح:<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Repository Pattern في Flutter</li>
+<li>✅ Provider Pattern في FastAPI</li>
+<li>✅ Event-Driven Architecture مع NATS</li>
+<li>✅ API Gateway Pattern مع Kong</li>
+<li>✅ Database per Service في بعض الخدمات</li>
+</ul>
+<h4 id="_14">يحتاج تحسين:<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<ul>
+<li>⚠️ Circuit Breaker غير موجود</li>
+<li>⚠️ Retry Policies غير موحدة</li>
+<li>⚠️ Rate Limiting محدود</li>
+</ul>
+<hr />
+<h2 id="5-performance-scalability">5. الأداء وقابلية التوسع | Performance &amp; Scalability<a class="headerlink" href="#5-performance-scalability" title="Permanent link">&para;</a></h2>
+<h3 id="51">5.1 البنية التحتية<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<h4 id="_15">نقاط القوة:<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ استخدام Redis للتخزين المؤقت</li>
+<li>✅ PostgreSQL مع PostGIS للبيانات المكانية</li>
+<li>✅ NATS للرسائل غير المتزامنة</li>
+<li>✅ Kong API Gateway لتوزيع الحمل</li>
+<li>✅ Docker Compose للتطوير</li>
+<li>✅ Kubernetes للإنتاج</li>
+</ul>
+<h4 id="_16">التحسينات المقترحة:<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">1. إضافة Connection Pooling</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">PostgreSQL</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pgbouncer</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Redis</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">connection pooling في العملاء</span>
+
+<span class="nt">2. إضافة CDN</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للأصول الثابتة (Static Assets)</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للصور والخرائط</span>
+
+<span class="nt">3. Database Sharding</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">للبيانات الكبيرة (حسب المنطقة الجغرافية)</span>
+
+<span class="nt">4. Horizontal Scaling</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تفعيل HPA (Horizontal Pod Autoscaler) في K8s</span>
+</code></pre></div>
+
+<h3 id="52-caching-strategy">5.2 استراتيجية التخزين المؤقت (Caching Strategy)<a class="headerlink" href="#52-caching-strategy" title="Permanent link">&para;</a></h3>
+<p><strong>الموجود حالياً:</strong>
+- Redis مُعد في docker-compose
+- بعض الخدمات تستخدمه</p>
+<p><strong>المطلوب:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة طبقة تخزين مؤقت موحدة</span>
+<span class="c1"># shared/cache/redis_cache.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CacheStrategy</span><span class="p">:</span>
+    <span class="c1"># Weather data: 15 دقيقة</span>
+    <span class="n">WEATHER_TTL</span> <span class="o">=</span> <span class="mi">900</span>
+
+    <span class="c1"># NDVI data: 24 ساعة</span>
+    <span class="n">NDVI_TTL</span> <span class="o">=</span> <span class="mi">86400</span>
+
+    <span class="c1"># User profile: 1 ساعة</span>
+    <span class="n">USER_TTL</span> <span class="o">=</span> <span class="mi">3600</span>
+
+    <span class="c1"># Field data: 5 دقائق</span>
+    <span class="n">FIELD_TTL</span> <span class="o">=</span> <span class="mi">300</span>
+</code></pre></div>
+
+<hr />
+<h2 id="6-devops-cicd">6. نظام DevOps و CI/CD<a class="headerlink" href="#6-devops-cicd" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 الموجود حالياً ✅<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<h4 id="github-actions">GitHub Actions<a class="headerlink" href="#github-actions" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ CI Pipeline للفحص الآلي</li>
+<li>✅ Code Quality Checks (Ruff, Black)</li>
+<li>✅ Python Tests</li>
+<li>✅ Node.js Tests</li>
+</ul>
+<h4 id="gitops">GitOps<a class="headerlink" href="#gitops" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ ArgoCD للنشر الآلي</li>
+<li>✅ Helm Charts للتهيئة</li>
+<li>✅ Multi-cluster Support</li>
+<li>✅ Feature Flags (flagd)</li>
+</ul>
+<h4 id="idp-internal-developer-platform">IDP (Internal Developer Platform)<a class="headerlink" href="#idp-internal-developer-platform" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Backstage مُعد</li>
+<li>✅ Service Templates</li>
+<li>✅ sahoolctl CLI tool</li>
+</ul>
+<h3 id="62">6.2 التحسينات المقترحة<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">1. إضافة مراحل CD</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">stages</span><span class="p">:</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">security-scan</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">build-images</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-dev</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-staging</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-production (manual approval)</span>
+
+<span class="nt">2. إضافة Automated Security Scanning</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Trivy لفحص Docker Images</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Snyk لفحص التبعيات</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OWASP ZAP لفحص API</span>
+
+<span class="nt">3. إضافة Performance Testing</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k6 للاختبارات</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Grafana k6 Dashboard</span>
+
+<span class="nt">4. إضافة E2E Testing في CI</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Playwright للويب</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Appium للموبايل</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-advanced-security">7. الأمان المتقدم | Advanced Security<a class="headerlink" href="#7-advanced-security" title="Permanent link">&para;</a></h2>
+<h3 id="71-encryption">7.1 التشفير (Encryption)<a class="headerlink" href="#71-encryption" title="Permanent link">&para;</a></h3>
+<h4 id="_17">الموجود:<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ JWT للمصادقة</li>
+<li>✅ HTTPS في الإنتاج (مفترض)</li>
+<li>✅ flutter_secure_storage في التطبيق</li>
+</ul>
+<h4 id="_18">الناقص:<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h4>
+<ul>
+<li>❌ تشفير قاعدة البيانات at rest</li>
+<li>❌ تشفير الحقول الحساسة</li>
+<li>❌ Secret Rotation Policy</li>
+<li>❌ mTLS بين الخدمات</li>
+</ul>
+<h3 id="72-secrets-management">7.2 إدارة الأسرار (Secrets Management)<a class="headerlink" href="#72-secrets-management" title="Permanent link">&para;</a></h3>
+<p><strong>الموجود:</strong>
+- ✅ External Secrets Operator معد
+- ✅ GitOps Secrets في <code>gitops/secrets/</code></p>
+<p><strong>التوصية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># استخدام Vault أو AWS Secrets Manager</span>
+<span class="c1"># بدلاً من .env في الإنتاج</span>
+
+<span class="c1"># مثال:</span>
+kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">apiVersion: external-secrets.io/v1beta1</span>
+<span class="s">kind: SecretStore</span>
+<span class="s">metadata:</span>
+<span class="s">  name: sahool-vault</span>
+<span class="s">spec:</span>
+<span class="s">  provider:</span>
+<span class="s">    vault:</span>
+<span class="s">      server: &quot;https://vault.sahool.io&quot;</span>
+<span class="s">      path: &quot;secret/data/sahool&quot;</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h3 id="73-compliance-governance">7.3 الامتثال والحوكمة (Compliance &amp; Governance)<a class="headerlink" href="#73-compliance-governance" title="Permanent link">&para;</a></h3>
+<p><strong>الموجود:</strong>
+- ✅ <code>/governance</code> directory
+- ✅ Policies و Schemas
+- ✅ Templates</p>
+<p><strong>المطلوب إضافته:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">1.</span> GDPR Compliance:
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>سياسة الخصوصية
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>حق المستخدم في حذف البيانات
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>موافقة المستخدم
+
+<span class="k">2.</span> Audit Logging:
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>تسجيل جميع العمليات الحساسة
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>الاحتفاظ بالسجلات لمدة 1 سنة
+
+<span class="k">3.</span> Penetration Testing:
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>اختبار الاختراق السنوي
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>تقرير نقاط الضعف
+</code></pre></div>
+
+<hr />
+<h2 id="8-monitoring-observability">8. المراقبة والملاحظة | Monitoring &amp; Observability<a class="headerlink" href="#8-monitoring-observability" title="Permanent link">&para;</a></h2>
+<h3 id="81">8.1 الموجود حالياً<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>/observability directory:
+- Prometheus configurations
+- Grafana dashboards
+- Alerting rules
+</code></pre></div>
+
+<h3 id="82">8.2 المطلوب تنفيذه<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<h4 id="metrics">Metrics (المقاييس)<a class="headerlink" href="#metrics" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">Required Metrics</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">API</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">request_duration_seconds</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">request_count</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">error_rate</span>
+
+<span class="w">  </span><span class="nt">Database</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">connection_pool_size</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">query_duration</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active_connections</span>
+
+<span class="w">  </span><span class="nt">Business</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">active_farmers</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fields_monitored</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">diagnoses_per_day</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">marketplace_transactions</span>
+</code></pre></div>
+
+<h4 id="logging">Logging (السجلات)<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">Logging Stack</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ELK (Elasticsearch + Logstash + Kibana)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">أو Loki + Grafana</span>
+
+<span class="nt">Log Levels</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">production</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">INFO</span>
+<span class="w">  </span><span class="nt">staging</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DEBUG</span>
+<span class="w">  </span><span class="nt">development</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TRACE</span>
+</code></pre></div>
+
+<h4 id="tracing">Tracing (التتبع)<a class="headerlink" href="#tracing" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة OpenTelemetry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opentelemetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">trace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">opentelemetry.instrumentation.fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPIInstrumentor</span>
+
+<span class="n">tracer</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">get_tracer</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/api/fields&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_fields</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">tracer</span><span class="o">.</span><span class="n">start_as_current_span</span><span class="p">(</span><span class="s2">&quot;get_fields&quot;</span><span class="p">):</span>
+        <span class="c1"># code here</span>
+        <span class="k">pass</span>
+</code></pre></div>
+
+<h4 id="alerting">Alerting (التنبيهات)<a class="headerlink" href="#alerting" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">Critical Alerts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">API Response Time &gt; 1s</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Error Rate &gt; 1%</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Database Connection Pool &gt; 80%</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Disk Usage &gt; 85%</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Memory Usage &gt; 90%</span>
+
+<span class="nt">Warning Alerts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">API Response Time &gt; 500ms</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Error Rate &gt; 0.5%</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Database Connection Pool &gt; 60%</span>
+</code></pre></div>
+
+<hr />
+<h2 id="9-cost-estimation">9. تقدير التكاليف | Cost Estimation<a class="headerlink" href="#9-cost-estimation" title="Permanent link">&para;</a></h2>
+<h3 id="91">9.1 البنية التحتية السحابية (شهرياً)<a class="headerlink" href="#91" title="Permanent link">&para;</a></h3>
+<h4 id="1-aws">خيار 1: AWS<a class="headerlink" href="#1-aws" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المواصفات</th>
+<th>التكلفة الشهرية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>EKS Cluster</strong></td>
+<td>3 nodes (t3.large)</td>
+<td>$150</td>
+</tr>
+<tr>
+<td><strong>RDS PostgreSQL</strong></td>
+<td>db.r5.large Multi-AZ</td>
+<td>$350</td>
+</tr>
+<tr>
+<td><strong>ElastiCache Redis</strong></td>
+<td>cache.r5.large</td>
+<td>$180</td>
+</tr>
+<tr>
+<td><strong>Application Load Balancer</strong></td>
+<td>Standard</td>
+<td>$30</td>
+</tr>
+<tr>
+<td><strong>S3 Storage</strong></td>
+<td>1TB + CloudFront</td>
+<td>$80</td>
+</tr>
+<tr>
+<td><strong>CloudWatch</strong></td>
+<td>Logs + Metrics</td>
+<td>$50</td>
+</tr>
+<tr>
+<td><strong>Route53</strong></td>
+<td>Hosted Zone</td>
+<td>$1</td>
+</tr>
+<tr>
+<td><strong>NAT Gateway</strong></td>
+<td>1 NAT</td>
+<td>$45</td>
+</tr>
+<tr>
+<td><strong>Data Transfer</strong></td>
+<td>500GB out</td>
+<td>$45</td>
+</tr>
+<tr>
+<td><strong>Backup &amp; Snapshots</strong></td>
+<td>RDS + S3</td>
+<td>$70</td>
+</tr>
+<tr>
+<td><strong>المجموع الكلي</strong></td>
+<td></td>
+<td><strong>~$1,000/شهر</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="2-google-cloud-gcp">خيار 2: Google Cloud (GCP)<a class="headerlink" href="#2-google-cloud-gcp" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المواصفات</th>
+<th>التكلفة الشهرية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GKE Cluster</strong></td>
+<td>3 nodes (n1-standard-2)</td>
+<td>$150</td>
+</tr>
+<tr>
+<td><strong>Cloud SQL PostgreSQL</strong></td>
+<td>db-n1-standard-2 HA</td>
+<td>$300</td>
+</tr>
+<tr>
+<td><strong>Memorystore Redis</strong></td>
+<td>5GB Standard</td>
+<td>$150</td>
+</tr>
+<tr>
+<td><strong>Load Balancer</strong></td>
+<td>Standard</td>
+<td>$30</td>
+</tr>
+<tr>
+<td><strong>Cloud Storage</strong></td>
+<td>1TB + CDN</td>
+<td>$70</td>
+</tr>
+<tr>
+<td><strong>Cloud Monitoring</strong></td>
+<td>Standard</td>
+<td>$40</td>
+</tr>
+<tr>
+<td><strong>المجموع الكلي</strong></td>
+<td></td>
+<td><strong>~$740/شهر</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="3-digitalocean">خيار 3: DigitalOcean (اقتصادي)<a class="headerlink" href="#3-digitalocean" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المواصفات</th>
+<th>التكلفة الشهرية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DOKS Cluster</strong></td>
+<td>3x4GB Droplets</td>
+<td>$120</td>
+</tr>
+<tr>
+<td><strong>Managed PostgreSQL</strong></td>
+<td>4GB RAM</td>
+<td>$60</td>
+</tr>
+<tr>
+<td><strong>Managed Redis</strong></td>
+<td>1GB</td>
+<td>$30</td>
+</tr>
+<tr>
+<td><strong>Load Balancer</strong></td>
+<td>Standard</td>
+<td>$12</td>
+</tr>
+<tr>
+<td><strong>Spaces</strong></td>
+<td>500GB + CDN</td>
+<td>$25</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td>Basic</td>
+<td>$0</td>
+</tr>
+<tr>
+<td><strong>المجموع الكلي</strong></td>
+<td></td>
+<td><strong>~$247/شهر</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="92">9.2 تكاليف التطوير والصيانة<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>التكلفة السنوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>فريق التطوير (3 مطورين)</td>
+<td>$90,000 - $150,000</td>
+</tr>
+<tr>
+<td>DevOps Engineer</td>
+<td>$40,000 - $60,000</td>
+</tr>
+<tr>
+<td>Security Audits (سنوياً)</td>
+<td>$5,000 - $10,000</td>
+</tr>
+<tr>
+<td>SSL Certificates</td>
+<td>$100 - $500</td>
+</tr>
+<tr>
+<td>Third-party APIs</td>
+<td>$1,200 - $3,600</td>
+</tr>
+<tr>
+<td><strong>المجموع السنوي</strong></td>
+<td><strong>~$136,300 - $224,100</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-improvement-roadmap">10. خطة التحسين | Improvement Roadmap<a class="headerlink" href="#10-improvement-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="1-1-2">المرحلة 1: عاجل (1-2 أسبوع) 🔴<a class="headerlink" href="#1-1-2" title="Permanent link">&para;</a></h3>
+<h4 id="-">أولوية قصوى - الأمان<a class="headerlink" href="#-" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">1.</span> ✅ إصلاح CORS Wildcard في جميع الخدمات
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>crop-health-ai
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>yield-engine
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>virtual-sensors
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>جميع الخدمات الأخرى
+
+<span class="k">2.</span> ✅ إزالة كلمات المرور الافتراضية
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>docker-compose.yml
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>إنشاء .env.example شامل
+
+<span class="k">3.</span> ✅ تحسين مصادقة WebSocket
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>ws_gateway JWT validation
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>إضافة Token Refresh
+
+<span class="k">4.</span> ✅ تفعيل HTTPS في جميع البيئات
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Let&#39;s Encrypt للإنتاج
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Self-signed للتطوير
+</code></pre></div>
+
+<h4 id="_19">إكمال الميزات الناقصة<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="m">5.</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="err">تطبيق</span><span class="w"> </span><span class="n">Flutter</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="err">الميزات</span><span class="w"> </span><span class="err">الحرجة</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">wallet_screen</span><span class="p">.</span><span class="nl">dart:</span><span class="w"> </span><span class="err">حوارات</span><span class="w"> </span><span class="err">السحب</span><span class="w"> </span><span class="err">والقرض</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="n">profile_screen</span><span class="p">.</span><span class="nl">dart:</span><span class="w"> </span><span class="err">تسجيل</span><span class="w"> </span><span class="err">الخروج</span>
+<span class="w">   </span><span class="o">-</span><span class="w"> </span><span class="nl">marketplace:</span><span class="w"> </span><span class="err">إكمال</span><span class="w"> </span><span class="err">عملية</span><span class="w"> </span><span class="err">الدفع</span>
+</code></pre></div>
+
+<h3 id="2-2-4">المرحلة 2: قصيرة الأجل (2-4 أسابيع) 🟠<a class="headerlink" href="#2-2-4" title="Permanent link">&para;</a></h3>
+<h4 id="_20">الاختبارات والجودة<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">1.</span> زيادة التغطية الاختبارية
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>الهدف: 70% للخدمات الحرجة
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>إضافة Jest لـ Node.js services
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>إضافة Integration Tests
+
+<span class="k">2.</span> إضافة E2E Tests الشاملة
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>سيناريوهات المستخدم الكاملة
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Playwright للويب
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Flutter Integration Tests للموبايل
+
+<span class="k">3.</span> تفعيل Code Quality Gates
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>SonarQube أو CodeClimate
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Pre-commit hooks
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>CI/CD quality gates
+</code></pre></div>
+
+<h4 id="_21">التوثيق<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">4.</span> إكمال التوثيق الفني
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>OpenAPI/Swagger لكل خدمة
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Architecture Decision Records
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Database Schema Documentation
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Troubleshooting Guide
+
+<span class="k">5.</span> توثيق الأمان
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Security Guidelines للمطورين
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Incident Response Plan
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Disaster Recovery Plan
+</code></pre></div>
+
+<h3 id="3-1-3">المرحلة 3: متوسطة الأجل (1-3 أشهر) 🟡<a class="headerlink" href="#3-1-3" title="Permanent link">&para;</a></h3>
+<h4 id="_22">الأداء والتوسع<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">1.</span> تحسين الأداء
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>إضافة Redis Caching Strategy
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Database Query Optimization
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Connection Pooling (pgbouncer)
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>CDN للأصول الثابتة
+
+<span class="k">2.</span> قابلية التوسع
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Horizontal Pod Autoscaling
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Database Replication (Read Replicas)
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Load Testing (k6)
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Performance Benchmarks
+
+<span class="k">3.</span> Observability المتقدم
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Distributed Tracing (Jaeger)
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>ELK Stack للسجلات
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Grafana Dashboards المتقدمة
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Alert Management (PagerDuty)
+</code></pre></div>
+
+<h4 id="_23">الأمان المتقدم<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">4.</span> تحسينات الأمان
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>mTLS بين الخدمات
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Secret Rotation
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Database Encryption at Rest
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>WAF (Web Application Firewall)
+
+<span class="k">5.</span> Compliance
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>GDPR Implementation
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Audit Logging
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Penetration Testing
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Security Certifications
+</code></pre></div>
+
+<h3 id="4-3-12">المرحلة 4: طويلة الأجل (3-12 شهر) 🟢<a class="headerlink" href="#4-3-12" title="Permanent link">&para;</a></h3>
+<h4 id="_24">الذكاء الاصطناعي والتعلم الآلي<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">1.</span> تحسين نماذج ML
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>تحديث crop_health_ai model
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>تحسين yield_engine predictions
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>إضافة Recommendation Engine
+
+<span class="k">2.</span> Edge Computing
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>TensorFlow Lite للموبايل
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Offline ML Inference
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Model Compression
+
+<span class="k">3.</span> Big Data Analytics
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Data Lake (S3 + Athena)
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Real-time Analytics
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Predictive Maintenance
+</code></pre></div>
+
+<h4 id="_25">التوسع الجغرافي<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">4.</span> Multi-Region Deployment
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>منطقة الشرق الأوسط
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>منطقة إفريقيا
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>CDN عالمي
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>i18n كامل (العربية، الإنجليزية، الفرنسية)
+
+<span class="k">5.</span> Mobile Offline Enhancements
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Differential Sync
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Conflict Resolution UI
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Background Uploads
+<span class="w">   </span><span class="k">-</span><span class="w"> </span>Offline Maps
+</code></pre></div>
+
+<hr />
+<h2 id="11-upgrade-proposals">11. مقترحات الترقية | Upgrade Proposals<a class="headerlink" href="#11-upgrade-proposals" title="Permanent link">&para;</a></h2>
+<h3 id="111-technology-upgrades">11.1 ترقيات التقنيات (Technology Upgrades)<a class="headerlink" href="#111-technology-upgrades" title="Permanent link">&para;</a></h3>
+<h4 id="backend-frameworks">Backend Frameworks<a class="headerlink" href="#backend-frameworks" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>الحالي:
+- FastAPI 0.110.0
+- Tortoise ORM 0.20.1
+- NATS 2.6.0
+
+المقترح (2025):
+- FastAPI 0.115.0+ (أحدث إصدار)
+- SQLAlchemy 2.0+ (بديل لـ Tortoise ORM)
+- NATS 2.11.0+
+- gRPC للاتصال بين الخدمات (بدلاً من HTTP)
+</code></pre></div>
+
+<h4 id="frontend-technologies">Frontend Technologies<a class="headerlink" href="#frontend-technologies" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>الحالي:
+<span class="o">-</span><span class="w"> </span><span class="k">Next</span>.<span class="nv">js</span><span class="w"> </span><span class="mi">14</span>.<span class="mi">1</span>
+<span class="o">-</span><span class="w"> </span><span class="nv">React</span><span class="w"> </span><span class="mi">18</span>
+
+المقترح:
+<span class="o">-</span><span class="w"> </span><span class="k">Next</span>.<span class="nv">js</span><span class="w"> </span><span class="mi">15</span><span class="o">+</span><span class="w"> </span><span class="ss">(</span><span class="nv">App</span><span class="w"> </span><span class="nv">Router</span><span class="ss">)</span>
+<span class="o">-</span><span class="w"> </span><span class="nv">React</span><span class="w"> </span><span class="mi">19</span><span class="w"> </span><span class="ss">(</span>عند<span class="w"> </span>الاستقرار<span class="ss">)</span>
+<span class="o">-</span><span class="w"> </span><span class="nv">Server</span><span class="w"> </span><span class="nv">Components</span>
+<span class="o">-</span><span class="w"> </span><span class="nv">Suspense</span><span class="w"> </span>للبيانات
+</code></pre></div>
+
+<h4 id="mobile">Mobile<a class="headerlink" href="#mobile" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>الحالي:
+- Flutter 3.x
+
+المقترح:
+- Flutter 3.27+ (أحدث مستقر)
+- Material Design 3 كامل
+- Impeller Rendering Engine
+- Native Background Execution
+</code></pre></div>
+
+<h3 id="112-architecture-upgrades">11.2 البنية المعمارية (Architecture Upgrades)<a class="headerlink" href="#112-architecture-upgrades" title="Permanent link">&para;</a></h3>
+<h4 id="monolith-microservices">من Monolith إلى Microservices المحسّنة<a class="headerlink" href="#monolith-microservices" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">Current State</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">✅ Microservices</span>
+<span class="nt">Next Level</span><span class="p">:</span>
+
+<span class="nt">1. Service Mesh (Istio أو Linkerd)</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">Benefits</span><span class="p">:</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mTLS تلقائي</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Circuit Breaking</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Retry Policies</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Traffic Management</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Observability</span>
+
+<span class="nt">2. Event-Driven Architecture المحسّنة</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">Current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NATS</span>
+<span class="w">   </span><span class="nt">Addition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Event Sourcing + CQRS</span>
+<span class="w">   </span><span class="nt">Benefits</span><span class="p">:</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Audit Trail كامل</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Time Travel Debugging</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read/Write Optimization</span>
+
+<span class="nt">3. API Gateway المتقدم</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">Current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Kong</span>
+<span class="w">   </span><span class="nt">Addition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GraphQL Gateway</span>
+<span class="w">   </span><span class="nt">Benefits</span><span class="p">:</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Single Query لبيانات متعددة</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reduced Over-fetching</span>
+<span class="w">     </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Better Mobile Performance</span>
+</code></pre></div>
+
+<h4 id="database-strategy">Database Strategy<a class="headerlink" href="#database-strategy" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">Current</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Single PostgreSQL</span>
+<span class="nt">Proposed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Polyglot Persistence</span>
+
+<span class="nt">Services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">field_ops</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PostgreSQL + PostGIS</span>
+<span class="w">    </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Geospatial queries</span>
+
+<span class="w">  </span><span class="nt">analytics</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClickHouse</span>
+<span class="w">    </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Time-series analytics</span>
+
+<span class="w">  </span><span class="nt">cache</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Redis</span>
+<span class="w">    </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Hot data</span>
+
+<span class="w">  </span><span class="nt">search</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Elasticsearch</span>
+<span class="w">    </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Full-text search</span>
+
+<span class="w">  </span><span class="nt">chat_history</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MongoDB</span>
+<span class="w">    </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Document structure</span>
+</code></pre></div>
+
+<h3 id="113">11.3 الذكاء الاصطناعي والتعلم الآلي<a class="headerlink" href="#113" title="Permanent link">&para;</a></h3>
+<h4 id="_26">المرحلة الحالية<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>✅ crop_health_ai: TensorFlow للكشف عن الأمراض
+✅ yield_engine: ML للتنبؤ بالإنتاجية
+</code></pre></div>
+
+<h4 id="_27">الترقيات المقترحة<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. نظام توصيات متقدم (Recommendation Engine)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SmartAdvisor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    يجمع بيانات من:</span>
+<span class="sd">    - NDVI (صحة المحصول)</span>
+<span class="sd">    - Weather (الطقس)</span>
+<span class="sd">    - Soil (التربة)</span>
+<span class="sd">    - Historical Yield (الإنتاجية التاريخية)</span>
+
+<span class="sd">    يوصي بـ:</span>
+<span class="sd">    - أفضل وقت للزراعة</span>
+<span class="sd">    - كمية الأسمدة المثلى</span>
+<span class="sd">    - جدول الري</span>
+<span class="sd">    - موعد الحصاد المثالي</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="c1"># 2. Predictive Maintenance للمعدات</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EquipmentHealth</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    يتنبأ بأعطال المعدات قبل حدوثها</span>
+<span class="sd">    بناءً على:</span>
+<span class="sd">    - ساعات التشغيل</span>
+<span class="sd">    - أنماط الاستخدام</span>
+<span class="sd">    - بيانات الصيانة السابقة</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="c1"># 3. Computer Vision المتقدم</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AdvancedVision</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    - كشف الآفات في الوقت الفعلي</span>
+<span class="sd">    - تقدير الإنتاجية من الصور</span>
+<span class="sd">    - تصنيف جودة المحصول</span>
+<span class="sd">    - Drone imagery analysis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+
+<h3 id="114-ux-enhancements">11.4 تجربة المستخدم (UX Enhancements)<a class="headerlink" href="#114-ux-enhancements" title="Permanent link">&para;</a></h3>
+<h4 id="mobile-app-20">Mobile App 2.0<a class="headerlink" href="#mobile-app-20" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Offline-First المحسّن</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">SyncStrategy</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// 1. Incremental Sync (مزامنة تدريجية)</span>
+<span class="w">  </span><span class="c1">// بدلاً من مزامنة كل شيء</span>
+
+<span class="w">  </span><span class="c1">// 2. Smart Conflict Resolution</span>
+<span class="w">  </span><span class="c1">// واجهة مستخدم لحل التعارضات</span>
+
+<span class="w">  </span><span class="c1">// 3. Predictive Prefetching</span>
+<span class="w">  </span><span class="c1">// تحميل البيانات قبل أن يحتاجها المستخدم</span>
+
+<span class="w">  </span><span class="c1">// 4. Compression</span>
+<span class="w">  </span><span class="c1">// ضغط البيانات لتوفير النطاق الترددي</span>
+<span class="p">}</span>
+
+<span class="c1">// Voice Commands (الأوامر الصوتية)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">VoiceInterface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// &quot;سجل ملاحظة في الحقل رقم 5&quot;</span>
+<span class="w">  </span><span class="c1">// &quot;اعرض طقس هذا الأسبوع&quot;</span>
+<span class="w">  </span><span class="c1">// &quot;متى موعد الحصاد؟&quot;</span>
+<span class="p">}</span>
+
+<span class="c1">// Augmented Reality (الواقع المعزز)</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">ARFeatures</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// - عرض بيانات NDVI على الكاميرا</span>
+<span class="w">  </span><span class="c1">// - تحديد الأمراض في الوقت الفعلي</span>
+<span class="w">  </span><span class="c1">// - قياس المساحات بالكاميرا</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="web-dashboard-20">Web Dashboard 2.0<a class="headerlink" href="#web-dashboard-20" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Real-time Collaboration</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">CollaborativeFeatures</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// - Live cursor tracking</span>
+<span class="w">  </span><span class="c1">// - Real-time updates</span>
+<span class="w">  </span><span class="c1">// - Shared field views</span>
+<span class="w">  </span><span class="c1">// - Team chat integration</span>
+<span class="p">}</span>
+
+<span class="c1">// Advanced Analytics</span>
+<span class="kd">class</span><span class="w"> </span><span class="nx">Analytics</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// - Custom dashboards</span>
+<span class="w">  </span><span class="c1">// - Drill-down reports</span>
+<span class="w">  </span><span class="c1">// - Export to Excel/PDF</span>
+<span class="w">  </span><span class="c1">// - Automated reports</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="12-success-metrics">12. مقاييس النجاح | Success Metrics<a class="headerlink" href="#12-success-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="121-technical-kpis">12.1 المقاييس التقنية (Technical KPIs)<a class="headerlink" href="#121-technical-kpis" title="Permanent link">&para;</a></h3>
+<h4 id="_28">الأداء<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">API Performance</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">P50 Response Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 100ms ⚡</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">P95 Response Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 300ms</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">P99 Response Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 500ms</span>
+
+<span class="nt">Mobile App</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">App Startup Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 2s</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Screen Load Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 1s</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Crash-free Rate</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 99.5%</span>
+
+<span class="nt">Database</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Query Time P95</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 50ms</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Connection Pool Utilization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 70%</span>
+</code></pre></div>
+
+<h4 id="_29">الموثوقية<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">Availability</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Uptime SLA</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.9% (43 دقيقة توقف/شهر)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.95% (22 دقيقة توقف/شهر)</span>
+
+<span class="nt">Error Rates</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">API Error Rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 0.1%</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Mobile Crash Rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 0.5%</span>
+
+<span class="nt">Recovery</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">MTTR (Mean Time To Recover)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 30 دقيقة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">RTO (Recovery Time Objective)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 1 ساعة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">RPO (Recovery Point Objective)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 15 دقيقة</span>
+</code></pre></div>
+
+<h4 id="_30">الأمان<a class="headerlink" href="#_30" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">Security Metrics</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Vulnerabilities</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0 Critical, &lt; 5 High</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Security Patches</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 7 days</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Penetration Tests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Quarterly</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Audit Logs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100% Coverage</span>
+</code></pre></div>
+
+<h3 id="122-business-kpis">12.2 المقاييس التجارية (Business KPIs)<a class="headerlink" href="#122-business-kpis" title="Permanent link">&para;</a></h3>
+<h4 id="_31">اعتماد المستخدمين<a class="headerlink" href="#_31" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">User Adoption</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Month 1-3</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">500 مزارع نشط</span>
+<span class="w">  </span><span class="nt">Month 4-6</span><span class="p">:</span><span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">2,000 مزارع نشط</span>
+<span class="w">  </span><span class="nt">Month 7-12</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">5,000 مزارع نشط</span>
+<span class="w">  </span><span class="nt">Year 2</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">15,000 مزارع نشط</span>
+
+<span class="nt">Engagement</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">DAU (Daily Active Users)</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 30% من MAU</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Session Duration</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 10 دقيقة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Sessions per Day</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 2</span>
+</code></pre></div>
+
+<h4 id="_32">القيمة المقدمة<a class="headerlink" href="#_32" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">Agricultural Impact</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Fields Monitored</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 10,000 حقل</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Diagnoses per Day</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 100 تشخيص</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Yield Improvement</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">+15% متوسط</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Water Savings</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-20% استهلاك</span>
+
+<span class="nt">Marketplace</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Monthly Transactions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 500 معاملة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">GMV (Gross Merchandise Value)</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">$50,000+/شهر</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Transaction Success Rate</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span><span class="err"> 98%</span>
+</code></pre></div>
+
+<hr />
+<h2 id="13-risk-assessment">13. تحليل المخاطر | Risk Assessment<a class="headerlink" href="#13-risk-assessment" title="Permanent link">&para;</a></h2>
+<h3 id="131">13.1 المخاطر التقنية<a class="headerlink" href="#131" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المخاطرة</th>
+<th>الاحتمالية</th>
+<th>التأثير</th>
+<th>الأولوية</th>
+<th>التخفيف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>انتهاك أمني عبر CORS</strong></td>
+<td>عالية 🔴</td>
+<td>حرج 🔴</td>
+<td>P0</td>
+<td>إصلاح فوري لجميع الخدمات</td>
+</tr>
+<tr>
+<td><strong>فقدان بيانات</strong></td>
+<td>متوسطة 🟠</td>
+<td>حرج 🔴</td>
+<td>P0</td>
+<td>Backup Automation + Testing</td>
+</tr>
+<tr>
+<td><strong>عطل قاعدة البيانات</strong></td>
+<td>منخفضة 🟢</td>
+<td>حرج 🔴</td>
+<td>P1</td>
+<td>High Availability + Replication</td>
+</tr>
+<tr>
+<td><strong>تعارضات المزامنة</strong></td>
+<td>متوسطة 🟠</td>
+<td>متوسط 🟠</td>
+<td>P2</td>
+<td>ETag + Conflict Resolution UI</td>
+</tr>
+<tr>
+<td><strong>أعطال الخدمات</strong></td>
+<td>متوسطة 🟠</td>
+<td>متوسط 🟠</td>
+<td>P2</td>
+<td>Health Checks + Auto-restart</td>
+</tr>
+<tr>
+<td><strong>مشاكل الأداء</strong></td>
+<td>متوسطة 🟠</td>
+<td>متوسط 🟠</td>
+<td>P3</td>
+<td>Load Testing + Optimization</td>
+</tr>
+</tbody>
+</table>
+<h3 id="132">13.2 المخاطر التجارية<a class="headerlink" href="#132" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المخاطرة</th>
+<th>الاحتمالية</th>
+<th>التأثير</th>
+<th>الأولوية</th>
+<th>التخفيف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>عدم اعتماد المستخدمين</strong></td>
+<td>متوسطة 🟠</td>
+<td>عالي 🔴</td>
+<td>P1</td>
+<td>UX Research + Iteration</td>
+</tr>
+<tr>
+<td><strong>مشاكل قابلية الاستخدام</strong></td>
+<td>متوسطة 🟠</td>
+<td>متوسط 🟠</td>
+<td>P2</td>
+<td>User Testing + Feedback</td>
+</tr>
+<tr>
+<td><strong>منافسة قوية</strong></td>
+<td>منخفضة 🟢</td>
+<td>متوسط 🟠</td>
+<td>P3</td>
+<td>Feature Differentiation</td>
+</tr>
+<tr>
+<td><strong>تكاليف تشغيل عالية</strong></td>
+<td>منخفضة 🟢</td>
+<td>متوسط 🟠</td>
+<td>P3</td>
+<td>Cost Optimization</td>
+</tr>
+</tbody>
+</table>
+<h3 id="133-incident-response-plan">13.3 خطة الاستجابة للحوادث (Incident Response Plan)<a class="headerlink" href="#133-incident-response-plan" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">Severity Levels</span><span class="p">:</span>
+
+<span class="nt">SEV 1 (Critical)</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعطل كامل للنظام</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">انتهاك أمني</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">فقدان بيانات</span>
+<span class="w">  </span><span class="nt">Response Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 15 دقيقة</span>
+<span class="w">  </span><span class="nt">Escalation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTO + Full Team</span>
+
+<span class="nt">SEV 2 (High)</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تدهور الأداء الحاد</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خدمة رئيسية معطلة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خطأ يؤثر على &gt; 20% المستخدمين</span>
+<span class="w">  </span><span class="nt">Response Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 1 ساعة</span>
+<span class="w">  </span><span class="nt">Escalation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">On-call Engineer</span>
+
+<span class="nt">SEV 3 (Medium)</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خدمة ثانوية معطلة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">خطأ يؤثر على &lt; 20% المستخدمين</span>
+<span class="w">  </span><span class="nt">Response Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 4 ساعات</span>
+<span class="w">  </span><span class="nt">Escalation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Development Team</span>
+
+<span class="nt">SEV 4 (Low)</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">مشكلة بسيطة</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">طلب تحسين</span>
+<span class="w">  </span><span class="nt">Response Time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt; 24 ساعة</span>
+<span class="w">  </span><span class="nt">Escalation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Normal workflow</span>
+</code></pre></div>
+
+<hr />
+<h2 id="14-final-recommendations">14. التوصيات النهائية | Final Recommendations<a class="headerlink" href="#14-final-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="141">14.1 أولويات الإجراء الفوري (الأسبوع القادم)<a class="headerlink" href="#141" title="Permanent link">&para;</a></h3>
+<h4 id="1-security">1. الأمان (Security) 🔴<a class="headerlink" href="#1-security" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># اليوم 1-2: إصلاح CORS</span>
+./scripts/security/fix-cors-all-services.sh
+
+<span class="c1"># اليوم 3: إزالة Passwords الافتراضية</span>
+./scripts/security/setup-env-variables.sh
+
+<span class="c1"># اليوم 4: تحديث WebSocket Auth</span>
+./scripts/security/enhance-ws-auth.sh
+
+<span class="c1"># اليوم 5: Security Audit</span>
+./scripts/security/run-security-scan.sh
+</code></pre></div>
+
+<h4 id="2-testing">2. الاختبارات (Testing) 🟠<a class="headerlink" href="#2-testing" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># زيادة التغطية للخدمات الحرجة</span>
+pytest<span class="w"> </span>--cov<span class="o">=</span>kernel/services<span class="w"> </span>--cov-report<span class="o">=</span>html
+<span class="c1"># الهدف: 70%+</span>
+
+<span class="c1"># إضافة E2E Tests</span>
+npm<span class="w"> </span>run<span class="w"> </span>test:e2e
+</code></pre></div>
+
+<h4 id="3-documentation">3. التوثيق (Documentation) 🟡<a class="headerlink" href="#3-documentation" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># توليد OpenAPI specs</span>
+./scripts/docs/generate-openapi.sh
+
+<span class="c1"># تحديث README</span>
+./scripts/docs/update-readmes.sh
+</code></pre></div>
+
+<h3 id="142">14.2 الخطوات التالية (الشهر القادم)<a class="headerlink" href="#142" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>تفعيل Monitoring الكامل</strong></li>
+<li>نشر Prometheus + Grafana</li>
+<li>إعداد Dashboards</li>
+<li>
+<p>تفعيل Alerting</p>
+</li>
+<li>
+<p><strong>تحسين الأداء</strong></p>
+</li>
+<li>إضافة Redis Caching</li>
+<li>Database Query Optimization</li>
+<li>
+<p>Load Testing</p>
+</li>
+<li>
+<p><strong>تحسين UX</strong></p>
+</li>
+<li>إكمال TODOs في Flutter</li>
+<li>User Testing Sessions</li>
+<li>Feedback Collection</li>
+</ol>
+<h3 id="143-6-12">14.3 الرؤية طويلة الأجل (6-12 شهر)<a class="headerlink" href="#143-6-12" title="Permanent link">&para;</a></h3>
+<h4 id="_33">المنتج<a class="headerlink" href="#_33" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🎯 <strong>هدف المستخدمين:</strong> 15,000 مزارع نشط</li>
+<li>🎯 <strong>التغطية:</strong> 50,000 حقل مراقب</li>
+<li>🎯 <strong>التأثير:</strong> +20% تحسين في الإنتاجية</li>
+</ul>
+<h4 id="_34">التقنية<a class="headerlink" href="#_34" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🚀 <strong>Service Mesh</strong> (Istio)</li>
+<li>🚀 <strong>GraphQL Gateway</strong></li>
+<li>🚀 <strong>ML Pipeline</strong> محسّن</li>
+<li>🚀 <strong>Multi-Region</strong> deployment</li>
+</ul>
+<h4 id="_35">التوسع<a class="headerlink" href="#_35" title="Permanent link">&para;</a></h4>
+<ul>
+<li>🌍 <strong>اليمن</strong> (المرحلة 1)</li>
+<li>🌍 <strong>السعودية</strong> (المرحلة 2)</li>
+<li>🌍 <strong>مصر + السودان</strong> (المرحلة 3)</li>
+</ul>
+<hr />
+<h2 id="15-conclusion">15. الخلاصة | Conclusion<a class="headerlink" href="#15-conclusion" title="Permanent link">&para;</a></h2>
+<h3 id="_36">النقاط الرئيسية<a class="headerlink" href="#_36" title="Permanent link">&para;</a></h3>
+<h4 id="strengths">✅ نقاط القوة (Strengths)<a class="headerlink" href="#strengths" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>بنية معمارية ممتازة</strong> - Microservices مصممة بشكل احترافي</li>
+<li><strong>تقنيات حديثة</strong> - FastAPI, Flutter, Next.js, PostgreSQL/PostGIS</li>
+<li><strong>ميزات زراعية متقدمة</strong> - NDVI, AI disease detection, smart irrigation</li>
+<li><strong>Offline-First</strong> - تطبيق موبايل يعمل بدون إنترنت</li>
+<li><strong>DevOps متقدم</strong> - GitOps, ArgoCD, Helm, IDP</li>
+<li><strong>توثيق جيد</strong> - 22 ملف README + 11 ملف documentation</li>
+</ol>
+<h4 id="areas-for-improvement">⚠️ نقاط تحتاج تحسين (Areas for Improvement)<a class="headerlink" href="#areas-for-improvement" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>الأمان</strong> - CORS wildcards, default passwords (P0)</li>
+<li><strong>الاختبارات</strong> - تغطية منخفضة (30-40%)</li>
+<li><strong>التوثيق</strong> - OpenAPI/Swagger غير مكتمل</li>
+<li><strong>Mobile TODOs</strong> - 24 TODO في التطبيق</li>
+<li><strong>Monitoring</strong> - يحتاج تفعيل كامل</li>
+</ol>
+<h4 id="_37">🎯 التقييم النهائي<a class="headerlink" href="#_37" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│           📊 التقييم الشامل: 8.1/10                   │
+│                                                         │
+│   ⭐⭐⭐⭐⭐⭐⭐⭐ ☆ ☆                              │
+│                                                         │
+│   الحالة: جاهز للإنتاج مع تحسينات ضرورية            │
+│                                                         │
+│   الوقت المطلوب للجاهزية الكاملة: 2-4 أسابيع         │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="_38">الحكم النهائي<a class="headerlink" href="#_38" title="Permanent link">&para;</a></h3>
+<p><strong>منصة سهول الزراعية v15.3.2</strong> هي مشروع <strong>احترافي ومتقدم</strong> يعكس فهماً عميقاً للتقنيات الحديثة ومتطلبات القطاع الزراعي. المشروع <strong>جاهز للإنتاج من الناحية المعمارية</strong>، لكنه يحتاج إلى:</p>
+<ol>
+<li>✅ <strong>إصلاحات أمنية عاجلة</strong> (1-2 أسبوع)</li>
+<li>✅ <strong>زيادة التغطية الاختبارية</strong> (2-3 أسابيع)</li>
+<li>✅ <strong>إكمال الميزات الناقصة</strong> (1-2 أسبوع)</li>
+<li>✅ <strong>تفعيل Monitoring</strong> (1 أسبوع)</li>
+</ol>
+<p>بعد معالجة هذه النقاط، ستكون المنصة <strong>جاهزة تماماً للإنتاج</strong> وقادرة على خدمة آلاف المزارعين بكفاءة عالية.</p>
+<h3 id="_39">رسالة للفريق<a class="headerlink" href="#_39" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>"لقد بنيتم منصة رائعة بمعايير احترافية عالية. البنية المعمارية ممتازة، والتقنيات حديثة، والميزات مبتكرة. مع بعض التحسينات الأمنية والاختبارات الإضافية، ستكون لديكم منصة زراعية ذكية قادرة على منافسة الحلول العالمية."</p>
+<p><strong>– نظام المراجعة الآلية</strong></p>
+</blockquote>
+<hr />
+<h2 id="appendices">المرفقات | Appendices<a class="headerlink" href="#appendices" title="Permanent link">&para;</a></h2>
+<h3 id="a-production-checklist">A. قائمة التحقق للنشر (Production Checklist)<a class="headerlink" href="#a-production-checklist" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="gu">## Security ✅</span>
+<span class="k">- [ ]</span> إصلاح جميع CORS wildcards
+<span class="k">- [ ]</span> إزالة كلمات المرور الافتراضية
+<span class="k">- [ ]</span> تفعيل HTTPS في كل مكان
+<span class="k">- [ ]</span> تحديث مصادقة WebSocket
+<span class="k">- [ ]</span> Secrets Management (Vault/AWS Secrets)
+<span class="k">- [ ]</span> Security Scan (Trivy + Snyk)
+
+<span class="gu">## Infrastructure ✅</span>
+<span class="k">- [ ]</span> Kubernetes Cluster جاهز
+<span class="k">- [ ]</span> Helm Charts مُختبرة
+<span class="k">- [ ]</span> CI/CD Pipelines فعالة
+<span class="k">- [ ]</span> Monitoring (Prometheus + Grafana)
+<span class="k">- [ ]</span> Log Aggregation (ELK أو Loki)
+<span class="k">- [ ]</span> Backup Strategy مُفعلة
+
+<span class="gu">## Database ✅</span>
+<span class="k">- [ ]</span> PostgreSQL SSL enabled
+<span class="k">- [ ]</span> Automated Backups
+<span class="k">- [ ]</span> Connection Pooling
+<span class="k">- [ ]</span> Audit Logging
+<span class="k">- [ ]</span> Replication (Read Replicas)
+
+<span class="gu">## Testing ✅</span>
+<span class="k">- [ ]</span> Unit Tests &gt; 70%
+<span class="k">- [ ]</span> Integration Tests
+<span class="k">- [ ]</span> E2E Tests
+<span class="k">- [ ]</span> Load Testing
+<span class="k">- [ ]</span> Security Testing
+
+<span class="gu">## Mobile App ✅</span>
+<span class="k">- [ ]</span> Production API endpoints
+<span class="k">- [ ]</span> Signing Keys generated
+<span class="k">- [ ]</span> Offline functionality tested
+<span class="k">- [ ]</span> App Store submission ready
+
+<span class="gu">## Documentation ✅</span>
+<span class="k">- [ ]</span> API Documentation complete
+<span class="k">- [ ]</span> Operations Runbook
+<span class="k">- [ ]</span> Disaster Recovery Plan
+<span class="k">- [ ]</span> User Guides
+</code></pre></div>
+
+<h3 id="b">B. جهات الاتصال والمساعدة<a class="headerlink" href="#b" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">Technical Support</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Email</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">support@sahool.io</span>
+<span class="w">  </span><span class="nt">Slack</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-tech</span>
+<span class="w">  </span><span class="nt">On-call</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">+967-xxx-xxx-xxx</span>
+
+<span class="nt">Documentation</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Main</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://docs.sahool.io</span>
+<span class="w">  </span><span class="nt">API</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://api.sahool.io/docs</span>
+<span class="w">  </span><span class="nt">GitHub</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/kafaat/sahool-unified-v15-idp</span>
+
+<span class="nt">Emergency Contacts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">CTO</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cto@sahool.io</span>
+<span class="w">  </span><span class="nt">DevOps Lead</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">devops@sahool.io</span>
+<span class="w">  </span><span class="nt">Security Team</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">security@sahool.io</span>
+</code></pre></div>
+
+<hr />
+<p><strong>تاريخ التقرير:</strong> ديسمبر 2024<br />
+<strong>الإصدار:</strong> 1.0<br />
+<strong>الحالة:</strong> نهائي  </p>
+<hr />
+<div dir="rtl" align="center">
+
+# 🌾 سهول - منصة الزراعة الذكية 🌾
+
+**من بيانات الحقل إلى قرارات مدعومة بالذكاء الاصطناعي**
+
+[![الحالة](https://img.shields.io/badge/status-production--ready-green)]()
+[![الإصدار](https://img.shields.io/badge/version-15.3.2-blue)]()
+[![التقييم](https://img.shields.io/badge/rating-8.1%2F10-brightgreen)]()
+
+**آخر تحديث:** ديسمبر 2024
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

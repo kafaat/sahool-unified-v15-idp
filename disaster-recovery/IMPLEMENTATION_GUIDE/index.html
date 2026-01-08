@@ -1,0 +1,1671 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform - Disaster Recovery Implementation Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-disaster-recovery-implementation-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform - Disaster Recovery Implementation Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-disaster-recovery-implementation-guide">SAHOOL Platform - Disaster Recovery Implementation Guide<a class="headerlink" href="#sahool-platform-disaster-recovery-implementation-guide" title="Permanent link">&para;</a></h1>
+<h1 id="_1">دليل تنفيذ التعافي من الكوارث<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> 1.0.0
+<strong>Date:</strong> 2026-01-06
+<strong>Status:</strong> IMPLEMENTATION READY</p>
+<hr />
+<h2 id="overview">📋 Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide provides step-by-step instructions for implementing the disaster recovery improvements for the SAHOOL platform, addressing the gaps identified in the DR audit (score: 5.5/10 → target: 9/10).</p>
+<h2 id="implementation-objectives">🎯 Implementation Objectives<a class="headerlink" href="#implementation-objectives" title="Permanent link">&para;</a></h2>
+<p>Based on the audit findings, this implementation will:</p>
+<ol>
+<li>✅ Implement PostgreSQL streaming replication with Patroni</li>
+<li>✅ Add automated failover capabilities (RTO: &lt;30 seconds)</li>
+<li>✅ Enable WAL archiving for Point-in-Time Recovery (RPO: &lt;5 minutes)</li>
+<li>✅ Configure cross-region backup replication</li>
+<li>✅ Add comprehensive monitoring for RTO/RPO compliance</li>
+<li>✅ Create DR runbooks and testing procedures</li>
+</ol>
+<h2 id="files-created">📁 Files Created<a class="headerlink" href="#files-created" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-ha-configuration">PostgreSQL HA Configuration<a class="headerlink" href="#postgresql-ha-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">/</span><span class="nv">home</span><span class="o">/</span><span class="nv">user</span><span class="o">/</span><span class="nv">sahool</span><span class="o">-</span><span class="nv">unified</span><span class="o">-</span><span class="nv">v15</span><span class="o">-</span><span class="nv">idp</span><span class="o">/</span><span class="nv">infrastructure</span><span class="o">/</span><span class="nv">core</span><span class="o">/</span><span class="nv">postgres</span><span class="o">/</span><span class="nv">ha</span><span class="o">-</span><span class="nv">replication</span><span class="o">/</span>
+├──<span class="w"> </span><span class="nv">patroni</span><span class="o">-</span><span class="nv">config</span>.<span class="nv">yml</span><span class="w">                  </span>#<span class="w"> </span><span class="nv">Patroni</span><span class="w"> </span><span class="nv">configuration</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">HA</span>
+├──<span class="w"> </span><span class="nv">docker</span><span class="o">-</span><span class="nv">compose</span>.<span class="nv">ha</span>.<span class="nv">yml</span><span class="w">               </span>#<span class="w"> </span><span class="mi">3</span><span class="o">-</span><span class="nv">node</span><span class="w"> </span><span class="nv">HA</span><span class="w"> </span><span class="nv">cluster</span><span class="w"> </span><span class="nv">setup</span>
+├──<span class="w"> </span><span class="nv">haproxy</span>.<span class="nv">cfg</span><span class="w">                         </span>#<span class="w"> </span><span class="nv">Load</span><span class="w"> </span><span class="nv">balancer</span><span class="w"> </span><span class="nv">configuration</span>
+└──<span class="w"> </span><span class="nv">scripts</span><span class="o">/</span>
+<span class="w">    </span>├──<span class="w"> </span><span class="nv">wal</span><span class="o">-</span><span class="nv">archive</span>.<span class="nv">sh</span><span class="w">                  </span>#<span class="w"> </span><span class="nv">WAL</span><span class="w"> </span><span class="nv">archiving</span><span class="w"> </span><span class="nv">to</span><span class="w"> </span><span class="nv">S3</span>
+<span class="w">    </span>├──<span class="w"> </span><span class="nv">wal</span><span class="o">-</span><span class="nv">restore</span>.<span class="nv">sh</span><span class="w">                  </span>#<span class="w"> </span><span class="nv">WAL</span><span class="w"> </span><span class="nv">restoration</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">PITR</span>
+<span class="w">    </span>├──<span class="w"> </span><span class="nv">on</span><span class="o">-</span><span class="nv">role</span><span class="o">-</span><span class="nv">change</span>.<span class="nv">sh</span><span class="w">               </span>#<span class="w"> </span><span class="nv">Failover</span><span class="w"> </span><span class="nv">callback</span>
+<span class="w">    </span>└──<span class="w"> </span><span class="nv">post</span><span class="o">-</span><span class="nv">bootstrap</span>.<span class="nv">sh</span><span class="w">               </span>#<span class="w"> </span><span class="nv">Initial</span><span class="w"> </span><span class="nv">cluster</span><span class="w"> </span><span class="nv">setup</span>
+</code></pre></div>
+
+<h3 id="disaster-recovery-scripts">Disaster Recovery Scripts<a class="headerlink" href="#disaster-recovery-scripts" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">user</span><span class="o">/</span><span class="n">sahool</span><span class="o">-</span><span class="n">unified</span><span class="o">-</span><span class="n">v15</span><span class="o">-</span><span class="n">idp</span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">disaster</span><span class="o">-</span><span class="n">recovery</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">failover</span><span class="o">-</span><span class="n">postgres</span><span class="o">.</span><span class="n">sh</span><span class="w">                </span><span class="c1"># Automated failover management</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">test</span><span class="o">-</span><span class="n">failover</span><span class="o">.</span><span class="n">sh</span><span class="w">                    </span><span class="c1"># DR testing suite</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">verify</span><span class="o">-</span><span class="n">backups</span><span class="o">.</span><span class="n">sh</span><span class="w">                   </span><span class="c1"># Backup verification</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">setup</span><span class="o">-</span><span class="n">cross</span><span class="o">-</span><span class="n">region</span><span class="o">-</span><span class="n">replication</span><span class="o">.</span><span class="n">sh</span><span class="w">   </span><span class="c1"># Cross-region setup</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">backup</span><span class="o">-</span><span class="n">metrics</span><span class="o">-</span><span class="n">exporter</span><span class="o">.</span><span class="n">sh</span><span class="w">          </span><span class="c1"># Prometheus metrics</span>
+</code></pre></div>
+
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>/home/user/sahool-unified-v15-idp/docs/disaster-recovery/
+├── DR_RUNBOOK.md                       # Comprehensive DR procedures
+└── IMPLEMENTATION_GUIDE.md             # This file
+</code></pre></div>
+
+<h3 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>/home/user/sahool-unified-v15-idp/infrastructure/monitoring/
+├── prometheus/rules/disaster-recovery.yml
+└── grafana/dashboards/disaster-recovery-dashboard.json
+</code></pre></div>
+
+<hr />
+<h2 id="phase-1-postgresql-ha-setup-critical-priority">🚀 Phase 1: PostgreSQL HA Setup (Critical Priority)<a class="headerlink" href="#phase-1-postgresql-ha-setup-critical-priority" title="Permanent link">&para;</a></h2>
+<h3 id="current-state">Current State<a class="headerlink" href="#current-state" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ Single PostgreSQL instance</li>
+<li>❌ No replication</li>
+<li>❌ RPO: 24 hours</li>
+<li>❌ Manual failover only</li>
+</ul>
+<h3 id="target-state">Target State<a class="headerlink" href="#target-state" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ 3-node PostgreSQL cluster</li>
+<li>✅ Streaming replication</li>
+<li>✅ RPO: &lt;5 seconds</li>
+<li>✅ Automated failover (&lt;30 seconds)</li>
+</ul>
+<h3 id="implementation-steps">Implementation Steps<a class="headerlink" href="#implementation-steps" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-prepare-environment-variables">Step 1: Prepare Environment Variables<a class="headerlink" href="#step-1-prepare-environment-variables" title="Permanent link">&para;</a></h4>
+<p>Create or update <code>.env</code> file:</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
+
+<span class="c1"># Add these variables to .env</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>.env<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+
+<span class="s"># PostgreSQL HA Configuration</span>
+<span class="s">POSTGRES_PASSWORD=&lt;your-secure-password&gt;</span>
+<span class="s">REPLICATION_PASSWORD=&lt;replication-password&gt;</span>
+
+<span class="s"># S3/MinIO for WAL Archive</span>
+<span class="s">S3_ENDPOINT=http://minio:9000</span>
+<span class="s">S3_BUCKET=sahool-backups</span>
+<span class="s">S3_ACCESS_KEY=&lt;your-access-key&gt;</span>
+<span class="s">S3_SECRET_KEY=&lt;your-secret-key&gt;</span>
+
+<span class="s"># Monitoring</span>
+<span class="s">PROMETHEUS_PUSHGATEWAY_URL=http://prometheus-pushgateway:9091</span>
+<span class="s">SLACK_WEBHOOK_URL=&lt;your-slack-webhook&gt;</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h4 id="step-2-deploy-postgresql-ha-cluster">Step 2: Deploy PostgreSQL HA Cluster<a class="headerlink" href="#step-2-deploy-postgresql-ha-cluster" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Navigate to HA configuration</span>
+<span class="nb">cd</span><span class="w"> </span>infrastructure/core/postgres/ha-replication
+
+<span class="c1"># Review configuration</span>
+cat<span class="w"> </span>patroni-config.yml
+cat<span class="w"> </span>docker-compose.ha.yml
+
+<span class="c1"># Start the HA cluster</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.ha.yml<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Wait for cluster to initialize (2-3 minutes)</span>
+sleep<span class="w"> </span><span class="m">180</span>
+
+<span class="c1"># Verify cluster status</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.ha.yml<span class="w"> </span>ps
+
+<span class="c1"># Check Patroni cluster</span>
+curl<span class="w"> </span>http://localhost:8008/cluster<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+</code></pre></div>
+
+<h4 id="step-3-verify-replication">Step 3: Verify Replication<a class="headerlink" href="#step-3-verify-replication" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check replication status</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;SELECT client_addr, state, sync_state, replay_lag FROM pg_stat_replication;&quot;</span>
+
+<span class="c1"># Verify HAProxy routing</span>
+curl<span class="w"> </span>http://localhost:7000/stats
+</code></pre></div>
+
+<h4 id="step-4-test-failover">Step 4: Test Failover<a class="headerlink" href="#step-4-test-failover" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
+
+<span class="c1"># Check cluster health</span>
+./scripts/disaster-recovery/failover-postgres.sh<span class="w"> </span>status
+
+<span class="c1"># Perform test switchover</span>
+./scripts/disaster-recovery/failover-postgres.sh<span class="w"> </span>switchover
+
+<span class="c1"># Verify new primary</span>
+./scripts/disaster-recovery/failover-postgres.sh<span class="w"> </span>verify
+</code></pre></div>
+
+<p><strong>Expected Results:</strong>
+- ✅ 3 PostgreSQL nodes running
+- ✅ Replication lag &lt; 1MB
+- ✅ Failover completes in &lt;30 seconds
+- ✅ Zero data loss during failover</p>
+<hr />
+<h2 id="phase-2-wal-archiving-pitr-setup">🔄 Phase 2: WAL Archiving &amp; PITR Setup<a class="headerlink" href="#phase-2-wal-archiving-pitr-setup" title="Permanent link">&para;</a></h2>
+<h3 id="implementation-steps_1">Implementation Steps<a class="headerlink" href="#implementation-steps_1" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-verify-wal-archive-configuration">Step 1: Verify WAL Archive Configuration<a class="headerlink" href="#step-1-verify-wal-archive-configuration" title="Permanent link">&para;</a></h4>
+<p>WAL archiving is already configured in <code>patroni-config.yml</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">archive_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on</span>
+<span class="nt">archive_command</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;/usr/local/bin/wal-archive.sh</span><span class="nv"> </span><span class="s">%p</span><span class="nv"> </span><span class="s">%f&#39;</span>
+<span class="nt">archive_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w">  </span><span class="c1"># 5 minutes</span>
+</code></pre></div>
+
+<h4 id="step-2-create-s3-bucket-for-wal-archive">Step 2: Create S3 Bucket for WAL Archive<a class="headerlink" href="#step-2-create-s3-bucket-for-wal-archive" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Using MinIO client</span>
+mc<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span>minio<span class="w"> </span>http://minio:9000<span class="w"> </span><span class="nv">$MINIO_ROOT_USER</span><span class="w"> </span><span class="nv">$MINIO_ROOT_PASSWORD</span>
+mc<span class="w"> </span>mb<span class="w"> </span>minio/sahool-wal-archive
+mc<span class="w"> </span>version<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>minio/sahool-wal-archive
+
+<span class="c1"># Or using AWS CLI for AWS S3</span>
+aws<span class="w"> </span>s3<span class="w"> </span>mb<span class="w"> </span>s3://sahool-wal-archive<span class="w"> </span>--region<span class="w"> </span>me-south-1
+aws<span class="w"> </span>s3api<span class="w"> </span>put-bucket-versioning<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--bucket<span class="w"> </span>sahool-wal-archive<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--versioning-configuration<span class="w"> </span><span class="nv">Status</span><span class="o">=</span>Enabled
+</code></pre></div>
+
+<h4 id="step-3-verify-wal-archiving">Step 3: Verify WAL Archiving<a class="headerlink" href="#step-3-verify-wal-archiving" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check WAL files are being archived</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>ls<span class="w"> </span>-lh<span class="w"> </span>/var/lib/postgresql/wal-archive/
+
+<span class="c1"># Check S3/MinIO</span>
+mc<span class="w"> </span>ls<span class="w"> </span>minio/sahool-wal-archive/
+
+<span class="c1"># Force a WAL switch to test</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT pg_switch_wal();&quot;</span>
+
+<span class="c1"># Wait 30 seconds and check again</span>
+sleep<span class="w"> </span><span class="m">30</span>
+mc<span class="w"> </span>ls<span class="w"> </span>minio/sahool-wal-archive/
+</code></pre></div>
+
+<p><strong>Expected Results:</strong>
+- ✅ WAL files appear in archive directory
+- ✅ WAL files uploaded to S3/MinIO
+- ✅ New WAL files every 5 minutes (or on activity)</p>
+<hr />
+<h2 id="phase-3-cross-region-replication">🌍 Phase 3: Cross-Region Replication<a class="headerlink" href="#phase-3-cross-region-replication" title="Permanent link">&para;</a></h2>
+<h3 id="implementation-steps_2">Implementation Steps<a class="headerlink" href="#implementation-steps_2" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-configure-cross-region-replication">Step 1: Configure Cross-Region Replication<a class="headerlink" href="#step-1-configure-cross-region-replication" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
+
+<span class="c1"># For AWS S3</span>
+./scripts/disaster-recovery/setup-cross-region-replication.sh<span class="w"> </span>aws
+
+<span class="c1"># For MinIO</span>
+./scripts/disaster-recovery/setup-cross-region-replication.sh<span class="w"> </span>minio
+
+<span class="c1"># Verify replication</span>
+./scripts/disaster-recovery/setup-cross-region-replication.sh<span class="w"> </span>verify
+</code></pre></div>
+
+<h4 id="step-2-test-cross-region-failover-aws-rds">Step 2: Test Cross-Region Failover (AWS RDS)<a class="headerlink" href="#step-2-test-cross-region-failover-aws-rds" title="Permanent link">&para;</a></h4>
+<p>If using AWS RDS with cross-region read replica:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Promote read replica in secondary region</span>
+aws<span class="w"> </span>rds<span class="w"> </span>promote-read-replica<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--db-instance-identifier<span class="w"> </span>sahool-db-replica<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--region<span class="w"> </span>me-central-1
+
+<span class="c1"># Wait for promotion</span>
+aws<span class="w"> </span>rds<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>db-instance-available<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--db-instance-identifier<span class="w"> </span>sahool-db-replica<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--region<span class="w"> </span>me-central-1
+</code></pre></div>
+
+<p><strong>Expected Results:</strong>
+- ✅ Backups replicated to secondary region
+- ✅ Replication lag &lt; 15 minutes
+- ✅ Read replica can be promoted</p>
+<hr />
+<h2 id="phase-4-monitoring-setup">📊 Phase 4: Monitoring Setup<a class="headerlink" href="#phase-4-monitoring-setup" title="Permanent link">&para;</a></h2>
+<h3 id="implementation-steps_3">Implementation Steps<a class="headerlink" href="#implementation-steps_3" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-deploy-prometheus-rules">Step 1: Deploy Prometheus Rules<a class="headerlink" href="#step-1-deploy-prometheus-rules" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
+
+<span class="c1"># Copy DR rules to Prometheus configuration</span>
+cp<span class="w"> </span>infrastructure/monitoring/prometheus/rules/disaster-recovery.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>/etc/prometheus/rules/
+
+<span class="c1"># Reload Prometheus</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:9090/-/reload
+</code></pre></div>
+
+<h4 id="step-2-import-grafana-dashboard">Step 2: Import Grafana Dashboard<a class="headerlink" href="#step-2-import-grafana-dashboard" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Using Grafana API</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://admin:admin@localhost:3000/api/dashboards/db<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>@infrastructure/monitoring/grafana/dashboards/disaster-recovery-dashboard.json
+</code></pre></div>
+
+<h4 id="step-3-setup-metrics-exporter-cron-job">Step 3: Setup Metrics Exporter Cron Job<a class="headerlink" href="#step-3-setup-metrics-exporter-cron-job" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Add to crontab</span>
+crontab<span class="w"> </span>-e
+
+<span class="c1"># Add this line (runs every 5 minutes)</span>
+*/5<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>/home/user/sahool-unified-v15-idp/scripts/disaster-recovery/backup-metrics-exporter.sh
+</code></pre></div>
+
+<h4 id="step-4-verify-monitoring">Step 4: Verify Monitoring<a class="headerlink" href="#step-4-verify-monitoring" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check Prometheus targets</span>
+curl<span class="w"> </span>http://localhost:9090/api/v1/targets<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.data.activeTargets[] | select(.labels.job==&quot;sahool_backup_metrics&quot;)&#39;</span>
+
+<span class="c1"># View Grafana dashboard</span>
+<span class="c1"># Navigate to: http://localhost:3000/d/sahool-dr/disaster-recovery-monitoring</span>
+</code></pre></div>
+
+<p><strong>Expected Results:</strong>
+- ✅ Prometheus alerts configured
+- ✅ Grafana dashboard showing metrics
+- ✅ Backup metrics updating every 5 minutes</p>
+<hr />
+<h2 id="phase-5-dr-testing">🧪 Phase 5: DR Testing<a class="headerlink" href="#phase-5-dr-testing" title="Permanent link">&para;</a></h2>
+<h3 id="implementation-steps_4">Implementation Steps<a class="headerlink" href="#implementation-steps_4" title="Permanent link">&para;</a></h3>
+<h4 id="step-1-run-basic-dr-tests">Step 1: Run Basic DR Tests<a class="headerlink" href="#step-1-run-basic-dr-tests" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp
+
+<span class="c1"># Run basic tests (no actual failover)</span>
+./scripts/disaster-recovery/test-failover.sh<span class="w"> </span>basic
+</code></pre></div>
+
+<h4 id="step-2-run-full-dr-test-suite">Step 2: Run Full DR Test Suite<a class="headerlink" href="#step-2-run-full-dr-test-suite" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run comprehensive tests (includes failover)</span>
+./scripts/disaster-recovery/test-failover.sh<span class="w"> </span>comprehensive
+</code></pre></div>
+
+<h4 id="step-3-verify-backups">Step 3: Verify Backups<a class="headerlink" href="#step-3-verify-backups" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run backup verification</span>
+./scripts/disaster-recovery/verify-backups.sh
+
+<span class="c1"># Check results</span>
+cat<span class="w"> </span>logs/backup-verification/verification_report_*.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>.
+</code></pre></div>
+
+<h4 id="step-4-schedule-regular-dr-drills">Step 4: Schedule Regular DR Drills<a class="headerlink" href="#step-4-schedule-regular-dr-drills" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Add to crontab for monthly DR drill</span>
+crontab<span class="w"> </span>-e
+
+<span class="c1"># Add this line (runs on 1st of each month at 2 AM)</span>
+<span class="m">0</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">1</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>/home/user/sahool-unified-v15-idp/scripts/disaster-recovery/test-failover.sh<span class="w"> </span>full<span class="w"> </span>&gt;&gt;<span class="w"> </span>/var/log/sahool/dr-drill.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</code></pre></div>
+
+<p><strong>Expected Results:</strong>
+- ✅ All tests pass
+- ✅ Failover completes successfully
+- ✅ Backups verified
+- ✅ Regular drills scheduled</p>
+<hr />
+<h2 id="verification-checklist">✅ Verification Checklist<a class="headerlink" href="#verification-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-ha">PostgreSQL HA<a class="headerlink" href="#postgresql-ha" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 3 PostgreSQL nodes running and healthy</li>
+<li>[ ] Replication lag &lt; 1MB</li>
+<li>[ ] Automated failover tested and working</li>
+<li>[ ] Failover time &lt; 30 seconds</li>
+<li>[ ] HAProxy routing traffic correctly</li>
+</ul>
+<h3 id="backup-recovery">Backup &amp; Recovery<a class="headerlink" href="#backup-recovery" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Daily backups running automatically</li>
+<li>[ ] WAL archiving active</li>
+<li>[ ] Backups verified weekly</li>
+<li>[ ] PITR tested and working</li>
+<li>[ ] Backup age &lt; 24 hours</li>
+</ul>
+<h3 id="cross-region">Cross-Region<a class="headerlink" href="#cross-region" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Secondary region configured</li>
+<li>[ ] Cross-region replication active</li>
+<li>[ ] Replication lag &lt; 15 minutes</li>
+<li>[ ] Secondary region tested</li>
+</ul>
+<h3 id="monitoring_1">Monitoring<a class="headerlink" href="#monitoring_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Prometheus alerts firing correctly</li>
+<li>[ ] Grafana dashboard showing data</li>
+<li>[ ] Metrics exporter running</li>
+<li>[ ] Alert notifications working</li>
+</ul>
+<h3 id="documentation_1">Documentation<a class="headerlink" href="#documentation_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] DR runbook updated</li>
+<li>[ ] Team trained on procedures</li>
+<li>[ ] Emergency contacts updated</li>
+<li>[ ] Escalation path documented</li>
+</ul>
+<hr />
+<h2 id="expected-improvements">📈 Expected Improvements<a class="headerlink" href="#expected-improvements" title="Permanent link">&para;</a></h2>
+<h3 id="before-implementation">Before Implementation<a class="headerlink" href="#before-implementation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Before</th>
+<th>Target</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DR Readiness Score</td>
+<td>5.5/10</td>
+<td>9/10</td>
+<td>⚠️ Gap</td>
+</tr>
+<tr>
+<td>PostgreSQL HA</td>
+<td>Single</td>
+<td>3-node</td>
+<td>❌ Missing</td>
+</tr>
+<tr>
+<td>RPO</td>
+<td>24 hours</td>
+<td>&lt;5 minutes</td>
+<td>❌ Exceeds</td>
+</tr>
+<tr>
+<td>RTO</td>
+<td>1-2 hours</td>
+<td>&lt;30 seconds</td>
+<td>❌ Exceeds</td>
+</tr>
+<tr>
+<td>Automated Failover</td>
+<td>No</td>
+<td>Yes</td>
+<td>❌ Missing</td>
+</tr>
+<tr>
+<td>DR Drills</td>
+<td>Never</td>
+<td>Monthly</td>
+<td>❌ Missing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="after-implementation">After Implementation<a class="headerlink" href="#after-implementation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>After</th>
+<th>Target</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DR Readiness Score</td>
+<td>9/10</td>
+<td>9/10</td>
+<td>✅ Met</td>
+</tr>
+<tr>
+<td>PostgreSQL HA</td>
+<td>3-node</td>
+<td>3-node</td>
+<td>✅ Met</td>
+</tr>
+<tr>
+<td>RPO</td>
+<td>&lt;5 seconds</td>
+<td>&lt;5 minutes</td>
+<td>✅ Exceeded</td>
+</tr>
+<tr>
+<td>RTO</td>
+<td>&lt;30 seconds</td>
+<td>&lt;30 seconds</td>
+<td>✅ Met</td>
+</tr>
+<tr>
+<td>Automated Failover</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>✅ Met</td>
+</tr>
+<tr>
+<td>DR Drills</td>
+<td>Monthly</td>
+<td>Monthly</td>
+<td>✅ Met</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting">🔧 Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="issue-patroni-cluster-wont-start">Issue: Patroni cluster won't start<a class="headerlink" href="#issue-patroni-cluster-wont-start" title="Permanent link">&para;</a></h3>
+<p><strong>Solution:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check ETCD health</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-etcd<span class="w"> </span>etcdctl<span class="w"> </span>endpoint<span class="w"> </span>health
+
+<span class="c1"># Check logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-postgres-primary
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-etcd
+
+<span class="c1"># Reset cluster if needed</span>
+docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.ha.yml<span class="w"> </span>down<span class="w"> </span>-v
+docker-compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.ha.yml<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<h3 id="issue-replication-lag-is-high">Issue: Replication lag is high<a class="headerlink" href="#issue-replication-lag-is-high" title="Permanent link">&para;</a></h3>
+<p><strong>Solution:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check network connectivity</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>ping<span class="w"> </span>postgres-replica1
+
+<span class="c1"># Check disk I/O</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>iostat<span class="w"> </span>-x<span class="w"> </span><span class="m">1</span>
+
+<span class="c1"># Increase max_wal_senders if needed</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>postgres<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;ALTER SYSTEM SET max_wal_senders = 15; SELECT pg_reload_conf();&quot;</span>
+</code></pre></div>
+
+<h3 id="issue-wal-archiving-not-working">Issue: WAL archiving not working<a class="headerlink" href="#issue-wal-archiving-not-working" title="Permanent link">&para;</a></h3>
+<p><strong>Solution:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check S3/MinIO connectivity</span>
+mc<span class="w"> </span>ls<span class="w"> </span>minio/sahool-wal-archive/
+
+<span class="c1"># Check archive script permissions</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres-primary<span class="w"> </span>ls<span class="w"> </span>-l<span class="w"> </span>/usr/local/bin/wal-archive.sh
+
+<span class="c1"># Check PostgreSQL logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-postgres-primary<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>archive
+</code></pre></div>
+
+<hr />
+<h2 id="support">📞 Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For issues or questions:</p>
+<ul>
+<li><strong>DR Team:</strong> dr-team@sahool.sa</li>
+<li><strong>On-Call:</strong> +966-XXX-XXX-XXX</li>
+<li><strong>Documentation:</strong> https://docs.sahool.sa/dr</li>
+<li><strong>Incident Channel:</strong> #platform-incidents</li>
+</ul>
+<hr />
+<h2 id="next-steps">📝 Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Week 1-2:</strong> Implement PostgreSQL HA and WAL archiving</li>
+<li><strong>Week 3:</strong> Configure cross-region replication</li>
+<li><strong>Week 4:</strong> Setup monitoring and conduct first DR drill</li>
+<li><strong>Monthly:</strong> Run automated DR drills</li>
+<li><strong>Quarterly:</strong> Full region failover test</li>
+</ol>
+<hr />
+<p><strong>Document Version:</strong> 1.0.0
+<strong>Last Updated:</strong> 2026-01-06
+<strong>Next Review:</strong> 2026-04-06</p>
+<hr />
+<p><strong>END OF IMPLEMENTATION GUIDE</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

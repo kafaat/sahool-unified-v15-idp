@@ -1,0 +1,1535 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Rate Limiting Configuration Across SAHOOL Services - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rate-limiting-configuration-across-sahool-services" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Rate Limiting Configuration Across SAHOOL Services
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="rate-limiting-configuration-across-sahool-services">Rate Limiting Configuration Across SAHOOL Services<a class="headerlink" href="#rate-limiting-configuration-across-sahool-services" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This document provides a comprehensive overview of rate limiting implementation across all critical Python services in the SAHOOL platform. Rate limiting is implemented using Redis-backed distributed rate limiting with in-memory fallback for development.</p>
+<h2 id="rate-limit-tiers">Rate Limit Tiers<a class="headerlink" href="#rate-limit-tiers" title="Permanent link">&para;</a></h2>
+<p>The platform uses the following rate limit tiers defined in <code>/apps/services/shared/middleware/rate_limiter.py</code>:</p>
+<h3 id="tier-configuration">Tier Configuration<a class="headerlink" href="#tier-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Requests/Min</th>
+<th>Requests/Hour</th>
+<th>Burst Limit</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FREE</strong></td>
+<td>30</td>
+<td>500</td>
+<td>5</td>
+<td>Free tier users</td>
+</tr>
+<tr>
+<td><strong>STANDARD</strong></td>
+<td>60</td>
+<td>2,000</td>
+<td>10</td>
+<td>Standard API endpoints</td>
+</tr>
+<tr>
+<td><strong>PREMIUM</strong></td>
+<td>120</td>
+<td>5,000</td>
+<td>20</td>
+<td>Premium users / High-volume endpoints</td>
+</tr>
+<tr>
+<td><strong>INTERNAL</strong></td>
+<td>1,000</td>
+<td>50,000</td>
+<td>100</td>
+<td>Internal service-to-service communication</td>
+</tr>
+<tr>
+<td><strong>UNLIMITED</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>∞</td>
+<td>No rate limiting (disabled)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<p>Rate limits can be configured via environment variables:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># FREE Tier</span>
+<span class="nv">RATE_LIMIT_FREE_RPM</span><span class="o">=</span><span class="m">30</span>
+<span class="nv">RATE_LIMIT_FREE_RPH</span><span class="o">=</span><span class="m">500</span>
+<span class="nv">RATE_LIMIT_FREE_BURST</span><span class="o">=</span><span class="m">5</span>
+
+<span class="c1"># STANDARD Tier</span>
+<span class="nv">RATE_LIMIT_STANDARD_RPM</span><span class="o">=</span><span class="m">60</span>
+<span class="nv">RATE_LIMIT_STANDARD_RPH</span><span class="o">=</span><span class="m">2000</span>
+<span class="nv">RATE_LIMIT_STANDARD_BURST</span><span class="o">=</span><span class="m">10</span>
+
+<span class="c1"># PREMIUM Tier</span>
+<span class="nv">RATE_LIMIT_PREMIUM_RPM</span><span class="o">=</span><span class="m">120</span>
+<span class="nv">RATE_LIMIT_PREMIUM_RPH</span><span class="o">=</span><span class="m">5000</span>
+<span class="nv">RATE_LIMIT_PREMIUM_BURST</span><span class="o">=</span><span class="m">20</span>
+
+<span class="c1"># INTERNAL Tier</span>
+<span class="nv">RATE_LIMIT_INTERNAL_RPM</span><span class="o">=</span><span class="m">1000</span>
+<span class="nv">RATE_LIMIT_INTERNAL_RPH</span><span class="o">=</span><span class="m">50000</span>
+<span class="nv">RATE_LIMIT_INTERNAL_BURST</span><span class="o">=</span><span class="m">100</span>
+
+<span class="c1"># Redis Configuration</span>
+<span class="nv">REDIS_URL</span><span class="o">=</span>redis://redis:6379/0
+</code></pre></div>
+
+<h2 id="services-with-rate-limiting">Services with Rate Limiting<a class="headerlink" href="#services-with-rate-limiting" title="Permanent link">&para;</a></h2>
+<h3 id="1-billing-core">1. <strong>billing-core</strong> ✅<a class="headerlink" href="#1-billing-core" title="Permanent link">&para;</a></h3>
+<p><strong>Port:</strong> 8089
+<strong>Rate Limiting:</strong> Enabled
+<strong>Configuration:</strong>
+- Uses Redis-backed rate limiting when REDIS_URL is available
+- Excludes webhook endpoints from rate limiting:
+  - <code>/healthz</code>
+  - <code>/v1/webhooks/stripe</code>
+  - <code>/v1/webhooks/tharwatt</code>
+- <strong>Tier Strategy:</strong> Default tier function (IP-based, checks internal service header)</p>
+<p><strong>Rationale:</strong>
+- Payment endpoints need protection against abuse
+- Webhooks excluded to prevent payment processing delays</p>
+<hr />
+<h3 id="2-ai-advisor">2. <strong>ai-advisor</strong> ✅<a class="headerlink" href="#2-ai-advisor" title="Permanent link">&para;</a></h3>
+<p><strong>Port:</strong> 8115
+<strong>Rate Limiting:</strong> Enabled
+<strong>Configuration:</strong>
+- Uses shared rate_limit_middleware with custom rate_limiter
+- Excludes health and monitoring endpoints:
+  - <code>/healthz</code>
+  - <code>/docs</code>
+  - <code>/redoc</code>
+  - <code>/openapi.json</code>
+- <strong>Tier Strategy:</strong> Default (checks X-Internal-Service header, X-Rate-Limit-Tier header)</p>
+<p><strong>Rationale:</strong>
+- AI advisory endpoints are compute-intensive and costly
+- Need to prevent abuse and control LLM costs
+- Monitoring endpoints excluded for operational visibility</p>
+<hr />
+<h3 id="3-ai-agents-core-newly-added">3. <strong>ai-agents-core</strong> ✅ <strong>(Newly Added)</strong><a class="headerlink" href="#3-ai-agents-core-newly-added" title="Permanent link">&para;</a></h3>
+<p><strong>Port:</strong> 8120
+<strong>Rate Limiting:</strong> Enabled
+<strong>Configuration:</strong>
+- Custom tier function based on endpoint type:
+  - <code>/api/v1/analyze</code>: STANDARD tier (60/min) - Full field analysis is resource-intensive
+  - <code>/api/v1/edge/*</code>: PREMIUM tier (120/min) - Edge endpoints need higher throughput
+  - Other endpoints: STANDARD tier (60/min)
+  - Internal services: INTERNAL tier (1000/min)
+- Excluded paths:
+  - <code>/healthz</code>
+  - <code>/api/v1/system/status</code></p>
+<p><strong>Rationale:</strong>
+- Multi-agent AI analysis is extremely resource-intensive
+- Different endpoints have different resource requirements
+- Edge endpoints (mobile, IoT) need higher limits for real-time operations
+- Analysis endpoints need stricter limits to prevent system overload</p>
+<hr />
+<h3 id="4-iot-gateway-newly-added">4. <strong>iot-gateway</strong> ✅ <strong>(Newly Added)</strong><a class="headerlink" href="#4-iot-gateway-newly-added" title="Permanent link">&para;</a></h3>
+<p><strong>Port:</strong> 8106
+<strong>Rate Limiting:</strong> Enabled
+<strong>Configuration:</strong>
+- Custom tier function based on endpoint type:
+  - <code>/sensor/reading</code>: STANDARD tier (60/min) - Single sensor readings
+  - <code>/sensor/batch</code>: PREMIUM tier (120/min) - Batch uploads need higher limits
+  - <code>/device/*</code>: PREMIUM tier (120/min) - Device management operations
+  - Internal services: INTERNAL tier (1000/min)
+- Excluded paths:
+  - <code>/healthz</code>
+  - <code>/health</code>
+  - <code>/stats</code></p>
+<p><strong>Rationale:</strong>
+- IoT endpoints are vulnerable to sensor data flooding attacks
+- Batch endpoints need higher limits for efficient data ingestion
+- Device registration and management need protection
+- Health endpoints excluded for monitoring</p>
+<hr />
+<h3 id="5-field-management-service">5. <strong>field-management-service</strong> ✅<a class="headerlink" href="#5-field-management-service" title="Permanent link">&para;</a></h3>
+<p><strong>Port:</strong> 8083
+<strong>Rate Limiting:</strong> Enabled
+<strong>Configuration:</strong>
+- Uses default rate limiting configuration
+- Standard middleware setup</p>
+<p><strong>Rationale:</strong>
+- Field data management needs protection against bulk operations
+- Prevents accidental or malicious mass field creation/updates</p>
+<hr />
+<h3 id="6-inventory-service">6. <strong>inventory-service</strong> ✅<a class="headerlink" href="#6-inventory-service" title="Permanent link">&para;</a></h3>
+<p><strong>Port:</strong> 8084
+<strong>Rate Limiting:</strong> Enabled
+<strong>Configuration:</strong>
+- Uses default rate limiting configuration
+- Standard middleware setup</p>
+<p><strong>Rationale:</strong>
+- Inventory operations need protection against mass updates
+- Prevents inventory manipulation attacks</p>
+<hr />
+<h3 id="7-notification-service">7. <strong>notification-service</strong> ✅<a class="headerlink" href="#7-notification-service" title="Permanent link">&para;</a></h3>
+<p><strong>Port:</strong> 8085
+<strong>Rate Limiting:</strong> Enabled
+<strong>Configuration:</strong>
+- Uses default rate limiting configuration
+- Standard middleware setup</p>
+<p><strong>Rationale:</strong>
+- Critical to prevent notification spam
+- Protects against mass notification abuse
+- Prevents email/SMS quota exhaustion</p>
+<hr />
+<h3 id="8-satellite-service">8. <strong>satellite-service</strong> ✅<a class="headerlink" href="#8-satellite-service" title="Permanent link">&para;</a></h3>
+<p><strong>Port:</strong> 8086
+<strong>Rate Limiting:</strong> Enabled
+<strong>Configuration:</strong>
+- Uses default rate limiting configuration
+- Standard middleware setup</p>
+<p><strong>Rationale:</strong>
+- Satellite data analysis is expensive (external API costs)
+- Need to prevent excessive satellite API calls
+- Protects third-party API quota</p>
+<hr />
+<h2 id="services-without-rate-limiting">Services Without Rate Limiting<a class="headerlink" href="#services-without-rate-limiting" title="Permanent link">&para;</a></h2>
+<h3 id="services-not-requiring-rate-limiting">Services Not Requiring Rate Limiting<a class="headerlink" href="#services-not-requiring-rate-limiting" title="Permanent link">&para;</a></h3>
+<p>The following services do not exist as Python services or are not user-facing:
+- <strong>user-service</strong>: No Python implementation (handled by auth service)
+- <strong>marketplace-service</strong>: Does not exist</p>
+<h2 id="rate-limiting-headers">Rate Limiting Headers<a class="headerlink" href="#rate-limiting-headers" title="Permanent link">&para;</a></h2>
+<p>All rate-limited responses include the following headers:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">X-RateLimit-Limit: 60</span>
+<span class="err">X-RateLimit-Remaining: 42</span>
+<span class="err">X-RateLimit-Reset: 45</span>
+</code></pre></div>
+
+<p>When rate limit is exceeded, the service returns:</p>
+<div class="codehilite"><pre><span></span><code><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">429</span> <span class="ne">Too Many Requests</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rate_limit_exceeded&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Too many requests. Please slow down.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;retry_after&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="redis-backed-distributed-rate-limiting">Redis-Backed Distributed Rate Limiting<a class="headerlink" href="#redis-backed-distributed-rate-limiting" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Production:</strong> Uses Redis for distributed rate limiting across multiple service instances</li>
+<li><strong>Development:</strong> Falls back to in-memory rate limiting when Redis is unavailable</li>
+<li><strong>Algorithm:</strong> Sliding window with sorted sets for accurate rate limiting</li>
+</ul>
+<h3 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Automatic Header Injection:</strong> Rate limit information in every response</li>
+<li><strong>Multiple Tiers:</strong> FREE, STANDARD, PREMIUM, INTERNAL, UNLIMITED</li>
+<li><strong>Configurable:</strong> Via environment variables</li>
+<li><strong>Failsafe:</strong> Graceful fallback to in-memory limiter</li>
+<li><strong>Tenant-Aware:</strong> Can be configured per tenant/user</li>
+<li><strong>IP-Based:</strong> Default key based on client IP (X-Forwarded-For aware)</li>
+</ol>
+<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="internal-service-authentication">Internal Service Authentication<a class="headerlink" href="#internal-service-authentication" title="Permanent link">&para;</a></h3>
+<p>Services can bypass rate limiting by including the header:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">X-Internal-Service: true</span>
+</code></pre></div>
+
+<p><strong>⚠️ Security Note:</strong> This header should only be set by authenticated internal services. API Gateway must strip this header from external requests.</p>
+<h3 id="rate-limit-tier-header">Rate Limit Tier Header<a class="headerlink" href="#rate-limit-tier-header" title="Permanent link">&para;</a></h3>
+<p>Clients can request a specific tier (if authorized):</p>
+<div class="codehilite"><pre><span></span><code><span class="err">X-Rate-Limit-Tier: premium</span>
+</code></pre></div>
+
+<p><strong>⚠️ Security Note:</strong> Tier selection should be validated against user's subscription level. Unauthorized tier requests should be rejected or downgraded.</p>
+<h2 id="monitoring-and-alerts">Monitoring and Alerts<a class="headerlink" href="#monitoring-and-alerts" title="Permanent link">&para;</a></h2>
+<h3 id="key-metrics-to-monitor">Key Metrics to Monitor<a class="headerlink" href="#key-metrics-to-monitor" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Rate Limit Hit Rate:</strong> % of requests hitting rate limits</li>
+<li><strong>Tier Distribution:</strong> Distribution of requests across tiers</li>
+<li><strong>Redis Health:</strong> Redis connection status and latency</li>
+<li><strong>Fallback Usage:</strong> How often in-memory fallback is used</li>
+</ol>
+<h3 id="recommended-alerts">Recommended Alerts<a class="headerlink" href="#recommended-alerts" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HighRateLimitHitRate</span>
+<span class="w">  </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate_limit_exceeded_total &gt; 100/min</span>
+<span class="w">  </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">requests</span><span class="nv"> </span><span class="s">hitting</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">limits&quot;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RedisRateLimiterDown</span>
+<span class="w">  </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis_rate_limiter_available == 0</span>
+<span class="w">  </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Redis</span><span class="nv"> </span><span class="s">rate</span><span class="nv"> </span><span class="s">limiter</span><span class="nv"> </span><span class="s">unavailable,</span><span class="nv"> </span><span class="s">using</span><span class="nv"> </span><span class="s">in-memory</span><span class="nv"> </span><span class="s">fallback&quot;</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SuspiciousRateLimitPattern</span>
+<span class="w">  </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate_limit_exceeded_per_ip &gt; 1000/hour</span>
+<span class="w">  </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Possible</span><span class="nv"> </span><span class="s">DDoS</span><span class="nv"> </span><span class="s">or</span><span class="nv"> </span><span class="s">scraping</span><span class="nv"> </span><span class="s">attack</span><span class="nv"> </span><span class="s">detected&quot;</span>
+</code></pre></div>
+
+<h2 id="testing-rate-limits">Testing Rate Limits<a class="headerlink" href="#testing-rate-limits" title="Permanent link">&para;</a></h2>
+<h3 id="test-with-curl">Test with curl<a class="headerlink" href="#test-with-curl" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Test standard endpoint</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">1</span>..70<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>curl<span class="w"> </span>-s<span class="w"> </span>-o<span class="w"> </span>/dev/null<span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;%{http_code}\n&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>http://localhost:8120/api/v1/analyze<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;field_id&quot;:&quot;test&quot;,&quot;crop_type&quot;:&quot;wheat&quot;}&#39;</span>
+<span class="k">done</span>
+
+<span class="c1"># First 60 should return 200, next 10 should return 429</span>
+</code></pre></div>
+
+<h3 id="test-with-python">Test with Python<a class="headerlink" href="#test-with-python" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">endpoint</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:8120/api/v1/analyze&quot;</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">}</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="s2">&quot;crop_type&quot;</span><span class="p">:</span> <span class="s2">&quot;wheat&quot;</span><span class="p">}</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">70</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Request </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
+        <span class="n">retry_after</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;X-RateLimit-Reset&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rate limited! Retry after </span><span class="si">{</span><span class="n">retry_after</span><span class="si">}</span><span class="s2"> seconds&quot;</span><span class="p">)</span>
+        <span class="k">break</span>
+
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="for-service-developers">For Service Developers<a class="headerlink" href="#for-service-developers" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Always use <code>setup_rate_limiting()</code></strong> when creating new services</li>
+<li><strong>Exclude health endpoints</strong> from rate limiting</li>
+<li><strong>Configure appropriate tiers</strong> based on endpoint resource requirements</li>
+<li><strong>Use Redis in production</strong> for distributed rate limiting</li>
+<li><strong>Log rate limit events</strong> for monitoring and debugging</li>
+<li><strong>Test rate limiting</strong> before deploying to production</li>
+</ol>
+<h3 id="for-api-consumers">For API Consumers<a class="headerlink" href="#for-api-consumers" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Respect rate limit headers</strong> in responses</li>
+<li><strong>Implement exponential backoff</strong> when rate limited</li>
+<li><strong>Use batch endpoints</strong> when available</li>
+<li><strong>Cache responses</strong> to reduce API calls</li>
+<li><strong>Request higher tier</strong> if needed for your use case</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="rate-limiting-not-working">Rate Limiting Not Working<a class="headerlink" href="#rate-limiting-not-working" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Check if Redis is running: <code>redis-cli ping</code></li>
+<li>Verify REDIS_URL environment variable</li>
+<li>Check service logs for rate limiting initialization</li>
+<li>Verify middleware order (rate limiting should be last)</li>
+</ol>
+<h3 id="false-positives">False Positives<a class="headerlink" href="#false-positives" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Check if IP is being correctly extracted (X-Forwarded-For)</li>
+<li>Verify tier configuration</li>
+<li>Check if internal service header is being stripped by gateway</li>
+<li>Review Redis key TTLs</li>
+</ol>
+<h3 id="performance-issues">Performance Issues<a class="headerlink" href="#performance-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Monitor Redis latency</li>
+<li>Check if too many keys in Redis (cleanup old entries)</li>
+<li>Consider increasing rate limits for legitimate high-volume users</li>
+<li>Review tier assignments</li>
+</ol>
+<h2 id="future-enhancements">Future Enhancements<a class="headerlink" href="#future-enhancements" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Per-User Rate Limiting:</strong> Track limits per authenticated user instead of IP</li>
+<li><strong>Dynamic Tier Adjustment:</strong> Automatically adjust tiers based on subscription</li>
+<li><strong>Burst Protection:</strong> Enhanced burst detection and prevention</li>
+<li><strong>Geographic Rate Limiting:</strong> Different limits based on geographic region</li>
+<li><strong>Cost-Based Limiting:</strong> Rate limits based on operation cost (LLM tokens, compute)</li>
+<li><strong>Adaptive Limits:</strong> Machine learning-based adaptive rate limiting</li>
+</ol>
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="/docs/middleware-architecture.md">Middleware Architecture</a></li>
+<li><a href="/docs/security-best-practices.md">Security Best Practices</a></li>
+<li><a href="/docs/api-gateway-configuration.md">API Gateway Configuration</a></li>
+<li><a href="/docs/redis-setup.md">Redis Setup Guide</a></li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> 2026-01-08
+<strong>Maintainer:</strong> Platform Security Team
+<strong>Status:</strong> Production Ready ✅</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

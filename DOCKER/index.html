@@ -1,0 +1,1601 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Docker Deployment Guide | دليل نشر Docker - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#docker-deployment-guide-docker" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Docker Deployment Guide | دليل نشر Docker
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="docker-deployment-guide-docker">Docker Deployment Guide | دليل نشر Docker<a class="headerlink" href="#docker-deployment-guide-docker" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-platform-v155">SAHOOL Platform v15.5<a class="headerlink" href="#sahool-platform-v155" title="Permanent link">&para;</a></h1>
+<hr />
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>هذا الدليل يوضح كيفية تشغيل منصة سهول باستخدام Docker Compose.</p>
+<p>This guide explains how to run the SAHOOL platform using Docker Compose.</p>
+<hr />
+<h2 id="prerequisites">المتطلبات | Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Docker Engine 24+</span>
+docker<span class="w"> </span>--version
+
+<span class="c1"># Docker Compose v2+</span>
+docker<span class="w"> </span>compose<span class="w"> </span>version
+</code></pre></div>
+
+<hr />
+<h2 id="quick-start">البدء السريع | Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. إنشاء ملف البيئة</span>
+cp<span class="w"> </span>.env.example<span class="w"> </span>.env
+
+<span class="c1"># 2. تعديل المتغيرات المطلوبة</span>
+nano<span class="w"> </span>.env
+
+<span class="c1"># 3. تشغيل الخدمات</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># 4. التحقق من الحالة</span>
+docker<span class="w"> </span>compose<span class="w"> </span>ps
+</code></pre></div>
+
+<hr />
+<h2 id="required-environment-variables">متغيرات البيئة المطلوبة | Required Environment Variables<a class="headerlink" href="#required-environment-variables" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> قاعدة البيانات (مطلوب)
+POSTGRES_USER=sahool
+POSTGRES_PASSWORD=&lt;your-secure-password&gt;
+POSTGRES_DB=sahool
+
+<span class="gh">#</span> Redis (مطلوب)
+REDIS_PASSWORD=&lt;your-redis-password&gt;
+
+<span class="gh">#</span> JWT Authentication (مطلوب)
+JWT_SECRET_KEY=&lt;your-256-bit-secret&gt;
+
+<span class="gh">#</span> Stripe (اختياري - للفوترة)
+STRIPE_API_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+<span class="gh">#</span> Weather API (اختياري)
+OPENWEATHER_API_KEY=&lt;your-api-key&gt;
+
+<span class="gh">#</span> Planet API (اختياري - للأقمار الصناعية)
+PLANET_API_KEY=&lt;your-api-key&gt;
+</code></pre></div>
+
+<hr />
+<h2 id="services-port-map">خريطة الخدمات والمنافذ | Services Port Map<a class="headerlink" href="#services-port-map" title="Permanent link">&para;</a></h2>
+<h3 id="infrastructure">البنية التحتية | Infrastructure<a class="headerlink" href="#infrastructure" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>postgres</td>
+<td>5432</td>
+<td>PostGIS Database</td>
+</tr>
+<tr>
+<td>redis</td>
+<td>6379</td>
+<td>Cache &amp; Sessions</td>
+</tr>
+<tr>
+<td>nats</td>
+<td>4222, 8222</td>
+<td>Message Queue</td>
+</tr>
+<tr>
+<td>mqtt</td>
+<td>1883, 9001</td>
+<td>IoT Protocol</td>
+</tr>
+<tr>
+<td>kong</td>
+<td>8000, 8001</td>
+<td>API Gateway</td>
+</tr>
+</tbody>
+</table>
+<h3 id="core-services">الخدمات الأساسية | Core Services<a class="headerlink" href="#core-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>اللغة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>crop_health_ai</td>
+<td>8095</td>
+<td>Python</td>
+<td>تشخيص صحة المحاصيل</td>
+</tr>
+<tr>
+<td>virtual_sensors</td>
+<td>8096</td>
+<td>Python</td>
+<td>المستشعرات الافتراضية</td>
+</tr>
+<tr>
+<td>community_chat</td>
+<td>8097</td>
+<td>Node.js</td>
+<td>الدردشة المجتمعية</td>
+</tr>
+<tr>
+<td>yield_engine</td>
+<td>8098</td>
+<td>Python</td>
+<td>توقع الإنتاجية</td>
+</tr>
+<tr>
+<td>billing_core</td>
+<td>8089</td>
+<td>Python</td>
+<td>الفوترة والاشتراكات</td>
+</tr>
+<tr>
+<td>satellite_service</td>
+<td>8090</td>
+<td>Python</td>
+<td>صور الأقمار الصناعية</td>
+</tr>
+<tr>
+<td>indicators_service</td>
+<td>8091</td>
+<td>Python</td>
+<td>المؤشرات الزراعية</td>
+</tr>
+<tr>
+<td>weather_advanced</td>
+<td>8092</td>
+<td>Python</td>
+<td>التنبؤات الجوية</td>
+</tr>
+<tr>
+<td>fertilizer_advisor</td>
+<td>8093</td>
+<td>Python</td>
+<td>مستشار التسميد</td>
+</tr>
+<tr>
+<td>irrigation_smart</td>
+<td>8094</td>
+<td>Python</td>
+<td>الري الذكي</td>
+</tr>
+<tr>
+<td>notification_service</td>
+<td>8110</td>
+<td>Python</td>
+<td>الإشعارات</td>
+</tr>
+<tr>
+<td>astronomical_calendar</td>
+<td>8111</td>
+<td>Python</td>
+<td>التقويم الفلكي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="nestjs">خدمات NestJS<a class="headerlink" href="#nestjs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>marketplace_service</td>
+<td>3010</td>
+<td>سوق المنتجات</td>
+</tr>
+<tr>
+<td>research_core</td>
+<td>3015</td>
+<td>البحث العلمي</td>
+</tr>
+<tr>
+<td>disaster_assessment</td>
+<td>3020</td>
+<td>تقييم الكوارث</td>
+</tr>
+<tr>
+<td>yield_prediction</td>
+<td>3021</td>
+<td>التنبؤ بالإنتاج</td>
+</tr>
+<tr>
+<td>lai_estimation</td>
+<td>3022</td>
+<td>تقدير LAI</td>
+</tr>
+<tr>
+<td>crop_growth_model</td>
+<td>3023</td>
+<td>نموذج نمو المحاصيل</td>
+</tr>
+</tbody>
+</table>
+<h3 id="observability">المراقبة | Observability<a class="headerlink" href="#observability" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>prometheus</td>
+<td>9090</td>
+<td>Metrics Collection</td>
+</tr>
+<tr>
+<td>grafana</td>
+<td>3002</td>
+<td>Dashboards</td>
+</tr>
+</tbody>
+</table>
+<h3 id="frontends">الواجهات | Frontends<a class="headerlink" href="#frontends" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>admin_dashboard</td>
+<td>3001</td>
+<td>لوحة تحكم المشرفين</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="docker-compose-docker-compose-commands">أوامر Docker Compose | Docker Compose Commands<a class="headerlink" href="#docker-compose-docker-compose-commands" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تشغيل جميع الخدمات</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># تشغيل خدمات محددة فقط</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>postgres<span class="w"> </span>redis<span class="w"> </span>nats<span class="w"> </span>billing_core
+
+<span class="c1"># عرض السجلات</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>billing_core
+
+<span class="c1"># إعادة تشغيل خدمة</span>
+docker<span class="w"> </span>compose<span class="w"> </span>restart<span class="w"> </span>billing_core
+
+<span class="c1"># إيقاف جميع الخدمات</span>
+docker<span class="w"> </span>compose<span class="w"> </span>down
+
+<span class="c1"># إيقاف مع حذف البيانات</span>
+docker<span class="w"> </span>compose<span class="w"> </span>down<span class="w"> </span>-v
+
+<span class="c1"># تحديث الصور</span>
+docker<span class="w"> </span>compose<span class="w"> </span>pull
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<hr />
+<h2 id="health-checks">التحقق من الصحة | Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># فحص صحة جميع الخدمات</span>
+<span class="k">for</span><span class="w"> </span>port<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">8089</span><span class="w"> </span><span class="m">8090</span><span class="w"> </span><span class="m">8091</span><span class="w"> </span><span class="m">8092</span><span class="w"> </span><span class="m">8093</span><span class="w"> </span><span class="m">8094</span><span class="w"> </span><span class="m">8095</span><span class="w"> </span><span class="m">8096</span><span class="w"> </span><span class="m">8098</span><span class="w"> </span><span class="m">8110</span><span class="w"> </span><span class="m">8111</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Port </span><span class="nv">$port</span><span class="s2">: </span><span class="k">$(</span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:<span class="nv">$port</span>/healthz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.status // &quot;error&quot;&#39;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+
+<span class="c1"># فحص خدمة محددة</span>
+curl<span class="w"> </span>http://localhost:8089/healthz<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq
+</code></pre></div>
+
+<hr />
+<h2 id="local-build">البناء المحلي | Local Build<a class="headerlink" href="#local-build" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># بناء جميع الصور</span>
+docker<span class="w"> </span>compose<span class="w"> </span>build
+
+<span class="c1"># بناء خدمة محددة</span>
+docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>billing_core
+
+<span class="c1"># بناء بدون cache</span>
+docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>--no-cache<span class="w"> </span>billing_core
+</code></pre></div>
+
+<hr />
+<h2 id="profiles-legacy-services">Profiles (Legacy Services)<a class="headerlink" href="#profiles-legacy-services" title="Permanent link">&para;</a></h2>
+<p>بعض الخدمات القديمة موضوعة في profile منفصل:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تشغيل الخدمات القديمة</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>legacy<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># قائمة الخدمات القديمة</span>
+<span class="c1"># - field_core</span>
+<span class="c1"># - field_ops</span>
+<span class="c1"># - ndvi_engine</span>
+<span class="c1"># - weather_core</span>
+<span class="c1"># - field_chat</span>
+<span class="c1"># - iot_gateway</span>
+<span class="c1"># - agro_advisor</span>
+<span class="c1"># - ws_gateway</span>
+<span class="c1"># - crop_health</span>
+<span class="c1"># - agro_rules</span>
+</code></pre></div>
+
+<hr />
+<h2 id="troubleshooting">استكشاف الأخطاء | Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="_1">الخدمة لا تبدأ<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># عرض السجلات</span>
+docker<span class="w"> </span>compose<span class="w"> </span>logs<span class="w"> </span>billing_core
+
+<span class="c1"># فحص حالة الحاوية</span>
+docker<span class="w"> </span>inspect<span class="w"> </span>sahool-billing-core
+
+<span class="c1"># إعادة البناء</span>
+docker<span class="w"> </span>compose<span class="w"> </span>build<span class="w"> </span>--no-cache<span class="w"> </span>billing_core
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>billing_core
+</code></pre></div>
+
+<h3 id="_2">مشاكل الاتصال بقاعدة البيانات<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># التحقق من تشغيل PostgreSQL</span>
+docker<span class="w"> </span>compose<span class="w"> </span>ps<span class="w"> </span>postgres
+
+<span class="c1"># الاتصال بقاعدة البيانات</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool
+
+<span class="c1"># فحص الشبكة</span>
+docker<span class="w"> </span>network<span class="w"> </span>inspect<span class="w"> </span>sahool-network
+</code></pre></div>
+
+<h3 id="_3">مشاكل الذاكرة<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># عرض استخدام الموارد</span>
+docker<span class="w"> </span>stats
+
+<span class="c1"># تحديد حدود الذاكرة في docker-compose.yml</span>
+services:
+<span class="w">  </span>billing_core:
+<span class="w">    </span>deploy:
+<span class="w">      </span>resources:
+<span class="w">        </span>limits:
+<span class="w">          </span>memory:<span class="w"> </span>512M
+</code></pre></div>
+
+<hr />
+<h2 id="security">الأمان | Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<h3 id="root">مستخدم غير Root<a class="headerlink" href="#root" title="Permanent link">&para;</a></h3>
+<p>جميع الحاويات تعمل بمستخدم غير root (sahool, UID 1000) للأمان:</p>
+<div class="codehilite"><pre><span></span><code><span class="c"># Python services</span>
+<span class="k">RUN</span><span class="w"> </span>groupadd<span class="w"> </span>--system<span class="w"> </span>--gid<span class="w"> </span><span class="m">1000</span><span class="w"> </span>sahool<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>useradd<span class="w"> </span>--system<span class="w"> </span>--uid<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--gid<span class="w"> </span>sahool<span class="w"> </span>sahool
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool</span>
+
+<span class="c"># Node.js Alpine services</span>
+<span class="k">RUN</span><span class="w"> </span>addgroup<span class="w"> </span>-g<span class="w"> </span><span class="m">1000</span><span class="w"> </span>sahool<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>adduser<span class="w"> </span>-u<span class="w"> </span><span class="m">1000</span><span class="w"> </span>-G<span class="w"> </span>sahool<span class="w"> </span>-s<span class="w"> </span>/bin/sh<span class="w"> </span>-D<span class="w"> </span>sahool
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool</span>
+</code></pre></div>
+
+<h3 id="_4">الشبكة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>جميع الخدمات تتواصل عبر شبكة داخلية معزولة:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sahool-network</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bridge</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-network</span>
+</code></pre></div>
+
+<h3 id="_5">الأسرار<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>لا تضع الأسرار في docker-compose.yml مباشرة. استخدم:
+- ملف <code>.env</code> (للتطوير)
+- Docker Secrets (للإنتاج)
+- HashiCorp Vault (موصى به)</p>
+<hr />
+<h2 id="backup">النسخ الاحتياطي | Backup<a class="headerlink" href="#backup" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نسخ قاعدة البيانات</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>postgres<span class="w"> </span>pg_dump<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span>&gt;<span class="w"> </span>backup.sql
+
+<span class="c1"># استعادة قاعدة البيانات</span>
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-T<span class="w"> </span>postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span>&lt;<span class="w"> </span>backup.sql
+
+<span class="c1"># نسخ volumes</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>sahool-postgres-data:/data<span class="w"> </span>-v<span class="w"> </span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/backup<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>alpine<span class="w"> </span>tar<span class="w"> </span>cvf<span class="w"> </span>/backup/postgres-backup.tar<span class="w"> </span>/data
+</code></pre></div>
+
+<hr />
+<h2 id="production">الإنتاج | Production<a class="headerlink" href="#production" title="Permanent link">&para;</a></h2>
+<p>للإنتاج، استخدم:
+- Kubernetes (Helm charts في <code>/helm</code>)
+- إعداد متغيرات البيئة الآمنة
+- تفعيل TLS/SSL
+- إعداد monitoring كامل
+- استخدام CDN للأصول الثابتة</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نشر Kubernetes</span>
+helm<span class="w"> </span>install<span class="w"> </span>sahool<span class="w"> </span>./helm/sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--create-namespace<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-f<span class="w"> </span>values.production.yaml
+</code></pre></div>
+
+<hr />
+<p align="center">
+  <strong>SAHOOL Platform v15.5</strong>
+  <br>
+  <sub>آخر تحديث: ديسمبر 2025</sub>
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

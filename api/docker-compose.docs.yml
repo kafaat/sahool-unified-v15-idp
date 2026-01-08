@@ -1,0 +1,153 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - API Documentation Server
+# OpenAPI/Swagger Documentation with Auto-reload
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This Docker Compose file runs a lightweight HTTP server to host the
+# unified API documentation with support for hot-reloading when specs change.
+#
+# Usage:
+#   docker-compose -f docker-compose.docs.yml up -d
+#
+# Access the documentation at:
+#   http://localhost:8888
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # API Documentation Server - خادم توثيق واجهات البرمجة
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  api-docs:
+    image: nginx:1.25-alpine
+    container_name: sahool-api-docs
+    ports:
+      - "8888:80"
+    volumes:
+      # Mount the docs directory as the web root
+      - ./:/usr/share/nginx/html:ro
+      # Custom nginx config for SPA support and CORS
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    environment:
+      - TZ=Asia/Aden
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - sahool-docs-network
+    labels:
+      com.sahool.service: "api-documentation"
+      com.sahool.description: "OpenAPI Documentation Server"
+      com.sahool.port: "8888"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # OpenAPI Aggregator Service - خدمة تجميع مواصفات OpenAPI
+  # ─────────────────────────────────────────────────────────────────────────────
+  #
+  # This service runs the Python aggregator script on a schedule to
+  # automatically update the unified spec when services change.
+  #
+  # Uncomment to enable auto-refresh (requires services to be running)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # api-aggregator:
+  #   image: python:3.11-slim
+  #   container_name: sahool-api-aggregator
+  #   working_dir: /app
+  #   volumes:
+  #     - ./:/app
+  #   command: >
+  #     sh -c "
+  #       pip install --no-cache-dir requests pyyaml &&
+  #       while true; do
+  #         echo 'Running OpenAPI aggregator...' &&
+  #         python openapi-aggregator.py &&
+  #         echo 'Waiting 5 minutes before next update...' &&
+  #         sleep 300
+  #       done
+  #     "
+  #   environment:
+  #     - TZ=Asia/Aden
+  #     - PYTHONUNBUFFERED=1
+  #   restart: unless-stopped
+  #   networks:
+  #     - sahool-docs-network
+  #   depends_on:
+  #     - api-docs
+  #   labels:
+  #     com.sahool.service: "api-aggregator"
+  #     com.sahool.description: "Automatic OpenAPI Spec Aggregator"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # File Watcher (Alternative to cron-based aggregator)
+  # ─────────────────────────────────────────────────────────────────────────────
+  #
+  # Alternative approach using inotify to watch for file changes
+  # Uncomment if you prefer event-driven updates
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # file-watcher:
+  #   image: python:3.11-slim
+  #   container_name: sahool-api-file-watcher
+  #   working_dir: /app
+  #   volumes:
+  #     - ./:/app
+  #   command: >
+  #     sh -c "
+  #       apt-get update &&
+  #       apt-get install -y inotify-tools &&
+  #       pip install --no-cache-dir requests pyyaml &&
+  #       echo 'Watching for changes in source specs...' &&
+  #       while inotifywait -e modify,create,delete -r .; do
+  #         echo 'Changes detected, regenerating unified spec...' &&
+  #         python openapi-aggregator.py
+  #       done
+  #     "
+  #   environment:
+  #     - TZ=Asia/Aden
+  #     - PYTHONUNBUFFERED=1
+  #   restart: unless-stopped
+  #   networks:
+  #     - sahool-docs-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────────────────────────────────────
+networks:
+  sahool-docs-network:
+    driver: bridge
+    name: sahool-docs-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Notes:
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# 1. Basic Usage:
+#    - Start: docker-compose -f docker-compose.docs.yml up -d
+#    - Stop:  docker-compose -f docker-compose.docs.yml down
+#    - Logs:  docker-compose -f docker-compose.docs.yml logs -f
+#
+# 2. Generate Initial Spec:
+#    Before starting the server, generate the unified spec:
+#    $ python openapi-aggregator.py
+#
+# 3. Auto-refresh:
+#    To enable automatic spec updates, uncomment the api-aggregator service
+#    and ensure all backend services are accessible.
+#
+# 4. Custom Port:
+#    To change the port, modify the ports mapping:
+#    ports:
+#      - "YOUR_PORT:80"
+#
+# 5. HTTPS Support:
+#    For production, use a reverse proxy (nginx/traefik) with SSL certs.
+#
+# ─────────────────────────────────────────────────────────────────────────────

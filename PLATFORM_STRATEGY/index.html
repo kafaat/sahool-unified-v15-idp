@@ -1,0 +1,1882 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>استراتيجية تطوير منصة سهول | SAHOOL Platform Development Strategy - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-development-strategy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              استراتيجية تطوير منصة سهول | SAHOOL Platform Development Strategy
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-development-strategy">استراتيجية تطوير منصة سهول | SAHOOL Platform Development Strategy<a class="headerlink" href="#sahool-platform-development-strategy" title="Permanent link">&para;</a></h1>
+<h2 id="agricultural-orchestra-vision">🎼 رؤية "الأوركسترا الزراعية" | Agricultural Orchestra Vision<a class="headerlink" href="#agricultural-orchestra-vision" title="Permanent link">&para;</a></h2>
+<p>مثل الأوركسترا التي تتناغم فيها جميع الآلات تحت قيادة موحدة، نصمم منصة سهول بحيث تعمل جميع خدماتها بتناغم تام:</p>
+<ul>
+<li><strong>قائد الأوركسترا (Conductor)</strong>: Kong API Gateway - يوجه جميع الطلبات</li>
+<li><strong>الموسيقيون (Musicians)</strong>: 39 خدمة متخصصة - كل منها يؤدي دوره بإتقان</li>
+<li><strong>النوتة الموسيقية (Musical Score)</strong>: NATS Event Bus - تنسق الأحداث والرسائل</li>
+<li><strong>التمرين (Rehearsal)</strong>: CI/CD Pipeline - يضمن جودة الأداء</li>
+</ul>
+<hr />
+<h2 id="service-packaging-tiers">📦 تجزئة الخدمات إلى باقات | Service Packaging Tiers<a class="headerlink" href="#service-packaging-tiers" title="Permanent link">&para;</a></h2>
+<h3 id="starter-package">🏷️ الباقة الأساسية | Starter Package<a class="headerlink" href="#starter-package" title="Permanent link">&para;</a></h3>
+<p><strong>للمزارعين الصغار وملاك الأراضي الجدد</strong></p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الوصف</th>
+<th>المنفذ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field_core</td>
+<td>إدارة الحقول الأساسية</td>
+<td>3000</td>
+</tr>
+<tr>
+<td>weather_core</td>
+<td>الطقس والتنبؤات</td>
+<td>8108</td>
+</tr>
+<tr>
+<td>astronomical_calendar</td>
+<td>التقويم الزراعي اليمني</td>
+<td>8111</td>
+</tr>
+<tr>
+<td>agro_advisor</td>
+<td>النصائح الزراعية</td>
+<td>8105</td>
+</tr>
+<tr>
+<td>notification_service</td>
+<td>التنبيهات</td>
+<td>8110</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المميزات:</strong>
+- ✅ إدارة حتى 5 حقول
+- ✅ تنبؤات الطقس لـ 7 أيام
+- ✅ التقويم الهجري الزراعي
+- ✅ نصائح زراعية أساسية
+- ✅ تنبيهات الرسائل النصية</p>
+<p><strong>السعر المقترح:</strong> 99 ريال سعودي/شهر | 25,000 ريال يمني/شهر</p>
+<hr />
+<h3 id="professional-package">🏷️ الباقة المتوسطة | Professional Package<a class="headerlink" href="#professional-package" title="Permanent link">&para;</a></h3>
+<p><strong>للمزارعين المحترفين والتعاونيات</strong></p>
+<p>يشمل كل ميزات الباقة الأساسية + :</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الوصف</th>
+<th>المنفذ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>satellite_service</td>
+<td>صور الأقمار الصناعية</td>
+<td>8090</td>
+</tr>
+<tr>
+<td>ndvi_engine</td>
+<td>تحليل صحة المحاصيل</td>
+<td>8107</td>
+</tr>
+<tr>
+<td>crop_health_ai</td>
+<td>كشف الأمراض بالذكاء الاصطناعي</td>
+<td>8095</td>
+</tr>
+<tr>
+<td>irrigation_smart</td>
+<td>الري الذكي</td>
+<td>8094</td>
+</tr>
+<tr>
+<td>virtual_sensors</td>
+<td>المستشعرات الافتراضية (ET0)</td>
+<td>8096</td>
+</tr>
+<tr>
+<td>yield_engine</td>
+<td>توقع الإنتاجية</td>
+<td>8098</td>
+</tr>
+<tr>
+<td>fertilizer_advisor</td>
+<td>توصيات التسميد</td>
+<td>8093</td>
+</tr>
+<tr>
+<td>inventory_service</td>
+<td>إدارة المخزون</td>
+<td>TBD</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المميزات:</strong>
+- ✅ حتى 50 حقل
+- ✅ صور Sentinel-2 كل 5 أيام
+- ✅ تحليل NDVI وصحة المحاصيل
+- ✅ كشف الأمراض بالصور
+- ✅ حساب ET0 بدون مستشعرات
+- ✅ توقع الإنتاجية الموسمية
+- ✅ توصيات التسميد الذكية
+- ✅ إدارة المخزون والمستودعات</p>
+<p><strong>السعر المقترح:</strong> 399 ريال سعودي/شهر | 95,000 ريال يمني/شهر</p>
+<hr />
+<h3 id="enterprise-package">🏷️ الباقة المتقدمة | Enterprise Package<a class="headerlink" href="#enterprise-package" title="Permanent link">&para;</a></h3>
+<p><strong>للشركات الزراعية ومراكز البحث</strong></p>
+<p>يشمل كل ميزات الباقة المتوسطة + :</p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الوصف</th>
+<th>المنفذ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ai_advisor</td>
+<td>المستشار الذكي متعدد الوكلاء</td>
+<td>8112</td>
+</tr>
+<tr>
+<td>iot_gateway</td>
+<td>بوابة إنترنت الأشياء</td>
+<td>8106</td>
+</tr>
+<tr>
+<td>research_core</td>
+<td>إدارة الأبحاث</td>
+<td>3015</td>
+</tr>
+<tr>
+<td>marketplace_service</td>
+<td>السوق الزراعي</td>
+<td>3010</td>
+</tr>
+<tr>
+<td>billing_core</td>
+<td>الفوترة والمدفوعات</td>
+<td>8089</td>
+</tr>
+<tr>
+<td>disaster_assessment</td>
+<td>تقييم الكوارث</td>
+<td>3020</td>
+</tr>
+<tr>
+<td>crop_growth_model</td>
+<td>نماذج نمو المحاصيل (WOFOST)</td>
+<td>3023</td>
+</tr>
+<tr>
+<td>lai_estimation</td>
+<td>تقدير مؤشر مساحة الورق</td>
+<td>3022</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المميزات:</strong>
+- ✅ عدد غير محدود من الحقول
+- ✅ مستشار ذكاء اصطناعي شامل
+- ✅ ربط مستشعرات IoT حقيقية
+- ✅ إدارة تجارب بحثية
+- ✅ البيع والشراء في السوق
+- ✅ نماذج محاكاة WOFOST/DSSAT
+- ✅ تقييم أضرار الكوارث
+- ✅ API مفتوح للتكامل</p>
+<p><strong>السعر المقترح:</strong> 999 ريال سعودي/شهر | 240,000 ريال يمني/شهر</p>
+<hr />
+<h3 id="research-package">🏷️ باقة البحث العلمي | Research Package<a class="headerlink" href="#research-package" title="Permanent link">&para;</a></h3>
+<p><strong>للجامعات ومراكز البحث الزراعي</strong></p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>research_core</td>
+<td>إدارة التجارب والدراسات</td>
+</tr>
+<tr>
+<td>yield_prediction</td>
+<td>نماذج توقع الإنتاجية</td>
+</tr>
+<tr>
+<td>lai_estimation</td>
+<td>تقدير LAI (مساحة الورق)</td>
+</tr>
+<tr>
+<td>crop_growth_model</td>
+<td>نماذج WOFOST/DSSAT/APSIM</td>
+</tr>
+<tr>
+<td>disaster_assessment</td>
+<td>تقييم الكوارث الزراعية</td>
+</tr>
+<tr>
+<td>indicators_service</td>
+<td>مؤشرات الأداء الزراعي</td>
+</tr>
+</tbody>
+</table>
+<p><strong>السعر المقترح:</strong> تسعير خاص للمؤسسات الأكاديمية</p>
+<hr />
+<h2 id="orchestration-architecture">🔄 هيكل التنسيق | Orchestration Architecture<a class="headerlink" href="#orchestration-architecture" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Kong API Gateway (قائد الأوركسترا)                 │
+│                              Port 8000 (Public)                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                    ┌─────────────────┼─────────────────┐
+                    ▼                 ▼                 ▼
+            ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
+            │   الباقة      │ │   الباقة      │ │   الباقة      │
+            │   الأساسية    │ │   المتوسطة    │ │   المتقدمة    │
+            │   Starter     │ │ Professional  │ │  Enterprise   │
+            └───────────────┘ └───────────────┘ └───────────────┘
+                    │                 │                 │
+                    ▼                 ▼                 ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         NATS Event Bus (النوتة الموسيقية)                   │
+│                       Subjects: sahool.field.*, sahool.sensor.*, etc.       │
+└─────────────────────────────────────────────────────────────────────────────┘
+                    │                 │                 │
+        ┌───────────┴───────────┬─────┴─────┬───────────┴───────────┐
+        ▼                       ▼           ▼                       ▼
+┌───────────────┐       ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
+│  PostgreSQL   │       │     Redis     │ │    Qdrant     │ │     MQTT      │
+│   (البيانات)  │       │  (التخزين    │ │   (RAG AI)    │ │    (IoT)      │
+│               │       │   المؤقت)     │ │               │ │               │
+└───────────────┘       └───────────────┘ └───────────────┘ └───────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="phased-development-roadmap">🎯 خطة التطوير المرحلية | Phased Development Roadmap<a class="headerlink" href="#phased-development-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="1-foundation-phase">المرحلة 1: التأسيس | Foundation Phase<a class="headerlink" href="#1-foundation-phase" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف:</strong> بناء البنية التحتية الأساسية</p>
+<p><strong>المهام:</strong></p>
+<div class="codehilite"><pre><span></span><code>□ إعداد Docker Compose للخدمات الست المتبقية
+  <span class="k">-</span> alert_service
+  <span class="k">-</span> chat_service
+  <span class="k">-</span> field_service
+  <span class="k">-</span> inventory_service
+  <span class="k">-</span> iot_service
+  <span class="k">-</span> ndvi_processor
+
+□ توحيد إعدادات المنافذ (Port Registry)
+□ تكوين Kong routes للباقات الثلاث
+□ إعداد NATS JetStream للأحداث الدائمة
+□ تكوين Prometheus + Grafana للمراقبة
+</code></pre></div>
+
+<p><strong>البنية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.foundation.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kong</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong:3.4</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8000:8000&quot;</span><span class="w">  </span><span class="c1"># Proxy</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8001:8001&quot;</span><span class="w">  </span><span class="c1"># Admin (internal only)</span>
+
+<span class="w">  </span><span class="nt">nats</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats:2.10-alpine</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;-js&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-m&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;8222&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4222:4222&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8222:8222&quot;</span>
+
+<span class="w">  </span><span class="nt">postgres</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">postgis/postgis:16-3.4</span>
+
+<span class="w">  </span><span class="nt">redis</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">redis:7-alpine</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-packaging-phase">المرحلة 2: التجزئة | Packaging Phase<a class="headerlink" href="#2-packaging-phase" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف:</strong> تنظيم الخدمات في باقات</p>
+<p><strong>هيكل الملفات:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">packages</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">starter</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">docker</span><span class="o">-</span><span class="nx">compose</span><span class="p">.</span><span class="nx">yml</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">kong</span><span class="o">-</span><span class="nx">routes</span><span class="p">.</span><span class="nx">yml</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">services</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">field</span><span class="o">-</span><span class="nx">core</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">weather</span><span class="o">-</span><span class="nx">core</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">astronomical</span><span class="o">-</span><span class="nx">calendar</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">agro</span><span class="o">-</span><span class="nx">advisor</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="nx">notification</span><span class="o">-</span><span class="nx">service</span><span class="o">/</span>
+<span class="err">│</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">professional</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">docker</span><span class="o">-</span><span class="nx">compose</span><span class="p">.</span><span class="nx">yml</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">kong</span><span class="o">-</span><span class="nx">routes</span><span class="p">.</span><span class="nx">yml</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">services</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="o">...</span><span class="nx">starter</span><span class="w"> </span><span class="nx">services</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">satellite</span><span class="o">-</span><span class="nx">service</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">ndvi</span><span class="o">-</span><span class="nx">engine</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">crop</span><span class="o">-</span><span class="nx">health</span><span class="o">-</span><span class="nx">ai</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">irrigation</span><span class="o">-</span><span class="nx">smart</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="kd">virtual</span><span class="o">-</span><span class="nx">sensors</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">yield</span><span class="o">-</span><span class="nx">engine</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">fertilizer</span><span class="o">-</span><span class="nx">advisor</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="nx">inventory</span><span class="o">-</span><span class="nx">service</span><span class="o">/</span>
+<span class="err">│</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">enterprise</span><span class="o">/</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">docker</span><span class="o">-</span><span class="nx">compose</span><span class="p">.</span><span class="nx">yml</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">kong</span><span class="o">-</span><span class="nx">routes</span><span class="p">.</span><span class="nx">yml</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="nx">services</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="o">...</span><span class="nx">professional</span><span class="w"> </span><span class="nx">services</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">ai</span><span class="o">-</span><span class="nx">advisor</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">iot</span><span class="o">-</span><span class="nx">gateway</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">research</span><span class="o">-</span><span class="nx">core</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">marketplace</span><span class="o">-</span><span class="nx">service</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">billing</span><span class="o">-</span><span class="nx">core</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">disaster</span><span class="o">-</span><span class="nx">assessment</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">crop</span><span class="o">-</span><span class="nx">growth</span><span class="o">-</span><span class="nx">model</span><span class="o">/</span>
+<span class="w">        </span><span class="err">└──</span><span class="w"> </span><span class="nx">lai</span><span class="o">-</span><span class="nx">estimation</span><span class="o">/</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-integration-phase">المرحلة 3: التكامل | Integration Phase<a class="headerlink" href="#3-integration-phase" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف:</strong> ضمان التناغم بين الخدمات</p>
+<p><strong>Event-Driven Architecture:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># NATS Events Contract (عقد الأحداث)</span>
+
+<span class="c1"># الحقول | Fields</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">created</span>      <span class="err">→</span> <span class="p">{</span><span class="n">field_id</span><span class="p">,</span> <span class="n">farm_id</span><span class="p">,</span> <span class="n">geometry</span><span class="p">,</span> <span class="n">crop_type</span><span class="p">}</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">updated</span>      <span class="err">→</span> <span class="p">{</span><span class="n">field_id</span><span class="p">,</span> <span class="n">changes</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}}</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">deleted</span>      <span class="err">→</span> <span class="p">{</span><span class="n">field_id</span><span class="p">}</span>
+
+<span class="c1"># الطقس | Weather</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">forecast</span>   <span class="err">→</span> <span class="p">{</span><span class="n">location</span><span class="p">,</span> <span class="n">forecast</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]}</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">weather</span><span class="o">.</span><span class="n">alert</span>      <span class="err">→</span> <span class="p">{</span><span class="nb">type</span><span class="p">,</span> <span class="n">severity</span><span class="p">,</span> <span class="n">region</span><span class="p">}</span>
+
+<span class="c1"># الأقمار الصناعية | Satellite</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">satellite</span><span class="o">.</span><span class="n">ready</span>    <span class="err">→</span> <span class="p">{</span><span class="n">field_id</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">indices</span><span class="p">:</span> <span class="p">{</span><span class="n">ndvi</span><span class="p">,</span> <span class="n">ndre</span><span class="p">,</span> <span class="o">...</span><span class="p">}}</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">satellite</span><span class="o">.</span><span class="n">anomaly</span>  <span class="err">→</span> <span class="p">{</span><span class="n">field_id</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">severity</span><span class="p">}</span>
+
+<span class="c1"># الصحة | Health</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">health</span><span class="o">.</span><span class="n">disease</span>     <span class="err">→</span> <span class="p">{</span><span class="n">field_id</span><span class="p">,</span> <span class="n">disease</span><span class="p">,</span> <span class="n">confidence</span><span class="p">,</span> <span class="n">treatment</span><span class="p">}</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">health</span><span class="o">.</span><span class="n">stress</span>      <span class="err">→</span> <span class="p">{</span><span class="n">field_id</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">severity</span><span class="p">}</span>
+
+<span class="c1"># المخزون | Inventory</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">inventory</span><span class="o">.</span><span class="n">low</span>      <span class="err">→</span> <span class="p">{</span><span class="n">item_id</span><span class="p">,</span> <span class="n">current_qty</span><span class="p">,</span> <span class="n">reorder_level</span><span class="p">}</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">inventory</span><span class="o">.</span><span class="n">expired</span>  <span class="err">→</span> <span class="p">{</span><span class="n">batch_id</span><span class="p">,</span> <span class="n">item_id</span><span class="p">,</span> <span class="n">expiry_date</span><span class="p">}</span>
+
+<span class="c1"># الفوترة | Billing</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">billing</span><span class="o">.</span><span class="n">subscription</span><span class="o">.</span><span class="n">created</span> <span class="err">→</span> <span class="p">{</span><span class="n">user_id</span><span class="p">,</span> <span class="n">tier</span><span class="p">,</span> <span class="n">start_date</span><span class="p">}</span>
+<span class="n">sahool</span><span class="o">.</span><span class="n">billing</span><span class="o">.</span><span class="n">payment</span><span class="o">.</span><span class="n">completed</span>    <span class="err">→</span> <span class="p">{</span><span class="n">invoice_id</span><span class="p">,</span> <span class="n">amount</span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-reliability-phase">المرحلة 4: الموثوقية | Reliability Phase<a class="headerlink" href="#4-reliability-phase" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف:</strong> ضمان استمرارية الخدمة</p>
+<p><strong>Circuit Breaker Pattern:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># services/shared/circuit_breaker.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">circuitbreaker</span><span class="w"> </span><span class="kn">import</span> <span class="n">circuit</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ServiceClient</span><span class="p">:</span>
+    <span class="nd">@circuit</span><span class="p">(</span><span class="n">failure_threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">recovery_timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">call_weather_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Circuit breaker:</span>
+<span class="sd">        - بعد 5 إخفاقات → يفتح الدائرة</span>
+<span class="sd">        - ينتظر 30 ثانية ثم يحاول مرة أخرى</span>
+<span class="sd">        - يمنع التأثير المتتالي (Cascade Failure)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+</code></pre></div>
+
+<p><strong>Health Checks:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># كل خدمة تحتوي على:</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/health&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">health_check</span><span class="p">():</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;healthy&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;weather-core&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;postgres&quot;</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_postgres</span><span class="p">(),</span>
+            <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_nats</span><span class="p">(),</span>
+            <span class="s2">&quot;redis&quot;</span><span class="p">:</span> <span class="k">await</span> <span class="n">check_redis</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="5-learning-phase">المرحلة 5: التعلم | Learning Phase<a class="headerlink" href="#5-learning-phase" title="Permanent link">&para;</a></h3>
+<p><strong>الهدف:</strong> تسهيل تعلم المنصة للمطورين والمستخدمين</p>
+<p><strong>Developer Documentation:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">docs</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">architecture</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">overview</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">service</span><span class="o">-</span><span class="nx">dependencies</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">event</span><span class="o">-</span><span class="nx">contracts</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">packages</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">starter</span><span class="o">-</span><span class="nx">guide</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">professional</span><span class="o">-</span><span class="nx">guide</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">enterprise</span><span class="o">-</span><span class="nx">guide</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">tutorials</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="mi">01</span><span class="o">-</span><span class="nx">field</span><span class="o">-</span><span class="nx">management</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="mi">02</span><span class="o">-</span><span class="nx">satellite</span><span class="o">-</span><span class="nx">monitoring</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="mi">03</span><span class="o">-</span><span class="nx">ai</span><span class="o">-</span><span class="nx">advisor</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="mi">04</span><span class="o">-</span><span class="nx">iot</span><span class="o">-</span><span class="nx">integration</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">│</span>
+<span class="err">└──</span><span class="w"> </span><span class="kn">api</span><span class="o">/</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">openapi</span><span class="p">.</span><span class="nx">yaml</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Generated</span><span class="w"> </span><span class="nx">from</span><span class="w"> </span><span class="nx">all</span><span class="w"> </span><span class="nx">services</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="nx">postman</span><span class="o">-</span><span class="nx">collection</span><span class="p">.</span><span class="nx">json</span>
+</code></pre></div>
+
+<p><strong>Interactive Learning:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.learning.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">swagger-ui</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">swaggerapi/swagger-ui</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">URLS</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;[</span>
+<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">&#39;/api/field-core/openapi.json&#39;,</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">&#39;Field</span><span class="nv"> </span><span class="s">Core&#39;},</span>
+<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">&#39;/api/weather-core/openapi.json&#39;,</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">&#39;Weather&#39;},</span>
+<span class="w">        </span><span class="s">{url:</span><span class="nv"> </span><span class="s">&#39;/api/satellite/openapi.json&#39;,</span><span class="nv"> </span><span class="s">name:</span><span class="nv"> </span><span class="s">&#39;Satellite&#39;}</span>
+<span class="w">      </span><span class="s">]&quot;</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8888:8080&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="conflict-prevention">🛡️ منع التعارض والتزاحم | Conflict Prevention<a class="headerlink" href="#conflict-prevention" title="Permanent link">&para;</a></h2>
+<h3 id="1-port-registry">1. Port Registry (سجل المنافذ)<a class="headerlink" href="#1-port-registry" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># services/shared/port_registry.py</span>
+
+<span class="n">PORT_REGISTRY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Infrastructure</span>
+    <span class="s2">&quot;postgres&quot;</span><span class="p">:</span> <span class="mi">5432</span><span class="p">,</span>
+    <span class="s2">&quot;redis&quot;</span><span class="p">:</span> <span class="mi">6379</span><span class="p">,</span>
+    <span class="s2">&quot;nats&quot;</span><span class="p">:</span> <span class="mi">4222</span><span class="p">,</span>
+    <span class="s2">&quot;kong&quot;</span><span class="p">:</span> <span class="mi">8000</span><span class="p">,</span>
+
+    <span class="c1"># Node.js Services (3000-3099)</span>
+    <span class="s2">&quot;field_core&quot;</span><span class="p">:</span> <span class="mi">3000</span><span class="p">,</span>
+    <span class="s2">&quot;admin_dashboard&quot;</span><span class="p">:</span> <span class="mi">3001</span><span class="p">,</span>
+    <span class="s2">&quot;marketplace_service&quot;</span><span class="p">:</span> <span class="mi">3010</span><span class="p">,</span>
+    <span class="s2">&quot;research_core&quot;</span><span class="p">:</span> <span class="mi">3015</span><span class="p">,</span>
+    <span class="s2">&quot;disaster_assessment&quot;</span><span class="p">:</span> <span class="mi">3020</span><span class="p">,</span>
+    <span class="s2">&quot;yield_prediction&quot;</span><span class="p">:</span> <span class="mi">3021</span><span class="p">,</span>
+    <span class="s2">&quot;lai_estimation&quot;</span><span class="p">:</span> <span class="mi">3022</span><span class="p">,</span>
+    <span class="s2">&quot;crop_growth_model&quot;</span><span class="p">:</span> <span class="mi">3023</span><span class="p">,</span>
+
+    <span class="c1"># Python Services (8080-8120)</span>
+    <span class="s2">&quot;field_ops&quot;</span><span class="p">:</span> <span class="mi">8080</span><span class="p">,</span>
+    <span class="s2">&quot;ws_gateway&quot;</span><span class="p">:</span> <span class="mi">8081</span><span class="p">,</span>
+    <span class="s2">&quot;billing_core&quot;</span><span class="p">:</span> <span class="mi">8089</span><span class="p">,</span>
+    <span class="s2">&quot;satellite_service&quot;</span><span class="p">:</span> <span class="mi">8090</span><span class="p">,</span>
+    <span class="s2">&quot;indicators_service&quot;</span><span class="p">:</span> <span class="mi">8091</span><span class="p">,</span>
+    <span class="s2">&quot;weather_advanced&quot;</span><span class="p">:</span> <span class="mi">8092</span><span class="p">,</span>
+    <span class="s2">&quot;fertilizer_advisor&quot;</span><span class="p">:</span> <span class="mi">8093</span><span class="p">,</span>
+    <span class="s2">&quot;irrigation_smart&quot;</span><span class="p">:</span> <span class="mi">8094</span><span class="p">,</span>
+    <span class="s2">&quot;crop_health_ai&quot;</span><span class="p">:</span> <span class="mi">8095</span><span class="p">,</span>
+    <span class="s2">&quot;virtual_sensors&quot;</span><span class="p">:</span> <span class="mi">8096</span><span class="p">,</span>
+    <span class="s2">&quot;community_chat&quot;</span><span class="p">:</span> <span class="mi">8097</span><span class="p">,</span>
+    <span class="s2">&quot;yield_engine&quot;</span><span class="p">:</span> <span class="mi">8098</span><span class="p">,</span>
+    <span class="s2">&quot;field_chat&quot;</span><span class="p">:</span> <span class="mi">8099</span><span class="p">,</span>
+    <span class="s2">&quot;equipment_service&quot;</span><span class="p">:</span> <span class="mi">8101</span><span class="p">,</span>
+    <span class="s2">&quot;task_service&quot;</span><span class="p">:</span> <span class="mi">8103</span><span class="p">,</span>
+    <span class="s2">&quot;provider_config&quot;</span><span class="p">:</span> <span class="mi">8104</span><span class="p">,</span>
+    <span class="s2">&quot;agro_advisor&quot;</span><span class="p">:</span> <span class="mi">8105</span><span class="p">,</span>
+    <span class="s2">&quot;iot_gateway&quot;</span><span class="p">:</span> <span class="mi">8106</span><span class="p">,</span>
+    <span class="s2">&quot;ndvi_engine&quot;</span><span class="p">:</span> <span class="mi">8107</span><span class="p">,</span>
+    <span class="s2">&quot;weather_core&quot;</span><span class="p">:</span> <span class="mi">8108</span><span class="p">,</span>
+    <span class="s2">&quot;notification_service&quot;</span><span class="p">:</span> <span class="mi">8110</span><span class="p">,</span>
+    <span class="s2">&quot;astronomical_calendar&quot;</span><span class="p">:</span> <span class="mi">8111</span><span class="p">,</span>
+    <span class="s2">&quot;ai_advisor&quot;</span><span class="p">:</span> <span class="mi">8112</span><span class="p">,</span>
+
+    <span class="c1"># Reserved for new services (8113-8120)</span>
+    <span class="s2">&quot;alert_service&quot;</span><span class="p">:</span> <span class="mi">8113</span><span class="p">,</span>
+    <span class="s2">&quot;chat_service&quot;</span><span class="p">:</span> <span class="mi">8114</span><span class="p">,</span>
+    <span class="s2">&quot;field_service&quot;</span><span class="p">:</span> <span class="mi">8115</span><span class="p">,</span>
+    <span class="s2">&quot;inventory_service&quot;</span><span class="p">:</span> <span class="mi">8116</span><span class="p">,</span>
+    <span class="s2">&quot;iot_service&quot;</span><span class="p">:</span> <span class="mi">8117</span><span class="p">,</span>
+    <span class="s2">&quot;ndvi_processor&quot;</span><span class="p">:</span> <span class="mi">8118</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="2-resource-limits">2. Resource Limits (حدود الموارد)<a class="headerlink" href="#2-resource-limits" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">field_core</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0.5&#39;</span>
+<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M</span>
+<span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0.1&#39;</span>
+<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128M</span>
+
+<span class="w">  </span><span class="nt">ai_advisor</span><span class="p">:</span><span class="w">  </span><span class="c1"># يحتاج موارد أكثر</span>
+<span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;2.0&#39;</span>
+<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4G</span>
+<span class="w">        </span><span class="nt">reservations</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0.5&#39;</span>
+<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1G</span>
+</code></pre></div>
+
+<h3 id="3-rate-limiting">3. Rate Limiting (تحديد المعدل)<a class="headerlink" href="#3-rate-limiting" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Kong rate limiting per package</span>
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w">      </span><span class="c1"># Starter: 100 requests/minute</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span><span class="w">     </span><span class="c1"># Professional: 1000 requests/minute</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000</span><span class="w">    </span><span class="c1"># Enterprise: 10000 requests/minute</span>
+</code></pre></div>
+
+<hr />
+<h2 id="monitoring-system">📊 نظام المراقبة | Monitoring System<a class="headerlink" href="#monitoring-system" title="Permanent link">&para;</a></h2>
+<h3 id="prometheus-metrics">Prometheus Metrics<a class="headerlink" href="#prometheus-metrics" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># services/shared/metrics.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">prometheus_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Histogram</span><span class="p">,</span> <span class="n">Gauge</span>
+
+<span class="c1"># عدد الطلبات</span>
+<span class="n">request_count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
+    <span class="s1">&#39;sahool_requests_total&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Total requests&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># زمن الاستجابة</span>
+<span class="n">request_latency</span> <span class="o">=</span> <span class="n">Histogram</span><span class="p">(</span>
+    <span class="s1">&#39;sahool_request_latency_seconds&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Request latency&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">,</span> <span class="s1">&#39;endpoint&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># الحقول النشطة</span>
+<span class="n">active_fields</span> <span class="o">=</span> <span class="n">Gauge</span><span class="p">(</span>
+    <span class="s1">&#39;sahool_active_fields&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Number of active fields&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;region&#39;</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="grafana-dashboards">Grafana Dashboards<a class="headerlink" href="#grafana-dashboards" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>dashboards/
+├── overview.json         # نظرة عامة على المنصة
+├── services-health.json  # صحة الخدمات
+├── api-metrics.json      # مقاييس API
+├── database.json         # أداء قاعدة البيانات
+└── business.json         # مؤشرات الأعمال
+</code></pre></div>
+
+<hr />
+<h2 id="immediate-action-items">🚀 خطوات التنفيذ الفورية | Immediate Action Items<a class="headerlink" href="#immediate-action-items" title="Permanent link">&para;</a></h2>
+<h3 id="1-2">الأسبوع 1-2<a class="headerlink" href="#1-2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>□ تحديث docker-compose.yml بالخدمات الست المتبقية
+□ إنشاء Port Registry مركزي
+□ تكوين Kong routes
+□ اختبار الباقة الأساسية
+</code></pre></div>
+
+<h3 id="3-4">الأسبوع 3-4<a class="headerlink" href="#3-4" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>□ تكوين NATS JetStream
+□ توحيد عقود الأحداث (Event Contracts)
+□ إضافة Circuit Breakers
+□ اختبار الباقة المتوسطة
+</code></pre></div>
+
+<h3 id="5-6">الأسبوع 5-6<a class="headerlink" href="#5-6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>□ إعداد Prometheus + Grafana
+□ إنشاء Health Checks لجميع الخدمات
+□ توثيق API (OpenAPI)
+□ اختبار الباقة المتقدمة
+</code></pre></div>
+
+<h3 id="7-8">الأسبوع 7-8<a class="headerlink" href="#7-8" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>□ إعداد CI/CD Pipeline
+□ اختبارات التكامل
+□ توثيق المستخدم
+□ إطلاق تجريبي
+</code></pre></div>
+
+<hr />
+<h2 id="innovative-ideas">💡 الأفكار الابتكارية | Innovative Ideas<a class="headerlink" href="#innovative-ideas" title="Permanent link">&para;</a></h2>
+<h3 id="1-ai-powered-auto-scaling">1. AI-Powered Auto-Scaling<a class="headerlink" href="#1-ai-powered-auto-scaling" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نظام تحجيم ذكي بناءً على الموسم الزراعي</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SeasonalAutoScaler</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scale_services</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_planting_season</span><span class="p">():</span>
+            <span class="c1"># زيادة موارد خدمات التخطيط</span>
+            <span class="n">scale_up</span><span class="p">([</span><span class="s1">&#39;field_core&#39;</span><span class="p">,</span> <span class="s1">&#39;agro_advisor&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">is_growing_season</span><span class="p">():</span>
+            <span class="c1"># زيادة موارد المراقبة</span>
+            <span class="n">scale_up</span><span class="p">([</span><span class="s1">&#39;satellite_service&#39;</span><span class="p">,</span> <span class="s1">&#39;crop_health_ai&#39;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">is_harvest_season</span><span class="p">():</span>
+            <span class="c1"># زيادة موارد السوق</span>
+            <span class="n">scale_up</span><span class="p">([</span><span class="s1">&#39;marketplace_service&#39;</span><span class="p">,</span> <span class="s1">&#39;yield_engine&#39;</span><span class="p">])</span>
+</code></pre></div>
+
+<h3 id="2-predictive-maintenance">2. Predictive Maintenance<a class="headerlink" href="#2-predictive-maintenance" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># صيانة استباقية للخدمات</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ServiceHealthPredictor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_failures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># تحليل أنماط الأداء</span>
+        <span class="c1"># التنبؤ بالإخفاقات قبل حدوثها</span>
+        <span class="c1"># إرسال تنبيهات للمسؤولين</span>
+        <span class="k">pass</span>
+</code></pre></div>
+
+<h3 id="3-multi-tenant-isolation">3. Multi-Tenant Isolation<a class="headerlink" href="#3-multi-tenant-isolation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># عزل البيانات لكل مستأجر</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TenantIsolation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">route_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tenant_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># توجيه الطلبات حسب المستأجر</span>
+        <span class="c1"># قاعدة بيانات منفصلة أو schema منفصل</span>
+        <span class="c1"># حدود موارد خاصة</span>
+        <span class="k">pass</span>
+</code></pre></div>
+
+<hr />
+<h2 id="success-metrics">📈 مؤشرات النجاح | Success Metrics<a class="headerlink" href="#success-metrics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الهدف</th>
+<th>القياس</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>وقت الاستجابة</td>
+<td>&lt; 200ms</td>
+<td>P95 latency</td>
+</tr>
+<tr>
+<td>التوفر</td>
+<td>99.9%</td>
+<td>Uptime</td>
+</tr>
+<tr>
+<td>الإخفاقات</td>
+<td>&lt; 0.1%</td>
+<td>Error rate</td>
+</tr>
+<tr>
+<td>المستخدمين النشطين</td>
+<td>+20%/شهر</td>
+<td>MAU growth</td>
+</tr>
+<tr>
+<td>رضا المستخدمين</td>
+<td>&gt; 4.5/5</td>
+<td>NPS score</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="security-compliance">🔐 الأمان والامتثال | Security &amp; Compliance<a class="headerlink" href="#security-compliance" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Kong authentication</span>
+<span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jwt</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">claims_to_verify</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">exp</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iss</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">acl</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">whitelist</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">starter</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">professional</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">enterprise</span>
+</code></pre></div>
+
+<hr />
+<p><em>تم إنشاء هذه الوثيقة: 2025-12-25</em>
+<em>منصة سهول الزراعية v15.8</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

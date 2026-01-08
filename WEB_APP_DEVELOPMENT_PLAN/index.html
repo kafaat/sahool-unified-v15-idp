@@ -1,0 +1,1837 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>خطة تطوير تطبيق الويب | Web App Development Plan - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#web-app-development-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              خطة تطوير تطبيق الويب | Web App Development Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="web-app-development-plan">خطة تطوير تطبيق الويب | Web App Development Plan<a class="headerlink" href="#web-app-development-plan" title="Permanent link">&para;</a></h1>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>هذه الخطة تهدف لتطوير تطبيق الويب ليشمل جميع ميزات تطبيق الهاتف مع تجربة مستخدم محسّنة للشاشات الكبيرة.</p>
+<hr />
+<h2 id="gap-analysis">📊 تحليل الفجوة | Gap Analysis<a class="headerlink" href="#gap-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="5">الميزات الموجودة في الويب (5):<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>advisor</td>
+<td>✅ موجود</td>
+</tr>
+<tr>
+<td>alerts</td>
+<td>✅ موجود</td>
+</tr>
+<tr>
+<td>field-map</td>
+<td>✅ موجود</td>
+</tr>
+<tr>
+<td>ndvi</td>
+<td>✅ موجود</td>
+</tr>
+<tr>
+<td>reports</td>
+<td>✅ موجود</td>
+</tr>
+</tbody>
+</table>
+<h3 id="35">الميزات الناقصة (35 ميزة):<a class="headerlink" href="#35" title="Permanent link">&para;</a></h3>
+<h4 id="core-features">🔴 أولوية حرجة (Core Features)<a class="headerlink" href="#core-features" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>التعقيد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>auth</td>
+<td>المصادقة وإدارة الجلسات</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>home</td>
+<td>الصفحة الرئيسية ولوحة المعلومات</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>fields</td>
+<td>إدارة الحقول الكاملة</td>
+<td>عالي</td>
+</tr>
+<tr>
+<td>tasks</td>
+<td>إدارة المهام الزراعية</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>weather</td>
+<td>بيانات الطقس والتنبؤات</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>notifications</td>
+<td>نظام الإشعارات</td>
+<td>متوسط</td>
+</tr>
+</tbody>
+</table>
+<h4 id="business-critical">🟠 أولوية عالية (Business Critical)<a class="headerlink" href="#business-critical" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>التعقيد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>equipment</td>
+<td>إدارة المعدات الزراعية</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>iot</td>
+<td>إدارة أجهزة IoT</td>
+<td>عالي</td>
+</tr>
+<tr>
+<td>marketplace</td>
+<td>السوق الزراعي</td>
+<td>عالي</td>
+</tr>
+<tr>
+<td>payment</td>
+<td>نظام الدفع</td>
+<td>عالي</td>
+</tr>
+<tr>
+<td>wallet</td>
+<td>المحفظة الإلكترونية</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>crop_health</td>
+<td>صحة المحاصيل</td>
+<td>متوسط</td>
+</tr>
+</tbody>
+</table>
+<h4 id="enhanced-features">🟡 أولوية متوسطة (Enhanced Features)<a class="headerlink" href="#enhanced-features" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>التعقيد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>analytics</td>
+<td>التحليلات والإحصائيات</td>
+<td>عالي</td>
+</tr>
+<tr>
+<td>community</td>
+<td>مجتمع المزارعين</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>daily_brief</td>
+<td>الملخص اليومي</td>
+<td>منخفض</td>
+</tr>
+<tr>
+<td>virtual_sensors</td>
+<td>الحساسات الافتراضية</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>scanner</td>
+<td>ماسح QR/Barcode</td>
+<td>منخفض</td>
+</tr>
+<tr>
+<td>research</td>
+<td>البحث العلمي</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>lab</td>
+<td>المختبر الزراعي</td>
+<td>متوسط</td>
+</tr>
+</tbody>
+</table>
+<h4 id="nice-to-have">🟢 أولوية منخفضة (Nice to Have)<a class="headerlink" href="#nice-to-have" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>الوصف</th>
+<th>التعقيد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>gamification</td>
+<td>نظام النقاط والمكافآت</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>profile</td>
+<td>الملف الشخصي</td>
+<td>منخفض</td>
+</tr>
+<tr>
+<td>settings</td>
+<td>الإعدادات</td>
+<td>منخفض</td>
+</tr>
+<tr>
+<td>onboarding</td>
+<td>تعريف المستخدم الجديد</td>
+<td>منخفض</td>
+</tr>
+<tr>
+<td>smart_alerts</td>
+<td>التنبيهات الذكية</td>
+<td>متوسط</td>
+</tr>
+<tr>
+<td>scouting</td>
+<td>الاستكشاف الميداني</td>
+<td>متوسط</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="proposed-structure">🏗️ الهيكل المقترح | Proposed Structure<a class="headerlink" href="#proposed-structure" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">web</span><span class="o">/</span><span class="nx">src</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">app</span><span class="o">/</span><span class="w">                      </span><span class="err">#</span><span class="w"> </span><span class="nx">Next</span><span class="p">.</span><span class="nx">js</span><span class="w"> </span><span class="nx">App</span><span class="w"> </span><span class="nx">Router</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="p">(</span><span class="nx">auth</span><span class="p">)</span><span class="o">/</span><span class="w">              </span><span class="err">#</span><span class="w"> </span><span class="nx">مجموعة</span><span class="w"> </span><span class="nx">صفحات</span><span class="w"> </span><span class="nx">المصادقة</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">login</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">register</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">forgot</span><span class="o">-</span><span class="nx">password</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="p">(</span><span class="nx">dashboard</span><span class="p">)</span><span class="o">/</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">مجموعة</span><span class="w"> </span><span class="nx">لوحة</span><span class="w"> </span><span class="nx">التحكم</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">layout</span><span class="p">.</span><span class="nx">tsx</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">Layout</span><span class="w"> </span><span class="nx">مشترك</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">page</span><span class="p">.</span><span class="nx">tsx</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">الصفحة</span><span class="w"> </span><span class="nx">الرئيسية</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">fields</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">إدارة</span><span class="w"> </span><span class="nx">الحقول</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">tasks</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">إدارة</span><span class="w"> </span><span class="nx">المهام</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">equipment</span><span class="o">/</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">إدارة</span><span class="w"> </span><span class="nx">المعدات</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">iot</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">أجهزة</span><span class="w"> </span><span class="nx">IoT</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">weather</span><span class="o">/</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">الطقس</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">marketplace</span><span class="o">/</span><span class="w">     </span><span class="err">#</span><span class="w"> </span><span class="nx">السوق</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">wallet</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">المحفظة</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">analytics</span><span class="o">/</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">التحليلات</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">community</span><span class="o">/</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">المجتمع</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">settings</span><span class="o">/</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">الإعدادات</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="kn">api</span><span class="o">/</span><span class="w">                 </span><span class="err">#</span><span class="w"> </span><span class="nx">API</span><span class="w"> </span><span class="nx">Routes</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">ui</span><span class="o">/</span><span class="w">                  </span><span class="err">#</span><span class="w"> </span><span class="nx">مكونات</span><span class="w"> </span><span class="nx">UI</span><span class="w"> </span><span class="nx">أساسية</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">forms</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">نماذج</span><span class="w"> </span><span class="nx">الإدخال</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">maps</span><span class="o">/</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">مكونات</span><span class="w"> </span><span class="nx">الخرائط</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">charts</span><span class="o">/</span><span class="w">              </span><span class="err">#</span><span class="w"> </span><span class="nx">الرسوم</span><span class="w"> </span><span class="nx">البيانية</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">layouts</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">التخطيطات</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">features</span><span class="o">/</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">الميزات</span><span class="w"> </span><span class="p">(</span><span class="nx">Feature</span><span class="o">-</span><span class="nx">based</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">auth</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">fields</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">tasks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">equipment</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">iot</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">weather</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">marketplace</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">wallet</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">analytics</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">community</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="o">...</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">hooks</span><span class="o">/</span><span class="w">                   </span><span class="err">#</span><span class="w"> </span><span class="nx">Custom</span><span class="w"> </span><span class="nx">Hooks</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">lib</span><span class="o">/</span><span class="w">                     </span><span class="err">#</span><span class="w"> </span><span class="nx">المكتبات</span><span class="w"> </span><span class="nx">والأدوات</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="kn">api</span><span class="o">/</span><span class="w">                 </span><span class="err">#</span><span class="w"> </span><span class="nx">API</span><span class="w"> </span><span class="nx">Client</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">auth</span><span class="o">/</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">Auth</span><span class="w"> </span><span class="nx">utilities</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">utils</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">أدوات</span><span class="w"> </span><span class="nx">مساعدة</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">stores</span><span class="o">/</span><span class="w">                  </span><span class="err">#</span><span class="w"> </span><span class="nx">State</span><span class="w"> </span><span class="nx">Management</span><span class="w"> </span><span class="p">(</span><span class="nx">Zustand</span><span class="p">)</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">types</span><span class="o">/</span><span class="w">                   </span><span class="err">#</span><span class="w"> </span><span class="nx">TypeScript</span><span class="w"> </span><span class="nx">Types</span>
+</code></pre></div>
+
+<hr />
+<h2 id="implementation-phases">📅 مراحل التنفيذ | Implementation Phases<a class="headerlink" href="#implementation-phases" title="Permanent link">&para;</a></h2>
+<h3 id="1-foundation">المرحلة 1: البنية التحتية (Foundation)<a class="headerlink" href="#1-foundation" title="Permanent link">&para;</a></h3>
+<p><strong>المهام:</strong></p>
+<ol>
+<li><strong>إعداد المصادقة (Auth)</strong>
+   ```</li>
+<li>تكامل مع auth service</li>
+<li>JWT handling</li>
+<li>Protected routes</li>
+<li>
+<p>Session management
+   ```</p>
+</li>
+<li>
+<p><strong>إعداد State Management</strong>
+   ```</p>
+</li>
+<li>Zustand stores</li>
+<li>React Query للـ API</li>
+<li>
+<p>Optimistic updates
+   ```</p>
+</li>
+<li>
+<p><strong>إعداد API Client</strong>
+   ```</p>
+</li>
+<li>Axios/Fetch wrapper</li>
+<li>Error handling</li>
+<li>Request interceptors</li>
+<li>
+<p>Response caching
+   ```</p>
+</li>
+<li>
+<p><strong>تحسين UI Components</strong>
+   ```</p>
+</li>
+<li>تطوير Design System</li>
+<li>Responsive components</li>
+<li>RTL support</li>
+<li>Dark mode
+   ```</li>
+</ol>
+<hr />
+<h3 id="2-core-features">المرحلة 2: الميزات الأساسية (Core Features)<a class="headerlink" href="#2-core-features" title="Permanent link">&para;</a></h3>
+<p><strong>المهام:</strong></p>
+<ol>
+<li>
+<p><strong>الصفحة الرئيسية (Home/Dashboard)</strong>
+   <code>typescript
+   // features/home/
+   ├── components/
+   │   ├── DashboardStats.tsx
+   │   ├── RecentActivity.tsx
+   │   ├── WeatherWidget.tsx
+   │   ├── TasksSummary.tsx
+   │   └── AlertsWidget.tsx
+   ├── hooks/
+   │   └── useDashboardData.ts
+   └── index.ts</code></p>
+</li>
+<li>
+<p><strong>إدارة الحقول (Fields Management)</strong>
+   <code>typescript
+   // features/fields/
+   ├── components/
+   │   ├── FieldsList.tsx
+   │   ├── FieldCard.tsx
+   │   ├── FieldDetails.tsx
+   │   ├── FieldForm.tsx
+   │   ├── FieldMap.tsx
+   │   └── PolygonEditor.tsx
+   ├── hooks/
+   │   ├── useFields.ts
+   │   ├── useFieldMutations.ts
+   │   └── useFieldNDVI.ts
+   └── types.ts</code></p>
+</li>
+<li>
+<p><strong>إدارة المهام (Tasks)</strong>
+   <code>typescript
+   // features/tasks/
+   ├── components/
+   │   ├── TasksBoard.tsx      # Kanban board
+   │   ├── TasksList.tsx
+   │   ├── TaskCard.tsx
+   │   ├── TaskForm.tsx
+   │   └── TaskCalendar.tsx
+   ├── hooks/
+   │   └── useTasks.ts
+   └── types.ts</code></p>
+</li>
+<li>
+<p><strong>الطقس (Weather)</strong>
+   <code>typescript
+   // features/weather/
+   ├── components/
+   │   ├── WeatherDashboard.tsx
+   │   ├── CurrentWeather.tsx
+   │   ├── ForecastChart.tsx
+   │   ├── WeatherAlerts.tsx
+   │   └── AgroWeatherIndex.tsx
+   └── hooks/
+       └── useWeather.ts</code></p>
+</li>
+</ol>
+<hr />
+<h3 id="3-business-features">المرحلة 3: الميزات التجارية (Business Features)<a class="headerlink" href="#3-business-features" title="Permanent link">&para;</a></h3>
+<p><strong>المهام:</strong></p>
+<ol>
+<li>
+<p><strong>إدارة المعدات (Equipment)</strong>
+   <code>typescript
+   // features/equipment/
+   ├── components/
+   │   ├── EquipmentList.tsx
+   │   ├── EquipmentCard.tsx
+   │   ├── MaintenanceSchedule.tsx
+   │   ├── EquipmentMap.tsx
+   │   └── QRScanner.tsx
+   └── hooks/
+       └── useEquipment.ts</code></p>
+</li>
+<li>
+<p><strong>IoT والحساسات</strong>
+   <code>typescript
+   // features/iot/
+   ├── components/
+   │   ├── SensorsDashboard.tsx
+   │   ├── SensorCard.tsx
+   │   ├── SensorReadings.tsx
+   │   ├── ActuatorControls.tsx
+   │   └── AlertRules.tsx
+   └── hooks/
+       ├── useSensors.ts
+       └── useActuators.ts</code></p>
+</li>
+<li>
+<p><strong>السوق (Marketplace)</strong>
+   <code>typescript
+   // features/marketplace/
+   ├── components/
+   │   ├── ProductsGrid.tsx
+   │   ├── ProductCard.tsx
+   │   ├── ProductDetails.tsx
+   │   ├── Cart.tsx
+   │   ├── OrderHistory.tsx
+   │   └── SellerDashboard.tsx
+   └── hooks/
+       ├── useProducts.ts
+       └── useOrders.ts</code></p>
+</li>
+<li>
+<p><strong>المحفظة والدفع (Wallet &amp; Payment)</strong>
+   <code>typescript
+   // features/wallet/
+   ├── components/
+   │   ├── WalletBalance.tsx
+   │   ├── TransactionHistory.tsx
+   │   ├── PaymentMethods.tsx
+   │   └── TransferForm.tsx
+   └── hooks/
+       └── useWallet.ts</code></p>
+</li>
+</ol>
+<hr />
+<h3 id="4-advanced-features">المرحلة 4: الميزات المتقدمة (Advanced Features)<a class="headerlink" href="#4-advanced-features" title="Permanent link">&para;</a></h3>
+<p><strong>المهام:</strong></p>
+<ol>
+<li>
+<p><strong>التحليلات (Analytics)</strong>
+   <code>typescript
+   // features/analytics/
+   ├── components/
+   │   ├── AnalyticsDashboard.tsx
+   │   ├── YieldChart.tsx
+   │   ├── CostAnalysis.tsx
+   │   ├── ComparisonReport.tsx
+   │   └── ExportReport.tsx</code></p>
+</li>
+<li>
+<p><strong>المجتمع (Community)</strong>
+   <code>typescript
+   // features/community/
+   ├── components/
+   │   ├── Feed.tsx
+   │   ├── PostCard.tsx
+   │   ├── CreatePost.tsx
+   │   ├── Groups.tsx
+   │   └── Chat.tsx</code></p>
+</li>
+<li>
+<p><strong>صحة المحاصيل (Crop Health)</strong>
+   <code>typescript
+   // features/crop-health/
+   ├── components/
+   │   ├── DiagnosisTool.tsx
+   │   ├── ImageUpload.tsx
+   │   ├── DiagnosisResult.tsx
+   │   ├── TreatmentPlan.tsx
+   │   └── HealthHistory.tsx</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="service-integration">🔌 تكامل الخدمات | Service Integration<a class="headerlink" href="#service-integration" title="Permanent link">&para;</a></h2>
+<h3 id="api-endpoints">API Endpoints المطلوبة:<a class="headerlink" href="#api-endpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الـ Endpoints</th>
+<th>الأولوية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-core</td>
+<td>/api/v1/fields/*</td>
+<td>حرجة</td>
+</tr>
+<tr>
+<td>task-service</td>
+<td>/api/v1/tasks/*</td>
+<td>حرجة</td>
+</tr>
+<tr>
+<td>weather-core</td>
+<td>/api/v1/weather/*</td>
+<td>حرجة</td>
+</tr>
+<tr>
+<td>equipment-service</td>
+<td>/api/v1/equipment/*</td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>iot-service</td>
+<td>/api/v1/sensors/<em>, /api/v1/actuators/</em></td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>marketplace-service</td>
+<td>/api/v1/products/<em>, /api/v1/orders/</em></td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>billing-core</td>
+<td>/api/v1/wallet/<em>, /api/v1/payments/</em></td>
+<td>عالية</td>
+</tr>
+<tr>
+<td>community-chat</td>
+<td>/api/v1/posts/<em>, /api/v1/groups/</em></td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>crop-health-ai</td>
+<td>/api/v1/diagnosis/*</td>
+<td>متوسطة</td>
+</tr>
+<tr>
+<td>notification-service</td>
+<td>/api/v1/notifications/*</td>
+<td>متوسطة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="websocket-integration">WebSocket Integration:<a class="headerlink" href="#websocket-integration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// lib/websocket/client.ts</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">io</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;socket.io-client&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">wsClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">io</span><span class="p">(</span><span class="nx">WS_GATEWAY_URL</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">auth</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">token</span><span class="o">:</span><span class="w"> </span><span class="kt">getAccessToken</span><span class="p">()</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="nx">transports</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;websocket&#39;</span><span class="p">],</span>
+<span class="p">});</span>
+
+<span class="c1">// الاشتراك في الأحداث</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;field.updated&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleFieldUpdate</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;task.created&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNewTask</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;weather.alert&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleWeatherAlert</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;iot.reading&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleSensorReading</span><span class="p">);</span>
+<span class="nx">wsClient</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;notification.new&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">handleNotification</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h2 id="design-guidelines">🎨 التصميم | Design Guidelines<a class="headerlink" href="#design-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="_1">مبادئ التصميم:<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Responsive Design</strong></li>
+<li>Mobile-first approach</li>
+<li>Breakpoints: sm (640px), md (768px), lg (1024px), xl (1280px)</li>
+<li>
+<p>Fluid typography and spacing</p>
+</li>
+<li>
+<p><strong>RTL Support</strong>
+   <code>css
+   /* Tailwind RTL */
+   .rtl {
+     direction: rtl;
+     text-align: right;
+   }</code></p>
+</li>
+<li>
+<p><strong>Dark Mode</strong>
+   <code>typescript
+   // استخدام next-themes
+   const { theme, setTheme } = useTheme();</code></p>
+</li>
+<li>
+<p><strong>Accessibility (a11y)</strong></p>
+</li>
+<li>ARIA labels</li>
+<li>Keyboard navigation</li>
+<li>Screen reader support</li>
+<li>Color contrast compliance</li>
+</ol>
+<hr />
+<h2 id="tech-stack">📦 التقنيات المقترحة | Tech Stack<a class="headerlink" href="#tech-stack" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;framework&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Next.js 14 (App Router)&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;language&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TypeScript&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;styling&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Tailwind CSS + shadcn/ui&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Zustand + React Query&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;forms&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;React Hook Form + Zod&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;maps&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mapbox GL JS / Leaflet&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;charts&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Recharts / Chart.js&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tables&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TanStack Table&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;icons&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Lucide Icons&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;i18n&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;next-intl&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;testing&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Vitest + Testing Library&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="checklist">✅ قائمة المراجعة | Checklist<a class="headerlink" href="#checklist" title="Permanent link">&para;</a></h2>
+<h3 id="1">المرحلة 1:<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إعداد Auth system</li>
+<li>[ ] إعداد API client</li>
+<li>[ ] إعداد State management</li>
+<li>[ ] تطوير UI components</li>
+<li>[ ] إعداد i18n (AR/EN)</li>
+</ul>
+<h3 id="2">المرحلة 2:<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] تطوير Home/Dashboard</li>
+<li>[ ] تطوير Fields management</li>
+<li>[ ] تطوير Tasks management</li>
+<li>[ ] تطوير Weather feature</li>
+<li>[ ] تطوير Notifications</li>
+</ul>
+<h3 id="3">المرحلة 3:<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] تطوير Equipment management</li>
+<li>[ ] تطوير IoT dashboard</li>
+<li>[ ] تطوير Marketplace</li>
+<li>[ ] تطوير Wallet &amp; Payment</li>
+</ul>
+<h3 id="4">المرحلة 4:<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] تطوير Analytics</li>
+<li>[ ] تطوير Community</li>
+<li>[ ] تطوير Crop Health</li>
+<li>[ ] تطوير Advanced features</li>
+</ul>
+<hr />
+<h2 id="success-metrics">📈 مقاييس النجاح | Success Metrics<a class="headerlink" href="#success-metrics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المقياس</th>
+<th>الهدف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تغطية الميزات</td>
+<td>100% من ميزات الموبايل</td>
+</tr>
+<tr>
+<td>أداء الصفحة (LCP)</td>
+<td>&lt; 2.5s</td>
+</tr>
+<tr>
+<td>حجم Bundle</td>
+<td>&lt; 500KB (gzipped)</td>
+</tr>
+<tr>
+<td>نتيجة Lighthouse</td>
+<td>&gt; 90</td>
+</tr>
+<tr>
+<td>تغطية الاختبارات</td>
+<td>&gt; 80%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>تم إنشاء هذه الخطة في: 2024-12-23</em>
+<em>الإصدار: 1.0</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

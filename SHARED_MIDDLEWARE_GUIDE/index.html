@@ -1,0 +1,1618 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Shared Middleware Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-shared-middleware-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Shared Middleware Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-shared-middleware-guide">SAHOOL Shared Middleware Guide<a class="headerlink" href="#sahool-shared-middleware-guide" title="Permanent link">&para;</a></h1>
+<p><strong>دليل البرمجيات الوسيطة المشتركة لمنصة سهول</strong></p>
+<h2 id="overview">Overview | نظرة عامة<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide covers the shared middleware libraries available across all SAHOOL services for consistent observability, security, and multi-tenancy support.</p>
+<p>تغطي هذه الوثيقة مكتبات البرمجيات الوسيطة المشتركة المتاحة عبر جميع خدمات سهول لدعم متسق للمراقبة والأمان والتعدد المستأجرين.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents | جدول المحتويات<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#available-middleware">Available Middleware</a></li>
+<li><a href="#python-fastapi-integration">Python FastAPI Integration</a></li>
+<li><a href="#typescript-nestjs-integration">TypeScript NestJS Integration</a></li>
+<li><a href="#middleware-configuration">Middleware Configuration</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ol>
+<hr />
+<h2 id="available-middleware">Available Middleware<a class="headerlink" href="#available-middleware" title="Permanent link">&para;</a></h2>
+<h3 id="1-requestloggingmiddleware">1. RequestLoggingMiddleware<a class="headerlink" href="#1-requestloggingmiddleware" title="Permanent link">&para;</a></h3>
+<p><strong>Correlation IDs &amp; Structured Logging</strong></p>
+<ul>
+<li>✅ Generates or extracts correlation IDs (X-Correlation-ID)</li>
+<li>✅ Logs all requests with structured JSON format</li>
+<li>✅ Tracks request duration and status codes</li>
+<li>✅ Extracts tenant and user IDs from headers or JWT</li>
+<li>✅ Filters sensitive data (passwords, tokens, etc.)</li>
+</ul>
+<p><strong>Location:</strong>
+- Python: <code>shared/middleware/request_logging.py</code>
+- TypeScript: <code>apps/services/shared/middleware/request-logging.ts</code></p>
+<hr />
+<h3 id="2-observabilitymiddleware">2. ObservabilityMiddleware<a class="headerlink" href="#2-observabilitymiddleware" title="Permanent link">&para;</a></h3>
+<p><strong>Tracing, Metrics &amp; Monitoring</strong></p>
+<ul>
+<li>✅ OpenTelemetry distributed tracing support</li>
+<li>✅ Automatic span creation for each request</li>
+<li>✅ Prometheus metrics collection</li>
+<li>✅ Error tracking and reporting</li>
+<li>✅ Performance monitoring</li>
+</ul>
+<p><strong>Location:</strong>
+- Python: <code>shared/observability/middleware.py</code></p>
+<hr />
+<h3 id="3-tenantcontextmiddleware">3. TenantContextMiddleware<a class="headerlink" href="#3-tenantcontextmiddleware" title="Permanent link">&para;</a></h3>
+<p><strong>Multi-Tenancy Isolation</strong></p>
+<ul>
+<li>✅ Extracts tenant ID from JWT or headers</li>
+<li>✅ Provides async-safe context for tenant isolation</li>
+<li>✅ Tenant-scoped database query helpers</li>
+<li>✅ Validates tenant presence on protected endpoints</li>
+</ul>
+<p><strong>Location:</strong>
+- Python: <code>shared/middleware/tenant_context.py</code></p>
+<hr />
+<h3 id="4-metricsmiddleware">4. MetricsMiddleware<a class="headerlink" href="#4-metricsmiddleware" title="Permanent link">&para;</a></h3>
+<p><strong>HTTP Metrics Collection</strong></p>
+<ul>
+<li>✅ Request counts by method and endpoint</li>
+<li>✅ Response time histograms</li>
+<li>✅ Active connection tracking</li>
+<li>✅ Error rate monitoring</li>
+</ul>
+<p><strong>Location:</strong>
+- Python: <code>shared/observability/middleware.py</code></p>
+<hr />
+<h3 id="5-ratelimitmiddleware">5. RateLimitMiddleware<a class="headerlink" href="#5-ratelimitmiddleware" title="Permanent link">&para;</a></h3>
+<p><strong>API Rate Limiting</strong></p>
+<ul>
+<li>✅ Tiered rate limiting (by user, tenant, API key)</li>
+<li>✅ Token bucket algorithm</li>
+<li>✅ Redis-backed distributed rate limiting</li>
+<li>✅ Customizable limits per endpoint</li>
+</ul>
+<p><strong>Location:</strong>
+- Python: <code>shared/middleware/rate_limit.py</code></p>
+<hr />
+<h3 id="6-securityheadersmiddleware">6. SecurityHeadersMiddleware<a class="headerlink" href="#6-securityheadersmiddleware" title="Permanent link">&para;</a></h3>
+<p><strong>HTTP Security Headers</strong></p>
+<ul>
+<li>✅ HSTS (Strict-Transport-Security)</li>
+<li>✅ Content-Security-Policy</li>
+<li>✅ X-Frame-Options</li>
+<li>✅ X-Content-Type-Options</li>
+<li>✅ Referrer-Policy</li>
+</ul>
+<p><strong>Location:</strong>
+- Python: <code>shared/middleware/security_headers.py</code></p>
+<hr />
+<h2 id="python-fastapi-integration">Python FastAPI Integration<a class="headerlink" href="#python-fastapi-integration" title="Permanent link">&para;</a></h2>
+<h3 id="basic-setup">Basic Setup<a class="headerlink" href="#basic-setup" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
+
+<span class="c1"># Add shared path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">))</span>
+
+<span class="c1"># Import middleware</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RequestLoggingMiddleware</span><span class="p">,</span>
+    <span class="n">TenantContextMiddleware</span><span class="p">,</span>
+    <span class="n">setup_cors</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.observability.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ObservabilityMiddleware</span><span class="p">,</span>
+    <span class="n">MetricsMiddleware</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Create app</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;My Service&quot;</span><span class="p">)</span>
+
+<span class="c1"># ============== Middleware Setup ==============</span>
+<span class="c1"># Middleware order: Last added = First executed</span>
+<span class="c1"># Execution order: CORS -&gt; Observability -&gt; Logging -&gt; Tenant -&gt; Routes</span>
+
+<span class="c1"># 1. CORS - Secure cross-origin configuration</span>
+<span class="n">setup_cors</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+
+<span class="c1"># 2. Observability - Tracing, metrics, and monitoring</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">ObservabilityMiddleware</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+    <span class="n">metrics_collector</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Optional metrics collector</span>
+<span class="p">)</span>
+
+<span class="c1"># 3. Request Logging - Correlation IDs and structured logging</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">RequestLoggingMiddleware</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+    <span class="n">log_request_body</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;LOG_REQUEST_BODY&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+    <span class="n">log_response_body</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># 4. Tenant Context - Multi-tenancy isolation</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">TenantContextMiddleware</span><span class="p">,</span>
+    <span class="n">require_tenant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Require tenant for all endpoints</span>
+    <span class="n">exempt_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;/health&quot;</span><span class="p">,</span> <span class="s2">&quot;/healthz&quot;</span><span class="p">,</span> <span class="s2">&quot;/readyz&quot;</span><span class="p">,</span> <span class="s2">&quot;/docs&quot;</span><span class="p">,</span> <span class="s2">&quot;/openapi.json&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="using-tenant-context">Using Tenant Context<a class="headerlink" href="#using-tenant-context" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.tenant_context</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_tenant</span><span class="p">,</span> <span class="n">get_current_tenant_id</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/fields&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_fields</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="c1"># Get tenant ID from context</span>
+    <span class="n">tenant_id</span> <span class="o">=</span> <span class="n">get_current_tenant_id</span><span class="p">()</span>
+
+    <span class="c1"># Get full tenant context (includes user_id, roles)</span>
+    <span class="n">tenant</span> <span class="o">=</span> <span class="n">get_current_tenant</span><span class="p">()</span>
+
+    <span class="c1"># Query with tenant isolation</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">Field</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Field</span><span class="o">.</span><span class="n">tenant_id</span> <span class="o">==</span> <span class="n">tenant_id</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="n">fields</span><span class="p">}</span>
+</code></pre></div>
+
+<h3 id="using-correlation-ids">Using Correlation IDs<a class="headerlink" href="#using-correlation-ids" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware.request_logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_correlation_id</span><span class="p">,</span> <span class="n">get_request_context</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/process&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process_data</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">):</span>
+    <span class="c1"># Get correlation ID for logging and tracing</span>
+    <span class="n">correlation_id</span> <span class="o">=</span> <span class="n">get_correlation_id</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+
+    <span class="c1"># Get full request context</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">get_request_context</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+    <span class="c1"># Returns: {&quot;correlation_id&quot;: &quot;...&quot;, &quot;tenant_id&quot;: &quot;...&quot;, &quot;user_id&quot;: &quot;...&quot;}</span>
+
+    <span class="c1"># Use in downstream service calls</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+            <span class="s2">&quot;http://other-service/api/endpoint&quot;</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;X-Correlation-ID&quot;</span><span class="p">:</span> <span class="n">correlation_id</span><span class="p">},</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;processed&quot;</span><span class="p">,</span> <span class="s2">&quot;correlation_id&quot;</span><span class="p">:</span> <span class="n">correlation_id</span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="typescript-nestjs-integration">TypeScript NestJS Integration<a class="headerlink" href="#typescript-nestjs-integration" title="Permanent link">&para;</a></h2>
+<h3 id="basic-setup_1">Basic Setup<a class="headerlink" href="#basic-setup_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NestFactory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/core&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">RequestLoggingInterceptor</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../shared/middleware/request-logging&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">AppModule</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;./app.module&#39;</span><span class="p">;</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">bootstrap</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">app</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">NestFactory</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">AppModule</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// ============== Middleware Setup ==============</span>
+<span class="w">  </span><span class="c1">// Global request logging interceptor with correlation IDs</span>
+<span class="w">  </span><span class="nx">app</span><span class="p">.</span><span class="nx">useGlobalInterceptors</span><span class="p">(</span><span class="ow">new</span><span class="w"> </span><span class="nx">RequestLoggingInterceptor</span><span class="p">(</span><span class="s1">&#39;my-service&#39;</span><span class="p">));</span>
+
+<span class="w">  </span><span class="c1">// Enable CORS</span>
+<span class="w">  </span><span class="nx">app</span><span class="p">.</span><span class="nx">enableCors</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">origin</span><span class="o">:</span><span class="w"> </span><span class="kt">process.env.CORS_ALLOWED_ORIGINS?.split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;http://localhost:3000&#39;</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">methods</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PUT&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;PATCH&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;DELETE&#39;</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">allowedHeaders</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;Content-Type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;X-Tenant-ID&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;X-Correlation-ID&#39;</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="kt">true</span><span class="p">,</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="mf">3000</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nx">bootstrap</span><span class="p">();</span>
+</code></pre></div>
+
+<h3 id="using-in-services">Using in Services<a class="headerlink" href="#using-in-services" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Injectable</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">StructuredLogger</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../shared/middleware/request-logging&#39;</span><span class="p">;</span>
+
+<span class="kd">@Injectable</span><span class="p">()</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">MyService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="w"> </span><span class="k">readonly</span><span class="w"> </span><span class="nx">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">StructuredLogger</span><span class="p">(</span><span class="s1">&#39;my-service&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;MyService&#39;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">processData</span><span class="p">(</span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="nx">correlationId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">tenantId</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Processing data&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">correlationId</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">tenantId</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;processData&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Process data...</span>
+
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Data processed successfully&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">correlationId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">tenantId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;processData&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">recordCount</span><span class="o">:</span><span class="w"> </span><span class="kt">data.length</span><span class="p">,</span>
+<span class="w">      </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Failed to process data&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">correlationId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">tenantId</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">operation</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;processData&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">error</span><span class="o">:</span><span class="w"> </span><span class="kt">error.message</span><span class="p">,</span>
+<span class="w">      </span><span class="p">});</span>
+<span class="w">      </span><span class="k">throw</span><span class="w"> </span><span class="nx">error</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="using-in-controllers">Using in Controllers<a class="headerlink" href="#using-in-controllers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Controller</span><span class="p">,</span><span class="w"> </span><span class="nx">Get</span><span class="p">,</span><span class="w"> </span><span class="nx">Req</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@nestjs/common&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Request</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;express&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">getCorrelationId</span><span class="p">,</span><span class="w"> </span><span class="nx">getRequestContext</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;../../shared/middleware/request-logging&#39;</span><span class="p">;</span>
+
+<span class="kd">@Controller</span><span class="p">(</span><span class="s1">&#39;api/v1/items&#39;</span><span class="p">)</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">class</span><span class="w"> </span><span class="nx">ItemsController</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">@Get</span><span class="p">()</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="nx">list</span><span class="p">(</span><span class="kd">@Req</span><span class="p">()</span><span class="w"> </span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">correlationId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getCorrelationId</span><span class="p">(</span><span class="nx">request</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">tenantId</span><span class="p">,</span><span class="w"> </span><span class="nx">userId</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">getRequestContext</span><span class="p">(</span><span class="nx">request</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="nx">itemsService</span><span class="p">.</span><span class="nx">findAll</span><span class="p">(</span><span class="nx">tenantId</span><span class="p">,</span><span class="w"> </span><span class="nx">correlationId</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">items</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">correlation_id</span><span class="o">:</span><span class="w"> </span><span class="kt">correlationId</span><span class="p">,</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="middleware-configuration">Middleware Configuration<a class="headerlink" href="#middleware-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Logging</span>
+<span class="nv">LOG_REQUEST_BODY</span><span class="o">=</span><span class="nb">false</span><span class="w">              </span><span class="c1"># Log request bodies (debug only)</span>
+<span class="nv">LOG_RESPONSE_BODY</span><span class="o">=</span><span class="nb">false</span><span class="w">             </span><span class="c1"># Log response bodies (debug only)</span>
+
+<span class="c1"># CORS</span>
+<span class="nv">CORS_ALLOWED_ORIGINS</span><span class="o">=</span>https://sahool.app,https://admin.sahool.app,http://localhost:3000
+
+<span class="c1"># Observability</span>
+<span class="nv">OTEL_EXPORTER_OTLP_ENDPOINT</span><span class="o">=</span>http://jaeger:4318
+<span class="nv">OTEL_SERVICE_NAME</span><span class="o">=</span>my-service
+
+<span class="c1"># Rate Limiting</span>
+<span class="nv">RATE_LIMIT_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">RATE_LIMIT_MAX_REQUESTS</span><span class="o">=</span><span class="m">100</span>
+<span class="nv">RATE_LIMIT_WINDOW_MS</span><span class="o">=</span><span class="m">60000</span>
+
+<span class="c1"># Multi-tenancy</span>
+<span class="nv">REQUIRE_TENANT</span><span class="o">=</span><span class="nb">true</span><span class="w">                 </span><span class="c1"># Require tenant for all endpoints</span>
+</code></pre></div>
+
+<h3 id="middleware-order">Middleware Order<a class="headerlink" href="#middleware-order" title="Permanent link">&para;</a></h3>
+<p><strong>IMPORTANT:</strong> Middleware execution order matters!</p>
+<p>For FastAPI (Last added = First executed):</p>
+<div class="codehilite"><pre><span></span><code><span class="n">setup_cors</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>                     <span class="c1"># Executed FIRST</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">ObservabilityMiddleware</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">RequestLoggingMiddleware</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">TenantContextMiddleware</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>  <span class="c1"># Executed LAST</span>
+</code></pre></div>
+
+<p>Execution flow:</p>
+<div class="codehilite"><pre><span></span><code>Request → CORS → Observability → Logging → Tenant → Your Routes → Response
+</code></pre></div>
+
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-always-use-correlation-ids">1. Always Use Correlation IDs<a class="headerlink" href="#1-always-use-correlation-ids" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>DO:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">correlation_id</span> <span class="o">=</span> <span class="n">get_correlation_id</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing request&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;correlation_id&quot;</span><span class="p">:</span> <span class="n">correlation_id</span><span class="p">})</span>
+</code></pre></div>
+
+<p>❌ <strong>DON'T:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing request&quot;</span><span class="p">)</span>  <span class="c1"># No correlation ID for tracing</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-propagate-correlation-ids-to-downstream-services">2. Propagate Correlation IDs to Downstream Services<a class="headerlink" href="#2-propagate-correlation-ids-to-downstream-services" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>DO:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+        <span class="s2">&quot;http://other-service/api/endpoint&quot;</span><span class="p">,</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;X-Correlation-ID&quot;</span><span class="p">:</span> <span class="n">correlation_id</span><span class="p">,</span>
+            <span class="s2">&quot;X-Tenant-ID&quot;</span><span class="p">:</span> <span class="n">tenant_id</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-use-tenant-context-for-data-isolation">3. Use Tenant Context for Data Isolation<a class="headerlink" href="#3-use-tenant-context-for-data-isolation" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>DO:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">tenant_id</span> <span class="o">=</span> <span class="n">get_current_tenant_id</span><span class="p">()</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Field</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">tenant_id</span><span class="o">=</span><span class="n">tenant_id</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+</code></pre></div>
+
+<p>❌ <strong>DON'T:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">fields</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Field</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>  <span class="c1"># No tenant isolation - security risk!</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-configure-exempt-paths-appropriately">4. Configure Exempt Paths Appropriately<a class="headerlink" href="#4-configure-exempt-paths-appropriately" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">TenantContextMiddleware</span><span class="p">,</span>
+    <span class="n">require_tenant</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">exempt_paths</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;/health&quot;</span><span class="p">,</span>       <span class="c1"># Health checks</span>
+        <span class="s2">&quot;/healthz&quot;</span><span class="p">,</span>      <span class="c1"># Kubernetes liveness</span>
+        <span class="s2">&quot;/readyz&quot;</span><span class="p">,</span>       <span class="c1"># Kubernetes readiness</span>
+        <span class="s2">&quot;/metrics&quot;</span><span class="p">,</span>      <span class="c1"># Prometheus metrics</span>
+        <span class="s2">&quot;/docs&quot;</span><span class="p">,</span>         <span class="c1"># API documentation</span>
+        <span class="s2">&quot;/openapi.json&quot;</span><span class="p">,</span> <span class="c1"># OpenAPI spec</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="5-enable-request-body-logging-only-for-debugging">5. Enable Request Body Logging Only for Debugging<a class="headerlink" href="#5-enable-request-body-logging-only-for-debugging" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Development</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">RequestLoggingMiddleware</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+    <span class="n">log_request_body</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># ⚠️ Only in development!</span>
+<span class="p">)</span>
+
+<span class="c1"># Production</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">RequestLoggingMiddleware</span><span class="p">,</span>
+    <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">,</span>
+    <span class="n">log_request_body</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># ✅ Disabled in production</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="issue-tenant-context-not-available">Issue: "Tenant context not available"<a class="headerlink" href="#issue-tenant-context-not-available" title="Permanent link">&para;</a></h3>
+<p><strong>Solution:</strong> Ensure <code>TenantContextMiddleware</code> is added:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">TenantContextMiddleware</span><span class="p">)</span>
+</code></pre></div>
+
+<p>And that the request includes <code>X-Tenant-ID</code> header or JWT with <code>tid</code> claim.</p>
+<hr />
+<h3 id="issue-correlation-ids-not-appearing-in-logs">Issue: Correlation IDs not appearing in logs<a class="headerlink" href="#issue-correlation-ids-not-appearing-in-logs" title="Permanent link">&para;</a></h3>
+<p><strong>Solution:</strong> Ensure <code>RequestLoggingMiddleware</code> is added <strong>before</strong> your custom logging:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">RequestLoggingMiddleware</span><span class="p">,</span> <span class="n">service_name</span><span class="o">=</span><span class="s2">&quot;my-service&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-cors-errors">Issue: CORS errors<a class="headerlink" href="#issue-cors-errors" title="Permanent link">&para;</a></h3>
+<p><strong>Solution:</strong> Use the shared <code>setup_cors()</code> function:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.middleware</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_cors</span>
+
+<span class="n">setup_cors</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>  <span class="c1"># Uses environment-based configuration</span>
+</code></pre></div>
+
+<hr />
+<h3 id="issue-middleware-not-executing">Issue: Middleware not executing<a class="headerlink" href="#issue-middleware-not-executing" title="Permanent link">&para;</a></h3>
+<p><strong>Solution:</strong> Check middleware order. Last added = First executed in FastAPI:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># This middleware executes LAST</span>
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span><span class="n">TenantContextMiddleware</span><span class="p">)</span>
+
+<span class="c1"># This middleware executes FIRST</span>
+<span class="n">setup_cors</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="migration-checklist">Migration Checklist<a class="headerlink" href="#migration-checklist" title="Permanent link">&para;</a></h2>
+<p>When migrating a service to use shared middleware:</p>
+<ul>
+<li>[ ] Remove custom CORS configuration</li>
+<li>[ ] Remove custom request ID generation</li>
+<li>[ ] Remove custom logging middleware</li>
+<li>[ ] Add <code>RequestLoggingMiddleware</code></li>
+<li>[ ] Add <code>ObservabilityMiddleware</code></li>
+<li>[ ] Add <code>TenantContextMiddleware</code> (if multi-tenant)</li>
+<li>[ ] Update tenant ID extraction to use <code>get_current_tenant_id()</code></li>
+<li>[ ] Update correlation ID usage to use <code>get_correlation_id(request)</code></li>
+<li>[ ] Configure exempt paths appropriately</li>
+<li>[ ] Test with <code>X-Correlation-ID</code> and <code>X-Tenant-ID</code> headers</li>
+</ul>
+<hr />
+<h2 id="support-resources">Support &amp; Resources<a class="headerlink" href="#support-resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Examples:</strong></li>
+<li>Python: <code>shared/middleware/examples/fastapi_example.py</code></li>
+<li>
+<p>TypeScript: <code>apps/services/shared/middleware/examples/nestjs_example.ts</code></p>
+</li>
+<li>
+<p><strong>Documentation:</strong></p>
+</li>
+<li>Request Logging: <code>shared/middleware/REQUEST_LOGGING_GUIDE.md</code></li>
+<li>
+<p>Rate Limiting: <code>shared/middleware/RATE_LIMITING_GUIDE.md</code></p>
+</li>
+<li>
+<p><strong>Slack Channels:</strong></p>
+</li>
+<li><code>#platform-middleware</code></li>
+<li><code>#platform-observability</code></li>
+</ul>
+<hr />
+<p><strong>Last Updated:</strong> 2026-01-06
+<strong>Version:</strong> 1.0.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

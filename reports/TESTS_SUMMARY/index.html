@@ -1,0 +1,1628 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Comprehensive Tests Summary - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#comprehensive-tests-summary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Comprehensive Tests Summary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="comprehensive-tests-summary">Comprehensive Tests Summary<a class="headerlink" href="#comprehensive-tests-summary" title="Permanent link">&para;</a></h1>
+<h2 id="_1">ملخص الاختبارات الشاملة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>تم إنشاء اختبارات شاملة لـ 5 خدمات كانت تفتقر إلى الاختبارات في المشروع.</p>
+<hr />
+<h2 id="_2">الخدمات التي تم إضافة اختبارات لها<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="1-ai-advisor-service">1. AI-Advisor Service (خدمة المستشار الذكي)<a class="headerlink" href="#1-ai-advisor-service" title="Permanent link">&para;</a></h3>
+<p><strong>المسار</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/ai-advisor/tests/</code></p>
+<p><strong>إجمالي الأسطر</strong>: ~3,068 سطر</p>
+<p><strong>ملفات الاختبار</strong>:</p>
+<h4 id="unit-tests">Unit Tests (اختبارات الوحدة):<a class="headerlink" href="#unit-tests" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>tests/unit/test_llm_providers.py</code> - اختبارات مزودي LLM (Anthropic, OpenAI, Google)</li>
+<li>اختبار التهيئة مع مزودين مختلفين</li>
+<li>اختبار توليد النصوص</li>
+<li>اختبار آلية الاحتياطي (Fallback)</li>
+<li>اختبار حساب التوكنات</li>
+<li>
+<p>اختبار التدفق المستمر (Streaming)</p>
+</li>
+<li>
+<p><code>tests/unit/test_agents.py</code> - اختبارات الوكلاء الذكيين</p>
+</li>
+<li>اختبار FieldAnalystAgent (وكيل تحليل الحقول)</li>
+<li>اختبار DiseaseExpertAgent (وكيل خبير الأمراض)</li>
+<li>اختبار IrrigationAdvisorAgent (وكيل مستشار الري)</li>
+<li>اختبار YieldPredictorAgent (وكيل التنبؤ بالمحصول)</li>
+</ul>
+<h4 id="integration-tests">Integration Tests (اختبارات التكامل):<a class="headerlink" href="#integration-tests" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>tests/integration/test_api_endpoints.py</code> - اختبارات نقاط النهاية</li>
+<li>اختبار <code>/v1/advisor/ask</code> (طرح الأسئلة)</li>
+<li>اختبار <code>/v1/advisor/diagnose</code> (التشخيص)</li>
+<li>اختبار <code>/v1/advisor/recommend</code> (التوصيات)</li>
+<li>اختبار <code>/v1/advisor/analyze-field</code> (تحليل الحقل)</li>
+<li>اختبار <code>/v1/advisor/agents</code> (قائمة الوكلاء)</li>
+<li>اختبار <code>/v1/advisor/rag/info</code> (معلومات RAG)</li>
+</ul>
+<h4 id="mock-tests">Mock Tests (اختبارات المحاكاة):<a class="headerlink" href="#mock-tests" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>tests/mocks/test_external_services.py</code> - اختبارات الخدمات الخارجية</li>
+<li>محاكاة CropHealthTool</li>
+<li>محاكاة WeatherTool</li>
+<li>محاكاة SatelliteTool</li>
+<li>محاكاة AgroTool</li>
+<li>محاكاة EmbeddingsManager</li>
+<li>محاكاة KnowledgeRetriever</li>
+</ul>
+<p><strong>الميزات المغطاة</strong>:
+- ✅ اختبارات وحدة للوظائف الأساسية
+- ✅ اختبارات تكامل لجميع API endpoints
+- ✅ اختبارات محاكاة للتبعيات الخارجية
+- ✅ اختبار معالجة الأخطاء
+- ✅ اختبار التحقق من صحة المدخلات</p>
+<hr />
+<h3 id="2-crop-health-service">2. Crop-Health Service (خدمة صحة المحاصيل)<a class="headerlink" href="#2-crop-health-service" title="Permanent link">&para;</a></h3>
+<p><strong>المسار</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/crop-health/tests/</code></p>
+<p><strong>إجمالي الأسطر</strong>: ~452 سطر</p>
+<p><strong>ملفات الاختبار</strong>:
+- <code>tests/test_crop_health_service.py</code> - اختبارات شاملة للخدمة</p>
+<p><strong>الاختبارات المغطاة</strong>:</p>
+<h4 id="health-endpoints">Health Endpoints:<a class="headerlink" href="#health-endpoints" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اختبار <code>/healthz</code></li>
+<li>اختبار <code>/</code> (root endpoint)</li>
+</ul>
+<h4 id="zone-management">Zone Management (إدارة المناطق):<a class="headerlink" href="#zone-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>إنشاء منطقة جديدة</li>
+<li>عرض قائمة المناطق</li>
+<li>تصدير المناطق كـ GeoJSON</li>
+</ul>
+<h4 id="observations-ingestion">Observations Ingestion (استقبال الرصدات):<a class="headerlink" href="#observations-ingestion" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تسجيل رصد جديد</li>
+<li>التحقق من صحة المؤشرات</li>
+<li>عرض قائمة الرصدات</li>
+</ul>
+<h4 id="field-diagnosis">Field Diagnosis (تشخيص الحقل):<a class="headerlink" href="#field-diagnosis" title="Permanent link">&para;</a></h4>
+<ul>
+<li>الحصول على تشخيص كامل للحقل</li>
+<li>التحقق من بنية الملخص</li>
+<li>معالجة التواريخ غير الصحيحة</li>
+</ul>
+<h4 id="timeline">Timeline (الخط الزمني):<a class="headerlink" href="#timeline" title="Permanent link">&para;</a></h4>
+<ul>
+<li>الحصول على الخط الزمني للمنطقة</li>
+<li>التحقق من نطاقات التاريخ</li>
+</ul>
+<h4 id="vrt-export-vrt">VRT Export (تصدير VRT):<a class="headerlink" href="#vrt-export-vrt" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تصدير VRT للعمليات الزراعية الدقيقة</li>
+<li>التصفية حسب نوع الإجراء</li>
+</ul>
+<h4 id="decision-engine">Decision Engine (محرك القرار):<a class="headerlink" href="#decision-engine" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تشخيص المناطق الصحية</li>
+<li>تشخيص المناطق المتضررة</li>
+<li>تصنيف حالة المناطق</li>
+</ul>
+<h4 id="complete-workflow">Complete Workflow:<a class="headerlink" href="#complete-workflow" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اختبار تكامل كامل من إنشاء منطقة إلى التشخيص</li>
+</ul>
+<p><strong>الميزات المغطاة</strong>:
+- ✅ اختبارات API endpoints
+- ✅ اختبار محرك القرار
+- ✅ اختبار التحقق من صحة البيانات
+- ✅ اختبار سير العمل الكامل
+- ✅ اختبار معالجة الأخطاء</p>
+<hr />
+<h3 id="3-field-ops-service">3. Field-Ops Service (خدمة عمليات الحقول)<a class="headerlink" href="#3-field-ops-service" title="Permanent link">&para;</a></h3>
+<p><strong>المسار</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/field-ops/tests/</code></p>
+<p><strong>إجمالي الأسطر</strong>: ~374 سطر</p>
+<p><strong>ملفات الاختبار</strong>:
+- <code>tests/test_field_ops_service.py</code> - اختبارات شاملة للخدمة</p>
+<p><strong>الاختبارات المغطاة</strong>:</p>
+<h4 id="health-endpoints_1">Health Endpoints:<a class="headerlink" href="#health-endpoints_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اختبار <code>/healthz</code></li>
+<li>اختبار <code>/readyz</code></li>
+</ul>
+<h4 id="field-management">Field Management (إدارة الحقول):<a class="headerlink" href="#field-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>إنشاء حقل جديد</li>
+<li>الحصول على حقل بالمعرف</li>
+<li>عرض قائمة الحقول</li>
+<li>عرض قائمة الحقول مع التصفح (Pagination)</li>
+<li>تحديث معلومات الحقل</li>
+<li>حذف حقل</li>
+</ul>
+<h4 id="operations-management">Operations Management (إدارة العمليات):<a class="headerlink" href="#operations-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>إنشاء عملية جديدة</li>
+<li>الحصول على عملية بالمعرف</li>
+<li>عرض قائمة العمليات</li>
+<li>التصفية حسب الحالة</li>
+<li>إتمام عملية</li>
+</ul>
+<h4 id="tenant-statistics">Tenant Statistics (إحصائيات المستأجر):<a class="headerlink" href="#tenant-statistics" title="Permanent link">&para;</a></h4>
+<ul>
+<li>الحصول على إحصائيات المستأجر</li>
+<li>التحقق من بنية الإحصائيات</li>
+</ul>
+<h4 id="validation">Validation (التحقق من الصحة):<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>التحقق من المساحة غير الصحيحة</li>
+<li>التحقق من الحقول المطلوبة المفقودة</li>
+</ul>
+<h4 id="complete-workflow_1">Complete Workflow:<a class="headerlink" href="#complete-workflow_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اختبار تكامل كامل من إنشاء حقل إلى إتمام العملية</li>
+</ul>
+<p><strong>الميزات المغطاة</strong>:
+- ✅ اختبارات CRUD كاملة للحقول
+- ✅ اختبارات CRUD كاملة للعمليات
+- ✅ اختبار الإحصائيات
+- ✅ اختبار التحقق من صحة المدخلات
+- ✅ اختبار سير العمل الكامل</p>
+<hr />
+<h3 id="4-ws-gateway-service-websocket">4. WS-Gateway Service (خدمة بوابة WebSocket)<a class="headerlink" href="#4-ws-gateway-service-websocket" title="Permanent link">&para;</a></h3>
+<p><strong>المسار</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/ws-gateway/tests/</code></p>
+<p><strong>إجمالي الأسطر</strong>: ~1,328 سطر</p>
+<p><strong>ملفات الاختبار</strong>:
+- <code>tests/test_ws_gateway_service.py</code> - اختبارات شاملة للخدمة</p>
+<p><strong>الاختبارات المغطاة</strong>:</p>
+<h4 id="health-endpoints_2">Health Endpoints:<a class="headerlink" href="#health-endpoints_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اختبار <code>/healthz</code></li>
+<li>اختبار <code>/readyz</code></li>
+<li>اختبار <code>/stats</code></li>
+</ul>
+<h4 id="websocket-connection-websocket">WebSocket Connection (اتصال WebSocket):<a class="headerlink" href="#websocket-connection-websocket" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اتصال ناجح مع JWT</li>
+<li>اتصال بدون توكن (يفشل)</li>
+<li>اتصال بتوكن غير صحيح (يفشل)</li>
+<li>عدم تطابق المستأجر (Tenant Mismatch)</li>
+</ul>
+<h4 id="websocket-messaging-websocket">WebSocket Messaging (رسائل WebSocket):<a class="headerlink" href="#websocket-messaging-websocket" title="Permanent link">&para;</a></h4>
+<ul>
+<li>إرسال رسالة إلى غرفة</li>
+<li>صدى الرسالة (Message Echo)</li>
+</ul>
+<h4 id="broadcast-api-api">Broadcast API (API البث):<a class="headerlink" href="#broadcast-api-api" title="Permanent link">&para;</a></h4>
+<ul>
+<li>البث إلى المستأجر</li>
+<li>البث بدون توكن (يفشل)</li>
+<li>عدم تطابق المستأجر</li>
+<li>البث إلى مستخدم محدد</li>
+<li>البث إلى حقل محدد</li>
+</ul>
+<h4 id="room-management">Room Management (إدارة الغرف):<a class="headerlink" href="#room-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>الحصول على إحصائيات الغرف</li>
+</ul>
+<h4 id="nats-integration-nats">NATS Integration (تكامل NATS):<a class="headerlink" href="#nats-integration-nats" title="Permanent link">&para;</a></h4>
+<ul>
+<li>حالة اتصال NATS</li>
+<li>إحصائيات NATS</li>
+</ul>
+<h4 id="complete-workflow_2">Complete Workflow:<a class="headerlink" href="#complete-workflow_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اختبار تكامل كامل لاتصال WebSocket والرسائل</li>
+</ul>
+<p><strong>الميزات المغطاة</strong>:
+- ✅ اختبارات اتصال WebSocket
+- ✅ اختبارات المصادقة JWT
+- ✅ اختبارات البث (Broadcasting)
+- ✅ اختبارات إدارة الغرف
+- ✅ اختبارات تكامل NATS
+- ✅ اختبار سير العمل الكامل</p>
+<hr />
+<h3 id="5-inventory-service">5. Inventory-Service (خدمة المخزون)<a class="headerlink" href="#5-inventory-service" title="Permanent link">&para;</a></h3>
+<p><strong>المسار</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/inventory-service/tests/</code></p>
+<p><strong>إجمالي الأسطر</strong>: ~1,157 سطر</p>
+<p><strong>ملفات الاختبار</strong>:
+- <code>tests/test_inventory_service.py</code> - اختبارات شاملة للخدمة</p>
+<p><strong>الاختبارات المغطاة</strong>:</p>
+<h4 id="health-endpoints_3">Health Endpoints:<a class="headerlink" href="#health-endpoints_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اختبار <code>/healthz</code></li>
+<li>اختبار <code>/readyz</code></li>
+<li>اختبار <code>/health</code> مع فحص قاعدة البيانات</li>
+</ul>
+<h4 id="category-management">Category Management (إدارة الفئات):<a class="headerlink" href="#category-management" title="Permanent link">&para;</a></h4>
+<ul>
+<li>إنشاء فئة جديدة</li>
+<li>معالجة الأكواد المكررة</li>
+</ul>
+<h4 id="analytics-forecasting-">Analytics - Forecasting (التحليلات - التنبؤ):<a class="headerlink" href="#analytics-forecasting-" title="Permanent link">&para;</a></h4>
+<ul>
+<li>التنبؤ باستهلاك عنصر</li>
+<li>الحصول على جميع التنبؤات</li>
+<li>التنبؤات مع التصفية</li>
+</ul>
+<h4 id="reorder-recommendations">Reorder Recommendations (توصيات إعادة الطلب):<a class="headerlink" href="#reorder-recommendations" title="Permanent link">&para;</a></h4>
+<ul>
+<li>الحصول على توصيات إعادة الطلب</li>
+</ul>
+<h4 id="inventory-valuation">Inventory Valuation (تقييم المخزون):<a class="headerlink" href="#inventory-valuation" title="Permanent link">&para;</a></h4>
+<ul>
+<li>التقييم الإجمالي</li>
+<li>تقييم المستودع المحدد</li>
+</ul>
+<h4 id="turnover-analysis">Turnover Analysis (تحليل دوران المخزون):<a class="headerlink" href="#turnover-analysis" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تحليل دوران المخزون</li>
+<li>فترات زمنية مختلفة</li>
+</ul>
+<h4 id="slow-moving-items">Slow-Moving Items (العناصر بطيئة الحركة):<a class="headerlink" href="#slow-moving-items" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تحديد العناصر بطيئة الحركة</li>
+<li>التحقق من العتبة</li>
+</ul>
+<h4 id="dead-stock">Dead Stock (المخزون الميت):<a class="headerlink" href="#dead-stock" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تحديد المخزون الميت</li>
+</ul>
+<h4 id="abc-analysis-abc">ABC Analysis (تحليل ABC):<a class="headerlink" href="#abc-analysis-abc" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تحليل ABC للمخزون</li>
+</ul>
+<h4 id="seasonal-patterns">Seasonal Patterns (الأنماط الموسمية):<a class="headerlink" href="#seasonal-patterns" title="Permanent link">&para;</a></h4>
+<ul>
+<li>الحصول على الأنماط الموسمية</li>
+</ul>
+<h4 id="cost-analysis">Cost Analysis (تحليل التكلفة):<a class="headerlink" href="#cost-analysis" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تحليل التكلفة</li>
+<li>التصفية حسب الحقل والموسم</li>
+<li>نطاق التاريخ</li>
+</ul>
+<h4 id="waste-analysis">Waste Analysis (تحليل الهدر):<a class="headerlink" href="#waste-analysis" title="Permanent link">&para;</a></h4>
+<ul>
+<li>تحليل الهدر</li>
+<li>فترات زمنية مختلفة</li>
+</ul>
+<h4 id="dashboard-metrics">Dashboard Metrics (مقاييس لوحة المعلومات):<a class="headerlink" href="#dashboard-metrics" title="Permanent link">&para;</a></h4>
+<ul>
+<li>مقاييس شاملة للوحة المعلومات</li>
+</ul>
+<h4 id="validation_1">Validation (التحقق من الصحة):<a class="headerlink" href="#validation_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>tenant_id غير صحيح</li>
+<li>period_days غير صحيح</li>
+<li>forecast_days غير صحيح</li>
+</ul>
+<h4 id="complete-workflow_3">Complete Workflow:<a class="headerlink" href="#complete-workflow_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>اختبار تكامل كامل لتحليلات المخزون</li>
+</ul>
+<p><strong>الميزات المغطاة</strong>:
+- ✅ اختبارات إدارة الفئات
+- ✅ اختبارات التنبؤ والتحليلات
+- ✅ اختبارات تقييم المخزون
+- ✅ اختبارات تحديد المشاكل (بطيء الحركة، ميت)
+- ✅ اختبارات تحليل ABC
+- ✅ اختبارات الأنماط الموسمية
+- ✅ اختبارات تحليل التكلفة والهدر
+- ✅ اختبار التحقق من صحة المدخلات
+- ✅ اختبار سير العمل الكامل</p>
+<hr />
+<h2 id="_3">الإحصائيات الإجمالية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>عدد ملفات الاختبار</th>
+<th>عدد الأسطر</th>
+<th>نوع الاختبارات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ai-advisor</td>
+<td>6 ملفات</td>
+<td>~3,068</td>
+<td>Unit, Integration, Mock</td>
+</tr>
+<tr>
+<td>crop-health</td>
+<td>1 ملف</td>
+<td>~452</td>
+<td>Integration</td>
+</tr>
+<tr>
+<td>field-ops</td>
+<td>1 ملف</td>
+<td>~374</td>
+<td>Integration</td>
+</tr>
+<tr>
+<td>ws-gateway</td>
+<td>5 ملفات</td>
+<td>~1,328</td>
+<td>Integration</td>
+</tr>
+<tr>
+<td>inventory-service</td>
+<td>3 ملفات</td>
+<td>~1,157</td>
+<td>Integration</td>
+</tr>
+<tr>
+<td><strong>المجموع</strong></td>
+<td><strong>16 ملف</strong></td>
+<td><strong>~6,379 سطر</strong></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_4">أنواع الاختبارات المضافة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="1-unit-tests">1. Unit Tests (اختبارات الوحدة)<a class="headerlink" href="#1-unit-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>اختبار الدوال والوحدات الفردية بشكل منفصل</li>
+<li>استخدام Mocks للتبعيات</li>
+<li>تغطية حالات الحافة (Edge Cases)</li>
+</ul>
+<h3 id="2-integration-tests">2. Integration Tests (اختبارات التكامل)<a class="headerlink" href="#2-integration-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>اختبار API endpoints</li>
+<li>اختبار التفاعل بين المكونات</li>
+<li>اختبار سير العمل الكامل</li>
+</ul>
+<h3 id="3-mock-tests">3. Mock Tests (اختبارات المحاكاة)<a class="headerlink" href="#3-mock-tests" title="Permanent link">&para;</a></h3>
+<ul>
+<li>محاكاة الخدمات الخارجية</li>
+<li>محاكاة APIs</li>
+<li>محاكاة قواعد البيانات</li>
+</ul>
+<hr />
+<h2 id="_5">كيفية تشغيل الاختبارات<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="python-pytest">للخدمات Python (pytest):<a class="headerlink" href="#python-pytest" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># AI-Advisor</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/ai-advisor
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+
+<span class="c1"># Crop-Health</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/crop-health
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+
+<span class="c1"># Field-Ops</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/field-ops
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+
+<span class="c1"># WS-Gateway</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/ws-gateway
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+
+<span class="c1"># Inventory-Service</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/inventory-service
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+</code></pre></div>
+
+<h3 id="_6">تشغيل جميع الاختبارات:<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># من المجلد الجذري</span>
+pytest<span class="w"> </span>apps/services/ai-advisor/tests/<span class="w"> </span>-v
+pytest<span class="w"> </span>apps/services/crop-health/tests/<span class="w"> </span>-v
+pytest<span class="w"> </span>apps/services/field-ops/tests/<span class="w"> </span>-v
+pytest<span class="w"> </span>apps/services/ws-gateway/tests/<span class="w"> </span>-v
+pytest<span class="w"> </span>apps/services/inventory-service/tests/<span class="w"> </span>-v
+</code></pre></div>
+
+<h3 id="_7">تشغيل مع تقرير التغطية:<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>pytest<span class="w"> </span>apps/services/ai-advisor/tests/<span class="w"> </span>--cov<span class="o">=</span>apps/services/ai-advisor/src<span class="w"> </span>--cov-report<span class="o">=</span>html
+</code></pre></div>
+
+<hr />
+<h2 id="requirements">المتطلبات (Requirements)<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<p>تأكد من تثبيت المكتبات التالية:</p>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>pytest<span class="w"> </span>pytest-asyncio<span class="w"> </span>pytest-cov
+pip<span class="w"> </span>install<span class="w"> </span>fastapi<span class="w"> </span>httpx
+pip<span class="w"> </span>install<span class="w"> </span>sqlalchemy<span class="w"> </span>aiosqlite
+</code></pre></div>
+
+<hr />
+<h2 id="_8">الميزات الرئيسية للاختبارات<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<p>✅ <strong>تغطية شاملة</strong>: اختبارات لجميع endpoints الرئيسية
+✅ <strong>معالجة الأخطاء</strong>: اختبار جميع حالات الفشل المتوقعة
+✅ <strong>التحقق من الصحة</strong>: اختبار التحقق من صحة المدخلات
+✅ <strong>سيناريوهات واقعية</strong>: اختبارات تحاكي الاستخدام الفعلي
+✅ <strong>سير عمل كامل</strong>: اختبارات تكامل من البداية إلى النهاية
+✅ <strong>محاكاة التبعيات</strong>: استخدام Mocks للخدمات الخارجية
+✅ <strong>توثيق واضح</strong>: تعليقات بالعربية والإنجليزية</p>
+<hr />
+<h2 id="_9">الملاحظات الهامة<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>قاعدة البيانات للاختبار</strong>: تستخدم بعض الاختبارات قواعد بيانات في الذاكرة (in-memory) لتسريع التنفيذ</li>
+<li><strong>Mocks</strong>: تم استخدام Mocks لجميع الخدمات الخارجية لعزل الاختبارات</li>
+<li><strong>Fixtures</strong>: تم إنشاء Fixtures قابلة لإعادة الاستخدام في conftest.py</li>
+<li><strong>Async Tests</strong>: استخدام pytest-asyncio لاختبار الدوال غير المتزامنة</li>
+</ol>
+<hr />
+<h2 id="_10">التوثيق المرجعي<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>pytest</strong>: https://docs.pytest.org/</li>
+<li><strong>FastAPI Testing</strong>: https://fastapi.tiangolo.com/tutorial/testing/</li>
+<li><strong>pytest-asyncio</strong>: https://pytest-asyncio.readthedocs.io/</li>
+</ul>
+<hr />
+<h2 id="_11">الخلاصة<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<p>تم إنشاء <strong>6,379 سطر</strong> من الاختبارات الشاملة لـ <strong>5 خدمات</strong> تفتقر إلى الاختبارات. هذه الاختبارات تغطي:</p>
+<ul>
+<li>✅ جميع API endpoints الرئيسية</li>
+<li>✅ معالجة الأخطاء والحالات الاستثنائية</li>
+<li>✅ التحقق من صحة المدخلات</li>
+<li>✅ سير العمل الكامل (End-to-End)</li>
+<li>✅ التكامل مع الخدمات الخارجية</li>
+<li>✅ السيناريوهات الواقعية للاستخدام</li>
+</ul>
+<p><strong>التاريخ</strong>: 27 ديسمبر 2025
+<strong>الإصدار</strong>: 1.0.0</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

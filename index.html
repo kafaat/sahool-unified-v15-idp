@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAHOOL Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+        }
+        h1 { font-size: 3rem; margin-bottom: 1rem; }
+        p { font-size: 1.25rem; margin-bottom: 3rem; opacity: 0.9; }
+        .links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .link-card {
+            background: white;
+            color: #2E7D32;
+            padding: 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-width: 200px;
+        }
+        .link-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .link-card h2 { margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌾 SAHOOL Documentation</h1>
+        <p>Smart Agricultural Platform for Yemen & Middle East</p>
+        <div class="links">
+            <a href="/api/" class="link-card">
+                <h2>📚 API Docs</h2>
+                <p>Complete API reference</p>
+            </a>
+            <a href="/getting-started/" class="link-card">
+                <h2>🚀 Get Started</h2>
+                <p>Quick start guide</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

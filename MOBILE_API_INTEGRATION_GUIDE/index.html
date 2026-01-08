@@ -1,0 +1,2220 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>دليل تكامل API لتطبيق سهول الموبايل - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              دليل تكامل API لتطبيق سهول الموبايل
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="api">دليل تكامل API لتطبيق سهول الموبايل<a class="headerlink" href="#api" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-mobile-app-api-integration-guide">SAHOOL Mobile App API Integration Guide<a class="headerlink" href="#sahool-mobile-app-api-integration-guide" title="Permanent link">&para;</a></h1>
+<h2 id="overview">نظرة عامة | Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>يستخدم نظام سهول <strong>Kong API Gateway</strong> كبوابة موحدة لجميع الخدمات المصغرة (39+ خدمة).
+البوابة تعمل على المنفذ <code>8000</code> وتوفر:</p>
+<ul>
+<li>مصادقة JWT موحدة</li>
+<li>تحديد معدل الطلبات حسب باقة الاشتراك</li>
+<li>التحكم في الوصول (ACL)</li>
+<li>CORS للمتصفحات والتطبيقات</li>
+<li>رؤوس أمان متقدمة</li>
+</ul>
+<hr />
+<h2 id="base-configuration">التكوين الأساسي | Base Configuration<a class="headerlink" href="#base-configuration" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1">// lib/core/config/api_config.dart</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">ApiConfig</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Production</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">baseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.app&#39;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Development</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">devBaseUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;http://localhost:8000&#39;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// WebSocket</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">wsUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;wss://api.sahool.app/api/v1/ws&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">devWsUrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ws://localhost:8081&#39;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// API Version</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">apiVersion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;v1&#39;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Timeouts (milliseconds)</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">connectTimeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">15000</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">receiveTimeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">60000</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">sendTimeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30000</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="authentication">المصادقة | Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
+<h3 id="jwt-token-structure">JWT Token Structure<a class="headerlink" href="#jwt-token-structure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;header&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;alg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;HS256&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;typ&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;JWT&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;iss&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool-auth&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;sub&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user-id&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;aud&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool-api&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;exp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1234567890</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;iat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1234567890</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tier&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;starter|professional|enterprise|research&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant-uuid&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;permissions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;fields:read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fields:write&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="auth-endpoints">نقاط المصادقة | Auth Endpoints<a class="headerlink" href="#auth-endpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Rate Limit</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/auth/login</code></td>
+<td>POST</td>
+<td>5/min, 20/hour</td>
+<td>تسجيل الدخول</td>
+</tr>
+<tr>
+<td><code>/api/v1/auth/register</code></td>
+<td>POST</td>
+<td>10/min, 50/hour</td>
+<td>التسجيل</td>
+</tr>
+<tr>
+<td><code>/api/v1/auth/refresh</code></td>
+<td>POST</td>
+<td>10/min, 100/hour</td>
+<td>تجديد التوكن</td>
+</tr>
+<tr>
+<td><code>/api/v1/auth/password-reset</code></td>
+<td>POST</td>
+<td>3/min, 10/hour</td>
+<td>إعادة تعيين كلمة المرور</td>
+</tr>
+<tr>
+<td><code>/api/v1/auth/forgot-password</code></td>
+<td>POST</td>
+<td>3/min, 10/hour</td>
+<td>نسيت كلمة المرور</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dio-interceptor">تنفيذ Dio Interceptor<a class="headerlink" href="#dio-interceptor" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// lib/core/http/auth_interceptor.dart</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">AuthInterceptor</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">AuthService</span><span class="w"> </span><span class="n">_authService</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">AuthInterceptor</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="n">_authService</span><span class="p">);</span>
+
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onRequest</span><span class="p">(</span>
+<span class="w">    </span><span class="n">RequestOptions</span><span class="w"> </span><span class="n">options</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RequestInterceptorHandler</span><span class="w"> </span><span class="n">handler</span><span class="p">,</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_authService</span><span class="p">.</span><span class="n">getAccessToken</span><span class="p">();</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">token</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">options</span><span class="p">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Bearer </span><span class="si">$</span><span class="n">token</span><span class="s1">&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;X-Request-ID&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Uuid</span><span class="p">().</span><span class="n">v4</span><span class="p">();</span>
+<span class="w">    </span><span class="n">handler</span><span class="p">.</span><span class="n">next</span><span class="p">(</span><span class="n">options</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onError</span><span class="p">(</span>
+<span class="w">    </span><span class="n">DioException</span><span class="w"> </span><span class="n">err</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ErrorInterceptorHandler</span><span class="w"> </span><span class="n">handler</span><span class="p">,</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="p">.</span><span class="n">response</span><span class="o">?</span><span class="p">.</span><span class="n">statusCode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">401</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">await</span><span class="w"> </span><span class="n">_authService</span><span class="p">.</span><span class="n">refreshToken</span><span class="p">();</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">newToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_authService</span><span class="p">.</span><span class="n">getAccessToken</span><span class="p">();</span>
+<span class="w">        </span><span class="n">err</span><span class="p">.</span><span class="n">requestOptions</span><span class="p">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;Authorization&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;Bearer </span><span class="si">$</span><span class="n">newToken</span><span class="s1">&#39;</span><span class="p">;</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">Dio</span><span class="p">().</span><span class="n">fetch</span><span class="p">(</span><span class="n">err</span><span class="p">.</span><span class="n">requestOptions</span><span class="p">);</span>
+<span class="w">        </span><span class="n">handler</span><span class="p">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">response</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">await</span><span class="w"> </span><span class="n">_authService</span><span class="p">.</span><span class="n">logout</span><span class="p">();</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">handler</span><span class="p">.</span><span class="n">next</span><span class="p">(</span><span class="n">err</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="subscription-tiers-permissions">باقات الاشتراك والصلاحيات | Subscription Tiers &amp; Permissions<a class="headerlink" href="#subscription-tiers-permissions" title="Permanent link">&para;</a></h2>
+<h3 id="starter-package">Starter Package (المزارعون الصغار)<a class="headerlink" href="#starter-package" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Endpoint</th>
+<th>Rate Limit</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Field Core</strong></td>
+<td><code>/api/v1/fields</code></td>
+<td>100/min, 5000/hour</td>
+<td>إدارة الحقول الأساسية</td>
+</tr>
+<tr>
+<td><strong>Weather</strong></td>
+<td><code>/api/v1/weather</code></td>
+<td>100/min</td>
+<td>بيانات الطقس الحالية والتوقعات</td>
+</tr>
+<tr>
+<td><strong>Calendar</strong></td>
+<td><code>/api/v1/calendar</code></td>
+<td>100/min</td>
+<td>التقويم الفلكي اليمني</td>
+</tr>
+<tr>
+<td><strong>Advice</strong></td>
+<td><code>/api/v1/advice</code></td>
+<td>100/min</td>
+<td>الاستشارات الزراعية الأساسية</td>
+</tr>
+<tr>
+<td><strong>Notifications</strong></td>
+<td><code>/api/v1/notifications</code></td>
+<td>100/min</td>
+<td>الإشعارات</td>
+</tr>
+</tbody>
+</table>
+<h3 id="professional-package">Professional Package (المزارعون المحترفون)<a class="headerlink" href="#professional-package" title="Permanent link">&para;</a></h3>
+<p><em>يشمل جميع خدمات Starter بالإضافة إلى:</em></p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Endpoint</th>
+<th>Rate Limit</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Satellite</strong></td>
+<td><code>/api/v1/satellite</code></td>
+<td>1000/min, 50000/hour</td>
+<td>صور الأقمار الصناعية</td>
+</tr>
+<tr>
+<td><strong>NDVI</strong></td>
+<td><code>/api/v1/ndvi</code></td>
+<td>1000/min</td>
+<td>تحليل مؤشر النباتات</td>
+</tr>
+<tr>
+<td><strong>NDVI Processor</strong></td>
+<td><code>/api/v1/ndvi-processor</code></td>
+<td>1000/min</td>
+<td>معالجة NDVI المتقدمة</td>
+</tr>
+<tr>
+<td><strong>Crop Health</strong></td>
+<td><code>/api/v1/crop-health</code></td>
+<td>1000/min</td>
+<td>تحليل صحة المحاصيل بالذكاء الاصطناعي</td>
+</tr>
+<tr>
+<td><strong>Irrigation</strong></td>
+<td><code>/api/v1/irrigation</code></td>
+<td>1000/min</td>
+<td>الري الذكي</td>
+</tr>
+<tr>
+<td><strong>Virtual Sensors</strong></td>
+<td><code>/api/v1/sensors/virtual</code></td>
+<td>1000/min</td>
+<td>المستشعرات الافتراضية (ET0)</td>
+</tr>
+<tr>
+<td><strong>Yield</strong></td>
+<td><code>/api/v1/yield</code></td>
+<td>1000/min</td>
+<td>توقع الإنتاجية</td>
+</tr>
+<tr>
+<td><strong>Fertilizer</strong></td>
+<td><code>/api/v1/fertilizer</code></td>
+<td>1000/min</td>
+<td>توصيات التسميد</td>
+</tr>
+<tr>
+<td><strong>Inventory</strong></td>
+<td><code>/api/v1/inventory</code></td>
+<td>1000/min</td>
+<td>إدارة المخزون</td>
+</tr>
+<tr>
+<td><strong>Equipment</strong></td>
+<td><code>/api/v1/equipment</code></td>
+<td>1000/min</td>
+<td>إدارة المعدات</td>
+</tr>
+<tr>
+<td><strong>Weather Advanced</strong></td>
+<td><code>/api/v1/weather/advanced</code></td>
+<td>1000/min</td>
+<td>الطقس المتقدم</td>
+</tr>
+<tr>
+<td><strong>Indicators</strong></td>
+<td><code>/api/v1/indicators</code></td>
+<td>1000/min</td>
+<td>المؤشرات الزراعية</td>
+</tr>
+<tr>
+<td><strong>Providers</strong></td>
+<td><code>/api/v1/providers</code></td>
+<td>500/min</td>
+<td>تكوين المزودين</td>
+</tr>
+</tbody>
+</table>
+<h3 id="enterprise-package">Enterprise Package (الشركات الزراعية)<a class="headerlink" href="#enterprise-package" title="Permanent link">&para;</a></h3>
+<p><em>يشمل جميع خدمات Professional بالإضافة إلى:</em></p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Endpoint</th>
+<th>Rate Limit</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI Advisor</strong></td>
+<td><code>/api/v1/ai-advisor</code></td>
+<td>10000/min, 500000/hour</td>
+<td>المستشار الذكي متعدد الوكلاء</td>
+</tr>
+<tr>
+<td><strong>IoT Gateway</strong></td>
+<td><code>/api/v1/iot</code></td>
+<td>10000/min</td>
+<td>بوابة إنترنت الأشياء</td>
+</tr>
+<tr>
+<td><strong>IoT Service</strong></td>
+<td><code>/api/v1/iot-service</code></td>
+<td>10000/min</td>
+<td>خدمة IoT المتقدمة</td>
+</tr>
+<tr>
+<td><strong>Research</strong></td>
+<td><code>/api/v1/research</code></td>
+<td>10000/min</td>
+<td>إدارة الأبحاث العلمية</td>
+</tr>
+<tr>
+<td><strong>Marketplace</strong></td>
+<td><code>/api/v1/marketplace</code></td>
+<td>10000/min</td>
+<td>السوق الزراعي</td>
+</tr>
+<tr>
+<td><strong>Billing</strong></td>
+<td><code>/api/v1/billing</code></td>
+<td>1000/min</td>
+<td>الفوترة والمدفوعات</td>
+</tr>
+<tr>
+<td><strong>Disaster</strong></td>
+<td><code>/api/v1/disaster</code></td>
+<td>10000/min</td>
+<td>تقييم الكوارث</td>
+</tr>
+<tr>
+<td><strong>Crop Model</strong></td>
+<td><code>/api/v1/crop-model</code></td>
+<td>10000/min</td>
+<td>نماذج نمو المحاصيل (WOFOST)</td>
+</tr>
+<tr>
+<td><strong>LAI</strong></td>
+<td><code>/api/v1/lai</code></td>
+<td>10000/min</td>
+<td>تقدير مؤشر مساحة الورق</td>
+</tr>
+<tr>
+<td><strong>Yield Prediction</strong></td>
+<td><code>/api/v1/yield-prediction</code></td>
+<td>10000/min</td>
+<td>توقع الإنتاجية المتقدم</td>
+</tr>
+</tbody>
+</table>
+<h3 id="shared-services">Shared Services (جميع الباقات)<a class="headerlink" href="#shared-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Endpoint</th>
+<th>Rate Limit</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WebSocket</strong></td>
+<td><code>/api/v1/ws</code></td>
+<td>5000/min</td>
+<td>التحديثات الفورية</td>
+</tr>
+<tr>
+<td><strong>Field Ops</strong></td>
+<td><code>/api/v1/field-ops</code></td>
+<td>1000/min</td>
+<td>عمليات الحقول</td>
+</tr>
+<tr>
+<td><strong>Field Service</strong></td>
+<td><code>/api/v1/field-service</code></td>
+<td>1000/min</td>
+<td>خدمة الحقول</td>
+</tr>
+<tr>
+<td><strong>Tasks</strong></td>
+<td><code>/api/v1/tasks</code></td>
+<td>1000/min</td>
+<td>إدارة المهام</td>
+</tr>
+<tr>
+<td><strong>Alerts</strong></td>
+<td><code>/api/v1/alerts</code></td>
+<td>1000/min</td>
+<td>التنبيهات</td>
+</tr>
+<tr>
+<td><strong>Chat</strong></td>
+<td><code>/api/v1/chat</code></td>
+<td>2000/min</td>
+<td>المحادثات</td>
+</tr>
+<tr>
+<td><strong>Community Chat</strong></td>
+<td><code>/api/v1/community/chat</code></td>
+<td>2000/min</td>
+<td>محادثة المجتمع</td>
+</tr>
+<tr>
+<td><strong>Field Chat</strong></td>
+<td><code>/api/v1/field/chat</code></td>
+<td>2000/min</td>
+<td>محادثة الحقل</td>
+</tr>
+<tr>
+<td><strong>Health Check</strong></td>
+<td><code>/health</code>, <code>/ping</code></td>
+<td>Unlimited</td>
+<td>فحص صحة النظام</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="internal-services-map">خريطة الخدمات الداخلية | Internal Services Map<a class="headerlink" href="#internal-services-map" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Kong API Gateway (Port 8000)                        │
+│                              البوابة الموحدة                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+          ┌───────────────────────────┼───────────────────────────┐
+          │                           │                           │
+          ▼                           ▼                           ▼
+┌─────────────────────┐   ┌─────────────────────┐   ┌─────────────────────┐
+│   STARTER TIER      │   │  PROFESSIONAL TIER  │   │   ENTERPRISE TIER   │
+│   الباقة الأساسية    │   │   الباقة المتوسطة    │   │   الباقة المتقدمة    │
+└─────────────────────┘   └─────────────────────┘   └─────────────────────┘
+          │                           │                           │
+          ▼                           ▼                           ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Backend Services                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ┌────────────────────┐ │
+│  │ field-management     │  │ weather-service      │  │ ai-advisor         │ │
+│  │ :3000                │  │ :8092                │  │ :8112              │ │
+│  │ إدارة الحقول الموحدة  │  │ خدمة الطقس الموحدة   │  │ المستشار الذكي      │ │
+│  └──────────────────────┘  └──────────────────────┘  └────────────────────┘ │
+│                                                                              │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ┌────────────────────┐ │
+│  │ vegetation-analysis  │  │ crop-intelligence    │  │ advisory-service   │ │
+│  │ :8090                │  │ :8095                │  │ :8093              │ │
+│  │ تحليل النباتات       │  │ ذكاء المحاصيل        │  │ الاستشارات         │ │
+│  └──────────────────────┘  └──────────────────────┘  └────────────────────┘ │
+│                                                                              │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ┌────────────────────┐ │
+│  │ yield-prediction     │  │ irrigation-smart     │  │ iot-gateway        │ │
+│  │ :8098                │  │ :8094                │  │ :8106              │ │
+│  │ توقع الإنتاجية       │  │ الري الذكي           │  │ بوابة IoT          │ │
+│  └──────────────────────┘  └──────────────────────┘  └────────────────────┘ │
+│                                                                              │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ┌────────────────────┐ │
+│  │ notification-service │  │ billing-core         │  │ marketplace        │ │
+│  │ :8110                │  │ :8089                │  │ :3010              │ │
+│  │ الإشعارات            │  │ الفوترة              │  │ السوق              │ │
+│  └──────────────────────┘  └──────────────────────┘  └────────────────────┘ │
+│                                                                              │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ┌────────────────────┐ │
+│  │ ws-gateway           │  │ chat-service         │  │ research-core      │ │
+│  │ :8081                │  │ :8114                │  │ :3015              │ │
+│  │ WebSocket            │  │ المحادثات            │  │ الأبحاث            │ │
+│  └──────────────────────┘  └──────────────────────┘  └────────────────────┘ │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Infrastructure Services                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  PostgreSQL   │  Redis   │  NATS   │  MQTT   │  Qdrant   │  Milvus          │
+│  :5432        │  :6379   │  :4222  │  :1883  │  :6333    │  :19530          │
+│  قاعدة البيانات│  التخزين │  الرسائل │  IoT    │  Vector   │  Vector DB       │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="endpoint-endpoint-details">تفاصيل كل Endpoint | Endpoint Details<a class="headerlink" href="#endpoint-endpoint-details" title="Permanent link">&para;</a></h2>
+<h3 id="1-field-management-">1. Field Management - إدارة الحقول<a class="headerlink" href="#1-field-management-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// GET /api/v1/fields - قائمة الحقول</span>
+<span class="c1">// POST /api/v1/fields - إنشاء حقل جديد</span>
+<span class="c1">// GET /api/v1/fields/{id} - تفاصيل حقل</span>
+<span class="c1">// PUT /api/v1/fields/{id} - تحديث حقل</span>
+<span class="c1">// DELETE /api/v1/fields/{id} - حذف حقل</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">FieldService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">getFields</span><span class="p">({</span><span class="kt">int</span><span class="w"> </span><span class="n">page</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">20</span><span class="p">})</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/fields&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">queryParameters:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s1">&#39;page&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">page</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;limit&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">limit</span><span class="p">,</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">List</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">map</span><span class="p">((</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Field</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="n">toList</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;</span><span class="w"> </span><span class="n">createField</span><span class="p">(</span><span class="n">FieldCreateRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/api/v1/fields&#39;</span><span class="p">,</span><span class="w"> </span><span class="nl">data:</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">toJson</span><span class="p">());</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Field</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">Field</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getFieldById</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/fields/</span><span class="si">$</span><span class="n">id</span><span class="s1">&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Field</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="2-weather-service-">2. Weather Service - خدمة الطقس<a class="headerlink" href="#2-weather-service-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// GET /api/v1/weather/current?lat={lat}&amp;lon={lon}</span>
+<span class="c1">// GET /api/v1/weather/forecast?lat={lat}&amp;lon={lon}&amp;days={days}</span>
+<span class="c1">// GET /api/v1/weather/history?lat={lat}&amp;lon={lon}&amp;from={date}&amp;to={date}</span>
+<span class="c1">// GET /api/v1/weather/alerts?lat={lat}&amp;lon={lon}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">WeatherService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">CurrentWeather</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getCurrentWeather</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">lon</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/weather/current&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">queryParameters:</span><span class="w"> </span><span class="p">{</span><span class="s1">&#39;lat&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lon&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">lon</span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">CurrentWeather</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">WeatherForecast</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">getForecast</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">lon</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="kt">int</span><span class="w"> </span><span class="n">days</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">7</span><span class="p">})</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/weather/forecast&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">queryParameters:</span><span class="w"> </span><span class="p">{</span><span class="s1">&#39;lat&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">lat</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lon&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">lon</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;days&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">days</span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">List</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">map</span><span class="p">((</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">WeatherForecast</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="n">toList</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="3-satellite-ndvi-">3. Satellite &amp; NDVI - الأقمار الصناعية<a class="headerlink" href="#3-satellite-ndvi-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// GET /api/v1/satellite/imagery?field_id={id}&amp;date={date}</span>
+<span class="c1">// GET /api/v1/ndvi/analysis?field_id={id}&amp;date={date}</span>
+<span class="c1">// GET /api/v1/ndvi/timeseries?field_id={id}&amp;from={date}&amp;to={date}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">SatelliteService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">SatelliteImagery</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getImagery</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">date</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/satellite/imagery&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">queryParameters:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s1">&#39;field_id&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">&#39;date&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">date</span><span class="p">.</span><span class="n">toIso8601String</span><span class="p">()</span>
+<span class="w">      </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SatelliteImagery</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">NdviAnalysis</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getNdviAnalysis</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span><span class="w"> </span><span class="n">DateTime</span><span class="w"> </span><span class="n">date</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/ndvi/analysis&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">queryParameters:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s1">&#39;field_id&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">&#39;date&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">date</span><span class="p">.</span><span class="n">toIso8601String</span><span class="p">()</span>
+<span class="w">      </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">NdviAnalysis</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="4-crop-health-ai-">4. Crop Health AI - صحة المحاصيل<a class="headerlink" href="#4-crop-health-ai-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// POST /api/v1/crop-health/analyze - تحليل صورة</span>
+<span class="c1">// GET /api/v1/crop-health/diseases - قائمة الأمراض</span>
+<span class="c1">// GET /api/v1/crop-health/history?field_id={id}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">CropHealthService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">CropHealthAnalysis</span><span class="o">&gt;</span><span class="w"> </span><span class="n">analyzeImage</span><span class="p">(</span><span class="n">File</span><span class="w"> </span><span class="n">imageFile</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">fieldId</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">formData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FormData</span><span class="p">.</span><span class="n">fromMap</span><span class="p">({</span>
+<span class="w">      </span><span class="s1">&#39;image&#39;</span><span class="o">:</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">MultipartFile</span><span class="p">.</span><span class="n">fromFile</span><span class="p">(</span><span class="n">imageFile</span><span class="p">.</span><span class="n">path</span><span class="p">),</span>
+<span class="w">      </span><span class="s1">&#39;field_id&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/api/v1/crop-health/analyze&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">data:</span><span class="w"> </span><span class="n">formData</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">options:</span><span class="w"> </span><span class="n">Options</span><span class="p">(</span>
+<span class="w">        </span><span class="nl">sendTimeout:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Duration</span><span class="p">(</span><span class="nl">seconds:</span><span class="w"> </span><span class="m">120</span><span class="p">),</span>
+<span class="w">        </span><span class="nl">receiveTimeout:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Duration</span><span class="p">(</span><span class="nl">seconds:</span><span class="w"> </span><span class="m">120</span><span class="p">),</span>
+<span class="w">      </span><span class="p">));</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">CropHealthAnalysis</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="5-ai-advisor-">5. AI Advisor - المستشار الذكي<a class="headerlink" href="#5-ai-advisor-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// POST /api/v1/ai-advisor/query - استعلام ذكي</span>
+<span class="c1">// POST /api/v1/ai-advisor/chat - محادثة</span>
+<span class="c1">// GET /api/v1/ai-advisor/recommendations?field_id={id}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">AiAdvisorService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">AiResponse</span><span class="o">&gt;</span><span class="w"> </span><span class="n">query</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">question</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="kt">String</span><span class="o">?</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="o">?</span><span class="w"> </span><span class="n">context</span><span class="p">})</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/api/v1/ai-advisor/query&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">data:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="s1">&#39;question&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">question</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">&#39;field_id&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">fieldId</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">&#39;context&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">context</span><span class="p">,</span>
+<span class="w">        </span><span class="s1">&#39;language&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ar&#39;</span><span class="p">,</span><span class="w"> </span><span class="c1">// العربية</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nl">options:</span><span class="w"> </span><span class="n">Options</span><span class="p">(</span>
+<span class="w">        </span><span class="nl">sendTimeout:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Duration</span><span class="p">(</span><span class="nl">seconds:</span><span class="w"> </span><span class="m">180</span><span class="p">),</span>
+<span class="w">        </span><span class="nl">receiveTimeout:</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Duration</span><span class="p">(</span><span class="nl">seconds:</span><span class="w"> </span><span class="m">180</span><span class="p">),</span>
+<span class="w">      </span><span class="p">));</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">AiResponse</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Stream</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">chatStream</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">conversationId</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="o">*</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// WebSocket streaming for real-time responses</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebSocketChannel</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span>
+<span class="w">      </span><span class="n">Uri</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">${</span><span class="n">ApiConfig</span><span class="p">.</span><span class="n">wsUrl</span><span class="si">}</span><span class="s1">/ai-advisor/chat&#39;</span><span class="p">));</span>
+
+<span class="w">    </span><span class="n">channel</span><span class="p">.</span><span class="n">sink</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">jsonEncode</span><span class="p">({</span>
+<span class="w">      </span><span class="s1">&#39;message&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">message</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;conversation_id&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">conversationId</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}));</span>
+
+<span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">channel</span><span class="p">.</span><span class="n">stream</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">yield</span><span class="w"> </span><span class="n">jsonDecode</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="s1">&#39;chunk&#39;</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="6-irrigation-">6. Irrigation - الري الذكي<a class="headerlink" href="#6-irrigation-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// GET /api/v1/irrigation/schedule?field_id={id}</span>
+<span class="c1">// POST /api/v1/irrigation/calculate - حساب احتياجات الري</span>
+<span class="c1">// GET /api/v1/irrigation/history?field_id={id}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">IrrigationService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">IrrigationSchedule</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getSchedule</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">fieldId</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/irrigation/schedule&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">queryParameters:</span><span class="w"> </span><span class="p">{</span><span class="s1">&#39;field_id&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">fieldId</span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">IrrigationSchedule</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">IrrigationCalculation</span><span class="o">&gt;</span><span class="w"> </span><span class="n">calculateNeeds</span><span class="p">(</span><span class="n">IrrigationRequest</span><span class="w"> </span><span class="n">request</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/api/v1/irrigation/calculate&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">data:</span><span class="w"> </span><span class="n">request</span><span class="p">.</span><span class="n">toJson</span><span class="p">());</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">IrrigationCalculation</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="7-iot-gateway-">7. IoT Gateway - بوابة إنترنت الأشياء<a class="headerlink" href="#7-iot-gateway-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// GET /api/v1/iot/devices?field_id={id}</span>
+<span class="c1">// GET /api/v1/iot/sensors/{device_id}/readings</span>
+<span class="c1">// POST /api/v1/iot/devices/{device_id}/command</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">IoTService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">IoTDevice</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">getDevices</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">fieldId</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/iot/devices&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">queryParameters:</span><span class="w"> </span><span class="p">{</span><span class="s1">&#39;field_id&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">fieldId</span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">List</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">map</span><span class="p">((</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">IoTDevice</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="n">toList</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">SensorReading</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">getSensorReadings</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">deviceId</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">DateTime</span><span class="o">?</span><span class="w"> </span><span class="n">from</span><span class="p">,</span>
+<span class="w">    </span><span class="n">DateTime</span><span class="o">?</span><span class="w"> </span><span class="n">to</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/iot/sensors/</span><span class="si">$</span><span class="n">deviceId</span><span class="s1">/readings&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">queryParameters:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">from</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;from&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">from</span><span class="p">.</span><span class="n">toIso8601String</span><span class="p">(),</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">to</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;to&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">to</span><span class="p">.</span><span class="n">toIso8601String</span><span class="p">(),</span>
+<span class="w">      </span><span class="p">});</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">List</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="n">map</span><span class="p">((</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">SensorReading</span><span class="p">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+<span class="w">        </span><span class="p">.</span><span class="n">toList</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sendCommand</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">deviceId</span><span class="p">,</span><span class="w"> </span><span class="n">IoTCommand</span><span class="w"> </span><span class="n">command</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s1">&#39;/api/v1/iot/devices/</span><span class="si">$</span><span class="n">deviceId</span><span class="s1">/command&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">data:</span><span class="w"> </span><span class="n">command</span><span class="p">.</span><span class="n">toJson</span><span class="p">());</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="8-websocket-">8. WebSocket - التحديثات الفورية<a class="headerlink" href="#8-websocket-" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// WS /api/v1/ws - WebSocket Gateway</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">WebSocketService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">WebSocketChannel</span><span class="o">?</span><span class="w"> </span><span class="n">_channel</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">AuthService</span><span class="w"> </span><span class="n">_authService</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">connect</span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_authService</span><span class="p">.</span><span class="n">getAccessToken</span><span class="p">();</span>
+<span class="w">    </span><span class="n">_channel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WebSocketChannel</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span>
+<span class="w">      </span><span class="n">Uri</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">${</span><span class="n">ApiConfig</span><span class="p">.</span><span class="n">wsUrl</span><span class="si">}</span><span class="s1">?token=</span><span class="si">$</span><span class="n">token</span><span class="s1">&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">_channel</span><span class="o">!</span><span class="p">.</span><span class="n">stream</span><span class="p">.</span><span class="n">listen</span><span class="p">(</span>
+<span class="w">      </span><span class="n">_handleMessage</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">onError:</span><span class="w"> </span><span class="n">_handleError</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">onDone:</span><span class="w"> </span><span class="n">_handleDisconnect</span><span class="p">,</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="n">subscribe</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">topic</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">_channel</span><span class="o">?</span><span class="p">.</span><span class="n">sink</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">jsonEncode</span><span class="p">({</span>
+<span class="w">      </span><span class="s1">&#39;action&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;subscribe&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;topic&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">topic</span><span class="p">,</span>
+<span class="w">    </span><span class="p">}));</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="n">_handleMessage</span><span class="p">(</span><span class="kt">dynamic</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">jsonDecode</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;weather.update&#39;</span><span class="o">:</span>
+<span class="w">        </span><span class="c1">// Handle weather update</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;field.alert&#39;</span><span class="o">:</span>
+<span class="w">        </span><span class="c1">// Handle field alert</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;iot.reading&#39;</span><span class="o">:</span>
+<span class="w">        </span><span class="c1">// Handle IoT reading</span>
+<span class="w">        </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="error-handling">معالجة الأخطاء | Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<h3 id="http-status-codes">HTTP Status Codes<a class="headerlink" href="#http-status-codes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200</td>
+<td>OK</td>
+<td>نجاح</td>
+</tr>
+<tr>
+<td>201</td>
+<td>Created</td>
+<td>تم الإنشاء</td>
+</tr>
+<tr>
+<td>400</td>
+<td>Bad Request</td>
+<td>طلب غير صالح</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized</td>
+<td>غير مصرح</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden</td>
+<td>ممنوع (باقة غير كافية)</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found</td>
+<td>غير موجود</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Too Many Requests</td>
+<td>تجاوز حد الطلبات</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal Server Error</td>
+<td>خطأ في الخادم</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Service Unavailable</td>
+<td>الخدمة غير متاحة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="error-response-format">Error Response Format<a class="headerlink" href="#error-response-format" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FIELD_NOT_FOUND&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Field with ID &#39;xyz&#39; was not found&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;message_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الحقل بالمعرف &#39;xyz&#39; غير موجود&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;request_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uuid-xxx&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="dart-error-handler">Dart Error Handler<a class="headerlink" href="#dart-error-handler" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">ApiErrorHandler</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="n">AppException</span><span class="w"> </span><span class="n">handleDioError</span><span class="p">(</span><span class="n">DioException</span><span class="w"> </span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">error</span><span class="p">.</span><span class="n">response</span><span class="o">?</span><span class="p">.</span><span class="n">statusCode</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="m">401</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">UnauthorizedException</span><span class="p">(</span><span class="s1">&#39;Session expired. Please login again.&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="m">403</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ForbiddenException</span><span class="p">(</span><span class="s1">&#39;Your subscription does not include this feature.&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="m">429</span><span class="o">:</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">retryAfter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">error</span><span class="p">.</span><span class="n">response</span><span class="o">?</span><span class="p">.</span><span class="n">headers</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="s1">&#39;Retry-After&#39;</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">RateLimitException</span><span class="p">(</span><span class="s1">&#39;Too many requests. Retry after </span><span class="si">$</span><span class="n">retryAfter</span><span class="s1"> seconds.&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="m">500</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ServerException</span><span class="p">(</span><span class="s1">&#39;Server error. Please try again later.&#39;</span><span class="p">);</span>
+<span class="w">      </span><span class="k">default</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">UnknownException</span><span class="p">(</span><span class="n">error</span><span class="p">.</span><span class="n">message</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="s1">&#39;Unknown error&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="rate-limiting-headers">Rate Limiting Headers<a class="headerlink" href="#rate-limiting-headers" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1234567890
+Retry-After: 60
+</code></pre></div>
+
+<hr />
+<h2 id="security-headers">Security Headers<a class="headerlink" href="#security-headers" title="Permanent link">&para;</a></h2>
+<p>جميع الاستجابات تتضمن:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">X</span><span class="o">-</span><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="o">-</span><span class="n">Options</span><span class="p">:</span><span class="w"> </span><span class="n">nosniff</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Frame</span><span class="o">-</span><span class="n">Options</span><span class="p">:</span><span class="w"> </span><span class="n">DENY</span>
+<span class="n">X</span><span class="o">-</span><span class="n">XSS</span><span class="o">-</span><span class="n">Protection</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">mode</span><span class="o">=</span><span class="n">block</span>
+<span class="n">Referrer</span><span class="o">-</span><span class="n">Policy</span><span class="p">:</span><span class="w"> </span><span class="n">strict</span><span class="o">-</span><span class="n">origin</span><span class="o">-</span><span class="n">when</span><span class="o">-</span><span class="n">cross</span><span class="o">-</span><span class="n">origin</span>
+<span class="n">Strict</span><span class="o">-</span><span class="n">Transport</span><span class="o">-</span><span class="n">Security</span><span class="p">:</span><span class="w"> </span><span class="nb">max</span><span class="o">-</span><span class="n">age</span><span class="o">=</span><span class="mi">31536000</span><span class="p">;</span><span class="w"> </span><span class="n">includeSubDomains</span><span class="p">;</span><span class="w"> </span><span class="nb">preload</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Request</span><span class="o">-</span><span class="n">ID</span><span class="p">:</span><span class="w"> </span><span class="n">uuid</span><span class="o">-</span><span class="n">xxx</span>
+</code></pre></div>
+
+<hr />
+<h2 id="cors-configuration">CORS Configuration<a class="headerlink" href="#cors-configuration" title="Permanent link">&para;</a></h2>
+<p>الأصول المسموح بها:</p>
+<ul>
+<li><code>https://sahool.app</code></li>
+<li><code>https://www.sahool.app</code></li>
+<li><code>https://admin.sahool.app</code></li>
+<li><code>https://api.sahool.app</code></li>
+<li><code>https://staging.sahool.app</code></li>
+<li><code>http://localhost:3000</code> (Development)</li>
+<li><code>http://localhost:5173</code> (Development)</li>
+<li><code>http://localhost:8080</code> (Development)</li>
+</ul>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-caching">1. Caching<a class="headerlink" href="#1-caching" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">CachedApiService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Box</span><span class="w"> </span><span class="n">_cache</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="n">getCached</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span>
+<span class="w">    </span><span class="kt">String</span><span class="w"> </span><span class="n">endpoint</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Duration</span><span class="w"> </span><span class="n">ttl</span><span class="p">,</span>
+<span class="w">    </span><span class="n">T</span><span class="w"> </span><span class="kt">Function</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span><span class="w"> </span><span class="kt">dynamic</span><span class="o">&gt;</span><span class="p">)</span><span class="w"> </span><span class="n">fromJson</span><span class="p">,</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">cacheKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">endpoint</span><span class="p">.</span><span class="n">hashCode</span><span class="p">.</span><span class="n">toString</span><span class="p">();</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">cached</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_cache</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="n">cacheKey</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cached</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">cached</span><span class="p">[</span><span class="s1">&#39;expiry&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">now</span><span class="p">().</span><span class="n">millisecondsSinceEpoch</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">fromJson</span><span class="p">(</span><span class="n">cached</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="kd">get</span><span class="p">(</span><span class="n">endpoint</span><span class="p">);</span>
+<span class="w">    </span><span class="n">_cache</span><span class="p">.</span><span class="n">put</span><span class="p">(</span><span class="n">cacheKey</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s1">&#39;data&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;expiry&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">now</span><span class="p">().</span><span class="n">add</span><span class="p">(</span><span class="n">ttl</span><span class="p">).</span><span class="n">millisecondsSinceEpoch</span><span class="p">,</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">fromJson</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="2-offline-support">2. Offline Support<a class="headerlink" href="#2-offline-support" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">OfflineFirstService</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Dio</span><span class="w"> </span><span class="n">_dio</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="n">Box</span><span class="w"> </span><span class="n">_offlineQueue</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">queueRequest</span><span class="p">(</span><span class="kt">String</span><span class="w"> </span><span class="n">method</span><span class="p">,</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="n">endpoint</span><span class="p">,</span><span class="w"> </span><span class="kt">dynamic</span><span class="w"> </span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">await</span><span class="w"> </span><span class="n">_offlineQueue</span><span class="p">.</span><span class="n">add</span><span class="p">({</span>
+<span class="w">      </span><span class="s1">&#39;method&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">method</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;endpoint&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">endpoint</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;data&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">data</span><span class="p">,</span>
+<span class="w">      </span><span class="s1">&#39;timestamp&#39;</span><span class="o">:</span><span class="w"> </span><span class="n">DateTime</span><span class="p">.</span><span class="n">now</span><span class="p">().</span><span class="n">toIso8601String</span><span class="p">(),</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">syncOfflineQueue</span><span class="p">()</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">queue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_offlineQueue</span><span class="p">.</span><span class="n">values</span><span class="p">.</span><span class="n">toList</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kd">final</span><span class="w"> </span><span class="n">request</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">queue</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">await</span><span class="w"> </span><span class="n">_dio</span><span class="p">.</span><span class="n">request</span><span class="p">(</span>
+<span class="w">          </span><span class="n">request</span><span class="p">[</span><span class="s1">&#39;endpoint&#39;</span><span class="p">],</span>
+<span class="w">          </span><span class="nl">options:</span><span class="w"> </span><span class="n">Options</span><span class="p">(</span><span class="nl">method:</span><span class="w"> </span><span class="n">request</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]),</span>
+<span class="w">          </span><span class="nl">data:</span><span class="w"> </span><span class="n">request</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">        </span><span class="kd">await</span><span class="w"> </span><span class="n">_offlineQueue</span><span class="p">.</span><span class="n">delete</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">key</span><span class="p">);</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Keep in queue for next sync</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="3-retry-logic">3. Retry Logic<a class="headerlink" href="#3-retry-logic" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">RetryInterceptor</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">Interceptor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxRetries</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">RetryInterceptor</span><span class="p">({</span><span class="k">this</span><span class="p">.</span><span class="n">maxRetries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">3</span><span class="p">});</span>
+
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Future</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">onError</span><span class="p">(</span><span class="n">DioException</span><span class="w"> </span><span class="n">err</span><span class="p">,</span><span class="w"> </span><span class="n">ErrorInterceptorHandler</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="kd">async</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">retryCount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">err</span><span class="p">.</span><span class="n">requestOptions</span><span class="p">.</span><span class="n">extra</span><span class="p">[</span><span class="s1">&#39;retryCount&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="m">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">retryCount</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">maxRetries</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">_shouldRetry</span><span class="p">(</span><span class="n">err</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kd">await</span><span class="w"> </span><span class="n">Future</span><span class="p">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">Duration</span><span class="p">(</span><span class="nl">seconds:</span><span class="w"> </span><span class="n">pow</span><span class="p">(</span><span class="m">2</span><span class="p">,</span><span class="w"> </span><span class="n">retryCount</span><span class="p">).</span><span class="n">toInt</span><span class="p">()));</span>
+<span class="w">      </span><span class="n">err</span><span class="p">.</span><span class="n">requestOptions</span><span class="p">.</span><span class="n">extra</span><span class="p">[</span><span class="s1">&#39;retryCount&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">retryCount</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">;</span>
+
+<span class="w">      </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kd">await</span><span class="w"> </span><span class="n">Dio</span><span class="p">().</span><span class="n">fetch</span><span class="p">(</span><span class="n">err</span><span class="p">.</span><span class="n">requestOptions</span><span class="p">);</span>
+<span class="w">        </span><span class="n">handler</span><span class="p">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">response</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// Continue to next error handler</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">handler</span><span class="p">.</span><span class="n">next</span><span class="p">(</span><span class="n">err</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">_shouldRetry</span><span class="p">(</span><span class="n">DioException</span><span class="w"> </span><span class="n">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">err</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">DioExceptionType</span><span class="p">.</span><span class="n">connectionError</span><span class="w"> </span><span class="o">||</span>
+<span class="w">           </span><span class="n">err</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">DioExceptionType</span><span class="p">.</span><span class="n">connectionTimeout</span><span class="w"> </span><span class="o">||</span>
+<span class="w">           </span><span class="n">err</span><span class="p">.</span><span class="n">response</span><span class="o">?</span><span class="p">.</span><span class="n">statusCode</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">503</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="environment-configuration">Environment Configuration<a class="headerlink" href="#environment-configuration" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1">// lib/core/config/environment.dart</span>
+
+<span class="n">enum</span><span class="w"> </span><span class="n">Environment</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">development</span><span class="p">,</span><span class="w"> </span><span class="n">staging</span><span class="p">,</span><span class="w"> </span><span class="n">production</span><span class="w"> </span><span class="p">}</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">EnvironmentConfig</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="n">Environment</span><span class="w"> </span><span class="n">current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="n">development</span><span class="p">;</span>
+
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="kd">get</span><span class="w"> </span><span class="n">baseUrl</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">current</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="nl">development:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;http://localhost:8000&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="nl">staging:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;https://staging-api.sahool.app&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="nl">production:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;https://api.sahool.app&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kd">static</span><span class="w"> </span><span class="kt">String</span><span class="w"> </span><span class="kd">get</span><span class="w"> </span><span class="n">wsUrl</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">current</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="nl">development:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;ws://localhost:8081&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="nl">staging:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;wss://staging-api.sahool.app/ws&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="n">Environment</span><span class="p">.</span><span class="nl">production:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;wss://api.sahool.app/ws&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="quick-reference-card">Quick Reference Card<a class="headerlink" href="#quick-reference-card" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────────────────┐
+│                    SAHOOL API Quick Reference                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Base URL:     https://api.sahool.app                                        │
+│ API Version:  v1                                                            │
+│ Auth:         Bearer JWT Token                                              │
+│ Content-Type: application/json                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                          STARTER TIER                                        │
+│ /api/v1/fields          - Field management                                  │
+│ /api/v1/weather         - Weather data                                      │
+│ /api/v1/calendar        - Astronomical calendar                             │
+│ /api/v1/advice          - Basic advisory                                    │
+│ /api/v1/notifications   - Notifications                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                       PROFESSIONAL TIER                                      │
+│ /api/v1/satellite       - Satellite imagery                                 │
+│ /api/v1/ndvi            - NDVI analysis                                     │
+│ /api/v1/crop-health     - AI crop health                                    │
+│ /api/v1/irrigation      - Smart irrigation                                  │
+│ /api/v1/yield           - Yield prediction                                  │
+│ /api/v1/fertilizer      - Fertilizer advice                                 │
+│ /api/v1/inventory       - Inventory management                              │
+│ /api/v1/equipment       - Equipment tracking                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                        ENTERPRISE TIER                                       │
+│ /api/v1/ai-advisor      - Multi-agent AI advisor                            │
+│ /api/v1/iot             - IoT gateway                                       │
+│ /api/v1/research        - Research management                               │
+│ /api/v1/marketplace     - Agricultural marketplace                          │
+│ /api/v1/billing         - Billing &amp; payments                                │
+│ /api/v1/disaster        - Disaster assessment                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                         SHARED SERVICES                                      │
+│ /api/v1/ws              - WebSocket gateway                                 │
+│ /api/v1/tasks           - Task management                                   │
+│ /api/v1/alerts          - Alert system                                      │
+│ /api/v1/chat            - Chat service                                      │
+│ /health                 - Health check                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="contact-support">Contact &amp; Support<a class="headerlink" href="#contact-support" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Documentation</strong>: https://docs.sahool.app</li>
+<li><strong>API Status</strong>: https://status.sahool.app</li>
+<li><strong>Support</strong>: support@sahool.com</li>
+</ul>
+<hr />
+<p><em>آخر تحديث: يناير 2026</em>
+<em>Last Updated: January 2026</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

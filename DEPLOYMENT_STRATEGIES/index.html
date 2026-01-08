@@ -1,0 +1,1926 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Deployment Strategies - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-deployment-strategies" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Deployment Strategies
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-deployment-strategies">SAHOOL Deployment Strategies<a class="headerlink" href="#sahool-deployment-strategies" title="Permanent link">&para;</a></h1>
+<p>This document describes the deployment strategies implemented for SAHOOL, including canary deployments, blue-green deployments, and emergency rollback procedures.</p>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#deployment-strategies">Deployment Strategies</a></li>
+<li><a href="#canary-deployment">Canary Deployment</a></li>
+<li><a href="#blue-green-deployment">Blue-Green Deployment</a></li>
+<li><a href="#rolling-update">Rolling Update</a></li>
+<li><a href="#traffic-management">Traffic Management</a></li>
+<li><a href="#metrics-and-analysis">Metrics and Analysis</a></li>
+<li><a href="#promotion-procedures">Promotion Procedures</a></li>
+<li><a href="#rollback-procedures">Rollback Procedures</a></li>
+<li><a href="#emergency-procedures">Emergency Procedures</a></li>
+<li><a href="#monitoring-and-alerts">Monitoring and Alerts</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>SAHOOL uses advanced deployment strategies to ensure zero-downtime releases and minimize risk when deploying new versions. Our deployment infrastructure leverages:</p>
+<ul>
+<li><strong>Argo Rollouts</strong> - Advanced deployment controller for Kubernetes</li>
+<li><strong>Istio Service Mesh</strong> - Traffic management and observability</li>
+<li><strong>Prometheus</strong> - Metrics collection and analysis</li>
+<li><strong>Automated Analysis</strong> - Metric-based promotion and rollback decisions</li>
+</ul>
+<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                     Ingress Gateway                         │
+│                     (Istio/NGINX)                           │
+└────────────┬────────────────────────────┬───────────────────┘
+             │                            │
+             ▼                            ▼
+    ┌────────────────┐          ┌────────────────┐
+    │ Stable Service │          │ Canary Service │
+    │   (100% - X%)  │          │     (X%)       │
+    └────────┬───────┘          └───────┬────────┘
+             │                           │
+             ▼                           ▼
+    ┌────────────────┐          ┌────────────────┐
+    │ Stable Pods    │          │ Canary Pods    │
+    │   (v1.0.0)     │          │   (v1.1.0)     │
+    └────────────────┘          └────────────────┘
+             │                           │
+             └───────────┬───────────────┘
+                         ▼
+                 ┌───────────────┐
+                 │  Prometheus   │
+                 │  (Analysis)   │
+                 └───────────────┘
+</code></pre></div>
+
+<h2 id="deployment-strategies">Deployment Strategies<a class="headerlink" href="#deployment-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="canary-deployment">Canary Deployment<a class="headerlink" href="#canary-deployment" title="Permanent link">&para;</a></h3>
+<p>Canary deployment gradually shifts traffic from the stable version to the new version while monitoring metrics. If the new version performs well, traffic is gradually increased until the canary becomes the new stable version.</p>
+<h4 id="when-to-use">When to Use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Production deployments</strong> - Minimize risk by testing with small user percentage</li>
+<li><strong>High-traffic services</strong> - Ensure new version handles production load</li>
+<li><strong>Critical services</strong> - Detect issues before full rollout</li>
+<li><strong>Feature validation</strong> - Validate new features with real users</li>
+</ul>
+<h4 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Initial Deployment</strong> (5% traffic)</li>
+<li>Deploy canary pods alongside stable pods</li>
+<li>Route 5% of traffic to canary</li>
+<li>
+<p>Monitor metrics for 2 minutes</p>
+</li>
+<li>
+<p><strong>Gradual Increase</strong> (20% → 40% → 60% → 80%)</p>
+</li>
+<li>Incrementally increase traffic to canary</li>
+<li>Run automated analysis at each step</li>
+<li>
+<p>Pause 5 minutes between steps</p>
+</li>
+<li>
+<p><strong>Final Analysis</strong> (before 100%)</p>
+</li>
+<li>Comprehensive metric validation</li>
+<li>Success rate, latency, error rate checks</li>
+<li>
+<p>CPU and memory utilization verification</p>
+</li>
+<li>
+<p><strong>Promotion</strong></p>
+</li>
+<li>Shift 100% traffic to canary</li>
+<li>Update stable deployment</li>
+<li>Scale down old version</li>
+</ol>
+<h4 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># helm/charts/sahool-agent/values.yaml</span>
+<span class="nt">canary</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">replicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.1.0&quot;</span>
+
+<span class="nt">rollout</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">canary</span>
+<span class="w">  </span><span class="nt">canary</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">2m</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">setWeight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pause</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="nv">5m</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="c1"># ... more steps</span>
+</code></pre></div>
+
+<h4 id="manual-deployment">Manual Deployment<a class="headerlink" href="#manual-deployment" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Deploy canary version</span>
+helm<span class="w"> </span>upgrade<span class="w"> </span>sahool-agent<span class="w"> </span>./helm/charts/sahool-agent<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>canary.enabled<span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>canary.version<span class="o">=</span><span class="m">1</span>.1.0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--wait
+
+<span class="c1"># Monitor rollout</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>get<span class="w"> </span>rollout<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--watch
+
+<span class="c1"># Promote manually (if auto-promotion disabled)</span>
+./scripts/deploy/canary-promote.sh<span class="w"> </span>--namespace<span class="w"> </span>sahool<span class="w"> </span>--service<span class="w"> </span>sahool-agent
+</code></pre></div>
+
+<h3 id="blue-green-deployment">Blue-Green Deployment<a class="headerlink" href="#blue-green-deployment" title="Permanent link">&para;</a></h3>
+<p>Blue-Green deployment runs two identical production environments (Blue = current, Green = new). Traffic is switched from Blue to Green after validation.</p>
+<h4 id="when-to-use_1">When to Use<a class="headerlink" href="#when-to-use_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Database migrations</strong> - Ensure schema compatibility before switching</li>
+<li><strong>Major version updates</strong> - Test complete environment before cutover</li>
+<li><strong>Instant rollback required</strong> - Immediate switch back to previous version</li>
+<li><strong>Regulatory requirements</strong> - Full environment validation needed</li>
+</ul>
+<h4 id="how-it-works_1">How It Works<a class="headerlink" href="#how-it-works_1" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong>Deploy Green Environment</strong></li>
+<li>Deploy new version in preview mode</li>
+<li>Keep Blue (stable) handling all traffic</li>
+<li>
+<p>Run smoke tests on Green</p>
+</li>
+<li>
+<p><strong>Validation</strong></p>
+</li>
+<li>Run automated tests against Green</li>
+<li>Manual validation if required</li>
+<li>
+<p>Performance testing</p>
+</li>
+<li>
+<p><strong>Switch Traffic</strong></p>
+</li>
+<li>Instantly route 100% traffic to Green</li>
+<li>Blue remains running for quick rollback</li>
+<li>
+<p>Monitor Green for issues</p>
+</li>
+<li>
+<p><strong>Cleanup</strong></p>
+</li>
+<li>After stabilization period, scale down Blue</li>
+<li>Green becomes new Blue for next deployment</li>
+</ol>
+<h4 id="configuration_1">Configuration<a class="headerlink" href="#configuration_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">rollout</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blueGreen</span>
+<span class="w">  </span><span class="nt">blueGreen</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">autoPromotionEnabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">autoPromotionSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+<span class="w">    </span><span class="nt">scaleDownDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">    </span><span class="nt">previewReplicaCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</code></pre></div>
+
+<h4 id="manual-deployment_1">Manual Deployment<a class="headerlink" href="#manual-deployment_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Deploy green version</span>
+helm<span class="w"> </span>upgrade<span class="w"> </span>sahool-agent<span class="w"> </span>./helm/charts/sahool-agent<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>rollout.strategy<span class="o">=</span>blueGreen<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>image.tag<span class="o">=</span><span class="m">1</span>.1.0
+
+<span class="c1"># Preview the new version</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>get<span class="w"> </span>rollout<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Promote to production</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>promote<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Rollback if needed (immediate)</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>undo<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+</code></pre></div>
+
+<h3 id="rolling-update">Rolling Update<a class="headerlink" href="#rolling-update" title="Permanent link">&para;</a></h3>
+<p>Standard Kubernetes rolling update with configurable surge and unavailability.</p>
+<h4 id="when-to-use_2">When to Use<a class="headerlink" href="#when-to-use_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Non-critical services</strong> - Lower risk services</li>
+<li><strong>Internal services</strong> - Services not facing end users</li>
+<li><strong>Configuration changes</strong> - Simple config updates</li>
+<li><strong>Development/staging</strong> - Non-production environments</li>
+</ul>
+<h4 id="configuration_2">Configuration<a class="headerlink" href="#configuration_2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RollingUpdate</span>
+<span class="w">  </span><span class="nt">rollingUpdate</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">maxSurge</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25%</span>
+<span class="w">    </span><span class="nt">maxUnavailable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+</code></pre></div>
+
+<h2 id="traffic-management">Traffic Management<a class="headerlink" href="#traffic-management" title="Permanent link">&para;</a></h2>
+<h3 id="istio-virtual-service">Istio Virtual Service<a class="headerlink" href="#istio-virtual-service" title="Permanent link">&para;</a></h3>
+<p>Traffic routing is controlled via Istio VirtualService with support for:</p>
+<h4 id="weight-based-routing">Weight-Based Routing<a class="headerlink" href="#weight-based-routing" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Automatically managed by Argo Rollouts</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">route</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">destination</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-canary</span>
+<span class="w">      </span><span class="nt">subset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">canary</span>
+<span class="w">    </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span><span class="w">  </span><span class="c1"># 20% to canary</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">destination</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-stable</span>
+<span class="w">      </span><span class="nt">subset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stable</span>
+<span class="w">    </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span><span class="w">  </span><span class="c1"># 80% to stable</span>
+</code></pre></div>
+
+<h4 id="header-based-routing">Header-Based Routing<a class="headerlink" href="#header-based-routing" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Test canary version with specific header</span>
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;X-Canary: true&quot;</span><span class="w"> </span>https://api.sahool.io/endpoint
+
+<span class="c1"># Beta users automatically routed to canary</span>
+curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Cookie: beta_user=true&quot;</span><span class="w"> </span>https://api.sahool.io/endpoint
+</code></pre></div>
+
+<h4 id="traffic-mirroring">Traffic Mirroring<a class="headerlink" href="#traffic-mirroring" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Mirror 10% of traffic to canary for testing (shadow traffic)</span>
+<span class="nt">mirror</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-canary</span>
+<span class="w">  </span><span class="nt">subset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">canary</span>
+<span class="nt">mirrorPercentage</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0</span>
+</code></pre></div>
+
+<h3 id="manual-traffic-control">Manual Traffic Control<a class="headerlink" href="#manual-traffic-control" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Update traffic weights manually</span>
+kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--type<span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="o">=</span><span class="s1">&#39;[{&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/spec/http/0/route/0/weight&quot;, &quot;value&quot;: 50}]&#39;</span>
+
+<span class="c1"># Set all traffic to stable (emergency)</span>
+kubectl<span class="w"> </span>patch<span class="w"> </span>virtualservice<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--type<span class="o">=</span><span class="s1">&#39;json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="o">=</span><span class="s1">&#39;[{&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/spec/http/0/route/0/weight&quot;, &quot;value&quot;: 0},</span>
+<span class="s1">       {&quot;op&quot;: &quot;replace&quot;, &quot;path&quot;: &quot;/spec/http/0/route/1/weight&quot;, &quot;value&quot;: 100}]&#39;</span>
+</code></pre></div>
+
+<h2 id="metrics-and-analysis">Metrics and Analysis<a class="headerlink" href="#metrics-and-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="automated-analysis-templates">Automated Analysis Templates<a class="headerlink" href="#automated-analysis-templates" title="Permanent link">&para;</a></h3>
+<p>Our Argo Rollouts configuration includes several analysis templates:</p>
+<h4 id="success-rate-analysis">Success Rate Analysis<a class="headerlink" href="#success-rate-analysis" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Threshold: 95% success rate</span>
+<span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result[0] &gt;= 0.95</span>
+<span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">  </span><span class="no">sum(rate(http_requests_total{status=~&quot;2..&quot;}[5m])) /</span>
+<span class="w">  </span><span class="no">sum(rate(http_requests_total[5m]))</span>
+</code></pre></div>
+
+<h4 id="latency-analysis-p95">Latency Analysis (P95)<a class="headerlink" href="#latency-analysis-p95" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Threshold: 500ms</span>
+<span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result[0] &lt;= 500</span>
+<span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">  </span><span class="no">histogram_quantile(0.95,</span>
+<span class="w">    </span><span class="no">sum(rate(http_request_duration_seconds_bucket[5m])) by (le)</span>
+<span class="w">  </span><span class="no">) * 1000</span>
+</code></pre></div>
+
+<h4 id="error-rate-analysis">Error Rate Analysis<a class="headerlink" href="#error-rate-analysis" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Threshold: 5% error rate</span>
+<span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result[0] &lt;= 0.05</span>
+<span class="nt">query</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">  </span><span class="no">sum(rate(http_requests_total{status=~&quot;5..&quot;}[5m])) /</span>
+<span class="w">  </span><span class="no">sum(rate(http_requests_total[5m]))</span>
+</code></pre></div>
+
+<h4 id="cpumemory-analysis">CPU/Memory Analysis<a class="headerlink" href="#cpumemory-analysis" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Threshold: 80% utilization</span>
+<span class="nt">successCondition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">result[0] &lt;= 0.8</span>
+</code></pre></div>
+
+<h3 id="custom-metrics">Custom Metrics<a class="headerlink" href="#custom-metrics" title="Permanent link">&para;</a></h3>
+<p>Add custom metrics to analysis:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">analysis</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">templates</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">custom-business-metric</span>
+<span class="w">  </span><span class="nt">args</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">metric-threshold</span>
+<span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000&quot;</span>
+</code></pre></div>
+
+<h2 id="promotion-procedures">Promotion Procedures<a class="headerlink" href="#promotion-procedures" title="Permanent link">&para;</a></h2>
+<h3 id="automated-promotion">Automated Promotion<a class="headerlink" href="#automated-promotion" title="Permanent link">&para;</a></h3>
+<p>When analysis passes all checks, Argo Rollouts automatically promotes:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">rollout</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">canary</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># ... traffic steps</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">analysis</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">templates</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-success-rate</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">templateName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-agent-latency</span>
+</code></pre></div>
+
+<h3 id="manual-promotion">Manual Promotion<a class="headerlink" href="#manual-promotion" title="Permanent link">&para;</a></h3>
+<p>Use our promotion script:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Standard promotion with verification</span>
+./scripts/deploy/canary-promote.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--service<span class="w"> </span>sahool-agent
+
+<span class="c1"># Dry run to preview changes</span>
+./scripts/deploy/canary-promote.sh<span class="w"> </span>--dry-run
+
+<span class="c1"># Force promotion (skip checks)</span>
+./scripts/deploy/canary-promote.sh<span class="w"> </span>--force<span class="w"> </span>--skip-metrics
+
+<span class="c1"># Custom thresholds</span>
+./scripts/deploy/canary-promote.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--threshold<span class="w"> </span><span class="m">0</span>.99<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--wait<span class="w"> </span><span class="m">600</span>
+</code></pre></div>
+
+<h3 id="promotion-checklist">Promotion Checklist<a class="headerlink" href="#promotion-checklist" title="Permanent link">&para;</a></h3>
+<p>Before manual promotion:</p>
+<ul>
+<li>[ ] All canary pods are healthy</li>
+<li>[ ] Success rate &gt;= 95%</li>
+<li>[ ] Error rate &lt;= 5%</li>
+<li>[ ] P95 latency within acceptable range</li>
+<li>[ ] No crash loops or OOM kills</li>
+<li>[ ] Traffic has been at high percentage (&gt;60%) for at least 10 minutes</li>
+<li>[ ] No alerts firing for the canary deployment</li>
+</ul>
+<h2 id="rollback-procedures">Rollback Procedures<a class="headerlink" href="#rollback-procedures" title="Permanent link">&para;</a></h2>
+<h3 id="automated-rollback">Automated Rollback<a class="headerlink" href="#automated-rollback" title="Permanent link">&para;</a></h3>
+<p>Argo Rollouts automatically rolls back when:</p>
+<ul>
+<li>Analysis run fails</li>
+<li>Pod readiness probes fail consistently</li>
+<li>Progress deadline exceeded</li>
+</ul>
+<h3 id="manual-rollback">Manual Rollback<a class="headerlink" href="#manual-rollback" title="Permanent link">&para;</a></h3>
+<h4 id="quick-rollback-traffic-only">Quick Rollback (Traffic Only)<a class="headerlink" href="#quick-rollback-traffic-only" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Immediately shift all traffic to stable</span>
+./scripts/deploy/rollback.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--type<span class="w"> </span>traffic<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--immediate<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--force
+</code></pre></div>
+
+<h4 id="full-rollback">Full Rollback<a class="headerlink" href="#full-rollback" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Standard rollback with verification</span>
+./scripts/deploy/rollback.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--service<span class="w"> </span>sahool-agent
+
+<span class="c1"># Rollback to specific revision</span>
+./scripts/deploy/rollback.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--revision<span class="w"> </span><span class="m">5</span>
+
+<span class="c1"># Zero-downtime rollback</span>
+./scripts/deploy/rollback.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zero-downtime
+</code></pre></div>
+
+<h4 id="using-argo-rollouts-cli">Using Argo Rollouts CLI<a class="headerlink" href="#using-argo-rollouts-cli" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Abort current rollout</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>abort<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Undo to previous revision</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>undo<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Undo to specific revision</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>undo<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--to-revision<span class="o">=</span><span class="m">3</span>
+
+<span class="c1"># Check status</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>status<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+</code></pre></div>
+
+<h2 id="emergency-procedures">Emergency Procedures<a class="headerlink" href="#emergency-procedures" title="Permanent link">&para;</a></h2>
+<h3 id="critical-production-issue">Critical Production Issue<a class="headerlink" href="#critical-production-issue" title="Permanent link">&para;</a></h3>
+<p>When a critical issue is detected in production:</p>
+<ol>
+<li>
+<p><strong>Immediate Traffic Shift</strong> (&lt; 30 seconds)
+   <code>bash
+   ./scripts/deploy/rollback.sh --immediate --force --notify</code></p>
+</li>
+<li>
+<p><strong>Verify Rollback</strong>
+   ```bash
+   # Check pod status
+   kubectl get pods -n sahool -l app=sahool-agent</p>
+</li>
+</ol>
+<p># Check service health
+   kubectl run test-curl --rm -i --restart=Never --image=curlimages/curl -- \
+     curl -f http://sahool-agent:8080/health/ready
+   ```</p>
+<ol>
+<li><strong>Incident Response</strong></li>
+<li>Create incident in PagerDuty</li>
+<li>Notify team in Slack</li>
+<li>Document the issue</li>
+<li>Schedule post-mortem</li>
+</ol>
+<h3 id="canary-causing-issues">Canary Causing Issues<a class="headerlink" href="#canary-causing-issues" title="Permanent link">&para;</a></h3>
+<p>If canary is causing issues but not auto-rolling back:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Reduce canary traffic to 0%</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span><span class="nb">set</span><span class="w"> </span>weight<span class="w"> </span>sahool-agent<span class="w"> </span><span class="m">0</span><span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># 2. Scale down canary</span>
+kubectl<span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>sahool-agent-canary<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--replicas<span class="o">=</span><span class="m">0</span>
+
+<span class="c1"># 3. Abort the rollout</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>abort<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+</code></pre></div>
+
+<h3 id="database-migration-failure">Database Migration Failure<a class="headerlink" href="#database-migration-failure" title="Permanent link">&para;</a></h3>
+<p>If database migration fails during deployment:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Rollback deployment</span>
+./scripts/deploy/rollback.sh<span class="w"> </span>--immediate
+
+<span class="c1"># 2. Rollback database migration</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deployment/sahool-agent-stable<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>npm<span class="w"> </span>run<span class="w"> </span>migrate:rollback
+
+<span class="c1"># 3. Verify database state</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deployment/sahool-agent-stable<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>npm<span class="w"> </span>run<span class="w"> </span>migrate:status
+</code></pre></div>
+
+<h3 id="networkservice-mesh-issues">Network/Service Mesh Issues<a class="headerlink" href="#networkservice-mesh-issues" title="Permanent link">&para;</a></h3>
+<p>If Istio or traffic routing has issues:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Check Istio proxy status</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>sahool-agent<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[*].status.containerStatuses[?(@.name==&quot;istio-proxy&quot;)].ready}&#39;</span>
+
+<span class="c1"># 2. Restart Envoy sidecar</span>
+kubectl<span class="w"> </span>rollout<span class="w"> </span>restart<span class="w"> </span>deployment/sahool-agent-stable<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># 3. Bypass service mesh (emergency only)</span>
+kubectl<span class="w"> </span>patch<span class="w"> </span>deployment<span class="w"> </span>sahool-agent-stable<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="s1">&#39;{&quot;spec&quot;:{&quot;template&quot;:{&quot;metadata&quot;:{&quot;annotations&quot;:{&quot;sidecar.istio.io/inject&quot;:&quot;false&quot;}}}}}&#39;</span>
+</code></pre></div>
+
+<h2 id="monitoring-and-alerts">Monitoring and Alerts<a class="headerlink" href="#monitoring-and-alerts" title="Permanent link">&para;</a></h2>
+<h3 id="key-metrics">Key Metrics<a class="headerlink" href="#key-metrics" title="Permanent link">&para;</a></h3>
+<p>Monitor these metrics during deployments:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Threshold</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Success Rate</td>
+<td>&lt; 95%</td>
+<td>Auto-rollback</td>
+</tr>
+<tr>
+<td>Error Rate</td>
+<td>&gt; 5%</td>
+<td>Auto-rollback</td>
+</tr>
+<tr>
+<td>P95 Latency</td>
+<td>&gt; 1000ms</td>
+<td>Warning</td>
+</tr>
+<tr>
+<td>P99 Latency</td>
+<td>&gt; 2000ms</td>
+<td>Investigation</td>
+</tr>
+<tr>
+<td>CPU Utilization</td>
+<td>&gt; 80%</td>
+<td>Scale up</td>
+</tr>
+<tr>
+<td>Memory Utilization</td>
+<td>&gt; 80%</td>
+<td>Scale up</td>
+</tr>
+<tr>
+<td>Pod Restarts</td>
+<td>&gt; 3 in 15min</td>
+<td>Rollback</td>
+</tr>
+</tbody>
+</table>
+<h3 id="alert-hierarchy">Alert Hierarchy<a class="headerlink" href="#alert-hierarchy" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Critical (Page)</strong> - Immediate action required</li>
+<li>RolloutFailed</li>
+<li>CanaryHighErrorRate</li>
+<li>CanarySLOViolation</li>
+<li>
+<p>CanaryOOMKilled</p>
+</li>
+<li>
+<p><strong>Warning (Slack)</strong> - Investigate within 1 hour</p>
+</li>
+<li>RolloutDegraded</li>
+<li>CanaryHighLatency</li>
+<li>CanaryHighCPU</li>
+<li>
+<p>CanaryHighMemory</p>
+</li>
+<li>
+<p><strong>Info (Dashboard)</strong> - Informational only</p>
+</li>
+<li>RolloutProgressing</li>
+<li>CanaryTrafficIncreased</li>
+</ol>
+<h3 id="dashboards">Dashboards<a class="headerlink" href="#dashboards" title="Permanent link">&para;</a></h3>
+<p>Access monitoring dashboards:</p>
+<ul>
+<li><strong>Rollout Dashboard</strong>: https://grafana.sahool.io/d/rollouts</li>
+<li><strong>Service Dashboard</strong>: https://grafana.sahool.io/d/services</li>
+<li><strong>Canary Analysis</strong>: https://grafana.sahool.io/d/canary-analysis</li>
+</ul>
+<h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h3>
+<p>View deployment logs:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Rollout controller logs</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>argo-rollouts<span class="w"> </span>deployment/argo-rollouts<span class="w"> </span>-f
+
+<span class="c1"># Service logs (stable)</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>deployment/sahool-agent-stable<span class="w"> </span>-f
+
+<span class="c1"># Service logs (canary)</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>deployment/sahool-agent-canary<span class="w"> </span>-f
+
+<span class="c1"># All service logs</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>sahool-agent<span class="w"> </span>-f<span class="w"> </span>--max-log-requests<span class="o">=</span><span class="m">10</span>
+</code></pre></div>
+
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="pre-deployment">Pre-Deployment<a class="headerlink" href="#pre-deployment" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Test Thoroughly</strong></li>
+<li>Run all unit tests</li>
+<li>Run integration tests</li>
+<li>Run E2E tests in staging</li>
+<li>
+<p>Perform load testing</p>
+</li>
+<li>
+<p><strong>Review Changes</strong></p>
+</li>
+<li>Code review completed</li>
+<li>Database migrations reviewed</li>
+<li>Configuration changes validated</li>
+<li>
+<p>Dependencies updated and tested</p>
+</li>
+<li>
+<p><strong>Prepare Rollback Plan</strong></p>
+</li>
+<li>Document rollback procedure</li>
+<li>Test rollback in staging</li>
+<li>Identify rollback owner</li>
+<li>Prepare communication plan</li>
+</ol>
+<h3 id="during-deployment">During Deployment<a class="headerlink" href="#during-deployment" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Monitor Actively</strong></li>
+<li>Watch rollout progress</li>
+<li>Monitor metrics dashboard</li>
+<li>Check logs for errors</li>
+<li>
+<p>Verify traffic distribution</p>
+</li>
+<li>
+<p><strong>Communicate</strong></p>
+</li>
+<li>Announce deployment in Slack</li>
+<li>Update status page</li>
+<li>Keep stakeholders informed</li>
+<li>
+<p>Document any issues</p>
+</li>
+<li>
+<p><strong>Be Ready to Rollback</strong></p>
+</li>
+<li>Have rollback script ready</li>
+<li>Monitor alert channels</li>
+<li>Keep PagerDuty accessible</li>
+<li>Don't leave deployment unattended</li>
+</ol>
+<h3 id="post-deployment">Post-Deployment<a class="headerlink" href="#post-deployment" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Verify Success</strong></li>
+<li>Check all metrics returned to baseline</li>
+<li>Verify no alerts firing</li>
+<li>Test critical user flows</li>
+<li>
+<p>Review error logs</p>
+</li>
+<li>
+<p><strong>Clean Up</strong></p>
+</li>
+<li>Scale down old canary</li>
+<li>Remove obsolete resources</li>
+<li>Update documentation</li>
+<li>
+<p>Close deployment ticket</p>
+</li>
+<li>
+<p><strong>Learn and Improve</strong></p>
+</li>
+<li>Document what worked well</li>
+<li>Note any issues encountered</li>
+<li>Update runbooks</li>
+<li>Share knowledge with team</li>
+</ol>
+<h3 id="deployment-windows">Deployment Windows<a class="headerlink" href="#deployment-windows" title="Permanent link">&para;</a></h3>
+<p>Recommended deployment windows:</p>
+<ul>
+<li><strong>Production</strong>: Tuesday-Thursday, 10:00-15:00 (business hours)</li>
+<li><strong>Staging</strong>: Anytime</li>
+<li><strong>Avoid</strong>: Fridays, weekends, holidays, major sales events</li>
+</ul>
+<h3 id="change-freeze">Change Freeze<a class="headerlink" href="#change-freeze" title="Permanent link">&para;</a></h3>
+<p>Do not deploy during:</p>
+<ul>
+<li>Major sales/promotional events</li>
+<li>End of quarter/year</li>
+<li>Known high-traffic periods</li>
+<li>Active incidents</li>
+<li>During change freeze periods</li>
+</ul>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<h4 id="rollout-stuck-in-progressing">Rollout Stuck in Progressing<a class="headerlink" href="#rollout-stuck-in-progressing" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms</strong>: Rollout shows "Progressing" for extended time</p>
+<p><strong>Diagnosis</strong>:</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>get<span class="w"> </span>rollout<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+kubectl<span class="w"> </span>describe<span class="w"> </span>rollout<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+</code></pre></div>
+
+<p><strong>Solutions</strong>:
+1. Check if analysis is running: <code>kubectl get analysisrun -n sahool</code>
+2. Check pod status: <code>kubectl get pods -n sahool -l app=sahool-agent</code>
+3. Abort and retry: <code>kubectl argo rollouts abort sahool-agent -n sahool</code></p>
+<h4 id="analysis-run-failing">Analysis Run Failing<a class="headerlink" href="#analysis-run-failing" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms</strong>: Analysis runs consistently fail</p>
+<p><strong>Diagnosis</strong>:</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>analysisrun<span class="w"> </span>-n<span class="w"> </span>sahool
+kubectl<span class="w"> </span>describe<span class="w"> </span>analysisrun<span class="w"> </span>&lt;name&gt;<span class="w"> </span>-n<span class="w"> </span>sahool
+</code></pre></div>
+
+<p><strong>Solutions</strong>:
+1. Check Prometheus connectivity
+2. Verify metric queries are correct
+3. Review metric thresholds
+4. Check if service is receiving traffic</p>
+<h4 id="canary-pods-not-ready">Canary Pods Not Ready<a class="headerlink" href="#canary-pods-not-ready" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms</strong>: Canary pods fail readiness probe</p>
+<p><strong>Diagnosis</strong>:</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-l<span class="w"> </span>deployment-type<span class="o">=</span>canary
+kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>-n<span class="w"> </span>sahool
+kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>-n<span class="w"> </span>sahool
+</code></pre></div>
+
+<p><strong>Solutions</strong>:
+1. Check application logs for errors
+2. Verify database connectivity
+3. Check secret/configmap availability
+4. Review resource limits</p>
+<h4 id="traffic-not-routing-to-canary">Traffic Not Routing to Canary<a class="headerlink" href="#traffic-not-routing-to-canary" title="Permanent link">&para;</a></h4>
+<p><strong>Symptoms</strong>: All traffic goes to stable despite weight settings</p>
+<p><strong>Diagnosis</strong>:</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>virtualservice<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-o<span class="w"> </span>yaml
+kubectl<span class="w"> </span>get<span class="w"> </span>destinationrule<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div>
+
+<p><strong>Solutions</strong>:
+1. Verify VirtualService weights are set correctly
+2. Check DestinationRule subsets match labels
+3. Verify Istio proxy is injected: <code>kubectl get pods -n sahool -o jsonpath='{.items[*].spec.containers[*].name}'</code>
+4. Check Istio pilot logs</p>
+<h3 id="debug-commands">Debug Commands<a class="headerlink" href="#debug-commands" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Get rollout details</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span>get<span class="w"> </span>rollout<span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># View rollout history</span>
+kubectl<span class="w"> </span>argo<span class="w"> </span>rollouts<span class="w"> </span><span class="nb">history</span><span class="w"> </span>sahool-agent<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Get analysis runs</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>analysisrun<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Describe specific analysis run</span>
+kubectl<span class="w"> </span>describe<span class="w"> </span>analysisrun<span class="w"> </span>&lt;name&gt;<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Check Istio configuration</span>
+istioctl<span class="w"> </span>analyze<span class="w"> </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># View Envoy configuration</span>
+kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span>istio-proxy<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>pilot-agent<span class="w"> </span>request<span class="w"> </span>GET<span class="w"> </span>config_dump
+
+<span class="c1"># Test service connectivity</span>
+kubectl<span class="w"> </span>run<span class="w"> </span>test-curl<span class="w"> </span>--rm<span class="w"> </span>-i<span class="w"> </span>--restart<span class="o">=</span>Never<span class="w"> </span>--image<span class="o">=</span>curlimages/curl<span class="w"> </span>-n<span class="w"> </span>sahool<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>curl<span class="w"> </span>-v<span class="w"> </span>http://sahool-agent:8080/health
+</code></pre></div>
+
+<h2 id="support-and-resources">Support and Resources<a class="headerlink" href="#support-and-resources" title="Permanent link">&para;</a></h2>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://argoproj.github.io/argo-rollouts/">Argo Rollouts Documentation</a></li>
+<li><a href="https://istio.io/latest/docs/concepts/traffic-management/">Istio Traffic Management</a></li>
+<li><a href="https://prometheus.io/docs/prometheus/latest/querying/basics/">Prometheus Querying</a></li>
+<li><a href="../INFRASTRUCTURE/">SAHOOL Architecture</a></li>
+</ul>
+<h3 id="runbooks">Runbooks<a class="headerlink" href="#runbooks" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://docs.sahool.io/runbooks/rollout-degraded">Rollout Degraded</a></li>
+<li><a href="https://docs.sahool.io/runbooks/rollout-failed">Rollout Failed</a></li>
+<li><a href="https://docs.sahool.io/runbooks/canary-high-error-rate">Canary High Error Rate</a></li>
+<li><a href="https://docs.sahool.io/runbooks/emergency-rollback">Emergency Rollback</a></li>
+</ul>
+<h3 id="support-channels">Support Channels<a class="headerlink" href="#support-channels" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Slack</strong>: #deployments, #platform-team</li>
+<li><strong>PagerDuty</strong>: Platform Team</li>
+<li><strong>Email</strong>: platform-team@sahool.io</li>
+</ul>
+<h3 id="emergency-contacts">Emergency Contacts<a class="headerlink" href="#emergency-contacts" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Platform Team Lead</strong>: platform-lead@sahool.io</li>
+<li><strong>SRE On-Call</strong>: oncall@sahool.io</li>
+<li><strong>DevOps Team</strong>: devops@sahool.io</li>
+</ul>
+<hr />
+<p><strong>Document Version</strong>: 1.0.0
+<strong>Last Updated</strong>: 2025-12-28
+<strong>Owner</strong>: Platform Team
+<strong>Review Cycle</strong>: Quarterly</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

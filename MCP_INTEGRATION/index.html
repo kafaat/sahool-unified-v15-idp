@@ -1,0 +1,1647 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Model Context Protocol (MCP) Integration - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-model-context-protocol-mcp-integration" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Model Context Protocol (MCP) Integration
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-model-context-protocol-mcp-integration">SAHOOL Model Context Protocol (MCP) Integration<a class="headerlink" href="#sahool-model-context-protocol-mcp-integration" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>SAHOOL now includes full support for the <strong>Model Context Protocol (MCP)</strong>, enabling AI assistants like Claude to directly interact with SAHOOL's agricultural intelligence capabilities.</p>
+<p>The MCP integration provides:
+- <strong>5 Agricultural Tools</strong> for weather, crop health, irrigation, and fertilizer recommendations
+- <strong>3 Resource Providers</strong> for field data, weather data, and crop catalogs
+- <strong>3 Prompt Templates</strong> for common agricultural tasks
+- <strong>Dual Transport Support</strong> (stdio and HTTP/SSE)
+- <strong>Production-Ready</strong> with health checks, metrics, and logging</p>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                      AI Assistant                            │
+│                  (Claude, ChatGPT, etc.)                     │
+└────────────────────────┬────────────────────────────────────┘
+                         │ MCP Protocol
+                         │ (JSON-RPC 2.0)
+┌────────────────────────▼────────────────────────────────────┐
+│                   SAHOOL MCP Server                          │
+│                   (Port 8200)                                │
+│  ┌──────────────┬──────────────┬──────────────────────────┐ │
+│  │ Tool Handler │ Resource     │ Prompt Template Engine   │ │
+│  │              │ Provider     │                          │ │
+│  └──────────────┴──────────────┴──────────────────────────┘ │
+└────────────────────────┬────────────────────────────────────┘
+                         │ HTTP/REST
+                         │
+┌────────────────────────▼────────────────────────────────────┐
+│               SAHOOL Core Services                           │
+│  ┌──────────┬──────────┬──────────┬──────────────────────┐  │
+│  │ Weather  │ NDVI     │ Field    │ Advisory Services    │  │
+│  │ Core     │ Engine   │ Core     │ (Irrigation, Fert.)  │  │
+│  └──────────┴──────────┴──────────┴──────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<h3 id="1-start-the-mcp-server">1. Start the MCP Server<a class="headerlink" href="#1-start-the-mcp-server" title="Permanent link">&para;</a></h3>
+<h4 id="using-docker-compose">Using Docker Compose<a class="headerlink" href="#using-docker-compose" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>docker-compose<span class="w"> </span>up<span class="w"> </span>mcp-server
+</code></pre></div>
+
+<h4 id="using-python">Using Python<a class="headerlink" href="#using-python" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>apps/services/mcp-server
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+python<span class="w"> </span>src/main.py
+</code></pre></div>
+
+<p>The server will start on <code>http://localhost:8200</code>.</p>
+<h3 id="2-verify-server-is-running">2. Verify Server is Running<a class="headerlink" href="#2-verify-server-is-running" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Health check</span>
+curl<span class="w"> </span>http://localhost:8200/health
+
+<span class="c1"># List available tools</span>
+curl<span class="w"> </span>http://localhost:8200/tools
+
+<span class="c1"># View API documentation</span>
+open<span class="w"> </span>http://localhost:8200/docs
+</code></pre></div>
+
+<h3 id="3-configure-ai-assistant">3. Configure AI Assistant<a class="headerlink" href="#3-configure-ai-assistant" title="Permanent link">&para;</a></h3>
+<h4 id="claude-desktop">Claude Desktop<a class="headerlink" href="#claude-desktop" title="Permanent link">&para;</a></h4>
+<p>Add to <code>claude_desktop_config.json</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;sahool&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8200/mcp&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SAHOOL Agricultural Platform&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Agricultural intelligence tools for Yemen and Middle East&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="using-stdio-transport">Using stdio Transport<a class="headerlink" href="#using-stdio-transport" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;sahool&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;shared.mcp.server&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--transport&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;stdio&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;SAHOOL_API_URL&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://localhost:8000&quot;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="available-tools">Available Tools<a class="headerlink" href="#available-tools" title="Permanent link">&para;</a></h2>
+<h3 id="1-get_weather_forecast">1. get_weather_forecast<a class="headerlink" href="#1-get_weather_forecast" title="Permanent link">&para;</a></h3>
+<p>Get weather forecast with agricultural advisories.</p>
+<p><strong>Parameters:</strong>
+- <code>latitude</code> (required): Latitude of the location
+- <code>longitude</code> (required): Longitude of the location
+- <code>days</code> (optional): Number of days to forecast (1-14, default: 7)</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.5527</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">48.5164</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;days&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Returns:</strong>
+- Temperature, humidity, precipitation forecasts
+- Wind speed and direction
+- Agricultural advisories (frost risk, heat stress, etc.)
+- Irrigation recommendations based on weather</p>
+<h3 id="2-analyze_crop_health">2. analyze_crop_health<a class="headerlink" href="#2-analyze_crop_health" title="Permanent link">&para;</a></h3>
+<p>Analyze crop health using satellite imagery (NDVI/NDWI).</p>
+<p><strong>Parameters:</strong>
+- <code>field_id</code> (required): Field identifier
+- <code>analysis_type</code> (optional): "ndvi", "ndwi", or "full" (default: "ndvi")
+- <code>date</code> (optional): Analysis date (YYYY-MM-DD)</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;analysis_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ndvi&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Returns:</strong>
+- NDVI average and distribution
+- Health status (healthy, stressed, diseased)
+- Stress area locations
+- Disease risk assessment
+- Recommendations</p>
+<h3 id="3-get_field_data">3. get_field_data<a class="headerlink" href="#3-get_field_data" title="Permanent link">&para;</a></h3>
+<p>Retrieve comprehensive field data.</p>
+<p><strong>Parameters:</strong>
+- <code>field_id</code> (required): Field identifier
+- <code>include_history</code> (optional): Include historical data (default: false)
+- <code>include_sensors</code> (optional): Include IoT sensor data (default: false)</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;include_history&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;include_sensors&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Returns:</strong>
+- Field boundaries (GeoJSON)
+- Area in hectares
+- Soil properties (type, pH, nutrients)
+- Current crop information
+- Historical activities (optional)
+- Sensor readings (optional)</p>
+<h3 id="4-calculate_irrigation">4. calculate_irrigation<a class="headerlink" href="#4-calculate_irrigation" title="Permanent link">&para;</a></h3>
+<p>Calculate optimal irrigation requirements.</p>
+<p><strong>Parameters:</strong>
+- <code>field_id</code> (required): Field identifier
+- <code>crop_type</code> (required): Type of crop
+- <code>soil_moisture</code> (required): Current soil moisture (0-100%)
+- <code>growth_stage</code> (required): "germination", "vegetative", "flowering", "fruiting", or "maturation"</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soil_moisture&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;flowering&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Returns:</strong>
+- Water amount needed (mm)
+- Duration in minutes
+- Next irrigation date
+- Soil moisture target
+- Adjustment factors (weather, growth stage, etc.)</p>
+<h3 id="5-get_fertilizer_recommendation">5. get_fertilizer_recommendation<a class="headerlink" href="#5-get_fertilizer_recommendation" title="Permanent link">&para;</a></h3>
+<p>Get fertilizer recommendations based on soil analysis.</p>
+<p><strong>Parameters:</strong>
+- <code>field_id</code> (required): Field identifier
+- <code>crop_type</code> (required): Type of crop
+- <code>soil_test</code> (optional): NPK values, pH, organic matter
+- <code>target_yield</code> (optional): Target yield in tons/ha</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;corn&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soil_test&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;nitrogen_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;phosphorus_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;potassium_ppm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;ph&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">6.5</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;organic_matter_pct&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;target_yield&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">8.5</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Returns:</strong>
+- NPK recommendation (N-P-K ratios)
+- Application schedule
+- Total cost estimate
+- Organic alternatives
+- Warnings and precautions</p>
+<h2 id="resource-providers">Resource Providers<a class="headerlink" href="#resource-providers" title="Permanent link">&para;</a></h2>
+<h3 id="field-data-resources">Field Data Resources<a class="headerlink" href="#field-data-resources" title="Permanent link">&para;</a></h3>
+<p>Access field information through URI templates:</p>
+<ul>
+<li><code>field://{field_id}/info</code> - General field information</li>
+<li><code>field://{field_id}/boundaries</code> - GeoJSON boundaries</li>
+<li><code>field://{field_id}/soil</code> - Soil properties</li>
+<li><code>field://{field_id}/activities</code> - Historical activities</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">resource</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">read_resource</span><span class="p">(</span><span class="s2">&quot;field://field-123/boundaries&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="weather-data-resources">Weather Data Resources<a class="headerlink" href="#weather-data-resources" title="Permanent link">&para;</a></h3>
+<p>Access weather data:</p>
+<ul>
+<li><code>weather://current</code> - Current conditions</li>
+<li><code>weather://forecast/7day</code> - 7-day forecast</li>
+<li><code>weather://forecast/14day</code> - 14-day forecast</li>
+<li><code>weather://advisories</code> - Agricultural advisories</li>
+<li><code>weather://historical/30day</code> - 30-day history</li>
+</ul>
+<h3 id="crop-catalog-resources">Crop Catalog Resources<a class="headerlink" href="#crop-catalog-resources" title="Permanent link">&para;</a></h3>
+<p>Access crop information:</p>
+<ul>
+<li><code>crops://catalog</code> - Complete crop catalog</li>
+<li><code>crops://{crop_id}/info</code> - Crop details</li>
+<li><code>crops://{crop_id}/growing-guide</code> - Growing guide</li>
+<li><code>crops://{crop_id}/pests</code> - Pest management</li>
+<li><code>crops://{crop_id}/diseases</code> - Disease management</li>
+</ul>
+<h2 id="prompt-templates">Prompt Templates<a class="headerlink" href="#prompt-templates" title="Permanent link">&para;</a></h2>
+<h3 id="1-field_analysis">1. field_analysis<a class="headerlink" href="#1-field_analysis" title="Permanent link">&para;</a></h3>
+<p>Comprehensive field analysis including health, weather, and recommendations.</p>
+<p><strong>Arguments:</strong>
+- <code>field_id</code> (required): Field to analyze</p>
+<p><strong>Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code>Use the field_analysis prompt for field-123
+</code></pre></div>
+
+<h3 id="2-irrigation_plan">2. irrigation_plan<a class="headerlink" href="#2-irrigation_plan" title="Permanent link">&para;</a></h3>
+<p>Create irrigation plan based on weather forecast and soil conditions.</p>
+<p><strong>Arguments:</strong>
+- <code>field_id</code> (required): Field identifier
+- <code>days</code> (optional): Planning horizon (default: 7)</p>
+<p><strong>Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code>Use the irrigation_plan prompt for field-123 with 14 days
+</code></pre></div>
+
+<h3 id="3-crop_recommendation">3. crop_recommendation<a class="headerlink" href="#3-crop_recommendation" title="Permanent link">&para;</a></h3>
+<p>Recommend crops suitable for field conditions.</p>
+<p><strong>Arguments:</strong>
+- <code>field_id</code> (required): Field identifier
+- <code>season</code> (optional): Growing season</p>
+<p><strong>Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code>Use the crop_recommendation prompt for field-123 for summer season
+</code></pre></div>
+
+<h2 id="python-client-usage">Python Client Usage<a class="headerlink" href="#python-client-usage" title="Permanent link">&para;</a></h2>
+<h3 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shared.mcp.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">MCPClientContext</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">MCPClientContext</span><span class="p">(</span><span class="n">server_url</span><span class="o">=</span><span class="s2">&quot;http://localhost:8200&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="c1"># Get weather forecast</span>
+    <span class="n">weather</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_weather_forecast</span><span class="p">(</span>
+        <span class="n">latitude</span><span class="o">=</span><span class="mf">15.5527</span><span class="p">,</span>
+        <span class="n">longitude</span><span class="o">=</span><span class="mf">48.5164</span><span class="p">,</span>
+        <span class="n">days</span><span class="o">=</span><span class="mi">7</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Analyze crop health</span>
+    <span class="n">health</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">analyze_crop_health</span><span class="p">(</span>
+        <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
+        <span class="n">analysis_type</span><span class="o">=</span><span class="s2">&quot;ndvi&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Calculate irrigation</span>
+    <span class="n">irrigation</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">calculate_irrigation</span><span class="p">(</span>
+        <span class="n">field_id</span><span class="o">=</span><span class="s2">&quot;field-123&quot;</span><span class="p">,</span>
+        <span class="n">crop_type</span><span class="o">=</span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+        <span class="n">soil_moisture</span><span class="o">=</span><span class="mf">45.5</span><span class="p">,</span>
+        <span class="n">growth_stage</span><span class="o">=</span><span class="s2">&quot;flowering&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+<h3 id="low-level-api">Low-Level API<a class="headerlink" href="#low-level-api" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Call tool directly</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">call_tool</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_weather_forecast&quot;</span><span class="p">,</span>
+    <span class="n">arguments</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">15.5527</span><span class="p">,</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="mf">48.5164</span><span class="p">,</span>
+        <span class="s2">&quot;days&quot;</span><span class="p">:</span> <span class="mi">7</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># Read resource</span>
+<span class="n">resource</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">read_resource</span><span class="p">(</span><span class="s2">&quot;field://field-123/info&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get prompt</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">get_prompt</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;field_analysis&quot;</span><span class="p">,</span>
+    <span class="n">arguments</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;field_id&quot;</span><span class="p">:</span> <span class="s2">&quot;field-123&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SAHOOL_API_URL</code></td>
+<td>Base URL for SAHOOL API</td>
+<td><code>http://localhost:8000</code></td>
+</tr>
+<tr>
+<td><code>MCP_SERVER_PORT</code></td>
+<td>MCP server port</td>
+<td><code>8200</code></td>
+</tr>
+<tr>
+<td><code>MCP_SERVER_HOST</code></td>
+<td>MCP server host</td>
+<td><code>0.0.0.0</code></td>
+</tr>
+<tr>
+<td><code>LOG_LEVEL</code></td>
+<td>Logging level</td>
+<td><code>INFO</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="docker-compose-configuration">Docker Compose Configuration<a class="headerlink" href="#docker-compose-configuration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mcp-server</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./apps/services/mcp-server</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-mcp-server</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8200:8200&quot;</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL_API_URL=http://kong:8000</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LOG_LEVEL=INFO</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kong</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weather-core</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi-engine</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-core</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;curl&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-f&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;http://localhost:8200/health&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-network</span>
+</code></pre></div>
+
+<h2 id="monitoring">Monitoring<a class="headerlink" href="#monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="health-checks">Health Checks<a class="headerlink" href="#health-checks" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Liveness probe</span>
+curl<span class="w"> </span>http://localhost:8200/health
+
+<span class="c1"># Readiness probe</span>
+curl<span class="w"> </span>http://localhost:8200/ready
+</code></pre></div>
+
+<h3 id="metrics-prometheus">Metrics (Prometheus)<a class="headerlink" href="#metrics-prometheus" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># View metrics</span>
+curl<span class="w"> </span>http://localhost:8200/metrics
+</code></pre></div>
+
+<p><strong>Available Metrics:</strong>
+- <code>mcp_requests_total{method, status}</code> - Total MCP requests
+- <code>mcp_request_duration_seconds{method}</code> - Request duration
+- <code>mcp_tool_calls_total{tool_name, status}</code> - Tool invocations
+- <code>mcp_resource_reads_total{resource_type, status}</code> - Resource reads</p>
+<h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h3>
+<p>Structured JSON logs in production:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-12-28T10:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MCP Request: tools/call (id: 1)&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tools/call&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tool_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;get_weather_forecast&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.234</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h2>
+<h3 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h3>
+<p>MCP server currently supports:
+- No authentication (development)
+- API key authentication (coming soon)
+- JWT authentication (coming soon)</p>
+<h3 id="rate-limiting">Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h3>
+<p>Configured through Kong API Gateway:
+- Free tier: 30 requests/minute
+- Standard: 60 requests/minute
+- Premium: 120 requests/minute</p>
+<h3 id="cors">CORS<a class="headerlink" href="#cors" title="Permanent link">&para;</a></h3>
+<p>CORS is enabled for all origins in development. Configure for production:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>
+    <span class="n">CORSMiddleware</span><span class="p">,</span>
+    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;https://your-domain.com&quot;</span><span class="p">],</span>
+    <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="s2">&quot;GET&quot;</span><span class="p">],</span>
+    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="mcp-server-wont-start">MCP Server Won't Start<a class="headerlink" href="#mcp-server-wont-start" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Check if port 8200 is available:
+   <code>bash
+   lsof -i :8200</code></p>
+</li>
+<li>
+<p>Verify SAHOOL API is running:
+   <code>bash
+   curl http://localhost:8000/health</code></p>
+</li>
+<li>
+<p>Check logs:
+   <code>bash
+   docker-compose logs mcp-server</code></p>
+</li>
+</ol>
+<h3 id="tool-calls-failing">Tool Calls Failing<a class="headerlink" href="#tool-calls-failing" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p>Verify SAHOOL services are running:
+   <code>bash
+   docker-compose ps</code></p>
+</li>
+<li>
+<p>Check service health:
+   <code>bash
+   curl http://localhost:8000/api/weather/health
+   curl http://localhost:8000/api/fields/health</code></p>
+</li>
+<li>
+<p>Review error messages in MCP server logs</p>
+</li>
+</ol>
+<h3 id="resources-not-loading">Resources Not Loading<a class="headerlink" href="#resources-not-loading" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Ensure database is accessible</li>
+<li>Check PostgreSQL connection</li>
+<li>Verify field data exists in database</li>
+</ol>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<p>See <code>shared/mcp/examples.py</code> for comprehensive examples:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run examples</span>
+python<span class="w"> </span>-m<span class="w"> </span>shared.mcp.examples
+</code></pre></div>
+
+<h2 id="api-documentation">API Documentation<a class="headerlink" href="#api-documentation" title="Permanent link">&para;</a></h2>
+<p>Interactive API documentation available at:
+- <strong>Swagger UI</strong>: http://localhost:8200/docs
+- <strong>ReDoc</strong>: http://localhost:8200/redoc</p>
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For issues or questions:
+1. Check logs: <code>docker-compose logs mcp-server</code>
+2. Review documentation: <code>/docs/MCP_INTEGRATION.md</code>
+3. Contact development team</p>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>Proprietary - KAFAAT</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

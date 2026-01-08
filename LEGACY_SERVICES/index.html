@@ -1,0 +1,1622 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>📦 أرشيف الخدمات القديمة (Legacy Services) - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#legacy-services" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              📦 أرشيف الخدمات القديمة (Legacy Services)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="legacy-services">📦 أرشيف الخدمات القديمة (Legacy Services)<a class="headerlink" href="#legacy-services" title="Permanent link">&para;</a></h1>
+<h2 id="sahool-platform-v155">SAHOOL Platform v15.5<a class="headerlink" href="#sahool-platform-v155" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="_1">⚠️ تنبيه هام<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>هذه الخدمات <strong>قديمة ومتوقفة</strong> ولا يجب استخدامها في التطوير الجديد.
+تم استبدالها بخدمات حديثة ضمن معمارية Field-First.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># لتشغيل الخدمات القديمة (للاختبار فقط)</span>
+docker<span class="w"> </span>compose<span class="w"> </span>--profile<span class="w"> </span>legacy<span class="w"> </span>up<span class="w"> </span>-d
+</code></pre></div>
+
+<hr />
+<h2 id="14">📋 قائمة الخدمات القديمة (14 خدمة)<a class="headerlink" href="#14" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الخدمة القديمة</th>
+<th>المنفذ</th>
+<th>البديل الحديث</th>
+<th>المنفذ الجديد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>field_core</td>
+<td>3000</td>
+<td>field-service</td>
+<td>-</td>
+</tr>
+<tr>
+<td>2</td>
+<td>field_ops</td>
+<td>8080</td>
+<td>field-service</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3</td>
+<td>ndvi_engine</td>
+<td>8107</td>
+<td>satellite-service</td>
+<td>8090</td>
+</tr>
+<tr>
+<td>4</td>
+<td>weather_core</td>
+<td>8108</td>
+<td>weather-advanced</td>
+<td>8092</td>
+</tr>
+<tr>
+<td>5</td>
+<td>field_chat</td>
+<td>8099</td>
+<td>community-chat</td>
+<td>8097</td>
+</tr>
+<tr>
+<td>6</td>
+<td>iot_gateway</td>
+<td>8106</td>
+<td>iot-service</td>
+<td>-</td>
+</tr>
+<tr>
+<td>7</td>
+<td>agro_advisor</td>
+<td>8105</td>
+<td>fertilizer-advisor</td>
+<td>8093</td>
+</tr>
+<tr>
+<td>8</td>
+<td>ws_gateway</td>
+<td>8090</td>
+<td>notification-service</td>
+<td>8110</td>
+</tr>
+<tr>
+<td>9</td>
+<td>crop_health</td>
+<td>-</td>
+<td>crop-health-ai</td>
+<td>8095</td>
+</tr>
+<tr>
+<td>10</td>
+<td>agro_rules</td>
+<td>-</td>
+<td>indicators-service</td>
+<td>8091</td>
+</tr>
+<tr>
+<td>11</td>
+<td>task_service</td>
+<td>-</td>
+<td>field-service</td>
+<td>-</td>
+</tr>
+<tr>
+<td>12</td>
+<td>equipment_service</td>
+<td>-</td>
+<td>-</td>
+<td>(merged)</td>
+</tr>
+<tr>
+<td>13</td>
+<td>community_service</td>
+<td>-</td>
+<td>community-chat</td>
+<td>8097</td>
+</tr>
+<tr>
+<td>14</td>
+<td>provider_config</td>
+<td>-</td>
+<td>-</td>
+<td>(merged)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">📂 تفاصيل كل خدمة قديمة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="1-field_core">1. field_core<a class="headerlink" href="#1-field_core" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field_core</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
+<span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/field-service</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-service (موحد)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دمج إدارة الحقول في خدمة واحدة</span>
+</code></pre></div>
+
+<p><strong>ملفات الامتداد:</strong>
+- <code>apps/services/field-service/Dockerfile</code>
+- <code>apps/services/field-service/src/</code>
+- <code>apps/services/field-service/package.json</code></p>
+<hr />
+<h3 id="2-field_ops">2. field_ops<a class="headerlink" href="#2-field_ops" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field_ops</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8080</span>
+<span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/field-service</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-service (موحد)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دمج عمليات الحقل مع إدارة الحقول</span>
+</code></pre></div>
+
+<p><strong>التبعيات:</strong>
+- postgres (database)
+- nats (events)
+- redis (cache)</p>
+<hr />
+<h3 id="3-ndvi_engine">3. ndvi_engine<a class="headerlink" href="#3-ndvi_engine" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ndvi_engine</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8107</span>
+<span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/ndvi-processor</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">satellite-service (8090)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توسيع لدعم NDWI, EVI, SAVI</span>
+</code></pre></div>
+
+<p><strong>ملفات الامتداد:</strong>
+- <code>apps/services/ndvi-processor/Dockerfile</code>
+- <code>apps/services/ndvi-processor/src/</code>
+- <code>apps/services/ndvi-processor/requirements.txt</code></p>
+<p><strong>المخرجات القديمة:</strong>
+- NDVI only</p>
+<p><strong>المخرجات الجديدة (satellite-service):</strong>
+- NDVI, NDWI, EVI, SAVI, LAI</p>
+<hr />
+<h3 id="4-weather_core">4. weather_core<a class="headerlink" href="#4-weather_core" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weather_core</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8108</span>
+<span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/weather-advanced</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weather-advanced (8092)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إضافة تنبؤات متقدمة وتكامل FAO</span>
+</code></pre></div>
+
+<p><strong>ملفات الامتداد:</strong>
+- <code>apps/services/weather-advanced/Dockerfile</code>
+- <code>apps/services/weather-advanced/src/</code>
+- <code>apps/services/weather-advanced/requirements.txt</code></p>
+<p><strong>API Keys المطلوبة:</strong>
+- <code>OPENWEATHER_API_KEY</code></p>
+<hr />
+<h3 id="5-field_chat">5. field_chat<a class="headerlink" href="#5-field_chat" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field_chat</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8099</span>
+<span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/community-chat</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">community-chat (8097)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إعادة تصميم WebSocket</span>
+</code></pre></div>
+
+<p><strong>ملفات الامتداد:</strong>
+- <code>apps/services/community-chat/Dockerfile</code>
+- <code>apps/services/community-chat/src/</code>
+- <code>apps/services/community-chat/package.json</code></p>
+<hr />
+<h3 id="6-iot_gateway">6. iot_gateway<a class="headerlink" href="#6-iot_gateway" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iot_gateway</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8106</span>
+<span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/iot-service</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">iot-service (قيد التطوير)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحسين بروتوكول MQTT</span>
+</code></pre></div>
+
+<p><strong>التبعيات:</strong>
+- mqtt (broker)
+- nats (events)</p>
+<hr />
+<h3 id="7-agro_advisor">7. agro_advisor<a class="headerlink" href="#7-agro_advisor" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agro_advisor</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8105</span>
+<span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/fertilizer-advisor</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fertilizer-advisor (8093)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">فصل التسميد عن الاستشارات العامة</span>
+</code></pre></div>
+
+<hr />
+<h3 id="8-ws_gateway">8. ws_gateway<a class="headerlink" href="#8-ws_gateway" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_gateway</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8090</span>
+<span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/notification-service</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notification-service (8110)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توحيد قنوات الإشعارات</span>
+</code></pre></div>
+
+<p><strong>القنوات القديمة:</strong>
+- WebSocket only</p>
+<p><strong>القنوات الجديدة:</strong>
+- Push notifications
+- SMS
+- In-app
+- WebSocket</p>
+<hr />
+<h3 id="9-crop_health">9. crop_health<a class="headerlink" href="#9-crop_health" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop_health</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="err">-</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai (8095)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إضافة AI للتشخيص</span>
+</code></pre></div>
+
+<hr />
+<h3 id="10-agro_rules">10. agro_rules<a class="headerlink" href="#10-agro_rules" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agro_rules</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="err">-</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy (NATS Worker)</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">indicators-service (8091)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تحويل Rules إلى Indicators</span>
+</code></pre></div>
+
+<hr />
+<h3 id="11-task_service">11. task_service<a class="headerlink" href="#11-task_service" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_service</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="err">-</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-service</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">دمج المهام مع الحقول</span>
+</code></pre></div>
+
+<hr />
+<h3 id="12-equipment_service">12. equipment_service<a class="headerlink" href="#12-equipment_service" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">equipment_service</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="err">-</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merged into field-service</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">المعدات جزء من الحقل</span>
+</code></pre></div>
+
+<hr />
+<h3 id="13-community_service">13. community_service<a class="headerlink" href="#13-community_service" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">community_service</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="err">-</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">community-chat (8097)</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">توحيد خدمات المجتمع</span>
+</code></pre></div>
+
+<hr />
+<h3 id="14-provider_config">14. provider_config<a class="headerlink" href="#14-provider_config" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">الخدمة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">provider_config</span>
+<span class="nt">المنفذ</span><span class="p">:</span><span class="w"> </span><span class="err">-</span>
+<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Legacy</span>
+<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merged into billing-core</span>
+<span class="nt">السبب</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">إعدادات المزود جزء من الفوترة</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_3">🔄 خريطة الترحيل<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌────────────────────────────────────────────────────────────────┐
+│                    Legacy Services (14)                         │
+├────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  field_core ─────┐                                             │
+│  field_ops ──────┼──────► field-service                        │
+│  task_service ───┤                                             │
+│  equipment_svc ──┘                                             │
+│                                                                 │
+│  ndvi_engine ────────────► satellite-service (8090)            │
+│                                                                 │
+│  weather_core ───────────► weather-advanced (8092)             │
+│                                                                 │
+│  field_chat ─────┐                                             │
+│  community_svc ──┴───────► community-chat (8097)               │
+│                                                                 │
+│  iot_gateway ────────────► iot-service (قيد التطوير)           │
+│                                                                 │
+│  agro_advisor ───────────► fertilizer-advisor (8093)           │
+│                                                                 │
+│  ws_gateway ─────────────► notification-service (8110)         │
+│                                                                 │
+│  crop_health ────────────► crop-health-ai (8095)               │
+│                                                                 │
+│  agro_rules ─────────────► indicators-service (8091)           │
+│                                                                 │
+│  provider_config ────────► billing-core (8089)                 │
+│                                                                 │
+└────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="_4">📁 هيكل ملفات الخدمات القديمة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">services</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">field</span><span class="o">-</span><span class="nx">service</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">يستخدم</span><span class="w"> </span><span class="nx">بواسطة</span><span class="p">:</span><span class="w"> </span><span class="nx">field_core</span><span class="p">,</span><span class="w"> </span><span class="nx">field_ops</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">Dockerfile</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="kn">package</span><span class="p">.</span><span class="nx">json</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">ndvi</span><span class="o">-</span><span class="nx">processor</span><span class="o">/</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">يستخدم</span><span class="w"> </span><span class="nx">بواسطة</span><span class="p">:</span><span class="w"> </span><span class="nx">ndvi_engine</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">Dockerfile</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">requirements</span><span class="p">.</span><span class="nx">txt</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">weather</span><span class="o">-</span><span class="nx">advanced</span><span class="o">/</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">يستخدم</span><span class="w"> </span><span class="nx">بواسطة</span><span class="p">:</span><span class="w"> </span><span class="nx">weather_core</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">Dockerfile</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">requirements</span><span class="p">.</span><span class="nx">txt</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">community</span><span class="o">-</span><span class="nx">chat</span><span class="o">/</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">يستخدم</span><span class="w"> </span><span class="nx">بواسطة</span><span class="p">:</span><span class="w"> </span><span class="nx">field_chat</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">Dockerfile</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="kn">package</span><span class="p">.</span><span class="nx">json</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">iot</span><span class="o">-</span><span class="nx">service</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">يستخدم</span><span class="w"> </span><span class="nx">بواسطة</span><span class="p">:</span><span class="w"> </span><span class="nx">iot_gateway</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">Dockerfile</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">requirements</span><span class="p">.</span><span class="nx">txt</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">fertilizer</span><span class="o">-</span><span class="nx">advisor</span><span class="o">/</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">يستخدم</span><span class="w"> </span><span class="nx">بواسطة</span><span class="p">:</span><span class="w"> </span><span class="nx">agro_advisor</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">Dockerfile</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">requirements</span><span class="p">.</span><span class="nx">txt</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">notification</span><span class="o">-</span><span class="nx">service</span><span class="o">/</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">يستخدم</span><span class="w"> </span><span class="nx">بواسطة</span><span class="p">:</span><span class="w"> </span><span class="nx">ws_gateway</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">Dockerfile</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">requirements</span><span class="p">.</span><span class="nx">txt</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_5">⚠️ تحذيرات الترحيل<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="1">1. تغيير المنافذ<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># القديم → الجديد</span>
+<span class="l l-Scalar l-Scalar-Plain">8107 (ndvi_engine) → 8090 (satellite-service)</span>
+<span class="l l-Scalar l-Scalar-Plain">8108 (weather_core) → 8092 (weather-advanced)</span>
+<span class="l l-Scalar l-Scalar-Plain">8099 (field_chat) → 8097 (community-chat)</span>
+<span class="l l-Scalar l-Scalar-Plain">8105 (agro_advisor) → 8093 (fertilizer-advisor)</span>
+<span class="l l-Scalar l-Scalar-Plain">8090 (ws_gateway) → 8110 (notification-service)</span>
+</code></pre></div>
+
+<h3 id="2-api-endpoints">2. تغيير API Endpoints<a class="headerlink" href="#2-api-endpoints" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ndvi_engine → satellite-service</span>
+<span class="l l-Scalar l-Scalar-Plain">GET /ndvi/{field_id} → GET /v1/satellite/analyze</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># weather_core → weather-advanced</span>
+<span class="l l-Scalar l-Scalar-Plain">GET /forecast → GET /v1/weather/forecast</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># agro_advisor → fertilizer-advisor</span>
+<span class="l l-Scalar l-Scalar-Plain">POST /advise → POST /v1/fertilizer/recommend</span>
+</code></pre></div>
+
+<h3 id="3-environment-variables">3. تغيير Environment Variables<a class="headerlink" href="#3-environment-variables" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># قديم</span>
+<span class="l l-Scalar l-Scalar-Plain">DATABASE_URL=postgres://...</span>
+
+<span class="l l-Scalar l-Scalar-Plain"># جديد</span>
+<span class="l l-Scalar l-Scalar-Plain">DB_HOST=postgres</span>
+<span class="l l-Scalar l-Scalar-Plain">DB_PORT=5432</span>
+<span class="l l-Scalar l-Scalar-Plain">DB_USER=sahool</span>
+<span class="l l-Scalar l-Scalar-Plain">DB_PASSWORD=...</span>
+<span class="l l-Scalar l-Scalar-Plain">DB_NAME=sahool</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_6">🗓️ جدول الإيقاف<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>التاريخ</th>
+<th>الإجراء</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الآن</td>
+<td>Dec 2025</td>
+<td>Legacy في profile منفصل</td>
+</tr>
+<tr>
+<td>Phase 2</td>
+<td>Jan 2026</td>
+<td>إزالة من docker-compose</td>
+</tr>
+<tr>
+<td>Phase 3</td>
+<td>Feb 2026</td>
+<td>أرشفة الكود</td>
+</tr>
+<tr>
+<td>Final</td>
+<td>Mar 2026</td>
+<td>حذف نهائي</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_7">📞 الدعم<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<p>للترحيل من الخدمات القديمة:
+1. راجع <code>docs/architecture/PRINCIPLES.md</code>
+2. استخدم <code>config/service-registry.yaml</code> للتصنيف
+3. اختبر مع <code>docker compose --profile legacy up -d</code></p>
+<hr />
+<p align="center">
+  <strong>Legacy Services Archive</strong>
+  <br>
+  <sub>SAHOOL Platform v15.5</sub>
+  <br>
+  <sub>December 2025</sub>
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

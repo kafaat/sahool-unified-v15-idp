@@ -1,0 +1,2237 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>استراتيجية النسخ الاحتياطي لمنصة سهول - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              استراتيجية النسخ الاحتياطي لمنصة سهول
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">استراتيجية النسخ الاحتياطي لمنصة سهول<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="sahool-platform-backup-strategy">SAHOOL Platform Backup Strategy<a class="headerlink" href="#sahool-platform-backup-strategy" title="Permanent link">&para;</a></h1>
+<p><strong>النسخة:</strong> 1.0.0
+<strong>آخر تحديث:</strong> 2025-12-27
+<strong>المسؤول:</strong> فريق البنية التحتية لمنصة سهول</p>
+<hr />
+<h2 id="table-of-contents">📋 جدول المحتويات | Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#نظرة-عامة">نظرة عامة</a></li>
+<li><a href="#استراتيجية-النسخ-الاحتياطي-لـ-postgresql">استراتيجية النسخ الاحتياطي لـ PostgreSQL</a></li>
+<li><a href="#استراتيجية-النسخ-الاحتياطي-لـ-redis">استراتيجية النسخ الاحتياطي لـ Redis</a></li>
+<li><a href="#استراتيجية-النسخ-الاحتياطي-لـ-minio-s3">استراتيجية النسخ الاحتياطي لـ MinIO/S3</a></li>
+<li><a href="#جدول-النسخ-الاحتياطي">جدول النسخ الاحتياطي</a></li>
+<li><a href="#إجراءات-الاستعادة">إجراءات الاستعادة</a></li>
+<li><a href="#المراقبة-والإشعارات">المراقبة والإشعارات</a></li>
+<li><a href="#الأمان-وأفضل-الممارسات">الأمان وأفضل الممارسات</a></li>
+</ol>
+<hr />
+<h2 id="_2">نظرة عامة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<h3 id="_3">الأهداف الرئيسية<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>تهدف استراتيجية النسخ الاحتياطي لمنصة سهول إلى:</p>
+<ul>
+<li><strong>حماية البيانات</strong>: ضمان عدم فقدان البيانات الحرجة</li>
+<li><strong>التعافي السريع</strong>: تقليل وقت التعطل (RTO &lt; 4 ساعات)</li>
+<li><strong>نقطة استعادة دقيقة</strong>: الحد الأدنى لفقدان البيانات (RPO &lt; 1 ساعة)</li>
+<li><strong>الامتثال</strong>: الالتزام بمتطلبات حماية البيانات</li>
+<li><strong>الاختبار المنتظم</strong>: التحقق من صحة النسخ الاحتياطي شهريًا</li>
+</ul>
+<h3 id="_4">المكونات المشمولة في النسخ الاحتياطي<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th>النوع</th>
+<th>الأولوية</th>
+<th>التكرار</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PostgreSQL (PostGIS)</td>
+<td>قاعدة بيانات</td>
+<td>حرج</td>
+<td>يومي، أسبوعي، شهري</td>
+</tr>
+<tr>
+<td>Redis</td>
+<td>ذاكرة التخزين المؤقت</td>
+<td>عالي</td>
+<td>يومي</td>
+</tr>
+<tr>
+<td>MinIO/S3</td>
+<td>تخزين الملفات</td>
+<td>حرج</td>
+<td>يومي</td>
+</tr>
+<tr>
+<td>NATS JetStream</td>
+<td>قائمة الرسائل</td>
+<td>متوسط</td>
+<td>يومي</td>
+</tr>
+<tr>
+<td>ملفات الإعدادات</td>
+<td>تكوين</td>
+<td>عالي</td>
+<td>عند كل تغيير</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">معايير الأداء<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>RTO (Recovery Time Objective)</strong>: 4 ساعات</li>
+<li><strong>RPO (Recovery Point Objective)</strong>: 1 ساعة</li>
+<li><strong>نسبة نجاح النسخ الاحتياطي</strong>: &gt; 99.9%</li>
+<li><strong>وقت التحقق</strong>: &lt; 30 دقيقة</li>
+</ul>
+<hr />
+<h2 id="postgresql">استراتيجية النسخ الاحتياطي لـ PostgreSQL<a class="headerlink" href="#postgresql" title="Permanent link">&para;</a></h2>
+<h3 id="1">1. طرق النسخ الاحتياطي<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<h4 id="logical-backup">أ. النسخ الاحتياطي المنطقي (Logical Backup)<a class="headerlink" href="#logical-backup" title="Permanent link">&para;</a></h4>
+<p><strong>الأداة</strong>: <code>pg_dump</code> / <code>pg_dumpall</code></p>
+<p><strong>المزايا</strong>:
+- سهولة الاستعادة الجزئية
+- نقل البيانات بين إصدارات PostgreSQL مختلفة
+- قابلية للقراءة والتعديل (SQL format)</p>
+<p><strong>الاستخدام</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نسخ احتياطي كامل بصيغة مخصصة (موصى به)</span>
+pg_dump<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-F<span class="w"> </span>c<span class="w"> </span>-f<span class="w"> </span>sahool_backup.dump<span class="w"> </span>sahool
+
+<span class="c1"># نسخ احتياطي بصيغة SQL نصية</span>
+pg_dump<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-f<span class="w"> </span>sahool_backup.sql<span class="w"> </span>sahool
+
+<span class="c1"># نسخ احتياطي لجميع قواعد البيانات</span>
+pg_dumpall<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-f<span class="w"> </span>all_databases.sql
+</code></pre></div>
+
+<p><strong>الجدول الزمني</strong>:
+- يومي: الساعة 2:00 صباحًا
+- أسبوعي: الأحد 3:00 صباحًا
+- شهري: أول يوم من الشهر 4:00 صباحًا</p>
+<h4 id="physical-backup">ب. النسخ الاحتياطي الفيزيائي (Physical Backup)<a class="headerlink" href="#physical-backup" title="Permanent link">&para;</a></h4>
+<p><strong>الأداة</strong>: <code>pg_basebackup</code></p>
+<p><strong>المزايا</strong>:
+- استعادة أسرع
+- نسخ احتياطي على مستوى الملفات
+- دعم Point-in-Time Recovery (PITR)</p>
+<p><strong>الاستخدام</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نسخ احتياطي أساسي</span>
+pg_basebackup<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-D<span class="w"> </span>/backups/base<span class="w"> </span>-F<span class="w"> </span>tar<span class="w"> </span>-z<span class="w"> </span>-P
+
+<span class="c1"># نسخ احتياطي مع WAL</span>
+pg_basebackup<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-D<span class="w"> </span>/backups/base<span class="w"> </span>-X<span class="w"> </span>stream<span class="w"> </span>-P
+</code></pre></div>
+
+<p><strong>الجدول الزمني</strong>:
+- أسبوعي: السبت 1:00 صباحًا</p>
+<h3 id="2-postgresql">2. تكوين PostgreSQL للنسخ الاحتياطي<a class="headerlink" href="#2-postgresql" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- تفعيل WAL archiving</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">wal_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;replica&#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">archive_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;on&#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">archive_command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cp %p /var/lib/postgresql/wal_archive/%f&#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">max_wal_senders</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+
+<span class="c1">-- إعادة تحميل الإعدادات</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pg_reload_conf</span><span class="p">();</span>
+</code></pre></div>
+
+<h3 id="3">3. الضغط والتشفير<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ضغط مع gzip</span>
+pg_dump<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span><span class="p">|</span><span class="w"> </span>gzip<span class="w"> </span>&gt;<span class="w"> </span>backup.sql.gz
+
+<span class="c1"># تشفير مع OpenSSL</span>
+pg_dump<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>openssl<span class="w"> </span>enc<span class="w"> </span>-aes-256-cbc<span class="w"> </span>-salt<span class="w"> </span>-pbkdf2<span class="w"> </span>-out<span class="w"> </span>backup.sql.enc
+
+<span class="c1"># ضغط وتشفير معًا</span>
+pg_dump<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>sahool<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>gzip<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>openssl<span class="w"> </span>enc<span class="w"> </span>-aes-256-cbc<span class="w"> </span>-salt<span class="w"> </span>-pbkdf2<span class="w"> </span>-out<span class="w"> </span>backup.sql.gz.enc
+</code></pre></div>
+
+<h3 id="4">4. سياسة الاحتفاظ<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع النسخة</th>
+<th>مدة الاحتفاظ</th>
+<th>عدد النسخ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>يومي</td>
+<td>7 أيام</td>
+<td>7 نسخ</td>
+</tr>
+<tr>
+<td>أسبوعي</td>
+<td>4 أسابيع</td>
+<td>4 نسخ</td>
+</tr>
+<tr>
+<td>شهري</td>
+<td>12 شهر</td>
+<td>12 نسخة</td>
+</tr>
+<tr>
+<td>سنوي</td>
+<td>5 سنوات</td>
+<td>5 نسخ</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5">5. التحقق من صحة النسخة<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># التحقق من النسخة المضغوطة</span>
+pg_restore<span class="w"> </span>--list<span class="w"> </span>backup.dump<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-20
+
+<span class="c1"># اختبار الاستعادة في قاعدة بيانات تجريبية</span>
+pg_restore<span class="w"> </span>-h<span class="w"> </span>postgres<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool_test<span class="w"> </span>backup.dump<span class="w"> </span>--verbose
+</code></pre></div>
+
+<hr />
+<h2 id="redis">استراتيجية النسخ الاحتياطي لـ Redis<a class="headerlink" href="#redis" title="Permanent link">&para;</a></h2>
+<h3 id="1_1">1. طرق النسخ الاحتياطي<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<h4 id="rdb-redis-database-backup">أ. RDB (Redis Database Backup)<a class="headerlink" href="#rdb-redis-database-backup" title="Permanent link">&para;</a></h4>
+<p><strong>آلية العمل</strong>: لقطة (snapshot) ثنائية للبيانات</p>
+<p><strong>التكوين في redis.conf</strong>:</p>
+<div class="codehilite"><pre><span></span><code># حفظ تلقائي
+save 900 1      # بعد 900 ثانية إذا تغير مفتاح واحد على الأقل
+save 300 10     # بعد 300 ثانية إذا تغيرت 10 مفاتيح
+save 60 10000   # بعد 60 ثانية إذا تغيرت 10000 مفتاح
+
+# اسم الملف
+dbfilename dump.rdb
+
+# المسار
+dir /data
+
+# الضغط
+rdbcompression yes
+
+# التحقق من التجزئة
+rdbchecksum yes
+</code></pre></div>
+
+<p><strong>النسخ الاحتياطي اليدوي</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># حفظ فوري (يعلق العمليات)</span>
+redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="nv">$REDIS_PASSWORD</span><span class="w"> </span>SAVE
+
+<span class="c1"># حفظ في الخلفية (موصى به)</span>
+redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="nv">$REDIS_PASSWORD</span><span class="w"> </span>BGSAVE
+
+<span class="c1"># نسخ الملف</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="nv">$REDIS_PASSWORD</span><span class="w"> </span>BGSAVE
+sleep<span class="w"> </span><span class="m">5</span>
+docker<span class="w"> </span>cp<span class="w"> </span>sahool-redis:/data/dump.rdb<span class="w"> </span>/backups/redis/dump_<span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>.rdb
+</code></pre></div>
+
+<h4 id="aof-append-only-file">ب. AOF (Append Only File)<a class="headerlink" href="#aof-append-only-file" title="Permanent link">&para;</a></h4>
+<p><strong>التكوين</strong>:</p>
+<div class="codehilite"><pre><span></span><code># تفعيل AOF
+appendonly yes
+appendfilename &quot;appendonly.aof&quot;
+
+# استراتيجية المزامنة
+appendfsync everysec  # توازن بين الأداء والأمان
+
+# إعادة الكتابة التلقائية
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+</code></pre></div>
+
+<p><strong>النسخ الاحتياطي</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إعادة كتابة AOF</span>
+redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="nv">$REDIS_PASSWORD</span><span class="w"> </span>BGREWRITEAOF
+
+<span class="c1"># نسخ الملف</span>
+docker<span class="w"> </span>cp<span class="w"> </span>sahool-redis:/data/appendonly.aof<span class="w"> </span>/backups/redis/
+</code></pre></div>
+
+<h3 id="2">2. استراتيجية النسخ الاحتياطي الموصى بها<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<p><strong>النهج المختلط</strong>:
+- استخدام RDB للنسخ الاحتياطي اليومي (سريع، حجم أصغر)
+- استخدام AOF للتعافي من الفشل (بيانات أحدث، RPO أقل)</p>
+<h3 id="3_1">3. الجدول الزمني<a class="headerlink" href="#3_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># يومي: RDB snapshot</span>
+<span class="m">0</span><span class="w"> </span><span class="m">2</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span>/scripts/backup/backup_redis.sh<span class="w"> </span>daily
+
+<span class="c1"># أسبوعي: نسخ كامل مع AOF</span>
+<span class="m">0</span><span class="w"> </span><span class="m">3</span><span class="w"> </span>*<span class="w"> </span>*<span class="w"> </span><span class="m">0</span><span class="w"> </span>/scripts/backup/backup_redis.sh<span class="w"> </span>weekly
+</code></pre></div>
+
+<h3 id="4_1">4. سياسة الاحتفاظ<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع النسخة</th>
+<th>مدة الاحتفاظ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>يومي (RDB)</td>
+<td>7 أيام</td>
+</tr>
+<tr>
+<td>أسبوعي (RDB+AOF)</td>
+<td>4 أسابيع</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5_1">5. التحقق<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># فحص ملف RDB</span>
+redis-check-rdb<span class="w"> </span>/backups/redis/dump.rdb
+
+<span class="c1"># فحص ملف AOF</span>
+redis-check-aof<span class="w"> </span>/backups/redis/appendonly.aof
+
+<span class="c1"># فحص بالاستعادة في بيئة منفصلة</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>/backups/redis:/data<span class="w"> </span>redis:7-alpine<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>redis-server<span class="w"> </span>--appendonly<span class="w"> </span>no<span class="w"> </span>--save<span class="w"> </span><span class="s2">&quot;&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="minio-s3">استراتيجية النسخ الاحتياطي لـ MinIO / S3<a class="headerlink" href="#minio-s3" title="Permanent link">&para;</a></h2>
+<h3 id="1_2">1. طرق النسخ الاحتياطي<a class="headerlink" href="#1_2" title="Permanent link">&para;</a></h3>
+<h4 id="mirror">أ. النسخ المتطابق (Mirror)<a class="headerlink" href="#mirror" title="Permanent link">&para;</a></h4>
+<p><strong>الأداة</strong>: <code>mc mirror</code></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نسخ متطابق إلى موقع خارجي</span>
+mc<span class="w"> </span>mirror<span class="w"> </span>--overwrite<span class="w"> </span>sahool/uploads<span class="w"> </span>s3-backup/sahool-uploads
+
+<span class="c1"># نسخ متطابق مع الحذف</span>
+mc<span class="w"> </span>mirror<span class="w"> </span>--overwrite<span class="w"> </span>--remove<span class="w"> </span>sahool/uploads<span class="w"> </span>s3-backup/sahool-uploads
+</code></pre></div>
+
+<h4 id="incremental">ب. النسخ المتزايد (Incremental)<a class="headerlink" href="#incremental" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نسخ الملفات الجديدة والمحدثة فقط</span>
+mc<span class="w"> </span>mirror<span class="w"> </span>--newer-than<span class="w"> </span>24h<span class="w"> </span>sahool/uploads<span class="w"> </span>s3-backup/sahool-uploads-daily
+</code></pre></div>
+
+<h4 id="snapshot">ج. لقطة كاملة (Snapshot)<a class="headerlink" href="#snapshot" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نسخ كامل بالتاريخ</span>
+<span class="nv">BACKUP_DATE</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
+mc<span class="w"> </span>mirror<span class="w"> </span>sahool/uploads<span class="w"> </span>s3-backup/snapshots/<span class="si">${</span><span class="nv">BACKUP_DATE</span><span class="si">}</span>/uploads
+</code></pre></div>
+
+<h3 id="2_1">2. استراتيجية التخزين متعدد المناطق<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إعداد مواقع متعددة</span>
+mc<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span>primary<span class="w"> </span>http://minio-primary:9000<span class="w"> </span>ACCESS_KEY<span class="w"> </span>SECRET_KEY
+mc<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span>backup<span class="w"> </span>http://minio-backup:9000<span class="w"> </span>ACCESS_KEY<span class="w"> </span>SECRET_KEY
+mc<span class="w"> </span><span class="nb">alias</span><span class="w"> </span><span class="nb">set</span><span class="w"> </span>aws-s3<span class="w"> </span>https://s3.amazonaws.com<span class="w"> </span>ACCESS_KEY<span class="w"> </span>SECRET_KEY
+
+<span class="c1"># نسخ احتياطي متعدد المستويات</span>
+mc<span class="w"> </span>mirror<span class="w"> </span>primary/uploads<span class="w"> </span>backup/uploads<span class="w">              </span><span class="c1"># محلي</span>
+mc<span class="w"> </span>mirror<span class="w"> </span>primary/uploads<span class="w"> </span>aws-s3/sahool-backup/uploads<span class="w">  </span><span class="c1"># سحابي</span>
+</code></pre></div>
+
+<h3 id="3-versioning">3. إصدارات الكائنات (Versioning)<a class="headerlink" href="#3-versioning" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تفعيل الإصدارات</span>
+mc<span class="w"> </span>version<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>sahool/uploads
+
+<span class="c1"># عرض الإصدارات</span>
+mc<span class="w"> </span>ls<span class="w"> </span>--versions<span class="w"> </span>sahool/uploads/file.pdf
+
+<span class="c1"># استعادة إصدار قديم</span>
+mc<span class="w"> </span>cp<span class="w"> </span>--version-id<span class="w"> </span>VERSION_ID<span class="w"> </span>sahool/uploads/file.pdf<span class="w"> </span>restored-file.pdf
+</code></pre></div>
+
+<h3 id="4-lifecycle">4. سياسة دورة الحياة (Lifecycle)<a class="headerlink" href="#4-lifecycle" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إنشاء سياسة دورة الحياة</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>lifecycle.json<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">{</span>
+<span class="s">  &quot;Rules&quot;: [</span>
+<span class="s">    {</span>
+<span class="s">      &quot;ID&quot;: &quot;DeleteOldVersions&quot;,</span>
+<span class="s">      &quot;Status&quot;: &quot;Enabled&quot;,</span>
+<span class="s">      &quot;NoncurrentVersionExpiration&quot;: {</span>
+<span class="s">        &quot;NoncurrentDays&quot;: 90</span>
+<span class="s">      }</span>
+<span class="s">    },</span>
+<span class="s">    {</span>
+<span class="s">      &quot;ID&quot;: &quot;MoveToGlacier&quot;,</span>
+<span class="s">      &quot;Status&quot;: &quot;Enabled&quot;,</span>
+<span class="s">      &quot;Transition&quot;: {</span>
+<span class="s">        &quot;Days&quot;: 30,</span>
+<span class="s">        &quot;StorageClass&quot;: &quot;GLACIER&quot;</span>
+<span class="s">      }</span>
+<span class="s">    }</span>
+<span class="s">  ]</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+
+<span class="c1"># تطبيق السياسة</span>
+mc<span class="w"> </span>ilm<span class="w"> </span>import<span class="w"> </span>sahool/uploads<span class="w"> </span>&lt;<span class="w"> </span>lifecycle.json
+</code></pre></div>
+
+<h3 id="5_2">5. الجدول الزمني<a class="headerlink" href="#5_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>نوع النسخة</th>
+<th>التكرار</th>
+<th>الوقت</th>
+<th>الوجهة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>متزايد</td>
+<td>يومي</td>
+<td>1:00 صباحًا</td>
+<td>MinIO محلي</td>
+</tr>
+<tr>
+<td>لقطة كاملة</td>
+<td>أسبوعي</td>
+<td>الأحد 2:00 صباحًا</td>
+<td>MinIO محلي + S3</td>
+</tr>
+<tr>
+<td>أرشيف</td>
+<td>شهري</td>
+<td>أول يوم 3:00 صباحًا</td>
+<td>S3 Glacier</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6">6. سياسة الاحتفاظ<a class="headerlink" href="#6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># حذف النسخ القديمة تلقائيًا</span>
+mc<span class="w"> </span>rm<span class="w"> </span>--recursive<span class="w"> </span>--force<span class="w"> </span>--older-than<span class="w"> </span>30d<span class="w"> </span>backup/daily/
+mc<span class="w"> </span>rm<span class="w"> </span>--recursive<span class="w"> </span>--force<span class="w"> </span>--older-than<span class="w"> </span>90d<span class="w"> </span>backup/weekly/
+</code></pre></div>
+
+<h3 id="7">7. التحقق من السلامة<a class="headerlink" href="#7" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># فحص تكامل الملفات</span>
+mc<span class="w"> </span>admin<span class="w"> </span>heal<span class="w"> </span>sahool
+
+<span class="c1"># مقارنة البيانات</span>
+mc<span class="w"> </span>diff<span class="w"> </span>sahool/uploads<span class="w"> </span>s3-backup/uploads
+
+<span class="c1"># التحقق من الحجم</span>
+mc<span class="w"> </span>du<span class="w"> </span>sahool/uploads
+mc<span class="w"> </span>du<span class="w"> </span>s3-backup/uploads
+</code></pre></div>
+
+<hr />
+<h2 id="_6">جدول النسخ الاحتياطي<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<h3 id="_7">جدول النسخ الاحتياطي الكامل<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────┬──────────────┬──────────┬─────────────┬────────────────┐
+│ المكون      │ نوع النسخة  │ التكرار │ الوقت      │ مدة الاحتفاظ  │
+├─────────────┼──────────────┼──────────┼─────────────┼────────────────┤
+│ PostgreSQL  │ يومي         │ يومي    │ 2:00 ص     │ 7 أيام        │
+│             │ أسبوعي       │ أسبوعي  │ الأحد 3 ص  │ 28 يوم        │
+│             │ شهري         │ شهري    │ 1st 4 ص    │ 365 يوم       │
+├─────────────┼──────────────┼──────────┼─────────────┼────────────────┤
+│ Redis       │ يومي RDB     │ يومي    │ 2:15 ص     │ 7 أيام        │
+│             │ أسبوعي كامل │ أسبوعي  │ الأحد 3:15 ص│ 28 يوم        │
+├─────────────┼──────────────┼──────────┼─────────────┼────────────────┤
+│ MinIO       │ متزايد       │ يومي    │ 1:00 ص     │ 30 يوم        │
+│             │ لقطة كاملة   │ أسبوعي  │ الأحد 2 ص  │ 90 يوم        │
+│             │ أرشيف        │ شهري    │ 1st 3 ص    │ 365 يوم       │
+├─────────────┼──────────────┼──────────┼─────────────┼────────────────┤
+│ NATS        │ يومي         │ يومي    │ 2:30 ص     │ 7 أيام        │
+├─────────────┼──────────────┼──────────┼─────────────┼────────────────┤
+│ Configs     │ عند التغيير │ حسب الحاجة│ تلقائي    │ 90 يوم        │
+└─────────────┴──────────────┴──────────┴─────────────┴────────────────┘
+</code></pre></div>
+
+<h3 id="crontab">ملف Crontab<a class="headerlink" href="#crontab" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ═══════════════════════════════════════════════════════════════════════</span>
+<span class="c1"># SAHOOL Platform Backup Schedule - جدول النسخ الاحتياطي لمنصة سهول</span>
+<span class="c1"># ═══════════════════════════════════════════════════════════════════════</span>
+
+<span class="n">SHELL</span><span class="o">=/</span><span class="n">bin</span><span class="o">/</span><span class="n">bash</span>
+<span class="n">PATH</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">bin</span><span class="p">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="p">:</span><span class="o">/</span><span class="n">bin</span>
+<span class="n">MAILTO</span><span class="o">=</span><span class="n">admin</span><span class="err">@</span><span class="n">sahool</span><span class="o">.</span><span class="n">com</span>
+
+<span class="c1"># ───────────────────────────────────────────────────────────────────────</span>
+<span class="c1"># Daily Backups - النسخ الاحتياطي اليومي</span>
+<span class="c1"># ───────────────────────────────────────────────────────────────────────</span>
+
+<span class="c1"># MinIO - كل يوم الساعة 1:00 صباحًا</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_minio</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">daily</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">minio</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># PostgreSQL - كل يوم الساعة 2:00 صباحًا</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_postgres</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">daily</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">postgres</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># Redis - كل يوم الساعة 2:15 صباحًا</span>
+<span class="mi">15</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_redis</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">daily</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">redis</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># NATS - كل يوم الساعة 2:30 صباحًا</span>
+<span class="mi">30</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_nats</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">daily</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">nats</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># ───────────────────────────────────────────────────────────────────────</span>
+<span class="c1"># Weekly Backups - النسخ الاحتياطي الأسبوعي</span>
+<span class="c1"># ───────────────────────────────────────────────────────────────────────</span>
+
+<span class="c1"># MinIO - كل أحد الساعة 2:00 صباحًا</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_minio</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">weekly</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">minio</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># PostgreSQL - كل أحد الساعة 3:00 صباحًا</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_postgres</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">weekly</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">postgres</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># Redis - كل أحد الساعة 3:15 صباحًا</span>
+<span class="mi">15</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_redis</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">weekly</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">redis</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># Backup All - كل أحد الساعة 4:00 صباحًا (نسخة شاملة)</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_all</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">weekly</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">all</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># ───────────────────────────────────────────────────────────────────────</span>
+<span class="c1"># Monthly Backups - النسخ الاحتياطي الشهري</span>
+<span class="c1"># ───────────────────────────────────────────────────────────────────────</span>
+
+<span class="c1"># All services - أول يوم من الشهر الساعة 3:00 صباحًا</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">backup_all</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="n">monthly</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">all</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># ───────────────────────────────────────────────────────────────────────</span>
+<span class="c1"># Maintenance Tasks - مهام الصيانة</span>
+<span class="c1"># ───────────────────────────────────────────────────────────────────────</span>
+
+<span class="c1"># Cleanup old backups - كل يوم الساعة 5:00 صباحًا</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">cleanup</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">cleanup</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># Verify backups - كل يوم الساعة 6:00 صباحًا</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">verify</span><span class="o">-</span><span class="n">backup</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">verify</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+
+<span class="c1"># Generate backup report - كل اثنين الساعة 8:00 صباحًا</span>
+<span class="mi">0</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">/</span><span class="n">scripts</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">generate_report</span><span class="o">.</span><span class="n">sh</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">backup</span><span class="o">/</span><span class="n">report</span><span class="o">.</span><span class="n">log</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&amp;</span><span class="mi">1</span>
+</code></pre></div>
+
+<hr />
+<h2 id="_8">إجراءات الاستعادة<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h3 id="1-postgresql">1. استعادة PostgreSQL<a class="headerlink" href="#1-postgresql" title="Permanent link">&para;</a></h3>
+<h4 id="pg_dump">أ. استعادة كاملة من pg_dump<a class="headerlink" href="#pg_dump" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># استعادة قاعدة بيانات PostgreSQL</span>
+
+<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">&quot;/backups/postgres/sahool_20250127_020000.dump&quot;</span>
+
+<span class="c1"># 1. إيقاف الخدمات المعتمدة</span>
+docker<span class="w"> </span>compose<span class="w"> </span>stop<span class="w"> </span>api-gateway<span class="w"> </span>auth-service
+
+<span class="c1"># 2. إسقاط قاعدة البيانات الحالية (حذر!)</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;DROP DATABASE IF EXISTS sahool;&quot;</span>
+
+<span class="c1"># 3. إنشاء قاعدة بيانات جديدة</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;CREATE DATABASE sahool;&quot;</span>
+
+<span class="c1"># 4. استعادة البيانات</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-i<span class="w"> </span>sahool-postgres<span class="w"> </span>pg_restore<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-U<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--no-owner<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--no-privileges<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&lt;<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># 5. إعادة بناء الفهارس</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;REINDEX DATABASE sahool;&quot;</span>
+
+<span class="c1"># 6. تحديث الإحصائيات</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;ANALYZE;&quot;</span>
+
+<span class="c1"># 7. إعادة تشغيل الخدمات</span>
+docker<span class="w"> </span>compose<span class="w"> </span>start<span class="w"> </span>api-gateway<span class="w"> </span>auth-service
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ تمت استعادة قاعدة البيانات بنجاح&quot;</span>
+</code></pre></div>
+
+<h4 id="_9">ب. استعادة جزئية (جدول واحد)<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># استعادة جدول واحد</span>
+pg_restore<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-t<span class="w"> </span>users<span class="w"> </span>backup.dump
+
+<span class="c1"># استعادة مخطط محدد</span>
+pg_restore<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-n<span class="w"> </span>public<span class="w"> </span>backup.dump
+</code></pre></div>
+
+<h4 id="point-in-time-recovery-pitr">ج. Point-in-Time Recovery (PITR)<a class="headerlink" href="#point-in-time-recovery-pitr" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. استعادة النسخة الأساسية</span>
+tar<span class="w"> </span>-xzf<span class="w"> </span>base_backup.tar.gz<span class="w"> </span>-C<span class="w"> </span>/var/lib/postgresql/data
+
+<span class="c1"># 2. إنشاء ملف recovery.conf</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>/var/lib/postgresql/data/recovery.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">restore_command = &#39;cp /var/lib/postgresql/wal_archive/%f %p&#39;</span>
+<span class="s">recovery_target_time = &#39;2025-01-27 14:30:00&#39;</span>
+<span class="s">recovery_target_action = &#39;promote&#39;</span>
+<span class="s">EOF</span>
+
+<span class="c1"># 3. إعادة تشغيل PostgreSQL</span>
+docker<span class="w"> </span>compose<span class="w"> </span>restart<span class="w"> </span>postgres
+</code></pre></div>
+
+<h3 id="2-redis">2. استعادة Redis<a class="headerlink" href="#2-redis" title="Permanent link">&para;</a></h3>
+<h4 id="rdb">أ. استعادة من RDB<a class="headerlink" href="#rdb" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># استعادة Redis من RDB</span>
+
+<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">&quot;/backups/redis/dump_20250127.rdb&quot;</span>
+
+<span class="c1"># 1. إيقاف Redis</span>
+docker<span class="w"> </span>compose<span class="w"> </span>stop<span class="w"> </span>redis
+
+<span class="c1"># 2. نسخ ملف RDB</span>
+docker<span class="w"> </span>cp<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>sahool-redis:/data/dump.rdb
+
+<span class="c1"># 3. تعيين الصلاحيات</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>chown<span class="w"> </span>redis:redis<span class="w"> </span>/data/dump.rdb
+
+<span class="c1"># 4. إعادة تشغيل Redis</span>
+docker<span class="w"> </span>compose<span class="w"> </span>start<span class="w"> </span>redis
+
+<span class="c1"># 5. التحقق</span>
+sleep<span class="w"> </span><span class="m">5</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="nv">$REDIS_PASSWORD</span><span class="w"> </span>DBSIZE
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ تمت استعادة Redis بنجاح&quot;</span>
+</code></pre></div>
+
+<h4 id="aof">ب. استعادة من AOF<a class="headerlink" href="#aof" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. إيقاف Redis</span>
+docker<span class="w"> </span>compose<span class="w"> </span>stop<span class="w"> </span>redis
+
+<span class="c1"># 2. نسخ ملف AOF</span>
+docker<span class="w"> </span>cp<span class="w"> </span>/backups/redis/appendonly.aof<span class="w"> </span>sahool-redis:/data/
+
+<span class="c1"># 3. إعادة تشغيل مع تفعيل AOF</span>
+docker<span class="w"> </span>compose<span class="w"> </span>start<span class="w"> </span>redis
+
+<span class="c1"># 4. إعادة بناء RDB من AOF</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-redis<span class="w"> </span>redis-cli<span class="w"> </span>-a<span class="w"> </span><span class="nv">$REDIS_PASSWORD</span><span class="w"> </span>BGREWRITEAOF
+</code></pre></div>
+
+<h3 id="3-minio">3. استعادة MinIO<a class="headerlink" href="#3-minio" title="Permanent link">&para;</a></h3>
+<h4 id="_10">أ. استعادة كاملة<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># استعادة MinIO من نسخة احتياطية</span>
+
+<span class="nv">SOURCE_ALIAS</span><span class="o">=</span><span class="s2">&quot;backup&quot;</span>
+<span class="nv">TARGET_ALIAS</span><span class="o">=</span><span class="s2">&quot;sahool&quot;</span>
+<span class="nv">BUCKET</span><span class="o">=</span><span class="s2">&quot;uploads&quot;</span>
+
+<span class="c1"># 1. حذف البيانات الحالية (اختياري)</span>
+mc<span class="w"> </span>rm<span class="w"> </span>--recursive<span class="w"> </span>--force<span class="w"> </span><span class="si">${</span><span class="nv">TARGET_ALIAS</span><span class="si">}</span>/<span class="si">${</span><span class="nv">BUCKET</span><span class="si">}</span>/
+
+<span class="c1"># 2. استعادة من النسخة الاحتياطية</span>
+mc<span class="w"> </span>mirror<span class="w"> </span>--overwrite<span class="w"> </span><span class="si">${</span><span class="nv">SOURCE_ALIAS</span><span class="si">}</span>/<span class="si">${</span><span class="nv">BUCKET</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">TARGET_ALIAS</span><span class="si">}</span>/<span class="si">${</span><span class="nv">BUCKET</span><span class="si">}</span>
+
+<span class="c1"># 3. التحقق</span>
+mc<span class="w"> </span>ls<span class="w"> </span><span class="si">${</span><span class="nv">TARGET_ALIAS</span><span class="si">}</span>/<span class="si">${</span><span class="nv">BUCKET</span><span class="si">}</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ تمت استعادة MinIO بنجاح&quot;</span>
+</code></pre></div>
+
+<h4 id="_11">ب. استعادة ملف محدد<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># استعادة ملف واحد</span>
+mc<span class="w"> </span>cp<span class="w"> </span>backup/uploads/important-file.pdf<span class="w"> </span>sahool/uploads/
+
+<span class="c1"># استعادة مجلد محدد</span>
+mc<span class="w"> </span>mirror<span class="w"> </span>backup/uploads/documents/<span class="w"> </span>sahool/uploads/documents/
+</code></pre></div>
+
+<h4 id="_12">ج. استعادة إصدار قديم<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># عرض الإصدارات</span>
+mc<span class="w"> </span>ls<span class="w"> </span>--versions<span class="w"> </span>sahool/uploads/document.pdf
+
+<span class="c1"># استعادة إصدار محدد</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">&quot;xxxxx-xxxxx-xxxxx&quot;</span>
+mc<span class="w"> </span>cp<span class="w"> </span>--version-id<span class="w"> </span><span class="si">${</span><span class="nv">VERSION_ID</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sahool/uploads/document.pdf<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sahool/uploads/document_restored.pdf
+</code></pre></div>
+
+<h3 id="4_2">4. خطة التعافي الكامل من الكوارث<a class="headerlink" href="#4_2" title="Permanent link">&para;</a></h3>
+<h4 id="1-0-15">المرحلة 1: التقييم (0-15 دقيقة)<a class="headerlink" href="#1-0-15" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. تقييم مدى الضرر</span>
+/scripts/disaster-recovery/assess.sh
+
+<span class="c1"># 2. تحديد آخر نسخة احتياطية صالحة</span>
+/scripts/disaster-recovery/find-latest-backup.sh
+
+<span class="c1"># 3. إشعار الفريق</span>
+/scripts/disaster-recovery/notify-team.sh
+</code></pre></div>
+
+<h4 id="2-15-30">المرحلة 2: التحضير (15-30 دقيقة)<a class="headerlink" href="#2-15-30" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. إيقاف جميع الخدمات</span>
+docker<span class="w"> </span>compose<span class="w"> </span>down
+
+<span class="c1"># 2. نسخ احتياطي للحالة الحالية (للتحليل)</span>
+/scripts/disaster-recovery/backup-current-state.sh
+
+<span class="c1"># 3. تنظيف البيئة</span>
+/scripts/disaster-recovery/cleanup.sh
+</code></pre></div>
+
+<h4 id="3-30-2">المرحلة 3: الاستعادة (30 دقيقة - 2 ساعة)<a class="headerlink" href="#3-30-2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. استعادة PostgreSQL</span>
+/scripts/backup/restore_postgres.sh<span class="w"> </span>/backups/latest/postgres.dump
+
+<span class="c1"># 2. استعادة Redis</span>
+/scripts/backup/restore_redis.sh<span class="w"> </span>/backups/latest/redis.rdb
+
+<span class="c1"># 3. استعادة MinIO</span>
+/scripts/backup/restore_minio.sh<span class="w"> </span>/backups/latest/minio
+
+<span class="c1"># 4. استعادة الإعدادات</span>
+/scripts/backup/restore_configs.sh
+</code></pre></div>
+
+<h4 id="4-2-3">المرحلة 4: التحقق (2-3 ساعات)<a class="headerlink" href="#4-2-3" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. التحقق من قواعد البيانات</span>
+/scripts/disaster-recovery/verify-databases.sh
+
+<span class="c1"># 2. التحقق من الخدمات</span>
+/scripts/disaster-recovery/verify-services.sh
+
+<span class="c1"># 3. اختبار وظيفي</span>
+/scripts/disaster-recovery/functional-tests.sh
+</code></pre></div>
+
+<h4 id="5-3-4">المرحلة 5: العودة للعمل (3-4 ساعات)<a class="headerlink" href="#5-3-4" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. إعادة تشغيل الخدمات بالترتيب</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>postgres<span class="w"> </span>redis<span class="w"> </span>nats
+sleep<span class="w"> </span><span class="m">30</span>
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>api-gateway
+docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># 2. مراقبة السجلات</span>
+/scripts/disaster-recovery/monitor-logs.sh
+
+<span class="c1"># 3. إشعار بالعودة للعمل</span>
+/scripts/disaster-recovery/notify-recovery-complete.sh
+</code></pre></div>
+
+<h3 id="5_3">5. سيناريوهات الاستعادة الشائعة<a class="headerlink" href="#5_3" title="Permanent link">&para;</a></h3>
+<h4 id="1_3">سيناريو 1: حذف بيانات عن طريق الخطأ<a class="headerlink" href="#1_3" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># استعادة من آخر نسخة يومية (عادة &lt; 24 ساعة)</span>
+<span class="nv">LATEST_BACKUP</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span>-t<span class="w"> </span>/backups/daily/postgres/*.dump<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
+/scripts/backup/restore_postgres.sh<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">LATEST_BACKUP</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<h4 id="2_2">سيناريو 2: فشل في الأجهزة<a class="headerlink" href="#2_2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># استعادة كاملة على خادم جديد</span>
+./scripts/disaster-recovery/full-restore.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--backup-date<span class="w"> </span><span class="m">20250127</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--new-server<span class="w"> </span>server2.sahool.com
+</code></pre></div>
+
+<h4 id="3_2">سيناريو 3: هجوم برمجيات خبيثة<a class="headerlink" href="#3_2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># استعادة من نسخة قبل الهجوم</span>
+./scripts/disaster-recovery/restore-clean-state.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--date<span class="w"> </span><span class="s2">&quot;2025-01-25 10:00:00&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--verify-integrity
+</code></pre></div>
+
+<hr />
+<h2 id="_13">المراقبة والإشعارات<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<h3 id="1_4">1. مراقبة النسخ الاحتياطي<a class="headerlink" href="#1_4" title="Permanent link">&para;</a></h3>
+<h4 id="_14">أ. مقاييس المراقبة<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># حجم النسخ الاحتياطية</span>
+du<span class="w"> </span>-sh<span class="w"> </span>/backups/*
+
+<span class="c1"># عدد النسخ الناجحة/الفاشلة</span>
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SUCCESS&quot;</span><span class="w"> </span>/var/log/backup/*.log
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;ERROR&quot;</span><span class="w"> </span>/var/log/backup/*.log
+
+<span class="c1"># وقت آخر نسخة احتياطية</span>
+stat<span class="w"> </span>-c<span class="w"> </span>%y<span class="w"> </span>/backups/latest/postgres.dump
+
+<span class="c1"># معدل نجاح النسخ الاحتياطي (آخر 30 يوم)</span>
+./scripts/monitoring/backup-success-rate.sh<span class="w"> </span><span class="m">30</span>
+</code></pre></div>
+
+<h4 id="grafana">ب. لوحة Grafana<a class="headerlink" href="#grafana" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># مثال على استعلام Prometheus</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backup_success_rate</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">sum(rate(backup_success_total[24h])) /</span>
+<span class="w">    </span><span class="no">sum(rate(backup_attempts_total[24h])) * 100</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backup_duration_seconds</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">histogram_quantile(0.95, backup_duration_seconds_bucket)</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backup_size_bytes</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backup_size_bytes</span>
+</code></pre></div>
+
+<h3 id="2_3">2. نظام الإشعارات<a class="headerlink" href="#2_3" title="Permanent link">&para;</a></h3>
+<h4 id="_15">أ. إشعارات البريد الإلكتروني<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># في حالة النجاح</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/backup_success.txt<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">Subject: ✓ نجاح النسخ الاحتياطي - SAHOOL Platform</span>
+
+<span class="s">النسخة الاحتياطية: daily_20250127_020000</span>
+<span class="s">التاريخ: 2025-01-27 02:15:00</span>
+<span class="s">الحالة: نجحت ✓</span>
+
+<span class="s">التفاصيل:</span>
+<span class="s">- PostgreSQL: 2.3 GB (نجح)</span>
+<span class="s">- Redis: 450 MB (نجح)</span>
+<span class="s">- MinIO: 15.7 GB (نجح)</span>
+
+<span class="s">مدة التنفيذ: 18 دقيقة</span>
+<span class="s">الوجهة: MinIO + AWS S3</span>
+<span class="s">EOF</span>
+
+sendmail<span class="w"> </span>-t<span class="w"> </span>&lt;<span class="w"> </span>/tmp/backup_success.txt
+
+<span class="c1"># في حالة الفشل</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/backup_failure.txt<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">Subject: ⚠️ فشل النسخ الاحتياطي - تحتاج تدخل فوري</span>
+
+<span class="s">النسخة الاحتياطية: daily_20250127_020000</span>
+<span class="s">التاريخ: 2025-01-27 02:15:00</span>
+<span class="s">الحالة: فشلت ✗</span>
+
+<span class="s">الخطأ:</span>
+<span class="s">PostgreSQL backup failed: Connection timeout</span>
+
+<span class="s">الإجراء المطلوب:</span>
+<span class="s">1. التحقق من حالة قاعدة البيانات</span>
+<span class="s">2. إعادة المحاولة يدويًا</span>
+<span class="s">3. التحقق من السجلات</span>
+
+<span class="s">السجلات: /var/log/backup/postgres_20250127.log</span>
+<span class="s">EOF</span>
+
+sendmail<span class="w"> </span>-t<span class="w"> </span>&lt;<span class="w"> </span>/tmp/backup_failure.txt
+</code></pre></div>
+
+<h4 id="slack">ب. إشعارات Slack<a class="headerlink" href="#slack" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># إرسال إشعار إلى Slack</span>
+
+<span class="nv">WEBHOOK_URL</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SLACK_WEBHOOK_URL</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">STATUS</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span><span class="w">  </span><span class="c1"># success or failure</span>
+<span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">&quot;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$STATUS</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nv">COLOR</span><span class="o">=</span><span class="s2">&quot;good&quot;</span>
+<span class="w">  </span><span class="nv">EMOJI</span><span class="o">=</span><span class="s2">&quot;:white_check_mark:&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nv">COLOR</span><span class="o">=</span><span class="s2">&quot;danger&quot;</span>
+<span class="w">  </span><span class="nv">EMOJI</span><span class="o">=</span><span class="s2">&quot;:x:&quot;</span>
+<span class="k">fi</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WEBHOOK_URL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>@-<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">{</span>
+<span class="s">  &quot;attachments&quot;: [</span>
+<span class="s">    {</span>
+<span class="s">      &quot;color&quot;: &quot;${COLOR}&quot;,</span>
+<span class="s">      &quot;title&quot;: &quot;${EMOJI} SAHOOL Platform Backup&quot;,</span>
+<span class="s">      &quot;text&quot;: &quot;${MESSAGE}&quot;,</span>
+<span class="s">      &quot;footer&quot;: &quot;Backup System&quot;,</span>
+<span class="s">      &quot;ts&quot;: $(date +%s)</span>
+<span class="s">    }</span>
+<span class="s">  ]</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h4 id="pagerduty">ج. إشعارات PagerDuty (للحالات الحرجة)<a class="headerlink" href="#pagerduty" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># إنشاء حادثة في PagerDuty</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>https://api.pagerduty.com/incidents<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Authorization: Token token=YOUR_API_TOKEN&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">&#39;Content-Type: application/json&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span>@-<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">{</span>
+<span class="s">  &quot;incident&quot;: {</span>
+<span class="s">    &quot;type&quot;: &quot;incident&quot;,</span>
+<span class="s">    &quot;title&quot;: &quot;فشل النسخ الاحتياطي الحرج - SAHOOL Platform&quot;,</span>
+<span class="s">    &quot;service&quot;: {</span>
+<span class="s">      &quot;id&quot;: &quot;SERVICE_ID&quot;,</span>
+<span class="s">      &quot;type&quot;: &quot;service_reference&quot;</span>
+<span class="s">    },</span>
+<span class="s">    &quot;urgency&quot;: &quot;high&quot;,</span>
+<span class="s">    &quot;body&quot;: {</span>
+<span class="s">      &quot;type&quot;: &quot;incident_body&quot;,</span>
+<span class="s">      &quot;details&quot;: &quot;فشلت جميع محاولات النسخ الاحتياطي لـ PostgreSQL&quot;</span>
+<span class="s">    }</span>
+<span class="s">  }</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h3 id="3_3">3. تقارير دورية<a class="headerlink" href="#3_3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># تقرير أسبوعي للنسخ الاحتياطي</span>
+
+cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/weekly_backup_report.txt<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">═══════════════════════════════════════════════════════════</span>
+<span class="s">التقرير الأسبوعي للنسخ الاحتياطي - SAHOOL Platform</span>
+<span class="s">الأسبوع: $(date +%V) من $(date +%Y)</span>
+<span class="s">التاريخ: $(date +%Y-%m-%d)</span>
+<span class="s">═══════════════════════════════════════════════════════════</span>
+
+<span class="s">📊 إحصائيات النسخ الاحتياطي:</span>
+<span class="s">┌────────────────┬─────────┬─────────┬──────────────┐</span>
+<span class="s">│ المكون         │ ناجح   │ فاشل    │ معدل النجاح │</span>
+<span class="s">├────────────────┼─────────┼─────────┼──────────────┤</span>
+<span class="s">│ PostgreSQL     │ 7/7     │ 0       │ 100%         │</span>
+<span class="s">│ Redis          │ 7/7     │ 0       │ 100%         │</span>
+<span class="s">│ MinIO          │ 7/7     │ 0       │ 100%         │</span>
+<span class="s">│ NATS           │ 7/7     │ 0       │ 100%         │</span>
+<span class="s">└────────────────┴─────────┴─────────┴──────────────┘</span>
+
+<span class="s">💾 أحجام النسخ الاحتياطية:</span>
+<span class="s">- PostgreSQL: متوسط 2.4 GB</span>
+<span class="s">- Redis: متوسط 460 MB</span>
+<span class="s">- MinIO: متوسط 16.2 GB</span>
+<span class="s">- إجمالي: 19.06 GB</span>
+
+<span class="s">⏱️ أوقات التنفيذ:</span>
+<span class="s">- أسرع: 12 دقيقة (PostgreSQL)</span>
+<span class="s">- أبطأ: 25 دقيقة (MinIO)</span>
+<span class="s">- متوسط: 18 دقيقة</span>
+
+<span class="s">🗄️ التخزين:</span>
+<span class="s">- المساحة المستخدمة: 85.3 GB / 500 GB (17%)</span>
+<span class="s">- النسخ القديمة المحذوفة: 12 نسخة</span>
+<span class="s">- المساحة المتوفرة: 414.7 GB</span>
+
+<span class="s">✅ الإجراءات الموصى بها:</span>
+<span class="s">- لا توجد مشاكل حالية</span>
+<span class="s">- النظام يعمل بشكل مثالي</span>
+
+<span class="s">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="s">تم إنشاء التقرير تلقائيًا بواسطة نظام النسخ الاحتياطي</span>
+<span class="s">EOF</span>
+
+<span class="c1"># إرسال التقرير</span>
+sendmail<span class="w"> </span>admin@sahool.com<span class="w"> </span>&lt;<span class="w"> </span>/tmp/weekly_backup_report.txt
+</code></pre></div>
+
+<hr />
+<h2 id="_16">الأمان وأفضل الممارسات<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h2>
+<h3 id="1_5">1. تشفير البيانات<a class="headerlink" href="#1_5" title="Permanent link">&para;</a></h3>
+<h4 id="_17">أ. تشفير النسخ الاحتياطية<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># تشفير النسخة الاحتياطية باستخدام GPG</span>
+
+<span class="nv">BACKUP_FILE</span><span class="o">=</span><span class="s2">&quot;sahool_backup.sql&quot;</span>
+<span class="nv">GPG_KEY</span><span class="o">=</span><span class="s2">&quot;admin@sahool.com&quot;</span>
+
+<span class="c1"># تشفير</span>
+gpg<span class="w"> </span>--encrypt<span class="w"> </span>--recipient<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">GPG_KEY</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># فك التشفير</span>
+gpg<span class="w"> </span>--decrypt<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">.gpg&quot;</span><span class="w"> </span>&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BACKUP_FILE</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<h4 id="_18">ب. تشفير النقل<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نقل آمن عبر SSH</span>
+scp<span class="w"> </span>-i<span class="w"> </span>~/.ssh/backup_key<span class="w"> </span>backup.sql<span class="w"> </span>user@backup-server:/backups/
+
+<span class="c1"># رفع مشفر إلى S3</span>
+aws<span class="w"> </span>s3<span class="w"> </span>cp<span class="w"> </span>backup.sql<span class="w"> </span>s3://bucket/<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--sse<span class="w"> </span>AES256<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--storage-class<span class="w"> </span>GLACIER
+</code></pre></div>
+
+<h3 id="2_4">2. التحكم في الوصول<a class="headerlink" href="#2_4" title="Permanent link">&para;</a></h3>
+<h4 id="_19">أ. صلاحيات الملفات<a class="headerlink" href="#_19" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تعيين صلاحيات آمنة</span>
+chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/backups/*.dump
+chmod<span class="w"> </span><span class="m">700</span><span class="w"> </span>/backups/
+chown<span class="w"> </span>backup:backup<span class="w"> </span>/backups/
+
+<span class="c1"># منع الوصول العام</span>
+chmod<span class="w"> </span>o-rwx<span class="w"> </span>/backups/*
+</code></pre></div>
+
+<h4 id="_20">ب. إدارة المفاتيح<a class="headerlink" href="#_20" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تخزين المفاتيح في Vault</span>
+vault<span class="w"> </span>kv<span class="w"> </span>put<span class="w"> </span>secret/backup/postgres<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">username</span><span class="o">=</span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">password</span><span class="o">=</span>secure_password
+
+<span class="c1"># استرجاع المفاتيح</span>
+<span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span><span class="k">$(</span>vault<span class="w"> </span>kv<span class="w"> </span>get<span class="w"> </span>-field<span class="o">=</span>password<span class="w"> </span>secret/backup/postgres<span class="k">)</span>
+</code></pre></div>
+
+<h3 id="3_4">3. التدقيق والتتبع<a class="headerlink" href="#3_4" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># تسجيل جميع عمليات النسخ الاحتياطي</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/var/log/backup/audit.log<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">[$(date +%Y-%m-%d\ %H:%M:%S)] BACKUP_START user=${USER} type=daily</span>
+<span class="s">[$(date +%Y-%m-%d\ %H:%M:%S)] BACKUP_SUCCESS size=2.3GB duration=15m</span>
+<span class="s">[$(date +%Y-%m-%d\ %H:%M:%S)] UPLOAD_S3 destination=s3://sahool-backups</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h3 id="4_3">4. الاختبار المنتظم<a class="headerlink" href="#4_3" title="Permanent link">&para;</a></h3>
+<h4 id="_21">أ. اختبار شهري للاستعادة<a class="headerlink" href="#_21" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># اختبار الاستعادة في بيئة منفصلة</span>
+
+<span class="nv">TEST_DATE</span><span class="o">=</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span>
+<span class="nv">TEST_DB</span><span class="o">=</span><span class="s2">&quot;sahool_test_</span><span class="si">${</span><span class="nv">TEST_DATE</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># 1. إنشاء قاعدة بيانات اختبار</span>
+createdb<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="c1"># 2. استعادة من آخر نسخة احتياطية</span>
+pg_restore<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>/backups/latest/postgres.dump
+
+<span class="c1"># 3. التحقق من البيانات</span>
+psql<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT COUNT(*) FROM users;&quot;</span>
+psql<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;SELECT COUNT(*) FROM farms;&quot;</span>
+
+<span class="c1"># 4. تنظيف</span>
+dropdb<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_DB</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✓ اختبار الاستعادة نجح&quot;</span>
+</code></pre></div>
+
+<h3 id="5_4">5. التوثيق والتدريب<a class="headerlink" href="#5_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>دليل الاستعادة</strong>: توثيق مفصل لجميع سيناريوهات الاستعادة</li>
+<li><strong>جلسات تدريبية</strong>: ربع سنوية لفريق العمليات</li>
+<li><strong>تمارين محاكاة</strong>: محاكاة كوارث للتدريب</li>
+<li><strong>قائمة جهات الاتصال</strong>: قائمة محدثة للطوارئ</li>
+</ul>
+<h3 id="6_1">6. المراجعة والتحسين المستمر<a class="headerlink" href="#6_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># مراجعة ربع سنوية</span>
+-<span class="w"> </span>مراجعة<span class="w"> </span>سياسة<span class="w"> </span>الاحتفاظ
+-<span class="w"> </span>تقييم<span class="w"> </span>أوقات<span class="w"> </span>الاستعادة
+-<span class="w"> </span>تحديث<span class="w"> </span>الوثائق
+-<span class="w"> </span>اختبار<span class="w"> </span>خطة<span class="w"> </span>التعافي<span class="w"> </span>من<span class="w"> </span>الكوارث
+-<span class="w"> </span>مراجعة<span class="w"> </span>سعات<span class="w"> </span>التخزين
+</code></pre></div>
+
+<hr />
+<h2 id="_22">ملحق: أوامر سريعة<a class="headerlink" href="#_22" title="Permanent link">&para;</a></h2>
+<h3 id="_23">نسخ احتياطي يدوي سريع<a class="headerlink" href="#_23" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># نسخ احتياطي شامل لجميع المكونات</span>
+/scripts/backup/backup_all.sh<span class="w"> </span>manual
+
+<span class="c1"># نسخ احتياطي PostgreSQL فقط</span>
+/scripts/backup/backup_postgres.sh<span class="w"> </span>manual
+
+<span class="c1"># نسخ احتياطي Redis فقط</span>
+/scripts/backup/backup_redis.sh<span class="w"> </span>manual
+
+<span class="c1"># نسخ احتياطي MinIO فقط</span>
+/scripts/backup/backup_minio.sh<span class="w"> </span>manual
+</code></pre></div>
+
+<h3 id="_24">التحقق من حالة النسخ الاحتياطي<a class="headerlink" href="#_24" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># حالة آخر نسخة احتياطية</span>
+/scripts/backup/status.sh
+
+<span class="c1"># التحقق من صحة النسخة</span>
+/scripts/backup/verify-backup.sh<span class="w"> </span>/backups/latest
+
+<span class="c1"># عرض السجلات</span>
+tail<span class="w"> </span>-f<span class="w"> </span>/var/log/backup/*.log
+</code></pre></div>
+
+<h3 id="_25">استعادة سريعة<a class="headerlink" href="#_25" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># استعادة PostgreSQL من آخر نسخة</span>
+/scripts/backup/restore_postgres.sh<span class="w"> </span>--latest
+
+<span class="c1"># استعادة Redis من آخر نسخة</span>
+/scripts/backup/restore_redis.sh<span class="w"> </span>--latest
+
+<span class="c1"># استعادة كاملة</span>
+/scripts/disaster-recovery/full-restore.sh<span class="w"> </span>--latest
+</code></pre></div>
+
+<hr />
+<h2 id="_26">الدعم والمساعدة<a class="headerlink" href="#_26" title="Permanent link">&para;</a></h2>
+<h3 id="_27">جهات الاتصال<a class="headerlink" href="#_27" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>الدعم الفني</strong>: support@sahool.com</li>
+<li><strong>الطوارئ</strong>: +966-XX-XXX-XXXX</li>
+<li><strong>فريق DevOps</strong>: devops@sahool.com</li>
+</ul>
+<h3 id="_28">الموارد<a class="headerlink" href="#_28" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>الوثائق</strong>: https://docs.sahool.com/backup</li>
+<li><strong>الأدوات</strong>: /scripts/backup/</li>
+<li><strong>السجلات</strong>: /var/log/backup/</li>
+<li><strong>النسخ الاحتياطية</strong>: /backups/</li>
+</ul>
+<h3 id="_29">الإبلاغ عن المشاكل<a class="headerlink" href="#_29" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إنشاء تذكرة دعم تلقائيًا</span>
+/scripts/support/create-ticket.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--category<span class="w"> </span>backup<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--priority<span class="w"> </span>high<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--description<span class="w"> </span><span class="s2">&quot;فشل النسخ الاحتياطي&quot;</span>
+</code></pre></div>
+
+<hr />
+<p><strong>آخر تحديث</strong>: 2025-12-27
+<strong>الإصدار</strong>: 1.0.0
+<strong>المسؤول</strong>: فريق البنية التحتية - SAHOOL Platform</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

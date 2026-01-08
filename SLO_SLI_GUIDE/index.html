@@ -1,0 +1,1583 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SLO/SLI Guidance - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#slosli-guidance" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SLO/SLI Guidance
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="slosli-guidance">SLO/SLI Guidance<a class="headerlink" href="#slosli-guidance" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Service Level Objectives (SLOs) and Service Level Indicators (SLIs) define the reliability targets for SAHOOL platform services.</p>
+<h2 id="service-tiers">Service Tiers<a class="headerlink" href="#service-tiers" title="Permanent link">&para;</a></h2>
+<p>Services are categorized into three tiers based on criticality:</p>
+<h3 id="critical-tier">Critical Tier<a class="headerlink" href="#critical-tier" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Kong API Gateway</strong></li>
+<li><strong>PostgreSQL Database</strong></li>
+<li><strong>Redis Cache</strong></li>
+<li><strong>NATS Message Queue</strong></li>
+</ul>
+<p><strong>SLO Target</strong>: 99.95% availability (22 minutes/month downtime)</p>
+<h3 id="high-tier">High Tier<a class="headerlink" href="#high-tier" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Crop Growth Model</strong></li>
+<li><strong>Crop Health AI</strong></li>
+<li><strong>Weather Service</strong></li>
+<li><strong>IoT Gateway</strong></li>
+<li><strong>Notification Service</strong></li>
+</ul>
+<p><strong>SLO Target</strong>: 99.9% availability (43 minutes/month downtime)</p>
+<h3 id="medium-tier">Medium Tier<a class="headerlink" href="#medium-tier" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Satellite Service</strong></li>
+<li><strong>Marketplace Service</strong></li>
+<li><strong>Analytics Service</strong></li>
+</ul>
+<p><strong>SLO Target</strong>: 99.5% availability (3.6 hours/month downtime)</p>
+<h2 id="service-level-indicators-slis">Service Level Indicators (SLIs)<a class="headerlink" href="#service-level-indicators-slis" title="Permanent link">&para;</a></h2>
+<h3 id="1-availability">1. Availability<a class="headerlink" href="#1-availability" title="Permanent link">&para;</a></h3>
+<p><strong>Definition</strong>: Percentage of successful health checks</p>
+<p><strong>Measurement</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">(</span>
+<span class="w">  </span><span class="k">sum</span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">up</span><span class="p">{</span><span class="nl">job</span><span class="o">=</span><span class="p">&quot;</span><span class="s">sahool-services</span><span class="p">&quot;}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
+<span class="w">  </span><span class="o">/</span>
+<span class="w">  </span><span class="k">count</span><span class="o">(</span><span class="nv">up</span><span class="p">{</span><span class="nl">job</span><span class="o">=</span><span class="p">&quot;</span><span class="s">sahool-services</span><span class="p">&quot;}</span><span class="o">)</span>
+<span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span>
+</code></pre></div>
+
+<p><strong>Target</strong>:
+- Critical: 99.95%
+- High: 99.9%
+- Medium: 99.5%</p>
+<p><strong>Alert Threshold</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLOAvailabilityBreach</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">(</span>
+<span class="w">      </span><span class="no">sum(rate(up{job=&quot;sahool-services&quot;}[30m]))</span>
+<span class="w">      </span><span class="no">/</span>
+<span class="w">      </span><span class="no">count(up{job=&quot;sahool-services&quot;})</span>
+<span class="w">    </span><span class="no">) &lt; 0.999</span>
+<span class="w">  </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">    </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">high</span>
+</code></pre></div>
+
+<h3 id="2-request-success-rate">2. Request Success Rate<a class="headerlink" href="#2-request-success-rate" title="Permanent link">&para;</a></h3>
+<p><strong>Definition</strong>: Percentage of requests returning 2xx or 3xx status codes</p>
+<p><strong>Measurement</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="o">(</span>
+<span class="w">  </span><span class="k">sum</span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">service_requests_total</span><span class="p">{</span><span class="nl">status</span><span class="o">=~</span><span class="p">&quot;</span><span class="s">2..|3..</span><span class="p">&quot;}[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
+<span class="w">  </span><span class="o">/</span>
+<span class="w">  </span><span class="k">sum</span><span class="o">(</span><span class="kr">rate</span><span class="o">(</span><span class="nv">service_requests_total</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">))</span>
+<span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span>
+</code></pre></div>
+
+<p><strong>Target</strong>:
+- Critical: 99.9% success rate
+- High: 99.5% success rate<br />
+- Medium: 99% success rate</p>
+<p><strong>Alert Threshold</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLOSuccessRateBreach</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">(</span>
+<span class="w">      </span><span class="no">sum(rate(service_requests_total{status=~&quot;2..|3..&quot;}[30m])) by (service)</span>
+<span class="w">      </span><span class="no">/</span>
+<span class="w">      </span><span class="no">sum(rate(service_requests_total[30m])) by (service)</span>
+<span class="w">    </span><span class="no">) &lt; 0.995</span>
+<span class="w">  </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10m</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">    </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">high</span>
+</code></pre></div>
+
+<h3 id="3-request-latency">3. Request Latency<a class="headerlink" href="#3-request-latency" title="Permanent link">&para;</a></h3>
+<p><strong>Definition</strong>: 95th percentile request latency</p>
+<p><strong>Measurement</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kr">histogram_quantile</span><span class="o">(</span><span class="mf">0.95</span><span class="p">,</span>
+<span class="w">  </span><span class="kr">rate</span><span class="o">(</span><span class="nv">service_request_duration_seconds_bucket</span><span class="p">[</span><span class="s">5m</span><span class="p">]</span><span class="o">)</span>
+<span class="o">)</span>
+</code></pre></div>
+
+<p><strong>Target</strong>:
+- Critical (API Gateway): P95 &lt; 100ms
+- High (Application Services): P95 &lt; 1s
+- Medium (Batch Services): P95 &lt; 5s</p>
+<p><strong>Alert Threshold</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLOLatencyBreach</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">histogram_quantile(0.95,</span>
+<span class="w">      </span><span class="no">rate(service_request_duration_seconds_bucket{tier=&quot;high&quot;}[30m])</span>
+<span class="w">    </span><span class="no">) &gt; 1</span>
+<span class="w">  </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15m</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">    </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">high</span>
+</code></pre></div>
+
+<h3 id="4-data-freshness">4. Data Freshness<a class="headerlink" href="#4-data-freshness" title="Permanent link">&para;</a></h3>
+<p><strong>Definition</strong>: Time since last successful data update</p>
+<p><strong>Measurement</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="kr">time</span><span class="o">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">max</span><span class="o">(</span><span class="nv">last_update_timestamp</span><span class="o">)</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">service</span><span class="p">,</span><span class="w"> </span><span class="nv">data_type</span><span class="o">)</span>
+</code></pre></div>
+
+<p><strong>Target</strong>:
+- Weather data: &lt; 1 hour
+- Satellite imagery: &lt; 24 hours
+- Field data: &lt; 5 minutes
+- Sensor data: &lt; 1 minute</p>
+<p><strong>Alert Threshold</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SLODataFreshnessBreach</span>
+<span class="w">  </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">time() - max(last_update_timestamp{data_type=&quot;weather&quot;}) &gt; 3600</span>
+<span class="w">  </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">    </span><span class="nt">data_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weather</span>
+</code></pre></div>
+
+<h2 id="error-budgets">Error Budgets<a class="headerlink" href="#error-budgets" title="Permanent link">&para;</a></h2>
+<p>Error budget = (1 - SLO) × Total requests</p>
+<h3 id="calculation-example">Calculation Example<a class="headerlink" href="#calculation-example" title="Permanent link">&para;</a></h3>
+<p>For a service with 99.9% SLO handling 1M requests/month:</p>
+<ul>
+<li><strong>Error budget</strong>: 0.1% × 1,000,000 = 1,000 failed requests</li>
+<li><strong>Daily budget</strong>: 1,000 / 30 ≈ 33 failed requests/day</li>
+<li><strong>Hourly budget</strong>: 33 / 24 ≈ 1.4 failed requests/hour</li>
+</ul>
+<h3 id="error-budget-consumption">Error Budget Consumption<a class="headerlink" href="#error-budget-consumption" title="Permanent link">&para;</a></h3>
+<p>Monitor error budget consumption:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Remaining error budget (percentage)</span>
+<span class="o">(</span>
+<span class="w">  </span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="o">(</span>
+<span class="w">    </span><span class="k">sum</span><span class="o">(</span><span class="kr">increase</span><span class="o">(</span><span class="nv">service_requests_total</span><span class="p">{</span><span class="nl">status</span><span class="o">=~</span><span class="p">&quot;</span><span class="s">5..</span><span class="p">&quot;}[</span><span class="s">30d</span><span class="p">]</span><span class="o">))</span>
+<span class="w">    </span><span class="o">/</span>
+<span class="w">    </span><span class="k">sum</span><span class="o">(</span><span class="kr">increase</span><span class="o">(</span><span class="nv">service_requests_total</span><span class="p">[</span><span class="s">30d</span><span class="p">]</span><span class="o">))</span>
+<span class="w">  </span><span class="o">)</span>
+<span class="o">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="o">(</span><span class="mi">1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">0.999</span><span class="o">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span>
+</code></pre></div>
+
+<h3 id="error-budget-policy">Error Budget Policy<a class="headerlink" href="#error-budget-policy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Budget Remaining</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&gt; 50%</td>
+<td>Normal development pace</td>
+</tr>
+<tr>
+<td>25-50%</td>
+<td>Review recent changes, increase monitoring</td>
+</tr>
+<tr>
+<td>10-25%</td>
+<td>Freeze non-critical deploys, focus on reliability</td>
+</tr>
+<tr>
+<td>&lt; 10%</td>
+<td>Deploy freeze, incident review, all-hands reliability</td>
+</tr>
+</tbody>
+</table>
+<h2 id="alert-configuration">Alert Configuration<a class="headerlink" href="#alert-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="alert-severity-levels">Alert Severity Levels<a class="headerlink" href="#alert-severity-levels" title="Permanent link">&para;</a></h3>
+<h4 id="page-worthy-critical">Page-Worthy (Critical)<a class="headerlink" href="#page-worthy-critical" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Service completely down</li>
+<li>Error rate &gt; 50%</li>
+<li>SLO breach for Critical tier services</li>
+<li>Data loss detected</li>
+</ul>
+<p><strong>Action</strong>: Immediate response, page on-call</p>
+<h4 id="high-warning">High (Warning)<a class="headerlink" href="#high-warning" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Availability &lt; SLO target</li>
+<li>Error rate &gt; 5%</li>
+<li>Latency &gt; 2× SLO target</li>
+<li>Error budget &lt; 25%</li>
+</ul>
+<p><strong>Action</strong>: Investigate within 15 minutes</p>
+<h4 id="medium-info">Medium (Info)<a class="headerlink" href="#medium-info" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Error budget &lt; 50%</li>
+<li>Latency &gt; 1.5× SLO target</li>
+<li>Cache hit rate &lt; 50%</li>
+</ul>
+<p><strong>Action</strong>: Review during business hours</p>
+<h3 id="alert-routing">Alert Routing<a class="headerlink" href="#alert-routing" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># alertmanager.yml</span>
+<span class="nt">route</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;default&#39;</span>
+<span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
+
+<span class="w">  </span><span class="c1"># Critical alerts - page immediately</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">    </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;pagerduty-critical&#39;</span>
+<span class="w">    </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="c1"># High alerts - Slack + email</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">      </span><span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">    </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;slack-critical&#39;</span>
+<span class="w">    </span><span class="nt">continue</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="c1"># Medium alerts - Slack only</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">match</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">    </span><span class="nt">receiver</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;slack-warnings&#39;</span>
+</code></pre></div>
+
+<h2 id="slo-dashboards">SLO Dashboards<a class="headerlink" href="#slo-dashboards" title="Permanent link">&para;</a></h2>
+<h3 id="grafana-dashboard-panels">Grafana Dashboard Panels<a class="headerlink" href="#grafana-dashboard-panels" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Availability Trend</strong></li>
+<li>Line chart showing 7-day availability</li>
+<li>SLO target line</li>
+<li>
+<p>Current availability</p>
+</li>
+<li>
+<p><strong>Error Budget Burn Rate</strong></p>
+</li>
+<li>Gauge showing remaining error budget</li>
+<li>Trend showing consumption rate</li>
+<li>
+<p>Projection to budget exhaustion</p>
+</li>
+<li>
+<p><strong>Request Success Rate</strong></p>
+</li>
+<li>Success vs error rate over time</li>
+<li>Breakdown by endpoint</li>
+<li>
+<p>SLO target line</p>
+</li>
+<li>
+<p><strong>Latency Distribution</strong></p>
+</li>
+<li>P50, P95, P99 latencies</li>
+<li>SLO target line</li>
+<li>
+<p>Breakdown by endpoint</p>
+</li>
+<li>
+<p><strong>Incident Impact</strong></p>
+</li>
+<li>Timeline of incidents</li>
+<li>Duration and impact on SLO</li>
+<li>MTTR (Mean Time To Recovery)</li>
+</ol>
+<h2 id="slo-review-process">SLO Review Process<a class="headerlink" href="#slo-review-process" title="Permanent link">&para;</a></h2>
+<h3 id="weekly-review">Weekly Review<a class="headerlink" href="#weekly-review" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Check SLO compliance for past week</li>
+<li>Review error budget consumption</li>
+<li>Identify trends and patterns</li>
+<li>Create tickets for improvements</li>
+</ul>
+<h3 id="monthly-review">Monthly Review<a class="headerlink" href="#monthly-review" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Calculate monthly SLO achievement</li>
+<li>Analyze SLO breaches</li>
+<li>Review incident post-mortems</li>
+<li>Adjust SLOs if needed</li>
+</ul>
+<h3 id="quarterly-review">Quarterly Review<a class="headerlink" href="#quarterly-review" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Review SLO definitions</li>
+<li>Adjust targets based on business needs</li>
+<li>Update alert thresholds</li>
+<li>Plan reliability improvements</li>
+</ul>
+<h2 id="implementation-checklist">Implementation Checklist<a class="headerlink" href="#implementation-checklist" title="Permanent link">&para;</a></h2>
+<h3 id="for-each-service">For Each Service<a class="headerlink" href="#for-each-service" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Define service tier (Critical/High/Medium)</li>
+<li>[ ] Set SLO targets (availability, latency, success rate)</li>
+<li>[ ] Implement health checks</li>
+<li>[ ] Add Prometheus metrics</li>
+<li>[ ] Configure alerts</li>
+<li>[ ] Create Grafana dashboard</li>
+<li>[ ] Document in service README</li>
+<li>[ ] Set up on-call rotation</li>
+<li>[ ] Create runbook</li>
+<li>[ ] Test alert routing</li>
+</ul>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-start-conservative">1. Start Conservative<a class="headerlink" href="#1-start-conservative" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Begin with achievable SLOs (e.g., 99.5%)</li>
+<li>Increase targets as reliability improves</li>
+<li>Don't over-promise on new services</li>
+</ul>
+<h3 id="2-measure-what-matters">2. Measure What Matters<a class="headerlink" href="#2-measure-what-matters" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Focus on user-facing metrics</li>
+<li>Don't create vanity metrics</li>
+<li>Align SLIs with business objectives</li>
+</ul>
+<h3 id="3-balance-reliability-and-velocity">3. Balance Reliability and Velocity<a class="headerlink" href="#3-balance-reliability-and-velocity" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use error budgets to inform decisions</li>
+<li>Don't sacrifice all velocity for 100% reliability</li>
+<li>99.9% is often better than 99.99% (cost/benefit)</li>
+</ul>
+<h3 id="4-learn-from-incidents">4. Learn from Incidents<a class="headerlink" href="#4-learn-from-incidents" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Every SLO breach is a learning opportunity</li>
+<li>Update runbooks after incidents</li>
+<li>Adjust alerts to catch issues earlier</li>
+</ul>
+<h3 id="5-communicate-clearly">5. Communicate Clearly<a class="headerlink" href="#5-communicate-clearly" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Share SLO status with stakeholders</li>
+<li>Explain error budget policy</li>
+<li>Celebrate reliability wins</li>
+</ul>
+<h2 id="example-crop-health-ai-service">Example: Crop Health AI Service<a class="headerlink" href="#example-crop-health-ai-service" title="Permanent link">&para;</a></h2>
+<h3 id="slo-definition">SLO Definition<a class="headerlink" href="#slo-definition" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
+<span class="nt">tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">high</span>
+<span class="nt">slos</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">availability</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.9%</span>
+<span class="w">    </span><span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30d</span>
+
+<span class="w">  </span><span class="nt">latency</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">target_p95</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1s</span>
+<span class="w">    </span><span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+
+<span class="w">  </span><span class="nt">success_rate</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">99.5%</span>
+<span class="w">    </span><span class="nt">window</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30d</span>
+
+<span class="w">  </span><span class="nt">data_freshness</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="w">    </span><span class="nt">metric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">last_prediction_timestamp</span>
+</code></pre></div>
+
+<h3 id="alerts">Alerts<a class="headerlink" href="#alerts" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">groups</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop_health_ai_slo</span>
+<span class="w">  </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_AvailabilityBreach</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">(</span>
+<span class="w">        </span><span class="no">avg_over_time(up{service=&quot;crop-health-ai&quot;}[30m])</span>
+<span class="w">      </span><span class="no">) &lt; 0.999</span>
+<span class="w">    </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">critical</span>
+<span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
+<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">availability</span><span class="nv"> </span><span class="s">below</span><span class="nv"> </span><span class="s">SLO&quot;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_LatencyBreach</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">histogram_quantile(0.95,</span>
+<span class="w">        </span><span class="no">rate(service_request_duration_seconds_bucket{service=&quot;crop-health-ai&quot;}[30m])</span>
+<span class="w">      </span><span class="no">) &gt; 1</span>
+<span class="w">    </span><span class="nt">for</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15m</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
+<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">P95</span><span class="nv"> </span><span class="s">latency</span><span class="nv"> </span><span class="s">above</span><span class="nv"> </span><span class="s">1s&quot;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">alert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CropHealthAI_ErrorBudgetLow</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">(</span>
+<span class="w">        </span><span class="no">1 - (</span>
+<span class="w">          </span><span class="no">sum(increase(service_requests_total{service=&quot;crop-health-ai&quot;,status=~&quot;5..&quot;}[30d]))</span>
+<span class="w">          </span><span class="no">/</span>
+<span class="w">          </span><span class="no">sum(increase(service_requests_total{service=&quot;crop-health-ai&quot;}[30d]))</span>
+<span class="w">        </span><span class="no">)</span>
+<span class="w">      </span><span class="no">) / 0.001 &lt; 0.25</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">warning</span>
+<span class="w">      </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-health-ai</span>
+<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">summary</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Crop</span><span class="nv"> </span><span class="s">Health</span><span class="nv"> </span><span class="s">AI</span><span class="nv"> </span><span class="s">error</span><span class="nv"> </span><span class="s">budget</span><span class="nv"> </span><span class="s">below</span><span class="nv"> </span><span class="s">25%&quot;</span>
+</code></pre></div>
+
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://sre.google/workbook/implementing-slos/">Google SRE Book - Implementing SLOs</a></li>
+<li><a href="https://prometheus.io/docs/practices/alerting/">Prometheus Alerting Best Practices</a></li>
+<li><a href="https://grafana.com/grafana/dashboards/slo/">Grafana SLO Dashboards</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,3305 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>تدفق البيانات في منصة سهول | SAHOOL Platform Data Flow - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-data-flow" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تدفق البيانات في منصة سهول | SAHOOL Platform Data Flow
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-data-flow">تدفق البيانات في منصة سهول | SAHOOL Platform Data Flow<a class="headerlink" href="#sahool-platform-data-flow" title="Permanent link">&para;</a></h1>
+<p><strong>النسخة:</strong> 15.3.2
+<strong>التاريخ:</strong> 2024-12-24
+<strong>الحالة:</strong> Production Ready</p>
+<hr />
+<h2 id="table-of-contents">جدول المحتويات | Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview">نظرة عامة | Overview</a></li>
+<li><a href="#communication-patterns">أنماط الاتصال بين الخدمات | Service Communication Patterns</a></li>
+<li><a href="#data-flow-diagrams">مخططات تدفق البيانات | Data Flow Diagrams</a></li>
+<li><a href="#event-catalog">كتالوج الأحداث | Event Catalog</a></li>
+<li><a href="#database-overview">نظرة عامة على قاعدة البيانات | Database Schema Overview</a></li>
+<li><a href="#integration-points">نقاط التكامل | Integration Points</a></li>
+</ol>
+<hr />
+<p><a name="overview"></a></p>
+<h2 id="1-overview">1. نظرة عامة | Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
+<h3 id="architecture">البنية المعمارية | Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<p>منصة سهول تستخدم <strong>بنية الخدمات الصغرية متعددة اللغات (Polyglot Microservices)</strong> مع <strong>الهندسة الموجهة بالأحداث (Event-Driven Architecture)</strong>.</p>
+<p>SAHOOL platform uses <strong>Polyglot Microservices Architecture</strong> with <strong>Event-Driven Architecture (EDA)</strong>.</p>
+<h3 id="core-components">المكونات الأساسية | Core Components<a class="headerlink" href="#core-components" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│                      SAHOOL Platform v15                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│  │   Kong   │  │   NATS   │  │Postgres  │  │  Redis   │       │
+│  │ Gateway  │  │JetStream │  │ PostGIS  │  │  Cache   │       │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘       │
+│                                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│  │  Qdrant  │  │   MQTT   │  │Prometheus│  │ Grafana  │       │
+│  │  Vector  │  │  Broker  │  │ Metrics  │  │Dashboard │       │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘       │
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────┐    │
+│  │              35+ Microservices                          │    │
+│  │  Python (FastAPI) | Node.js (NestJS) | TypeScript      │    │
+│  └────────────────────────────────────────────────────────┘    │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<p><a name="communication-patterns"></a></p>
+<h2 id="2-service-communication-patterns">2. أنماط الاتصال بين الخدمات | Service Communication Patterns<a class="headerlink" href="#2-service-communication-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="21-httprest-kong-synchronous-httprest-via-kong">2.1 المتزامن (HTTP/REST عبر Kong) | Synchronous (HTTP/REST via Kong)<a class="headerlink" href="#21-httprest-kong-synchronous-httprest-via-kong" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description:</strong>
+جميع طلبات HTTP الخارجية تمر عبر Kong API Gateway الذي يوفر:
+- التوجيه (Routing)
+- المصادقة (Authentication)
+- تحديد المعدل (Rate Limiting)
+- فحوصات الصحة (Health Checks)
+- تحميل التوازن (Load Balancing)</p>
+<p>All external HTTP requests go through Kong API Gateway which provides routing, authentication, rate limiting, health checks, and load balancing.</p>
+<p><strong>الخدمات المعرضة عبر Kong | Services Exposed via Kong:</strong></p>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Service</th>
+<th>المنفذ</th>
+<th>Port</th>
+<th>المسار</th>
+<th>Path</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-ops</td>
+<td>Field Operations</td>
+<td>8080</td>
+<td><code>/api/v1/fields</code></td>
+<td>إدارة الحقول</td>
+<td>Field Management</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ndvi-engine</td>
+<td>NDVI Engine</td>
+<td>8107</td>
+<td><code>/api/v1/ndvi</code></td>
+<td>تحليل NDVI</td>
+<td>NDVI Analysis</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>weather-core</td>
+<td>Weather Core</td>
+<td>8108</td>
+<td><code>/api/v1/weather</code></td>
+<td>الطقس</td>
+<td>Weather</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>field-chat</td>
+<td>Field Chat</td>
+<td>8099</td>
+<td><code>/api/v1/chat</code></td>
+<td>المحادثات</td>
+<td>Chat</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>IoT Gateway</td>
+<td>8106</td>
+<td><code>/api/v1/iot</code></td>
+<td>إنترنت الأشياء</td>
+<td>IoT</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>agro-advisor</td>
+<td>Agro Advisor</td>
+<td>8105</td>
+<td><code>/api/v1/advisor</code></td>
+<td>المستشار الزراعي</td>
+<td>Agro Advisor</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>billing-core</td>
+<td>Billing Core</td>
+<td>8089</td>
+<td><code>/v1/billing</code></td>
+<td>الفوترة</td>
+<td>Billing</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ai-advisor</td>
+<td>AI Advisor</td>
+<td>8112</td>
+<td><code>/api/v1/ai</code></td>
+<td>المستشار الذكي</td>
+<td>AI Advisor</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>مثال على تدفق الطلب | Request Flow Example:</strong></p>
+<div class="codehilite"><pre><span></span><code>User/Client
+    ↓
+Kong Gateway :8000
+    ↓ (routing + auth + rate limit)
+Backend Service (e.g., field-ops:8080)
+    ↓
+PostgreSQL Database
+    ↓
+Response ← Kong ← Service
+</code></pre></div>
+
+<hr />
+<h3 id="22-nats-jetstream-asynchronous-nats-jetstream">2.2 اللامتزامن (NATS JetStream) | Asynchronous (NATS JetStream)<a class="headerlink" href="#22-nats-jetstream-asynchronous-nats-jetstream" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description:</strong>
+تستخدم المنصة NATS JetStream للاتصال القائم على الأحداث بين الخدمات.</p>
+<p>The platform uses NATS JetStream for event-based communication between services.</p>
+<p><strong>فوائد | Benefits:</strong>
+- ✅ فك الارتباط بين الخدمات | Service Decoupling
+- ✅ معالجة غير متزامنة | Asynchronous Processing
+- ✅ موثوقية الرسائل | Message Reliability
+- ✅ إمكانية التوسع | Scalability
+- ✅ تحمل الأخطاء | Fault Tolerance</p>
+<p><strong>نمط النشر/الاشتراك | Pub/Sub Pattern:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">┌──────────────┐</span><span class="w">         </span><span class="err">┌──────────────┐</span><span class="w">         </span><span class="err">┌──────────────┐</span>
+<span class="err">│</span><span class="w">   </span><span class="n">Publisher</span><span class="w">  </span><span class="err">│────────</span><span class="o">&gt;</span><span class="err">│</span><span class="w"> </span><span class="n">NATS</span><span class="w"> </span><span class="n">Server</span><span class="w">  </span><span class="err">│</span><span class="o">&lt;</span><span class="err">────────│</span><span class="w">  </span><span class="n">Subscriber</span><span class="w">  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">   </span><span class="n">Service</span><span class="w">    </span><span class="err">│</span><span class="w"> </span><span class="n">publish</span><span class="w"> </span><span class="err">│</span><span class="w">  </span><span class="n">JetStream</span><span class="w">   </span><span class="err">│</span><span class="n">subscribe</span><span class="err">│</span><span class="w">   </span><span class="n">Service</span><span class="w">    </span><span class="err">│</span>
+<span class="err">└──────────────┘</span><span class="w">         </span><span class="err">└──────────────┘</span><span class="w">         </span><span class="err">└──────────────┘</span>
+<span class="w">                              </span><span class="err">↓</span>
+<span class="w">                         </span><span class="o">[</span><span class="n">Persistent</span><span class="o">]</span>
+<span class="w">                         </span><span class="o">[</span><span class="n">Messages</span><span class="o">]</span>
+</code></pre></div>
+
+<hr />
+<h3 id="23-websocket-ws-gateway-real-time-websocket-via-ws-gateway">2.3 الوقت الفعلي (WebSocket عبر ws-gateway) | Real-time (WebSocket via ws-gateway)<a class="headerlink" href="#23-websocket-ws-gateway-real-time-websocket-via-ws-gateway" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description:</strong>
+خدمة ws-gateway توفر اتصالات WebSocket للتحديثات الفورية.</p>
+<p>The ws-gateway service provides WebSocket connections for real-time updates.</p>
+<p><strong>حالات الاستخدام | Use Cases:</strong>
+- 📱 إشعارات فورية | Real-time Notifications
+- 💬 رسائل الدردشة | Chat Messages
+- 📊 تحديثات لوحة القيادة المباشرة | Live Dashboard Updates
+- 🌡️ بيانات المستشعرات الحية | Live Sensor Data
+- 🗺️ تتبع الموقع | Location Tracking</p>
+<p><strong>التدفق | Flow:</strong></p>
+<div class="codehilite"><pre><span></span><code>Client (Web/Mobile)
+    ↓ WebSocket
+ws-gateway :8081
+    ↓ Subscribe to NATS
+NATS (sahool.*)
+    ↓ Events
+ws-gateway → Client (Push)
+</code></pre></div>
+
+<hr />
+<h3 id="24-mqtt-iot-gateway-iot-mqtt-via-iot-gateway">2.4 إنترنت الأشياء (MQTT عبر iot-gateway) | IoT (MQTT via iot-gateway)<a class="headerlink" href="#24-mqtt-iot-gateway-iot-mqtt-via-iot-gateway" title="Permanent link">&para;</a></h3>
+<p><strong>الوصف | Description:</strong>
+أجهزة IoT تتصل عبر بروتوكول MQTT ويتم معالجة البيانات بواسطة iot-gateway.</p>
+<p>IoT devices connect via MQTT protocol and data is processed by iot-gateway.</p>
+<p><strong>التدفق | Flow:</strong></p>
+<div class="codehilite"><pre><span></span><code>IoT Sensors/Devices
+    ↓ MQTT Protocol
+Mosquitto MQTT Broker :1883
+    ↓ Subscribe
+iot-gateway Service :8106
+    ↓ Publish Events
+NATS (sahool.iot.*)
+    ↓
+Storage + Real-time Consumers
+</code></pre></div>
+
+<p><strong>أنواع المستشعرات | Sensor Types:</strong>
+- 💧 رطوبة التربة | Soil Moisture
+- 🌡️ حرارة التربة | Soil Temperature
+- ⚡ التوصيل الكهربائي للتربة | Soil EC
+- 🌡️ حرارة الهواء | Air Temperature
+- 💨 رطوبة الهواء | Air Humidity
+- 💦 تدفق المياه | Water Flow
+- 📏 مستوى المياه | Water Level</p>
+<hr />
+<p><a name="data-flow-diagrams"></a></p>
+<h2 id="3-data-flow-diagrams">3. مخططات تدفق البيانات | Data Flow Diagrams<a class="headerlink" href="#3-data-flow-diagrams" title="Permanent link">&para;</a></h2>
+<h3 id="31-user-request-flow">3.1 تدفق طلب المستخدم | User Request Flow<a class="headerlink" href="#31-user-request-flow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">User</span><span class="o">/</span><span class="n">Client</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Kong</span><span class="w"> </span><span class="n">Gateway</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="kr">Service</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">PostgreSQL</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Redis</span>
+
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="n">HTTP</span><span class="w"> </span><span class="n">Request</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">JWT</span><span class="w"> </span><span class="kt">Token</span>
+<span class="w">    </span><span class="n">K</span><span class="o">-&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="kr">Validate</span><span class="w"> </span><span class="n">JWT</span>
+<span class="w">    </span><span class="n">K</span><span class="o">-&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="n">Rate</span><span class="w"> </span><span class="n">Limiting</span>
+<span class="w">    </span><span class="n">K</span><span class="o">-&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="n">Route</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="kr">Service</span>
+<span class="w">    </span><span class="n">K</span><span class="o">-&gt;&gt;</span><span class="n">S</span><span class="o">:</span><span class="w"> </span><span class="n">Forward</span><span class="w"> </span><span class="n">Request</span>
+
+<span class="w">    </span><span class="n">S</span><span class="o">-&gt;&gt;</span><span class="n">R</span><span class="o">:</span><span class="w"> </span><span class="n">Check</span><span class="w"> </span><span class="n">Cache</span>
+<span class="w">    </span><span class="n">alt</span><span class="w"> </span><span class="n">Cache</span><span class="w"> </span><span class="n">Hit</span>
+<span class="w">        </span><span class="n">R</span><span class="o">--&gt;&gt;</span><span class="n">S</span><span class="o">:</span><span class="w"> </span><span class="kr">Return</span><span class="w"> </span><span class="n">Cached</span><span class="w"> </span><span class="kt">Data</span>
+<span class="w">    </span><span class="n">else</span><span class="w"> </span><span class="n">Cache</span><span class="w"> </span><span class="n">Miss</span>
+<span class="w">        </span><span class="n">S</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="o">:</span><span class="w"> </span><span class="n">Query</span><span class="w"> </span><span class="n">Database</span>
+<span class="w">        </span><span class="n">D</span><span class="o">--&gt;&gt;</span><span class="n">S</span><span class="o">:</span><span class="w"> </span><span class="kr">Return</span><span class="w"> </span><span class="kt">Data</span>
+<span class="w">        </span><span class="n">S</span><span class="o">-&gt;&gt;</span><span class="n">R</span><span class="o">:</span><span class="w"> </span><span class="n">Update</span><span class="w"> </span><span class="n">Cache</span>
+<span class="w">    </span><span class="kd">end</span>
+
+<span class="w">    </span><span class="n">S</span><span class="o">--&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="n">HTTP</span><span class="w"> </span><span class="n">Response</span>
+<span class="w">    </span><span class="n">K</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="kr">Return</span><span class="w"> </span><span class="n">Response</span>
+</code></pre></div>
+
+<hr />
+<h3 id="32-field-analysis-flow">3.2 تدفق تحليل الحقل | Field Analysis Flow<a class="headerlink" href="#32-field-analysis-flow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TB</span>
+<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="n">Satellite</span><span class="w"> </span><span class="n">Data</span><span class="w"> </span><span class="n">Provider</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Download</span><span class="w"> </span><span class="n">Imagery</span><span class="o">|</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">satellite</span><span class="o">-</span><span class="n">service</span><span class="p">]</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Store</span><span class="w"> </span><span class="n">Image</span><span class="o">|</span><span class="w"> </span><span class="n">C</span><span class="p">[(</span><span class="n">PostgreSQL</span><span class="p">)]</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Publish</span><span class="w"> </span><span class="n">Event</span><span class="o">|</span><span class="w"> </span><span class="n">D</span><span class="p">{</span><span class="n">NATS</span><span class="w"> </span><span class="n">JetStream</span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">satellite</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">ready</span><span class="o">|</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="n">ndvi</span><span class="o">-</span><span class="n">engine</span><span class="p">]</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Calculate</span><span class="w"> </span><span class="n">NDVI</span><span class="o">|</span><span class="w"> </span><span class="n">E</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Store</span><span class="w"> </span><span class="n">Results</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Publish</span><span class="o">|</span><span class="w"> </span><span class="n">D</span>
+
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">ndvi</span><span class="p">.</span><span class="n">computed</span><span class="o">|</span><span class="w"> </span><span class="n">F</span><span class="p">[</span><span class="n">agro</span><span class="o">-</span><span class="n">rules</span><span class="w"> </span><span class="n">Worker</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">weather</span><span class="p">.</span><span class="n">alert</span><span class="o">|</span><span class="w"> </span><span class="n">G</span><span class="p">[</span><span class="n">weather</span><span class="o">-</span><span class="n">core</span><span class="p">]</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Fetch</span><span class="w"> </span><span class="n">Weather</span><span class="o">|</span><span class="w"> </span><span class="n">H</span><span class="p">[</span><span class="n">OpenWeather</span><span class="w"> </span><span class="n">API</span><span class="p">]</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Store</span><span class="w"> </span><span class="n">Forecast</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Publish</span><span class="o">|</span><span class="w"> </span><span class="n">D</span>
+
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">weather</span><span class="p">.</span><span class="n">forecast_issued</span><span class="o">|</span><span class="w"> </span><span class="n">F</span>
+
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Generate</span><span class="w"> </span><span class="n">Recommendations</span><span class="o">|</span><span class="w"> </span><span class="n">F</span>
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Publish</span><span class="o">|</span><span class="w"> </span><span class="n">D</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">advisor</span><span class="p">.</span><span class="n">recommendation_issued</span><span class="o">|</span><span class="w"> </span><span class="n">I</span><span class="p">[</span><span class="n">agro</span><span class="o">-</span><span class="n">advisor</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">I</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Store</span><span class="w"> </span><span class="n">Advice</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">I</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Notify</span><span class="o">|</span><span class="w"> </span><span class="n">J</span><span class="p">[</span><span class="n">notification</span><span class="o">-</span><span class="n">service</span><span class="p">]</span>
+<span class="w">    </span><span class="n">J</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Push</span><span class="o">|</span><span class="w"> </span><span class="n">K</span><span class="p">[</span><span class="n">User</span><span class="w"> </span><span class="n">Mobile</span><span class="o">/</span><span class="n">Web</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="o">*|</span><span class="w"> </span><span class="n">L</span><span class="p">[</span><span class="n">ws</span><span class="o">-</span><span class="n">gateway</span><span class="p">]</span>
+<span class="w">    </span><span class="n">L</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">WebSocket</span><span class="o">|</span><span class="w"> </span><span class="n">K</span>
+</code></pre></div>
+
+<p><strong>الخطوات | Steps:</strong>
+1. 🛰️ تحميل صور الأقمار الصناعية | Download Satellite Imagery
+2. 📊 حساب NDVI | Calculate NDVI
+3. 🌤️ جلب بيانات الطقس | Fetch Weather Data
+4. 🤖 توليد التوصيات التلقائية | Generate Recommendations
+5. 🔔 إرسال الإشعارات | Send Notifications
+6. 📱 تحديث الوقت الفعلي | Real-time Updates</p>
+<hr />
+<h3 id="33-tharwatt-payment-flow-tharwatt">3.3 تدفق الدفع (Tharwatt) | Payment Flow (Tharwatt)<a class="headerlink" href="#33-tharwatt-payment-flow-tharwatt" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
+    <span class="n">participant</span> <span class="n">U</span> <span class="n">as</span> <span class="n">User</span>
+    <span class="n">participant</span> <span class="n">W</span> <span class="n">as</span> <span class="n">Web</span> <span class="n">App</span>
+    <span class="n">participant</span> <span class="n">B</span> <span class="n">as</span> <span class="n">billing</span><span class="o">-</span><span class="n">core</span>
+    <span class="n">participant</span> <span class="n">T</span> <span class="n">as</span> <span class="n">Tharwatt</span> <span class="n">Gateway</span>
+    <span class="n">participant</span> <span class="n">D</span> <span class="n">as</span> <span class="n">Database</span>
+    <span class="n">participant</span> <span class="n">N</span> <span class="n">as</span> <span class="n">NATS</span>
+
+    <span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="p">:</span> <span class="n">Select</span> <span class="n">Plan</span> <span class="o">&amp;</span> <span class="n">Pay</span>
+    <span class="n">W</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="p">:</span> <span class="n">POST</span> <span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">payments</span>
+    <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="p">:</span> <span class="n">Create</span> <span class="n">Payment</span> <span class="n">Record</span> <span class="p">(</span><span class="n">PENDING</span><span class="p">)</span>
+    <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Initiate</span> <span class="n">Payment</span>
+    <span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="p">:</span> <span class="n">Redirect</span> <span class="n">to</span> <span class="n">Payment</span> <span class="n">Page</span>
+
+    <span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Enter</span> <span class="n">Payment</span> <span class="n">Details</span>
+    <span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Process</span> <span class="n">Payment</span>
+
+    <span class="n">alt</span> <span class="n">Success</span>
+        <span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="p">:</span> <span class="n">Webhook</span><span class="p">:</span> <span class="n">Payment</span> <span class="n">Success</span>
+        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="p">:</span> <span class="n">Update</span> <span class="n">Payment</span> <span class="p">(</span><span class="n">SUCCEEDED</span><span class="p">)</span>
+        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="p">:</span> <span class="n">Activate</span> <span class="n">Subscription</span>
+        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">N</span><span class="p">:</span> <span class="n">Publish</span> <span class="n">sahool</span><span class="p">.</span><span class="n">billing</span><span class="p">.</span><span class="n">payment</span><span class="p">.</span><span class="n">succeeded</span>
+        <span class="n">N</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="p">:</span> <span class="n">Notify</span> <span class="n">User</span> <span class="p">(</span><span class="n">WebSocket</span><span class="p">)</span>
+        <span class="n">B</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="mi">200</span> <span class="n">OK</span>
+    <span class="n">else</span> <span class="n">Failure</span>
+        <span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">B</span><span class="p">:</span> <span class="n">Webhook</span><span class="p">:</span> <span class="n">Payment</span> <span class="n">Failed</span>
+        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">D</span><span class="p">:</span> <span class="n">Update</span> <span class="n">Payment</span> <span class="p">(</span><span class="n">FAILED</span><span class="p">)</span>
+        <span class="n">B</span><span class="o">-&gt;&gt;</span><span class="n">N</span><span class="p">:</span> <span class="n">Publish</span> <span class="n">sahool</span><span class="p">.</span><span class="n">billing</span><span class="p">.</span><span class="n">payment</span><span class="p">.</span><span class="n">failed</span>
+        <span class="n">N</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="p">:</span> <span class="n">Notify</span> <span class="n">User</span>
+        <span class="n">B</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="p">:</span> <span class="mi">200</span> <span class="n">OK</span>
+    <span class="n">end</span>
+</code></pre></div>
+
+<p><strong>مزودو الدفع | Payment Providers:</strong>
+- 💳 Stripe (International)
+- 🇾🇪 Tharwatt (Yemen)
+- 💰 Mobile Money
+- 🏦 Bank Transfer
+- 💵 Cash</p>
+<hr />
+<h3 id="34-ai-multi-agent-advisor-flow">3.4 تدفق المستشار الذكي المتعدد الوكلاء | AI Multi-Agent Advisor Flow<a class="headerlink" href="#34-ai-multi-agent-advisor-flow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TB</span>
+<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="n">User</span><span class="w"> </span><span class="n">Query</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">ai</span><span class="o">/</span><span class="n">query</span><span class="o">|</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">ai</span><span class="o">-</span><span class="n">advisor</span><span class="w"> </span><span class="n">Service</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="n">Supervisor</span><span class="w"> </span><span class="n">Agent</span><span class="p">]</span>
+<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Analyze</span><span class="w"> </span><span class="n">Query</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Route</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">Agents</span><span class="o">|</span><span class="w"> </span><span class="n">D</span><span class="p">{</span><span class="n">Agent</span><span class="w"> </span><span class="n">Selection</span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Field</span><span class="w"> </span><span class="n">Analysis</span><span class="o">|</span><span class="w"> </span><span class="n">E</span><span class="p">[</span><span class="n">Field</span><span class="w"> </span><span class="n">Analyst</span><span class="w"> </span><span class="n">Agent</span><span class="p">]</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Disease</span><span class="w"> </span><span class="n">Detection</span><span class="o">|</span><span class="w"> </span><span class="n">F</span><span class="p">[</span><span class="n">Disease</span><span class="w"> </span><span class="n">Expert</span><span class="w"> </span><span class="n">Agent</span><span class="p">]</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Irrigation</span><span class="o">|</span><span class="w"> </span><span class="n">G</span><span class="p">[</span><span class="n">Irrigation</span><span class="w"> </span><span class="n">Advisor</span><span class="w"> </span><span class="n">Agent</span><span class="p">]</span>
+<span class="w">    </span><span class="n">D</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Yield</span><span class="w"> </span><span class="n">Prediction</span><span class="o">|</span><span class="w"> </span><span class="n">H</span><span class="p">[</span><span class="n">Yield</span><span class="w"> </span><span class="n">Predictor</span><span class="w"> </span><span class="n">Agent</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Use</span><span class="w"> </span><span class="n">Tools</span><span class="o">|</span><span class="w"> </span><span class="n">E1</span><span class="p">[</span><span class="n">Satellite</span><span class="w"> </span><span class="n">Tool</span><span class="p">]</span>
+<span class="w">    </span><span class="n">E1</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">HTTP</span><span class="o">|</span><span class="w"> </span><span class="n">I1</span><span class="p">[</span><span class="n">satellite</span><span class="o">-</span><span class="n">service</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Use</span><span class="w"> </span><span class="n">Tools</span><span class="o">|</span><span class="w"> </span><span class="n">F1</span><span class="p">[</span><span class="n">Crop</span><span class="w"> </span><span class="n">Health</span><span class="w"> </span><span class="n">Tool</span><span class="p">]</span>
+<span class="w">    </span><span class="n">F1</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">HTTP</span><span class="o">|</span><span class="w"> </span><span class="n">I2</span><span class="p">[</span><span class="n">crop</span><span class="o">-</span><span class="n">health</span><span class="o">-</span><span class="n">ai</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Use</span><span class="w"> </span><span class="n">Tools</span><span class="o">|</span><span class="w"> </span><span class="n">G1</span><span class="p">[</span><span class="n">Weather</span><span class="w"> </span><span class="n">Tool</span><span class="p">]</span>
+<span class="w">    </span><span class="n">G1</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">HTTP</span><span class="o">|</span><span class="w"> </span><span class="n">I3</span><span class="p">[</span><span class="n">weather</span><span class="o">-</span><span class="n">core</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">H</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Use</span><span class="w"> </span><span class="n">Tools</span><span class="o">|</span><span class="w"> </span><span class="n">H1</span><span class="p">[</span><span class="n">Agro</span><span class="w"> </span><span class="n">Tool</span><span class="p">]</span>
+<span class="w">    </span><span class="n">H1</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">HTTP</span><span class="o">|</span><span class="w"> </span><span class="n">I4</span><span class="p">[</span><span class="n">agro</span><span class="o">-</span><span class="n">advisor</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">J</span><span class="p">[</span><span class="n">RAG</span><span class="w"> </span><span class="n">System</span><span class="p">]</span>
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">J</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">J</span>
+<span class="w">    </span><span class="n">H</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">J</span>
+
+<span class="w">    </span><span class="n">J</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Semantic</span><span class="w"> </span><span class="n">Search</span><span class="o">|</span><span class="w"> </span><span class="n">K</span><span class="p">[(</span><span class="n">Qdrant</span><span class="w"> </span><span class="n">Vector</span><span class="w"> </span><span class="n">DB</span><span class="p">)]</span>
+
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Agent</span><span class="w"> </span><span class="n">Response</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Agent</span><span class="w"> </span><span class="n">Response</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Agent</span><span class="w"> </span><span class="n">Response</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">H</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Agent</span><span class="w"> </span><span class="n">Response</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+
+<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Synthesize</span><span class="o">|</span><span class="w"> </span><span class="n">L</span><span class="p">[</span><span class="n">Final</span><span class="w"> </span><span class="n">Response</span><span class="p">]</span>
+<span class="w">    </span><span class="n">L</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Return</span><span class="o">|</span><span class="w"> </span><span class="n">M</span><span class="p">[</span><span class="n">User</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Publish</span><span class="w"> </span><span class="n">Event</span><span class="o">|</span><span class="w"> </span><span class="n">N</span><span class="p">{</span><span class="n">NATS</span><span class="p">}</span>
+<span class="w">    </span><span class="n">N</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">ai</span><span class="o">-</span><span class="n">advisor</span><span class="p">.</span><span class="n">query_completed</span><span class="o">|</span><span class="w"> </span><span class="n">O</span><span class="p">[</span><span class="n">Analytics</span><span class="p">]</span>
+</code></pre></div>
+
+<p><strong>الوكلاء | Agents:</strong>
+1. 🎯 <strong>Supervisor</strong> - ينسق بين الوكلاء | Coordinates agents
+2. 🗺️ <strong>Field Analyst</strong> - تحليل الحقول | Field analysis
+3. 🦠 <strong>Disease Expert</strong> - كشف الأمراض | Disease detection
+4. 💧 <strong>Irrigation Advisor</strong> - نصائح الري | Irrigation advice
+5. 🌾 <strong>Yield Predictor</strong> - التنبؤ بالإنتاج | Yield prediction</p>
+<p><strong>الأدوات | Tools:</strong>
+- Satellite Tool → satellite-service
+- Weather Tool → weather-core
+- Crop Health Tool → crop-health-ai
+- Agro Tool → agro-advisor
+- NDVI Tool → ndvi-engine</p>
+<p><strong>RAG (Retrieval-Augmented Generation):</strong>
+- 📚 Embeddings: <code>paraphrase-multilingual-MiniLM-L12-v2</code>
+- 🔍 Vector DB: Qdrant
+- 💡 LLM: Claude (Anthropic)</p>
+<hr />
+<h3 id="35-iot-iot-sensor-flow">3.5 تدفق مستشعرات IoT | IoT Sensor Flow<a class="headerlink" href="#35-iot-iot-sensor-flow" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">LR</span>
+<span class="w">    </span><span class="n">A</span><span class="p">[</span><span class="n">IoT</span><span class="w"> </span><span class="n">Sensor</span><span class="w"> </span><span class="n">Device</span><span class="p">]</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">MQTT</span><span class="w"> </span><span class="n">Publish</span><span class="o">|</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">Mosquitto</span><span class="w"> </span><span class="n">MQTT</span><span class="w"> </span><span class="n">Broker</span><span class="p">]</span>
+<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Topic</span><span class="o">:</span><span class="w"> </span><span class="n">sahool</span><span class="o">/</span><span class="n">sensors</span><span class="o">/</span><span class="err">#</span><span class="o">|</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="n">iot</span><span class="o">-</span><span class="n">gateway</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Validate</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Transform</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
+<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Store</span><span class="w"> </span><span class="n">Reading</span><span class="o">|</span><span class="w"> </span><span class="n">D</span><span class="p">[(</span><span class="n">PostgreSQL</span><span class="p">)]</span>
+
+<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Publish</span><span class="w"> </span><span class="n">Event</span><span class="o">|</span><span class="w"> </span><span class="n">E</span><span class="p">{</span><span class="n">NATS</span><span class="p">}</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">iot</span><span class="p">.</span><span class="n">sensor_reading</span><span class="o">|</span><span class="w"> </span><span class="n">F</span><span class="p">[</span><span class="n">agro</span><span class="o">-</span><span class="n">rules</span><span class="w"> </span><span class="n">Worker</span><span class="p">]</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">iot</span><span class="p">.</span><span class="n">sensor</span><span class="p">.</span><span class="n">soil_moisture</span><span class="o">|</span><span class="w"> </span><span class="n">G</span><span class="p">[</span><span class="n">irrigation</span><span class="o">-</span><span class="n">smart</span><span class="p">]</span>
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">iot</span><span class="p">.</span><span class="n">sensor</span><span class="p">.</span><span class="n">soil_temperature</span><span class="o">|</span><span class="w"> </span><span class="n">H</span><span class="p">[</span><span class="n">virtual</span><span class="o">-</span><span class="n">sensors</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Check</span><span class="w"> </span><span class="n">Rules</span><span class="o">|</span><span class="w"> </span><span class="n">F</span>
+<span class="w">    </span><span class="n">F</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Alert</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">Threshold</span><span class="o">|</span><span class="w"> </span><span class="n">I</span><span class="p">[</span><span class="n">alert</span><span class="o">-</span><span class="n">service</span><span class="p">]</span>
+<span class="w">    </span><span class="n">I</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">alerts</span><span class="p">.</span><span class="n">created</span><span class="o">|</span><span class="w"> </span><span class="n">E</span>
+
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">sahool</span><span class="p">.</span><span class="n">iot</span><span class="p">.</span><span class="o">*|</span><span class="w"> </span><span class="n">J</span><span class="p">[</span><span class="n">ws</span><span class="o">-</span><span class="n">gateway</span><span class="p">]</span>
+<span class="w">    </span><span class="n">J</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">WebSocket</span><span class="o">|</span><span class="w"> </span><span class="n">K</span><span class="p">[</span><span class="n">Dashboard</span><span class="w"> </span><span class="n">Real</span><span class="o">-</span><span class="n">time</span><span class="p">]</span>
+
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Calculate</span><span class="w"> </span><span class="n">Irrigation</span><span class="o">|</span><span class="w"> </span><span class="n">G</span>
+<span class="w">    </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Publish</span><span class="w"> </span><span class="n">Recommendation</span><span class="o">|</span><span class="w"> </span><span class="n">E</span>
+
+<span class="w">    </span><span class="n">H</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Calculate</span><span class="w"> </span><span class="n">ET0</span><span class="o">|</span><span class="w"> </span><span class="n">H</span>
+<span class="w">    </span><span class="n">H</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">Publish</span><span class="o">|</span><span class="w"> </span><span class="n">E</span>
+
+<span class="w">    </span><span class="n">E</span><span class="w"> </span><span class="o">--&gt;|</span><span class="n">All</span><span class="w"> </span><span class="n">Events</span><span class="o">|</span><span class="w"> </span><span class="n">L</span><span class="p">[</span><span class="n">Prometheus</span><span class="w"> </span><span class="n">Metrics</span><span class="p">]</span>
+</code></pre></div>
+
+<p><strong>موضوعات MQTT | MQTT Topics:</strong></p>
+<div class="codehilite"><pre><span></span><code>sahool/sensors/{device_id}/soil_moisture
+sahool/sensors/{device_id}/soil_temperature
+sahool/sensors/{device_id}/soil_ec
+sahool/sensors/{device_id}/air_temperature
+sahool/sensors/{device_id}/air_humidity
+sahool/sensors/{device_id}/water_flow
+sahool/sensors/{device_id}/water_level
+</code></pre></div>
+
+<hr />
+<p><a name="event-catalog"></a></p>
+<h2 id="4-event-catalog">4. كتالوج الأحداث | Event Catalog<a class="headerlink" href="#4-event-catalog" title="Permanent link">&para;</a></h2>
+<h3 id="41-namespaces">4.1 مساحات الأسماء | Namespaces<a class="headerlink" href="#41-namespaces" title="Permanent link">&para;</a></h3>
+<p>جميع أحداث NATS تستخدم المساحة <code>sahool.*</code> مع التسلسل الهرمي التالي:</p>
+<p>All NATS events use the <code>sahool.*</code> namespace with the following hierarchy:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">sahool</span><span class="p">.{</span><span class="nx">domain</span><span class="p">}.{</span><span class="nx">event_type</span><span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="42-field-events">4.2 أحداث الحقول | Field Events<a class="headerlink" href="#42-field-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.fields.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الناشر</th>
+<th>Publisher</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.fields.created</code></td>
+<td>field-ops</td>
+<td>analytics, reports</td>
+<td>حقل جديد تم إنشاؤه</td>
+<td>New field created</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.fields.updated</code></td>
+<td>field-ops</td>
+<td>cache-invalidator</td>
+<td>تحديث بيانات الحقل</td>
+<td>Field data updated</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.fields.deleted</code></td>
+<td>field-ops</td>
+<td>cleanup-workers</td>
+<td>حذف حقل</td>
+<td>Field deleted</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.fields.boundary.updated</code></td>
+<td>field-ops</td>
+<td>ndvi-engine, satellite-service</td>
+<td>تحديث حدود الحقل</td>
+<td>Field boundary updated</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.fields.season.started</code></td>
+<td>field-ops</td>
+<td>crop-growth-model</td>
+<td>بدء موسم جديد</td>
+<td>New season started</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.fields.season.closed</code></td>
+<td>field-ops</td>
+<td>yield-prediction, reports</td>
+<td>إغلاق موسم</td>
+<td>Season closed</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.fields.zone.created</code></td>
+<td>field-ops</td>
+<td>irrigation-smart</td>
+<td>منطقة إدارة جديدة</td>
+<td>New management zone</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.fields.zone.deleted</code></td>
+<td>field-ops</td>
+<td>irrigation-smart</td>
+<td>حذف منطقة</td>
+<td>Zone deleted</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>مثال على حمولة الحدث | Event Payload Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;event_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;evt_abc123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T10:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;topic&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool.fields.created&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_xyz789&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;North Field&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">12.5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="mf">35.5</span><span class="p">,</span><span class="w"> </span><span class="mf">15.2</span><span class="p">],</span><span class="w"> </span><span class="err">...</span><span class="p">]]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;crop_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;correlation_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req_123&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="43-ndvi-ndvi-events">4.3 أحداث NDVI | NDVI Events<a class="headerlink" href="#43-ndvi-ndvi-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.ndvi.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الناشر</th>
+<th>Publisher</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.ndvi.computed</code></td>
+<td>ndvi-engine</td>
+<td>agro-rules, field-ops</td>
+<td>حساب NDVI اكتمل</td>
+<td>NDVI computation completed</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.ndvi.anomaly</code></td>
+<td>ndvi-engine</td>
+<td>alert-service, agro-rules</td>
+<td>اكتشاف شذوذ في NDVI</td>
+<td>NDVI anomaly detected</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.ndvi.zone_classified</code></td>
+<td>ndvi-engine</td>
+<td>field-ops</td>
+<td>تصنيف مناطق الحقل</td>
+<td>Field zones classified</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>مثال | Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;event_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;evt_ndvi_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T12:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;topic&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool.ndvi.computed&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_xyz789&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;ndvi_mean&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.72</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;ndvi_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.45</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;ndvi_max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.89</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;analysis_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;image_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://cdn.sahool.io/ndvi/field_xyz789_20241224.png&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;zones&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;excellent&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z2&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.7</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;good&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;zone_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;z3&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ndvi_range&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;health&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;poor&quot;</span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="44-weather-events">4.4 أحداث الطقس | Weather Events<a class="headerlink" href="#44-weather-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.weather.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الناشر</th>
+<th>Publisher</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.weather.alert</code></td>
+<td>weather-core</td>
+<td>alert-service, agro-rules</td>
+<td>تنبيه طقس</td>
+<td>Weather alert</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.weather.forecast_issued</code></td>
+<td>weather-core</td>
+<td>agro-rules, irrigation-smart</td>
+<td>توقعات طقس جديدة</td>
+<td>New weather forecast</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.weather.irrigation_adjustment</code></td>
+<td>weather-core</td>
+<td>irrigation-smart, agro-rules</td>
+<td>تعديل جدول الري</td>
+<td>Irrigation schedule adjustment</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>مثال | Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;event_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;evt_weather_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T06:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;topic&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool.weather.alert&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;alert_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;heavy_rain&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_xyz789&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;start_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T14:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;end_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T20:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;precipitation_mm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;recommendations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;Postpone irrigation&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;Check drainage systems&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="45-iot-iot-events">4.5 أحداث IoT | IoT Events<a class="headerlink" href="#45-iot-iot-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.iot.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الناشر</th>
+<th>Publisher</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.iot.sensor_reading</code></td>
+<td>iot-gateway</td>
+<td>agro-rules, analytics</td>
+<td>قراءة مستشعر</td>
+<td>Sensor reading</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.device_status</code></td>
+<td>iot-gateway</td>
+<td>monitoring</td>
+<td>حالة جهاز</td>
+<td>Device status</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.device_registered</code></td>
+<td>iot-gateway</td>
+<td>inventory</td>
+<td>تسجيل جهاز جديد</td>
+<td>New device registered</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.device_alert</code></td>
+<td>iot-gateway</td>
+<td>alert-service</td>
+<td>تنبيه جهاز</td>
+<td>Device alert</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.batch_reading</code></td>
+<td>iot-gateway</td>
+<td>analytics</td>
+<td>قراءات دفعية</td>
+<td>Batch readings</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>أحداث حسب نوع المستشعر | Sensor-specific Events:</strong></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.iot.sensor.soil_moisture</code></td>
+<td>قراءة رطوبة التربة</td>
+<td>Soil moisture reading</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.sensor.soil_temperature</code></td>
+<td>قراءة حرارة التربة</td>
+<td>Soil temperature reading</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.sensor.soil_ec</code></td>
+<td>قراءة التوصيل الكهربائي</td>
+<td>Soil EC reading</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.sensor.air_temperature</code></td>
+<td>قراءة حرارة الهواء</td>
+<td>Air temperature reading</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.sensor.air_humidity</code></td>
+<td>قراءة رطوبة الهواء</td>
+<td>Air humidity reading</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.sensor.water_flow</code></td>
+<td>قراءة تدفق المياه</td>
+<td>Water flow reading</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.iot.sensor.water_level</code></td>
+<td>قراءة مستوى المياه</td>
+<td>Water level reading</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>مثال | Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;event_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;evt_iot_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T10:15:30Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;topic&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sahool.iot.sensor.soil_moisture&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;device_sm_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_xyz789&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sensor_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;soil_moisture&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">35.7</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;percentage&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;lat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;lon&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;battery_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">87</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;signal_strength&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-65</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="46-chat-events">4.6 أحداث المحادثات | Chat Events<a class="headerlink" href="#46-chat-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.chat.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الناشر</th>
+<th>Publisher</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.chat.thread_created</code></td>
+<td>field-chat</td>
+<td>ws-gateway</td>
+<td>محادثة جديدة</td>
+<td>New chat thread</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.chat.message_sent</code></td>
+<td>field-chat</td>
+<td>ws-gateway, notification-service</td>
+<td>رسالة جديدة</td>
+<td>New message</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.chat.message_edited</code></td>
+<td>field-chat</td>
+<td>ws-gateway</td>
+<td>تعديل رسالة</td>
+<td>Message edited</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.chat.message_deleted</code></td>
+<td>field-chat</td>
+<td>ws-gateway</td>
+<td>حذف رسالة</td>
+<td>Message deleted</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.chat.participant_joined</code></td>
+<td>field-chat</td>
+<td>ws-gateway</td>
+<td>مشارك انضم</td>
+<td>Participant joined</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.chat.participant_left</code></td>
+<td>field-chat</td>
+<td>ws-gateway</td>
+<td>مشارك غادر</td>
+<td>Participant left</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.chat.messages_read</code></td>
+<td>field-chat</td>
+<td>ws-gateway</td>
+<td>قراءة رسائل</td>
+<td>Messages read</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="47-alert-events">4.7 أحداث التنبيهات | Alert Events<a class="headerlink" href="#47-alert-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.alerts.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الناشر</th>
+<th>Publisher</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.alerts.created</code></td>
+<td>alert-service</td>
+<td>ws-gateway, notification-service</td>
+<td>تنبيه جديد</td>
+<td>New alert</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.alerts.updated</code></td>
+<td>alert-service</td>
+<td>ws-gateway</td>
+<td>تحديث تنبيه</td>
+<td>Alert updated</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.alerts.acknowledged</code></td>
+<td>alert-service</td>
+<td>ws-gateway</td>
+<td>إقرار بتنبيه</td>
+<td>Alert acknowledged</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.alerts.resolved</code></td>
+<td>alert-service</td>
+<td>ws-gateway, analytics</td>
+<td>حل تنبيه</td>
+<td>Alert resolved</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.alerts.expired</code></td>
+<td>alert-service</td>
+<td>cleanup-workers</td>
+<td>انتهاء صلاحية تنبيه</td>
+<td>Alert expired</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>أنواع التنبيهات | Alert Types:</strong>
+- <code>ndvi_anomaly</code> - شذوذ في NDVI
+- <code>weather_alert</code> - تنبيه طقس
+- <code>iot_threshold</code> - تجاوز حد مستشعر
+- <code>crop_health_alert</code> - تنبيه صحة المحصول
+- <code>irrigation_alert</code> - تنبيه ري
+- <code>pre_harvest</code> - ما قبل الحصاد
+- <code>harvest_readiness</code> - جاهزية الحصاد
+- <code>stress_detection</code> - كشف إجهاد
+- <code>lai_anomaly</code> - شذوذ LAI</p>
+<hr />
+<h3 id="48-advisor-events">4.8 أحداث المستشار الزراعي | Advisor Events<a class="headerlink" href="#48-advisor-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.advisor.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الناشر</th>
+<th>Publisher</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.advisor.recommendation_issued</code></td>
+<td>agro-advisor</td>
+<td>notification-service, field-ops</td>
+<td>توصية جديدة</td>
+<td>New recommendation</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.advisor.fertilizer_plan_issued</code></td>
+<td>agro-advisor</td>
+<td>notification-service</td>
+<td>خطة تسميد</td>
+<td>Fertilizer plan</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.advisor.nutrient_assessment_issued</code></td>
+<td>agro-advisor</td>
+<td>reports</td>
+<td>تقييم مغذيات</td>
+<td>Nutrient assessment</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.advisor.disease_detected</code></td>
+<td>agro-advisor</td>
+<td>alert-service</td>
+<td>اكتشاف مرض</td>
+<td>Disease detected</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="49-ai-advisor-events">4.9 أحداث المستشار الذكي | AI Advisor Events<a class="headerlink" href="#49-ai-advisor-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.ai-advisor.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.ai-advisor.query_received</code></td>
+<td>استلام استعلام</td>
+<td>Query received</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.ai-advisor.query_completed</code></td>
+<td>اكتمال استعلام</td>
+<td>Query completed</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.ai-advisor.agent_invoked</code></td>
+<td>تفعيل وكيل</td>
+<td>Agent invoked</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.ai-advisor.tool_called</code></td>
+<td>استدعاء أداة</td>
+<td>Tool called</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="410-operation-events">4.10 أحداث العمليات | Operation Events<a class="headerlink" href="#410-operation-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.operations.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.operations.completed</code></td>
+<td>field-ops</td>
+<td>اكتمال عملية</td>
+<td>Operation completed</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="411-billing-events">4.11 أحداث الفوترة | Billing Events<a class="headerlink" href="#411-billing-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.billing.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.billing.subscription.created</code></td>
+<td>إنشاء اشتراك</td>
+<td>Subscription created</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.billing.subscription.updated</code></td>
+<td>تحديث اشتراك</td>
+<td>Subscription updated</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.billing.subscription.cancelled</code></td>
+<td>إلغاء اشتراك</td>
+<td>Subscription cancelled</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.billing.payment.succeeded</code></td>
+<td>دفع ناجح</td>
+<td>Payment succeeded</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.billing.payment.failed</code></td>
+<td>فشل دفع</td>
+<td>Payment failed</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.billing.invoice.generated</code></td>
+<td>توليد فاتورة</td>
+<td>Invoice generated</td>
+<td></td>
+</tr>
+<tr>
+<td><code>sahool.billing.quota.exceeded</code></td>
+<td>تجاوز الحصة</td>
+<td>Quota exceeded</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="412-analysis-events">4.12 أحداث التحليل | Analysis Events<a class="headerlink" href="#412-analysis-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.analysis.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.analysis.*</code></td>
+<td>notification-service</td>
+<td>جميع أحداث التحليل</td>
+<td>All analysis events</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="413-action-events">4.13 أحداث الإجراءات | Action Events<a class="headerlink" href="#413-action-events" title="Permanent link">&para;</a></h3>
+<p><strong>المساحة | Namespace:</strong> <code>sahool.actions.*</code></p>
+<table>
+<thead>
+<tr>
+<th>الحدث</th>
+<th>Event</th>
+<th>المشتركون</th>
+<th>Subscribers</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sahool.actions.*</code></td>
+<td>notification-service</td>
+<td>جميع أحداث الإجراءات</td>
+<td>All action events</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><a name="database-overview"></a></p>
+<h2 id="5-database-schema-overview">5. نظرة عامة على قاعدة البيانات | Database Schema Overview<a class="headerlink" href="#5-database-schema-overview" title="Permanent link">&para;</a></h2>
+<h3 id="51-postgresql-postgis-">5.1 PostgreSQL (PostGIS) - قاعدة البيانات الرئيسية<a class="headerlink" href="#51-postgresql-postgis-" title="Permanent link">&para;</a></h3>
+<p><strong>المحرك | Engine:</strong> PostgreSQL 16 + PostGIS 3.4</p>
+<p><strong>الامتدادات | Extensions:</strong>
+- <code>postgis</code> - بيانات جغرافية مكانية | Geospatial data
+- <code>postgis_topology</code> - طبولوجيا | Topology
+- <code>uuid-ossp</code> - UUIDs
+- <code>pg_trgm</code> - بحث نصي | Text search</p>
+<h4 id="511-core-tables">5.1.1 الجداول الأساسية | Core Tables<a class="headerlink" href="#511-core-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+<th>الصفوف المتوقعة</th>
+<th>Est. Rows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tenants</code></td>
+<td>المستأجرين/المنظمات</td>
+<td>Tenants/Organizations</td>
+<td>10K - 100K</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>users</code></td>
+<td>المستخدمين</td>
+<td>Users</td>
+<td>50K - 1M</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fields</code></td>
+<td>الحقول الزراعية (GEOMETRY)</td>
+<td>Agricultural fields with geometry</td>
+<td>100K - 1M</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>farms</code></td>
+<td>المزارع</td>
+<td>Farms</td>
+<td>50K - 500K</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>crops</code></td>
+<td>أنواع المحاصيل</td>
+<td>Crop types</td>
+<td>100 - 500</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="512-ndvi-ndvi-satellite-tables">5.1.2 جداول NDVI والأقمار الصناعية | NDVI &amp; Satellite Tables<a class="headerlink" href="#512-ndvi-ndvi-satellite-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ndvi_observations</code></td>
+<td>مشاهدات NDVI</td>
+<td>NDVI observations</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ndvi_alerts</code></td>
+<td>تنبيهات NDVI</td>
+<td>NDVI alerts</td>
+<td></td>
+</tr>
+<tr>
+<td><code>ndvi_records</code></td>
+<td>سجلات NDVI</td>
+<td>NDVI records</td>
+<td></td>
+</tr>
+<tr>
+<td><code>satellite_imagery</code></td>
+<td>صور الأقمار الصناعية</td>
+<td>Satellite imagery metadata</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="513-research-tables">5.1.3 جداول البحث العلمي | Research Tables<a class="headerlink" href="#513-research-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>experiments</code></td>
+<td>التجارب</td>
+<td>Experiments</td>
+<td></td>
+</tr>
+<tr>
+<td><code>research_protocols</code></td>
+<td>البروتوكولات</td>
+<td>Protocols</td>
+<td></td>
+</tr>
+<tr>
+<td><code>research_plots</code></td>
+<td>قطع التجارب</td>
+<td>Research plots</td>
+<td></td>
+</tr>
+<tr>
+<td><code>treatments</code></td>
+<td>المعاملات</td>
+<td>Treatments</td>
+<td></td>
+</tr>
+<tr>
+<td><code>research_daily_logs</code></td>
+<td>السجلات اليومية</td>
+<td>Daily logs</td>
+<td></td>
+</tr>
+<tr>
+<td><code>lab_samples</code></td>
+<td>العينات المختبرية</td>
+<td>Lab samples</td>
+<td></td>
+</tr>
+<tr>
+<td><code>digital_signatures</code></td>
+<td>التوقيعات الرقمية</td>
+<td>Digital signatures</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="514-marketplace-tables">5.1.4 جداول السوق | Marketplace Tables<a class="headerlink" href="#514-marketplace-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>products</code></td>
+<td>المنتجات</td>
+<td>Products</td>
+<td></td>
+</tr>
+<tr>
+<td><code>orders</code></td>
+<td>الطلبات</td>
+<td>Orders</td>
+<td></td>
+</tr>
+<tr>
+<td><code>order_items</code></td>
+<td>عناصر الطلب</td>
+<td>Order items</td>
+<td></td>
+</tr>
+<tr>
+<td><code>wallets</code></td>
+<td>المحافظ المالية</td>
+<td>Wallets</td>
+<td></td>
+</tr>
+<tr>
+<td><code>transactions</code></td>
+<td>المعاملات المالية</td>
+<td>Financial transactions</td>
+<td></td>
+</tr>
+<tr>
+<td><code>loans</code></td>
+<td>القروض</td>
+<td>Loans</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="515-chat-tables">5.1.5 جداول المحادثات | Chat Tables<a class="headerlink" href="#515-chat-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chat_threads</code></td>
+<td>خيوط المحادثات</td>
+<td>Chat threads</td>
+<td></td>
+</tr>
+<tr>
+<td><code>chat_messages</code></td>
+<td>الرسائل</td>
+<td>Messages</td>
+<td></td>
+</tr>
+<tr>
+<td><code>chat_participants</code></td>
+<td>المشاركون</td>
+<td>Participants</td>
+<td></td>
+</tr>
+<tr>
+<td><code>chat_attachments</code></td>
+<td>المرفقات</td>
+<td>Attachments</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="516-iot-iot-tables">5.1.6 جداول IoT | IoT Tables<a class="headerlink" href="#516-iot-iot-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>iot_devices</code></td>
+<td>أجهزة IoT</td>
+<td>IoT devices</td>
+<td></td>
+</tr>
+<tr>
+<td><code>iot_readings</code></td>
+<td>قراءات المستشعرات</td>
+<td>Sensor readings</td>
+<td></td>
+</tr>
+<tr>
+<td><code>device_locations</code></td>
+<td>مواقع الأجهزة</td>
+<td>Device locations</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="517-weather-tables">5.1.7 جداول الطقس | Weather Tables<a class="headerlink" href="#517-weather-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>weather_records</code></td>
+<td>سجلات الطقس</td>
+<td>Weather records</td>
+<td></td>
+</tr>
+<tr>
+<td><code>weather_forecasts</code></td>
+<td>توقعات الطقس</td>
+<td>Weather forecasts</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="518-alerts-tasks-tables">5.1.8 جداول التنبيهات والمهام | Alerts &amp; Tasks Tables<a class="headerlink" href="#518-alerts-tasks-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tasks</code></td>
+<td>المهام</td>
+<td>Tasks</td>
+<td></td>
+</tr>
+<tr>
+<td><code>alerts</code></td>
+<td>التنبيهات</td>
+<td>Alerts</td>
+<td></td>
+</tr>
+<tr>
+<td><code>notification_log</code></td>
+<td>سجل الإشعارات</td>
+<td>Notification log</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="519-billing-tables">5.1.9 جداول الفوترة | Billing Tables<a class="headerlink" href="#519-billing-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>subscriptions</code></td>
+<td>الاشتراكات</td>
+<td>Subscriptions</td>
+<td></td>
+</tr>
+<tr>
+<td><code>invoices</code></td>
+<td>الفواتير</td>
+<td>Invoices</td>
+<td></td>
+</tr>
+<tr>
+<td><code>payments</code></td>
+<td>المدفوعات</td>
+<td>Payments</td>
+<td></td>
+</tr>
+<tr>
+<td><code>usage_records</code></td>
+<td>سجلات الاستخدام</td>
+<td>Usage tracking</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="5110-sync-audit-tables">5.1.10 جداول المزامنة والتدقيق | Sync &amp; Audit Tables<a class="headerlink" href="#5110-sync-audit-tables" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>Table</th>
+<th>الوصف</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sync_status</code></td>
+<td>حالة المزامنة</td>
+<td>Synchronization status</td>
+<td></td>
+</tr>
+<tr>
+<td><code>audit_logs</code></td>
+<td>سجلات التدقيق</td>
+<td>Audit logs</td>
+<td></td>
+</tr>
+<tr>
+<td><code>outbox_events</code></td>
+<td>أحداث Outbox Pattern</td>
+<td>Outbox pattern events</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="52-redis-cache-sessions">5.2 Redis - التخزين المؤقت والجلسات | Cache &amp; Sessions<a class="headerlink" href="#52-redis-cache-sessions" title="Permanent link">&para;</a></h3>
+<p><strong>النسخة | Version:</strong> Redis 7.4</p>
+<p><strong>حالات الاستخدام | Use Cases:</strong>
+- 🔐 جلسات المستخدمين | User sessions
+- 💾 تخزين مؤقت للاستعلامات | Query caching
+- 📊 عدادات في الوقت الفعلي | Real-time counters
+- 🔒 قفل موزع | Distributed locks
+- 📝 قوائم انتظار | Job queues</p>
+<p><strong>مفاتيح نموذجية | Sample Keys:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">session</span><span class="p">:{</span><span class="nx">user_id</span><span class="p">}</span><span class="w">                    </span><span class="err">#</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="nx">session</span><span class="w"> </span><span class="p">(</span><span class="nx">TTL</span><span class="p">:</span><span class="w"> </span><span class="mi">24</span><span class="nx">h</span><span class="p">)</span>
+<span class="nx">cache</span><span class="p">:</span><span class="nx">field</span><span class="p">:{</span><span class="nx">field_id</span><span class="p">}</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">Field</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="nx">cache</span><span class="w"> </span><span class="p">(</span><span class="nx">TTL</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="nx">h</span><span class="p">)</span>
+<span class="nx">cache</span><span class="p">:</span><span class="nx">ndvi</span><span class="p">:{</span><span class="nx">field_id</span><span class="p">}:{</span><span class="nx">date</span><span class="p">}</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">NDVI</span><span class="w"> </span><span class="nx">cache</span><span class="w"> </span><span class="p">(</span><span class="nx">TTL</span><span class="p">:</span><span class="w"> </span><span class="mi">24</span><span class="nx">h</span><span class="p">)</span>
+<span class="nx">cache</span><span class="p">:</span><span class="nx">weather</span><span class="p">:{</span><span class="nx">location</span><span class="p">}</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Weather</span><span class="w"> </span><span class="nx">cache</span><span class="w"> </span><span class="p">(</span><span class="nx">TTL</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="nx">m</span><span class="p">)</span>
+<span class="nx">quota</span><span class="p">:{</span><span class="nx">tenant_id</span><span class="p">}:{</span><span class="nx">resource_type</span><span class="p">}</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Usage</span><span class="w"> </span><span class="nx">quotas</span>
+<span class="nx">lock</span><span class="p">:</span><span class="nx">billing</span><span class="p">:{</span><span class="nx">tenant_id</span><span class="p">}</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Distributed</span><span class="w"> </span><span class="nx">lock</span>
+<span class="nx">ws</span><span class="p">:</span><span class="nx">connections</span><span class="p">:{</span><span class="nx">user_id</span><span class="p">}</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">WebSocket</span><span class="w"> </span><span class="nx">connections</span>
+</code></pre></div>
+
+<hr />
+<h3 id="53-qdrant-vector-database">5.3 Qdrant - قاعدة البيانات المتجهة | Vector Database<a class="headerlink" href="#53-qdrant-vector-database" title="Permanent link">&para;</a></h3>
+<p><strong>النسخة | Version:</strong> Qdrant v1.10.1</p>
+<p><strong>حالات الاستخدام | Use Cases:</strong>
+- 🤖 RAG (Retrieval-Augmented Generation) للمستشار الذكي
+- 🔍 البحث الدلالي | Semantic search
+- 📚 تخزين المعرفة الزراعية | Agricultural knowledge storage</p>
+<p><strong>المجموعات | Collections:</strong></p>
+<table>
+<thead>
+<tr>
+<th>المجموعة</th>
+<th>Collection</th>
+<th>الوصف</th>
+<th>Description</th>
+<th>الأبعاد</th>
+<th>Dimensions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agricultural_knowledge</code></td>
+<td>المعرفة الزراعية</td>
+<td>Agricultural knowledge base</td>
+<td>384</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>crop_diseases</code></td>
+<td>أمراض المحاصيل</td>
+<td>Crop diseases database</td>
+<td>384</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>best_practices</code></td>
+<td>أفضل الممارسات</td>
+<td>Best practices</td>
+<td>384</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>نموذج التضمين | Embedding Model:</strong></p>
+<div class="codehilite"><pre><span></span><code>paraphrase-multilingual-MiniLM-L12-v2
+</code></pre></div>
+
+<hr />
+<h3 id="54-nats-jetstream-event-storage">5.4 NATS JetStream - تخزين الأحداث | Event Storage<a class="headerlink" href="#54-nats-jetstream-event-storage" title="Permanent link">&para;</a></h3>
+<p><strong>تكوين الدفق | Stream Configuration:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nt">Streams</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">Name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SAHOOL_EVENTS</span>
+<span class="w">    </span><span class="nt">Subjects</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool.&gt;</span>
+<span class="w">    </span><span class="nt">Storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+<span class="w">    </span><span class="nt">Retention</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">limits</span>
+<span class="w">    </span><span class="nt">MaxAge</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">168h</span><span class="w">  </span><span class="c1"># 7 days</span>
+<span class="w">    </span><span class="nt">MaxBytes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10GB</span>
+<span class="w">    </span><span class="nt">Replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</code></pre></div>
+
+<p><strong>المستهلكون | Consumers:</strong>
+- <code>ws-gateway</code> - يستمع لجميع الأحداث <code>sahool.&gt;</code> | Listens to all <code>sahool.&gt;</code> events
+- <code>notification-service</code> - يستمع لـ <code>sahool.analysis.*</code> و <code>sahool.actions.*</code>
+- <code>agro-rules</code> - يستمع لـ <code>sahool.ndvi.*</code>, <code>sahool.weather.*</code></p>
+<hr />
+<p><a name="integration-points"></a></p>
+<h2 id="6-integration-points">6. نقاط التكامل | Integration Points<a class="headerlink" href="#6-integration-points" title="Permanent link">&para;</a></h2>
+<h3 id="61-external-apis">6.1 واجهات برمجة التطبيقات الخارجية | External APIs<a class="headerlink" href="#61-external-apis" title="Permanent link">&para;</a></h3>
+<h4 id="611-weather">6.1.1 الطقس | Weather<a class="headerlink" href="#611-weather" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المزود</th>
+<th>Provider</th>
+<th>الخدمة</th>
+<th>Service</th>
+<th>الحالة</th>
+<th>Status</th>
+<th>الأولوية</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Open-Meteo</strong></td>
+<td>weather-advanced</td>
+<td>✅ مفعل</td>
+<td>Active</td>
+<td>الأساسي</td>
+<td>Primary</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>OpenWeatherMap</strong></td>
+<td>weather-core</td>
+<td>✅ مفعل</td>
+<td>Active</td>
+<td>الثانوي</td>
+<td>Secondary</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Weather API</strong></td>
+<td>weather-advanced</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td>الثالث</td>
+<td>Tertiary</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Visual Crossing</strong></td>
+<td>weather-advanced</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td>احتياطي</td>
+<td>Fallback</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>سلسلة الفشل | Failover Chain:</strong></p>
+<div class="codehilite"><pre><span></span><code>Open-Meteo (Free) → OpenWeatherMap (API Key) → Weather API → Visual Crossing
+</code></pre></div>
+
+<hr />
+<h4 id="612-satellite">6.1.2 الأقمار الصناعية | Satellite<a class="headerlink" href="#612-satellite" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المزود</th>
+<th>Provider</th>
+<th>الخدمة</th>
+<th>Service</th>
+<th>الحالة</th>
+<th>Status</th>
+<th>الأولوية</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sentinel Hub</strong></td>
+<td>satellite-service</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td>الأساسي</td>
+<td>Primary</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Planet Labs</strong></td>
+<td>satellite-service</td>
+<td>🔑 يتطلب مفتاح</td>
+<td>Requires Key</td>
+<td>الثانوي</td>
+<td>Secondary</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Landsat</strong></td>
+<td>satellite-service</td>
+<td>✅ مجاني</td>
+<td>Free</td>
+<td>الثالث</td>
+<td>Tertiary</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Copernicus</strong></td>
+<td>satellite-service</td>
+<td>✅ مجاني</td>
+<td>Free</td>
+<td>احتياطي</td>
+<td>Fallback</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>سلسلة الفشل | Failover Chain:</strong></p>
+<div class="codehilite"><pre><span></span><code>Planet Labs (High-res, Paid) → Sentinel Hub → Landsat (Free) → Copernicus
+</code></pre></div>
+
+<hr />
+<h4 id="613-payment">6.1.3 الدفع | Payment<a class="headerlink" href="#613-payment" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المزود</th>
+<th>Provider</th>
+<th>الدولة</th>
+<th>Country</th>
+<th>الخدمة</th>
+<th>Service</th>
+<th>الحالة</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stripe</strong></td>
+<td>🌍 عالمي</td>
+<td>Global</td>
+<td>billing-core</td>
+<td>✅ مفعل</td>
+<td>Active</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Tharwatt</strong></td>
+<td>🇾🇪 اليمن</td>
+<td>Yemen</td>
+<td>billing-core</td>
+<td>✅ مفعل</td>
+<td>Active</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Moyasar</strong></td>
+<td>🇸🇦 السعودية</td>
+<td>Saudi Arabia</td>
+<td>billing-core</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>HyperPay</strong></td>
+<td>🌍 الشرق الأوسط</td>
+<td>Middle East</td>
+<td>billing-core</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Tap</strong></td>
+<td>🇰🇼 الكويت</td>
+<td>Kuwait</td>
+<td>billing-core</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>تكوين Tharwatt | Tharwatt Configuration:</strong></p>
+<div class="codehilite"><pre><span></span><code>THARWATT_BASE_URL=https://developers-test.tharwatt.com:5253
+THARWATT_API_KEY=your_api_key
+THARWATT_MERCHANT_ID=your_merchant_id
+THARWATT_WEBHOOK_SECRET=your_webhook_secret
+</code></pre></div>
+
+<p><strong>نقاط النهاية | Endpoints:</strong>
+- <code>POST /api/v1/payment/deposit</code> - بدء دفع | Initiate payment
+- <code>POST /webhook/tharwatt</code> - Webhook لحالة الدفع | Payment status webhook</p>
+<hr />
+<h4 id="614-notifications">6.1.4 الإشعارات | Notifications<a class="headerlink" href="#614-notifications" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>المزود</th>
+<th>Provider</th>
+<th>النوع</th>
+<th>Type</th>
+<th>الخدمة</th>
+<th>Service</th>
+<th>الحالة</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Firebase FCM</strong></td>
+<td>دفع</td>
+<td>Push</td>
+<td>notification-service</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>OneSignal</strong></td>
+<td>دفع</td>
+<td>Push</td>
+<td>notification-service</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Twilio SMS</strong></td>
+<td>رسائل نصية</td>
+<td>SMS</td>
+<td>notification-service</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Unifonic</strong></td>
+<td>رسائل نصية</td>
+<td>SMS</td>
+<td>notification-service</td>
+<td>🔄 متاح</td>
+<td>Available</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-provider-configuration">6.2 تكوين المزودين | Provider Configuration<a class="headerlink" href="#62-provider-configuration" title="Permanent link">&para;</a></h3>
+<p><strong>الخدمة | Service:</strong> <code>provider-config</code> (Port: 8104)</p>
+<p><strong>الأنواع | Types:</strong>
+- 🗺️ <code>map</code> - مزودو الخرائط | Map providers
+- 🌤️ <code>weather</code> - مزودو الطقس | Weather providers
+- 🛰️ <code>satellite</code> - مزودو الأقمار الصناعية | Satellite providers
+- 💳 <code>payment</code> - مزودو الدفع | Payment providers
+- 📱 <code>notification</code> - مزودو الإشعارات | Notification providers
+- 📲 <code>sms</code> - مزودو الرسائل النصية | SMS providers</p>
+<p><strong>الأولويات | Priorities:</strong>
+- <code>primary</code> - الأساسي | Primary
+- <code>secondary</code> - الثانوي | Secondary
+- <code>tertiary</code> - الثالث | Tertiary
+- <code>disabled</code> - معطل | Disabled</p>
+<p><strong>سلاسل الفشل | Failover Chains:</strong></p>
+<p>يتم تكوين سلاسل الفشل للتبديل التلقائي عند فشل المزود الأساسي.</p>
+<p>Failover chains are configured to automatically switch when the primary provider fails.</p>
+<p><strong>مثال على التكوين | Configuration Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;provider_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;weather&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;provider_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;open_meteo&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;primary&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;enabled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;base_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://api.open-meteo.com&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;retry_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;failover_to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;openweathermap&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="63-authentication-authorization">6.3 المصادقة والتفويض | Authentication &amp; Authorization<a class="headerlink" href="#63-authentication-authorization" title="Permanent link">&para;</a></h3>
+<p><strong>نوع المصادقة | Auth Type:</strong> JWT (JSON Web Tokens)</p>
+<p><strong>الخوارزميات المدعومة | Supported Algorithms:</strong>
+- <code>RS256</code> (الافتراضي) | (Default)
+- <code>HS256</code></p>
+<p><strong>تدفق المصادقة | Auth Flow:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">User</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Auth</span><span class="w"> </span><span class="kr">Service</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Kong</span><span class="w"> </span><span class="n">Gateway</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Backend</span><span class="w"> </span><span class="kr">Service</span>
+
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="n">Login</span><span class="w"> </span><span class="p">(</span><span class="n">username</span><span class="p">,</span><span class="w"> </span><span class="n">password</span><span class="p">)</span>
+<span class="w">    </span><span class="n">A</span><span class="o">-&gt;&gt;</span><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="n">Verify</span><span class="w"> </span><span class="n">credentials</span>
+<span class="w">    </span><span class="n">A</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="n">JWT</span><span class="w"> </span><span class="kt">Token</span><span class="w"> </span><span class="p">(</span><span class="n">expires</span><span class="w"> </span><span class="mi">24</span><span class="n">h</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="n">API</span><span class="w"> </span><span class="n">Request</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Bearer</span><span class="w"> </span><span class="kt">Token</span>
+<span class="w">    </span><span class="n">K</span><span class="o">-&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="kr">Validate</span><span class="w"> </span><span class="n">JWT</span>
+<span class="w">    </span><span class="n">K</span><span class="o">-&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="n">Extract</span><span class="w"> </span><span class="n">tenant_id</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">user_id</span>
+<span class="w">    </span><span class="n">K</span><span class="o">-&gt;&gt;</span><span class="n">S</span><span class="o">:</span><span class="w"> </span><span class="n">Forward</span><span class="w"> </span><span class="n">Request</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">Headers</span>
+<span class="w">    </span><span class="n">S</span><span class="o">-&gt;&gt;</span><span class="n">S</span><span class="o">:</span><span class="w"> </span><span class="n">Authorize</span><span class="w"> </span><span class="n">action</span>
+<span class="w">    </span><span class="n">S</span><span class="o">--&gt;&gt;</span><span class="n">K</span><span class="o">:</span><span class="w"> </span><span class="n">Response</span>
+<span class="w">    </span><span class="n">K</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="n">Response</span>
+</code></pre></div>
+
+<p><strong>رؤوس HTTP | HTTP Headers:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Authorization</span><span class="o">:</span><span class="w"> </span><span class="n">Bearer</span><span class="w"> </span><span class="o">{</span><span class="n">jwt_token</span><span class="o">}</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Tenant</span><span class="o">-</span><span class="n">Id</span><span class="o">:</span><span class="w"> </span><span class="o">{</span><span class="n">tenant_id</span><span class="o">}</span>
+<span class="n">X</span><span class="o">-</span><span class="n">User</span><span class="o">-</span><span class="n">Id</span><span class="o">:</span><span class="w"> </span><span class="o">{</span><span class="n">user_id</span><span class="o">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="64-observability">6.4 المراقبة والرصد | Observability<a class="headerlink" href="#64-observability" title="Permanent link">&para;</a></h3>
+<h4 id="641-metrics">6.4.1 المقاييس | Metrics<a class="headerlink" href="#641-metrics" title="Permanent link">&para;</a></h4>
+<p><strong>النظام | System:</strong> Prometheus + Grafana</p>
+<p><strong>المقاييس المجمعة | Collected Metrics:</strong>
+- HTTP request duration
+- Request count by endpoint
+- Error rate
+- Database connection pool
+- NATS message throughput
+- Redis cache hit/miss ratio
+- WebSocket connections
+- IoT sensor readings count</p>
+<p><strong>نقاط النهاية | Endpoints:</strong>
+- Prometheus: <code>http://localhost:9090</code>
+- Grafana: <code>http://localhost:3002</code></p>
+<h4 id="642-logs">6.4.2 السجلات | Logs<a class="headerlink" href="#642-logs" title="Permanent link">&para;</a></h4>
+<p><strong>التنسيق | Format:</strong> JSON structured logs</p>
+<p><strong>مستويات السجلات | Log Levels:</strong>
+- <code>DEBUG</code> - تطوير | Development
+- <code>INFO</code> - إنتاج | Production (default)
+- <code>WARNING</code> - تحذيرات | Warnings
+- <code>ERROR</code> - أخطاء | Errors
+- <code>CRITICAL</code> - حرجة | Critical</p>
+<p><strong>مثال | Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T10:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-ops&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Field created successfully&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_xyz789&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_abc123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;correlation_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;req_123&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-summary">7. الخلاصة | Summary<a class="headerlink" href="#7-summary" title="Permanent link">&para;</a></h2>
+<h3 id="key-features">المميزات الرئيسية | Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>بنية موزعة قابلة للتوسع | Scalable Distributed Architecture</strong>
+- 35+ خدمة صغرية | 35+ microservices
+- دعم متعدد اللغات (Python, Node.js, TypeScript) | Polyglot support</p>
+<p>✅ <strong>اتصالات متنوعة | Multiple Communication Patterns</strong>
+- متزامن (HTTP/REST) | Synchronous (HTTP/REST)
+- لامتزامن (NATS) | Asynchronous (NATS)
+- وقت فعلي (WebSocket) | Real-time (WebSocket)
+- IoT (MQTT) | IoT (MQTT)</p>
+<p>✅ <strong>هندسة موجهة بالأحداث | Event-Driven Architecture</strong>
+- 100+ نوع حدث | 100+ event types
+- مساحة أسماء موحدة <code>sahool.*</code> | Unified <code>sahool.*</code> namespace
+- دفق موثوق للأحداث | Reliable event streaming</p>
+<p>✅ <strong>تكاملات خارجية | External Integrations</strong>
+- سلاسل فشل تلقائية | Automatic failover chains
+- مزودون متعددون للطقس والأقمار الصناعية | Multiple weather/satellite providers
+- بوابات دفع متعددة | Multiple payment gateways</p>
+<p>✅ <strong>مستشار ذكي متعدد الوكلاء | Multi-Agent AI Advisor</strong>
+- 5 وكلاء متخصصين | 5 specialized agents
+- RAG مع Qdrant | RAG with Qdrant
+- دعم Claude (Anthropic) | Claude (Anthropic) support</p>
+<p>✅ <strong>رصد ومراقبة شاملة | Comprehensive Observability</strong>
+- Prometheus metrics
+- Grafana dashboards
+- Structured JSON logs
+- Health checks</p>
+<hr />
+<h2 id="8-additional-references">8. مراجع إضافية | Additional References<a class="headerlink" href="#8-additional-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../SERVICES_MAP/">SERVICES_MAP.md</a> - خريطة الخدمات | Service Map</li>
+<li><a href="../EVENT_CATALOG/">EVENT_CATALOG.md</a> - كتالوج الأحداث | Event Catalog</li>
+<li><a href="../DATABASE_SCHEMA_ANALYSIS_AR.md">DATABASE_SCHEMA_ANALYSIS_AR.md</a> - تحليل قاعدة البيانات | Database Analysis</li>
+<li><a href="../BACKEND_SERVICES_DOCUMENTATION/">BACKEND_SERVICES_DOCUMENTATION.md</a> - وثائق الخدمات | Services Documentation</li>
+<li><a href="../AI_ARCHITECTURE/">AI_ARCHITECTURE.md</a> - البنية المعمارية للذكاء الاصطناعي | AI Architecture</li>
+</ul>
+<hr />
+<p><strong>آخر تحديث | Last Updated:</strong> 2024-12-24
+<strong>الإصدار | Version:</strong> 15.3.2
+<strong>الحالة | Status:</strong> ✅ Production Ready</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2043 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>NATS NKey Authentication Setup Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#nats-nkey-authentication-setup-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              NATS NKey Authentication Setup Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="nats-nkey-authentication-setup-guide">NATS NKey Authentication Setup Guide<a class="headerlink" href="#nats-nkey-authentication-setup-guide" title="Permanent link">&para;</a></h1>
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#what-are-nkeys">What are NKeys?</a></li>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#nkey-generation">NKey Generation</a></li>
+<li><a href="#server-configuration">Server Configuration</a></li>
+<li><a href="#client-integration">Client Integration</a></li>
+<li><a href="#deployment">Deployment</a></li>
+<li><a href="#security-best-practices">Security Best Practices</a></li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#migration-guide">Migration Guide</a></li>
+</ol>
+<hr />
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h2>
+<p>This guide walks through setting up NKey-based authentication for NATS in the SAHOOL platform. NKeys provide cryptographic authentication without transmitting passwords, offering superior security compared to traditional username/password authentication.</p>
+<h3 id="benefits-of-nkey-authentication">Benefits of NKey Authentication<a class="headerlink" href="#benefits-of-nkey-authentication" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>No Password Transmission</strong>: Private keys never leave the client</li>
+<li><strong>Cryptographic Security</strong>: Ed25519 signatures for authentication</li>
+<li><strong>Decentralized Authorization</strong>: No central password database</li>
+<li><strong>Account Isolation</strong>: Multi-tenancy with complete separation</li>
+<li><strong>JWT-based Permissions</strong>: Fine-grained access control</li>
+<li><strong>Easy Rotation</strong>: Change credentials without server restarts</li>
+<li><strong>Revocation Support</strong>: Centrally revoke access via JWT updates</li>
+</ul>
+<hr />
+<h2 id="what-are-nkeys">What are NKeys?<a class="headerlink" href="#what-are-nkeys" title="Permanent link">&para;</a></h2>
+<p>NKeys are Ed25519 key pairs used for authentication in NATS. The authentication flow works as follows:</p>
+<ol>
+<li><strong>Operator</strong> creates and signs <strong>Account</strong> JWTs</li>
+<li><strong>Accounts</strong> create and sign <strong>User</strong> JWTs</li>
+<li><strong>Users</strong> connect with their credentials (seed + JWT)</li>
+<li>NATS server verifies the JWT signature chain</li>
+<li>Server grants access based on JWT claims</li>
+</ol>
+<h3 id="key-components">Key Components<a class="headerlink" href="#key-components" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Operator (Root of Trust)
+    └── Account (Tenant/Organization)
+            ├── User 1 (Service/Application)
+            ├── User 2 (Service/Application)
+            └── User N (Service/Application)
+</code></pre></div>
+
+<hr />
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<h3 id="required-tools">Required Tools<a class="headerlink" href="#required-tools" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>NSC (NATS Security CLI)</strong> - For generating NKeys and JWTs</li>
+<li><strong>NATS CLI</strong> - For testing connections</li>
+<li><strong>NATS Server</strong> - Version 2.2.0 or higher</li>
+</ol>
+<h3 id="install-nsc">Install NSC<a class="headerlink" href="#install-nsc" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Using curl</span>
+curl<span class="w"> </span>-L<span class="w"> </span>https://raw.githubusercontent.com/nats-io/nsc/master/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+
+<span class="c1"># Using go</span>
+go<span class="w"> </span>install<span class="w"> </span>github.com/nats-io/nsc/v2@latest
+
+<span class="c1"># Add to PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$HOME</span>/.local/bin
+
+<span class="c1"># Verify installation</span>
+nsc<span class="w"> </span>--version
+</code></pre></div>
+
+<h3 id="install-nats-cli">Install NATS CLI<a class="headerlink" href="#install-nats-cli" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Using curl</span>
+curl<span class="w"> </span>-L<span class="w"> </span>https://github.com/nats-io/natscli/releases/latest/download/nats-linux-amd64.tar.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>tar<span class="w"> </span>-xz
+sudo<span class="w"> </span>mv<span class="w"> </span>nats<span class="w"> </span>/usr/local/bin/
+
+<span class="c1"># Verify installation</span>
+nats<span class="w"> </span>--version
+</code></pre></div>
+
+<hr />
+<h2 id="nkey-generation">NKey Generation<a class="headerlink" href="#nkey-generation" title="Permanent link">&para;</a></h2>
+<h3 id="automated-setup">Automated Setup<a class="headerlink" href="#automated-setup" title="Permanent link">&para;</a></h3>
+<p>Use the provided script to generate all NKeys automatically:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Navigate to scripts directory</span>
+<span class="nb">cd</span><span class="w"> </span>/home/user/sahool-unified-v15-idp/scripts/nats
+
+<span class="c1"># Run generation script</span>
+./generate-nkeys.sh
+
+<span class="c1"># Output will be in:</span>
+<span class="c1"># - /home/user/sahool-unified-v15-idp/config/nats/nkeys/</span>
+<span class="c1"># - /home/user/sahool-unified-v15-idp/config/nats/creds/</span>
+<span class="c1"># - /home/user/sahool-unified-v15-idp/config/nats/generated/</span>
+</code></pre></div>
+
+<h3 id="manual-setup">Manual Setup<a class="headerlink" href="#manual-setup" title="Permanent link">&para;</a></h3>
+<p>If you prefer manual setup, follow these steps:</p>
+<h4 id="1-initialize-nsc-environment">1. Initialize NSC Environment<a class="headerlink" href="#1-initialize-nsc-environment" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Set NSC store directory</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NSC_HOME</span><span class="o">=</span>/home/user/sahool-unified-v15-idp/config/nats/nkeys
+<span class="nb">export</span><span class="w"> </span><span class="nv">NKEYS_PATH</span><span class="o">=</span>/home/user/sahool-unified-v15-idp/config/nats/nkeys
+
+<span class="c1"># Initialize NSC</span>
+nsc<span class="w"> </span>env<span class="w"> </span>-s<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">NSC_HOME</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<h4 id="2-create-operator">2. Create Operator<a class="headerlink" href="#2-create-operator" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create operator with system account support</span>
+nsc<span class="w"> </span>add<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>--sys<span class="w"> </span>--generate-signing-key
+
+<span class="c1"># Export operator JWT</span>
+nsc<span class="w"> </span>describe<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>-J<span class="w"> </span>&gt;<span class="w"> </span>operator.jwt
+</code></pre></div>
+
+<h4 id="3-create-accounts">3. Create Accounts<a class="headerlink" href="#3-create-accounts" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create system account (for monitoring)</span>
+nsc<span class="w"> </span>add<span class="w"> </span>account<span class="w"> </span>SYS
+
+<span class="c1"># Create application account with JetStream</span>
+nsc<span class="w"> </span>add<span class="w"> </span>account<span class="w"> </span>APP<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--js-mem-storage<span class="w"> </span>1G<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--js-disk-storage<span class="w"> </span>10G<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--js-streams<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--js-consumer<span class="w"> </span><span class="m">1000</span>
+</code></pre></div>
+
+<h4 id="4-create-users">4. Create Users<a class="headerlink" href="#4-create-users" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Admin user (full access)</span>
+nsc<span class="w"> </span>add<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>admin<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">&quot;&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">&quot;&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-connections<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-subscriptions<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-payload<span class="w"> </span>8M
+
+<span class="c1"># Service user (limited access)</span>
+nsc<span class="w"> </span>add<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>field-service<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">&quot;field.&gt;,sahool.field.&gt;,_INBOX.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">&quot;field.&gt;,sahool.field.&gt;,_INBOX.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deny-pub<span class="w"> </span><span class="s2">&quot;\$SYS.&gt;,\$JS.API.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-connections<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-subscriptions<span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-payload<span class="w"> </span>8M
+
+<span class="c1"># Monitor user (read-only)</span>
+nsc<span class="w"> </span>add<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>monitor<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deny-pub<span class="w"> </span><span class="s2">&quot;&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">&quot;sahool.&gt;,field.&gt;,weather.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deny-sub<span class="w"> </span><span class="s2">&quot;\$SYS.&gt;,\$JS.API.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-connections<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-subscriptions<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-payload<span class="w"> </span>1M
+</code></pre></div>
+
+<h4 id="5-generate-credential-files">5. Generate Credential Files<a class="headerlink" href="#5-generate-credential-files" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create credentials directory</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds
+
+<span class="c1"># Generate credentials for each user</span>
+nsc<span class="w"> </span>generate<span class="w"> </span>creds<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>admin<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_admin.creds
+nsc<span class="w"> </span>generate<span class="w"> </span>creds<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds
+nsc<span class="w"> </span>generate<span class="w"> </span>creds<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>monitor<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_monitor.creds
+
+<span class="c1"># Set proper permissions</span>
+chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/*.creds
+</code></pre></div>
+
+<hr />
+<h2 id="server-configuration">Server Configuration<a class="headerlink" href="#server-configuration" title="Permanent link">&para;</a></h2>
+<h3 id="1-prepare-resolver-directory">1. Prepare Resolver Directory<a class="headerlink" href="#1-prepare-resolver-directory" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create resolver directory</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver
+
+<span class="c1"># Export account JWTs to resolver</span>
+nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>SYS<span class="w"> </span>-J<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/SYS.jwt
+nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>APP<span class="w"> </span>-J<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/APP.jwt
+</code></pre></div>
+
+<h3 id="2-extract-required-keys">2. Extract Required Keys<a class="headerlink" href="#2-extract-required-keys" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Get operator JWT</span>
+<span class="nv">OPERATOR_JWT</span><span class="o">=</span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>-J<span class="k">)</span>
+
+<span class="c1"># Get operator public key</span>
+<span class="nv">OPERATOR_PUBLIC_KEY</span><span class="o">=</span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>-J<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.nats.signing_keys[0]&#39;</span><span class="k">)</span>
+
+<span class="c1"># Get system account public key</span>
+<span class="nv">SYSTEM_ACCOUNT_PUBLIC_KEY</span><span class="o">=</span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>SYS<span class="w"> </span>-J<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.sub&#39;</span><span class="k">)</span>
+
+<span class="c1"># Save to environment file</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/.env.nkey<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">NATS_OPERATOR_JWT=&quot;${OPERATOR_JWT}&quot;</span>
+<span class="s">NATS_OPERATOR_PUBLIC_KEY=&quot;${OPERATOR_PUBLIC_KEY}&quot;</span>
+<span class="s">NATS_SYSTEM_ACCOUNT_PUBLIC_KEY=&quot;${SYSTEM_ACCOUNT_PUBLIC_KEY}&quot;</span>
+<span class="s">NATS_JETSTREAM_KEY=&quot;$(openssl rand -base64 32)&quot;</span>
+<span class="s">NATS_CLUSTER_USER=&quot;cluster_user&quot;</span>
+<span class="s">NATS_CLUSTER_PASSWORD=&quot;$(openssl rand -base64 32)&quot;</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h3 id="3-update-nats-configuration">3. Update NATS Configuration<a class="headerlink" href="#3-update-nats-configuration" title="Permanent link">&para;</a></h3>
+<p>The NKey configuration is already created at:</p>
+<div class="codehilite"><pre><span></span><code>/home/user/sahool-unified-v15-idp/config/nats/nats-nkey.conf
+</code></pre></div>
+
+<h3 id="4-docker-compose-integration">4. Docker Compose Integration<a class="headerlink" href="#4-docker-compose-integration" title="Permanent link">&para;</a></h3>
+<p>Update your <code>docker-compose.yml</code> to use the NKey configuration:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nats</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats:2.10-alpine</span>
+<span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-nats</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;-c&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats-nkey.conf&quot;</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/nats-nkey.conf:/etc/nats/nats-nkey.conf:ro</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/resolver:/etc/nats/resolver:ro</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/certs:/etc/nats/certs:ro</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats-data:/data</span>
+<span class="w">    </span><span class="nt">env_file</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/.env.nkey</span>
+<span class="w">    </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;4222:4222&quot;</span><span class="w">  </span><span class="c1"># Client connections</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;8222:8222&quot;</span><span class="w">  </span><span class="c1"># HTTP monitoring</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;6222:6222&quot;</span><span class="w">  </span><span class="c1"># Cluster connections</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-network</span>
+<span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unless-stopped</span>
+<span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CMD&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;nats-server&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-sl=https://localhost:8222&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10s</span>
+<span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5s</span>
+<span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nats-data</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+
+<span class="nt">networks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sahool-network</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bridge</span>
+</code></pre></div>
+
+<h3 id="5-kubernetes-deployment">5. Kubernetes Deployment<a class="headerlink" href="#5-kubernetes-deployment" title="Permanent link">&para;</a></h3>
+<p>Create ConfigMaps and Secrets:</p>
+<div class="codehilite"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats-config</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nats-nkey.conf</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no"># Include content from /home/user/sahool-unified-v15-idp/config/nats/nats-nkey.conf</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Secret</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats-resolver</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+<span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Opaque</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">SYS.jwt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64-encoded-jwt&gt;</span>
+<span class="w">  </span><span class="nt">APP.jwt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64-encoded-jwt&gt;</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Secret</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats-env</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+<span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Opaque</span>
+<span class="nt">stringData</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">NATS_OPERATOR_JWT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;operator-jwt&gt;&quot;</span>
+<span class="w">  </span><span class="nt">NATS_OPERATOR_PUBLIC_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;operator-public-key&gt;&quot;</span>
+<span class="w">  </span><span class="nt">NATS_SYSTEM_ACCOUNT_PUBLIC_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;system-account-public-key&gt;&quot;</span>
+<span class="w">  </span><span class="nt">NATS_JETSTREAM_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;jetstream-encryption-key&gt;&quot;</span>
+<span class="w">  </span><span class="nt">NATS_CLUSTER_USER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cluster_user&quot;</span>
+<span class="w">  </span><span class="nt">NATS_CLUSTER_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;cluster-password&gt;&quot;</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4222</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4222</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">monitoring</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8222</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8222</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6222</span>
+<span class="w">      </span><span class="nt">targetPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6222</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">StatefulSet</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats</span>
+<span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats:2.10-alpine</span>
+<span class="w">        </span><span class="nt">command</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;nats-server&quot;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;-c&quot;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;/etc/nats/nats-nkey.conf&quot;</span>
+<span class="w">        </span><span class="nt">ports</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4222</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8222</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">monitoring</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6222</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster</span>
+<span class="w">        </span><span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config</span>
+<span class="w">          </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/nats</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resolver</span>
+<span class="w">          </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/nats/resolver</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data</span>
+<span class="w">          </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data</span>
+<span class="w">        </span><span class="nt">envFrom</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretRef</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats-env</span>
+<span class="w">        </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100m</span>
+<span class="w">            </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256Mi</span>
+<span class="w">          </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000m</span>
+<span class="w">            </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1Gi</span>
+<span class="w">      </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config</span>
+<span class="w">        </span><span class="nt">configMap</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats-config</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">resolver</span>
+<span class="w">        </span><span class="nt">secret</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats-resolver</span>
+<span class="w">  </span><span class="nt">volumeClaimTemplates</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">accessModes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;ReadWriteOnce&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10Gi</span>
+</code></pre></div>
+
+<hr />
+<h2 id="client-integration">Client Integration<a class="headerlink" href="#client-integration" title="Permanent link">&para;</a></h2>
+<h3 id="nodejs-typescript">Node.js / TypeScript<a class="headerlink" href="#nodejs-typescript" title="Permanent link">&para;</a></h3>
+<h4 id="install-dependencies">Install Dependencies<a class="headerlink" href="#install-dependencies" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>npm<span class="w"> </span>install<span class="w"> </span>nats
+</code></pre></div>
+
+<h4 id="connection-example">Connection Example<a class="headerlink" href="#connection-example" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">connect</span><span class="p">,</span><span class="w"> </span><span class="nx">NatsConnection</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;nats&#39;</span><span class="p">;</span>
+
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">connectToNATS</span><span class="p">()</span><span class="o">:</span><span class="w"> </span><span class="nb">Promise</span><span class="o">&lt;</span><span class="nx">NatsConnection</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">connect</span><span class="p">({</span>
+<span class="w">        </span><span class="nx">servers</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;nats://localhost:4222&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">userCreds</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds&#39;</span><span class="p">,</span>
+
+<span class="w">        </span><span class="c1">// Optional: TLS configuration</span>
+<span class="w">        </span><span class="nx">tls</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">caFile</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/etc/nats/certs/ca.crt&#39;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">certFile</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/etc/nats/certs/client.crt&#39;</span><span class="p">,</span>
+<span class="w">            </span><span class="nx">keyFile</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/etc/nats/certs/client.key&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+
+<span class="w">        </span><span class="c1">// Connection options</span>
+<span class="w">        </span><span class="nx">maxReconnectAttempts</span><span class="o">:</span><span class="w"> </span><span class="o">-</span><span class="mf">1</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">reconnectTimeWait</span><span class="o">:</span><span class="w"> </span><span class="kt">2000</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="kt">10000</span><span class="p">,</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Connected to </span><span class="si">${</span><span class="nx">nc</span><span class="p">.</span><span class="nx">getServer</span><span class="p">()</span><span class="si">}</span><span class="sb">`</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Handle connection events</span>
+<span class="w">    </span><span class="nx">nc</span><span class="p">.</span><span class="nx">closed</span><span class="p">().</span><span class="nx">then</span><span class="p">((</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Connection closed with error:&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">nc</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">connectToNATS</span><span class="p">();</span>
+
+<span class="c1">// Publish</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">publish</span><span class="p">(</span><span class="s1">&#39;field.operation.created&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;123&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;harvest&#39;</span>
+<span class="p">}));</span>
+
+<span class="c1">// Subscribe</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">sub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="s1">&#39;field.&gt;&#39;</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="p">(</span><span class="kd">const</span><span class="w"> </span><span class="nx">msg</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="nx">sub</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="sb">`Received: </span><span class="si">${</span><span class="nx">msg</span><span class="p">.</span><span class="nx">subject</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="nx">msg</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="go">Go<a class="headerlink" href="#go" title="Permanent link">&para;</a></h3>
+<h4 id="install-dependencies_1">Install Dependencies<a class="headerlink" href="#install-dependencies_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>go<span class="w"> </span>get<span class="w"> </span>github.com/nats-io/nats.go
+</code></pre></div>
+
+<h4 id="connection-example_1">Connection Example<a class="headerlink" href="#connection-example_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="nx">main</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="s">&quot;log&quot;</span>
+<span class="w">    </span><span class="s">&quot;github.com/nats-io/nats.go&quot;</span>
+<span class="p">)</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="nx">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Connect with credentials</span>
+<span class="w">    </span><span class="nx">nc</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">nats</span><span class="p">.</span><span class="nx">Connect</span><span class="p">(</span>
+<span class="w">        </span><span class="s">&quot;nats://localhost:4222&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">nats</span><span class="p">.</span><span class="nx">UserCredentials</span><span class="p">(</span><span class="s">&quot;/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds&quot;</span><span class="p">),</span>
+<span class="w">        </span><span class="nx">nats</span><span class="p">.</span><span class="nx">MaxReconnects</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+<span class="w">        </span><span class="nx">nats</span><span class="p">.</span><span class="nx">ReconnectWait</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nx">time</span><span class="p">.</span><span class="nx">Second</span><span class="p">),</span>
+<span class="w">    </span><span class="p">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">Close</span><span class="p">()</span>
+
+<span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Connected to %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">ConnectedUrl</span><span class="p">())</span>
+
+<span class="w">    </span><span class="c1">// Publish</span>
+<span class="w">    </span><span class="nx">err</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">Publish</span><span class="p">(</span><span class="s">&quot;field.operation.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[]</span><span class="nb">byte</span><span class="p">(</span><span class="s">`{&quot;id&quot;:&quot;123&quot;,&quot;type&quot;:&quot;harvest&quot;}`</span><span class="p">))</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Subscribe</span>
+<span class="w">    </span><span class="nx">sub</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">nc</span><span class="p">.</span><span class="nx">Subscribe</span><span class="p">(</span><span class="s">&quot;field.&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">msg</span><span class="w"> </span><span class="o">*</span><span class="nx">nats</span><span class="p">.</span><span class="nx">Msg</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Printf</span><span class="p">(</span><span class="s">&quot;Received on [%s]: %s&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">msg</span><span class="p">.</span><span class="nx">Subject</span><span class="p">,</span><span class="w"> </span><span class="nb">string</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Data</span><span class="p">))</span>
+<span class="w">    </span><span class="p">})</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">defer</span><span class="w"> </span><span class="nx">sub</span><span class="p">.</span><span class="nx">Unsubscribe</span><span class="p">()</span>
+
+<span class="w">    </span><span class="c1">// Keep alive</span>
+<span class="w">    </span><span class="k">select</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="python">Python<a class="headerlink" href="#python" title="Permanent link">&para;</a></h3>
+<h4 id="install-dependencies_2">Install Dependencies<a class="headerlink" href="#install-dependencies_2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>nats-py
+</code></pre></div>
+
+<h4 id="connection-example_2">Connection Example<a class="headerlink" href="#connection-example_2" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nats.aio.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">Client</span> <span class="k">as</span> <span class="n">NATS</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">NATS</span><span class="p">()</span>
+
+    <span class="c1"># Connect with credentials</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+        <span class="n">servers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;nats://localhost:4222&quot;</span><span class="p">],</span>
+        <span class="n">user_credentials</span><span class="o">=</span><span class="s2">&quot;/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds&quot;</span><span class="p">,</span>
+        <span class="n">max_reconnect_attempts</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">reconnect_time_wait</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to </span><span class="si">{</span><span class="n">nc</span><span class="o">.</span><span class="n">connected_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Publish</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;field.operation.created&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;{&quot;id&quot;:&quot;123&quot;,&quot;type&quot;:&quot;harvest&quot;}&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Subscribe</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">message_handler</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+        <span class="n">subject</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">subject</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">msg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received on [</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">]: </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;field.&gt;&quot;</span><span class="p">,</span> <span class="n">cb</span><span class="o">=</span><span class="n">message_handler</span><span class="p">)</span>
+
+    <span class="c1"># Keep alive</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+
+<h3 id="java">Java<a class="headerlink" href="#java" title="Permanent link">&para;</a></h3>
+<h4 id="maven-dependency">Maven Dependency<a class="headerlink" href="#maven-dependency" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">&lt;dependency&gt;</span>
+<span class="w">    </span><span class="nt">&lt;groupId&gt;</span>io.nats<span class="nt">&lt;/groupId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;artifactId&gt;</span>jnats<span class="nt">&lt;/artifactId&gt;</span>
+<span class="w">    </span><span class="nt">&lt;version&gt;</span>2.17.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</code></pre></div>
+
+<h4 id="connection-example_3">Connection Example<a class="headerlink" href="#connection-example_3" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">io.nats.client.*</span><span class="p">;</span>
+
+<span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">NATSExample</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">String</span><span class="o">[]</span><span class="w"> </span><span class="n">args</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Connect with credentials</span>
+<span class="w">            </span><span class="n">Options</span><span class="w"> </span><span class="n">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Options</span><span class="p">.</span><span class="na">Builder</span><span class="p">()</span>
+<span class="w">                </span><span class="p">.</span><span class="na">server</span><span class="p">(</span><span class="s">&quot;nats://localhost:4222&quot;</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">userInfo</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds&quot;</span><span class="p">.</span><span class="na">toCharArray</span><span class="p">())</span>
+<span class="w">                </span><span class="p">.</span><span class="na">maxReconnects</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">                </span><span class="p">.</span><span class="na">reconnectWait</span><span class="p">(</span><span class="n">Duration</span><span class="p">.</span><span class="na">ofSeconds</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">();</span>
+
+<span class="w">            </span><span class="n">Connection</span><span class="w"> </span><span class="n">nc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Nats</span><span class="p">.</span><span class="na">connect</span><span class="p">(</span><span class="n">options</span><span class="p">);</span>
+<span class="w">            </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&quot;Connected to &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nc</span><span class="p">.</span><span class="na">getConnectedUrl</span><span class="p">());</span>
+
+<span class="w">            </span><span class="c1">// Publish</span>
+<span class="w">            </span><span class="n">nc</span><span class="p">.</span><span class="na">publish</span><span class="p">(</span><span class="s">&quot;field.operation.created&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;{\&quot;id\&quot;:\&quot;123\&quot;,\&quot;type\&quot;:\&quot;harvest\&quot;}&quot;</span><span class="p">.</span><span class="na">getBytes</span><span class="p">());</span>
+
+<span class="w">            </span><span class="c1">// Subscribe</span>
+<span class="w">            </span><span class="n">Dispatcher</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">nc</span><span class="p">.</span><span class="na">createDispatcher</span><span class="p">((</span><span class="n">msg</span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">printf</span><span class="p">(</span><span class="s">&quot;Received on [%s]: %s%n&quot;</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">msg</span><span class="p">.</span><span class="na">getSubject</span><span class="p">(),</span>
+<span class="w">                    </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="na">getData</span><span class="p">())</span>
+<span class="w">                </span><span class="p">);</span>
+<span class="w">            </span><span class="p">});</span>
+<span class="w">            </span><span class="n">d</span><span class="p">.</span><span class="na">subscribe</span><span class="p">(</span><span class="s">&quot;field.&gt;&quot;</span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// Keep alive</span>
+<span class="w">            </span><span class="n">Thread</span><span class="p">.</span><span class="na">sleep</span><span class="p">(</span><span class="n">Long</span><span class="p">.</span><span class="na">MAX_VALUE</span><span class="p">);</span>
+
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">Exception</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">e</span><span class="p">.</span><span class="na">printStackTrace</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h2>
+<h3 id="distribution-of-credentials">Distribution of Credentials<a class="headerlink" href="#distribution-of-credentials" title="Permanent link">&para;</a></h3>
+<p>Credentials must be securely distributed to each service:</p>
+<h4 id="docker-secrets">Docker Secrets<a class="headerlink" href="#docker-secrets" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">field-service</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool/field-service:latest</span>
+<span class="w">    </span><span class="nt">secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nats_field_service_creds</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">NATS_CREDENTIALS_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/run/secrets/nats_field_service_creds</span>
+
+<span class="nt">secrets</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nats_field_service_creds</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./config/nats/creds/APP_field-service.creds</span>
+</code></pre></div>
+
+<h4 id="kubernetes-secrets">Kubernetes Secrets<a class="headerlink" href="#kubernetes-secrets" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Create secret from credential file</span>
+kubectl<span class="w"> </span>create<span class="w"> </span>secret<span class="w"> </span>generic<span class="w"> </span>field-service-nats-creds<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--from-file<span class="o">=</span>nats.creds<span class="o">=</span>./config/nats/creds/APP_field-service.creds<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-n<span class="w"> </span>sahool
+
+<span class="c1"># Mount in pod</span>
+apiVersion:<span class="w"> </span>v1
+kind:<span class="w"> </span>Pod
+metadata:
+<span class="w">  </span>name:<span class="w"> </span>field-service
+spec:
+<span class="w">  </span>containers:
+<span class="w">  </span>-<span class="w"> </span>name:<span class="w"> </span>app
+<span class="w">    </span>image:<span class="w"> </span>sahool/field-service:latest
+<span class="w">    </span>env:
+<span class="w">    </span>-<span class="w"> </span>name:<span class="w"> </span>NATS_CREDENTIALS_FILE
+<span class="w">      </span>value:<span class="w"> </span>/etc/nats/creds/nats.creds
+<span class="w">    </span>volumeMounts:
+<span class="w">    </span>-<span class="w"> </span>name:<span class="w"> </span>nats-creds
+<span class="w">      </span>mountPath:<span class="w"> </span>/etc/nats/creds
+<span class="w">      </span>readOnly:<span class="w"> </span><span class="nb">true</span>
+<span class="w">  </span>volumes:
+<span class="w">  </span>-<span class="w"> </span>name:<span class="w"> </span>nats-creds
+<span class="w">    </span>secret:
+<span class="w">      </span>secretName:<span class="w"> </span>field-service-nats-creds
+<span class="w">      </span>defaultMode:<span class="w"> </span><span class="m">0400</span>
+</code></pre></div>
+
+<h4 id="hashicorp-vault">HashiCorp Vault<a class="headerlink" href="#hashicorp-vault" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Store credential in Vault</span>
+vault<span class="w"> </span>kv<span class="w"> </span>put<span class="w"> </span>secret/sahool/nats/field-service<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">creds</span><span class="o">=</span>@./config/nats/creds/APP_field-service.creds
+
+<span class="c1"># Retrieve in application</span>
+vault<span class="w"> </span>kv<span class="w"> </span>get<span class="w"> </span>-field<span class="o">=</span>creds<span class="w"> </span>secret/sahool/nats/field-service<span class="w"> </span>&gt;<span class="w"> </span>/tmp/nats.creds
+</code></pre></div>
+
+<hr />
+<h2 id="security-best-practices">Security Best Practices<a class="headerlink" href="#security-best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-credential-file-protection">1. Credential File Protection<a class="headerlink" href="#1-credential-file-protection" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Set proper permissions</span>
+chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/*.creds
+
+<span class="c1"># Set ownership</span>
+chown<span class="w"> </span>app:app<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/*.creds
+
+<span class="c1"># Never commit credentials to git</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;config/nats/creds/&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;config/nats/.env.nkey&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
+</code></pre></div>
+
+<h3 id="2-credential-rotation">2. Credential Rotation<a class="headerlink" href="#2-credential-rotation" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate new user credentials</span>
+nsc<span class="w"> </span>add<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>field-service-new<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">&quot;field.&gt;,sahool.field.&gt;,_INBOX.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-sub<span class="w"> </span><span class="s2">&quot;field.&gt;,sahool.field.&gt;,_INBOX.&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-connections<span class="w"> </span><span class="m">50</span>
+
+<span class="c1"># Generate new credential file</span>
+nsc<span class="w"> </span>generate<span class="w"> </span>creds<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service-new<span class="w"> </span>&gt;<span class="w"> </span>APP_field-service-new.creds
+
+<span class="c1"># Deploy new credentials to services</span>
+<span class="c1"># ... deployment steps ...</span>
+
+<span class="c1"># After verification, revoke old user</span>
+nsc<span class="w"> </span>revoke<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service
+
+<span class="c1"># Update resolver</span>
+nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>APP<span class="w"> </span>-J<span class="w"> </span>&gt;<span class="w"> </span>resolver/APP.jwt
+</code></pre></div>
+
+<h3 id="3-jwt-expiration">3. JWT Expiration<a class="headerlink" href="#3-jwt-expiration" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Add expiration to user JWT (1 year)</span>
+nsc<span class="w"> </span>edit<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service<span class="w"> </span>--expiry<span class="w"> </span>8760h
+
+<span class="c1"># Regenerate credentials</span>
+nsc<span class="w"> </span>generate<span class="w"> </span>creds<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service<span class="w"> </span>&gt;<span class="w"> </span>APP_field-service.creds
+</code></pre></div>
+
+<h3 id="4-monitor-access">4. Monitor Access<a class="headerlink" href="#4-monitor-access" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Subscribe to system events (requires system account access)</span>
+nats<span class="w"> </span>sub<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span>--creds<span class="o">=</span>SYS_system-monitor.creds<span class="w"> </span><span class="s2">&quot;\$SYS.ACCOUNT.*.CONNECT&quot;</span>
+nats<span class="w"> </span>sub<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span>--creds<span class="o">=</span>SYS_system-monitor.creds<span class="w"> </span><span class="s2">&quot;\$SYS.ACCOUNT.*.DISCONNECT&quot;</span>
+</code></pre></div>
+
+<h3 id="5-audit-logging">5. Audit Logging<a class="headerlink" href="#5-audit-logging" title="Permanent link">&para;</a></h3>
+<p>Enable comprehensive logging in NATS config:</p>
+<div class="codehilite"><pre><span></span><code><span class="gh">#</span> In nats-nkey.conf
+connect_error_reports: 1
+reconnect_error_reports: 1
+
+system_account_events: {
+    connect: true
+    disconnect: true
+    account_connections: true
+}
+</code></pre></div>
+
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="connection-failed-authorization-violation">Connection Failed: "authorization violation"<a class="headerlink" href="#connection-failed-authorization-violation" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: Client cannot authenticate</p>
+<p><strong>Solutions</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Verify credential file exists and is readable</span>
+ls<span class="w"> </span>-la<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds
+
+<span class="c1"># 2. Verify credential file format</span>
+cat<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds
+<span class="c1"># Should contain both JWT and seed</span>
+
+<span class="c1"># 3. Check account JWT is in resolver</span>
+ls<span class="w"> </span>-la<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/APP.jwt
+
+<span class="c1"># 4. Verify NATS server logs</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats
+
+<span class="c1"># 5. Test with nats CLI</span>
+nats<span class="w"> </span>pub<span class="w"> </span>-s<span class="w"> </span>nats://localhost:4222<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--creds<span class="o">=</span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_field-service.creds<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nb">test</span><span class="w"> </span><span class="s2">&quot;Hello&quot;</span>
+</code></pre></div>
+
+<h3 id="permission-denied-on-subject">Permission Denied on Subject<a class="headerlink" href="#permission-denied-on-subject" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: User doesn't have permission to publish/subscribe</p>
+<p><strong>Solutions</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Check user permissions</span>
+nsc<span class="w"> </span>describe<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service
+
+<span class="c1"># 2. Update permissions</span>
+nsc<span class="w"> </span>edit<span class="w"> </span>user<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--allow-pub<span class="w"> </span><span class="s2">&quot;field.&gt;,new-subject.&gt;&quot;</span>
+
+<span class="c1"># 3. Regenerate credentials</span>
+nsc<span class="w"> </span>generate<span class="w"> </span>creds<span class="w"> </span>-a<span class="w"> </span>APP<span class="w"> </span>-n<span class="w"> </span>field-service<span class="w"> </span>&gt;<span class="w"> </span>APP_field-service.creds
+
+<span class="c1"># 4. Update resolver</span>
+nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>APP<span class="w"> </span>-J<span class="w"> </span>&gt;<span class="w"> </span>resolver/APP.jwt
+
+<span class="c1"># 5. Restart NATS or wait for resolver refresh (2 minutes)</span>
+</code></pre></div>
+
+<h3 id="server-not-loading-resolver">Server Not Loading Resolver<a class="headerlink" href="#server-not-loading-resolver" title="Permanent link">&para;</a></h3>
+<p><strong>Problem</strong>: NATS server can't find account JWTs</p>
+<p><strong>Solutions</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Verify resolver directory path in config</span>
+grep<span class="w"> </span><span class="s2">&quot;dir:&quot;</span><span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/nats-nkey.conf
+
+<span class="c1"># 2. Check resolver directory permissions</span>
+ls<span class="w"> </span>-la<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/
+
+<span class="c1"># 3. Verify JWT files exist</span>
+ls<span class="w"> </span>-la<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/*.jwt
+
+<span class="c1"># 4. Validate JWT format</span>
+cat<span class="w"> </span>/home/user/sahool-unified-v15-idp/config/nats/resolver/APP.jwt<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.&#39;</span>
+
+<span class="c1"># 5. Check NATS server logs for resolver errors</span>
+docker<span class="w"> </span>logs<span class="w"> </span>sahool-nats<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>resolver
+</code></pre></div>
+
+<h3 id="testing-connection">Testing Connection<a class="headerlink" href="#testing-connection" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install nats CLI if not already installed</span>
+curl<span class="w"> </span>-L<span class="w"> </span>https://github.com/nats-io/natscli/releases/latest/download/nats-linux-amd64.tar.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>tar<span class="w"> </span>-xz
+sudo<span class="w"> </span>mv<span class="w"> </span>nats<span class="w"> </span>/usr/local/bin/
+
+<span class="c1"># Create context</span>
+nats<span class="w"> </span>context<span class="w"> </span>save<span class="w"> </span>sahool<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--server<span class="o">=</span>nats://localhost:4222<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--creds<span class="o">=</span>/home/user/sahool-unified-v15-idp/config/nats/creds/APP_admin.creds
+
+<span class="c1"># Test pub/sub</span>
+nats<span class="w"> </span>pub<span class="w"> </span>--context<span class="o">=</span>sahool<span class="w"> </span>test.subject<span class="w"> </span><span class="s2">&quot;Hello NATS&quot;</span>
+nats<span class="w"> </span>sub<span class="w"> </span>--context<span class="o">=</span>sahool<span class="w"> </span><span class="s2">&quot;test.&gt;&quot;</span>
+
+<span class="c1"># Check account info</span>
+nats<span class="w"> </span>account<span class="w"> </span>info<span class="w"> </span>--context<span class="o">=</span>sahool
+
+<span class="c1"># List streams (JetStream)</span>
+nats<span class="w"> </span>stream<span class="w"> </span>ls<span class="w"> </span>--context<span class="o">=</span>sahool
+</code></pre></div>
+
+<hr />
+<h2 id="migration-guide">Migration Guide<a class="headerlink" href="#migration-guide" title="Permanent link">&para;</a></h2>
+<h3 id="migrating-from-password-auth-to-nkey-auth">Migrating from Password Auth to NKey Auth<a class="headerlink" href="#migrating-from-password-auth-to-nkey-auth" title="Permanent link">&para;</a></h3>
+<h4 id="phase-1-dual-authentication">Phase 1: Dual Authentication<a class="headerlink" href="#phase-1-dual-authentication" title="Permanent link">&para;</a></h4>
+<ol>
+<li>Keep existing password authentication</li>
+<li>Add NKey resolver alongside</li>
+<li>Test NKey connections with new services</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="err">#</span><span class="w"> </span><span class="nx">nats</span><span class="o">-</span><span class="nx">migration</span><span class="p">.</span><span class="nx">conf</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">Supports</span><span class="w"> </span><span class="nx">both</span><span class="w"> </span><span class="nx">auth</span><span class="w"> </span><span class="nx">methods</span>
+
+<span class="err">#</span><span class="w"> </span><span class="nx">Legacy</span><span class="w"> </span><span class="nx">password</span><span class="w"> </span><span class="nx">auth</span>
+<span class="nx">accounts</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">APP</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">users</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span><span class="w"> </span><span class="nx">user</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="nx">NATS_USER</span><span class="p">,</span><span class="w"> </span><span class="nx">password</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="nx">NATS_PASSWORD</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="err">#</span><span class="w"> </span><span class="nx">New</span><span class="w"> </span><span class="nx">NKey</span><span class="w"> </span><span class="nx">auth</span>
+<span class="nx">operator</span><span class="p">:</span><span class="w"> </span><span class="err">$</span><span class="nx">NATS_OPERATOR_JWT</span>
+<span class="nx">resolver</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">type</span><span class="p">:</span><span class="w"> </span><span class="nx">full</span>
+<span class="w">    </span><span class="nx">dir</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/etc/nats/resolver&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="phase-2-service-migration">Phase 2: Service Migration<a class="headerlink" href="#phase-2-service-migration" title="Permanent link">&para;</a></h4>
+<p>Gradually migrate services one by one:</p>
+<ol>
+<li>Deploy NKey credentials to service</li>
+<li>Update service configuration</li>
+<li>Restart service</li>
+<li>Verify connection and functionality</li>
+<li>Move to next service</li>
+</ol>
+<h4 id="phase-3-complete-cutover">Phase 3: Complete Cutover<a class="headerlink" href="#phase-3-complete-cutover" title="Permanent link">&para;</a></h4>
+<p>Once all services are migrated:</p>
+<ol>
+<li>Remove password authentication from config</li>
+<li>Use pure NKey configuration (<code>nats-nkey.conf</code>)</li>
+<li>Restart NATS server</li>
+<li>Monitor for any issues</li>
+</ol>
+<hr />
+<h2 id="advanced-topics">Advanced Topics<a class="headerlink" href="#advanced-topics" title="Permanent link">&para;</a></h2>
+<h3 id="account-exports-and-imports">Account Exports and Imports<a class="headerlink" href="#account-exports-and-imports" title="Permanent link">&para;</a></h3>
+<p>Allow services in different accounts to communicate:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># In account A, export a service</span>
+nsc<span class="w"> </span>add<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-a<span class="w"> </span>AccountA<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--service<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--subject<span class="w"> </span><span class="s2">&quot;service.request&quot;</span>
+
+<span class="c1"># In account B, import the service</span>
+nsc<span class="w"> </span>add<span class="w"> </span>import<span class="w"> </span>-a<span class="w"> </span>AccountB<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--service<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--src-account<span class="w"> </span><span class="k">$(</span>nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>AccountA<span class="w"> </span>-J<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span>.sub<span class="k">)</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--remote-subject<span class="w"> </span><span class="s2">&quot;service.request&quot;</span>
+
+<span class="c1"># Update resolver</span>
+nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>AccountA<span class="w"> </span>-J<span class="w"> </span>&gt;<span class="w"> </span>resolver/AccountA.jwt
+nsc<span class="w"> </span>describe<span class="w"> </span>account<span class="w"> </span>AccountB<span class="w"> </span>-J<span class="w"> </span>&gt;<span class="w"> </span>resolver/AccountB.jwt
+</code></pre></div>
+
+<h3 id="signing-keys-for-delegation">Signing Keys for Delegation<a class="headerlink" href="#signing-keys-for-delegation" title="Permanent link">&para;</a></h3>
+<p>Use signing keys for key rotation without changing operator:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate signing key for operator</span>
+nsc<span class="w"> </span>edit<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>--sk<span class="w"> </span>generate
+
+<span class="c1"># Use signing key to create account</span>
+nsc<span class="w"> </span>add<span class="w"> </span>account<span class="w"> </span>NewAccount<span class="w"> </span>--sk<span class="w"> </span>&lt;signing-key-from-above&gt;
+
+<span class="c1"># Rotate signing keys</span>
+nsc<span class="w"> </span>edit<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>--sk<span class="w"> </span>generate
+nsc<span class="w"> </span>edit<span class="w"> </span>operator<span class="w"> </span>SAHOOL<span class="w"> </span>--sk<span class="w"> </span>revoke<span class="w"> </span>&lt;old-key&gt;
+</code></pre></div>
+
+<h3 id="account-server-production">Account Server (Production)<a class="headerlink" href="#account-server-production" title="Permanent link">&para;</a></h3>
+<p>For production with many accounts, use NATS Account Server:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install account server</span>
+go<span class="w"> </span>install<span class="w"> </span>github.com/nats-io/nats-account-server@latest
+
+<span class="c1"># Run account server</span>
+nats-account-server<span class="w"> </span>-nsc<span class="w"> </span><span class="nv">$NSC_HOME</span>
+
+<span class="c1"># Update NATS config to use URL resolver</span>
+<span class="c1"># resolver: URL(http://nats-account-server:9090/jwt/v1/accounts/)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.nats.io/">NATS Documentation</a></li>
+<li><a href="https://docs.nats.io/running-a-nats-service/configuration/securing_nats/auth_intro/nkey_auth">NKey Authentication Guide</a></li>
+<li><a href="https://docs.nats.io/running-a-nats-service/configuration/securing_nats/auth_intro/nsc">NSC Tool Documentation</a></li>
+<li><a href="https://github.com/nats-io/nats-account-server">NATS Account Server</a></li>
+<li><a href="https://docs.nats.io/running-a-nats-service/configuration/securing_nats">NATS Security Best Practices</a></li>
+</ul>
+<hr />
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For issues or questions:</p>
+<ol>
+<li>Check NATS server logs: <code>docker logs sahool-nats</code></li>
+<li>Review NSC configuration: <code>nsc env</code></li>
+<li>Test credentials: <code>nats pub --creds=&lt;creds-file&gt; test "hello"</code></li>
+<li>Join NATS Slack: https://slack.nats.io/</li>
+</ol>
+<hr />
+<p><strong>Last Updated</strong>: 2026-01-07
+<strong>Version</strong>: 1.0
+<strong>Author</strong>: SAHOOL Platform Team</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

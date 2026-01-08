@@ -1,0 +1,1732 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>توصيات ربط المهام بالتقويم الفلكي - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              توصيات ربط المهام بالتقويم الفلكي
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">توصيات ربط المهام بالتقويم الفلكي<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="task-astronomical-calendar-integration-recommendations">Task-Astronomical Calendar Integration Recommendations<a class="headerlink" href="#task-astronomical-calendar-integration-recommendations" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>التاريخ</strong>: 2026-01-05
+<strong>الحالة</strong>: مقترح للتطوير المستقبلي
+<strong>الأولوية</strong>: عالية</p>
+</blockquote>
+<hr />
+<h2 id="1">1. ملخص تنفيذي<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="_2">الوضع الحالي<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>خدمة التقويم الفلكي (<code>astronomical-calendar</code>) تحسب توصيات الزراعة بناءً على أطوار القمر والمنازل القمرية</li>
+<li>خدمة المهام (<code>task-service</code>) تدير مهام الحقل بشكل مستقل</li>
+<li><strong>لا يوجد ارتباط</strong> بين النظامين حالياً</li>
+</ul>
+<h3 id="_3">الفجوة<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الميزة</th>
+<th>التقويم الفلكي</th>
+<th>خدمة المهام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تاريخ البذر</td>
+<td>✅ <code>best_planting_days</code></td>
+<td>❌ لا يستخدمه</td>
+</tr>
+<tr>
+<td>أطوار القمر</td>
+<td>✅ <code>moon_phase</code></td>
+<td>❌ غير مرتبط</td>
+</tr>
+<tr>
+<td>المنازل القمرية</td>
+<td>✅ <code>lunar_mansion</code></td>
+<td>❌ لا يؤثر</td>
+</tr>
+<tr>
+<td>التوصيات الزراعية</td>
+<td>✅ <code>FarmingRecommendation</code></td>
+<td>❌ لا ينشئ مهام</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. التوصيات التقنية<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21-backend">2.1 تعديلات Backend<a class="headerlink" href="#21-backend" title="Permanent link">&para;</a></h3>
+<h4 id="211-endpoints-task-service">2.1.1 إضافة Endpoints جديدة في Task Service<a class="headerlink" href="#211-endpoints-task-service" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/task-service/src/main.py</span>
+
+<span class="c1"># Endpoint 1: اقتراح أفضل الأيام للنشاط</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/v1/tasks/suggest-dates/</span><span class="si">{activity}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">suggest_dates_for_activity</span><span class="p">(</span>
+    <span class="n">activity</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># زراعة، ري، حصاد، تسميد</span>
+    <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">field_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    يستدعي خدمة التقويم الفلكي ويعيد أفضل الأيام للنشاط المحدد</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Endpoint 2: إنشاء مهمة مع توصية فلكية</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/v1/tasks/create-with-recommendation&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">create_task_with_recommendation</span><span class="p">(</span>
+    <span class="n">task</span><span class="p">:</span> <span class="n">TaskCreate</span><span class="p">,</span>
+    <span class="n">use_astronomical</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ينشئ مهمة مع ربطها بالتوصية الفلكية المناسبة</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="c1"># Endpoint 3: التحقق من ملاءمة التاريخ</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/v1/tasks/validate-date&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">validate_task_date</span><span class="p">(</span>
+    <span class="n">date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">activity</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    يتحقق من ملاءمة التاريخ للنشاط بناءً على التقويم الفلكي</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+
+<h4 id="212-task-model">2.1.2 تعديل نموذج المهمة (Task Model)<a class="headerlink" href="#212-task-model" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة حقول جديدة للمهمة</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Task</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="c1"># الحقول الحالية...</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">task_type</span><span class="p">:</span> <span class="n">TaskType</span>
+    <span class="n">due_date</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">TaskStatus</span>
+    <span class="n">priority</span><span class="p">:</span> <span class="n">TaskPriority</span>
+
+    <span class="c1"># الحقول الجديدة للربط الفلكي</span>
+    <span class="n">astronomical_recommendation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AstronomicalRecommendation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">moon_phase_at_due_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">lunar_mansion_at_due_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">astronomical_score</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># 1-10</span>
+    <span class="n">suggested_by_calendar</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">optimal_time_of_day</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># الصباح الباكر، المساء</span>
+</code></pre></div>
+
+<h4 id="213-hook">2.1.3 إضافة Hook للربط التلقائي<a class="headerlink" href="#213-hook" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/task-service/src/hooks/astronomical_integration.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AstronomicalTaskHook</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hook يُنفذ عند إنشاء أو تحديث مهمة</span>
+<span class="sd">    لإضافة البيانات الفلكية المناسبة</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_task_create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Task</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;عند إنشاء مهمة جديدة&quot;&quot;&quot;</span>
+        <span class="n">astro_data</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_astronomical_data</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">due_date</span><span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">moon_phase_at_due_date</span> <span class="o">=</span> <span class="n">astro_data</span><span class="o">.</span><span class="n">moon_phase</span><span class="o">.</span><span class="n">name_ar</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">lunar_mansion_at_due_date</span> <span class="o">=</span> <span class="n">astro_data</span><span class="o">.</span><span class="n">lunar_mansion</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">astronomical_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_score</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">task_type</span><span class="p">,</span> <span class="n">astro_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">task</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_task_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span> <span class="n">changes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Task</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;عند تحديث تاريخ الاستحقاق&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;due_date&#39;</span> <span class="ow">in</span> <span class="n">changes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_task_create</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">task</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_type</span><span class="p">:</span> <span class="n">TaskType</span><span class="p">,</span> <span class="n">astro_data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;حساب درجة ملاءمة التاريخ للنشاط&quot;&quot;&quot;</span>
+        <span class="n">activity_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">TaskType</span><span class="o">.</span><span class="n">PLANTING</span><span class="p">:</span> <span class="s2">&quot;زراعة&quot;</span><span class="p">,</span>
+            <span class="n">TaskType</span><span class="o">.</span><span class="n">IRRIGATION</span><span class="p">:</span> <span class="s2">&quot;ري&quot;</span><span class="p">,</span>
+            <span class="n">TaskType</span><span class="o">.</span><span class="n">HARVEST</span><span class="p">:</span> <span class="s2">&quot;حصاد&quot;</span><span class="p">,</span>
+            <span class="n">TaskType</span><span class="o">.</span><span class="n">FERTILIZATION</span><span class="p">:</span> <span class="s2">&quot;تسميد&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">activity</span> <span class="o">=</span> <span class="n">activity_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_type</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">astro_data</span><span class="o">.</span><span class="n">recommendations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">activity</span> <span class="o">==</span> <span class="n">activity</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">rec</span><span class="o">.</span><span class="n">suitability_score</span>
+        <span class="k">return</span> <span class="mi">5</span>  <span class="c1"># درجة متوسطة افتراضية</span>
+</code></pre></div>
+
+<h4 id="214">2.1.4 إنشاء مهام تلقائية من التوصيات<a class="headerlink" href="#214" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/task-service/src/services/auto_task_generator.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AutoTaskGenerator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    مولد المهام التلقائي بناءً على التقويم الفلكي</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_weekly_suggestions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">field_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">crop_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TaskSuggestion</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        يولد اقتراحات مهام أسبوعية بناءً على:</span>
+<span class="sd">        - نوع المحصول</span>
+<span class="sd">        - التقويم الفلكي</span>
+<span class="sd">        - الموسم الحالي</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">weekly_forecast</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">astronomical_api</span><span class="o">.</span><span class="n">get_weekly_forecast</span><span class="p">()</span>
+        <span class="n">suggestions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="n">weekly_forecast</span><span class="o">.</span><span class="n">days</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">day</span><span class="o">.</span><span class="n">recommendations</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">suitability_score</span> <span class="o">&gt;=</span> <span class="mi">7</span><span class="p">:</span>  <span class="c1"># فقط التوصيات الجيدة</span>
+                    <span class="n">suggestions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">TaskSuggestion</span><span class="p">(</span>
+                        <span class="n">suggested_date</span><span class="o">=</span><span class="n">day</span><span class="o">.</span><span class="n">date</span><span class="p">,</span>
+                        <span class="n">activity</span><span class="o">=</span><span class="n">rec</span><span class="o">.</span><span class="n">activity</span><span class="p">,</span>
+                        <span class="n">reason</span><span class="o">=</span><span class="n">rec</span><span class="o">.</span><span class="n">reason</span><span class="p">,</span>
+                        <span class="n">score</span><span class="o">=</span><span class="n">rec</span><span class="o">.</span><span class="n">suitability_score</span><span class="p">,</span>
+                        <span class="n">best_time</span><span class="o">=</span><span class="n">rec</span><span class="o">.</span><span class="n">best_time</span><span class="p">,</span>
+                        <span class="n">field_id</span><span class="o">=</span><span class="n">field_id</span>
+                    <span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">suggestions</span>
+</code></pre></div>
+
+<hr />
+<h3 id="22-frontend">2.2 تعديلات Frontend<a class="headerlink" href="#22-frontend" title="Permanent link">&para;</a></h3>
+<h4 id="221-web">2.2.1 مكون اقتراح التاريخ (Web)<a class="headerlink" href="#221-web" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/features/tasks/components/AstronomicalDatePicker.tsx</span>
+
+<span class="kd">interface</span><span class="w"> </span><span class="nx">AstronomicalDatePickerProps</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">activity</span><span class="o">:</span><span class="w"> </span><span class="kt">TaskType</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">onDateSelect</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">date</span><span class="o">:</span><span class="w"> </span><span class="kt">Date</span><span class="p">,</span><span class="w"> </span><span class="nx">astronomicalData</span><span class="o">:</span><span class="w"> </span><span class="kt">AstronomicalData</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="ow">void</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">fieldId?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">AstronomicalDatePicker</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">activity</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">onDateSelect</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">fieldId</span>
+<span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="nx">AstronomicalDatePickerProps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">bestDays</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useQuery</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">queryKey</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;best-days&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">activity</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">queryFn</span><span class="o">:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">taskApi</span><span class="p">.</span><span class="nx">suggestDates</span><span class="p">(</span><span class="nx">activity</span><span class="p">,</span><span class="w"> </span><span class="mf">30</span><span class="p">)</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;astronomical-date-picker&quot;</span><span class="o">&gt;</span>
+<span class="w">      </span><span class="o">&lt;</span><span class="nx">h4</span><span class="o">&gt;</span><span class="nx">أفضل</span><span class="w"> </span><span class="nx">الأيام</span><span class="w"> </span><span class="nx">لـ</span><span class="w"> </span><span class="p">{</span><span class="nx">activityLabels</span><span class="p">[</span><span class="nx">activity</span><span class="p">]}</span><span class="o">&lt;</span><span class="err">/h4&gt;</span>
+
+<span class="w">      </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;best-days-grid&quot;</span><span class="o">&gt;</span>
+<span class="w">        </span><span class="p">{</span><span class="nx">bestDays</span><span class="o">?</span><span class="p">.</span><span class="nx">map</span><span class="p">(</span><span class="nx">day</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">          </span><span class="o">&lt;</span><span class="nx">DayCard</span>
+<span class="w">            </span><span class="nx">key</span><span class="o">=</span><span class="p">{</span><span class="nx">day</span><span class="p">.</span><span class="nx">date</span><span class="p">}</span>
+<span class="w">            </span><span class="nx">date</span><span class="o">=</span><span class="p">{</span><span class="nx">day</span><span class="p">.</span><span class="nx">date</span><span class="p">}</span>
+<span class="w">            </span><span class="nx">score</span><span class="o">=</span><span class="p">{</span><span class="nx">day</span><span class="p">.</span><span class="nx">astronomicalScore</span><span class="p">}</span>
+<span class="w">            </span><span class="nx">moonPhase</span><span class="o">=</span><span class="p">{</span><span class="nx">day</span><span class="p">.</span><span class="nx">moonPhase</span><span class="p">}</span>
+<span class="w">            </span><span class="nx">lunarMansion</span><span class="o">=</span><span class="p">{</span><span class="nx">day</span><span class="p">.</span><span class="nx">lunarMansion</span><span class="p">}</span>
+<span class="w">            </span><span class="nx">reason</span><span class="o">=</span><span class="p">{</span><span class="nx">day</span><span class="p">.</span><span class="nx">reason</span><span class="p">}</span>
+<span class="w">            </span><span class="nx">onClick</span><span class="o">=</span><span class="p">{()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">onDateSelect</span><span class="p">(</span><span class="nx">day</span><span class="p">.</span><span class="nx">date</span><span class="p">,</span><span class="w"> </span><span class="nx">day</span><span class="p">)}</span>
+<span class="w">          </span><span class="o">/&gt;</span>
+<span class="w">        </span><span class="p">))}</span>
+<span class="w">      </span><span class="o">&lt;</span><span class="err">/div&gt;</span>
+
+<span class="w">      </span><span class="o">&lt;</span><span class="nx">MoonPhaseIndicator</span><span class="w"> </span><span class="o">/&gt;</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="err">/div&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="222">2.2.2 بطاقة المهمة مع البيانات الفلكية<a class="headerlink" href="#222" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/features/tasks/components/TaskCardWithAstro.tsx</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">TaskCardWithAstro</span><span class="p">({</span><span class="w"> </span><span class="nx">task</span><span class="w"> </span><span class="p">}</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">task</span><span class="o">:</span><span class="w"> </span><span class="kt">Task</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="nx">Card</span><span class="o">&gt;</span>
+<span class="w">      </span><span class="o">&lt;</span><span class="nx">CardHeader</span><span class="o">&gt;</span>
+<span class="w">        </span><span class="o">&lt;</span><span class="nx">TaskTitle</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">title</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/TaskTitle&gt;</span>
+<span class="w">        </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">astronomicalScore</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">          </span><span class="o">&lt;</span><span class="nx">AstronomicalBadge</span><span class="w"> </span><span class="nx">score</span><span class="o">=</span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">astronomicalScore</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span>
+<span class="w">        </span><span class="p">)}</span>
+<span class="w">      </span><span class="o">&lt;</span><span class="err">/CardHeader&gt;</span>
+
+<span class="w">      </span><span class="o">&lt;</span><span class="nx">CardContent</span><span class="o">&gt;</span>
+<span class="w">        </span><span class="o">&lt;</span><span class="nx">TaskDetails</span><span class="w"> </span><span class="nx">task</span><span class="o">=</span><span class="p">{</span><span class="nx">task</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span>
+
+<span class="w">        </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">moon_phase_at_due_date</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">          </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;astro-info&quot;</span><span class="o">&gt;</span>
+<span class="w">            </span><span class="o">&lt;</span><span class="nx">MoonPhaseIcon</span><span class="w"> </span><span class="nx">phase</span><span class="o">=</span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">moon_phase_at_due_date</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span>
+<span class="w">            </span><span class="o">&lt;</span><span class="nx">span</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">moon_phase_at_due_date</span><span class="p">}</span><span class="o">&lt;</span><span class="err">/span&gt;</span>
+
+<span class="w">            </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">lunar_mansion_at_due_date</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">              </span><span class="o">&lt;</span><span class="nx">span</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;lunar-mansion&quot;</span><span class="o">&gt;</span>
+<span class="w">                </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">lunar_mansion_at_due_date</span><span class="p">}</span>
+<span class="w">              </span><span class="o">&lt;</span><span class="err">/span&gt;</span>
+<span class="w">            </span><span class="p">)}</span>
+<span class="w">          </span><span class="o">&lt;</span><span class="err">/div&gt;</span>
+<span class="w">        </span><span class="p">)}</span>
+
+<span class="w">        </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">optimal_time_of_day</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span>
+<span class="w">          </span><span class="o">&lt;</span><span class="nx">div</span><span class="w"> </span><span class="nx">className</span><span class="o">=</span><span class="s2">&quot;optimal-time&quot;</span><span class="o">&gt;</span>
+<span class="w">            </span><span class="nx">أفضل</span><span class="w"> </span><span class="nx">وقت</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="nx">task</span><span class="p">.</span><span class="nx">optimal_time_of_day</span><span class="p">}</span>
+<span class="w">          </span><span class="o">&lt;</span><span class="err">/div&gt;</span>
+<span class="w">        </span><span class="p">)}</span>
+<span class="w">      </span><span class="o">&lt;</span><span class="err">/CardContent&gt;</span>
+<span class="w">    </span><span class="o">&lt;</span><span class="err">/Card&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="223-flutter">2.2.3 تطبيق الموبايل (Flutter)<a class="headerlink" href="#223-flutter" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/mobile/lib/features/tasks/presentation/widgets/astronomical_task_form.dart</span>
+
+<span class="kd">class</span><span class="w"> </span><span class="nc">AstronomicalTaskForm</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">ConsumerWidget</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nd">@override</span>
+<span class="w">  </span><span class="n">Widget</span><span class="w"> </span><span class="n">build</span><span class="p">(</span><span class="n">BuildContext</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">WidgetRef</span><span class="w"> </span><span class="n">ref</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">final</span><span class="w"> </span><span class="n">bestDays</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">(</span><span class="n">bestDaysProvider</span><span class="p">(</span><span class="n">BestDaysParams</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">activity:</span><span class="w"> </span><span class="n">selectedActivity</span><span class="p">,</span>
+<span class="w">      </span><span class="nl">days:</span><span class="w"> </span><span class="m">30</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)));</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">Column</span><span class="p">(</span>
+<span class="w">      </span><span class="nl">children:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="c1">// اختيار النشاط</span>
+<span class="w">        </span><span class="n">ActivitySelector</span><span class="p">(</span>
+<span class="w">          </span><span class="nl">onChanged:</span><span class="w"> </span><span class="p">(</span><span class="n">activity</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">selectedActivityProvider</span><span class="p">.</span><span class="n">notifier</span><span class="p">).</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">activity</span><span class="p">,</span>
+<span class="w">        </span><span class="p">),</span>
+
+<span class="w">        </span><span class="c1">// عرض أفضل الأيام</span>
+<span class="w">        </span><span class="n">bestDays</span><span class="p">.</span><span class="n">when</span><span class="p">(</span>
+<span class="w">          </span><span class="nl">data:</span><span class="w"> </span><span class="p">(</span><span class="n">days</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">BestDaysGrid</span><span class="p">(</span>
+<span class="w">            </span><span class="nl">days:</span><span class="w"> </span><span class="n">days</span><span class="p">,</span>
+<span class="w">            </span><span class="nl">onDaySelected:</span><span class="w"> </span><span class="p">(</span><span class="n">day</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="n">ref</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">selectedDateProvider</span><span class="p">.</span><span class="n">notifier</span><span class="p">).</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">day</span><span class="p">.</span><span class="n">date</span><span class="p">;</span>
+<span class="w">              </span><span class="n">ref</span><span class="p">.</span><span class="n">read</span><span class="p">(</span><span class="n">astronomicalDataProvider</span><span class="p">.</span><span class="n">notifier</span><span class="p">).</span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">day</span><span class="p">;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">          </span><span class="p">),</span>
+<span class="w">          </span><span class="nl">loading:</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">CircularProgressIndicator</span><span class="p">(),</span>
+<span class="w">          </span><span class="nl">error:</span><span class="w"> </span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">Text</span><span class="p">(</span><span class="s1">&#39;خطأ في تحميل البيانات&#39;</span><span class="p">),</span>
+<span class="w">        </span><span class="p">),</span>
+
+<span class="w">        </span><span class="c1">// عرض طور القمر للتاريخ المحدد</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">(</span><span class="n">selectedDateProvider</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span>
+<span class="w">          </span><span class="n">MoonPhaseCard</span><span class="p">(</span><span class="nl">date:</span><span class="w"> </span><span class="n">ref</span><span class="p">.</span><span class="n">watch</span><span class="p">(</span><span class="n">selectedDateProvider</span><span class="p">)</span><span class="o">!</span><span class="p">),</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="23">2.3 تعديلات قاعدة البيانات<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<h4 id="231-prisma-schema">2.3.1 Prisma Schema<a class="headerlink" href="#231-prisma-schema" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="o">//</span><span class="w"> </span><span class="n">packages</span><span class="o">/</span><span class="n">shared</span><span class="o">-</span><span class="n">db</span><span class="o">/</span><span class="n">prisma</span><span class="o">/</span><span class="k">schema</span><span class="p">.</span><span class="n">prisma</span>
+
+<span class="n">model</span><span class="w"> </span><span class="n">Task</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">id</span><span class="w">          </span><span class="n">String</span><span class="w">   </span><span class="nv">@id</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">cuid</span><span class="p">())</span>
+<span class="w">  </span><span class="n">title</span><span class="w">       </span><span class="n">String</span>
+<span class="w">  </span><span class="n">description</span><span class="w"> </span><span class="n">String</span><span class="vm">?</span>
+<span class="w">  </span><span class="n">taskType</span><span class="w">    </span><span class="n">TaskType</span>
+<span class="w">  </span><span class="n">dueDate</span><span class="w">     </span><span class="nc">DateTime</span>
+<span class="w">  </span><span class="n">fieldId</span><span class="w">     </span><span class="n">String</span>
+<span class="w">  </span><span class="n">status</span><span class="w">      </span><span class="n">TaskStatus</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">PENDING</span><span class="p">)</span>
+<span class="w">  </span><span class="n">priority</span><span class="w">    </span><span class="n">TaskPriority</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">MEDIUM</span><span class="p">)</span>
+
+<span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">الحقول</span><span class="w"> </span><span class="n">الفلكية</span><span class="w"> </span><span class="n">الجديدة</span>
+<span class="w">  </span><span class="n">astronomicalScore</span><span class="w">       </span><span class="nc">Int</span><span class="vm">?</span><span class="w">      </span><span class="o">//</span><span class="w"> </span><span class="mi">1</span><span class="o">-</span><span class="mi">10</span>
+<span class="w">  </span><span class="n">moonPhaseAtDueDate</span><span class="w">      </span><span class="n">String</span><span class="vm">?</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="n">طور</span><span class="w"> </span><span class="n">القمر</span>
+<span class="w">  </span><span class="n">lunarMansionAtDueDate</span><span class="w">   </span><span class="n">String</span><span class="vm">?</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="n">المنزلة</span><span class="w"> </span><span class="n">القمرية</span>
+<span class="w">  </span><span class="n">optimalTimeOfDay</span><span class="w">        </span><span class="n">String</span><span class="vm">?</span><span class="w">   </span><span class="o">//</span><span class="w"> </span><span class="n">أفضل</span><span class="w"> </span><span class="n">وقت</span>
+<span class="w">  </span><span class="n">suggestedByCalendar</span><span class="w">     </span><span class="k">Boolean</span><span class="w">   </span><span class="nv">@default</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+<span class="w">  </span><span class="n">astronomicalRecommendation</span><span class="w"> </span><span class="n">Json</span><span class="vm">?</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">توصية</span><span class="w"> </span><span class="n">كاملة</span>
+
+<span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="n">العلاقات</span>
+<span class="w">  </span><span class="n">field</span><span class="w">     </span><span class="n">Field</span><span class="w">    </span><span class="nv">@relation</span><span class="p">(</span><span class="nl">fields</span><span class="p">:</span><span class="w"> </span><span class="o">[</span><span class="n">fieldId</span><span class="o">]</span><span class="p">,</span><span class="w"> </span><span class="k">references</span><span class="err">:</span><span class="w"> </span><span class="o">[</span><span class="n">id</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="n">createdAt</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@default</span><span class="p">(</span><span class="n">now</span><span class="p">())</span>
+<span class="w">  </span><span class="n">updatedAt</span><span class="w"> </span><span class="nc">DateTime</span><span class="w"> </span><span class="nv">@updatedAt</span>
+
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">fieldId</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">dueDate</span><span class="o">]</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">@@index</span><span class="p">(</span><span class="o">[</span><span class="n">taskType, dueDate</span><span class="o">]</span><span class="p">)</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="3-api">3. واجهات API المقترحة<a class="headerlink" href="#3-api" title="Permanent link">&para;</a></h2>
+<h3 id="31-task-service-apis">3.1 Task Service APIs<a class="headerlink" href="#31-task-service-apis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>الوصف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/v1/tasks/suggest-dates/{activity}</code></td>
+<td>GET</td>
+<td>اقتراح أفضل الأيام للنشاط</td>
+</tr>
+<tr>
+<td><code>/v1/tasks/create-with-recommendation</code></td>
+<td>POST</td>
+<td>إنشاء مهمة مع توصية فلكية</td>
+</tr>
+<tr>
+<td><code>/v1/tasks/validate-date</code></td>
+<td>GET</td>
+<td>التحقق من ملاءمة التاريخ</td>
+</tr>
+<tr>
+<td><code>/v1/tasks/auto-suggestions</code></td>
+<td>GET</td>
+<td>اقتراحات مهام تلقائية</td>
+</tr>
+<tr>
+<td><code>/v1/tasks/{id}/astronomical-data</code></td>
+<td>GET</td>
+<td>البيانات الفلكية للمهمة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-kong-gateway-routes">3.2 Kong Gateway Routes<a class="headerlink" href="#32-kong-gateway-routes" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة في kong.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task-astronomical-integration</span>
+<span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://task-service:8103</span>
+<span class="w">  </span><span class="nt">routes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task-astronomical-route</span>
+<span class="w">      </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/tasks/suggest-dates</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/tasks/validate-date</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/api/v1/tasks/auto-suggestions</span>
+<span class="w">      </span><span class="nt">strip_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4">4. سيناريوهات الاستخدام<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 إنشاء مهمة زراعة مع اقتراح التاريخ<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="err">المستخدم</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Web</span><span class="o">/</span><span class="n">Mobile</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Task</span><span class="w"> </span><span class="kr">Service</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Astronomical</span><span class="w"> </span><span class="n">Calendar</span>
+
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="err">ينقر</span><span class="w"> </span><span class="s">&quot;إضافة مهمة زراعة&quot;</span>
+<span class="w">    </span><span class="n">W</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="o">/</span><span class="n">suggest</span><span class="o">-</span><span class="n">dates</span><span class="o">/</span><span class="err">زراعة</span>
+<span class="w">    </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="kr">best</span><span class="o">-</span><span class="n">days</span><span class="o">?</span><span class="n">activity</span><span class="o">=</span><span class="err">زراعة</span>
+<span class="w">    </span><span class="n">A</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="err">قائمة</span><span class="w"> </span><span class="err">أفضل</span><span class="w"> </span><span class="err">الأيام</span>
+<span class="w">    </span><span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="err">أفضل</span><span class="w"> </span><span class="err">الأيام</span><span class="w"> </span><span class="err">مع</span><span class="w"> </span><span class="err">التفاصيل</span>
+<span class="w">    </span><span class="n">W</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="err">عرض</span><span class="w"> </span><span class="err">التقويم</span><span class="w"> </span><span class="err">مع</span><span class="w"> </span><span class="err">التوصيات</span>
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="err">يختار</span><span class="w"> </span><span class="err">تاريخ</span><span class="w"> </span><span class="err">مقترح</span>
+<span class="w">    </span><span class="n">W</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="n">POST</span><span class="w"> </span><span class="o">/</span><span class="n">create</span><span class="o">-</span><span class="n">with</span><span class="o">-</span><span class="n">recommendation</span>
+<span class="w">    </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">date</span><span class="o">/</span><span class="p">{</span><span class="n">selected_date</span><span class="p">}</span>
+<span class="w">    </span><span class="n">A</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="err">البيانات</span><span class="w"> </span><span class="err">الفلكية</span><span class="w"> </span><span class="err">للتاريخ</span>
+<span class="w">    </span><span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="err">المهمة</span><span class="w"> </span><span class="err">مع</span><span class="w"> </span><span class="err">البيانات</span><span class="w"> </span><span class="err">الفلكية</span>
+<span class="w">    </span><span class="n">W</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="err">تأكيد</span><span class="w"> </span><span class="err">إنشاء</span><span class="w"> </span><span class="err">المهمة</span>
+</code></pre></div>
+
+<h3 id="42">4.2 التحقق من ملاءمة تاريخ الري<a class="headerlink" href="#42" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="err">المستخدم</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Web</span><span class="o">/</span><span class="n">Mobile</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">T</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Task</span><span class="w"> </span><span class="kr">Service</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">Astronomical</span><span class="w"> </span><span class="n">Calendar</span>
+
+<span class="w">    </span><span class="n">U</span><span class="o">-&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="err">يحدد</span><span class="w"> </span><span class="err">تاريخ</span><span class="w"> </span><span class="err">للري</span>
+<span class="w">    </span><span class="n">W</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="o">/</span><span class="kr">validate</span><span class="o">-</span><span class="n">date</span><span class="o">?</span><span class="n">date</span><span class="o">=</span><span class="mi">2026</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mi">10</span><span class="o">&amp;</span><span class="n">activity</span><span class="o">=</span><span class="err">ري</span>
+<span class="w">    </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">A</span><span class="o">:</span><span class="w"> </span><span class="n">GET</span><span class="w"> </span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">date</span><span class="o">/</span><span class="mi">2026</span><span class="o">-</span><span class="mo">01</span><span class="o">-</span><span class="mi">10</span>
+<span class="w">    </span><span class="n">A</span><span class="o">--&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="err">البيانات</span><span class="w"> </span><span class="err">الفلكية</span>
+<span class="w">    </span><span class="n">T</span><span class="o">-&gt;&gt;</span><span class="n">T</span><span class="o">:</span><span class="w"> </span><span class="err">حساب</span><span class="w"> </span><span class="err">درجة</span><span class="w"> </span><span class="err">الملاءمة</span>
+
+<span class="w">    </span><span class="n">alt</span><span class="w"> </span><span class="err">التاريخ</span><span class="w"> </span><span class="err">مناسب</span><span class="w"> </span><span class="p">(</span><span class="n">score</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span>
+<span class="w">        </span><span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="n">suitable</span><span class="o">:</span><span class="w"> </span><span class="kr">true</span><span class="p">,</span><span class="w"> </span><span class="n">score</span><span class="o">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">reason</span><span class="o">:</span><span class="w"> </span><span class="s">&quot;...&quot;</span><span class="p">}</span>
+<span class="w">        </span><span class="n">W</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="err">✅</span><span class="w"> </span><span class="err">التاريخ</span><span class="w"> </span><span class="err">مناسب</span><span class="w"> </span><span class="err">للري</span>
+<span class="w">    </span><span class="n">else</span><span class="w"> </span><span class="err">التاريخ</span><span class="w"> </span><span class="err">غير</span><span class="w"> </span><span class="err">مناسب</span>
+<span class="w">        </span><span class="n">T</span><span class="o">--&gt;&gt;</span><span class="n">W</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="n">suitable</span><span class="o">:</span><span class="w"> </span><span class="kr">false</span><span class="p">,</span><span class="w"> </span><span class="n">score</span><span class="o">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">alternatives</span><span class="o">:</span><span class="w"> </span><span class="p">[...]}</span>
+<span class="w">        </span><span class="n">W</span><span class="o">--&gt;&gt;</span><span class="n">U</span><span class="o">:</span><span class="w"> </span><span class="err">⚠️</span><span class="w"> </span><span class="err">التاريخ</span><span class="w"> </span><span class="err">غير</span><span class="w"> </span><span class="err">مثالي</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="err">بدائل</span><span class="w"> </span><span class="err">مقترحة</span>
+<span class="w">    </span><span class="kd">end</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5">5. خطة التنفيذ المقترحة<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="1_1">المرحلة 1: البنية التحتية (أسبوعان)<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إضافة حقول فلكية لنموذج المهمة</li>
+<li>[ ] إنشاء migration لقاعدة البيانات</li>
+<li>[ ] إضافة endpoint اقتراح التواريخ</li>
+<li>[ ] إضافة endpoint التحقق من التاريخ</li>
+</ul>
+<h3 id="2_1">المرحلة 2: الربط الأساسي (أسبوعان)<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] إنشاء Hook للربط التلقائي</li>
+<li>[ ] تحديث إنشاء المهمة لاستدعاء التقويم الفلكي</li>
+<li>[ ] إضافة caching للبيانات الفلكية</li>
+<li>[ ] اختبارات الوحدة</li>
+</ul>
+<h3 id="3-3">المرحلة 3: واجهات المستخدم (3 أسابيع)<a class="headerlink" href="#3-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] مكون اقتراح التاريخ (Web)</li>
+<li>[ ] بطاقة المهمة مع البيانات الفلكية (Web)</li>
+<li>[ ] شاشة إنشاء المهمة الفلكية (Mobile)</li>
+<li>[ ] عرض طور القمر في قائمة المهام</li>
+</ul>
+<h3 id="4_1">المرحلة 4: الميزات المتقدمة (أسبوعان)<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] اقتراحات المهام التلقائية</li>
+<li>[ ] إشعارات الأيام المثالية</li>
+<li>[ ] تقارير الارتباط الفلكي</li>
+<li>[ ] تكامل مع خدمة الإشعارات</li>
+</ul>
+<hr />
+<h2 id="6">6. المخاطر والتحديات<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المخاطر</th>
+<th>التأثير</th>
+<th>التخفيف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>تأخر استجابة التقويم الفلكي</td>
+<td>متوسط</td>
+<td>استخدام caching وتحميل مسبق</td>
+</tr>
+<tr>
+<td>عدم توفر الخدمة</td>
+<td>عالي</td>
+<td>fallback للإنشاء بدون بيانات فلكية</td>
+</tr>
+<tr>
+<td>تعقيد واجهة المستخدم</td>
+<td>متوسط</td>
+<td>تصميم UX بسيط وتدريجي</td>
+</tr>
+<tr>
+<td>زيادة حجم البيانات</td>
+<td>منخفض</td>
+<td>فهرسة مناسبة وتنظيف دوري</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-kpis">7. مؤشرات النجاح (KPIs)<a class="headerlink" href="#7-kpis" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>معدل استخدام التوصيات</strong>: % المهام المنشأة باستخدام التاريخ المقترح</li>
+<li><strong>رضا المستخدم</strong>: تقييم سهولة اختيار التاريخ</li>
+<li><strong>دقة التوصيات</strong>: مقارنة نتائج المحاصيل مع درجات الملاءمة</li>
+<li><strong>وقت إنشاء المهمة</strong>: هل يقلل الاقتراح من الوقت؟</li>
+</ul>
+<hr />
+<h2 id="8">8. الملفات المتأثرة<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<h3 id="backend">Backend<a class="headerlink" href="#backend" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>apps/services/task-service/src/
+├── main.py                          # إضافة endpoints جديدة
+├── models/task.py                   # تحديث نموذج المهمة
+├── hooks/astronomical_integration.py # جديد
+├── services/auto_task_generator.py   # جديد
+└── api/astronomical_routes.py        # جديد
+</code></pre></div>
+
+<h3 id="frontend-web">Frontend Web<a class="headerlink" href="#frontend-web" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>apps/web/src/features/tasks/
+├── components/
+│   ├── AstronomicalDatePicker.tsx   # جديد
+│   ├── TaskCardWithAstro.tsx        # جديد
+│   └── MoonPhaseIndicator.tsx       # جديد
+├── hooks/useAstronomicalTasks.ts    # جديد
+└── api/astronomical-task-api.ts     # جديد
+</code></pre></div>
+
+<h3 id="frontend-mobile">Frontend Mobile<a class="headerlink" href="#frontend-mobile" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>apps/mobile/lib/features/tasks/
+├── presentation/
+│   ├── widgets/
+│   │   ├── astronomical_task_form.dart  # جديد
+│   │   ├── best_days_grid.dart          # جديد
+│   │   └── moon_phase_card.dart         # جديد
+│   └── pages/
+│       └── create_task_page.dart        # تحديث
+└── providers/
+    └── astronomical_task_providers.dart  # جديد
+</code></pre></div>
+
+<hr />
+<h2 id="9">9. المراجع<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="./ASTRONOMICAL_CALENDAR_SERVICE.md">ASTRONOMICAL_CALENDAR_SERVICE.md</a></li>
+<li><a href="../api/tasks.md">Task Service API Documentation</a></li>
+<li><a href="./MOBILE_ARCHITECTURE_ANALYSIS.md">Mobile Architecture Analysis</a></li>
+</ul>
+<hr />
+<blockquote>
+<p><strong>ملاحظة</strong>: هذه التوصيات قابلة للتعديل بناءً على متطلبات العمل والأولويات.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

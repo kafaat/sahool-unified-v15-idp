@@ -1,0 +1,1957 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL API Gateway Documentation - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-api-gateway-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL API Gateway Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-api-gateway-documentation">SAHOOL API Gateway Documentation<a class="headerlink" href="#sahool-api-gateway-documentation" title="Permanent link">&para;</a></h1>
+<!-- وثائق بوابة واجهة برمجة التطبيقات - SAHOOL API Gateway -->
+
+<p><strong>Version</strong>: 16.1.0
+<strong>Last Updated</strong>: December 30, 2025
+<strong>Gateway Technology</strong>: Kong API Gateway (DB-less mode)</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#service-catalog">Service Catalog</a></li>
+<li><a href="#security-features">Security Features</a></li>
+<li><a href="#health-monitoring">Health Monitoring</a></li>
+<li><a href="#rate-limiting">Rate Limiting</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The SAHOOL platform utilizes <strong>Kong API Gateway</strong> as the central entry point for all microservices. Kong provides a unified interface for managing authentication, rate limiting, load balancing, health monitoring, and traffic routing across 31 microservices.</p>
+<h3 id="key-features">Key Features<a class="headerlink" href="#key-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Declarative Configuration</strong>: DB-less mode using <code>kong.yml</code></li>
+<li><strong>Health Checks</strong>: Active and passive monitoring for all services</li>
+<li><strong>Rate Limiting</strong>: Tiered rate limits based on service criticality</li>
+<li><strong>JWT Authentication</strong>: RS256 algorithm with consumer-based access control</li>
+<li><strong>Load Balancing</strong>: Weighted round-robin with automatic failover</li>
+<li><strong>Service Discovery</strong>: 31 upstream services with health-based routing</li>
+</ul>
+<h3 id="architecture-benefits">Architecture Benefits<a class="headerlink" href="#architecture-benefits" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Single point of entry for all API requests</li>
+<li>Centralized authentication and authorization</li>
+<li>Automatic service health monitoring and failover</li>
+<li>Request/response transformation and validation</li>
+<li>Traffic management and throttling</li>
+<li>Standardized error handling</li>
+</ul>
+<hr />
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<h3 id="system-architecture">System Architecture<a class="headerlink" href="#system-architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│                         Client Layer                             │
+│         (Mobile App, Web Dashboard, Admin Portal)                │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Kong API Gateway :8000                         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │ JWT Auth     │  │ Rate Limiting│  │ Health Check │          │
+│  │ RS256        │  │ Tiered Limits│  │ Active/Pass. │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
+└────────────────────────────┬─────────────────────────────────────┘
+                             │
+         ┌───────────────────┼───────────────────┐
+         │                   │                   │
+         ▼                   ▼                   ▼
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  Core Services  │  │  AI &amp; Analytics │  │ Communication   │
+│  - field-ops    │  │  - ndvi-engine  │  │  - field-chat   │
+│  - field-core   │  │  - crop-health  │  │  - ws-gateway   │
+│  - task-service │  │  - agro-advisor │  │  - community    │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+         │                   │                   │
+         └───────────────────┼───────────────────┘
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  NATS (Event Bus / Message Queue)                │
+└─────────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              PostgreSQL + PostGIS (Geospatial Database)          │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="kong-configuration-model">Kong Configuration Model<a class="headerlink" href="#kong-configuration-model" title="Permanent link">&para;</a></h3>
+<p>Kong operates in <strong>declarative (DB-less) mode</strong> using a configuration file (<code>kong.yml</code>) that defines:</p>
+<ol>
+<li><strong>Upstreams</strong>: Target services with load balancing and health checks</li>
+<li><strong>Services</strong>: Logical groupings of upstream targets</li>
+<li><strong>Routes</strong>: URL paths that map to services</li>
+<li><strong>Consumers</strong>: API clients (web, mobile, internal services)</li>
+<li><strong>Plugins</strong>: Rate limiting, authentication, logging, etc.</li>
+</ol>
+<hr />
+<h2 id="service-catalog">Service Catalog<a class="headerlink" href="#service-catalog" title="Permanent link">&para;</a></h2>
+<h3 id="complete-service-registry-31-services">Complete Service Registry (31 Services)<a class="headerlink" href="#complete-service-registry-31-services" title="Permanent link">&para;</a></h3>
+<h4 id="core-services-field-operations">Core Services (Field Operations)<a class="headerlink" href="#core-services-field-operations" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Routes</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field-ops</code></td>
+<td>8080</td>
+<td><code>/api/v1/fields</code>, <code>/api/v1/tasks</code>, <code>/api/v1/assignments</code></td>
+<td>Field &amp; Task Management</td>
+</tr>
+<tr>
+<td><code>field-core</code></td>
+<td>3000</td>
+<td><code>/api/v1/field-core/*</code></td>
+<td>Core Field Operations</td>
+</tr>
+<tr>
+<td><code>task-service</code></td>
+<td>8103</td>
+<td><code>/api/v1/task/*</code></td>
+<td>Task Management Service</td>
+</tr>
+<tr>
+<td><code>equipment-service</code></td>
+<td>8101</td>
+<td><code>/api/v1/equipment/*</code></td>
+<td>Equipment &amp; Machinery Management</td>
+</tr>
+</tbody>
+</table>
+<h4 id="ai-analytics-services">AI &amp; Analytics Services<a class="headerlink" href="#ai-analytics-services" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Routes</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ndvi-engine</code></td>
+<td>8107</td>
+<td><code>/api/v1/ndvi</code>, <code>/api/v1/satellite</code></td>
+<td>Satellite Imagery &amp; NDVI Analysis</td>
+</tr>
+<tr>
+<td><code>crop-health-ai</code></td>
+<td>8095</td>
+<td><code>/api/v1/crop-health/*</code></td>
+<td>AI-Powered Crop Health Detection</td>
+</tr>
+<tr>
+<td><code>agro-advisor</code></td>
+<td>8105</td>
+<td><code>/api/v1/advisor</code>, <code>/api/v1/recommendations</code></td>
+<td>AI Agricultural Recommendations</td>
+</tr>
+<tr>
+<td><code>yield-engine</code></td>
+<td>8098</td>
+<td><code>/api/v1/yield/*</code></td>
+<td>Yield Prediction Engine</td>
+</tr>
+<tr>
+<td><code>lai-estimation</code></td>
+<td>3022</td>
+<td><code>/api/v1/lai/*</code></td>
+<td>Leaf Area Index Estimation</td>
+</tr>
+<tr>
+<td><code>yield-prediction</code></td>
+<td>3021</td>
+<td><code>/api/v1/yield-prediction/*</code></td>
+<td>Advanced Yield Forecasting</td>
+</tr>
+<tr>
+<td><code>crop-growth-model</code></td>
+<td>3023</td>
+<td><code>/api/v1/crop-growth/*</code></td>
+<td>Crop Growth Modeling</td>
+</tr>
+</tbody>
+</table>
+<h4 id="weather-environmental-services">Weather &amp; Environmental Services<a class="headerlink" href="#weather-environmental-services" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Routes</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>weather-core</code></td>
+<td>8108</td>
+<td><code>/api/v1/weather</code>, <code>/api/v1/forecast</code></td>
+<td>Weather Forecasting &amp; Alerts</td>
+</tr>
+<tr>
+<td><code>weather-advanced</code></td>
+<td>8092</td>
+<td><code>/api/v1/weather-advanced/*</code></td>
+<td>Advanced Weather Analytics</td>
+</tr>
+<tr>
+<td><code>astronomical-calendar</code></td>
+<td>8111</td>
+<td><code>/api/v1/astronomy/*</code></td>
+<td>Agricultural Astronomy Calendar</td>
+</tr>
+</tbody>
+</table>
+<h4 id="communication-services">Communication Services<a class="headerlink" href="#communication-services" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Routes</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>field-chat</code></td>
+<td>8099</td>
+<td><code>/api/v1/chat</code>, <code>/api/v1/messages</code></td>
+<td>Real-time Team Collaboration</td>
+</tr>
+<tr>
+<td><code>community-chat</code></td>
+<td>8097</td>
+<td><code>/api/v1/community-chat/*</code></td>
+<td>Community Discussion Platform</td>
+</tr>
+<tr>
+<td><code>ws-gateway</code></td>
+<td>8081</td>
+<td><code>/ws/*</code></td>
+<td>WebSocket Real-time Events</td>
+</tr>
+<tr>
+<td><code>notification-service</code></td>
+<td>8110</td>
+<td><code>/api/v1/notifications/*</code></td>
+<td>Push Notification Service</td>
+</tr>
+</tbody>
+</table>
+<h4 id="iot-sensor-services">IoT &amp; Sensor Services<a class="headerlink" href="#iot-sensor-services" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Routes</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>iot-gateway</code></td>
+<td>8106</td>
+<td><code>/api/v1/iot</code>, <code>/api/v1/sensors</code>, <code>/api/v1/devices</code></td>
+<td>IoT Sensor Integration &amp; Data Collection</td>
+</tr>
+<tr>
+<td><code>virtual-sensors</code></td>
+<td>8096</td>
+<td><code>/api/v1/virtual-sensors/*</code></td>
+<td>Virtual Sensor Management</td>
+</tr>
+<tr>
+<td><code>satellite-service</code></td>
+<td>8090</td>
+<td><code>/api/v1/satellite-service/*</code></td>
+<td>Satellite Data Processing</td>
+</tr>
+<tr>
+<td><code>indicators-service</code></td>
+<td>8091</td>
+<td><code>/api/v1/indicators/*</code></td>
+<td>Agricultural Indicators</td>
+</tr>
+</tbody>
+</table>
+<h4 id="specialized-services">Specialized Services<a class="headerlink" href="#specialized-services" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Routes</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>marketplace</code></td>
+<td>3010</td>
+<td><code>/api/v1/marketplace/*</code></td>
+<td>Agricultural Marketplace</td>
+</tr>
+<tr>
+<td><code>fertilizer-advisor</code></td>
+<td>8093</td>
+<td><code>/api/v1/fertilizer/*</code></td>
+<td>Fertilizer Recommendations</td>
+</tr>
+<tr>
+<td><code>irrigation-smart</code></td>
+<td>8094</td>
+<td><code>/api/v1/irrigation/*</code></td>
+<td>Smart Irrigation Management</td>
+</tr>
+<tr>
+<td><code>crop-health</code></td>
+<td>8100</td>
+<td><code>/api/v1/crop-health-monitor/*</code></td>
+<td>Crop Health Monitoring</td>
+</tr>
+<tr>
+<td><code>community-service</code></td>
+<td>8102</td>
+<td><code>/api/v1/community/*</code></td>
+<td>Community Management</td>
+</tr>
+<tr>
+<td><code>provider-config</code></td>
+<td>8104</td>
+<td><code>/api/v1/provider-config/*</code></td>
+<td>Provider Configuration Service</td>
+</tr>
+<tr>
+<td><code>billing-core</code></td>
+<td>8089</td>
+<td><code>/api/v1/billing/*</code></td>
+<td>Billing &amp; Subscription Management</td>
+</tr>
+<tr>
+<td><code>disaster-assessment</code></td>
+<td>3020</td>
+<td><code>/api/v1/disaster/*</code></td>
+<td>Disaster Risk Assessment</td>
+</tr>
+<tr>
+<td><code>research-core</code></td>
+<td>3015</td>
+<td><code>/api/v1/research/*</code></td>
+<td>Agricultural Research Core</td>
+</tr>
+</tbody>
+</table>
+<h3 id="service-access-pattern">Service Access Pattern<a class="headerlink" href="#service-access-pattern" title="Permanent link">&para;</a></h3>
+<p>All services are accessible through Kong at:</p>
+<div class="codehilite"><pre><span></span><code>http://kong:8000/&lt;route-path&gt;
+</code></pre></div>
+
+<p>Example:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Field operations</span>
+curl<span class="w"> </span>http://kong:8000/api/v1/fields
+
+<span class="c1"># NDVI analysis</span>
+curl<span class="w"> </span>http://kong:8000/api/v1/ndvi/analyze
+
+<span class="c1"># Weather forecast</span>
+curl<span class="w"> </span>http://kong:8000/api/v1/weather/forecast
+</code></pre></div>
+
+<hr />
+<h2 id="security-features">Security Features<a class="headerlink" href="#security-features" title="Permanent link">&para;</a></h2>
+<h3 id="1-authentication-authorization">1. Authentication &amp; Authorization<a class="headerlink" href="#1-authentication-authorization" title="Permanent link">&para;</a></h3>
+<h4 id="jwt-based-authentication">JWT-Based Authentication<a class="headerlink" href="#jwt-based-authentication" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Algorithm</strong>: RS256 (RSA Signature with SHA-256)</li>
+<li><strong>Consumer Types</strong>:</li>
+<li><code>sahool-web-app</code>: Web dashboard client</li>
+<li><code>sahool-mobile-app</code>: Mobile application client</li>
+<li><code>sahool-internal-service</code>: Internal service-to-service communication</li>
+</ul>
+<h4 id="consumer-configuration">Consumer Configuration<a class="headerlink" href="#consumer-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">consumers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-web-app</span>
+<span class="w">    </span><span class="nt">custom_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">web-client</span>
+<span class="w">    </span><span class="nt">jwt_secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-web-key</span>
+<span class="w">        </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RS256</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-mobile-app</span>
+<span class="w">    </span><span class="nt">custom_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mobile-client</span>
+<span class="w">    </span><span class="nt">jwt_secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-mobile-key</span>
+<span class="w">        </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RS256</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-internal-service</span>
+<span class="w">    </span><span class="nt">custom_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">internal-service</span>
+<span class="w">    </span><span class="nt">jwt_secrets</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-internal-key</span>
+<span class="w">        </span><span class="nt">algorithm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RS256</span>
+</code></pre></div>
+
+<h3 id="2-cors-security-enhancements-v1601">2. CORS Security Enhancements (v16.0.1)<a class="headerlink" href="#2-cors-security-enhancements-v1601" title="Permanent link">&para;</a></h3>
+<p><strong>Security Hardening Implemented</strong>:
+- ❌ <strong>Removed</strong>: Wildcard CORS (<code>allow_origins=["*"]</code>) from all services
+- ✅ <strong>Added</strong>: Centralized CORS configuration (<code>shared/config/cors_config.py</code>)
+- ✅ <strong>Environment-Based Whitelisting</strong>:
+  - <strong>Production</strong>: <code>https://app.sahool.sa</code>, <code>https://admin.sahool.sa</code>
+  - <strong>Staging</strong>: <code>https://staging.sahool.sa</code>
+  - <strong>Development</strong>: <code>http://localhost:3000</code>, <code>http://localhost:5173</code></p>
+<p><strong>Affected Services</strong> (CORS hardened):
+1. <code>alert-service</code>
+2. <code>crop-health-ai</code>
+3. <code>field-service</code>
+4. <code>ndvi-processor</code></p>
+<h3 id="3-websocket-security">3. WebSocket Security<a class="headerlink" href="#3-websocket-security" title="Permanent link">&para;</a></h3>
+<p><strong>Enhanced in v16.0.1</strong>:
+- ✅ Mandatory authentication (removed <code>WS_REQUIRE_AUTH</code> bypass)
+- ✅ Comprehensive JWT validation with error logging
+- ✅ Production-grade token verification
+- ✅ Connection rejection for unauthorized clients</p>
+<h3 id="4-iot-gateway-security">4. IoT Gateway Security<a class="headerlink" href="#4-iot-gateway-security" title="Permanent link">&para;</a></h3>
+<p><strong>Multi-Layer Security Model</strong>:
+1. <strong>Device Authorization</strong>: All devices must be registered and authorized
+2. <strong>Sensor Validation</strong>: Range validation for 14 sensor types
+3. <strong>Tenant Isolation</strong>: Strict data segregation between tenants
+4. <strong>Data Validation</strong>: Pydantic models with field-level validation
+5. <strong>Registration Enforcement</strong>: Devices must register before data submission</p>
+<p><strong>Validated Sensor Types</strong>:
+- Soil Moisture (0-100%)
+- Temperature (-50°C to 70°C)
+- Humidity (0-100%)
+- pH (0-14)
+- Electrical Conductivity
+- Nitrogen, Phosphorus, Potassium levels
+- Light Intensity, CO2, Pressure
+- Wind Speed, Rainfall, Battery Voltage</p>
+<h3 id="5-rate-limiting-strategy">5. Rate Limiting Strategy<a class="headerlink" href="#5-rate-limiting-strategy" title="Permanent link">&para;</a></h3>
+<p>Kong implements <strong>tiered rate limiting</strong> based on service criticality and expected load:</p>
+<h4 id="high-volume-services-iot-real-time">High-Volume Services (IoT, Real-time)<a class="headerlink" href="#high-volume-services-iot-real-time" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">iot-gateway</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10,000</span>
+
+<span class="nt">field-chat</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span>
+<span class="w">  </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3,000</span>
+</code></pre></div>
+
+<h4 id="standard-services-field-operations">Standard Services (Field Operations)<a class="headerlink" href="#standard-services-field-operations" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">field-ops</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">  </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2,000</span>
+
+<span class="nt">agro-advisor</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+</code></pre></div>
+
+<h4 id="resource-intensive-services-satellite-ai">Resource-Intensive Services (Satellite, AI)<a class="headerlink" href="#resource-intensive-services-satellite-ai" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">ndvi-engine</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+
+<span class="nt">crop-health-ai</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">  </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+</code></pre></div>
+
+<h4 id="analytics-services">Analytics Services<a class="headerlink" href="#analytics-services" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="nt">weather-core</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">  </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1,500</span>
+</code></pre></div>
+
+<hr />
+<h2 id="security-improvements-v1610">Security Improvements (v16.1.0)<a class="headerlink" href="#security-improvements-v1610" title="Permanent link">&para;</a></h2>
+<h3 id="1-cors-security-hardening">1. CORS Security Hardening<a class="headerlink" href="#1-cors-security-hardening" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Removed</strong>: Wildcard CORS (<code>origins: "*"</code>) - security risk</li>
+<li><strong>Added</strong>: Explicit origin whitelist for production domains</li>
+<li><strong>Configuration</strong>:</li>
+<li>Production: <code>https://sahool.app</code>, <code>https://admin.sahool.app</code>, <code>https://api.sahool.app</code></li>
+<li>Development: <code>http://localhost:3000</code>, <code>http://localhost:5173</code></li>
+</ul>
+<h3 id="2-tlshttps-support">2. TLS/HTTPS Support<a class="headerlink" href="#2-tlshttps-support" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Added</strong>: HTTPS listener on port 8443</li>
+<li><strong>Configuration</strong>: SSL certificates mounted at <code>/etc/kong/ssl/</code></li>
+<li><strong>Recommendation</strong>: Use Let's Encrypt for production certificates</li>
+</ul>
+<h3 id="3-distributed-rate-limiting">3. Distributed Rate Limiting<a class="headerlink" href="#3-distributed-rate-limiting" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Changed</strong>: Rate limiting policy from <code>local</code> to <code>redis</code></li>
+<li><strong>Benefit</strong>: Consistent rate limiting across multiple Kong nodes</li>
+<li><strong>Configuration</strong>: Redis connection via environment variables</li>
+</ul>
+<h3 id="4-upstream-health-checks">4. Upstream Health Checks<a class="headerlink" href="#4-upstream-health-checks" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Added</strong>: Health checks for 14 critical services</li>
+<li><strong>Configuration</strong>: Active checks every 10s, passive failure detection</li>
+</ul>
+<h3 id="5-jwt-rs256-support">5. JWT RS256 Support<a class="headerlink" href="#5-jwt-rs256-support" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Added</strong>: RS256 asymmetric encryption alongside HS256</li>
+<li><strong>Benefit</strong>: More secure for distributed systems</li>
+<li><strong>Configuration</strong>: RSA public/private keys via environment variables</li>
+</ul>
+<h3 id="6-security-headers">6. Security Headers<a class="headerlink" href="#6-security-headers" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Added</strong>: Global security headers via response-transformer plugin:</li>
+<li><code>X-Content-Type-Options: nosniff</code></li>
+<li><code>X-Frame-Options: DENY</code></li>
+<li><code>X-XSS-Protection: 1; mode=block</code></li>
+<li><code>Strict-Transport-Security: max-age=31536000</code></li>
+<li><code>Content-Security-Policy</code></li>
+<li><code>Referrer-Policy</code></li>
+</ul>
+<h3 id="7-ip-restrictions">7. IP Restrictions<a class="headerlink" href="#7-ip-restrictions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Added</strong>: IP restrictions for sensitive services:</li>
+<li>billing-core, iot-gateway, marketplace-service, disaster-assessment, research-core</li>
+<li><strong>Allowed Subnets</strong>: RFC 1918 private networks only</li>
+</ul>
+<h3 id="8-admin-api-security">8. Admin API Security<a class="headerlink" href="#8-admin-api-security" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Secured</strong>: Admin API bound to localhost only (127.0.0.1:8001)</li>
+</ul>
+<hr />
+<h2 id="health-monitoring">Health Monitoring<a class="headerlink" href="#health-monitoring" title="Permanent link">&para;</a></h2>
+<h3 id="standardized-health-checks">Standardized Health Checks<a class="headerlink" href="#standardized-health-checks" title="Permanent link">&para;</a></h3>
+<p>All 31 services expose standardized health endpoints:</p>
+<div class="codehilite"><pre><span></span><code>/healthz - Unified health check endpoint
+</code></pre></div>
+
+<p><strong>Response Format</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;healthy&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2024-12-24T12:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;service&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field-ops&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;16.0.1&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="kong-health-check-configuration">Kong Health Check Configuration<a class="headerlink" href="#kong-health-check-configuration" title="Permanent link">&para;</a></h3>
+<h4 id="active-health-checks">Active Health Checks<a class="headerlink" href="#active-health-checks" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Type</strong>: HTTP</li>
+<li><strong>Path</strong>: <code>/healthz</code></li>
+<li><strong>Interval</strong>: Every 10 seconds</li>
+<li><strong>Success Threshold</strong>: 2 consecutive successes</li>
+<li><strong>Failure Handling</strong>:</li>
+<li>Check interval: Every 5 seconds</li>
+<li>Failure threshold: 3 consecutive failures</li>
+<li>Timeout threshold: 3 consecutive timeouts</li>
+</ul>
+<h4 id="passive-health-checks">Passive Health Checks<a class="headerlink" href="#passive-health-checks" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Success Threshold</strong>: 5 successful requests</li>
+<li><strong>Failure Thresholds</strong>:</li>
+<li>HTTP failures: 5</li>
+<li>Timeouts: 3</li>
+</ul>
+<h3 id="automatic-failover">Automatic Failover<a class="headerlink" href="#automatic-failover" title="Permanent link">&para;</a></h3>
+<p>Kong automatically removes unhealthy upstreams from the load balancing pool:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">healthchecks</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">active</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span>
+<span class="w">    </span><span class="nt">http_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/healthz</span>
+<span class="w">    </span><span class="nt">healthy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">      </span><span class="nt">successes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">    </span><span class="nt">unhealthy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="nt">http_failures</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">timeouts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">passive</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">healthy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">successes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="nt">unhealthy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">http_failures</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="nt">timeouts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</code></pre></div>
+
+<hr />
+<h2 id="rate-limiting">Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permanent link">&para;</a></h2>
+<h3 id="rate-limiting-policies">Rate Limiting Policies<a class="headerlink" href="#rate-limiting-policies" title="Permanent link">&para;</a></h3>
+<p>Kong uses <strong>local</strong> rate limiting policy with per-consumer tracking:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">plugins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rate-limiting</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;requests_per_minute&gt;</span>
+<span class="w">      </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;requests_per_hour&gt;</span>
+<span class="w">      </span><span class="nt">policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+</code></pre></div>
+
+<h3 id="service-specific-limits">Service-Specific Limits<a class="headerlink" href="#service-specific-limits" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service Category</th>
+<th>Requests/Min</th>
+<th>Requests/Hour</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IoT Data Collection</strong></td>
+<td>200</td>
+<td>10,000</td>
+<td>High-frequency sensor data</td>
+</tr>
+<tr>
+<td><strong>Real-time Chat</strong></td>
+<td>120</td>
+<td>3,000</td>
+<td>Active messaging</td>
+</tr>
+<tr>
+<td><strong>Field Operations</strong></td>
+<td>60</td>
+<td>2,000</td>
+<td>Standard CRUD operations</td>
+</tr>
+<tr>
+<td><strong>AI/Satellite</strong></td>
+<td>20-30</td>
+<td>200-500</td>
+<td>Computationally expensive</td>
+</tr>
+<tr>
+<td><strong>Weather</strong></td>
+<td>60</td>
+<td>1,500</td>
+<td>Moderate frequency</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bypassing-rate-limits">Bypassing Rate Limits<a class="headerlink" href="#bypassing-rate-limits" title="Permanent link">&para;</a></h3>
+<p>For internal services requiring higher limits:
+1. Use the <code>sahool-internal-service</code> consumer
+2. Configure custom rate limits per service
+3. Implement Redis-based distributed rate limiting (future)</p>
+<hr />
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="kong-gateway-environment">Kong Gateway Environment<a class="headerlink" href="#kong-gateway-environment" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Kong Gateway Port</span>
+<span class="nv">KONG_PROXY_PORT</span><span class="o">=</span><span class="m">8000</span>
+<span class="nv">KONG_ADMIN_PORT</span><span class="o">=</span><span class="m">8001</span>
+
+<span class="c1"># Database Mode</span>
+<span class="nv">KONG_DATABASE</span><span class="o">=</span>off<span class="w">  </span><span class="c1"># DB-less mode</span>
+
+<span class="c1"># Declarative Configuration</span>
+<span class="nv">KONG_DECLARATIVE_CONFIG</span><span class="o">=</span>/etc/kong/kong.yml
+</code></pre></div>
+
+<h3 id="service-timeout-configuration">Service Timeout Configuration<a class="headerlink" href="#service-timeout-configuration" title="Permanent link">&para;</a></h3>
+<p>Different services have different timeout requirements:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Standard Timeouts</span>
+<span class="nt">connect_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30000</span><span class="w">  </span><span class="c1"># 30 seconds</span>
+<span class="nt">write_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60000</span><span class="w">    </span><span class="c1"># 60 seconds</span>
+<span class="nt">read_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60000</span><span class="w">     </span><span class="c1"># 60 seconds</span>
+
+<span class="c1"># NDVI/Satellite (longer processing)</span>
+<span class="nt">write_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120000</span><span class="w">   </span><span class="c1"># 120 seconds</span>
+<span class="nt">read_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120000</span><span class="w">    </span><span class="c1"># 120 seconds</span>
+
+<span class="c1"># AI Services (computational tasks)</span>
+<span class="nt">write_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90000</span><span class="w">    </span><span class="c1"># 90 seconds</span>
+<span class="nt">read_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90000</span><span class="w">     </span><span class="c1"># 90 seconds</span>
+</code></pre></div>
+
+<h3 id="load-balancing">Load Balancing<a class="headerlink" href="#load-balancing" title="Permanent link">&para;</a></h3>
+<p>All upstreams use weighted round-robin load balancing:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">upstreams</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-ops-upstream</span>
+<span class="w">    </span><span class="nt">targets</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sahool-field-ops:8080</span>
+<span class="w">        </span><span class="nt">weight</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span><span class="w">  </span><span class="c1"># Default weight</span>
+</code></pre></div>
+
+<p><strong>Future Enhancement</strong>: Multi-replica deployments with automatic weight distribution.</p>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="1-api-versioning">1. API Versioning<a class="headerlink" href="#1-api-versioning" title="Permanent link">&para;</a></h3>
+<p>All routes include API version in the path:</p>
+<div class="codehilite"><pre><span></span><code>/api/v1/resource
+/api/v2/resource (when available)
+</code></pre></div>
+
+<h3 id="2-service-naming-convention">2. Service Naming Convention<a class="headerlink" href="#2-service-naming-convention" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Upstream</strong>: <code>{service}-upstream</code></li>
+<li><strong>Service</strong>: <code>{service}-service</code></li>
+<li><strong>Route</strong>: <code>{service}-route</code></li>
+<li><strong>Container</strong>: <code>sahool-{service}</code></li>
+</ul>
+<h3 id="3-error-handling">3. Error Handling<a class="headerlink" href="#3-error-handling" title="Permanent link">&para;</a></h3>
+<p>Kong automatically returns standard HTTP errors:
+- <code>429 Too Many Requests</code>: Rate limit exceeded
+- <code>401 Unauthorized</code>: Missing or invalid JWT
+- <code>503 Service Unavailable</code>: All upstreams unhealthy
+- <code>504 Gateway Timeout</code>: Request timeout exceeded</p>
+<h3 id="4-monitoring-observability">4. Monitoring &amp; Observability<a class="headerlink" href="#4-monitoring-observability" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Monitor Kong metrics at <code>:8001/metrics</code> (Prometheus format)</li>
+<li>Track health check results in Kong admin API</li>
+<li>Log all gateway errors to centralized logging (future: ELK stack)</li>
+</ul>
+<h3 id="5-security-recommendations">5. Security Recommendations<a class="headerlink" href="#5-security-recommendations" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ Always use HTTPS in production (TLS termination at gateway)</li>
+<li>✅ Rotate JWT signing keys regularly</li>
+<li>✅ Implement IP whitelisting for admin API</li>
+<li>✅ Use environment variables for sensitive configuration</li>
+<li>✅ Enable CORS only for trusted origins</li>
+</ul>
+<hr />
+<h2 id="recent-changes-v1601">Recent Changes (v16.0.1)<a class="headerlink" href="#recent-changes-v1601" title="Permanent link">&para;</a></h2>
+<h3 id="security-fixes">Security Fixes<a class="headerlink" href="#security-fixes" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>CORS Hardening</strong>: Removed wildcard origins, added environment-based whitelisting</li>
+<li><strong>WebSocket Auth</strong>: Mandatory authentication for all WS connections</li>
+<li><strong>IoT Security</strong>: Device authorization, sensor validation, tenant isolation</li>
+<li><strong>Health Checks</strong>: Standardized <code>/healthz</code> across all services</li>
+</ol>
+<h3 id="configuration-updates">Configuration Updates<a class="headerlink" href="#configuration-updates" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Port Fixes</strong>:</li>
+<li><code>ws-gateway</code>: 8089 → 8081</li>
+<li><code>crop-growth-model</code>: 3000 → 3023</li>
+<li><strong>New Services Added</strong>: 7 services added to Kong configuration</li>
+<li><strong>Total Upstreams</strong>: 31 services now managed by Kong</li>
+</ol>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Added centralized CORS configuration documentation</li>
+<li>Updated service catalog with all 31 services</li>
+<li>Enhanced security section with IoT validation details</li>
+</ul>
+<hr />
+<h2 id="support-maintenance">Support &amp; Maintenance<a class="headerlink" href="#support-maintenance" title="Permanent link">&para;</a></h2>
+<h3 id="configuration-file-location">Configuration File Location<a class="headerlink" href="#configuration-file-location" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>/home/user/sahool-unified-v15-idp/infra/kong/kong.yml
+</code></pre></div>
+
+<h3 id="applying-configuration-changes">Applying Configuration Changes<a class="headerlink" href="#applying-configuration-changes" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Reload Kong with new configuration</span>
+docker-compose<span class="w"> </span>restart<span class="w"> </span>kong
+
+<span class="c1"># Validate configuration</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>kong<span class="w"> </span>kong<span class="w"> </span>config<span class="w"> </span>parse<span class="w"> </span>/etc/kong/kong.yml
+</code></pre></div>
+
+<h3 id="health-check-debugging">Health Check Debugging<a class="headerlink" href="#health-check-debugging" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check Kong admin API</span>
+curl<span class="w"> </span>http://localhost:8001/status
+
+<span class="c1"># View upstream health</span>
+curl<span class="w"> </span>http://localhost:8001/upstreams
+
+<span class="c1"># Check specific service</span>
+curl<span class="w"> </span>http://localhost:8001/upstreams/<span class="o">{</span>upstream-name<span class="o">}</span>/health
+</code></pre></div>
+
+<hr />
+<h2 id="related-documentation">Related Documentation<a class="headerlink" href="#related-documentation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../README.md">Main README</a></li>
+<li><a href="../CHANGELOG.md">CHANGELOG</a></li>
+<li><a href="../SECURITY/">Security Guide</a></li>
+<li><a href="../DEPLOYMENT/">Deployment Guide</a></li>
+<li><a href="../OPERATIONS/">Operations Guide</a></li>
+</ul>
+<hr />
+<p align="center">
+  <strong>SAHOOL API Gateway v16.0.1</strong><br>
+  Last Updated: December 24, 2024<br>
+  <sub>31 Microservices | Enterprise Security | Production Ready</sub>
+</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

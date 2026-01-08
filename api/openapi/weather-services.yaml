@@ -1,0 +1,931 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Weather Services API
+  description: |
+    Weather and Climate Services API for the SAHOOL Agricultural Platform
+
+    This API provides comprehensive weather data, forecasting, and agricultural
+    weather assessments for informed farming decisions.
+
+    Features:
+    - Real-time current weather data
+    - Multi-day weather forecasts (up to 16 days)
+    - Weather-based irrigation recommendations
+    - Agricultural risk assessments (heat stress, frost, etc.)
+    - Historical weather data
+    - Weather alerts and notifications
+    - Multi-provider support (Open-Meteo, OpenWeatherMap, WeatherAPI)
+
+    Arabic Support: جميع واجهات API تدعم اللغة العربية
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.sahool.sa/api/v1
+    description: Production server
+  - url: https://staging-api.sahool.sa/api/v1
+    description: Staging server
+  - url: http://localhost:8108
+    description: Local development server
+
+tags:
+  - name: Current Weather
+    description: Real-time weather data retrieval
+  - name: Forecasts
+    description: Weather forecast endpoints
+  - name: Agricultural Assessments
+    description: Weather-based agricultural recommendations
+  - name: Historical Data
+    description: Historical weather data access
+  - name: Alerts
+    description: Weather alerts and warnings
+  - name: Providers
+    description: Weather data provider management
+
+security:
+  - BearerAuth: []
+
+paths:
+  /weather/current:
+    post:
+      tags:
+        - Current Weather
+      summary: Get current weather
+      description: |
+        Retrieve current weather conditions for a specific location
+        الحصول على بيانات الطقس الحالية
+
+        Uses multi-provider service with automatic fallback:
+        - Open-Meteo (free, no API key required)
+        - OpenWeatherMap (if OPENWEATHERMAP_API_KEY configured)
+        - WeatherAPI (if WEATHERAPI_KEY configured)
+      operationId: getCurrentWeather
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              lat: 24.7136
+              lon: 46.6753
+      responses:
+        '200':
+          description: Current weather retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentWeatherResponse'
+              examples:
+                success:
+                  value:
+                    field_id: "field-001"
+                    location:
+                      lat: 24.7136
+                      lon: 46.6753
+                    provider: "Open-Meteo"
+                    current:
+                      temperature_c: 32.5
+                      humidity_pct: 35
+                      wind_speed_kmh: 15.3
+                      wind_direction_deg: 180
+                      wind_direction: "S"
+                      precipitation_mm: 0
+                      cloud_cover_pct: 20
+                      pressure_hpa: 1013
+                      uv_index: 8.5
+                      condition: "Partly Cloudy"
+                      condition_ar: "غائم جزئياً"
+                      timestamp: "2024-01-15T10:30:00Z"
+                    alerts:
+                      - alert_type: "HIGH_TEMPERATURE"
+                        severity: "warning"
+                        title_en: "High Temperature Alert"
+                        title_ar: "تنبيه ارتفاع درجة الحرارة"
+                        window_hours: 6
+                    event_ids: ["event-001"]
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailableError'
+
+  /weather/forecast:
+    post:
+      tags:
+        - Forecasts
+      summary: Get weather forecast
+      description: |
+        Retrieve multi-day weather forecast
+        الحصول على توقعات الطقس
+      operationId: getWeatherForecast
+      parameters:
+        - name: days
+          in: query
+          description: Number of forecast days (1-16)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 16
+            default: 7
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+      responses:
+        '200':
+          description: Forecast retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForecastResponse'
+              examples:
+                success:
+                  value:
+                    field_id: "field-001"
+                    location:
+                      lat: 24.7136
+                      lon: 46.6753
+                    provider: "Open-Meteo"
+                    forecast:
+                      - date: "2024-01-15"
+                        temp_max_c: 35
+                        temp_min_c: 22
+                        precipitation_mm: 0
+                        precipitation_probability_pct: 5
+                        wind_speed_max_kmh: 25
+                        uv_index_max: 9
+                        condition: "Sunny"
+                        condition_ar: "مشمس"
+                        sunrise: "06:45"
+                        sunset: "17:30"
+                      - date: "2024-01-16"
+                        temp_max_c: 33
+                        temp_min_c: 21
+                        precipitation_mm: 0
+                        precipitation_probability_pct: 10
+                        wind_speed_max_kmh: 20
+                        uv_index_max: 8
+                        condition: "Partly Cloudy"
+                        condition_ar: "غائم جزئياً"
+                        sunrise: "06:45"
+                        sunset: "17:31"
+                    days: 2
+
+  /weather/assess:
+    post:
+      tags:
+        - Agricultural Assessments
+      summary: Assess weather conditions
+      description: |
+        Assess weather conditions and generate agricultural alerts
+        تقييم الظروف الجوية وإنشاء تنبيهات زراعية
+
+        Manual weather data input for assessment
+      operationId: assessWeather
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherAssessRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              temp_c: 38
+              humidity_pct: 25
+              wind_speed_kmh: 30
+              precipitation_mm: 0
+              uv_index: 10
+      responses:
+        '200':
+          description: Assessment completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherAssessResponse'
+              examples:
+                highTemperature:
+                  value:
+                    field_id: "field-001"
+                    alerts:
+                      - alert_type: "EXTREME_HEAT"
+                        severity: "critical"
+                        title_en: "Extreme Heat Warning"
+                        title_ar: "تحذير من الحرارة الشديدة"
+                        window_hours: 12
+                      - alert_type: "HIGH_WIND"
+                        severity: "warning"
+                        title_en: "High Wind Alert"
+                        title_ar: "تنبيه الرياح القوية"
+                        window_hours: 6
+                    alert_count: 2
+                    event_ids: ["event-001", "event-002"]
+                    published: true
+
+  /weather/irrigation:
+    post:
+      tags:
+        - Agricultural Assessments
+      summary: Get irrigation adjustment
+      description: |
+        Calculate irrigation adjustment based on weather conditions
+        حساب تعديل الري بناءً على الظروف الجوية
+
+        Returns adjustment factor and recommendations
+      operationId: getIrrigationAdjustment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IrrigationRequest'
+            example:
+              tenant_id: "tenant-001"
+              field_id: "field-001"
+              temp_c: 35
+              humidity_pct: 30
+              wind_speed_kmh: 20
+              precipitation_mm: 0
+      responses:
+        '200':
+          description: Irrigation adjustment calculated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IrrigationResponse'
+              examples:
+                increaseIrrigation:
+                  value:
+                    field_id: "field-001"
+                    weather_input:
+                      temp_c: 35
+                      humidity_pct: 30
+                      wind_speed_kmh: 20
+                      precipitation_mm: 0
+                    adjustment_factor: 1.25
+                    recommendation_en: "Increase irrigation by 25% due to hot, dry, and windy conditions"
+                    recommendation_ar: "زيادة الري بنسبة 25% بسبب الظروف الحارة والجافة والرياح"
+                    event_id: "event-001"
+                    published: true
+
+  /weather/heat-stress/{temp_c}:
+    get:
+      tags:
+        - Agricultural Assessments
+      summary: Check heat stress risk
+      description: |
+        Quick heat stress check for a given temperature
+        فحص سريع لخطر الإجهاد الحراري
+      operationId: checkHeatStress
+      parameters:
+        - name: temp_c
+          in: path
+          required: true
+          description: Temperature in Celsius
+          schema:
+            type: number
+            format: float
+      responses:
+        '200':
+          description: Heat stress assessment completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeatStressResponse'
+              examples:
+                criticalHeat:
+                  value:
+                    temperature_c: 42
+                    alert_type: "EXTREME_HEAT"
+                    severity: "critical"
+                    at_risk: true
+                normalTemp:
+                  value:
+                    temperature_c: 25
+                    alert_type: null
+                    severity: "none"
+                    at_risk: false
+
+  /weather/providers:
+    get:
+      tags:
+        - Providers
+      summary: Get weather providers
+      description: |
+        Get list of available weather data providers
+        الحصول على قائمة مزودي بيانات الطقس المتاحين
+      operationId: getWeatherProviders
+      responses:
+        '200':
+          description: Providers list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersResponse'
+              examples:
+                multiProvider:
+                  value:
+                    multi_provider_enabled: true
+                    providers:
+                      - name: "Open-Meteo"
+                        configured: true
+                        type: "OpenMeteoProvider"
+                        requires_api_key: false
+                      - name: "OpenWeatherMap"
+                        configured: true
+                        type: "OpenWeatherMapProvider"
+                        requires_api_key: true
+                      - name: "WeatherAPI"
+                        configured: false
+                        type: "WeatherAPIProvider"
+                        requires_api_key: true
+                    total: 3
+                    configured: 2
+
+  /weather/alerts:
+    get:
+      tags:
+        - Alerts
+      summary: Get weather alerts
+      description: |
+        Retrieve active weather alerts for a specific field or area
+        جلب التنبيهات الجوية النشطة
+      operationId: getWeatherAlerts
+      parameters:
+        - name: field_id
+          in: query
+          description: Filter by field ID
+          schema:
+            type: string
+        - name: severity
+          in: query
+          description: Filter by severity level
+          schema:
+            type: string
+            enum: [info, warning, critical]
+        - name: active_only
+          in: query
+          description: Show only active alerts
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Alerts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WeatherAlert'
+              examples:
+                alerts:
+                  value:
+                    data:
+                      - id: "alert-001"
+                        type: "HIGH_TEMPERATURE"
+                        severity: "warning"
+                        title: "High Temperature Alert"
+                        titleAr: "تنبيه ارتفاع درجة الحرارة"
+                        description: "Temperature expected to exceed 38°C"
+                        descriptionAr: "من المتوقع أن تتجاوز درجة الحرارة 38 درجة مئوية"
+                        affectedAreas: ["field-001", "field-002"]
+                        startTime: "2024-01-15T10:00:00Z"
+                        endTime: "2024-01-15T18:00:00Z"
+                        isActive: true
+
+  /weather/historical:
+    get:
+      tags:
+        - Historical Data
+      summary: Get historical weather data
+      description: |
+        Retrieve historical weather data for a location
+        جلب البيانات التاريخية للطقس
+      operationId: getHistoricalWeather
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          description: Latitude
+          schema:
+            type: number
+            format: double
+        - name: lon
+          in: query
+          required: true
+          description: Longitude
+          schema:
+            type: number
+            format: double
+        - name: start_date
+          in: query
+          required: true
+          description: Start date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: true
+          description: End date (YYYY-MM-DD)
+          schema:
+            type: string
+            format: date
+        - name: metrics
+          in: query
+          description: Comma-separated list of metrics to retrieve
+          schema:
+            type: string
+            example: "temperature,precipitation,humidity"
+      responses:
+        '200':
+          description: Historical data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoricalWeatherResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+  schemas:
+    LocationRequest:
+      type: object
+      required:
+        - tenant_id
+        - field_id
+        - lat
+        - lon
+      properties:
+        tenant_id:
+          type: string
+          example: "tenant-001"
+        field_id:
+          type: string
+          example: "field-001"
+        lat:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+          example: 24.7136
+        lon:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+          example: 46.6753
+        correlation_id:
+          type: string
+          description: Optional correlation ID for request tracking
+
+    WeatherAssessRequest:
+      type: object
+      required:
+        - tenant_id
+        - field_id
+        - temp_c
+      properties:
+        tenant_id:
+          type: string
+        field_id:
+          type: string
+        temp_c:
+          type: number
+          format: float
+          description: Temperature in Celsius
+        humidity_pct:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+          description: Humidity percentage
+        wind_speed_kmh:
+          type: number
+          format: float
+          minimum: 0
+          description: Wind speed in km/h
+        precipitation_mm:
+          type: number
+          format: float
+          minimum: 0
+          description: Precipitation in mm
+        uv_index:
+          type: number
+          format: float
+          minimum: 0
+          description: UV index
+        correlation_id:
+          type: string
+
+    IrrigationRequest:
+      type: object
+      required:
+        - tenant_id
+        - field_id
+        - temp_c
+        - humidity_pct
+        - wind_speed_kmh
+      properties:
+        tenant_id:
+          type: string
+        field_id:
+          type: string
+        temp_c:
+          type: number
+          format: float
+        humidity_pct:
+          type: number
+          format: float
+        wind_speed_kmh:
+          type: number
+          format: float
+        precipitation_mm:
+          type: number
+          format: float
+          default: 0
+        correlation_id:
+          type: string
+
+    CurrentWeather:
+      type: object
+      properties:
+        temperature_c:
+          type: number
+          format: float
+          description: Temperature in Celsius
+        humidity_pct:
+          type: number
+          format: float
+          description: Humidity percentage
+        wind_speed_kmh:
+          type: number
+          format: float
+          description: Wind speed in km/h
+        wind_direction_deg:
+          type: number
+          format: float
+          description: Wind direction in degrees
+        wind_direction:
+          type: string
+          description: Wind direction (N, S, E, W, etc.)
+        precipitation_mm:
+          type: number
+          format: float
+          description: Precipitation in mm
+        cloud_cover_pct:
+          type: number
+          format: float
+          description: Cloud cover percentage
+        pressure_hpa:
+          type: number
+          format: float
+          description: Atmospheric pressure in hPa
+        uv_index:
+          type: number
+          format: float
+          description: UV index
+        condition:
+          type: string
+          description: Weather condition in English
+        condition_ar:
+          type: string
+          description: Weather condition in Arabic
+        timestamp:
+          type: string
+          format: date-time
+
+    DailyForecast:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        temp_max_c:
+          type: number
+          format: float
+        temp_min_c:
+          type: number
+          format: float
+        precipitation_mm:
+          type: number
+          format: float
+        precipitation_probability_pct:
+          type: number
+          format: float
+        wind_speed_max_kmh:
+          type: number
+          format: float
+        uv_index_max:
+          type: number
+          format: float
+        condition:
+          type: string
+        condition_ar:
+          type: string
+        sunrise:
+          type: string
+          format: time
+        sunset:
+          type: string
+          format: time
+
+    WeatherAlert:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - HIGH_TEMPERATURE
+            - EXTREME_HEAT
+            - FROST
+            - HEAVY_RAIN
+            - HIGH_WIND
+            - DROUGHT
+            - HAIL
+        severity:
+          type: string
+          enum: [info, warning, critical]
+        title:
+          type: string
+        titleAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        affectedAreas:
+          type: array
+          items:
+            type: string
+        affectedAreasAr:
+          type: array
+          items:
+            type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        isActive:
+          type: boolean
+
+    CurrentWeatherResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+              format: double
+            lon:
+              type: number
+              format: double
+        provider:
+          type: string
+          description: Weather data provider used
+        current:
+          $ref: '#/components/schemas/CurrentWeather'
+        alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              alert_type:
+                type: string
+              severity:
+                type: string
+              title_en:
+                type: string
+              title_ar:
+                type: string
+              window_hours:
+                type: integer
+        event_ids:
+          type: array
+          items:
+            type: string
+
+    ForecastResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lon:
+              type: number
+        provider:
+          type: string
+        forecast:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyForecast'
+        days:
+          type: integer
+
+    WeatherAssessResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+        alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              alert_type:
+                type: string
+              severity:
+                type: string
+              title_en:
+                type: string
+              title_ar:
+                type: string
+              window_hours:
+                type: integer
+        alert_count:
+          type: integer
+        event_ids:
+          type: array
+          items:
+            type: string
+        published:
+          type: boolean
+
+    IrrigationResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+        weather_input:
+          type: object
+          properties:
+            temp_c:
+              type: number
+            humidity_pct:
+              type: number
+            wind_speed_kmh:
+              type: number
+            precipitation_mm:
+              type: number
+        adjustment_factor:
+          type: number
+          format: float
+          description: Multiplier for irrigation amount (e.g., 1.25 = increase by 25%)
+        recommendation_en:
+          type: string
+        recommendation_ar:
+          type: string
+        event_id:
+          type: string
+        published:
+          type: boolean
+
+    HeatStressResponse:
+      type: object
+      properties:
+        temperature_c:
+          type: number
+          format: float
+        alert_type:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          enum: [none, info, warning, critical]
+        at_risk:
+          type: boolean
+
+    ProvidersResponse:
+      type: object
+      properties:
+        multi_provider_enabled:
+          type: boolean
+        providers:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              configured:
+                type: boolean
+              type:
+                type: string
+              requires_api_key:
+                type: boolean
+        total:
+          type: integer
+        configured:
+          type: integer
+
+    HistoricalWeatherResponse:
+      type: object
+      properties:
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lon:
+              type: number
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              temperature_max_c:
+                type: number
+              temperature_min_c:
+                type: number
+              precipitation_mm:
+                type: number
+              humidity_avg_pct:
+                type: number
+              wind_speed_avg_kmh:
+                type: number
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+  responses:
+    BadRequestError:
+      description: Bad request - Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "BAD_REQUEST"
+            message: "Invalid coordinates provided"
+
+    UnauthorizedError:
+      description: Unauthorized - Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Authentication token is required"
+
+    ServiceUnavailableError:
+      description: Service unavailable - Weather provider error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "SERVICE_UNAVAILABLE"
+            message: "Weather service temporarily unavailable"
+            details:
+              failed_providers: ["OpenWeatherMap", "WeatherAPI"]

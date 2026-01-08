@@ -1,0 +1,2551 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Mobile App Development - Complete API Integration Prompt - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-mobile-app-development-complete-api-integration-prompt" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Mobile App Development - Complete API Integration Prompt
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-mobile-app-development-complete-api-integration-prompt">SAHOOL Mobile App Development - Complete API Integration Prompt<a class="headerlink" href="#sahool-mobile-app-development-complete-api-integration-prompt" title="Permanent link">&para;</a></h1>
+<h2 id="project-overview">Project Overview<a class="headerlink" href="#project-overview" title="Permanent link">&para;</a></h2>
+<p>Build a comprehensive agricultural mobile application (Android/iOS) that integrates with the SAHOOL Unified Agricultural Platform APIs. The app should provide farmers with field management, crop monitoring, irrigation scheduling, disease diagnosis, weather forecasts, and marketplace access.</p>
+<p><strong>Platform:</strong> SAHOOL Unified v15.5<br />
+<strong>Base URL:</strong> <code>http://your-api-gateway:8000</code> (or direct service URLs)<br />
+<strong>Authentication:</strong> JWT Bearer Tokens<br />
+<strong>Primary Language:</strong> Arabic (with English fallback)<br />
+<strong>Target Users:</strong> Yemeni farmers and agricultural workers</p>
+<hr />
+<h2 id="architecture-requirements">Architecture Requirements<a class="headerlink" href="#architecture-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="technology-stack-recommendations">Technology Stack Recommendations<a class="headerlink" href="#technology-stack-recommendations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Framework:</strong> React Native, Flutter, or native (Swift/Kotlin)</li>
+<li><strong>State Management:</strong> Redux/MobX (React Native) or Provider/Bloc (Flutter)</li>
+<li><strong>HTTP Client:</strong> Axios/Fetch or Dio (Flutter)</li>
+<li><strong>Local Storage:</strong> AsyncStorage or SharedPreferences</li>
+<li><strong>Maps:</strong> React Native Maps or Google Maps SDK</li>
+<li><strong>Image Picker:</strong> react-native-image-picker or image_picker (Flutter)</li>
+<li><strong>Push Notifications:</strong> Firebase Cloud Messaging (FCM)</li>
+</ul>
+<h3 id="core-architecture-patterns">Core Architecture Patterns<a class="headerlink" href="#core-architecture-patterns" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Repository Pattern:</strong> Separate API calls from UI logic</li>
+<li><strong>MVVM/MVP:</strong> Clear separation of concerns</li>
+<li><strong>Offline-First:</strong> Cache data locally for offline access</li>
+<li><strong>Token Management:</strong> Secure storage and auto-refresh</li>
+<li><strong>Error Handling:</strong> Centralized error handling with user-friendly messages</li>
+</ol>
+<hr />
+<h2 id="authentication-authorization">Authentication &amp; Authorization<a class="headerlink" href="#authentication-authorization" title="Permanent link">&para;</a></h2>
+<h3 id="screen-1-login-screen">Screen 1: Login Screen<a class="headerlink" href="#screen-1-login-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> User authentication</p>
+<p><strong>API Endpoint:</strong> (Note: Authentication service not in docker-compose, but typically)</p>
+<div class="codehilite"><pre><span></span><code>POST /api/v1/auth/login
+</code></pre></div>
+
+<p><strong>Request:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;farmer@example.com&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;password&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;password123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;device-uuid&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;refresh_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;refresh_token_here&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;user&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_001&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;tenant_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ahmed Ali&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;أحمد علي&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;farmer@example.com&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;farmer&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3600</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>UI Components:</strong>
+- Email/Phone input field (Arabic RTL support)
+- Password input (show/hide toggle)
+- Login button
+- "Forgot Password?" link
+- Language switcher (Arabic/English)</p>
+<p><strong>Error Handling:</strong>
+- <strong>401 Unauthorized:</strong> Show "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+- <strong>Network Error:</strong> Show "تحقق من اتصال الإنترنت"
+- <strong>Validation:</strong> Show inline errors for empty fields</p>
+<p><strong>Store Token:</strong>
+- Save JWT token securely (Keychain/Keystore)
+- Store tenant_id for API calls
+- Save refresh_token for auto-login</p>
+<hr />
+<h3 id="screen-2-registration-screen">Screen 2: Registration Screen<a class="headerlink" href="#screen-2-registration-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> New user registration</p>
+<p><strong>API Integration:</strong>
+1. <strong>Get Available Plans:</strong>
+   <code>GET /v1/plans</code>
+   Display plan cards (Free, Starter, Professional)</p>
+<ol>
+<li><strong>Create Tenant:</strong>
+   <code>POST /v1/tenants</code>
+   <code>json
+   {
+     "name": "Ahmed Farm",
+     "name_ar": "مزرعة أحمد",
+     "email": "ahmed@example.com",
+     "phone": "+967712345678",
+     "plan_id": "starter",
+     "billing_cycle": "monthly"
+   }</code></li>
+</ol>
+<p><strong>UI Flow:</strong>
+1. Personal info form (name, email, phone)
+2. Farm info form (farm name, governorate selection)
+3. Plan selection (show pricing in USD and YER)
+4. Terms acceptance checkbox
+5. Submit button</p>
+<hr />
+<h2 id="main-dashboard-screen">Main Dashboard Screen<a class="headerlink" href="#main-dashboard-screen" title="Permanent link">&para;</a></h2>
+<h3 id="screen-3-homedashboard">Screen 3: Home/Dashboard<a class="headerlink" href="#screen-3-homedashboard" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Overview of farm operations</p>
+<p><strong>Data to Display:</strong>
+1. <strong>Weather Widget</strong> (from Weather Advanced Service)
+   - Current temperature and condition
+   - Today's forecast
+   - Weather alerts</p>
+<ol>
+<li><strong>Task Summary</strong> (from Task Service)</li>
+<li>Pending tasks count</li>
+<li>Overdue tasks count</li>
+<li>
+<p>Today's tasks list</p>
+</li>
+<li>
+<p><strong>Field Status</strong> (from Field Operations Service)</p>
+</li>
+<li>Total fields count</li>
+<li>
+<p>Fields needing attention</p>
+</li>
+<li>
+<p><strong>Notifications Badge</strong> (from Notification Service)</p>
+</li>
+<li>Unread notifications count</li>
+</ol>
+<p><strong>API Calls:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Parallel API calls for dashboard</span>
+<span class="kd">const</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nx">weatherData</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">taskStats</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">fieldStats</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">notificationsCount</span>
+<span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
+<span class="w">  </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/v1/current/sanaa&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/api/v1/tasks/stats&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/stats/tenant/{tenant_id}&#39;</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/v1/notifications/unread/count&#39;</span><span class="p">)</span>
+<span class="p">]);</span>
+</code></pre></div>
+
+<p><strong>UI Layout:</strong>
+- Header with user name and profile picture
+- Weather card (top section)
+- Quick stats grid (Tasks, Fields, Alerts)
+- Recent activities list
+- Bottom navigation (Home, Fields, Tasks, Market, Profile)</p>
+<hr />
+<h2 id="field-management-screens">Field Management Screens<a class="headerlink" href="#field-management-screens" title="Permanent link">&para;</a></h2>
+<h3 id="screen-4-fields-list-screen">Screen 4: Fields List Screen<a class="headerlink" href="#screen-4-fields-list-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Display all fields</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code>GET /api/v1/fields?tenantId={tenant_id}&amp;limit=50&amp;offset=0
+</code></pre></div>
+
+<p><strong>Request Headers:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Authorization</span><span class="o">:</span><span class="w"> </span><span class="n">Bearer</span><span class="w"> </span><span class="o">{</span><span class="n">token</span><span class="o">}</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Tenant</span><span class="o">-</span><span class="n">Id</span><span class="o">:</span><span class="w"> </span><span class="o">{</span><span class="n">tenant_id</span><span class="o">}</span>
+</code></pre></div>
+
+<p><strong>Response Parsing:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;North Field&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;name_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;الحقل الشمالي&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;cropType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wheat&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;areaHectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;active&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;boundary&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">],</span><span class="w"> </span><span class="err">...</span><span class="p">]]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;etag&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001:1&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;pagination&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>UI Components:</strong>
+- Search bar (filter by name or crop type)
+- Filter buttons (All, Active, Inactive)
+- Field cards showing:
+  - Field name (Arabic/English)
+  - Crop type icon and name
+  - Area in hectares
+  - Status badge
+  - Thumbnail map preview
+- Pull-to-refresh
+- Infinite scroll pagination
+- FAB button to add new field</p>
+<p><strong>Display Format:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────┐</span>
+<span class="err">│</span><span class="w"> </span><span class="err">🗺️</span><span class="w">  </span><span class="n">الحقل</span><span class="w"> </span><span class="n">الشمالي</span><span class="w">          </span><span class="err">│</span>
+<span class="err">│</span><span class="w">    </span><span class="n">North</span><span class="w"> </span><span class="n">Field</span><span class="w">              </span><span class="err">│</span>
+<span class="err">│</span><span class="w">    </span><span class="err">🌾</span><span class="w"> </span><span class="n">قمح</span><span class="w">  </span><span class="err">•</span><span class="w">  </span><span class="mf">5.2</span><span class="w"> </span><span class="n">هكتار</span><span class="w">    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">    </span><span class="err">📍</span><span class="w"> </span><span class="n">Active</span><span class="w">                </span><span class="err">│</span>
+<span class="err">│</span><span class="w">    </span><span class="p">[</span><span class="n">Map</span><span class="w"> </span><span class="n">Preview</span><span class="p">]</span><span class="w">            </span><span class="err">│</span>
+<span class="err">└─────────────────────────────┘</span>
+</code></pre></div>
+
+<hr />
+<h3 id="screen-5-field-detail-screen">Screen 5: Field Detail Screen<a class="headerlink" href="#screen-5-field-detail-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Detailed field information</p>
+<p><strong>API Endpoints:</strong>
+1. <strong>Get Field:</strong>
+   <code>GET /api/v1/fields/{field_id}</code>
+   Save ETag from response header for updates</p>
+<ol>
+<li>
+<p><strong>Get Field Operations:</strong>
+   <code>GET /operations?field_id={field_id}</code></p>
+</li>
+<li>
+<p><strong>Get Field Analysis (Satellite):</strong>
+   <code>GET /v1/timeseries/{field_id}</code></p>
+</li>
+</ol>
+<p><strong>UI Tabs/Sections:</strong>
+1. <strong>Overview Tab:</strong>
+   - Field name and crop type
+   - Area and location (map view)
+   - Planting date and expected harvest
+   - Status and last updated</p>
+<ol>
+<li><strong>Analytics Tab:</strong></li>
+<li>NDVI trend chart (from satellite service)</li>
+<li>Health score gauge</li>
+<li>
+<p>Recent analysis results</p>
+</li>
+<li>
+<p><strong>Operations Tab:</strong></p>
+</li>
+<li>List of recent operations</li>
+<li>Add operation button</li>
+<li>
+<p>Filter by operation type</p>
+</li>
+<li>
+<p><strong>Tasks Tab:</strong></p>
+</li>
+<li>Field-specific tasks</li>
+<li>Create task button</li>
+</ol>
+<p><strong>Actions:</strong>
+- Edit field (requires ETag)
+- Delete field
+- Request satellite analysis
+- View on map (full screen)</p>
+<hr />
+<h3 id="screen-6-createedit-field-screen">Screen 6: Create/Edit Field Screen<a class="headerlink" href="#screen-6-createedit-field-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Add or modify field</p>
+<p><strong>API Endpoint (Create):</strong></p>
+<div class="codehilite"><pre><span></span><code>POST /api/v1/fields
+</code></pre></div>
+
+<p><strong>API Endpoint (Update):</strong></p>
+<div class="codehilite"><pre><span></span><code>PUT /api/v1/fields/{field_id}
+Headers: If-Match: {etag}
+</code></pre></div>
+
+<p><strong>Form Fields:</strong>
+1. <strong>Basic Info:</strong>
+   - Field name (Arabic and English)
+   - Crop type (dropdown)
+   - Area in hectares (number input)
+   - Soil type (dropdown)</p>
+<ol>
+<li><strong>Location:</strong></li>
+<li>Map view for boundary drawing</li>
+<li>GPS button to auto-center</li>
+<li>Draw polygon on map</li>
+<li>
+<p>Coordinates display</p>
+</li>
+<li>
+<p><strong>Crop Details:</strong></p>
+</li>
+<li>Planting date (date picker)</li>
+<li>Expected harvest date (date picker)</li>
+<li>Irrigation type (dropdown)</li>
+</ol>
+<p><strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;South Field&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tenantId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tenant_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cropType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">[</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">15.3700</span><span class="p">,</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">15.3700</span><span class="p">,</span><span class="w"> </span><span class="mf">44.1920</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="mf">44.1920</span><span class="p">],</span>
+<span class="w">      </span><span class="p">[</span><span class="mf">15.3694</span><span class="p">,</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">]</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;ownerId&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;irrigationType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;drip&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soilType&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loamy&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;plantingDate&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;expectedHarvest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-05-15&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Validation:</strong>
+- Field name required
+- Crop type required
+- Area must be &gt; 0
+- Polygon must have at least 3 points
+- Polygon must be closed (first point = last point)</p>
+<p><strong>Error Handling:</strong>
+- <strong>409 Conflict (ETag mismatch):</strong> Show "تم تحديث الحقل بواسطة مستخدم آخر. يرجى تحديث الصفحة."
+- <strong>422 Validation Error:</strong> Show field-specific errors</p>
+<hr />
+<h2 id="task-management-screens">Task Management Screens<a class="headerlink" href="#task-management-screens" title="Permanent link">&para;</a></h2>
+<h3 id="screen-7-tasks-list-screen">Screen 7: Tasks List Screen<a class="headerlink" href="#screen-7-tasks-list-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Display all tasks</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code>GET /api/v1/tasks?tenant_id={tenant_id}&amp;status=pending&amp;limit=50&amp;offset=0
+</code></pre></div>
+
+<p><strong>Query Parameters:</strong>
+- <code>field_id</code> (optional): Filter by field
+- <code>status</code> (optional): pending, in_progress, completed, overdue
+- <code>task_type</code> (optional): irrigation, fertilization, spraying, etc.
+- <code>priority</code> (optional): low, medium, high, urgent
+- <code>assigned_to</code> (optional): User ID
+- <code>due_before</code>, <code>due_after</code> (optional): Date filters</p>
+<p><strong>Response:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;task_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Irrigate North Field&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ري الحقل الشمالي&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;task_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;irrigation&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pending&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15T08:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;scheduled_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;08:00&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;estimated_duration_minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">120</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;offset&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>UI Layout:</strong>
+- Filter chips (Today, This Week, All, Overdue)
+- Task type filter (dropdown)
+- Priority filter (dropdown)
+- Task cards grouped by date:
+  <code>┌─────────────────────────────┐
+  │ 📅 اليوم - 15 يناير         │
+  │                             │
+  │ 🔴 URGENT                   │
+  │ 💧 ري الحقل الشمالي        │
+  │   08:00 • 2 hours           │
+  │   [Start] [Details]         │
+  └─────────────────────────────┘</code>
+- Swipe actions:
+  - Swipe right: Mark complete
+  - Swipe left: Delete/Cancel
+- FAB button to create task</p>
+<hr />
+<h3 id="screen-8-task-detail-screen">Screen 8: Task Detail Screen<a class="headerlink" href="#screen-8-task-detail-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> View and manage task</p>
+<p><strong>API Endpoints:</strong>
+1. <strong>Get Task:</strong>
+   <code>GET /api/v1/tasks/{task_id}</code></p>
+<ol>
+<li>
+<p><strong>Start Task:</strong>
+   <code>POST /api/v1/tasks/{task_id}/start</code></p>
+</li>
+<li>
+<p><strong>Complete Task:</strong>
+   <code>POST /api/v1/tasks/{task_id}/complete</code></p>
+</li>
+</ol>
+<p><strong>UI Sections:</strong>
+1. <strong>Header:</strong>
+   - Task title (Arabic/English)
+   - Priority badge (color-coded)
+   - Status badge</p>
+<ol>
+<li><strong>Details:</strong></li>
+<li>Task type icon and name</li>
+<li>Field name (clickable to field detail)</li>
+<li>Due date and time</li>
+<li>Estimated duration</li>
+<li>Assigned to (if applicable)</li>
+<li>
+<p>Description</p>
+</li>
+<li>
+<p><strong>Actions:</strong></p>
+</li>
+<li>Start Task button (if pending)</li>
+<li>Complete Task button (if in progress)</li>
+<li>Edit Task button</li>
+<li>
+<p>Delete Task button</p>
+</li>
+<li>
+<p><strong>Evidence (if completed):</strong></p>
+</li>
+<li>Photos grid</li>
+<li>Completion notes</li>
+<li>Actual duration</li>
+</ol>
+<hr />
+<h3 id="screen-9-create-task-screen">Screen 9: Create Task Screen<a class="headerlink" href="#screen-9-create-task-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Create new task</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code>POST /api/v1/tasks
+</code></pre></div>
+
+<p><strong>Form Fields:</strong>
+1. <strong>Basic Info:</strong>
+   - Title (Arabic and English)
+   - Description (optional)
+   - Task type (picker: irrigation, fertilization, spraying, scouting, maintenance, sampling, harvest, planting, other)
+   - Priority (picker: low, medium, high, urgent)</p>
+<ol>
+<li><strong>Assignment:</strong></li>
+<li>Field selection (dropdown)</li>
+<li>
+<p>Assign to (user picker, optional)</p>
+</li>
+<li>
+<p><strong>Schedule:</strong></p>
+</li>
+<li>Due date (date picker)</li>
+<li>Scheduled time (time picker)</li>
+<li>Estimated duration (minutes)</li>
+</ol>
+<p><strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pest Inspection&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;title_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;فحص الحشرات&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Weekly pest inspection for tomato greenhouse&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;task_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;scouting&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;priority&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;assigned_to&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_ahmed&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;due_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-16T10:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;scheduled_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10:30&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;estimated_duration_minutes&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">60</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Validation:</strong>
+- Title required
+- Task type required
+- Field ID required
+- Due date must be in future</p>
+<hr />
+<h2 id="crop-health-diagnosis-screens">Crop Health &amp; Diagnosis Screens<a class="headerlink" href="#crop-health-diagnosis-screens" title="Permanent link">&para;</a></h2>
+<h3 id="screen-10-disease-diagnosis-screen">Screen 10: Disease Diagnosis Screen<a class="headerlink" href="#screen-10-disease-diagnosis-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> AI-powered plant disease diagnosis</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code>POST /v1/diagnose
+Content-Type: multipart/form-data
+</code></pre></div>
+
+<p><strong>Request Form Data:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">image</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">required</span><span class="p">,</span><span class="w"> </span><span class="nb">max</span><span class="w"> </span><span class="mi">10</span><span class="n">MB</span><span class="p">)</span>
+<span class="n">field_id</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span>
+<span class="n">crop_type</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="k">enum</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span>
+<span class="n">symptoms</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span>
+<span class="n">governorate</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">string</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span>
+<span class="n">lat</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="nb nb-Type">float</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span>
+<span class="n">lng</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="nb nb-Type">float</span><span class="p">,</span><span class="w"> </span><span class="n">optional</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>UI Flow:</strong>
+1. <strong>Camera/Gallery Selection:</strong>
+   - Button: "Take Photo" (opens camera)
+   - Button: "Choose from Gallery" (opens image picker)
+   - Image preview</p>
+<ol>
+<li><strong>Crop Information Form:</strong></li>
+<li>Crop type selector (dropdown)</li>
+<li>Field selector (optional)</li>
+<li>Symptoms description (text area)</li>
+<li>
+<p>Location (auto from GPS or manual)</p>
+</li>
+<li>
+<p><strong>Analyze Button:</strong></p>
+</li>
+<li>Show loading spinner</li>
+<li>
+<p>Display progress: "جاري التحليل..."</p>
+</li>
+<li>
+<p><strong>Results Display:</strong>
+   <code>json
+   {
+     "disease_detected": {
+       "disease_name_ar": "اللفحة المبكرة",
+       "confidence": 0.92,
+       "severity": "moderate"
+     },
+     "treatment": {
+       "recommendations_ar": [
+         "رش مبيد فطري مانكوزيب",
+         "إزالة الأوراق المصابة"
+       ],
+       "chemicals": [
+         {
+           "name_ar": "مانكوزيب",
+           "rate_ml_ha": 2500
+         }
+       ]
+     }
+   }</code></p>
+</li>
+</ol>
+<p><strong>UI Components:</strong>
+- Disease name and confidence percentage
+- Severity indicator (color-coded: green/yellow/red)
+- Treatment recommendations list
+- Chemical details card
+- Prevention tips
+- Share results button</p>
+<p><strong>Error Handling:</strong>
+- <strong>400 Invalid image:</strong> Show "يرجى اختيار صورة صحيحة"
+- <strong>400 Image too large:</strong> Show "حجم الصورة كبير جداً. الحد الأقصى 10 ميجابايت"
+- <strong>Network Error:</strong> Show retry button</p>
+<hr />
+<h3 id="screen-11-batch-diagnosis-screen">Screen 11: Batch Diagnosis Screen<a class="headerlink" href="#screen-11-batch-diagnosis-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Diagnose multiple images at once</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code>POST /v1/diagnose/batch
+Content-Type: multipart/form-data
+</code></pre></div>
+
+<p><strong>Form Data:</strong></p>
+<div class="codehilite"><pre><span></span><code>images: (files[], max 20 images)
+field_id: (optional)
+</code></pre></div>
+
+<p><strong>UI:</strong>
+- Image grid (selected images)
+- Add more button (up to 20)
+- Remove image (X button on each)
+- Analyze all button
+- Progress indicator: "Processing 3/10..."
+- Results list (collapsible cards)</p>
+<hr />
+<h2 id="weather-forecast-screens">Weather &amp; Forecast Screens<a class="headerlink" href="#weather-forecast-screens" title="Permanent link">&para;</a></h2>
+<h3 id="screen-12-weather-dashboard">Screen 12: Weather Dashboard<a class="headerlink" href="#screen-12-weather-dashboard" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Weather information and forecasts</p>
+<p><strong>API Endpoints:</strong>
+1. <strong>Current Weather:</strong>
+   <code>GET /v1/current/{location_id}</code></p>
+<ol>
+<li>
+<p><strong>Forecast:</strong>
+   <code>GET /v1/forecast/{location_id}?days=7</code></p>
+</li>
+<li>
+<p><strong>Alerts:</strong>
+   <code>GET /v1/alerts/{location_id}</code></p>
+</li>
+</ol>
+<p><strong>UI Layout:</strong>
+1. <strong>Current Weather Card:</strong>
+   - Location name (Arabic)
+   - Current temperature (large display)
+   - Condition icon and description
+   - Humidity, wind speed, pressure
+   - "Feels like" temperature</p>
+<ol>
+<li><strong>Hourly Forecast:</strong></li>
+<li>Horizontal scrollable list</li>
+<li>
+<p>Time, icon, temperature, precipitation probability</p>
+</li>
+<li>
+<p><strong>7-Day Forecast:</strong></p>
+</li>
+<li>
+<p>List view:
+     <code>┌─────────────────────────────┐
+     │ 📅 اليوم                    │
+     │ ☀️  25° / 18°               │
+     │ صافي • 0% أمطار            │
+     └─────────────────────────────┘</code></p>
+</li>
+<li>
+<p><strong>Alerts Section:</strong></p>
+</li>
+<li>
+<p>Alert cards (if any):
+     <code>┌─────────────────────────────┐
+     │ ⚠️  تحذير موجات حارة       │
+     │ درجات حرارة عالية متوقعة   │
+     │ 15-18 يناير                 │
+     └─────────────────────────────┘</code></p>
+</li>
+<li>
+<p><strong>Agricultural Info:</strong></p>
+</li>
+<li>Growing degree days</li>
+<li>Evapotranspiration (ET0)</li>
+<li>Spray window hours</li>
+<li>Irrigation recommendation</li>
+</ol>
+<p><strong>Location Selection:</strong>
+- Dropdown with all 22 Yemen governorates
+- Auto-detect from GPS (optional)</p>
+<hr />
+<h2 id="irrigation-management-screens">Irrigation Management Screens<a class="headerlink" href="#irrigation-management-screens" title="Permanent link">&para;</a></h2>
+<h3 id="screen-13-irrigation-dashboard">Screen 13: Irrigation Dashboard<a class="headerlink" href="#screen-13-irrigation-dashboard" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Irrigation scheduling and recommendations</p>
+<p><strong>API Endpoints:</strong>
+1. <strong>Calculate Irrigation:</strong>
+   <code>POST /v1/calculate</code></p>
+<ol>
+<li><strong>Get Water Balance:</strong>
+   <code>GET /v1/water-balance/{field_id}</code></li>
+</ol>
+<p><strong>UI Sections:</strong>
+1. <strong>Upcoming Irrigation:</strong>
+   - List of scheduled irrigation:
+     <code>┌─────────────────────────────┐
+     │ 💧 ري الحقل الشمالي        │
+     │ 16 يناير 2025 • 06:00      │
+     │ 1250 م³ • ⚠️ متوسط        │
+     │ [View Details] [Start]      │
+     └─────────────────────────────┘</code></p>
+<ol>
+<li><strong>Recommendations:</strong></li>
+<li>
+<p>Card showing:</p>
+<ul>
+<li>Field name</li>
+<li>Recommended date and time</li>
+<li>Water amount (m³ and liters)</li>
+<li>Urgency level (color-coded)</li>
+<li>Reasoning in Arabic</li>
+</ul>
+</li>
+<li>
+<p><strong>Water Balance:</strong></p>
+</li>
+<li>Chart showing:<ul>
+<li>ET (evapotranspiration)</li>
+<li>Rainfall</li>
+<li>Irrigation</li>
+<li>Deficit</li>
+</ul>
+</li>
+</ol>
+<p><strong>Request Body for Calculation:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;crop&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;growth_stage&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;mid_season&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;area_hectares&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;soil_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;loamy&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;irrigation_method&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;drip&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;current_soil_moisture&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">45.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;last_irrigation_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-10&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="screen-14-virtual-sensors-screen">Screen 14: Virtual Sensors Screen<a class="headerlink" href="#screen-14-virtual-sensors-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> ET0 and soil moisture calculations (without physical sensors)</p>
+<p><strong>API Endpoints:</strong>
+1. <strong>Calculate ET0:</strong>
+   <code>POST /v1/et0/calculate</code></p>
+<ol>
+<li>
+<p><strong>Calculate ETc:</strong>
+   <code>POST /v1/etc/calculate</code></p>
+</li>
+<li>
+<p><strong>Irrigation Recommendation:</strong>
+   <code>POST /v1/irrigation/recommend</code></p>
+</li>
+</ol>
+<p><strong>UI Form:</strong>
+- Location (GPS or manual)
+- Date selector
+- Weather inputs (if not auto-filled):
+  - Max temperature
+  - Min temperature
+  - Humidity
+  - Wind speed
+- Crop selection
+- Growth stage selector
+- Calculate button</p>
+<p><strong>Results Display:</strong>
+- ET0 value (mm/day)
+- ETc value (mm/day)
+- Kc coefficient
+- Irrigation recommendation
+- Water amount needed</p>
+<hr />
+<h2 id="equipment-management-screens">Equipment Management Screens<a class="headerlink" href="#equipment-management-screens" title="Permanent link">&para;</a></h2>
+<h3 id="screen-15-equipment-list">Screen 15: Equipment List<a class="headerlink" href="#screen-15-equipment-list" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> View all equipment</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="nx">GET</span><span class="w"> </span><span class="o">/</span><span class="kn">api</span><span class="o">/</span><span class="nx">v1</span><span class="o">/</span><span class="nx">equipment</span><span class="p">?</span><span class="nx">tenant_id</span><span class="p">={</span><span class="nx">tenant_id</span><span class="p">}</span><span class="o">&amp;</span><span class="nx">equipment_type</span><span class="p">=</span><span class="nx">tractor</span>
+</code></pre></div>
+
+<p><strong>Query Parameters:</strong>
+- <code>equipment_type</code> (optional): tractor, pump, drone, harvester, etc.
+- <code>status</code> (optional): operational, maintenance, inactive
+- <code>field_id</code> (optional)</p>
+<p><strong>UI:</strong>
+- Filter chips (All, Tractors, Pumps, Drones)
+- Equipment cards:
+  <code>┌─────────────────────────────┐
+  │ 🚜 John Deere 8R 410        │
+  │    Operational              │
+  │    ⛽ 75% • 1250 hours      │
+  │    📍 الحقل الشمالي        │
+  │    [View] [QR]              │
+  └─────────────────────────────┘</code>
+- FAB button to add equipment</p>
+<hr />
+<h3 id="screen-16-equipment-detail">Screen 16: Equipment Detail<a class="headerlink" href="#screen-16-equipment-detail" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Equipment information and maintenance</p>
+<p><strong>API Endpoints:</strong>
+1. <strong>Get Equipment:</strong>
+   <code>GET /api/v1/equipment/{equipment_id}</code></p>
+<ol>
+<li>
+<p><strong>Get Maintenance Alerts:</strong>
+   <code>GET /api/v1/equipment/alerts?overdue_only=true</code></p>
+</li>
+<li>
+<p><strong>Get Maintenance History:</strong>
+   <code>GET /api/v1/equipment/{equipment_id}/maintenance</code></p>
+</li>
+</ol>
+<p><strong>UI Tabs:</strong>
+1. <strong>Overview:</strong>
+   - Equipment name and photo
+   - Brand, model, serial number
+   - Status badge
+   - Current location (map)
+   - Fuel percentage (gauge)
+   - Operating hours</p>
+<ol>
+<li><strong>Maintenance:</strong></li>
+<li>Alerts list (if any):
+     <code>⚠️  تغيير زيت المحرك مطلوب
+     Due: 1300 hours (50 hours remaining)
+     Priority: Medium</code></li>
+<li>Maintenance history</li>
+<li>
+<p>Add maintenance record button</p>
+</li>
+<li>
+<p><strong>Telemetry:</strong></p>
+</li>
+<li>Real-time data (if available):<ul>
+<li>Fuel level</li>
+<li>Hours</li>
+<li>GPS location</li>
+</ul>
+</li>
+<li>Update telemetry button</li>
+</ol>
+<p><strong>Actions:</strong>
+- Scan QR code (if available)
+- Update status
+- Update location
+- Add maintenance record</p>
+<hr />
+<h3 id="screen-17-add-maintenance-record">Screen 17: Add Maintenance Record<a class="headerlink" href="#screen-17-add-maintenance-record" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> Log maintenance activity</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code>POST /api/v1/equipment/{equipment_id}/maintenance
+</code></pre></div>
+
+<p><strong>Form Fields:</strong>
+- Maintenance type (picker):
+  - Oil change
+  - Filter change
+  - Tire check
+  - Battery check
+  - General service
+  - Repair
+  - Other
+- Description (text area)
+- Performed by (user picker)
+- Cost (number input)
+- Parts replaced (multi-select or tags)
+- Date/time (default: now)</p>
+<p><strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;maintenance_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;oil_change&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Changed engine oil and filter&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;تغيير زيت المحرك والفلاتر&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;performed_by&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_tech&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cost&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">150.0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;parts_replaced&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Oil filter&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Engine oil 5W-30&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="satellite-analysis-screens">Satellite Analysis Screens<a class="headerlink" href="#satellite-analysis-screens" title="Permanent link">&para;</a></h2>
+<h3 id="screen-18-satellite-analysis-screen">Screen 18: Satellite Analysis Screen<a class="headerlink" href="#screen-18-satellite-analysis-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> View NDVI and vegetation health analysis</p>
+<p><strong>API Endpoints:</strong>
+1. <strong>Request Analysis:</strong>
+   <code>POST /v1/analyze</code></p>
+<ol>
+<li><strong>Get Time Series:</strong>
+   <code>GET /v1/timeseries/{field_id}</code></li>
+</ol>
+<p><strong>UI Flow:</strong>
+1. <strong>Field Selection:</strong>
+   - Dropdown to select field
+   - Or select from map</p>
+<ol>
+<li><strong>Analysis Request:</strong></li>
+<li>Satellite selection (Sentinel-2, Landsat-8, MODIS)</li>
+<li>Date range picker</li>
+<li>Cloud cover slider (0-100%)</li>
+<li>
+<p>Request button</p>
+</li>
+<li>
+<p><strong>Results Display:</strong></p>
+</li>
+<li>NDVI map (color-coded overlay)</li>
+<li>Health score (gauge: 0-100)</li>
+<li>Vegetation indices:<ul>
+<li>NDVI: 0.72</li>
+<li>NDWI: 0.45</li>
+<li>EVI: 0.68</li>
+<li>LAI: 2.5</li>
+</ul>
+</li>
+<li>Anomalies list (if any)</li>
+<li>
+<p>Recommendations in Arabic</p>
+</li>
+<li>
+<p><strong>Time Series Chart:</strong></p>
+</li>
+<li>Line chart showing NDVI over time</li>
+<li>X-axis: Dates</li>
+<li>Y-axis: NDVI values (0-1)</li>
+</ol>
+<p><strong>Request Body:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;field_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;field_001&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">15.3694</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">44.1910</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;satellite&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sentinel-2&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;start_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-01&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;end_date&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-01-15&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cloud_cover_max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">20.0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="billing-subscription-screens">Billing &amp; Subscription Screens<a class="headerlink" href="#billing-subscription-screens" title="Permanent link">&para;</a></h2>
+<h3 id="screen-19-subscription-screen">Screen 19: Subscription Screen<a class="headerlink" href="#screen-19-subscription-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> View and manage subscription</p>
+<p><strong>API Endpoints:</strong>
+1. <strong>Get Subscription:</strong>
+   <code>GET /v1/tenants/{tenant_id}/subscription</code></p>
+<ol>
+<li><strong>Get Quota:</strong>
+   <code>GET /v1/tenants/{tenant_id}/quota</code></li>
+</ol>
+<p><strong>UI Sections:</strong>
+1. <strong>Current Plan:</strong>
+   - Plan name and tier badge
+   - Billing cycle
+   - Renewal date
+   - Status (Active, Trial, Expired)</p>
+<ol>
+<li><strong>Usage Quota:</strong></li>
+<li>Progress bars for each metric:
+     <code>Fields: ████████░░ 8/10 (80%)
+     Satellite Analyses: █████░░░░░ 15/50 (30%)
+     AI Diagnoses: ████░░░░░░ 8/20 (40%)</code></li>
+<li>
+<p>Upgrade button (if limit reached)</p>
+</li>
+<li>
+<p><strong>Billing History:</strong></p>
+</li>
+<li>List of invoices (clickable)</li>
+<li>
+<p>Payment history</p>
+</li>
+<li>
+<p><strong>Upgrade Options:</strong></p>
+</li>
+<li>Plan comparison table</li>
+<li>Upgrade button for each plan</li>
+</ol>
+<hr />
+<h3 id="screen-20-invoice-detail-screen">Screen 20: Invoice Detail Screen<a class="headerlink" href="#screen-20-invoice-detail-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> View invoice and payment</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code>GET /v1/invoices/{invoice_id}
+</code></pre></div>
+
+<p><strong>UI:</strong>
+- Invoice number and date
+- Line items table
+- Subtotal, tax, total
+- Amount in USD and YER
+- Status badge
+- Pay button (if unpaid)
+- Download PDF button</p>
+<p><strong>Payment Flow:</strong>
+1. Select payment method:
+   - Credit card (Stripe)
+   - Bank transfer
+   - Mobile money
+   - Cash
+2. Enter payment details
+3. Confirm payment
+4. Show receipt</p>
+<hr />
+<h2 id="notifications-screen">Notifications Screen<a class="headerlink" href="#notifications-screen" title="Permanent link">&para;</a></h2>
+<h3 id="screen-21-notifications-list">Screen 21: Notifications List<a class="headerlink" href="#screen-21-notifications-list" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> View all notifications</p>
+<p><strong>API Endpoint:</strong></p>
+<div class="codehilite"><pre><span></span><code>GET /v1/notifications?page=1&amp;limit=20&amp;unread_only=false
+</code></pre></div>
+
+<p><strong>UI:</strong>
+- Filter tabs: All, Unread, Alerts, Tasks
+- Notification cards:
+  <code>┌─────────────────────────────┐
+  │ 🔔 تنبيه ري                 │
+  │ حان وقت ري الحقل رقم 1     │
+  │ 2 hours ago                 │
+  │ [View] [Mark Read]          │
+  └─────────────────────────────┘</code>
+- Pull-to-refresh
+- Infinite scroll
+- Mark all as read button</p>
+<p><strong>Notification Types:</strong>
+- Weather alerts (🌤️)
+- Irrigation reminders (💧)
+- Task reminders (📋)
+- Crop health alerts (🌱)
+- Market prices (💰)
+- System notifications (⚙️)</p>
+<hr />
+<h2 id="marketplace-screens-future">Marketplace Screens (Future)<a class="headerlink" href="#marketplace-screens-future" title="Permanent link">&para;</a></h2>
+<h3 id="screen-22-marketplace-screen">Screen 22: Marketplace Screen<a class="headerlink" href="#screen-22-marketplace-screen" title="Permanent link">&para;</a></h3>
+<p><strong>Note:</strong> Marketplace service exists but not detailed in current APIs</p>
+<p><strong>Features:</strong>
+- Browse products
+- Sell crops
+- View prices
+- Contact sellers</p>
+<hr />
+<h2 id="settings-screen">Settings Screen<a class="headerlink" href="#settings-screen" title="Permanent link">&para;</a></h2>
+<h3 id="screen-23-settings">Screen 23: Settings<a class="headerlink" href="#screen-23-settings" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose:</strong> App configuration</p>
+<p><strong>Sections:</strong>
+1. <strong>Profile:</strong>
+   - Edit name, email, phone
+   - Change password
+   - Profile picture</p>
+<ol>
+<li><strong>Preferences:</strong></li>
+<li>Language (Arabic/English)</li>
+<li>Notifications settings</li>
+<li>Default location</li>
+<li>
+<p>Units (metric/imperial)</p>
+</li>
+<li>
+<p><strong>Notifications:</strong></p>
+</li>
+<li>Push notifications toggle</li>
+<li>Category preferences</li>
+<li>
+<p>Quiet hours</p>
+</li>
+<li>
+<p><strong>About:</strong></p>
+</li>
+<li>App version</li>
+<li>Terms of service</li>
+<li>Privacy policy</li>
+<li>Contact support</li>
+</ol>
+<hr />
+<h2 id="api-integration-implementation-guide">API Integration Implementation Guide<a class="headerlink" href="#api-integration-implementation-guide" title="Permanent link">&para;</a></h2>
+<h3 id="1-http-client-setup">1. HTTP Client Setup<a class="headerlink" href="#1-http-client-setup" title="Permanent link">&para;</a></h3>
+<p><strong>React Native Example (Axios):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">axios</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;axios&#39;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">apiClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">axios</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">baseURL</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;http://your-api-gateway:8000&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">timeout</span><span class="o">:</span><span class="w"> </span><span class="mf">30000</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;application/json&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;Accept-Language&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;ar,en&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
+
+<span class="c1">// Request interceptor - Add token</span>
+<span class="nx">apiClient</span><span class="p">.</span><span class="nx">interceptors</span><span class="p">.</span><span class="nx">request</span><span class="p">.</span><span class="nx">use</span><span class="p">((</span><span class="nx">config</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getStoredToken</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">token</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">config</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">Authorization</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sb">`Bearer </span><span class="si">${</span><span class="nx">token</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">tenantId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getStoredTenantId</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">tenantId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">config</span><span class="p">.</span><span class="nx">headers</span><span class="p">[</span><span class="s1">&#39;X-Tenant-Id&#39;</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">tenantId</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">config</span><span class="p">;</span>
+<span class="p">});</span>
+
+<span class="c1">// Response interceptor - Handle errors</span>
+<span class="nx">apiClient</span><span class="p">.</span><span class="nx">interceptors</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span>
+<span class="w">  </span><span class="p">(</span><span class="nx">response</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">response</span><span class="p">,</span>
+<span class="w">  </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">response</span><span class="o">?</span><span class="p">.</span><span class="nx">status</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">401</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Token expired - refresh or logout</span>
+<span class="w">      </span><span class="k">await</span><span class="w"> </span><span class="nx">refreshToken</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<h3 id="2-state-management">2. State Management<a class="headerlink" href="#2-state-management" title="Permanent link">&para;</a></h3>
+<p><strong>Redux Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Actions</span>
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">fetchFields</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">dispatch</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">dispatch</span><span class="p">({</span><span class="w"> </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;FIELDS_LOADING&#39;</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/api/v1/fields&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="nx">dispatch</span><span class="p">({</span><span class="w"> </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;FIELDS_SUCCESS&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">data</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">dispatch</span><span class="p">({</span><span class="w"> </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;FIELDS_ERROR&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">payload</span><span class="o">:</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="w"> </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// Reducer</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fieldsReducer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="p">[],</span><span class="w"> </span><span class="nx">loading</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="nx">action</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;FIELDS_LOADING&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="nx">state</span><span class="p">,</span><span class="w"> </span><span class="nx">loading</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="s1">&#39;FIELDS_SUCCESS&#39;</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">items</span><span class="o">:</span><span class="w"> </span><span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">,</span><span class="w"> </span><span class="nx">loading</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="k">default</span><span class="o">:</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">state</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3 id="3-error-handling">3. Error Handling<a class="headerlink" href="#3-error-handling" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">handleApiError</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">response</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Server responded with error</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">status</span><span class="p">;</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="o">?</span><span class="p">.</span><span class="nx">detail</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">error</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="o">?</span><span class="p">.</span><span class="nx">error</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="nx">status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="mf">400</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;بيانات غير صحيحة. يرجى التحقق من المدخلات.&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="mf">401</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="mf">404</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;البيانات المطلوبة غير موجودة.&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="mf">422</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;بيانات غير صحيحة.&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="mf">429</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;تم تجاوز عدد الطلبات المسموح. يرجى المحاولة لاحقاً.&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="mf">500</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;خطأ في الخادم. يرجى المحاولة لاحقاً.&#39;</span><span class="p">;</span>
+<span class="w">      </span><span class="k">default</span><span class="o">:</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nx">message</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;حدث خطأ غير متوقع.&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">.</span><span class="nx">request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Request made but no response</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;تحقق من اتصال الإنترنت.&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="s1">&#39;حدث خطأ أثناء إعداد الطلب.&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3 id="4-image-upload">4. Image Upload<a class="headerlink" href="#4-image-upload" title="Permanent link">&para;</a></h3>
+<p><strong>React Native Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">ImagePicker</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;react-native-image-picker&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">FormData</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;form-data&#39;</span><span class="p">;</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">uploadDiagnosisImage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">imageUri</span><span class="p">,</span><span class="w"> </span><span class="nx">cropType</span><span class="p">,</span><span class="w"> </span><span class="nx">fieldId</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">formData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">FormData</span><span class="p">();</span>
+<span class="w">  </span><span class="nx">formData</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">uri</span><span class="o">:</span><span class="w"> </span><span class="nx">imageUri</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;image/jpeg&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;diagnosis.jpg&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">cropType</span><span class="p">)</span><span class="w"> </span><span class="nx">formData</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;crop_type&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">cropType</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">fieldId</span><span class="p">)</span><span class="w"> </span><span class="nx">formData</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;field_id&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">fieldId</span><span class="p">);</span>
+
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/v1/diagnose&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">formData</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="s1">&#39;Content-Type&#39;</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;multipart/form-data&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3 id="5-offline-support">5. Offline Support<a class="headerlink" href="#5-offline-support" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">AsyncStorage</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@react-native-async-storage/async-storage&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">NetInfo</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@react-native-community/netinfo&#39;</span><span class="p">;</span>
+
+<span class="c1">// Cache API responses</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">cacheResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">data</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">AsyncStorage</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">data</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">timestamp</span><span class="o">:</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">(),</span>
+<span class="w">  </span><span class="p">}));</span>
+<span class="p">};</span>
+
+<span class="c1">// Get cached data</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">getCachedData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">maxAge</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3600000</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">cached</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">AsyncStorage</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="nx">key</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">cached</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"> </span><span class="nx">timestamp</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">cached</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nx">timestamp</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="nx">maxAge</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nx">data</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// Check network and use cache if offline</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">fetchWithCache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">endpoint</span><span class="p">,</span><span class="w"> </span><span class="nx">cacheKey</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">netInfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">NetInfo</span><span class="p">.</span><span class="nx">fetch</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">netInfo</span><span class="p">.</span><span class="nx">isConnected</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Return cached data if offline</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">cached</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getCachedData</span><span class="p">(</span><span class="nx">cacheKey</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">cached</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">cached</span><span class="p">;</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="ne">Error</span><span class="p">(</span><span class="s1">&#39;No internet connection and no cached data&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="nx">endpoint</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">cacheResponse</span><span class="p">(</span><span class="nx">cacheKey</span><span class="p">,</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Try cache as fallback</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">cached</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">getCachedData</span><span class="p">(</span><span class="nx">cacheKey</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">cached</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nx">cached</span><span class="p">;</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">error</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3 id="6-push-notifications">6. Push Notifications<a class="headerlink" href="#6-push-notifications" title="Permanent link">&para;</a></h3>
+<p><strong>Firebase Cloud Messaging Setup:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">import</span><span class="w"> </span><span class="nx">messaging</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@react-native-firebase/messaging&#39;</span><span class="p">;</span>
+
+<span class="c1">// Register FCM token</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">registerFCMToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">async</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">await</span><span class="w"> </span><span class="nx">messaging</span><span class="p">().</span><span class="nx">getToken</span><span class="p">();</span>
+<span class="w">  </span><span class="k">await</span><span class="w"> </span><span class="nx">apiClient</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/push/register&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">token</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">platform</span><span class="o">:</span><span class="w"> </span><span class="nx">Platform</span><span class="p">.</span><span class="nx">OS</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">device_id</span><span class="o">:</span><span class="w"> </span><span class="nx">DeviceInfo</span><span class="p">.</span><span class="nx">getUniqueId</span><span class="p">(),</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">};</span>
+
+<span class="c1">// Handle notifications</span>
+<span class="nx">messaging</span><span class="p">().</span><span class="nx">onMessage</span><span class="p">(</span><span class="k">async</span><span class="w"> </span><span class="p">(</span><span class="nx">remoteMessage</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Show local notification</span>
+<span class="w">  </span><span class="nx">Alert</span><span class="p">.</span><span class="nx">alert</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">remoteMessage</span><span class="p">.</span><span class="nx">notification</span><span class="p">.</span><span class="nx">title</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">remoteMessage</span><span class="p">.</span><span class="nx">notification</span><span class="p">.</span><span class="nx">body</span><span class="p">,</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Handle notification tap</span>
+<span class="nx">messaging</span><span class="p">().</span><span class="nx">onNotificationOpenedApp</span><span class="p">((</span><span class="nx">remoteMessage</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Navigate to relevant screen</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">remoteMessage</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">field_id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">navigation</span><span class="p">.</span><span class="nx">navigate</span><span class="p">(</span><span class="s1">&#39;FieldDetail&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">      </span><span class="nx">fieldId</span><span class="o">:</span><span class="w"> </span><span class="nx">remoteMessage</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">field_id</span><span class="w"> </span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
+
+<hr />
+<h2 id="uiux-guidelines">UI/UX Guidelines<a class="headerlink" href="#uiux-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="arabic-rtl-support">Arabic (RTL) Support<a class="headerlink" href="#arabic-rtl-support" title="Permanent link">&para;</a></h3>
+<ul>
+<li>All text should support RTL layout</li>
+<li>Use <code>flexDirection: 'row-reverse'</code> for RTL</li>
+<li>Mirror icons and images for RTL</li>
+<li>Use Arabic numerals (٠-٩) optionally</li>
+</ul>
+<h3 id="color-scheme">Color Scheme<a class="headerlink" href="#color-scheme" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Primary: Green (#2E7D32) - Agriculture theme</li>
+<li>Secondary: Orange (#F57C00) - Alerts</li>
+<li>Success: Green (#4CAF50)</li>
+<li>Warning: Orange (#FF9800)</li>
+<li>Error: Red (#F44336)</li>
+<li>Info: Blue (#2196F3)</li>
+</ul>
+<h3 id="typography">Typography<a class="headerlink" href="#typography" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Arabic font: Tajawal, Cairo, or Noto Sans Arabic</li>
+<li>English font: Roboto or Inter</li>
+<li>Font sizes: 12px (small), 14px (body), 16px (title), 20px (heading), 24px (large heading)</li>
+</ul>
+<h3 id="icons">Icons<a class="headerlink" href="#icons" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use Material Icons or FontAwesome</li>
+<li>Common icons:</li>
+<li>🌾 Fields</li>
+<li>📋 Tasks</li>
+<li>💧 Irrigation</li>
+<li>🌤️ Weather</li>
+<li>🔬 Diagnosis</li>
+<li>🚜 Equipment</li>
+<li>📊 Analytics</li>
+<li>🔔 Notifications</li>
+</ul>
+<hr />
+<h2 id="testing-checklist">Testing Checklist<a class="headerlink" href="#testing-checklist" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Authentication:</strong></li>
+<li>[ ] Login with valid credentials</li>
+<li>[ ] Login with invalid credentials (error handling)</li>
+<li>[ ] Token refresh on expiration</li>
+<li>
+<p>[ ] Logout clears token</p>
+</li>
+<li>
+<p><strong>Fields:</strong></p>
+</li>
+<li>[ ] List fields (with pagination)</li>
+<li>[ ] Create field (with map boundary)</li>
+<li>[ ] Update field (ETag handling)</li>
+<li>[ ] Delete field</li>
+<li>
+<p>[ ] Search and filter fields</p>
+</li>
+<li>
+<p><strong>Tasks:</strong></p>
+</li>
+<li>[ ] List tasks (all filters)</li>
+<li>[ ] Create task</li>
+<li>[ ] Start task</li>
+<li>[ ] Complete task with evidence</li>
+<li>
+<p>[ ] Delete task</p>
+</li>
+<li>
+<p><strong>Diagnosis:</strong></p>
+</li>
+<li>[ ] Upload image from camera</li>
+<li>[ ] Upload image from gallery</li>
+<li>[ ] Process diagnosis</li>
+<li>[ ] Display results</li>
+<li>
+<p>[ ] Batch diagnosis</p>
+</li>
+<li>
+<p><strong>Weather:</strong></p>
+</li>
+<li>[ ] Fetch current weather</li>
+<li>[ ] Fetch 7-day forecast</li>
+<li>[ ] Display alerts</li>
+<li>
+<p>[ ] Change location</p>
+</li>
+<li>
+<p><strong>Offline Mode:</strong></p>
+</li>
+<li>[ ] App works with cached data</li>
+<li>[ ] Queue actions when offline</li>
+<li>[ ] Sync when back online</li>
+</ol>
+<hr />
+<h2 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Image Optimization:</strong></li>
+<li>Compress images before upload</li>
+<li>Use thumbnails for lists</li>
+<li>
+<p>Lazy load images</p>
+</li>
+<li>
+<p><strong>API Optimization:</strong></p>
+</li>
+<li>Batch requests when possible</li>
+<li>Use pagination for large lists</li>
+<li>
+<p>Cache static data (crops, diseases)</p>
+</li>
+<li>
+<p><strong>UI Optimization:</strong></p>
+</li>
+<li>Use FlatList for long lists</li>
+<li>Implement pull-to-refresh</li>
+<li>Show loading states</li>
+<li>Optimize re-renders (React.memo)</li>
+</ol>
+<hr />
+<h2 id="security-best-practices">Security Best Practices<a class="headerlink" href="#security-best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Token Storage:</strong></li>
+<li>Use secure storage (Keychain/Keystore)</li>
+<li>Never log tokens</li>
+<li>
+<p>Auto-refresh before expiration</p>
+</li>
+<li>
+<p><strong>API Security:</strong></p>
+</li>
+<li>Always use HTTPS in production</li>
+<li>Validate SSL certificates</li>
+<li>
+<p>Don't expose API keys in code</p>
+</li>
+<li>
+<p><strong>Data Validation:</strong></p>
+</li>
+<li>Validate input client-side</li>
+<li>Sanitize user input</li>
+<li>Handle errors gracefully</li>
+</ol>
+<hr />
+<h2 id="deployment-checklist">Deployment Checklist<a class="headerlink" href="#deployment-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] Replace base URL with production API</li>
+<li>[ ] Configure Firebase for push notifications</li>
+<li>[ ] Set up error tracking (Sentry, Crashlytics)</li>
+<li>[ ] Configure app icons and splash screens</li>
+<li>[ ] Test on both Android and iOS</li>
+<li>[ ] Localize all strings (Arabic/English)</li>
+<li>[ ] Optimize app bundle size</li>
+<li>[ ] Set up app signing certificates</li>
+<li>[ ] Configure deep linking</li>
+<li>[ ] Set up analytics (Firebase Analytics)</li>
+</ul>
+<hr />
+<p><strong>End of Mobile App Development Prompt</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

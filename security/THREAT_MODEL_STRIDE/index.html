@@ -1,0 +1,1557 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Threat Model (STRIDE) - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-threat-model-stride" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Threat Model (STRIDE)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-threat-model-stride">SAHOOL Threat Model (STRIDE)<a class="headerlink" href="#sahool-threat-model-stride" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Version:</strong> 16.0.0
+<strong>Last Updated:</strong> December 2025
+<strong>Status:</strong> Active
+<strong>Review Frequency:</strong> Quarterly</p>
+</blockquote>
+<h2 id="1-overview">1. Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
+<p>This document describes the threat model for the SAHOOL agricultural platform using the STRIDE methodology.</p>
+<h3 id="11-scope">1.1 Scope<a class="headerlink" href="#11-scope" title="Permanent link">&para;</a></h3>
+<p><strong>In Scope:</strong>
+- Services: kernel_domain, field_suite, advisor
+- Infrastructure: API Gateway, NATS, PostgreSQL, Redis
+- Assets: Tenant data, field geometries, auth tokens, NDVI data
+- Interfaces: REST APIs, WebSocket, Mobile app, Event bus</p>
+<p><strong>Out of Scope:</strong>
+- Physical security
+- Social engineering (covered in security awareness training)
+- Third-party services (weather APIs, satellite providers)</p>
+<h3 id="12-trust-boundaries">1.2 Trust Boundaries<a class="headerlink" href="#12-trust-boundaries" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│                         INTERNET                                 │
+│                    (Untrusted Zone)                             │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ HTTPS/WSS
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      DMZ (Kong Gateway)                         │
+│   - Rate limiting    - Authentication    - TLS termination      │
+└────────────────────────┬────────────────────────────────────────┘
+                         │ mTLS
+                         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Internal Services                             │
+│  ┌──────────┐  ┌──────────────┐  ┌─────────┐                   │
+│  │  kernel  │  │ field_suite  │  │ advisor │                   │
+│  └────┬─────┘  └──────┬───────┘  └────┬────┘                   │
+│       │               │               │                         │
+│       └───────────────┼───────────────┘                         │
+│                       │ mTLS                                    │
+│                       ▼                                         │
+│  ┌──────────┐  ┌──────────┐  ┌─────────┐  ┌─────────┐         │
+│  │ Postgres │  │   NATS   │  │  Redis  │  │  Vault  │         │
+│  └──────────┘  └──────────┘  └─────────┘  └─────────┘         │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h2 id="2-stride-analysis">2. STRIDE Analysis<a class="headerlink" href="#2-stride-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="21-spoofing">2.1 Spoofing<a class="headerlink" href="#21-spoofing" title="Permanent link">&para;</a></h3>
+<p><strong>Threat:</strong> Attacker impersonates a legitimate service or user.</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Threat</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Service Identity</td>
+<td>Fake service connecting to bus</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+<td>mTLS with internal CA</td>
+</tr>
+<tr>
+<td>User Identity</td>
+<td>Token theft/replay</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+<td>Short-lived JWT + refresh tokens</td>
+</tr>
+<tr>
+<td>API Client</td>
+<td>Forged requests</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>API key rotation, rate limiting</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mitigations Implemented:</strong>
+- ✅ mTLS for service-to-service communication
+- ✅ Internal CA for certificate issuance
+- ✅ JWT with short expiration (30 min)
+- ✅ Refresh token rotation
+- 🔄 Certificate rotation automation (planned)</p>
+<h3 id="22-tampering">2.2 Tampering<a class="headerlink" href="#22-tampering" title="Permanent link">&para;</a></h3>
+<p><strong>Threat:</strong> Attacker modifies data in transit or at rest.</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Threat</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Event Payloads</td>
+<td>Message modification</td>
+<td>Low</td>
+<td>High</td>
+<td>Medium</td>
+<td>Schema validation, signed envelopes</td>
+</tr>
+<tr>
+<td>Database Records</td>
+<td>Unauthorized modification</td>
+<td>Low</td>
+<td>Critical</td>
+<td>High</td>
+<td>RBAC, audit logging</td>
+</tr>
+<tr>
+<td>Field Boundaries</td>
+<td>Geometry manipulation</td>
+<td>Low</td>
+<td>High</td>
+<td>Medium</td>
+<td>Change history, validation</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mitigations Implemented:</strong>
+- ✅ TLS for all communication
+- ✅ Event schema validation (Sprint 4)
+- ✅ Database access via service accounts only
+- 🔄 Signed event envelopes (planned)
+- 🔄 Immutable audit log (Sprint 6)</p>
+<h3 id="23-repudiation">2.3 Repudiation<a class="headerlink" href="#23-repudiation" title="Permanent link">&para;</a></h3>
+<p><strong>Threat:</strong> User denies performing an action.</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Threat</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User Actions</td>
+<td>Deny field modification</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Audit logs with correlation_id</td>
+</tr>
+<tr>
+<td>API Requests</td>
+<td>Deny API call</td>
+<td>Low</td>
+<td>Low</td>
+<td>Low</td>
+<td>Request logging</td>
+</tr>
+<tr>
+<td>Events</td>
+<td>Deny event emission</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Event store with timestamps</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mitigations Implemented:</strong>
+- ✅ correlation_id in all events
+- ✅ Request logging at gateway
+- 🔄 Immutable audit trail (Sprint 6)
+- 🔄 User action audit (Sprint 6)</p>
+<h3 id="24-information-disclosure">2.4 Information Disclosure<a class="headerlink" href="#24-information-disclosure" title="Permanent link">&para;</a></h3>
+<p><strong>Threat:</strong> Sensitive data is exposed to unauthorized parties.</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Threat</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Secrets in ENV</td>
+<td>ENV file exposure</td>
+<td>Medium</td>
+<td>Critical</td>
+<td>High</td>
+<td>Vault for secrets</td>
+</tr>
+<tr>
+<td>Secrets in Logs</td>
+<td>Accidental logging</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+<td>Log redaction</td>
+</tr>
+<tr>
+<td>PII in Responses</td>
+<td>Over-fetching</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Response filtering</td>
+</tr>
+<tr>
+<td>Field Locations</td>
+<td>Precise coordinates</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Access control</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mitigations Implemented:</strong>
+- ✅ Vault for secrets management
+- ✅ <code>.gitignore</code> for sensitive files
+- ✅ detect-secrets in CI
+- 🔄 Log redaction middleware (planned)
+- 🔄 Response field filtering (planned)</p>
+<h3 id="25-denial-of-service">2.5 Denial of Service<a class="headerlink" href="#25-denial-of-service" title="Permanent link">&para;</a></h3>
+<p><strong>Threat:</strong> Service availability is impacted.</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Threat</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API Gateway</td>
+<td>Request flooding</td>
+<td>High</td>
+<td>High</td>
+<td>High</td>
+<td>Rate limiting</td>
+</tr>
+<tr>
+<td>Database</td>
+<td>Query overload</td>
+<td>Medium</td>
+<td>Critical</td>
+<td>High</td>
+<td>Connection pooling, timeouts</td>
+</tr>
+<tr>
+<td>Event Bus</td>
+<td>Message flooding</td>
+<td>Low</td>
+<td>High</td>
+<td>Medium</td>
+<td>Queue limits</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mitigations Implemented:</strong>
+- ✅ Kong rate limiting
+- ✅ Database connection pooling
+- 🔄 Circuit breakers (planned)
+- 🔄 Bulkhead pattern (planned)</p>
+<h3 id="26-elevation-of-privilege">2.6 Elevation of Privilege<a class="headerlink" href="#26-elevation-of-privilege" title="Permanent link">&para;</a></h3>
+<p><strong>Threat:</strong> User gains unauthorized access or permissions.</p>
+<table>
+<thead>
+<tr>
+<th>Asset</th>
+<th>Threat</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Admin Functions</td>
+<td>Normal user accesses admin</td>
+<td>Medium</td>
+<td>Critical</td>
+<td>High</td>
+<td>RBAC enforcement</td>
+</tr>
+<tr>
+<td>Cross-Tenant</td>
+<td>Access other tenant data</td>
+<td>Low</td>
+<td>Critical</td>
+<td>High</td>
+<td>Tenant isolation</td>
+</tr>
+<tr>
+<td>Service Accounts</td>
+<td>Over-privileged service</td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+<td>Least privilege</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mitigations Implemented:</strong>
+- ✅ RBAC with role hierarchy
+- ✅ Tenant ID validation on all queries
+- ✅ Service-specific database users
+- 🔄 Privileged access reviews (planned)</p>
+<h2 id="3-risk-matrix">3. Risk Matrix<a class="headerlink" href="#3-risk-matrix" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>              │ Low Impact │ Medium Impact │ High Impact │ Critical Impact │
+──────────────┼────────────┼───────────────┼─────────────┼─────────────────│
+High          │   Medium   │     High      │   Critical  │    Critical     │
+Likelihood    │            │               │             │                 │
+──────────────┼────────────┼───────────────┼─────────────┼─────────────────│
+Medium        │    Low     │    Medium     │    High     │    Critical     │
+Likelihood    │            │               │             │                 │
+──────────────┼────────────┼───────────────┼─────────────┼─────────────────│
+Low           │    Low     │     Low       │   Medium    │      High       │
+Likelihood    │            │               │             │                 │
+</code></pre></div>
+
+<h2 id="4-security-controls-summary">4. Security Controls Summary<a class="headerlink" href="#4-security-controls-summary" title="Permanent link">&para;</a></h2>
+<h3 id="implemented-sprint-5">Implemented (Sprint 5)<a class="headerlink" href="#implemented-sprint-5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[x] Internal CA for mTLS</li>
+<li>[x] Service certificate generation</li>
+<li>[x] Unified TLS client library</li>
+<li>[x] Vault integration</li>
+<li>[x] Secrets in Vault (not ENV)</li>
+<li>[x] CI gates for keys/secrets</li>
+</ul>
+<h3 id="planned-future-sprints">Planned (Future Sprints)<a class="headerlink" href="#planned-future-sprints" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Signed event envelopes</li>
+<li>[ ] Immutable audit logging</li>
+<li>[ ] Log redaction</li>
+<li>[ ] Certificate auto-rotation</li>
+<li>[ ] Penetration testing</li>
+</ul>
+<h2 id="5-review-history">5. Review History<a class="headerlink" href="#5-review-history" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Reviewer</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2025-12</td>
+<td>Security Team</td>
+<td>Initial STRIDE analysis</td>
+</tr>
+</tbody>
+</table>
+<h2 id="6-references">6. References<a class="headerlink" href="#6-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://docs.microsoft.com/en-us/azure/security/develop/threat-modeling-tool-threats">STRIDE Threat Modeling</a></li>
+<li><a href="https://owasp.org/www-community/Threat_Modeling">OWASP Threat Modeling</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

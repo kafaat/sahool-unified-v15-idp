@@ -1,0 +1,2172 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>تحليل شامل لمخططات قواعد البيانات والهجرات - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تحليل شامل لمخططات قواعد البيانات والهجرات
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">تحليل شامل لمخططات قواعد البيانات والهجرات<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h2 id="v15-idp">منصة سهول الموحدة v15 IDP<a class="headerlink" href="#v15-idp" title="Permanent link">&para;</a></h2>
+<p><strong>تاريخ التحليل:</strong> 2025-12-24
+<strong>نطاق التحليل:</strong> جميع مخططات قواعد البيانات، الهجرات، ونماذج ORM</p>
+<hr />
+<h2 id="1">1. نظرة عامة على البنية المعمارية لقاعدة البيانات<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<h3 id="11-orm">1.1 تقنيات ORM المستخدمة<a class="headerlink" href="#11-orm" title="Permanent link">&para;</a></h3>
+<p>تستخدم المنصة <strong>أربع تقنيات ORM مختلفة</strong> في وقت واحد:</p>
+<ol>
+<li><strong>Prisma</strong> (TypeScript/Node.js)</li>
+<li>خدمة Field Core: <code>/apps/services/field-core/prisma/schema.prisma</code></li>
+<li>خدمة Research Core: <code>/apps/services/research-core/prisma/schema.prisma</code></li>
+<li>
+<p>خدمة Marketplace: <code>/apps/services/marketplace-service/prisma/schema.prisma</code></p>
+</li>
+<li>
+<p><strong>Tortoise ORM</strong> (Python)</p>
+</li>
+<li>
+<p>خدمة Field Chat: <code>/apps/services/field-chat/src/models.py</code></p>
+</li>
+<li>
+<p><strong>SQLAlchemy</strong> (Python)</p>
+</li>
+<li>محرك NDVI: <code>/apps/services/ndvi-engine/src/models.py</code></li>
+<li>Field Suite: <code>/packages/field_suite/spatial/orm_models.py</code></li>
+<li>نظام Outbox: <code>/shared/libs/outbox/models.py</code></li>
+<li>
+<p>نظام المراجعة: <code>/shared/libs/audit/models.py</code></p>
+</li>
+<li>
+<p><strong>SQL الخام</strong> (Raw SQL)</p>
+</li>
+<li>هجرات PostgreSQL: <code>/infra/postgres/migrations/</code></li>
+<li>نصوص التهيئة: <code>/infra/postgres/init/</code></li>
+</ol>
+<h3 id="12">1.2 الجداول الرئيسية المكتشفة<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<p>تم التعرف على <strong>70+ جدول</strong> عبر المنصة:</p>
+<h4 id="core-tables">الجداول الأساسية (Core Tables):<a class="headerlink" href="#core-tables" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>tenants</code> - المستأجرين/المنظمات</li>
+<li><code>users</code> - المستخدمين</li>
+<li><code>fields</code> - الحقول الزراعية ⚠️ <strong>تعارض</strong></li>
+<li><code>farms</code> - المزارع</li>
+<li><code>crops</code> - المحاصيل</li>
+</ul>
+<h4 id="research">جداول البحث العلمي (Research):<a class="headerlink" href="#research" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>experiments</code> - التجارب</li>
+<li><code>research_protocols</code> - البروتوكولات</li>
+<li><code>research_plots</code> - قطع التجارب</li>
+<li><code>treatments</code> - المعاملات</li>
+<li><code>research_daily_logs</code> - السجلات اليومية</li>
+<li><code>lab_samples</code> - العينات المختبرية</li>
+<li><code>digital_signatures</code> - التوقيعات الرقمية</li>
+</ul>
+<h4 id="ndvi">جداول NDVI والأقمار الصناعية:<a class="headerlink" href="#ndvi" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>ndvi_observations</code> - مشاهدات NDVI</li>
+<li><code>ndvi_alerts</code> - تنبيهات NDVI</li>
+<li><code>ndvi_records</code> - سجلات NDVI ⚠️ <strong>تعارض مع ndvi_readings</strong></li>
+<li><code>ndvi_readings</code> - قراءات NDVI ⚠️ <strong>تعارض</strong></li>
+</ul>
+<h4 id="marketplace">جداول السوق (Marketplace):<a class="headerlink" href="#marketplace" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>products</code> - المنتجات</li>
+<li><code>orders</code> - الطلبات</li>
+<li><code>order_items</code> - عناصر الطلب</li>
+<li><code>wallets</code> - المحافظ المالية</li>
+<li><code>transactions</code> - المعاملات المالية</li>
+<li><code>loans</code> - القروض</li>
+</ul>
+<h4 id="chat">جداول المحادثات (Chat):<a class="headerlink" href="#chat" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>chat_threads</code> - خيوط المحادثات</li>
+<li><code>chat_messages</code> - الرسائل</li>
+<li><code>chat_participants</code> - المشاركون</li>
+<li><code>chat_attachments</code> - المرفقات</li>
+</ul>
+<h4 id="iot">جداول IoT:<a class="headerlink" href="#iot" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>iot_devices</code> - أجهزة إنترنت الأشياء</li>
+<li><code>iot_readings</code> - قراءات المستشعرات</li>
+</ul>
+<h4 id="_2">جداول المهام والتنبيهات:<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>tasks</code> - المهام ⚠️ <strong>تعارض</strong></li>
+<li><code>alerts</code> - التنبيهات</li>
+<li><code>notification_log</code> - سجل الإشعارات</li>
+</ul>
+<h4 id="_3">جداول الطقس:<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>weather_records</code> - سجلات الطقس</li>
+<li><code>weather_forecasts</code> - توقعات الطقس</li>
+</ul>
+<h4 id="_4">جداول الأنواء:<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>anwa_events</code> - أحداث الأنواء</li>
+</ul>
+<h4 id="_5">جداول المزامنة والتدقيق:<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>sync_status</code> - حالة المزامنة ⚠️ <strong>تعارض</strong></li>
+<li><code>audit_logs</code> - سجلات التدقيق ⚠️ <strong>تعارض</strong></li>
+<li><code>outbox_events</code> - أحداث Outbox Pattern</li>
+</ul>
+<hr />
+<h2 id="2-conflicts">2. التعارضات المكتشفة (Conflicts)<a class="headerlink" href="#2-conflicts" title="Permanent link">&para;</a></h2>
+<h3 id="21">⚠️ 2.1 تعارضات أسماء الجداول<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<p>تم اكتشاف <strong>تعارضات خطيرة</strong> بين الخدمات المختلفة:</p>
+<h4 id="fields">🔴 <strong>تعارض حرج: جدول <code>fields</code></strong><a class="headerlink" href="#fields" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code> (SQL الخام)</li>
+<li><strong>الموقع 2:</strong> Field Core Prisma (<code>/apps/services/field-core/prisma/schema.prisma</code>)</li>
+<li><strong>الموقع 3:</strong> Field Suite SQLAlchemy (<code>/packages/field_suite/spatial/orm_models.py</code>)</li>
+</ul>
+<p><strong>المشكلة:</strong>
+- نفس اسم الجدول <code>fields</code> معرف في 3 أماكن مختلفة
+- احتمال تضارب في البنية (Schema Collision)
+- مخططات مختلفة للأعمدة قد تؤدي إلى فشل في التهيئة</p>
+<p><strong>التأثير:</strong> 🔥 <strong>حرج - يمنع بدء الخدمات</strong></p>
+<hr />
+<h4 id="tasks">🔴 <strong>تعارض: جدول <code>tasks</code></strong><a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code></li>
+<li><strong>الموقع 2:</strong> Field Core Prisma</li>
+</ul>
+<p><strong>المشكلة:</strong>
+- تعريف مزدوج لجدول المهام
+- احتمال اختلاف في الأعمدة والقيود</p>
+<p><strong>التأثير:</strong> 🔥 <strong>حرج</strong></p>
+<hr />
+<h4 id="ndvi_readings">🟡 <strong>تعارض: جدول <code>ndvi_readings</code></strong><a class="headerlink" href="#ndvi_readings" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code></li>
+<li><strong>الموقع 2:</strong> Field Core Prisma</li>
+</ul>
+<p><strong>ملاحظة:</strong> يوجد أيضاً جدول <code>ndvi_observations</code> في محرك NDVI - غير واضح إذا كان مقصوداً أن يكونا جدولين منفصلين</p>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط</strong></p>
+<hr />
+<h4 id="sync_status">🟡 <strong>تعارض: جدول <code>sync_status</code></strong><a class="headerlink" href="#sync_status" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code></li>
+<li><strong>الموقع 2:</strong> Field Core Prisma</li>
+</ul>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط</strong></p>
+<hr />
+<h4 id="field_boundary_history">🟡 <strong>تعارض: جدول <code>field_boundary_history</code></strong><a class="headerlink" href="#field_boundary_history" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code></li>
+<li><strong>الموقع 2:</strong> Field Core Prisma</li>
+</ul>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط</strong></p>
+<hr />
+<h4 id="audit_logs">🟡 <strong>تعارض: جدول <code>audit_logs</code></strong><a class="headerlink" href="#audit_logs" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code></li>
+<li><strong>الموقع 2:</strong> Audit SQLAlchemy (<code>/shared/libs/audit/models.py</code>)</li>
+</ul>
+<p><strong>المشكلة:</strong>
+- بنية مختلفة للأعمدة
+- الجدول في SQL الخام لا يحتوي على hash chain
+- الجدول في SQLAlchemy يحتوي على <code>prev_hash</code> و <code>entry_hash</code> للحماية من التلاعب</p>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط - قد يؤدي إلى فقدان ميزة الأمان</strong></p>
+<hr />
+<h4 id="farms">🟢 <strong>تعارض محتمل: جدول <code>farms</code></strong><a class="headerlink" href="#farms" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>الموقع 1:</strong> <code>/infra/postgres/migrations/002_base_tables.sql</code> (في schema <code>geo.farms</code>)</li>
+<li><strong>الموقع 2:</strong> Field Suite SQLAlchemy (في schema <code>public.farms</code>)</li>
+</ul>
+<p><strong>ملاحظة:</strong> قد لا يكون تعارضاً حقيقياً إذا كانا في schemas مختلفة</p>
+<p><strong>التأثير:</strong> 🟢 <strong>منخفض - إذا كانت الـschemas منفصلة</strong></p>
+<hr />
+<h4 id="_6">🟡 <strong>تكرار كامل للجداول البحثية</strong><a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<p>الجداول التالية <strong>معرفة مرتين</strong> تماماً:
+- <code>experiments</code>
+- <code>research_protocols</code>
+- <code>research_plots</code>
+- <code>treatments</code>
+- <code>research_daily_logs</code>
+- <code>lab_samples</code>
+- <code>digital_signatures</code>
+- <code>experiment_collaborators</code>
+- <code>experiment_audit_log</code></p>
+<p><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code>
+<strong>الموقع 2:</strong> Research Core Prisma</p>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط - تكرار غير ضروري</strong></p>
+<hr />
+<h4 id="_7">🟡 <strong>تكرار كامل لجداول السوق</strong><a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>products</code></li>
+<li><code>orders</code></li>
+<li><code>order_items</code></li>
+<li><code>wallets</code></li>
+<li><code>transactions</code></li>
+<li><code>loans</code></li>
+</ul>
+<p><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code>
+<strong>الموقع 2:</strong> Marketplace Prisma</p>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط</strong></p>
+<hr />
+<h4 id="_8">🟡 <strong>تكرار كامل لجداول المحادثات</strong><a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<ul>
+<li><code>chat_threads</code></li>
+<li><code>chat_messages</code></li>
+<li><code>chat_participants</code></li>
+<li><code>chat_attachments</code></li>
+</ul>
+<p><strong>الموقع 1:</strong> <code>/infra/postgres/init/00-init-sahool.sql</code>
+<strong>الموقع 2:</strong> Field Chat Tortoise ORM</p>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط</strong></p>
+<hr />
+<h2 id="3-anti-pattern">3. مراجع المفاتيح الأجنبية عبر حدود الخدمات (Anti-Pattern)<a class="headerlink" href="#3-anti-pattern" title="Permanent link">&para;</a></h2>
+<h3 id="31-microservices">🔴 3.1 انتهاكات مبادئ الـMicroservices<a class="headerlink" href="#31-microservices" title="Permanent link">&para;</a></h3>
+<p>تم اكتشاف <strong>مراجع مباشرة</strong> بين الخدمات تنتهك مبدأ Database-per-Service:</p>
+<h4 id="field-core-users-service"><strong>Field Core → Users Service</strong><a class="headerlink" href="#field-core-users-service" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// في Field Core Prisma</span>
+<span class="n">field_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="n">REFERENCES</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="n">owner_id</span><span class="w"> </span><span class="n">UUID</span><span class="w">  </span><span class="c1">// يشير إلى users من خدمة أخرى بدون foreign key</span>
+</code></pre></div>
+
+<p><strong>المشكلة:</strong> غياب FK صريح ولكن المنطق يعتمد على وجود المستخدمين في خدمة منفصلة</p>
+<hr />
+<h4 id="research-core-fieldsfarms"><strong>Research Core → Fields/Farms</strong><a class="headerlink" href="#research-core-fieldsfarms" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// في Research Core</span>
+<span class="n">farmId</span><span class="w"> </span><span class="n">String</span>?<span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;farm_id&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// لا توجد relation معرفة</span>
+</code></pre></div>
+
+<p><strong>المشكلة:</strong> المزارع موجودة في خدمة Fields، لكن يتم الإشارة إليها من خدمة Research</p>
+<hr />
+<h4 id="marketplace-users"><strong>Marketplace → Users</strong><a class="headerlink" href="#marketplace-users" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// في Marketplace</span>
+<span class="n">sellerId</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;seller_id&quot;</span><span class="p">)</span><span class="w">  </span><span class="c1">// يشير إلى users</span>
+<span class="n">buyerId</span><span class="w">  </span><span class="n">String</span><span class="w"> </span><span class="p">@</span><span class="n">map</span><span class="p">(</span><span class="s">&quot;buyer_id&quot;</span><span class="p">)</span><span class="w">   </span><span class="c1">// يشير إلى users</span>
+</code></pre></div>
+
+<p><strong>المشكلة:</strong> الاعتماد على جدول users من خدمة مختلفة</p>
+<hr />
+<h4 id="tasks-fields"><strong>Tasks → Fields</strong><a class="headerlink" href="#tasks-fields" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- في جدول tasks</span>
+<span class="n">field_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">NULL</span>
+</code></pre></div>
+
+<p><strong>المشكلة:</strong> إذا كانت Tasks في خدمة منفصلة عن Fields، هذا يخالف مبدأ العزل</p>
+<hr />
+<h3 id="32-tenant-id">🟡 3.2 استخدام Tenant ID كمفتاح مشترك<a class="headerlink" href="#32-tenant-id" title="Permanent link">&para;</a></h3>
+<p><strong>الإيجابيات:</strong>
+✅ جميع الجداول تحتوي على <code>tenant_id</code> للتمييز بين المستأجرين
+✅ يسمح بالعزل المنطقي (Logical Isolation)</p>
+<p><strong>السلبيات:</strong>
+⚠️ <strong>عدم اتساق في نوع البيانات:</strong>
+- بعض الجداول: <code>tenant_id UUID</code>
+- بعض الجداول: <code>tenant_id VARCHAR(100)</code></p>
+<p><strong>التأثير:</strong> 🟡 قد يسبب مشاكل في الـJOINs ومقارنة البيانات</p>
+<hr />
+<h2 id="4-missing-indexes">4. الفهارس المفقودة (Missing Indexes)<a class="headerlink" href="#4-missing-indexes" title="Permanent link">&para;</a></h2>
+<h3 id="41">🔴 4.1 فهارس حرجة مفقودة<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<h4 id="ndvi_observations"><strong>جدول <code>ndvi_observations</code></strong><a class="headerlink" href="#ndvi_observations" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">ix_ndvi_field_date</span><span class="w"> </span><span class="p">(</span><span class="n">field_id</span><span class="p">,</span><span class="w"> </span><span class="n">obs_date</span><span class="p">)</span>
+<span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">ix_ndvi_tenant_date</span><span class="w"> </span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">obs_date</span><span class="p">)</span>
+<span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">UNIQUE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">uq_ndvi_field_date_source</span>
+</code></pre></div>
+
+<p><strong>الحالة:</strong> ✅ جيدة</p>
+<hr />
+<h4 id="chat_messages"><strong>جدول <code>chat_messages</code></strong><a class="headerlink" href="#chat_messages" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_messages_thread</span><span class="w"> </span><span class="p">(</span><span class="n">thread_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">)</span>
+<span class="err">❌</span><span class="w"> </span><span class="err">مفقود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="n">sender_id</span><span class="w"> </span><span class="err">منفرداً</span><span class="w"> </span><span class="p">(</span><span class="err">للاستعلام</span><span class="w"> </span><span class="err">عن</span><span class="w"> </span><span class="err">رسائل</span><span class="w"> </span><span class="err">المستخدم</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>التوصية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_chat_messages_sender</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">chat_messages</span><span class="p">(</span><span class="n">sender_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h4 id="transactions"><strong>جدول <code>transactions</code></strong><a class="headerlink" href="#transactions" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_transactions_wallet</span>
+<span class="err">❌</span><span class="w"> </span><span class="err">مفقود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="p">(</span><span class="n">wallet_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">)</span><span class="w"> </span><span class="err">للاستعلامات</span><span class="w"> </span><span class="err">الزمنية</span>
+<span class="err">❌</span><span class="w"> </span><span class="err">مفقود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="n">reference_id</span><span class="w"> </span><span class="err">للبحث</span><span class="w"> </span><span class="err">السريع</span>
+</code></pre></div>
+
+<p><strong>التوصية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_transactions_wallet_date</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">transactions</span><span class="p">(</span><span class="n">wallet_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_transactions_reference</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">transactions</span><span class="p">(</span><span class="n">reference_id</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h4 id="research_data_points"><strong>جدول <code>research_data_points</code></strong><a class="headerlink" href="#research_data_points" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_data_points_experiment</span>
+<span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_data_points_plot</span>
+<span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_data_points_date</span>
+<span class="err">❌</span><span class="w"> </span><span class="err">مفقود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="err">مركب</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="p">(</span><span class="n">experiment_id</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_code</span><span class="p">,</span><span class="w"> </span><span class="n">measurement_date</span><span class="p">)</span><span class="w"> </span><span class="err">للتحليلات</span>
+</code></pre></div>
+
+<p><strong>التوصية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_data_points_analysis</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">research_data_points</span><span class="p">(</span>
+<span class="w">    </span><span class="n">experiment_id</span><span class="p">,</span><span class="w"> </span><span class="n">parameter_code</span><span class="p">,</span><span class="w"> </span><span class="n">measurement_date</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h4 id="iot_readings"><strong>جدول <code>iot_readings</code></strong><a class="headerlink" href="#iot_readings" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="err">✅</span><span class="w"> </span><span class="err">موجود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_iot_readings_device</span>
+<span class="err">❌</span><span class="w"> </span><span class="err">مفقود</span><span class="p">:</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">recorded_at</span><span class="p">)</span><span class="w"> </span><span class="err">للاستعلامات</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="err">مستوى</span><span class="w"> </span><span class="err">المستأجر</span>
+<span class="err">❌</span><span class="w"> </span><span class="err">مفقود</span><span class="p">:</span><span class="w"> </span><span class="k">PARTIAL</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="err">للقراءات</span><span class="w"> </span><span class="err">الأخيرة</span><span class="w"> </span><span class="err">فقط</span>
+</code></pre></div>
+
+<p><strong>التوصية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_iot_readings_tenant_time</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">iot_readings</span><span class="p">(</span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">recorded_at</span><span class="w"> </span><span class="k">DESC</span><span class="p">);</span>
+
+<span class="c1">-- Partial index للأداء الأفضل (آخر 30 يوم فقط)</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_iot_readings_recent</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">iot_readings</span><span class="p">(</span><span class="n">device_id</span><span class="p">,</span><span class="w"> </span><span class="n">recorded_at</span><span class="p">)</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">recorded_at</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">INTERVAL</span><span class="w"> </span><span class="s1">&#39;30 days&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<hr />
+<h3 id="42-gist">🟡 4.2 فهارس GIST مفقودة للجداول الجغرافية<a class="headerlink" href="#42-gist" title="Permanent link">&para;</a></h3>
+<h4 id="research_plots"><strong>جدول <code>research_plots</code></strong><a class="headerlink" href="#research_plots" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="err">❌</span><span class="w"> </span><span class="err">مفقود</span><span class="p">:</span><span class="w"> </span><span class="n">GIST</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="err">على</span><span class="w"> </span><span class="n">boundary</span><span class="w"> </span><span class="err">و</span><span class="w"> </span><span class="n">centroid</span>
+</code></pre></div>
+
+<p><strong>التوصية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_research_plots_boundary</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">research_plots</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIST</span><span class="p">(</span><span class="n">boundary</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_research_plots_centroid</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">research_plots</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIST</span><span class="p">(</span><span class="n">centroid</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5-data-integrity-issues">5. مشاكل سلامة البيانات (Data Integrity Issues)<a class="headerlink" href="#5-data-integrity-issues" title="Permanent link">&para;</a></h2>
+<h3 id="51">🔴 5.1 عدم اتساق أنواع البيانات<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<h4 id="tenant_id"><strong>مشكلة: tenant_id</strong><a class="headerlink" href="#tenant_id" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>infra SQL</td>
+<td><code>UUID</code></td>
+</tr>
+<tr>
+<td>Field Core Prisma</td>
+<td><code>VARCHAR(100)</code></td>
+</tr>
+<tr>
+<td>Chat Tortoise</td>
+<td><code>VARCHAR(64)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>التأثير:</strong> 🔥 <strong>حرج - قد يمنع JOINs والمقارنات</strong></p>
+<hr />
+<h4 id="geometry"><strong>مشكلة: أنواع الـGeometry</strong><a class="headerlink" href="#geometry" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fields (infra SQL)</td>
+<td><code>GEOMETRY(POLYGON, 4326)</code></td>
+</tr>
+<tr>
+<td>research_plots (infra SQL)</td>
+<td><code>GEOGRAPHY(POLYGON, 4326)</code></td>
+</tr>
+<tr>
+<td>Field Suite</td>
+<td><code>geometry(Polygon, 4326)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>الفرق:</strong>
+- <code>GEOMETRY</code>: يعامل الإحداثيات كـCartesian (x, y)
+- <code>GEOGRAPHY</code>: يعامل الإحداثيات كـSpherical (lat, lon) - أدق للحسابات الجغرافية</p>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط - قد يسبب اختلاف في حسابات المساحة والمسافة</strong></p>
+<hr />
+<h4 id="ndvi-value-precision"><strong>مشكلة: NDVI value precision</strong><a class="headerlink" href="#ndvi-value-precision" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>الجدول</th>
+<th>النوع</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ndvi_observations</td>
+<td><code>DECIMAL(4,3)</code> - نطاق: -1.000 إلى 1.000</td>
+</tr>
+<tr>
+<td>ndvi_records</td>
+<td><code>DECIMAL(6,4)</code> - نطاق: -10.0000 إلى 10.0000</td>
+</tr>
+<tr>
+<td>fields.ndvi_value (infra)</td>
+<td><code>DECIMAL(5,4)</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>التأثير:</strong> 🟢 <strong>منخفض - لكن يفضل التوحيد</strong></p>
+<hr />
+<h3 id="52-enums">🟡 5.2 عدم اتساق في الـENUMs<a class="headerlink" href="#52-enums" title="Permanent link">&para;</a></h3>
+<h4 id="field_status"><strong>مثال: field_status</strong><a class="headerlink" href="#field_status" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- في infra SQL</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">field_status</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ENUM</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fallow&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;preparing&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;harvested&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;archived&#39;</span><span class="p">);</span>
+
+<span class="c1">-- في Field Core Prisma</span>
+<span class="n">enum</span><span class="w"> </span><span class="n">FieldStatus</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">active</span>
+<span class="w">  </span><span class="n">fallow</span>
+<span class="w">  </span><span class="n">harvested</span>
+<span class="w">  </span><span class="n">preparing</span>
+<span class="w">  </span><span class="n">inactive</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">مختلف</span><span class="w"> </span><span class="err">عن</span><span class="w"> </span><span class="s1">&#39;archived&#39;</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<p><strong>المشكلة:</strong> <code>archived</code> في SQL ≠ <code>inactive</code> في Prisma</p>
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط - قد يسبب أخطاء runtime</strong></p>
+<hr />
+<h4 id="task_type"><strong>مثال: task_type</strong><a class="headerlink" href="#task_type" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- في infra SQL</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">task_type</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">ENUM</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;irrigation&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fertilization&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pesticide&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;harvest&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;planting&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;soil_prep&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pruning&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;inspection&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;maintenance&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;other&#39;</span><span class="p">);</span>
+
+<span class="c1">-- في Field Core Prisma</span>
+<span class="n">enum</span><span class="w"> </span><span class="n">TaskType</span><span class="w"> </span><span class="err">{</span>
+<span class="w">  </span><span class="n">irrigation</span>
+<span class="w">  </span><span class="n">fertilization</span>
+<span class="w">  </span><span class="n">spraying</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">مختلف</span><span class="w"> </span><span class="err">عن</span><span class="w"> </span><span class="s1">&#39;pesticide&#39;</span>
+<span class="w">  </span><span class="n">scouting</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">غير</span><span class="w"> </span><span class="err">موجود</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="k">SQL</span>
+<span class="w">  </span><span class="n">maintenance</span>
+<span class="w">  </span><span class="n">sampling</span><span class="w">  </span><span class="o">//</span><span class="w"> </span><span class="err">غير</span><span class="w"> </span><span class="err">موجود</span><span class="w"> </span><span class="err">في</span><span class="w"> </span><span class="k">SQL</span>
+<span class="w">  </span><span class="n">harvest</span>
+<span class="w">  </span><span class="n">planting</span>
+<span class="w">  </span><span class="n">other</span>
+<span class="err">}</span>
+</code></pre></div>
+
+<p><strong>التأثير:</strong> 🔴 <strong>حرج - عدم توافق كامل</strong></p>
+<hr />
+<h3 id="53-missing-constraints">🔴 5.3 قيود مفقودة (Missing Constraints)<a class="headerlink" href="#53-missing-constraints" title="Permanent link">&para;</a></h3>
+<h4 id="wallets"><strong>جدول wallets</strong><a class="headerlink" href="#wallets" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- لا توجد قيود CHECK على:</span>
+<span class="n">balance</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="c1">-- يجب أن يكون الرصيد موجباً</span>
+<span class="n">current_loan</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">loan_limit</span><span class="w">  </span><span class="c1">-- القرض الحالي يجب ألا يتجاوز الحد</span>
+<span class="n">credit_score</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">300</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">850</span><span class="w">  </span><span class="c1">-- نطاق التصنيف الائتماني</span>
+</code></pre></div>
+
+<p><strong>التوصية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">wallets</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">chk_wallet_balance</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">balance</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">wallets</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">chk_wallet_loan</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">current_loan</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">loan_limit</span><span class="p">);</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">wallets</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">chk_credit_score</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">credit_score</span><span class="w"> </span><span class="k">BETWEEN</span><span class="w"> </span><span class="mi">300</span><span class="w"> </span><span class="k">AND</span><span class="w"> </span><span class="mi">850</span><span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h4 id="loans"><strong>جدول loans</strong><a class="headerlink" href="#loans" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- قيود مفقودة:</span>
+<span class="n">amount</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="n">total_due</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">amount</span>
+<span class="n">paid_amount</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span>
+<span class="n">paid_amount</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">total_due</span>
+<span class="n">term_months</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span>
+</code></pre></div>
+
+<p><strong>التوصية:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">loans</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">chk_loan_amounts</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">amount</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="n">total_due</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">amount</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="n">paid_amount</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="n">paid_amount</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">total_due</span><span class="w"> </span><span class="k">AND</span>
+<span class="w">    </span><span class="n">term_months</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<hr />
+<h2 id="6-schema-versioning">6. مشاكل إصدار المخططات (Schema Versioning)<a class="headerlink" href="#6-schema-versioning" title="Permanent link">&para;</a></h2>
+<h3 id="61">🔴 6.1 عدم وجود آلية موحدة لإدارة الهجرات<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p><strong>المشكلة:</strong>
+- <strong>Prisma</strong> يستخدم مجلد <code>migrations/</code> الخاص به
+- <strong>Alembic</strong> (SQLAlchemy) يستخدم <code>versions/</code> مع تسمية <code>s{sprint}_{number}</code>
+- <strong>SQL الخام</strong> في <code>infra/postgres/</code> بدون أي tracking تلقائي
+- <strong>Tortoise ORM</strong> لا يوجد دليل على استخدام migrations</p>
+<p><strong>التأثير:</strong> 🔥 <strong>حرج - احتمال تطبيق هجرات متضاربة</strong></p>
+<hr />
+<h3 id="62-_migrations">🟡 6.2 جدول <code>_migrations</code> يدوي<a class="headerlink" href="#62-_migrations" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- في 001_init_extensions.sql</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="k">public</span><span class="p">.</span><span class="n">_migrations</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w"> </span><span class="nb">SERIAL</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">UNIQUE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">applied_at</span><span class="w"> </span><span class="k">TIMESTAMP</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">CURRENT_TIMESTAMP</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<p><strong>المشكلة:</strong>
+- لا يتتبع <strong>checksum</strong> للهجرات
+- لا يتتبع <strong>rollback</strong>
+- لا يدعم <strong>branching</strong></p>
+<p><strong>التوصية:</strong> استخدام أداة موحدة مثل Flyway أو Liquibase</p>
+<hr />
+<h3 id="63">🟡 6.3 عدم وجود أرقام إصدارات منسقة<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
+<p><strong>الملاحظات:</strong>
+- Alembic: <code>s7_0001</code>, <code>s8_0001</code> (sprint-based)
+- Prisma: timestamps
+- SQL: <code>001_</code>, <code>002_</code> (sequential)</p>
+<p><strong>التأثير:</strong> 🟡 صعوبة في تتبع ترتيب التطبيق عبر الأنظمة المختلفة</p>
+<hr />
+<h2 id="7-migration-order-dependencies">7. تبعيات ترتيب الهجرات (Migration Order Dependencies)<a class="headerlink" href="#7-migration-order-dependencies" title="Permanent link">&para;</a></h2>
+<h3 id="71">🔴 7.1 تبعيات غير موثقة<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<h4 id="_9"><strong>السلسلة المطلوبة:</strong><a class="headerlink" href="#_9" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">infra</span><span class="o">/</span><span class="nb">pos</span><span class="n">tgres</span><span class="o">/</span><span class="n">migrations</span><span class="o">/</span><span class="mf">001</span><span class="n">_init_extensions</span><span class="mf">.</span><span class="n">sql</span>
+<span class="w">   </span><span class="err">↓</span><span class="w"> </span><span class="p">(</span><span class="n">ي</span><span class="err">ُ</span><span class="n">نشئ</span><span class="w"> </span><span class="nb">Pos</span><span class="n">tGIS</span><span class="w"> </span><span class="n">و</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="n">extensions</span><span class="p">)</span>
+
+<span class="mf">2.</span><span class="w"> </span><span class="n">infra</span><span class="o">/</span><span class="nb">pos</span><span class="n">tgres</span><span class="o">/</span><span class="n">migrations</span><span class="o">/</span><span class="mf">002</span><span class="n">_base_tables</span><span class="mf">.</span><span class="n">sql</span>
+<span class="w">   </span><span class="err">↓</span><span class="w"> </span><span class="p">(</span><span class="n">ي</span><span class="err">ُ</span><span class="n">نشئ</span><span class="w"> </span><span class="n">tenants</span><span class="p">,</span><span class="w"> </span><span class="n">users</span><span class="p">,</span><span class="w"> </span><span class="n">farms</span><span class="p">,</span><span class="w"> </span><span class="n">fields</span><span class="p">)</span>
+
+<span class="mf">3.</span><span class="w"> </span><span class="n">packages</span><span class="o">/</span><span class="n">field_suite</span><span class="o">/</span><span class="n">migrations</span><span class="o">/</span><span class="n">s7_0001_postgis_hierarchy</span><span class="mf">.</span><span class="n">py</span>
+<span class="w">   </span><span class="err">↓</span><span class="w"> </span><span class="p">(</span><span class="n">قد</span><span class="w"> </span><span class="n">يتعارض</span><span class="w"> </span><span class="n">مع</span><span class="w"> </span><span class="mf">002</span><span class="w"> </span><span class="n">لأنه</span><span class="w"> </span><span class="n">ينشئ</span><span class="w"> </span><span class="n">farms</span><span class="w"> </span><span class="n">و</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">أيضا</span><span class="err">ً!</span><span class="p">)</span>
+
+<span class="mf">4.</span><span class="w"> </span><span class="n">apps</span><span class="o">/</span><span class="n">services</span><span class="o">/</span><span class="n">ndvi</span><span class="o">-</span><span class="n">engine</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">migrations</span><span class="o">/</span><span class="n">s8_0001_ndvi_timeseries</span><span class="mf">.</span><span class="n">py</span>
+<span class="w">   </span><span class="err">↓</span><span class="w"> </span><span class="p">(</span><span class="n">يحتاج</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="n">لإنشاء</span><span class="w"> </span><span class="n">FK</span><span class="p">)</span>
+
+<span class="mf">5.</span><span class="w"> </span><span class="n">shared</span><span class="o">/</span><span class="n">libs</span><span class="o">/</span><span class="n">outbox</span><span class="o">/</span><span class="n">alembic</span><span class="o">/</span><span class="n">versions</span><span class="o">/</span><span class="n">s4_0001_create_outbox_events</span><span class="mf">.</span><span class="n">py</span>
+<span class="w">   </span><span class="err">↓</span><span class="w"> </span><span class="p">(</span><span class="n">مستقل</span><span class="p">)</span>
+
+<span class="mf">6.</span><span class="w"> </span><span class="n">Prisma</span><span class="w"> </span><span class="n">migrations</span><span class="w"> </span><span class="p">(</span><span class="n">تلقائية</span><span class="err">،</span><span class="w"> </span><span class="n">قد</span><span class="w"> </span><span class="n">تتعارض</span><span class="w"> </span><span class="n">مع</span><span class="w"> </span><span class="n">الكل</span><span class="err">!</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>المشكلة:</strong> 🔥 <strong>حرج - لا يوجد ضمان لتطبيق الهجرات بالترتيب الصحيح</strong></p>
+<hr />
+<h3 id="72-postgis-extension">🔴 7.2 PostGIS extension يُطلب في أماكن متعددة<a class="headerlink" href="#72-postgis-extension" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- في 001_init_extensions.sql</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">postgis</span><span class="p">;</span>
+
+<span class="c1">-- في 00-init-sahool.sql</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="ss">&quot;postgis&quot;</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="ss">&quot;postgis_topology&quot;</span><span class="p">;</span>
+
+<span class="c1">-- في Field Core Prisma migration</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">postgis</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">EXTENSION</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">postgis_topology</span><span class="p">;</span>
+
+<span class="c1">-- في Field Suite Alembic</span>
+<span class="n">op</span><span class="p">.</span><span class="k">execute</span><span class="p">(</span><span class="ss">&quot;CREATE EXTENSION IF NOT EXISTS postgis;&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>النتيجة:</strong> ✅ استخدام <code>IF NOT EXISTS</code> يمنع الأخطاء، لكن يوضح التكرار</p>
+<hr />
+<h3 id="73-functions-triggers">🟡 7.3 Functions و Triggers متكررة<a class="headerlink" href="#73-functions-triggers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Function update_updated_at_column() معرفة في:</span>
+<span class="mi">1</span><span class="p">.</span><span class="w"> </span><span class="n">Field</span><span class="w"> </span><span class="n">Core</span><span class="w"> </span><span class="n">Prisma</span><span class="w"> </span><span class="n">migration</span>
+<span class="mi">2</span><span class="p">.</span><span class="w"> </span><span class="n">infra</span><span class="o">/</span><span class="n">postgres</span><span class="o">/</span><span class="n">init</span><span class="o">/</span><span class="mi">00</span><span class="o">-</span><span class="n">init</span><span class="o">-</span><span class="n">sahool</span><span class="p">.</span><span class="k">sql</span>
+
+<span class="c1">-- Function calculate_field_area() معرفة في:</span>
+<span class="mi">1</span><span class="p">.</span><span class="w"> </span><span class="n">Field</span><span class="w"> </span><span class="n">Core</span><span class="w"> </span><span class="n">Prisma</span><span class="w"> </span><span class="n">migration</span>
+<span class="mi">2</span><span class="p">.</span><span class="w"> </span><span class="n">infra</span><span class="o">/</span><span class="n">postgres</span><span class="o">/</span><span class="n">init</span><span class="o">/</span><span class="mi">00</span><span class="o">-</span><span class="n">init</span><span class="o">-</span><span class="n">sahool</span><span class="p">.</span><span class="k">sql</span>
+
+<span class="c1">-- Function sync_geometry_from_wkt() معرفة في:</span>
+<span class="mi">1</span><span class="p">.</span><span class="w"> </span><span class="n">Field</span><span class="w"> </span><span class="n">Suite</span><span class="w"> </span><span class="n">Alembic</span><span class="w"> </span><span class="n">migration</span>
+</code></pre></div>
+
+<p><strong>التأثير:</strong> 🟡 <strong>متوسط - قد يسبب تحذيرات عند إعادة التهيئة</strong></p>
+<hr />
+<h2 id="8-data-isolation">8. توصيات لعزل البيانات (Data Isolation)<a class="headerlink" href="#8-data-isolation" title="Permanent link">&para;</a></h2>
+<h3 id="81-quick-wins">✅ 8.1 توصيات قصيرة المدى (Quick Wins)<a class="headerlink" href="#81-quick-wins" title="Permanent link">&para;</a></h3>
+<h4 id="1-schemas"><strong>1. إنشاء schemas منفصلة لكل خدمة</strong><a class="headerlink" href="#1-schemas" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- بدلاً من:</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">public</span><span class="p">.</span><span class="n">fields</span><span class="w"> </span><span class="p">(...)</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">public</span><span class="p">.</span><span class="n">experiments</span><span class="w"> </span><span class="p">(...)</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">public</span><span class="p">.</span><span class="n">products</span><span class="w"> </span><span class="p">(...)</span>
+
+<span class="c1">-- استخدم:</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">field_service</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">field_service</span><span class="p">.</span><span class="n">fields</span><span class="w"> </span><span class="p">(...);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">research_service</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">research_service</span><span class="p">.</span><span class="n">experiments</span><span class="w"> </span><span class="p">(...);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">marketplace_service</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">marketplace_service</span><span class="p">.</span><span class="n">products</span><span class="w"> </span><span class="p">(...);</span>
+
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">chat_service</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">chat_service</span><span class="p">.</span><span class="n">threads</span><span class="w"> </span><span class="p">(...);</span>
+</code></pre></div>
+
+<p><strong>الفوائد:</strong>
+✅ حل فوري لتعارضات الأسماء
+✅ عزل منطقي واضح
+✅ سهولة إدارة الصلاحيات
+✅ إمكانية نقل الـschema إلى قاعدة بيانات منفصلة لاحقاً</p>
+<hr />
+<h4 id="2-shared-reference-tables"><strong>2. إنشاء جداول مرجعية مشتركة (Shared Reference Tables)</strong><a class="headerlink" href="#2-shared-reference-tables" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">shared</span><span class="p">;</span>
+
+<span class="c1">-- نسخة read-only من users للمراجع</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">shared</span><span class="p">.</span><span class="n">user_refs</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">user_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">tenant_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">full_name</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+<span class="w">    </span><span class="n">email</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+<span class="w">    </span><span class="n">last_synced_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span>
+<span class="p">);</span>
+
+<span class="c1">-- نسخة read-only من fields للمراجع</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">shared</span><span class="p">.</span><span class="n">field_refs</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">field_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">tenant_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">name</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+<span class="w">    </span><span class="n">last_synced_at</span><span class="w"> </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">NOW</span><span class="p">()</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<p><strong>الاستخدام:</strong>
+- خدمة Research تشير إلى <code>shared.field_refs</code> بدلاً من <code>field_service.fields</code>
+- يتم تحديث هذه الجداول عبر <strong>CDC (Change Data Capture)</strong> أو <strong>Event Sourcing</strong></p>
+<hr />
+<h4 id="3-uuid-tenant_id"><strong>3. استخدام UUID موحد لـtenant_id</strong><a class="headerlink" href="#3-uuid-tenant_id" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- تحويل جميع tenant_id إلى UUID</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">chat_threads</span><span class="w"> </span><span class="k">ALTER</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">tenant_id</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">tenant_id</span><span class="p">::</span><span class="n">UUID</span><span class="p">;</span>
+<span class="c1">-- كرر لجميع الجداول</span>
+</code></pre></div>
+
+<hr />
+<h4 id="4-enums"><strong>4. توحيد ENUMs</strong><a class="headerlink" href="#4-enums" title="Permanent link">&para;</a></h4>
+<p><strong>خيار 1: استخدام جداول lookup</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">shared</span><span class="p">.</span><span class="n">field_statuses</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">code</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">name_en</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+<span class="w">    </span><span class="n">name_ar</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span>
+<span class="w">    </span><span class="n">is_active</span><span class="w"> </span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">true</span>
+<span class="p">);</span>
+
+<span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">shared</span><span class="p">.</span><span class="n">field_statuses</span><span class="w"> </span><span class="k">VALUES</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Active&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;نشط&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">&#39;fallow&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Fallow&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;بور&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">&#39;harvested&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Harvested&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;محصود&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">&#39;preparing&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Preparing&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;قيد التحضير&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">),</span>
+<span class="w">    </span><span class="p">(</span><span class="s1">&#39;inactive&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Inactive&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;غير نشط&#39;</span><span class="p">,</span><span class="w"> </span><span class="k">true</span><span class="p">);</span>
+
+<span class="c1">-- في الجداول:</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_field_status</span>
+<span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">shared</span><span class="p">.</span><span class="n">field_statuses</span><span class="p">(</span><span class="n">code</span><span class="p">);</span>
+</code></pre></div>
+
+<p><strong>الفوائد:</strong>
+✅ مرونة في إضافة قيم جديدة بدون ALTER TYPE
+✅ دعم متعدد اللغات
+✅ إمكانية soft delete للقيم</p>
+<hr />
+<h3 id="82">✅ 8.2 توصيات متوسطة المدى<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<h4 id="1-database-per-service-pattern"><strong>1. تطبيق Database-per-Service Pattern</strong><a class="headerlink" href="#1-database-per-service-pattern" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>sahool-field-db (PostgreSQL + PostGIS)
+  ├── schema: field_service
+  │   ├── fields
+  │   ├── field_boundary_history
+  │   ├── sync_status
+  │   └── tasks
+
+sahool-research-db (PostgreSQL)
+  ├── schema: research_service
+  │   ├── experiments
+  │   ├── research_protocols
+  │   ├── research_plots
+  │   └── ...
+
+sahool-marketplace-db (PostgreSQL)
+  ├── schema: marketplace_service
+  │   ├── products
+  │   ├── orders
+  │   ├── wallets
+  │   └── ...
+
+sahool-core-db (PostgreSQL)
+  ├── schema: tenants_service
+  │   └── tenants
+  ├── schema: users_service
+  │   └── users
+  ├── schema: shared
+  │   ├── user_refs (materialized view)
+  │   └── field_refs (materialized view)
+</code></pre></div>
+
+<hr />
+<h4 id="2-event-driven-architecture"><strong>2. استخدام Event-Driven Architecture للمراجع</strong><a class="headerlink" href="#2-event-driven-architecture" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">// مثال: عند تحديث field</span>
+<span class="k">await</span><span class="w"> </span><span class="nx">publishEvent</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;field.updated&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">tenant_id</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">tenant_id</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">status</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">updated_at</span><span class="o">:</span><span class="w"> </span><span class="nx">field</span><span class="p">.</span><span class="nx">updated_at</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+
+<span class="c1">// خدمة Research تستمع وتحدث shared.field_refs</span>
+</code></pre></div>
+
+<hr />
+<h4 id="3-saga-pattern"><strong>3. تطبيق SAGA Pattern للمعاملات الموزعة</strong><a class="headerlink" href="#3-saga-pattern" title="Permanent link">&para;</a></h4>
+<p>مثال: إنشاء طلب في Marketplace يحتاج تحديث wallet:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Orchestrated SAGA</span>
+<span class="k">async</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">createOrderSaga</span><span class="p">(</span><span class="nx">order</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">sagaId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">uuid</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Step 1: Reserve wallet balance</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">walletService</span><span class="p">.</span><span class="nx">reserveBalance</span><span class="p">(</span><span class="nx">sagaId</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">total</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Step 2: Create order</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">orderService</span><span class="p">.</span><span class="nx">create</span><span class="p">(</span><span class="nx">sagaId</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Step 3: Deduct balance</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">walletService</span><span class="p">.</span><span class="nx">deductBalance</span><span class="p">(</span><span class="nx">sagaId</span><span class="p">,</span><span class="w"> </span><span class="nx">order</span><span class="p">.</span><span class="nx">total</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Commit</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">sagaService</span><span class="p">.</span><span class="nx">commit</span><span class="p">(</span><span class="nx">sagaId</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Compensate</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">walletService</span><span class="p">.</span><span class="nx">releaseReservation</span><span class="p">(</span><span class="nx">sagaId</span><span class="p">);</span>
+<span class="w">    </span><span class="k">await</span><span class="w"> </span><span class="nx">orderService</span><span class="p">.</span><span class="nx">cancel</span><span class="p">(</span><span class="nx">sagaId</span><span class="p">);</span>
+<span class="w">    </span><span class="k">throw</span><span class="w"> </span><span class="nx">error</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h3 id="83">✅ 8.3 توصيات طويلة المدى<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
+<h4 id="1-migrate-to-separate-databases"><strong>1. Migrate to Separate Databases</strong><a class="headerlink" href="#1-migrate-to-separate-databases" title="Permanent link">&para;</a></h4>
+<p><strong>الهدف النهائي:</strong></p>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────┐
+│         API Gateway / BFF               │
+└─────────────────────────────────────────┘
+           │
+    ┌──────┴──────┬──────────┬──────────┐
+    │             │          │          │
+┌───▼────┐  ┌────▼───┐  ┌──▼─────┐  ┌─▼──────┐
+│Field   │  │Research│  │Market  │  │Chat    │
+│Service │  │Service │  │Service │  │Service │
+└───┬────┘  └────┬───┘  └──┬─────┘  └─┬──────┘
+    │            │         │          │
+┌───▼────┐  ┌───▼────┐  ┌─▼──────┐  ┌▼───────┐
+│Field DB│  │Res. DB │  │Market  │  │Chat DB │
+│PostGIS │  │PG      │  │DB PG   │  │PG      │
+└────────┘  └────────┘  └────────┘  └────────┘
+</code></pre></div>
+
+<hr />
+<h4 id="2-read-replicas-shared-data"><strong>2. استخدام Read Replicas لـShared Data</strong><a class="headerlink" href="#2-read-replicas-shared-data" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>Master DB (Core)
+  ├── tenants
+  └── users
+       │
+       ↓ (Replication)
+       │
+Read Replicas في كل خدمة
+  ├── field-service-replica
+  ├── research-service-replica
+  └── marketplace-service-replica
+</code></pre></div>
+
+<hr />
+<h4 id="3-cqrs-command-query-responsibility-segregation"><strong>3. تطبيق CQRS (Command Query Responsibility Segregation)</strong><a class="headerlink" href="#3-cqrs-command-query-responsibility-segregation" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>Write Model (Normalized)          Read Model (Denormalized)
+┌─────────────────┐              ┌──────────────────────┐
+│ fields          │──Events──────▶│ field_summaries     │
+│  - id           │              │  - id                │
+│  - name         │              │  - name              │
+│  - status       │              │  - owner_name ✓     │
+└─────────────────┘              │  - crop_name ✓      │
+                                 │  - latest_ndvi ✓    │
+┌─────────────────┐              │  - task_count ✓     │
+│ ndvi_readings   │──Events──────▶│                     │
+└─────────────────┘              └──────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="9">9. ملخص المشاكل حسب الأولوية<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="-">🔴 <strong>حرج - يجب الحل فوراً:</strong><a class="headerlink" href="#-" title="Permanent link">&para;</a></h3>
+<ol>
+<li>✋ <strong>تعارض جدول <code>fields</code></strong> (3 تعريفات مختلفة)</li>
+<li>✋ <strong>تعارض جدول <code>tasks</code></strong> (تعريفين)</li>
+<li>✋ <strong>عدم اتساق ENUMs</strong> (field_status, task_type)</li>
+<li>✋ <strong>عدم اتساق tenant_id type</strong> (UUID vs VARCHAR)</li>
+<li>✋ <strong>عدم وجود آلية موحدة للهجرات</strong></li>
+</ol>
+<hr />
+<h3 id="-_1">🟡 <strong>متوسط - يجب التخطيط للحل:</strong><a class="headerlink" href="#-_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li>⚠️ تكرار الجداول البحثية (9 جداول)</li>
+<li>⚠️ تكرار جداول السوق (6 جداول)</li>
+<li>⚠️ تكرار جداول المحادثات (4 جداول)</li>
+<li>⚠️ مراجع FK عبر حدود الخدمات</li>
+<li>⚠️ فهارس مفقودة على جداول عالية الاستخدام</li>
+<li>⚠️ قيود CHECK مفقودة (wallets, loans)</li>
+<li>⚠️ عدم اتساق GEOMETRY vs GEOGRAPHY</li>
+</ol>
+<hr />
+<h3 id="-_2">🟢 <strong>تحسينات - يمكن الحل لاحقاً:</strong><a class="headerlink" href="#-_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li>ℹ️ Functions و Triggers متكررة</li>
+<li>ℹ️ عدم اتساق دقة NDVI values</li>
+<li>ℹ️ جدول _migrations يدوي يحتاج تحسين</li>
+</ol>
+<hr />
+<h2 id="10">10. خطة العمل المقترحة<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="1-1-2">📋 <strong>المرحلة 1: التوحيد الفوري (أسبوع 1-2)</strong><a class="headerlink" href="#1-1-2" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- 1. إنشاء schemas منفصلة</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">field_service</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">research_service</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">marketplace_service</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">chat_service</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="n">shared</span><span class="p">;</span>
+
+<span class="c1">-- 2. نقل الجداول المتعارضة</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="n">field_service</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">tasks</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="n">field_service</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">experiments</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="n">research_service</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">products</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="n">marketplace_service</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">chat_threads</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="k">SCHEMA</span><span class="w"> </span><span class="n">chat_service</span><span class="p">;</span>
+
+<span class="c1">-- 3. توحيد tenant_id</span>
+<span class="c1">-- (يتطلب migration script لتحويل البيانات)</span>
+
+<span class="c1">-- 4. توحيد ENUMs</span>
+<span class="c1">-- (إنشاء lookup tables كما هو موضح أعلاه)</span>
+</code></pre></div>
+
+<hr />
+<h3 id="2-3">📋 <strong>المرحلة 2: إضافة الفهارس (أسبوع 3)</strong><a class="headerlink" href="#2-3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- تطبيق جميع الفهارس المقترحة في القسم 4</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_chat_messages_sender</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">chat_service</span><span class="p">.</span><span class="n">chat_messages</span><span class="p">(</span><span class="n">sender_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_transactions_wallet_date</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">marketplace_service</span><span class="p">.</span><span class="n">transactions</span><span class="p">(</span><span class="n">wallet_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">);</span>
+<span class="c1">-- ... إلخ</span>
+</code></pre></div>
+
+<hr />
+<h3 id="3-4">📋 <strong>المرحلة 3: إضافة القيود (أسبوع 4)</strong><a class="headerlink" href="#3-4" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- إضافة CHECK constraints</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">marketplace_service</span><span class="p">.</span><span class="n">wallets</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">chk_wallet_balance</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">balance</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="c1">-- ... إلخ</span>
+</code></pre></div>
+
+<hr />
+<h3 id="4-5-6">📋 <strong>المرحلة 4: توحيد الهجرات (أسبوع 5-6)</strong><a class="headerlink" href="#4-5-6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>اختيار أداة واحدة (مقترح: <strong>Liquibase</strong> لدعم multi-language)</li>
+<li>تحويل جميع الهجرات الحالية إلى changelog موحد</li>
+<li>إعداد CI/CD للتحقق من الهجرات</li>
+</ul>
+<hr />
+<h3 id="5-event-driven-refs-7-10">📋 <strong>المرحلة 5: Event-Driven Refs (أسبوع 7-10)</strong><a class="headerlink" href="#5-event-driven-refs-7-10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>تطبيق Event Bus (Kafka/RabbitMQ)</li>
+<li>إنشاء جداول shared refs</li>
+<li>إعداد CDC للمزامنة التلقائية</li>
+</ul>
+<hr />
+<h3 id="6-3-6">📋 <strong>المرحلة 6: فصل قواعد البيانات (شهر 3-6)</strong><a class="headerlink" href="#6-3-6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>إنشاء قاعدة بيانات منفصلة لكل خدمة</li>
+<li>تطبيق data migration</li>
+<li>تحديث connection strings</li>
+<li>اختبار شامل</li>
+</ul>
+<hr />
+<h2 id="11-success-metrics">11. معايير النجاح (Success Metrics)<a class="headerlink" href="#11-success-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="_10">✅ <strong>معايير فنية:</strong><a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✓ صفر تعارضات في أسماء الجداول</li>
+<li>✓ 100% اتساق في أنواع البيانات</li>
+<li>✓ جميع الفهارس الحرجة موجودة</li>
+<li>✓ صفر FK مباشر بين الخدمات</li>
+<li>✓ آلية موحدة للهجرات</li>
+</ul>
+<h3 id="_11">✅ <strong>معايير الأداء:</strong><a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✓ زمن استجابة الاستعلامات &lt; 100ms (P95)</li>
+<li>✓ القدرة على scale الخدمات بشكل مستقل</li>
+<li>✓ صفر deadlocks بين الخدمات</li>
+</ul>
+<h3 id="_12">✅ <strong>معايير الصيانة:</strong><a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✓ وثائق كاملة للمخططات</li>
+<li>✓ اختبارات integration تلقائية</li>
+<li>✓ CI/CD pipeline للهجرات</li>
+</ul>
+<hr />
+<h2 id="12_1">12. الخلاصة<a class="headerlink" href="#12_1" title="Permanent link">&para;</a></h2>
+<h3 id="_13">📊 <strong>الوضع الحالي:</strong><a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المعيار</th>
+<th>الحالة</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>توحيد المخططات</td>
+<td>❌</td>
+<td>تعارضات متعددة</td>
+</tr>
+<tr>
+<td>عزل البيانات</td>
+<td>⚠️</td>
+<td>schemas مشتركة</td>
+</tr>
+<tr>
+<td>الفهارس</td>
+<td>🟡</td>
+<td>جيدة جزئياً</td>
+</tr>
+<tr>
+<td>سلامة البيانات</td>
+<td>⚠️</td>
+<td>قيود مفقودة</td>
+</tr>
+<tr>
+<td>إدارة الهجرات</td>
+<td>❌</td>
+<td>غير موحدة</td>
+</tr>
+<tr>
+<td>العلاقات بين الخدمات</td>
+<td>❌</td>
+<td>FK مباشرة</td>
+</tr>
+<tr>
+<td>الأداء</td>
+<td>🟡</td>
+<td>جيد مع تحسينات مطلوبة</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="_14">🎯 <strong>الرؤية المستقبلية:</strong><a class="headerlink" href="#_14" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>المنصة الحالية (Monolithic Database)
+         ↓
+   [المرحلة 1-2: توحيد فوري]
+         ↓
+Shared Database with Isolated Schemas
+         ↓
+   [المرحلة 3-5: Event-Driven]
+         ↓
+Database-per-Service with Event Bus
+         ↓
+   [المرحلة 6: فصل كامل]
+         ↓
+  Truly Distributed Microservices
+</code></pre></div>
+
+<hr />
+<h3 id="_15">⚡ <strong>الأولوية القصوى:</strong><a class="headerlink" href="#_15" title="Permanent link">&para;</a></h3>
+<p><strong>يجب حل هذه المشاكل قبل Production:</strong></p>
+<ol>
+<li>🔴 تعارض <code>fields</code> table</li>
+<li>🔴 توحيد <code>tenant_id</code> type</li>
+<li>🔴 توحيد ENUMs</li>
+<li>🔴 إنشاء schemas منفصلة</li>
+<li>🔴 إضافة آلية tracking موحدة للهجرات</li>
+</ol>
+<p><strong>التقدير الزمني:</strong> 2-3 أسابيع للحل الحرج</p>
+<hr />
+<h2 id="13">13. مراجع إضافية<a class="headerlink" href="#13" title="Permanent link">&para;</a></h2>
+<h3 id="_16">📚 <strong>وثائق ذات صلة:</strong><a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="./docs/DATABASE.md">Database Schemas Documentation</a></li>
+<li><a href="./docs/MIGRATIONS.md">Migration Guide</a></li>
+<li><a href="./docs/infrastructure/POSTGIS_OPTIMIZATION.md">PostGIS Optimization</a></li>
+<li><a href="../COMPREHENSIVE_REVIEW_REPORT_AR/">Comprehensive Review Report (Arabic)</a></li>
+</ul>
+<h3 id="_17">🔧 <strong>ملفات المخططات:</strong><a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Field Core: <code>/apps/services/field-core/prisma/schema.prisma</code></li>
+<li>Research Core: <code>/apps/services/research-core/prisma/schema.prisma</code></li>
+<li>Marketplace: <code>/apps/services/marketplace-service/prisma/schema.prisma</code></li>
+<li>NDVI Engine: <code>/apps/services/ndvi-engine/src/models.py</code></li>
+<li>Field Suite: <code>/packages/field_suite/spatial/orm_models.py</code></li>
+</ul>
+<h3 id="_18">🛠️ <strong>ملفات الهجرات:</strong><a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Infra Migrations: <code>/infra/postgres/migrations/</code></li>
+<li>Infra Init: <code>/infra/postgres/init/</code></li>
+<li>Alembic Migrations: <code>*/migrations/versions/</code></li>
+<li>Prisma Migrations: <code>*/prisma/migrations/</code></li>
+</ul>
+<hr />
+<p><strong>تاريخ الإنشاء:</strong> 2025-12-24
+<strong>الإصدار:</strong> 1.0
+<strong>المحلل:</strong> Claude Code Assistant
+<strong>الحالة:</strong> 🔴 يتطلب إجراءات فورية</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2002 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform Security Hardening Guide - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-security-hardening-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform Security Hardening Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-security-hardening-guide">SAHOOL Platform Security Hardening Guide<a class="headerlink" href="#sahool-platform-security-hardening-guide" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> 1.0
+<strong>Last Updated:</strong> 2026-01-07
+<strong>Platform:</strong> SAHOOL Unified v15</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#security-architecture">Security Architecture</a></li>
+<li><a href="#hardening-scripts">Hardening Scripts</a></li>
+<li><a href="#component-hardening">Component Hardening</a></li>
+<li><a href="#security-policies">Security Policies</a></li>
+<li><a href="#vulnerability-management">Vulnerability Management</a></li>
+<li><a href="#monitoring-and-auditing">Monitoring and Auditing</a></li>
+<li><a href="#incident-response">Incident Response</a></li>
+<li><a href="#best-practices">Best Practices</a></li>
+<li><a href="#compliance">Compliance</a></li>
+</ol>
+<hr />
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>This guide provides comprehensive security hardening procedures for the SAHOOL platform. It covers all infrastructure components, containers, and services with step-by-step instructions for implementing security best practices.</p>
+<h3 id="security-objectives">Security Objectives<a class="headerlink" href="#security-objectives" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Confidentiality</strong>: Protect sensitive data from unauthorized access</li>
+<li><strong>Integrity</strong>: Ensure data accuracy and prevent unauthorized modifications</li>
+<li><strong>Availability</strong>: Maintain system uptime and resilience</li>
+<li><strong>Compliance</strong>: Meet industry standards and regulatory requirements</li>
+</ul>
+<h3 id="security-principles">Security Principles<a class="headerlink" href="#security-principles" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Defense in Depth</strong>: Multiple layers of security controls</li>
+<li><strong>Least Privilege</strong>: Minimum necessary access rights</li>
+<li><strong>Zero Trust</strong>: Never trust, always verify</li>
+<li><strong>Security by Design</strong>: Built-in security from the start</li>
+<li><strong>Continuous Monitoring</strong>: Real-time threat detection</li>
+</ol>
+<hr />
+<h2 id="security-architecture">Security Architecture<a class="headerlink" href="#security-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="security-layers">Security Layers<a class="headerlink" href="#security-layers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                        Users / Clients                       │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Network Layer Security                    │
+│  • TLS/SSL Encryption      • Rate Limiting                  │
+│  • Firewall Rules          • DDoS Protection                │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  API Gateway (Kong/Envoy)                    │
+│  • Authentication          • Authorization                   │
+│  • API Key Management      • Request Validation             │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Application Services                       │
+│  • Input Validation        • Output Encoding                │
+│  • Session Management      • Error Handling                 │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Container Security Layer                    │
+│  • Non-root Users          • Read-only Filesystems          │
+│  • Resource Limits         • Security Profiles              │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Data Layer Security                        │
+│  • Encryption at Rest      • Encryption in Transit          │
+│  • Access Control          • Audit Logging                  │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                 Infrastructure Security                      │
+│  • OS Hardening            • Network Segmentation           │
+│  • Patch Management        • Backup &amp; Recovery              │
+└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="network-architecture">Network Architecture<a class="headerlink" href="#network-architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Internet
+   │
+   ├─── Firewall / WAF
+   │         │
+   │         ├─── Load Balancer (HTTPS)
+   │         │         │
+   │         │         ├─── API Gateway (Kong)
+   │         │         │         │
+   │         │         │         ├─── Internal Network (Microservices)
+   │         │         │         │         │
+   │         │         │         │         ├─── PostgreSQL (TLS)
+   │         │         │         │         ├─── Redis (TLS + Auth)
+   │         │         │         │         ├─── NATS (TLS + NKeys)
+   │         │         │         │         └─── MinIO (TLS + Auth)
+</code></pre></div>
+
+<hr />
+<h2 id="hardening-scripts">Hardening Scripts<a class="headerlink" href="#hardening-scripts" title="Permanent link">&para;</a></h2>
+<h3 id="available-scripts">Available Scripts<a class="headerlink" href="#available-scripts" title="Permanent link">&para;</a></h3>
+<p>All hardening scripts are located in <code>/home/user/sahool-unified-v15-idp/scripts/security/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Purpose</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>harden-postgres.sh</code></td>
+<td>PostgreSQL security hardening</td>
+<td><code>./harden-postgres.sh --full</code></td>
+</tr>
+<tr>
+<td><code>harden-redis.sh</code></td>
+<td>Redis security hardening</td>
+<td><code>./harden-redis.sh --full</code></td>
+</tr>
+<tr>
+<td><code>harden-nats.sh</code></td>
+<td>NATS security hardening</td>
+<td><code>./harden-nats.sh --full</code></td>
+</tr>
+<tr>
+<td><code>harden-docker.sh</code></td>
+<td>Docker security hardening</td>
+<td><code>sudo ./harden-docker.sh --full</code></td>
+</tr>
+<tr>
+<td><code>audit-security.sh</code></td>
+<td>Comprehensive security audit</td>
+<td><code>./audit-security.sh --full</code></td>
+</tr>
+<tr>
+<td><code>scan-vulnerabilities.sh</code></td>
+<td>Vulnerability scanning</td>
+<td><code>./scan-vulnerabilities.sh --full</code></td>
+</tr>
+<tr>
+<td><code>rotate-secrets.sh</code></td>
+<td>Secret rotation</td>
+<td><code>./rotate-secrets.sh --all</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Make scripts executable</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>/home/user/sahool-unified-v15-idp/scripts/security/*.sh
+
+<span class="c1"># 2. Run comprehensive security audit (recommended first step)</span>
+./scripts/security/audit-security.sh<span class="w"> </span>--full
+
+<span class="c1"># 3. Review audit report</span>
+cat<span class="w"> </span>reports/security/security-audit-*.md
+
+<span class="c1"># 4. Run hardening scripts</span>
+./scripts/security/harden-postgres.sh<span class="w"> </span>--full
+./scripts/security/harden-redis.sh<span class="w"> </span>--full
+./scripts/security/harden-nats.sh<span class="w"> </span>--full
+sudo<span class="w"> </span>./scripts/security/harden-docker.sh<span class="w"> </span>--full
+
+<span class="c1"># 5. Run vulnerability scan</span>
+./scripts/security/scan-vulnerabilities.sh<span class="w"> </span>--full
+
+<span class="c1"># 6. Verify changes with another audit</span>
+./scripts/security/audit-security.sh<span class="w"> </span>--full
+</code></pre></div>
+
+<hr />
+<h2 id="component-hardening">Component Hardening<a class="headerlink" href="#component-hardening" title="Permanent link">&para;</a></h2>
+<h3 id="postgresql-hardening">PostgreSQL Hardening<a class="headerlink" href="#postgresql-hardening" title="Permanent link">&para;</a></h3>
+<h4 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable SCRAM-SHA-256 password encryption</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span>-c<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">&quot;ALTER SYSTEM SET password_encryption = &#39;scram-sha-256&#39;;&quot;</span>
+
+<span class="c1"># Update pg_hba.conf for strict authentication</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>/path/to/pg_hba.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s"># TYPE  DATABASE        USER            ADDRESS                 METHOD</span>
+<span class="s">local   all             all                                     scram-sha-256</span>
+<span class="s">hostssl all             all             0.0.0.0/0               scram-sha-256 clientcert=verify-full</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h4 id="ssltls-configuration">SSL/TLS Configuration<a class="headerlink" href="#ssltls-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable SSL in postgresql.conf</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/path/to/postgresql.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">ssl = on</span>
+<span class="s">ssl_cert_file = &#39;/var/lib/postgresql/server.crt&#39;</span>
+<span class="s">ssl_key_file = &#39;/var/lib/postgresql/server.key&#39;</span>
+<span class="s">ssl_ca_file = &#39;/var/lib/postgresql/root.crt&#39;</span>
+<span class="s">ssl_min_protocol_version = &#39;TLSv1.2&#39;</span>
+<span class="s">ssl_ciphers = &#39;HIGH:MEDIUM:+3DES:!aNULL&#39;</span>
+<span class="s">ssl_prefer_server_ciphers = on</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h4 id="connection-limits">Connection Limits<a class="headerlink" href="#connection-limits" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Set connection limits</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">max_connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">250</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">superuser_reserved_connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">statement_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;30s&#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">idle_in_transaction_session_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;10min&#39;</span><span class="p">;</span>
+
+<span class="c1">-- Reload configuration</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pg_reload_conf</span><span class="p">();</span>
+</code></pre></div>
+
+<h4 id="audit-logging">Audit Logging<a class="headerlink" href="#audit-logging" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Enable comprehensive logging</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">on</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_disconnections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">on</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_line_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;%t [%p]: user=%u,db=%d,app=%a,client=%h &#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;ddl&#39;</span><span class="p">;</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">SYSTEM</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">log_min_duration_statement</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+</code></pre></div>
+
+<h4 id="row-level-security">Row Level Security<a class="headerlink" href="#row-level-security" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Enable RLS on sensitive tables</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">users</span><span class="w"> </span><span class="n">ENABLE</span><span class="w"> </span><span class="k">ROW</span><span class="w"> </span><span class="k">LEVEL</span><span class="w"> </span><span class="k">SECURITY</span><span class="p">;</span>
+
+<span class="c1">-- Create policy</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="n">POLICY</span><span class="w"> </span><span class="n">user_access_policy</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">users</span>
+<span class="w">  </span><span class="k">FOR</span><span class="w"> </span><span class="k">ALL</span>
+<span class="w">  </span><span class="k">TO</span><span class="w"> </span><span class="n">app_user</span>
+<span class="w">  </span><span class="k">USING</span><span class="w"> </span><span class="p">(</span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_setting</span><span class="p">(</span><span class="s1">&#39;app.current_user_id&#39;</span><span class="p">)::</span><span class="nb">INTEGER</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="redis-hardening">Redis Hardening<a class="headerlink" href="#redis-hardening" title="Permanent link">&para;</a></h3>
+<h4 id="authentication_1">Authentication<a class="headerlink" href="#authentication_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Set strong password</span>
+redis-cli<span class="w"> </span>CONFIG<span class="w"> </span>SET<span class="w"> </span>requirepass<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>openssl<span class="w"> </span>rand<span class="w"> </span>-base64<span class="w"> </span><span class="m">32</span><span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># Configure ACL users</span>
+redis-cli<span class="w"> </span>ACL<span class="w"> </span>SETUSER<span class="w"> </span>admin<span class="w"> </span>on<span class="w"> </span>&gt;admin_password<span class="w"> </span>~*<span class="w"> </span><span class="p">&amp;</span>*<span class="w"> </span>+@all
+redis-cli<span class="w"> </span>ACL<span class="w"> </span>SETUSER<span class="w"> </span>app<span class="w"> </span>on<span class="w"> </span>&gt;app_password<span class="w"> </span>~app:*<span class="w"> </span><span class="p">&amp;</span>*<span class="w"> </span>+@all<span class="w"> </span>-@dangerous
+redis-cli<span class="w"> </span>ACL<span class="w"> </span>SETUSER<span class="w"> </span><span class="nb">readonly</span><span class="w"> </span>on<span class="w"> </span>&gt;readonly_password<span class="w"> </span>~*<span class="w"> </span><span class="p">&amp;</span>*<span class="w"> </span>+@read<span class="w"> </span>-@write
+</code></pre></div>
+
+<h4 id="rename-dangerous-commands">Rename Dangerous Commands<a class="headerlink" href="#rename-dangerous-commands" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Add to redis.conf</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/redis/redis.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">rename-command FLUSHDB &quot;FLUSHDB_MY_SECRET_$(openssl rand -hex 16)&quot;</span>
+<span class="s">rename-command FLUSHALL &quot;FLUSHALL_MY_SECRET_$(openssl rand -hex 16)&quot;</span>
+<span class="s">rename-command CONFIG &quot;CONFIG_MY_SECRET_$(openssl rand -hex 16)&quot;</span>
+<span class="s">rename-command KEYS &quot;&quot;</span>
+<span class="s">rename-command SHUTDOWN &quot;SHUTDOWN_MY_SECRET_$(openssl rand -hex 16)&quot;</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h4 id="tls-configuration">TLS Configuration<a class="headerlink" href="#tls-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable TLS</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/redis/redis.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">port 0</span>
+<span class="s">tls-port 6379</span>
+<span class="s">tls-cert-file /etc/redis/certs/redis.crt</span>
+<span class="s">tls-key-file /etc/redis/certs/redis.key</span>
+<span class="s">tls-ca-cert-file /etc/redis/certs/ca.crt</span>
+<span class="s">tls-protocols &quot;TLSv1.2 TLSv1.3&quot;</span>
+<span class="s">tls-prefer-server-ciphers yes</span>
+<span class="s">tls-auth-clients yes</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h4 id="memory-and-persistence">Memory and Persistence<a class="headerlink" href="#memory-and-persistence" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Configure memory limits</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/redis/redis.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">maxmemory 512mb</span>
+<span class="s">maxmemory-policy allkeys-lru</span>
+<span class="s">appendonly yes</span>
+<span class="s">appendfilename &quot;appendonly.aof&quot;</span>
+<span class="s">appendfsync everysec</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h3 id="nats-hardening">NATS Hardening<a class="headerlink" href="#nats-hardening" title="Permanent link">&para;</a></h3>
+<h4 id="nkey-authentication">NKey Authentication<a class="headerlink" href="#nkey-authentication" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Generate NKeys using hardening script</span>
+./scripts/security/harden-nats.sh<span class="w"> </span>--generate-nkeys
+
+<span class="c1"># NKeys are stored in: /home/user/sahool-unified-v15-idp/scripts/nats/keys/</span>
+
+<span class="c1"># Configure services to use NKeys</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>/path/to/service-config.yaml<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">nats:</span>
+<span class="s">  url: nats://nats:4222</span>
+<span class="s">  credentials_file: /run/secrets/nats_creds</span>
+<span class="s">  tls:</span>
+<span class="s">    enabled: true</span>
+<span class="s">    cert_file: /certs/client.crt</span>
+<span class="s">    key_file: /certs/client.key</span>
+<span class="s">    ca_file: /certs/ca.crt</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h4 id="tls-configuration_1">TLS Configuration<a class="headerlink" href="#tls-configuration_1" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Add to nats-server.conf</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">tls {</span>
+<span class="s">  cert_file: &quot;/etc/nats/certs/nats.crt&quot;</span>
+<span class="s">  key_file: &quot;/etc/nats/certs/nats.key&quot;</span>
+<span class="s">  ca_file: &quot;/etc/nats/certs/ca.crt&quot;</span>
+<span class="s">  verify: true</span>
+<span class="s">  timeout: 2</span>
+<span class="s">  min_version: &quot;1.2&quot;</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h4 id="jetstream-security">JetStream Security<a class="headerlink" href="#jetstream-security" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Configure JetStream with security</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>/etc/nats/nats-server.conf<span class="w"> </span><span class="s">&lt;&lt;EOF</span>
+<span class="s">jetstream {</span>
+<span class="s">  store_dir: &quot;/data/jetstream&quot;</span>
+<span class="s">  max_memory_store: 1GB</span>
+<span class="s">  max_file_store: 10GB</span>
+<span class="s">  domain: &quot;sahool&quot;</span>
+<span class="s">}</span>
+
+<span class="s">accounts {</span>
+<span class="s">  APP: {</span>
+<span class="s">    jetstream: {</span>
+<span class="s">      max_mem: 512MB</span>
+<span class="s">      max_file: 5GB</span>
+<span class="s">      max_streams: 100</span>
+<span class="s">      max_consumers: 1000</span>
+<span class="s">    }</span>
+<span class="s">  }</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</code></pre></div>
+
+<h3 id="docker-hardening">Docker Hardening<a class="headerlink" href="#docker-hardening" title="Permanent link">&para;</a></h3>
+<h4 id="daemon-configuration">Daemon Configuration<a class="headerlink" href="#daemon-configuration" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;icc&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;userns-remap&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;log-driver&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;json-file&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;log-opts&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;max-size&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10m&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;max-file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;3&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;live-restore&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;userland-proxy&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;no-new-privileges&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="container-best-practices">Container Best Practices<a class="headerlink" href="#container-best-practices" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Secure container configuration example</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">secure-service</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">your-image:tag</span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1000:1000&quot;</span><span class="w">  </span><span class="c1"># Non-root user</span>
+<span class="w">    </span><span class="nt">read_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># Read-only filesystem</span>
+
+<span class="w">    </span><span class="nt">security_opt</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">no-new-privileges:true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">seccomp=/etc/docker/seccomp-profile.json</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apparmor=docker-sahool</span>
+
+<span class="w">    </span><span class="nt">cap_drop</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ALL</span>
+<span class="w">    </span><span class="nt">cap_add</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NET_BIND_SERVICE</span>
+
+<span class="w">    </span><span class="nt">tmpfs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tmp:noexec,nosuid,size=100m</span>
+
+<span class="w">    </span><span class="nt">deploy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">cpus</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1.0&#39;</span>
+<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512M</span>
+<span class="w">          </span><span class="nt">pids</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+</code></pre></div>
+
+<hr />
+<h2 id="security-policies">Security Policies<a class="headerlink" href="#security-policies" title="Permanent link">&para;</a></h2>
+<p>Security policies are defined in <code>/home/user/sahool-unified-v15-idp/infrastructure/security/security-policies.yaml</code>.</p>
+<h3 id="key-policies">Key Policies<a class="headerlink" href="#key-policies" title="Permanent link">&para;</a></h3>
+<h4 id="password-policy">Password Policy<a class="headerlink" href="#password-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Minimum 12 characters</li>
+<li>Requires uppercase, lowercase, numbers, special characters</li>
+<li>90-day rotation</li>
+<li>Password history: 5</li>
+<li>Account lockout: 5 failed attempts</li>
+</ul>
+<h4 id="session-policy">Session Policy<a class="headerlink" href="#session-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Timeout: 30 minutes</li>
+<li>Absolute timeout: 12 hours</li>
+<li>Maximum concurrent sessions: 3</li>
+<li>Secure cookies with HttpOnly and SameSite</li>
+</ul>
+<h4 id="encryption-policy">Encryption Policy<a class="headerlink" href="#encryption-policy" title="Permanent link">&para;</a></h4>
+<ul>
+<li>At rest: AES-256-GCM</li>
+<li>In transit: TLS 1.2+</li>
+<li>Key rotation: 90 days</li>
+</ul>
+<hr />
+<h2 id="vulnerability-management">Vulnerability Management<a class="headerlink" href="#vulnerability-management" title="Permanent link">&para;</a></h2>
+<h3 id="scanning-schedule">Scanning Schedule<a class="headerlink" href="#scanning-schedule" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scan Type</th>
+<th>Frequency</th>
+<th>Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Container Images</td>
+<td>Daily</td>
+<td>Trivy, Grype</td>
+</tr>
+<tr>
+<td>Dependencies (npm)</td>
+<td>Weekly</td>
+<td>npm audit, Snyk</td>
+</tr>
+<tr>
+<td>Dependencies (Python)</td>
+<td>Weekly</td>
+<td>Safety</td>
+</tr>
+<tr>
+<td>Secrets in Code</td>
+<td>On commit</td>
+<td>Gitleaks</td>
+</tr>
+<tr>
+<td>Infrastructure as Code</td>
+<td>Weekly</td>
+<td>Checkov</td>
+</tr>
+</tbody>
+</table>
+<h3 id="running-scans">Running Scans<a class="headerlink" href="#running-scans" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Full vulnerability scan</span>
+./scripts/security/scan-vulnerabilities.sh<span class="w"> </span>--full
+
+<span class="c1"># Container images only</span>
+./scripts/security/scan-vulnerabilities.sh<span class="w"> </span>--containers
+
+<span class="c1"># Dependencies only</span>
+./scripts/security/scan-vulnerabilities.sh<span class="w"> </span>--dependencies
+
+<span class="c1"># Secret detection</span>
+./scripts/security/scan-vulnerabilities.sh<span class="w"> </span>--secrets
+</code></pre></div>
+
+<h3 id="remediation-sla">Remediation SLA<a class="headerlink" href="#remediation-sla" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Response Time</th>
+<th>Patch Window</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Critical</td>
+<td>24 hours</td>
+<td>7 days</td>
+</tr>
+<tr>
+<td>High</td>
+<td>48 hours</td>
+<td>30 days</td>
+</tr>
+<tr>
+<td>Medium</td>
+<td>1 week</td>
+<td>90 days</td>
+</tr>
+<tr>
+<td>Low</td>
+<td>1 month</td>
+<td>180 days</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="monitoring-and-auditing">Monitoring and Auditing<a class="headerlink" href="#monitoring-and-auditing" title="Permanent link">&para;</a></h2>
+<h3 id="security-events-to-monitor">Security Events to Monitor<a class="headerlink" href="#security-events-to-monitor" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Authentication Events</strong></li>
+<li>Failed login attempts</li>
+<li>Successful logins from new locations</li>
+<li>MFA bypasses</li>
+<li>
+<p>Password changes</p>
+</li>
+<li>
+<p><strong>Authorization Events</strong></p>
+</li>
+<li>Access denied</li>
+<li>Privilege escalation attempts</li>
+<li>
+<p>Role changes</p>
+</li>
+<li>
+<p><strong>Infrastructure Events</strong></p>
+</li>
+<li>Configuration changes</li>
+<li>Container starts/stops</li>
+<li>Network connections</li>
+<li>
+<p>Resource limit violations</p>
+</li>
+<li>
+<p><strong>Data Events</strong></p>
+</li>
+<li>Database queries (sensitive tables)</li>
+<li>File access (sensitive data)</li>
+<li>Data exports</li>
+<li>Data modifications</li>
+</ol>
+<h3 id="audit-logging_1">Audit Logging<a class="headerlink" href="#audit-logging_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Enable audit logging for PostgreSQL</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>sahool-postgres<span class="w"> </span>psql<span class="w"> </span>-U<span class="w"> </span>sahool<span class="w"> </span>-d<span class="w"> </span>sahool<span class="w"> </span><span class="s">&lt;&lt;SQL</span>
+<span class="s">CREATE EXTENSION IF NOT EXISTS pgaudit;</span>
+<span class="s">ALTER SYSTEM SET pgaudit.log = &#39;write, ddl&#39;;</span>
+<span class="s">ALTER SYSTEM SET pgaudit.log_catalog = off;</span>
+<span class="s">ALTER SYSTEM SET pgaudit.log_parameter = on;</span>
+<span class="s">SELECT pg_reload_conf();</span>
+<span class="s">SQL</span>
+</code></pre></div>
+
+<h3 id="log-retention">Log Retention<a class="headerlink" href="#log-retention" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Security logs: 365 days</li>
+<li>Audit logs: 730 days</li>
+<li>Application logs: 90 days</li>
+<li>Debug logs: 30 days</li>
+</ul>
+<hr />
+<h2 id="incident-response">Incident Response<a class="headerlink" href="#incident-response" title="Permanent link">&para;</a></h2>
+<h3 id="incident-classification">Incident Classification<a class="headerlink" href="#incident-classification" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Description</th>
+<th>Examples</th>
+<th>Response</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>Critical</td>
+<td>Data breach, system compromise</td>
+<td>Immediate</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>High</td>
+<td>Security vulnerability exploited</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>Medium</td>
+<td>Suspicious activity detected</td>
+<td>4 hours</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>Low</td>
+<td>Policy violation</td>
+<td>24 hours</td>
+</tr>
+</tbody>
+</table>
+<h3 id="response-procedure">Response Procedure<a class="headerlink" href="#response-procedure" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Detection</strong></li>
+<li>Alert triggered</li>
+<li>Log analysis</li>
+<li>
+<p>User report</p>
+</li>
+<li>
+<p><strong>Containment</strong></p>
+</li>
+<li>Isolate affected systems</li>
+<li>Block malicious IPs</li>
+<li>
+<p>Revoke compromised credentials</p>
+</li>
+<li>
+<p><strong>Eradication</strong></p>
+</li>
+<li>Remove malware</li>
+<li>Patch vulnerabilities</li>
+<li>
+<p>Close security gaps</p>
+</li>
+<li>
+<p><strong>Recovery</strong></p>
+</li>
+<li>Restore from backups</li>
+<li>Verify system integrity</li>
+<li>
+<p>Resume normal operations</p>
+</li>
+<li>
+<p><strong>Post-Incident</strong></p>
+</li>
+<li>Root cause analysis</li>
+<li>Documentation</li>
+<li>Lessons learned</li>
+<li>Process improvements</li>
+</ol>
+<h3 id="incident-response-team">Incident Response Team<a class="headerlink" href="#incident-response-team" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Security Team</strong>: Lead investigation</li>
+<li><strong>DevOps Team</strong>: System recovery</li>
+<li><strong>Development Team</strong>: Code fixes</li>
+<li><strong>Legal Team</strong>: Compliance and reporting</li>
+<li><strong>Communications</strong>: Stakeholder updates</li>
+</ul>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Secure Coding</strong></li>
+<li>Input validation</li>
+<li>Output encoding</li>
+<li>Parameterized queries</li>
+<li>Error handling</li>
+<li>
+<p>Secure session management</p>
+</li>
+<li>
+<p><strong>Code Review</strong></p>
+</li>
+<li>Security-focused reviews</li>
+<li>Automated SAST scanning</li>
+<li>
+<p>Dependency checking</p>
+</li>
+<li>
+<p><strong>Testing</strong></p>
+</li>
+<li>Unit tests for security functions</li>
+<li>Integration tests</li>
+<li>Penetration testing</li>
+</ol>
+<h3 id="deployment">Deployment<a class="headerlink" href="#deployment" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Pre-deployment</strong></li>
+<li>Security scan</li>
+<li>Vulnerability assessment</li>
+<li>
+<p>Configuration review</p>
+</li>
+<li>
+<p><strong>Deployment</strong></p>
+</li>
+<li>Blue-green deployment</li>
+<li>Canary releases</li>
+<li>
+<p>Rollback plan</p>
+</li>
+<li>
+<p><strong>Post-deployment</strong></p>
+</li>
+<li>Smoke tests</li>
+<li>Security monitoring</li>
+<li>Incident readiness</li>
+</ol>
+<h3 id="operations">Operations<a class="headerlink" href="#operations" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Patch Management</strong></li>
+<li>Regular updates</li>
+<li>Emergency patches</li>
+<li>
+<p>Testing before deployment</p>
+</li>
+<li>
+<p><strong>Backup and Recovery</strong></p>
+</li>
+<li>Daily backups</li>
+<li>Offsite storage</li>
+<li>
+<p>Regular restore testing</p>
+</li>
+<li>
+<p><strong>Access Management</strong></p>
+</li>
+<li>Least privilege</li>
+<li>Regular access reviews</li>
+<li>MFA enforcement</li>
+</ol>
+<hr />
+<h2 id="compliance">Compliance<a class="headerlink" href="#compliance" title="Permanent link">&para;</a></h2>
+<h3 id="cis-benchmarks">CIS Benchmarks<a class="headerlink" href="#cis-benchmarks" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Docker CIS Benchmark v1.4.0</strong></li>
+<li>Score target: 90%+</li>
+<li>Audit frequency: Monthly</li>
+<li>
+<p>Tool: Docker Bench Security</p>
+</li>
+<li>
+<p><strong>PostgreSQL CIS Benchmark v1.0</strong></p>
+</li>
+<li>Score target: 85%+</li>
+<li>Audit frequency: Monthly</li>
+</ul>
+<h3 id="security-standards">Security Standards<a class="headerlink" href="#security-standards" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>OWASP Top 10 (2021)</strong></li>
+<li>Regular assessments</li>
+<li>Mitigation tracking</li>
+<li>
+<p>Developer training</p>
+</li>
+<li>
+<p><strong>NIST Cybersecurity Framework</strong></p>
+</li>
+<li>Identify</li>
+<li>Protect</li>
+<li>Detect</li>
+<li>Respond</li>
+<li>Recover</li>
+</ul>
+<h3 id="compliance-checklist">Compliance Checklist<a class="headerlink" href="#compliance-checklist" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] All services use TLS/SSL</li>
+<li>[ ] Strong authentication enabled</li>
+<li>[ ] Secrets properly managed</li>
+<li>[ ] Regular vulnerability scans</li>
+<li>[ ] Audit logging enabled</li>
+<li>[ ] Backup and recovery tested</li>
+<li>[ ] Incident response plan documented</li>
+<li>[ ] Security training completed</li>
+<li>[ ] Access reviews conducted</li>
+<li>[ ] Compliance reports generated</li>
+</ul>
+<hr />
+<h2 id="additional-resources">Additional Resources<a class="headerlink" href="#additional-resources" title="Permanent link">&para;</a></h2>
+<h3 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="/home/user/sahool-unified-v15-idp/docs/SECURITY.md">SECURITY.md</a> - Security overview</li>
+<li><a href="/home/user/sahool-unified-v15-idp/docs/SECRETS_MANAGEMENT.md">SECRETS_MANAGEMENT.md</a> - Secrets management guide</li>
+<li><a href="/home/user/sahool-unified-v15-idp/docs/TLS_CONFIGURATION.md">TLS_CONFIGURATION.md</a> - TLS setup guide</li>
+</ul>
+<h3 id="scripts">Scripts<a class="headerlink" href="#scripts" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>/home/user/sahool-unified-v15-idp/scripts/security/</code> - Security hardening scripts</li>
+<li><code>/home/user/sahool-unified-v15-idp/infrastructure/security/</code> - Security policies</li>
+</ul>
+<h3 id="external-resources">External Resources<a class="headerlink" href="#external-resources" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://docs.docker.com/engine/security/">Docker Security Best Practices</a></li>
+<li><a href="https://www.postgresql.org/docs/current/security.html">PostgreSQL Security</a></li>
+<li><a href="https://redis.io/docs/management/security/">Redis Security</a></li>
+<li><a href="https://docs.nats.io/running-a-nats-service/configuration/securing_nats">NATS Security</a></li>
+</ul>
+<hr />
+<h2 id="support-and-maintenance">Support and Maintenance<a class="headerlink" href="#support-and-maintenance" title="Permanent link">&para;</a></h2>
+<h3 id="regular-tasks">Regular Tasks<a class="headerlink" href="#regular-tasks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Frequency</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Security audit</td>
+<td>Monthly</td>
+<td>Security Team</td>
+</tr>
+<tr>
+<td>Vulnerability scan</td>
+<td>Daily</td>
+<td>DevOps</td>
+</tr>
+<tr>
+<td>Certificate rotation</td>
+<td>Quarterly</td>
+<td>DevOps</td>
+</tr>
+<tr>
+<td>Secret rotation</td>
+<td>Quarterly</td>
+<td>Security Team</td>
+</tr>
+<tr>
+<td>Access review</td>
+<td>Quarterly</td>
+<td>Security Team</td>
+</tr>
+<tr>
+<td>Penetration test</td>
+<td>Annually</td>
+<td>External Vendor</td>
+</tr>
+</tbody>
+</table>
+<h3 id="contact">Contact<a class="headerlink" href="#contact" title="Permanent link">&para;</a></h3>
+<p>For security issues or questions:
+- Email: security@sahool.local
+- Slack: #security-team
+- On-call: security-oncall@sahool.local</p>
+<hr />
+<p><strong>Last Updated:</strong> 2026-01-07
+<strong>Next Review:</strong> 2026-04-07</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

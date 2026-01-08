@@ -4,6 +4,7 @@ JWT Token Management
 """
 
 import logging
+import secrets
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -16,6 +17,16 @@ from .config import get_auth_config
 logger = logging.getLogger(__name__)
 
 
+def generate_jti() -> str:
+    """
+    Generate a unique JWT ID (JTI)
+
+    Returns:
+        Cryptographically secure random token ID
+    """
+    return secrets.token_urlsafe(32)
+
+
 @dataclass
 class TokenData:
     """Decoded token data"""
@@ -26,6 +37,8 @@ class TokenData:
     roles: list[str] = None
     permissions: list[str] = None
     token_type: str = "access"
+    jti: str | None = None  # JWT ID for revocation tracking
+    family_id: str | None = None  # Token family for refresh token rotation
     exp: datetime | None = None
     iat: datetime | None = None
 
@@ -60,15 +73,23 @@ def create_access_token(
     permissions: list[str] | None = None,
     expires_delta: timedelta | None = None,
     additional_claims: dict[str, Any] | None = None,
-) -> str:
+    jti: str | None = None,
+) -> tuple[str, str]:
     """
     Create a new access token
     إنشاء رمز وصول جديد
+
+    Returns:
+        Tuple of (token, jti) for revocation tracking
     """
     config = get_auth_config()
 
     if expires_delta is None:
         expires_delta = timedelta(minutes=config.access_token_expire_minutes)
+
+    # Generate JTI if not provided
+    if jti is None:
+        jti = generate_jti()
 
     now = datetime.now(UTC)
     expire = now + expires_delta
@@ -76,6 +97,7 @@ def create_access_token(
     payload = {
         "sub": user_id,
         "type": "access",
+        "jti": jti,
         "iat": now,
         "exp": expire,
     }
@@ -92,24 +114,42 @@ def create_access_token(
         payload.update(additional_claims)
 
     token = jwt.encode(payload, config.secret_key, algorithm=config.algorithm)
-    logger.debug(f"Created access token for user {user_id}, expires at {expire}")
+    logger.debug(f"Created access token for user {user_id}, jti={jti[:8]}..., expires at {expire}")
 
-    return token
+    return token, jti
 
 
 def create_refresh_token(
     user_id: str,
     tenant_id: str | None = None,
     expires_delta: timedelta | None = None,
-) -> str:
+    family_id: str | None = None,
+    jti: str | None = None,
+) -> tuple[str, str, str]:
     """
     Create a new refresh token
     إنشاء رمز تحديث جديد
+
+    Args:
+        user_id: User identifier
+        tenant_id: Tenant identifier
+        expires_delta: Token expiration time
+        family_id: Token family ID for rotation (generated if None)
+        jti: JWT ID (generated if None)
+
+    Returns:
+        Tuple of (token, jti, family_id) for revocation tracking
     """
     config = get_auth_config()
 
     if expires_delta is None:
         expires_delta = timedelta(days=config.refresh_token_expire_days)
+
+    # Generate JTI and family_id if not provided
+    if jti is None:
+        jti = generate_jti()
+    if family_id is None:
+        family_id = generate_jti()
 
     now = datetime.now(UTC)
     expire = now + expires_delta
@@ -117,6 +157,8 @@ def create_refresh_token(
     payload = {
         "sub": user_id,
         "type": "refresh",
+        "jti": jti,
+        "family_id": family_id,
         "iat": now,
         "exp": expire,
     }
@@ -125,9 +167,9 @@ def create_refresh_token(
         payload["tenant_id"] = tenant_id
 
     token = jwt.encode(payload, config.secret_key, algorithm=config.algorithm)
-    logger.debug(f"Created refresh token for user {user_id}, expires at {expire}")
+    logger.debug(f"Created refresh token for user {user_id}, jti={jti[:8]}..., family={family_id[:8]}..., expires at {expire}")
 
-    return token
+    return token, jti, family_id
 
 
 def verify_token(token: str, token_type: str = "access") -> bool:
@@ -194,6 +236,8 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
             token_type=payload.get("type", "access"),
+            jti=payload.get("jti"),
+            family_id=payload.get("family_id"),
             exp=datetime.fromtimestamp(payload.get("exp", 0), tz=UTC),
             iat=datetime.fromtimestamp(payload.get("iat", 0), tz=UTC),
         )
@@ -206,10 +250,13 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
         raise ValueError(f"Invalid token: {e}") from e
 
 
-def refresh_access_token(refresh_token: str) -> str:
+def refresh_access_token(refresh_token: str) -> tuple[str, str]:
     """
     Use a refresh token to create a new access token
     استخدام رمز التحديث لإنشاء رمز وصول جديد
+
+    Returns:
+        Tuple of (token, jti) for revocation tracking
     """
     token_data = decode_token(refresh_token)
 
@@ -218,5 +265,8 @@ def refresh_access_token(refresh_token: str) -> str:
 
     return create_access_token(
         user_id=token_data.user_id,
+        email=token_data.email,
         tenant_id=token_data.tenant_id,
+        roles=token_data.roles,
+        permissions=token_data.permissions,
     )

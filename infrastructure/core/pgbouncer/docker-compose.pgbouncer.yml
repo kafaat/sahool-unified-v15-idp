@@ -38,8 +38,9 @@ services:
       QUERY_TIMEOUT: 120
       QUERY_WAIT_TIMEOUT: 30
 
-      # Auth - md5 for compatibility with auth_query security definer function
-      AUTH_TYPE: md5
+      # Auth - SCRAM-SHA-256 for enhanced security (PostgreSQL 16 default)
+      # Using auth_query with security definer function for SCRAM-SHA-256 support
+      AUTH_TYPE: scram-sha-256
       AUTH_USER: ${POSTGRES_USER:-sahool}
       AUTH_QUERY: SELECT usename, passwd FROM pgbouncer.get_auth($1)
 

@@ -39,7 +39,9 @@ class TestCircuitBreaker:
         اختبار: تهيئة قاطع الدائرة
         Test: Circuit breaker initialization
         """
-        cb = CircuitBreaker(failure_threshold=5, recovery_timeout=30, success_threshold=3)
+        cb = CircuitBreaker(
+            failure_threshold=5, recovery_timeout=30, success_threshold=3
+        )
 
         assert cb.state == CircuitState.CLOSED
         assert cb.failure_count == 0
@@ -126,7 +128,9 @@ class TestCircuitBreaker:
         اختبار: إغلاق الدائرة بعد تحقيق عتبة النجاح
         Test: Circuit closes after success threshold
         """
-        cb = CircuitBreaker(failure_threshold=2, recovery_timeout=1, success_threshold=2)
+        cb = CircuitBreaker(
+            failure_threshold=2, recovery_timeout=1, success_threshold=2
+        )
 
         def failing_func():
             raise Exception("فشل - failure")
@@ -598,7 +602,9 @@ class TestIntegration:
                 raise Exception("فشل - failure")
             return "نجاح - success"
 
-        fm.register_fallback("test_service", my_fallback, failure_threshold=3, recovery_timeout=1)
+        fm.register_fallback(
+            "test_service", my_fallback, failure_threshold=3, recovery_timeout=1
+        )
 
         # 3 فشل - 3 failures
         for _i in range(3):

@@ -41,7 +41,9 @@ def example_disease_detection():
     print(f"SMS ({len(sms_ar)} chars): {sms_ar}")
 
     print("\n4. Arabic WhatsApp:")
-    whatsapp_ar = manager.format_for_whatsapp("disease_detected", context, language="ar")
+    whatsapp_ar = manager.format_for_whatsapp(
+        "disease_detected", context, language="ar"
+    )
     print(f"WhatsApp:\n{whatsapp_ar}")
 
 
@@ -93,7 +95,9 @@ def example_harvest_ready():
     print(f"Body: {push_ar['notification']['body']}")
 
     print("\n2. English SMS:")
-    sms_en = manager.format_for_sms("harvest_ready", context, language="en", max_length=160)
+    sms_en = manager.format_for_sms(
+        "harvest_ready", context, language="en", max_length=160
+    )
     print(f"SMS: {sms_en}")
 
 
@@ -260,10 +264,18 @@ def example_custom_template():
 def main():
     """تشغيل جميع الأمثلة"""
     print("\n")
-    print("╔════════════════════════════════════════════════════════════════════════════╗")
-    print("║  SAHOOL Notification Template System - Usage Examples                     ║")
-    print("║  نظام قوالب الإشعارات - أمثلة الاستخدام                                  ║")
-    print("╚════════════════════════════════════════════════════════════════════════════╝")
+    print(
+        "╔════════════════════════════════════════════════════════════════════════════╗"
+    )
+    print(
+        "║  SAHOOL Notification Template System - Usage Examples                     ║"
+    )
+    print(
+        "║  نظام قوالب الإشعارات - أمثلة الاستخدام                                  ║"
+    )
+    print(
+        "╚════════════════════════════════════════════════════════════════════════════╝"
+    )
 
     try:
         example_disease_detection()

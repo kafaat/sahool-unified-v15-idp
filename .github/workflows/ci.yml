@@ -460,7 +460,7 @@ jobs:
           MQTT_PASSWORD=test_mqtt_password_ci
           GRAFANA_ADMIN_PASSWORD=test_grafana_password_ci
           ETCD_ROOT_USERNAME=root
-          ETCD_ROOT_PASSWORD=test_etcd_password_ci
+          ETCD_ROOT_PASSWORD=test_etcd_password_ci_32chars_min
           NATS_USER=sahool_app_ci
           NATS_PASSWORD=test_nats_password_ci_32_chars_min
           NATS_ADMIN_USER=nats_admin_ci
@@ -472,6 +472,8 @@ jobs:
           NATS_SYSTEM_USER=nats_system_ci
           NATS_SYSTEM_PASSWORD=test_nats_system_password_ci_32_chars
           NATS_JETSTREAM_KEY=test_jetstream_key_ci_32_chars_min
+          MINIO_ROOT_USER=test_minio_ci_user
+          MINIO_ROOT_PASSWORD=test_minio_ci_password_32chars_min
           ENVEOF
 
       - name: Start services

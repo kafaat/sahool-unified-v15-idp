@@ -109,7 +109,9 @@ class CircuitBreaker:
         """Check if enough time has passed to attempt reset"""
         if self.last_failure_time is None:
             return True
-        return (datetime.now() - self.last_failure_time).total_seconds() >= self.recovery_timeout
+        return (
+            datetime.now() - self.last_failure_time
+        ).total_seconds() >= self.recovery_timeout
 
     def _on_success(self):
         """Reset circuit breaker on success"""

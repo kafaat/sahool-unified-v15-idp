@@ -46,7 +46,7 @@ jobs:
         with:
           path: ./
           base: ""
-          extra_args: --only-verified --no-update
+          extra_args: --only-verified
 
       - name: Detect hardcoded secrets
         # SECURITY: Hardcoded secrets must fail the pipeline

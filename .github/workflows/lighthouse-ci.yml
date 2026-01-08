@@ -45,12 +45,10 @@ jobs:
           cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
-        working-directory: apps/web
         run: npm ci || npm install
 
       - name: Build application
-        working-directory: apps/web
-        run: npm run build
+        run: npm run build --workspace=apps/web
         env:
           CI: true
 

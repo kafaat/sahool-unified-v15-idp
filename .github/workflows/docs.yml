@@ -94,18 +94,7 @@ jobs:
               if [ -n "$main_py_path" ]; then
                 export MAIN_PY_PATH="$main_py_path"
                 export SERVICE_NAME="$service"
-                python3 -c '
-import sys, os, json
-main_path = os.environ.get("MAIN_PY_PATH", ".")
-sys.path.insert(0, main_path)
-try:
-    from main import app
-    print(json.dumps(app.openapi(), indent=2))
-except Exception as e:
-    service_name = os.environ.get("SERVICE_NAME", "unknown")
-    print(f"# Error: {e}", file=sys.stderr)
-    print("{\"openapi\":\"3.0.0\",\"info\":{\"title\":\"" + service_name + "\",\"version\":\"1.0.0\"},\"paths\":{}}")
-' > "${{ env.DOCS_DIR }}/openapi/${service}.json"
+                python3 -c 'import sys,os,json;sys.path.insert(0,os.environ.get("MAIN_PY_PATH","."));exec("try:\\n from main import app\\n print(json.dumps(app.openapi(),indent=2))\\nexcept Exception as e:\\n print(\\"{\\\\\"openapi\\\\\":\\\\\"3.0.0\\\\\",\\\\\"info\\\\\":{\\\\\"title\\\\\":\\\\\"unknown\\\\\",\\\\\"version\\\\\":\\\\\"1.0.0\\\\\"},\\\\\"paths\\\\\":{}}\\\")")' > "${{ env.DOCS_DIR }}/openapi/${service}.json" 2>/dev/null || echo '{"openapi":"3.0.0","info":{"title":"unknown","version":"1.0.0"},"paths":{}}' > "${{ env.DOCS_DIR }}/openapi/${service}.json"
               fi
             fi
           done

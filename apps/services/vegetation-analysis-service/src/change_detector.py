@@ -233,9 +233,7 @@ class ChangeDetector:
         Returns:
             ChangeReport with all detected changes and recommendations
         """
-        logger.info(
-            f"Detecting changes for field {field_id} from {start_date} to {end_date}"
-        )
+        logger.info(f"Detecting changes for field {field_id} from {start_date} to {end_date}")
 
         # If no time series provided, would fetch from satellite service
         # For now, we'll work with provided data or return mock
@@ -260,9 +258,7 @@ class ChangeDetector:
         # Calculate expected pattern if crop type is known
         expected_pattern = None
         if crop_type and crop_type.lower() in self.SEASONAL_PATTERNS:
-            expected_pattern = self._calculate_expected_pattern(
-                clean_data, crop_type.lower()
-            )
+            expected_pattern = self._calculate_expected_pattern(clean_data, crop_type.lower())
 
         # Detect anomalies
         anomalies = await self.detect_anomalies(clean_data, expected_pattern)
@@ -465,9 +461,7 @@ class ChangeDetector:
             std_ndvi = statistics.stdev(ndvi_values) if len(ndvi_values) > 1 else 0.01
 
             for i, point in enumerate(ndvi_series):
-                z_score = (
-                    abs((point.ndvi - mean_ndvi) / std_ndvi) if std_ndvi > 0 else 0
-                )
+                z_score = abs((point.ndvi - mean_ndvi) / std_ndvi) if std_ndvi > 0 else 0
 
                 if z_score >= self.ANOMALY_THRESHOLDS["mild"]:
                     anomalies.append(
@@ -540,27 +534,15 @@ class ChangeDetector:
                 return ChangeType.WATER_STRESS
 
         # Harvest detection
-        if (
-            ndvi_before > 0.5
-            and ndvi_after < 0.3
-            and ndvi_change < -0.3
-            and days_between <= 30
-        ):
+        if ndvi_before > 0.5 and ndvi_after < 0.3 and ndvi_change < -0.3 and days_between <= 30:
             return ChangeType.HARVEST
 
         # Planting detection
-        if (
-            ndvi_before < 0.25
-            and ndvi_after > 0.35
-            and ndvi_change > 0.2
-            and days_between <= 45
-        ):
+        if ndvi_before < 0.25 and ndvi_after > 0.35 and ndvi_change > 0.2 and days_between <= 45:
             return ChangeType.PLANTING
 
         # Land clearing (very rapid drop to near zero)
-        if (
-            ndvi_before > 0.3 and ndvi_after < 0.15 and change_rate > 0.015
-        ):  # >1.5% per day
+        if ndvi_before > 0.3 and ndvi_after < 0.15 and change_rate > 0.015:  # >1.5% per day
             return ChangeType.LAND_CLEARING
 
         # Crop damage (moderate rapid decrease)
@@ -671,9 +653,7 @@ class ChangeDetector:
     # Helper Methods
     # =========================================================================
 
-    def _create_empty_report(
-        self, field_id: str, start_date: date, end_date: date
-    ) -> ChangeReport:
+    def _create_empty_report(self, field_id: str, start_date: date, end_date: date) -> ChangeReport:
         """Create an empty report when insufficient data"""
         return ChangeReport(
             field_id=field_id,
@@ -755,9 +735,7 @@ class ChangeDetector:
         slope = (n * sum_xy - sum_x * sum_y) / denominator
         return round(slope, 6)
 
-    def _determine_overall_trend(
-        self, ndvi_trend: float, anomalies: list[dict]
-    ) -> TrendDirection:
+    def _determine_overall_trend(self, ndvi_trend: float, anomalies: list[dict]) -> TrendDirection:
         """Determine overall trend direction"""
         # Count negative vs positive anomalies
         negative_anomalies = sum(1 for a in anomalies if a.get("deviation", 0) < 0)
@@ -795,9 +773,7 @@ class ChangeDetector:
         point_before = clean_data[index - 1]
 
         ndvi_change = point_after.ndvi - point_before.ndvi
-        change_percent = (
-            (ndvi_change / point_before.ndvi * 100) if point_before.ndvi != 0 else 0
-        )
+        change_percent = (ndvi_change / point_before.ndvi * 100) if point_before.ndvi != 0 else 0
         days_between = (point_after.date - point_before.date).days
 
         # Skip if change is too small
@@ -820,9 +796,7 @@ class ChangeDetector:
 
         # Calculate confidence from z-score
         z_score = anomaly.get("z_score", 0)
-        confidence = min(
-            0.5 + (z_score / 5.0), 0.99
-        )  # Higher z-score = higher confidence
+        confidence = min(0.5 + (z_score / 5.0), 0.99)  # Higher z-score = higher confidence
 
         # Generate descriptions
         desc_ar, desc_en = self._generate_change_description(
@@ -868,9 +842,7 @@ class ChangeDetector:
             additional_metrics=additional_metrics,
         )
 
-    def _determine_severity(
-        self, change_percent: float, days_between: int
-    ) -> SeverityLevel:
+    def _determine_severity(self, change_percent: float, days_between: int) -> SeverityLevel:
         """Determine severity level based on change magnitude and speed"""
         # Rapid changes are more severe
         daily_change = change_percent / max(days_between, 1)
@@ -1028,18 +1000,14 @@ class ChangeDetector:
         critical_count = sum(1 for e in events if e.severity == SeverityLevel.CRITICAL)
         high_count = sum(1 for e in events if e.severity == SeverityLevel.HIGH)
 
-        summary_ar = (
-            f"تم اكتشاف {len(events)} تغيير خلال {days} يوم. "
-            f"الاتجاه العام: {trend_ar}. "
-        )
-        summary_en = (
-            f"Detected {len(events)} changes over {days} days. "
-            f"Overall trend: {trend_en}. "
-        )
+        summary_ar = f"تم اكتشاف {len(events)} تغيير خلال {days} يوم. الاتجاه العام: {trend_ar}. "
+        summary_en = f"Detected {len(events)} changes over {days} days. Overall trend: {trend_en}. "
 
         if critical_count > 0:
             summary_ar += f"تنبيه: {critical_count} حدث حرج يتطلب اهتمام فوري. "
-            summary_en += f"Alert: {critical_count} critical event(s) requiring immediate attention. "
+            summary_en += (
+                f"Alert: {critical_count} critical event(s) requiring immediate attention. "
+            )
         elif high_count > 0:
             summary_ar += f"{high_count} حدث عالي الخطورة. "
             summary_en += f"{high_count} high-severity event(s). "

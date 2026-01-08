@@ -7,9 +7,11 @@ import {
   Injectable,
   ExecutionContext,
   UnauthorizedException,
+  CanActivate,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
+import * as jwt from 'jsonwebtoken';
 
 /**
  * JWT Authentication Guard using Passport

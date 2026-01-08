@@ -19,9 +19,9 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
-import { RedisTokenRevocationStore } from '@sahool/nestjs-auth/services/token-revocation';
-import { JWTConfig } from '@sahool/nestjs-auth/config/jwt.config';
-import { UserStatus } from '@prisma/client';
+import { RedisTokenRevocationStore } from '../utils/token-revocation';
+import { JWTConfig } from '../utils/jwt.config';
+import { UserStatus } from '../utils/validation';
 
 export interface LoginDto {
   email: string;

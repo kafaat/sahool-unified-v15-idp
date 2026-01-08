@@ -116,8 +116,7 @@ class TokenRevocationMiddleware(BaseHTTPMiddleware):
 
             if is_revoked:
                 logger.warning(
-                    f"Revoked token access attempt: "
-                    f"user={payload.user_id}, reason={reason}"
+                    f"Revoked token access attempt: user={payload.user_id}, reason={reason}"
                 )
 
                 return JSONResponse(
@@ -252,8 +251,7 @@ class RevocationCheckDependency:
 
             if is_revoked:
                 logger.warning(
-                    f"Revoked token access attempt: "
-                    f"user={payload.user_id}, reason={reason}"
+                    f"Revoked token access attempt: user={payload.user_id}, reason={reason}"
                 )
 
                 raise HTTPException(

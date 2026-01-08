@@ -19,3 +19,6 @@ alembic>=1.13.0
 greenlet>=3.0.0
 
 structlog>=24.1.0
+
+# NATS messaging
+nats-py>=2.7.0

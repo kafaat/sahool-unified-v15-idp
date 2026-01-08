@@ -136,20 +136,14 @@ def register_spray_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to get spray forecast: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Spray advisor error: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
 
     @app.get("/v1/spray/best-time")
     async def get_best_spray_time(
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
-        product_type: str = Query(
-            ..., description="Product type (herbicide, insecticide, etc.)"
-        ),
-        within_days: int = Query(
-            3, description="Search within next N days", ge=1, le=7
-        ),
+        product_type: str = Query(..., description="Product type (herbicide, insecticide, etc.)"),
+        within_days: int = Query(3, description="Search within next N days", ge=1, le=7),
     ):
         """
         أفضل وقت للرش | Find Best Spray Time
@@ -199,9 +193,7 @@ def register_spray_endpoints(app):
                 )
 
             spray_advisor = get_spray_advisor()
-            best_window = await spray_advisor.get_best_spray_time(
-                lat, lon, product, within_days
-            )
+            best_window = await spray_advisor.get_best_spray_time(lat, lon, product, within_days)
 
             if not best_window:
                 raise HTTPException(
@@ -221,20 +213,14 @@ def register_spray_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to find best spray time: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Spray advisor error: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
 
     @app.post("/v1/spray/evaluate")
     async def evaluate_spray_time(
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
-        target_datetime: str = Query(
-            ..., description="Target spray time (ISO 8601 format)"
-        ),
-        product_type: str | None = Query(
-            None, description="Product type (optional)"
-        ),
+        target_datetime: str = Query(..., description="Target spray time (ISO 8601 format)"),
+        product_type: str | None = Query(None, description="Product type (optional)"),
     ):
         """
         تقييم وقت محدد للرش | Evaluate Specific Spray Time
@@ -281,9 +267,7 @@ def register_spray_endpoints(app):
         try:
             # Parse target datetime
             try:
-                target_dt = datetime.fromisoformat(
-                    target_datetime.replace("Z", "+00:00")
-                )
+                target_dt = datetime.fromisoformat(target_datetime.replace("Z", "+00:00"))
             except ValueError:
                 raise HTTPException(
                     status_code=400,
@@ -295,9 +279,7 @@ def register_spray_endpoints(app):
             days_ahead = (target_dt - now).days
 
             if days_ahead < 0:
-                raise HTTPException(
-                    status_code=400, detail="target_datetime must be in the future"
-                )
+                raise HTTPException(status_code=400, detail="target_datetime must be in the future")
             if days_ahead > 16:
                 raise HTTPException(
                     status_code=400,
@@ -317,9 +299,7 @@ def register_spray_endpoints(app):
                     )
 
             spray_advisor = get_spray_advisor()
-            evaluation = await spray_advisor.evaluate_spray_time(
-                lat, lon, target_dt, product
-            )
+            evaluation = await spray_advisor.evaluate_spray_time(lat, lon, target_dt, product)
 
             return {
                 "location": {"lat": lat, "lon": lon},
@@ -332,9 +312,7 @@ def register_spray_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to evaluate spray time: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Spray advisor error: {str(e)}"
-            )
+            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
 
     @app.get("/v1/spray/conditions")
     async def get_spray_conditions_info():

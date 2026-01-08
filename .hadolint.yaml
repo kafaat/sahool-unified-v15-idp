@@ -1,31 +1,43 @@
-# Hadolint Configuration for SAHOOL Unified Platform
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform Hadolint Configuration
+# تكوين Hadolint لمنصة سهول
 # Version: 15.0.0
-# Dockerfile linting rules and exclusions
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This configuration customizes Dockerfile linting rules for the SAHOOL platform.
+# Reference: https://github.com/hadolint/hadolint#configure
+#
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STRICTNESS LEVEL
+# ═══════════════════════════════════════════════════════════════════════════════
+# Options: error, warning, info, style, ignore, none
+failure-threshold: warning
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # IGNORED RULES
 # ═══════════════════════════════════════════════════════════════════════════════
 ignored:
   # DL3008: Pin versions in apt-get install
-  # Rationale: Alpine apk and some base images handle this differently
+  # Rationale: We use stable base images and accept latest packages for security updates
   - DL3008
-  
-  # DL3013: Pin versions in pip install  
+
+  # DL3013: Pin versions in pip install
   # Rationale: We use requirements.txt for version pinning
   - DL3013
-  
+
   # DL3018: Pin versions in apk add
   # Rationale: Alpine Linux manages this at the image level
   - DL3018
-  
+
   # DL3059: Multiple consecutive RUN instructions
   # Rationale: Sometimes necessary for clarity and layer optimization
   - DL3059
-  
+
   # SC2046: Quote this to prevent word splitting
   # Rationale: False positives in multi-line commands
   - SC2046
-  
+
   # SC1091: Not following sourced file
   # Rationale: Files may not exist in build context
   - SC1091
@@ -37,12 +49,17 @@ trustedRegistries:
   - docker.io
   - ghcr.io
   - gcr.io
-  - registry.hub.docker.com
-  - mcr.microsoft.com
   - quay.io
+  - registry.hub.docker.com
+  - public.ecr.aws
+  - mcr.microsoft.com
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# STRICTNESS LEVEL
-# ═══════════════════════════════════════════════════════════════════════════════
-# Options: error, warning, info, style, ignore, none
-failure-threshold: warning
+# Strict labels requirement (disabled for flexibility)
+strict-labels: false
+
+# Override specific rules per file pattern
+override:
+  # Development Dockerfiles can be less strict
+  warning:
+    - DL3003  # Use WORKDIR instead of cd
+    - DL3006  # Always tag the version of an image explicitly

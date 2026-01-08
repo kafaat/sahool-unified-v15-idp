@@ -112,9 +112,7 @@ class SQLAlchemyUserRepository:
                 "email": user.email,
                 "password_hash": user.password_hash,
                 "password_algorithm": getattr(user, "password_algorithm", "bcrypt"),
-                "password_needs_migration": getattr(
-                    user, "password_needs_migration", True
-                ),
+                "password_needs_migration": getattr(user, "password_needs_migration", True),
             }
         return None
 
@@ -141,9 +139,7 @@ class SQLAlchemyUserRepository:
         result = (
             self.db.query(User)
             .filter(User.id == user_id)
-            .update(
-                {"password_needs_migration": False, "updated_at": datetime.utcnow()}
-            )
+            .update({"password_needs_migration": False, "updated_at": datetime.utcnow()})
         )
         self.db.commit()
         return result > 0
@@ -180,9 +176,7 @@ class LoginService:
 
         # If password needs migration, update it
         if result.needs_password_update and result.new_password_hash:
-            await self.migration_helper.complete_migration(
-                result.user_id, result.new_password_hash
-            )
+            await self.migration_helper.complete_migration(result.user_id, result.new_password_hash)
             print(f"✓ Password migrated to Argon2id for user {result.user_id}")
 
         # Generate JWT token
@@ -401,9 +395,7 @@ def monitor_migration_progress(db_connection):
 
     for row in stats:
         algorithm, count, needs_migration, percentage = row
-        print(
-            f"{algorithm:20} | Total: {count:5} | Pending: {needs_migration:5} | {percentage}%"
-        )
+        print(f"{algorithm:20} | Total: {count:5} | Pending: {needs_migration:5} | {percentage}%")
 
     print("=" * 70)
 
@@ -483,9 +475,7 @@ def test_all_algorithms():
     # Test PBKDF2 compatibility
     print("\n3. Testing PBKDF2 (legacy)...")
     salt = secrets.token_bytes(32)
-    hashed = hashlib.pbkdf2_hmac(
-        "sha256", test_password.encode("utf-8"), salt, 100_000, 32
-    )
+    hashed = hashlib.pbkdf2_hmac("sha256", test_password.encode("utf-8"), salt, 100_000, 32)
     pbkdf2_hash = f"{salt.hex()}${hashed.hex()}"
     is_valid, needs_rehash = hasher.verify_password(test_password, pbkdf2_hash)
     print(f"   Hash: {pbkdf2_hash[:50]}...")

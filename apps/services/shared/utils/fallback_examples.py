@@ -21,9 +21,10 @@ from fallback_manager import (
 
 # ===== مثال 1: خدمة الطقس - Example 1: Weather Service =====
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("مثال 1: خدمة الطقس مع الاحتياطي - Example 1: Weather with Fallback")
-print("="*60)
+print("=" * 60)
+
 
 def weather_api_call(location: str) -> dict[str, Any]:
     """
@@ -40,8 +41,9 @@ def weather_api_call(location: str) -> dict[str, Any]:
         "humidity": 65.0,
         "wind_speed": 12.3,
         "condition": "غائم جزئياً - Partly Cloudy",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
+
 
 # استخدام مدير الاحتياطي العام - Use global fallback manager
 fm = get_fallback_manager()
@@ -49,30 +51,29 @@ fm = get_fallback_manager()
 print("\nاستدعاء خدمة الطقس 5 مرات - Calling weather service 5 times:")
 for i in range(5):
     try:
-        result = fm.execute_with_fallback(
-            "weather",
-            weather_api_call,
-            location="صنعاء - Sana'a"
-        )
-        print(f"  {i+1}. ✅ نجاح - Success: {result['temperature']}°C, {result['condition']}")
+        result = fm.execute_with_fallback("weather", weather_api_call, location="صنعاء - Sana'a")
+        print(f"  {i + 1}. ✅ نجاح - Success: {result['temperature']}°C, {result['condition']}")
     except Exception as e:
-        print(f"  {i+1}. ❌ فشل - Failed: {str(e)}")
+        print(f"  {i + 1}. ❌ فشل - Failed: {str(e)}")
 
 # عرض حالة الدائرة - Display circuit status
 weather_status = fm.get_circuit_status("weather")
 print("\n📊 حالة دائرة الطقس - Weather Circuit Status:")
 print(f"  الحالة - State: {weather_status['state']}")
-print(f"  الفشل - Failures: {weather_status['failure_count']}/{weather_status['failure_threshold']}")
+print(
+    f"  الفشل - Failures: {weather_status['failure_count']}/{weather_status['failure_threshold']}"
+)
 
 
 # ===== مثال 2: خدمة الأقمار الصناعية - Example 2: Satellite Service =====
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("مثال 2: خدمة الأقمار الصناعية - Example 2: Satellite Service")
-print("="*60)
+print("=" * 60)
 
 # إنشاء مدير احتياطي مخصص - Create custom fallback manager
 satellite_fm = FallbackManager()
+
 
 def satellite_fallback_custom(field_id: str) -> dict[str, Any]:
     """
@@ -85,15 +86,14 @@ def satellite_fallback_custom(field_id: str) -> dict[str, Any]:
         "imagery_date": "2026-01-01",
         "cloud_coverage": 0,
         "source": "cached_imagery",
-        "message": "استخدام آخر صور متاحة - Using last available imagery"
+        "message": "استخدام آخر صور متاحة - Using last available imagery",
     }
 
+
 satellite_fm.register_fallback(
-    "satellite_ndvi",
-    satellite_fallback_custom,
-    failure_threshold=3,
-    recovery_timeout=60
+    "satellite_ndvi", satellite_fallback_custom, failure_threshold=3, recovery_timeout=60
 )
+
 
 def get_satellite_ndvi(field_id: str) -> dict[str, Any]:
     """
@@ -109,24 +109,24 @@ def get_satellite_ndvi(field_id: str) -> dict[str, Any]:
         "ndvi": random.uniform(0.3, 0.9),
         "imagery_date": datetime.now().isoformat(),
         "cloud_coverage": random.randint(0, 30),
-        "source": "sentinel-2"
+        "source": "sentinel-2",
     }
+
 
 print("\nطلب NDVI لـ 3 حقول - Request NDVI for 3 fields:")
 for field_id in ["F001", "F002", "F003"]:
     result = satellite_fm.execute_with_fallback(
-        "satellite_ndvi",
-        get_satellite_ndvi,
-        field_id=field_id
+        "satellite_ndvi", get_satellite_ndvi, field_id=field_id
     )
     print(f"  {field_id}: NDVI={result['ndvi']:.2f}, المصدر - Source={result['source']}")
 
 
 # ===== مثال 3: استخدام الديكوريتورز - Example 3: Using Decorators =====
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("مثال 3: استخدام الديكوريتورز - Example 3: Using Decorators")
-print("="*60)
+print("=" * 60)
+
 
 def ai_recommendations_fallback(field_id: str, crop_type: str) -> dict[str, Any]:
     """
@@ -141,18 +141,19 @@ def ai_recommendations_fallback(field_id: str, crop_type: str) -> dict[str, Any]
                 "type": "irrigation",
                 "priority": "medium",
                 "message_ar": "تحقق من مستوى رطوبة التربة",
-                "message_en": "Check soil moisture level"
+                "message_en": "Check soil moisture level",
             },
             {
                 "type": "monitoring",
                 "priority": "low",
                 "message_ar": "راقب نمو المحصول بانتظام",
-                "message_en": "Monitor crop growth regularly"
-            }
+                "message_en": "Monitor crop growth regularly",
+            },
         ],
         "confidence": 0.4,
-        "source": "rule_based"
+        "source": "rule_based",
     }
+
 
 @with_fallback(ai_recommendations_fallback)
 @circuit_breaker(failure_threshold=4, recovery_timeout=30)
@@ -173,17 +174,18 @@ def get_ai_recommendations(field_id: str, crop_type: str) -> dict[str, Any]:
                 "type": "fertilizer",
                 "priority": "high",
                 "message_ar": f"أضف سماد نيتروجيني للـ{crop_type}",
-                "message_en": f"Add nitrogen fertilizer for {crop_type}"
+                "message_en": f"Add nitrogen fertilizer for {crop_type}",
             }
         ],
         "confidence": 0.92,
-        "source": "ai_model_v2"
+        "source": "ai_model_v2",
     }
+
 
 print("\nطلب توصيات AI لحقول مختلفة - Request AI recommendations:")
 for i in range(3):
-    result = get_ai_recommendations(f"F{i+1}", "قمح - Wheat")
-    print(f"  الحقل - Field F{i+1}:")
+    result = get_ai_recommendations(f"F{i + 1}", "قمح - Wheat")
+    print(f"  الحقل - Field F{i + 1}:")
     print(f"    المصدر - Source: {result['source']}")
     print(f"    الثقة - Confidence: {result['confidence']}")
     print(f"    التوصيات - Recommendations: {len(result['recommendations'])}")
@@ -195,9 +197,10 @@ print(f"\n  حالة قاطع الدائرة - Circuit status: {cb_status['state
 
 # ===== مثال 4: تنسيق متعدد الخدمات - Example 4: Multi-Service Orchestration =====
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("مثال 4: تحليل شامل للحقل - Example 4: Comprehensive Field Analysis")
-print("="*60)
+print("=" * 60)
+
 
 def get_comprehensive_field_analysis(field_id: str) -> dict[str, Any]:
     """
@@ -209,15 +212,12 @@ def get_comprehensive_field_analysis(field_id: str) -> dict[str, Any]:
     analysis = {
         "field_id": field_id,
         "timestamp": datetime.now().isoformat(),
-        "services_status": {}
+        "services_status": {},
     }
 
     # 1. بيانات الطقس - Weather data
     try:
-        weather = fm.execute_with_fallback(
-            "weather",
-            lambda: weather_api_call("صنعاء")
-        )
+        weather = fm.execute_with_fallback("weather", lambda: weather_api_call("صنعاء"))
         analysis["weather"] = weather
         analysis["services_status"]["weather"] = "success"
     except Exception as e:
@@ -226,8 +226,7 @@ def get_comprehensive_field_analysis(field_id: str) -> dict[str, Any]:
     # 2. بيانات الأقمار الصناعية - Satellite data
     try:
         satellite = fm.execute_with_fallback(
-            "satellite",
-            lambda: {"ndvi": 0.75, "imagery_date": datetime.now().isoformat()}
+            "satellite", lambda: {"ndvi": 0.75, "imagery_date": datetime.now().isoformat()}
         )
         analysis["satellite"] = satellite
         analysis["services_status"]["satellite"] = "success"
@@ -237,8 +236,7 @@ def get_comprehensive_field_analysis(field_id: str) -> dict[str, Any]:
     # 3. توصيات الذكاء الاصطناعي - AI recommendations
     try:
         ai = fm.execute_with_fallback(
-            "ai",
-            lambda: {"recommendations": ["Monitor irrigation"], "confidence": 0.85}
+            "ai", lambda: {"recommendations": ["Monitor irrigation"], "confidence": 0.85}
         )
         analysis["ai"] = ai
         analysis["services_status"]["ai"] = "success"
@@ -246,6 +244,7 @@ def get_comprehensive_field_analysis(field_id: str) -> dict[str, Any]:
         analysis["services_status"]["ai"] = f"failed: {str(e)}"
 
     return analysis
+
 
 # تنفيذ التحليل الشامل - Execute comprehensive analysis
 print("\nتحليل الحقل F123 - Analyzing field F123:")
@@ -260,23 +259,21 @@ for service, status in field_analysis["services_status"].items():
 
 # ===== مثال 5: اختبار انتقالات الحالة - Example 5: State Transitions =====
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("مثال 5: اختبار انتقالات حالة الدائرة - Example 5: Circuit State Transitions")
-print("="*60)
+print("=" * 60)
 
 test_fm = FallbackManager()
+
 
 def test_fallback():
     return {"status": "fallback_data"}
 
-test_fm.register_fallback(
-    "test_service",
-    test_fallback,
-    failure_threshold=3,
-    recovery_timeout=2
-)
+
+test_fm.register_fallback("test_service", test_fallback, failure_threshold=3, recovery_timeout=2)
 
 failure_count = {"count": 0}
+
 
 def flaky_service():
     """خدمة غير مستقرة - Flaky service"""
@@ -286,6 +283,7 @@ def flaky_service():
         raise Exception(f"Failure {failure_count['count']}")
     return {"status": "success", "attempt": failure_count["count"]}
 
+
 print("\nاختبار تسلسل: CLOSED → OPEN → HALF_OPEN → CLOSED")
 print("Testing sequence: CLOSED → OPEN → HALF_OPEN → CLOSED\n")
 
@@ -293,7 +291,9 @@ print("Testing sequence: CLOSED → OPEN → HALF_OPEN → CLOSED\n")
 for i in range(3):
     result = test_fm.execute_with_fallback("test_service", flaky_service)
     status = test_fm.get_circuit_status("test_service")
-    print(f"  محاولة {i+1} - Attempt {i+1}: الحالة - State={status['state']}, الفشل - Failures={status['failure_count']}")
+    print(
+        f"  محاولة {i + 1} - Attempt {i + 1}: الحالة - State={status['state']}, الفشل - Failures={status['failure_count']}"
+    )
 
 print("\n  ⏸️  الدائرة الآن مفتوحة - Circuit is now OPEN")
 print(f"  ⏳ الانتظار {2} ثانية للاستعادة - Waiting 2 seconds for recovery...")
@@ -309,9 +309,10 @@ print(f"  النتيجة - Result: {result}")
 
 # ===== مثال 6: مراقبة الصحة - Example 6: Health Monitoring =====
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("مثال 6: مراقبة صحة الخدمات - Example 6: Service Health Monitoring")
-print("="*60)
+print("=" * 60)
+
 
 def generate_health_report() -> dict[str, Any]:
     """
@@ -326,9 +327,9 @@ def generate_health_report() -> dict[str, Any]:
     failed = []
 
     for service, status in all_statuses.items():
-        if status['state'] == 'closed' and status['failure_count'] == 0:
+        if status["state"] == "closed" and status["failure_count"] == 0:
             healthy.append(service)
-        elif status['state'] == 'open':
+        elif status["state"] == "open":
             failed.append(service)
         else:
             degraded.append(service)
@@ -346,8 +347,9 @@ def generate_health_report() -> dict[str, Any]:
         "degraded_services": degraded,
         "failed_services": failed,
         "total_services": len(all_statuses),
-        "details": all_statuses
+        "details": all_statuses,
     }
+
 
 health_report = generate_health_report()
 print("\n📊 تقرير صحة الخدمات - Service Health Report:")
@@ -357,21 +359,23 @@ print(f"  ✅ سليمة - Healthy: {len(health_report['healthy_services'])}")
 print(f"  ⚠️  متدهورة - Degraded: {len(health_report['degraded_services'])}")
 print(f"  ❌ فاشلة - Failed: {len(health_report['failed_services'])}")
 
-if health_report['healthy_services']:
+if health_report["healthy_services"]:
     print(f"\n  الخدمات السليمة - Healthy Services: {', '.join(health_report['healthy_services'])}")
 
 
 # ===== مثال 7: إعادة تعيين يدوية - Example 7: Manual Reset =====
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("مثال 7: إعادة تعيين يدوية للدائرة - Example 7: Manual Circuit Reset")
-print("="*60)
+print("=" * 60)
 
 reset_fm = FallbackManager()
 reset_fm.register_fallback("test_reset", lambda: {"reset": True}, failure_threshold=2)
 
+
 def always_fails():
     raise Exception("Always fails")
+
 
 # فتح الدائرة - Open the circuit
 for i in range(2):
@@ -395,9 +399,9 @@ print(f"    الفشل - Failures: {status_after['failure_count']}")
 
 # ===== الخلاصة - Summary =====
 
-print("\n" + "="*60)
+print("\n" + "=" * 60)
 print("✅ اكتملت جميع الأمثلة بنجاح - All Examples Completed Successfully")
-print("="*60)
+print("=" * 60)
 
 print("""
 الميزات المثبتة - Demonstrated Features:

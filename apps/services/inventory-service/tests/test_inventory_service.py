@@ -3,7 +3,6 @@ Comprehensive Tests for Inventory Service
 اختبارات شاملة لخدمة المخزون
 """
 
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -27,9 +26,7 @@ async def test_db_engine():
 @pytest.fixture
 async def test_db_session(test_db_engine):
     """Create test database session"""
-    async_session = async_sessionmaker(
-        test_db_engine, class_=AsyncSession, expire_on_commit=False
-    )
+    async_session = async_sessionmaker(test_db_engine, class_=AsyncSession, expire_on_commit=False)
     async with async_session() as session:
         yield session
 
@@ -122,9 +119,7 @@ class TestAnalyticsForecasting:
 
     def test_get_all_forecasts(self, client):
         """Test getting forecasts for all items"""
-        response = client.get(
-            "/v1/analytics/forecasts", params={"tenant_id": "tenant_123"}
-        )
+        response = client.get("/v1/analytics/forecasts", params={"tenant_id": "tenant_123"})
 
         assert response.status_code == 200
         data = response.json()
@@ -165,9 +160,7 @@ class TestInventoryValuation:
 
     def test_get_total_valuation(self, client):
         """Test getting total inventory valuation"""
-        response = client.get(
-            "/v1/analytics/valuation", params={"tenant_id": "tenant_123"}
-        )
+        response = client.get("/v1/analytics/valuation", params={"tenant_id": "tenant_123"})
 
         assert response.status_code == 200
 
@@ -259,9 +252,7 @@ class TestABCAnalysis:
 
     def test_get_abc_analysis(self, client):
         """Test getting ABC analysis"""
-        response = client.get(
-            "/v1/analytics/abc-analysis", params={"tenant_id": "tenant_123"}
-        )
+        response = client.get("/v1/analytics/abc-analysis", params={"tenant_id": "tenant_123"})
 
         assert response.status_code == 200
         data = response.json()
@@ -287,9 +278,7 @@ class TestCostAnalysis:
 
     def test_get_cost_analysis(self, client):
         """Test getting cost analysis"""
-        response = client.get(
-            "/v1/analytics/cost-analysis", params={"tenant_id": "tenant_123"}
-        )
+        response = client.get("/v1/analytics/cost-analysis", params={"tenant_id": "tenant_123"})
 
         assert response.status_code == 200
 
@@ -350,9 +339,7 @@ class TestDashboardMetrics:
 
     def test_get_dashboard_metrics(self, client):
         """Test getting comprehensive dashboard metrics"""
-        response = client.get(
-            "/v1/analytics/dashboard", params={"tenant_id": "tenant_123"}
-        )
+        response = client.get("/v1/analytics/dashboard", params={"tenant_id": "tenant_123"})
 
         assert response.status_code == 200
         data = response.json()
@@ -403,9 +390,7 @@ class TestCompleteWorkflow:
         assert category_response.status_code == 200
 
         # Step 2: Get forecasts
-        forecast_response = client.get(
-            "/v1/analytics/forecasts", params={"tenant_id": tenant_id}
-        )
+        forecast_response = client.get("/v1/analytics/forecasts", params={"tenant_id": tenant_id})
         assert forecast_response.status_code == 200
 
         # Step 3: Get reorder recommendations
@@ -415,13 +400,9 @@ class TestCompleteWorkflow:
         assert reorder_response.status_code == 200
 
         # Step 4: Get valuation
-        valuation_response = client.get(
-            "/v1/analytics/valuation", params={"tenant_id": tenant_id}
-        )
+        valuation_response = client.get("/v1/analytics/valuation", params={"tenant_id": tenant_id})
         assert valuation_response.status_code == 200
 
         # Step 5: Get dashboard metrics
-        dashboard_response = client.get(
-            "/v1/analytics/dashboard", params={"tenant_id": tenant_id}
-        )
+        dashboard_response = client.get("/v1/analytics/dashboard", params={"tenant_id": tenant_id})
         assert dashboard_response.status_code == 200

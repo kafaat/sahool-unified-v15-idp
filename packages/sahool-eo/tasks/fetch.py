@@ -429,7 +429,9 @@ class SahoolMODISFetchTask(BaseSahoolFetchTask):
         **kwargs,
     ):
         super().__init__(
-            bands=["B01", "B02"], resolution=resolution, **kwargs  # Red, NIR
+            bands=["B01", "B02"],
+            resolution=resolution,
+            **kwargs,  # Red, NIR
         )
         self.product = product
 

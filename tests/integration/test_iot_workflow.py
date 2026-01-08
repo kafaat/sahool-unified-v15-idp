@@ -96,9 +96,7 @@ async def test_iot_device_listing_workflow(
     iot_gateway_url = service_urls.get("iot_gateway", "http://localhost:8106")
 
     # Get all devices - الحصول على جميع الأجهزة
-    response = await http_client.get(
-        f"{iot_gateway_url}/v1/devices", headers=auth_headers
-    )
+    response = await http_client.get(f"{iot_gateway_url}/v1/devices", headers=auth_headers)
 
     if response.status_code == 200:
         devices = response.json()
@@ -564,9 +562,7 @@ async def test_device_offline_detection_workflow(
     iot_gateway_url = service_urls.get("iot_gateway", "http://localhost:8106")
 
     # Get offline devices - الحصول على الأجهزة غير المتصلة
-    response = await http_client.get(
-        f"{iot_gateway_url}/v1/devices/offline", headers=auth_headers
-    )
+    response = await http_client.get(f"{iot_gateway_url}/v1/devices/offline", headers=auth_headers)
 
     if response.status_code == 200:
         offline_devices = response.json()

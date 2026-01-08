@@ -60,3 +60,7 @@ pandas==2.2.2
 # الاختبار (اختياري)
 pytest==8.3.4
 pytest-asyncio==0.24.0
+
+# Redis for token revocation
+# Redis لإلغاء الرموز
+redis[hiredis]==5.2.1

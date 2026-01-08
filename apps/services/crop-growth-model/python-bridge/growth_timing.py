@@ -190,18 +190,10 @@ class GrowthTimingRequest(BaseModel):
     tenant_id: str | None = Field(None, description="معرف المستأجر")
     crop_type: CropType = Field(..., description="نوع المحصول")
     planting_date: date = Field(..., description="تاريخ الزراعة")
-    current_ndvi: float | None = Field(
-        None, ge=-1, le=1, description="قيمة NDVI الحالية"
-    )
-    ndvi_trend: str | None = Field(
-        None, description="اتجاه NDVI: improving, stable, declining"
-    )
-    expected_temperature: float | None = Field(
-        None, description="درجة الحرارة المتوقعة"
-    )
-    expected_rainfall_mm: float | None = Field(
-        None, ge=0, description="هطول الأمطار المتوقع بالمم"
-    )
+    current_ndvi: float | None = Field(None, ge=-1, le=1, description="قيمة NDVI الحالية")
+    ndvi_trend: str | None = Field(None, description="اتجاه NDVI: improving, stable, declining")
+    expected_temperature: float | None = Field(None, description="درجة الحرارة المتوقعة")
+    expected_rainfall_mm: float | None = Field(None, ge=0, description="هطول الأمطار المتوقع بالمم")
     publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
 
 
@@ -293,9 +285,7 @@ def get_current_growth_stage(
     # Determine next stage
     stage_order = list(GrowthStage)
     current_idx = stage_order.index(current_stage)
-    next_stage = (
-        stage_order[current_idx + 1] if current_idx < len(stage_order) - 1 else None
-    )
+    next_stage = stage_order[current_idx + 1] if current_idx < len(stage_order) - 1 else None
 
     # Days until next stage
     days_until_next = max(0, stage_end - days_after_planting + 1)
@@ -481,14 +471,10 @@ def create_growth_timing_action(
         "confidence": 0.85,
         "urgency": urgency_map[response.risk_window],
         "field_id": response.field_id,
-        "deadline": (
-            datetime.now() + timedelta(days=most_urgent.timing_window_days)
-        ).isoformat(),
+        "deadline": (datetime.now() + timedelta(days=most_urgent.timing_window_days)).isoformat(),
         "optimal_window": {
             "start_date": date.today().isoformat(),
-            "end_date": (
-                date.today() + timedelta(days=most_urgent.timing_window_days)
-            ).isoformat(),
+            "end_date": (date.today() + timedelta(days=most_urgent.timing_window_days)).isoformat(),
         },
         "offline_executable": True,
         "fallback_instructions_ar": f"في حال عدم توفر البيانات، راقب المحصول يومياً خلال مرحلة {response.growth_stage.stage_name_ar}",
@@ -604,9 +590,7 @@ async def analyze_growth_timing(
                     farmer_id=request.farmer_id,
                     tenant_id=request.tenant_id,
                 )
-                logger.info(
-                    f"NATS: Published growth timing alert for field {request.field_id}"
-                )
+                logger.info(f"NATS: Published growth timing alert for field {request.field_id}")
             except Exception as e:
                 logger.error(f"Failed to publish NATS event: {e}")
 

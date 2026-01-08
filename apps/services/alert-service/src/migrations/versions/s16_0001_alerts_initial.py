@@ -34,9 +34,7 @@ def upgrade() -> None:
         # Classification
         sa.Column("type", sa.String(length=40), nullable=False),
         sa.Column("severity", sa.String(length=20), nullable=False),
-        sa.Column(
-            "status", sa.String(length=20), nullable=False, server_default="active"
-        ),
+        sa.Column("status", sa.String(length=20), nullable=False, server_default="active"),
         # Content (bilingual)
         sa.Column("title", sa.String(length=200), nullable=False),
         sa.Column("title_en", sa.String(length=200), nullable=True),

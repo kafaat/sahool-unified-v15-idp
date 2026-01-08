@@ -72,9 +72,7 @@ def make_field(**overrides) -> TestField:
         "crop_type": "wheat",
         "geometry": {
             "type": "Polygon",
-            "coordinates": [
-                [[45.0, 15.0], [45.1, 15.0], [45.1, 15.1], [45.0, 15.1], [45.0, 15.0]]
-            ],
+            "coordinates": [[[45.0, 15.0], [45.1, 15.0], [45.1, 15.1], [45.0, 15.1], [45.0, 15.0]]],
         },
         "metadata": {},
         "created_at": now,

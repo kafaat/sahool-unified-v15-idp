@@ -65,9 +65,7 @@ class ConnectionManager:
         await websocket.accept()
         self.active_connections[client_id] = websocket
         self.subscriptions[client_id] = set()
-        logger.info(
-            f"Client {client_id} connected. Total: {len(self.active_connections)}"
-        )
+        logger.info(f"Client {client_id} connected. Total: {len(self.active_connections)}")
 
     def disconnect(self, client_id: str):
         """Handle WebSocket disconnection"""
@@ -75,9 +73,7 @@ class ConnectionManager:
             del self.active_connections[client_id]
         if client_id in self.subscriptions:
             del self.subscriptions[client_id]
-        logger.info(
-            f"Client {client_id} disconnected. Total: {len(self.active_connections)}"
-        )
+        logger.info(f"Client {client_id} disconnected. Total: {len(self.active_connections)}")
 
     async def subscribe(self, client_id: str, subjects: list[str]):
         """Subscribe client to NATS subjects"""
@@ -106,9 +102,7 @@ class ConnectionManager:
             # Check if client is subscribed to this subject
             should_send = False
             for sub in client_subs:
-                if sub == subject or (
-                    sub.endswith(".*") and subject.startswith(sub[:-2])
-                ):
+                if sub == subject or (sub.endswith(".*") and subject.startswith(sub[:-2])):
                     should_send = True
                     break
                 if sub.endswith(".>") and subject.startswith(sub[:-2]):

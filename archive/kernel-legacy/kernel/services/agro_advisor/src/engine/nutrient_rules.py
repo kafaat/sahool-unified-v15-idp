@@ -235,9 +235,7 @@ def assess_from_soil_test(
                         details={
                             "soil_value": value,
                             "optimal_range": ranges,
-                            "deficit_pct": round(
-                                (1 - value / ranges["optimal"]) * 100, 1
-                            ),
+                            "deficit_pct": round((1 - value / ranges["optimal"]) * 100, 1),
                         },
                     )
                 )

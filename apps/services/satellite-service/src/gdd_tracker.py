@@ -80,12 +80,8 @@ class GrowthMilestone:
             "gdd_required": round(self.gdd_required, 1),
             "gdd_accumulated": round(self.gdd_accumulated, 1),
             "is_reached": self.is_reached,
-            "reached_date": (
-                self.reached_date.isoformat() if self.reached_date else None
-            ),
-            "expected_date": (
-                self.expected_date.isoformat() if self.expected_date else None
-            ),
+            "reached_date": (self.reached_date.isoformat() if self.reached_date else None),
+            "expected_date": (self.expected_date.isoformat() if self.expected_date else None),
             "days_remaining": self.days_remaining,
             "description_ar": self.description_ar,
             "description_en": self.description_en,
@@ -1220,14 +1216,10 @@ class GDDTracker:
 
         # If target not reached in forecast, estimate using average
         if target_date is None and forecast_data:
-            avg_forecast_gdd = sum(d["daily_gdd"] for d in forecast_data) / len(
-                forecast_data
-            )
+            avg_forecast_gdd = sum(d["daily_gdd"] for d in forecast_data) / len(forecast_data)
             if avg_forecast_gdd > 0:
                 remaining_days = int((target_gdd - accumulated) / avg_forecast_gdd)
-                target_date = forecast.daily[-1].timestamp.date() + timedelta(
-                    days=remaining_days
-                )
+                target_date = forecast.daily[-1].timestamp.date() + timedelta(days=remaining_days)
                 is_estimated = True
             else:
                 target_date = None
@@ -1311,8 +1303,7 @@ class GDDTracker:
 
                 # GDD accumulated (integral of sine curve above base)
                 gdd = (1 / math.pi) * (
-                    (avg - base_temp) * (math.pi - 2 * theta)
-                    + 2 * amplitude * math.cos(theta)
+                    (avg - base_temp) * (math.pi - 2 * theta) + 2 * amplitude * math.cos(theta)
                 )
 
                 return max(0, gdd)
@@ -1503,9 +1494,7 @@ class GDDTracker:
 
                     gdd_samples.append(gdd_sum)
                 except Exception as e:
-                    logger.warning(
-                        f"Could not fetch historical data for year {year}: {e}"
-                    )
+                    logger.warning(f"Could not fetch historical data for year {year}: {e}")
                     continue
 
             if not gdd_samples:
@@ -1519,10 +1508,14 @@ class GDDTracker:
 
             # Generate descriptions
             if percent_diff > 10:
-                desc_ar = f"متقدم بنسبة {abs(percent_diff):.1f}% عن المعدل الطبيعي - نمو أسرع من المتوقع"
+                desc_ar = (
+                    f"متقدم بنسبة {abs(percent_diff):.1f}% عن المعدل الطبيعي - نمو أسرع من المتوقع"
+                )
                 desc_en = f"{abs(percent_diff):.1f}% ahead of normal - faster growth than expected"
             elif percent_diff < -10:
-                desc_ar = f"متأخر بنسبة {abs(percent_diff):.1f}% عن المعدل الطبيعي - نمو أبطأ من المتوقع"
+                desc_ar = (
+                    f"متأخر بنسبة {abs(percent_diff):.1f}% عن المعدل الطبيعي - نمو أبطأ من المتوقع"
+                )
                 desc_en = f"{abs(percent_diff):.1f}% behind normal - slower growth than expected"
             else:
                 desc_ar = "ضمن المعدل الطبيعي - نمو طبيعي"
@@ -1587,9 +1580,7 @@ class GDDTracker:
         """
         crops = []
         for crop_code, params in self.CROP_GDD_REQUIREMENTS.items():
-            temp_params = self.CROP_BASE_TEMPS.get(
-                crop_code, {"base": 10, "upper": None}
-            )
+            temp_params = self.CROP_BASE_TEMPS.get(crop_code, {"base": 10, "upper": None})
             crops.append(
                 {
                     "crop_code": crop_code,

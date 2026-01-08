@@ -44,6 +44,25 @@ spec:
             - redis-server
             - --requirepass
             - $(REDIS_PASSWORD)
+            - --appendonly
+            - "yes"
+            - --maxmemory
+            - "{{ .Values.infrastructure.redis.master.maxmemory | default "768mb" }}"
+            - --maxmemory-policy
+            - "{{ .Values.infrastructure.redis.master.evictionPolicy | default "allkeys-lru" }}"
+            - --tcp-keepalive
+            - "60"
+            - --timeout
+            - "300"
+          {{- else }}
+          command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --maxmemory
+            - "{{ .Values.infrastructure.redis.master.maxmemory | default "768mb" }}"
+            - --maxmemory-policy
+            - "{{ .Values.infrastructure.redis.master.evictionPolicy | default "allkeys-lru" }}"
           {{- end }}
           ports:
             - name: redis

@@ -11,6 +11,13 @@
 import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventsService } from '../events/events.service';
+import {
+  calculatePagination,
+  createPaginatedResponse,
+  GENERAL_TRANSACTION_CONFIG,
+  type PaginationParams,
+  type PaginatedResponse,
+} from '../utils/db-utils';
 
 // Types
 interface YieldData {
@@ -71,22 +78,56 @@ export class MarketService {
     sellerId?: string;
     minPrice?: number;
     maxPrice?: number;
-  }) {
+  } & PaginationParams): Promise<PaginatedResponse<any>> {
+    const { category, governorate, sellerId, minPrice, maxPrice, ...paginationParams } = filters || {};
+
+    // Calculate pagination with enforced limits
+    const { skip, take, page } = calculatePagination(paginationParams);
+
+    // Build where clause
     const where: any = { status: 'AVAILABLE' };
 
-    if (filters?.category) where.category = filters.category;
-    if (filters?.governorate) where.governorate = filters.governorate;
-    if (filters?.sellerId) where.sellerId = filters.sellerId;
-    if (filters?.minPrice || filters?.maxPrice) {
+    if (category) where.category = category;
+    if (governorate) where.governorate = governorate;
+    if (sellerId) where.sellerId = sellerId;
+    if (minPrice || maxPrice) {
       where.price = {};
-      if (filters.minPrice) where.price.gte = filters.minPrice;
-      if (filters.maxPrice) where.price.lte = filters.maxPrice;
+      if (minPrice) where.price.gte = minPrice;
+      if (maxPrice) where.price.lte = maxPrice;
     }
 
-    return this.prisma.product.findMany({
-      where,
-      orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
-    });
+    // Execute queries in parallel
+    const [data, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          nameAr: true,
+          category: true,
+          price: true,
+          stock: true,
+          unit: true,
+          imageUrl: true,
+          featured: true,
+          sellerId: true,
+          sellerType: true,
+          sellerName: true,
+          cropType: true,
+          governorate: true,
+          district: true,
+          qualityGrade: true,
+          harvestDate: true,
+          createdAt: true,
+        },
+        skip,
+        take,
+        orderBy: [{ featured: 'desc' }, { createdAt: 'desc' }],
+      }),
+      this.prisma.product.count({ where }),
+    ]);
+
+    return createPaginatedResponse(data, total, { page, take });
   }
 
   /**
@@ -179,7 +220,7 @@ export class MarketService {
    * Uses transaction to prevent race conditions in stock management
    */
   async createOrder(data: CreateOrderDto) {
-    // Use transaction to ensure atomic stock check and decrement
+    // Use transaction with timeout to ensure atomic stock check and decrement
     return this.prisma.$transaction(async (tx) => {
       // Batch fetch all products at once to avoid N+1 queries
       const productIds = data.items.map((item) => item.productId);
@@ -294,33 +335,79 @@ export class MarketService {
       });
 
       return order;
-    });
+    }, GENERAL_TRANSACTION_CONFIG);
   }
 
   /**
-   * الحصول على طلبات المستخدم
+   * الحصول على طلبات المستخدم مع الترقيم
    */
-  async getUserOrders(userId: string, role: 'buyer' | 'seller') {
-    if (role === 'buyer') {
-      return this.prisma.order.findMany({
-        where: { buyerId: userId },
-        include: { items: { include: { product: true } } },
-        orderBy: { createdAt: 'desc' },
-      });
-    }
+  async getUserOrders(
+    userId: string,
+    role: 'buyer' | 'seller',
+    params?: PaginationParams
+  ): Promise<PaginatedResponse<any>> {
+    // Calculate pagination with enforced limits
+    const { skip, take, page } = calculatePagination(params);
 
-    // للبائع - نجلب الطلبات التي تحتوي على منتجاته
-    return this.prisma.order.findMany({
-      where: {
-        items: {
-          some: {
-            product: { sellerId: userId },
+    // Build where clause based on role
+    const where = role === 'buyer'
+      ? { buyerId: userId }
+      : {
+          items: {
+            some: {
+              product: { sellerId: userId },
+            },
+          },
+        };
+
+    // Execute queries in parallel
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        select: {
+          id: true,
+          orderNumber: true,
+          buyerId: true,
+          buyerName: true,
+          buyerPhone: true,
+          status: true,
+          subtotal: true,
+          serviceFee: true,
+          deliveryFee: true,
+          totalAmount: true,
+          deliveryAddress: true,
+          paymentMethod: true,
+          createdAt: true,
+          updatedAt: true,
+          items: {
+            select: {
+              id: true,
+              quantity: true,
+              unitPrice: true,
+              totalPrice: true,
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  nameAr: true,
+                  category: true,
+                  imageUrl: true,
+                  unit: true,
+                  sellerId: true,
+                  sellerName: true,
+                },
+              },
+            },
           },
         },
-      },
-      include: { items: { include: { product: true } } },
-      orderBy: { createdAt: 'desc' },
-    });
+        skip,
+        take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    return createPaginatedResponse(data, total, { page, take });
   }
 
   /**

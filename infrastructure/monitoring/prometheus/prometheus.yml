@@ -83,7 +83,20 @@ scrape_configs:
           service: 'nats'
           description: 'NATS JetStream Message Queue'
           description_ar: 'نظام الرسائل NATS JetStream'
-    metrics_path: /varz
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # NATS Prometheus Exporter - Enhanced JetStream Metrics
+  - job_name: 'nats-exporter'
+    static_configs:
+      - targets: ['nats-prometheus-exporter:7777']
+        labels:
+          tier: 'monitoring'
+          component: 'metrics-exporter'
+          service: 'nats-exporter'
+          description: 'NATS Prometheus Exporter'
+          description_ar: 'مُصدِّر مقاييس NATS'
+    metrics_path: /metrics
     scrape_interval: 15s
 
   # Qdrant Vector Database - قاعدة البيانات المتجهة
@@ -614,4 +627,17 @@ scrape_configs:
           service: 'grafana'
           description: 'Grafana Dashboards'
           description_ar: 'لوحات المراقبة Grafana'
+    metrics_path: /metrics
+
+  # Pushgateway - بوابة دفع المقاييس
+  - job_name: 'pushgateway'
+    honor_labels: true
+    static_configs:
+      - targets: ['pushgateway:9091']
+        labels:
+          tier: 'monitoring'
+          component: 'pushgateway'
+          service: 'pushgateway'
+          description: 'Prometheus Pushgateway'
+          description_ar: 'بوابة دفع المقاييس'
     metrics_path: /metrics

@@ -4,13 +4,20 @@ datasources:
   - name: InfluxDB-k6
     type: influxdb
     access: proxy
+    # Use HTTPS when TLS is enabled: https://influxdb:8086
     url: http://influxdb:8086
     jsonData:
       version: Flux
       organization: sahool
       defaultBucket: k6
+      # Set to false when using valid TLS certificates
       tlsSkipVerify: true
+      # For self-signed certificates, set tlsSkipVerify: true
+      # For CA-signed certificates, set tlsSkipVerify: false
     secureJsonData:
-      token: sahool-k6-token
+      # Use read-only token from environment variable
+      # Token should be generated using init-influxdb-security.sh
+      token: ${INFLUXDB_GRAFANA_READ_TOKEN}
     isDefault: true
-    editable: true
+    # Set to false in production to prevent users from modifying datasource
+    editable: false

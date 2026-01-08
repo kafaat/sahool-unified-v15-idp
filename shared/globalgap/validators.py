@@ -445,9 +445,7 @@ def validate_audit_completion(
         errors.append(f"{len(missing_items)} items not assessed")
 
     # Check Major Must compliance
-    major_compliant, major_details = check_major_must_compliance(
-        findings, checklist_items
-    )
+    major_compliant, major_details = check_major_must_compliance(findings, checklist_items)
     if not major_compliant:
         errors.append(
             f"Major Must compliance not met: {major_details['percentage']}% "
@@ -455,9 +453,7 @@ def validate_audit_completion(
         )
 
     # Check Minor Must compliance
-    minor_compliant, minor_details = check_minor_must_compliance(
-        findings, checklist_items
-    )
+    minor_compliant, minor_details = check_minor_must_compliance(findings, checklist_items)
     if not minor_compliant:
         warnings.append(
             f"Minor Must compliance not met: {minor_details['percentage']}% "
@@ -466,23 +462,15 @@ def validate_audit_completion(
 
     # Check for critical non-conformances
     critical_ncs = [
-        nc
-        for nc in audit_data.get("non_conformances", [])
-        if nc.get("severity") == "CRITICAL"
+        nc for nc in audit_data.get("non_conformances", []) if nc.get("severity") == "CRITICAL"
     ]
     if critical_ncs:
         errors.append(f"{len(critical_ncs)} critical non-conformances found")
 
     # Check for open non-conformances
-    open_ncs = [
-        nc
-        for nc in audit_data.get("non_conformances", [])
-        if nc.get("status") == "OPEN"
-    ]
+    open_ncs = [nc for nc in audit_data.get("non_conformances", []) if nc.get("status") == "OPEN"]
     if open_ncs:
-        warnings.append(
-            f"{len(open_ncs)} open non-conformances require corrective actions"
-        )
+        warnings.append(f"{len(open_ncs)} open non-conformances require corrective actions")
 
     # Determine certification recommendation
     can_certify = len(errors) == 0
@@ -547,9 +535,7 @@ def validate_corrective_action(
             nc_due_date = datetime.fromisoformat(nc_due_date).date()
 
         if planned_date > nc_due_date:
-            errors.append(
-                f"Planned date ({planned_date}) exceeds NC due date ({nc_due_date})"
-            )
+            errors.append(f"Planned date ({planned_date}) exceeds NC due date ({nc_due_date})")
 
     # If completed, check for evidence
     status = corrective_action.get("status")

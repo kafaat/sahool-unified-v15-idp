@@ -3,6 +3,8 @@
 خدمة المؤشرات الزراعية - Dashboard & Analytics
 """
 
+import os
+import sys
 import uuid
 from datetime import datetime, timedelta
 from enum import Enum
@@ -11,16 +13,10 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from errors_py import setup_exception_handlers, add_request_id_middleware
 from pydantic import BaseModel
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 app = FastAPI(
     title="SAHOOL Agricultural Indicators | خدمة المؤشرات الزراعية",
@@ -345,18 +341,10 @@ def determine_status(
     if optimal_min <= value <= optimal_max:
         return "optimal"
     elif value < optimal_min:
-        distance = (
-            (optimal_min - value) / (optimal_min - min_val)
-            if optimal_min != min_val
-            else 0
-        )
+        distance = (optimal_min - value) / (optimal_min - min_val) if optimal_min != min_val else 0
         return "critical" if distance > 0.5 else "warning"
     else:  # value > optimal_max
-        distance = (
-            (value - optimal_max) / (max_val - optimal_max)
-            if max_val != optimal_max
-            else 0
-        )
+        distance = (value - optimal_max) / (max_val - optimal_max) if max_val != optimal_max else 0
         return "critical" if distance > 0.5 else "warning"
 
 
@@ -392,26 +380,18 @@ def generate_indicator_value(
     weights = [0.4, 0.3, 0.3] if base_health > 0.6 else [0.2, 0.5, 0.3]
     trend = random.choices(trend_options, weights=weights)[0]
     trend_percent = (
-        random.uniform(0, 15)
-        if trend != TrendDirection.STABLE
-        else random.uniform(0, 3)
+        random.uniform(0, 15) if trend != TrendDirection.STABLE else random.uniform(0, 3)
     )
 
     return round(value, 2), trend, round(trend_percent, 1)
 
 
-def create_alert_if_needed(
-    indicator: Indicator, field_id: str
-) -> IndicatorAlert | None:
+def create_alert_if_needed(indicator: Indicator, field_id: str) -> IndicatorAlert | None:
     """Create alert if indicator is in warning or critical state"""
     if indicator.status == "optimal":
         return None
 
-    severity = (
-        AlertSeverity.CRITICAL
-        if indicator.status == "critical"
-        else AlertSeverity.WARNING
-    )
+    severity = AlertSeverity.CRITICAL if indicator.status == "critical" else AlertSeverity.WARNING
 
     # Find the threshold that was exceeded
     defn = INDICATOR_DEFINITIONS.get(indicator.id)
@@ -437,12 +417,8 @@ def create_alert_if_needed(
         message_en=f"{indicator.name_en}: Current value ({indicator.value} {indicator.unit}) is {direction_en} optimal threshold ({threshold})",
         current_value=indicator.value,
         threshold_value=threshold,
-        recommended_action_ar=get_recommendation_ar(
-            indicator.id, indicator.value, threshold
-        ),
-        recommended_action_en=get_recommendation_en(
-            indicator.id, indicator.value, threshold
-        ),
+        recommended_action_ar=get_recommendation_ar(indicator.id, indicator.value, threshold),
+        recommended_action_en=get_recommendation_en(indicator.id, indicator.value, threshold),
         created_at=datetime.utcnow(),
     )
 
@@ -470,9 +446,7 @@ def get_recommendation_en(indicator_id: str, value: float, threshold: float) -> 
         "temperature": "Provide shade for crops or improve ventilation",
         "irrigation_efficiency": "Check irrigation system and fix leaks",
     }
-    return recommendations.get(
-        indicator_id, "Review field condition and take appropriate action"
-    )
+    return recommendations.get(indicator_id, "Review field condition and take appropriate action")
 
 
 # =============================================================================
@@ -576,9 +550,7 @@ def get_field_indicators(field_id: str, category: IndicatorCategory | None = Non
 
 
 @app.get("/v1/dashboard/{tenant_id}", response_model=DashboardSummary)
-def get_dashboard_summary(
-    tenant_id: str, num_fields: int = Query(default=10, ge=1, le=100)
-):
+def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=10, ge=1, le=100)):
     """لوحة المعلومات الرئيسية للمستأجر"""
 
     # Generate mock data for multiple fields
@@ -600,9 +572,7 @@ def get_dashboard_summary(
     for cat in IndicatorCategory:
         cat_indicators = []
         for field in fields_data:
-            cat_indicators.extend(
-                [ind for ind in field.indicators if ind.category == cat]
-            )
+            cat_indicators.extend([ind for ind in field.indicators if ind.category == cat])
 
         if cat_indicators:
             avg_value = sum(ind.value for ind in cat_indicators) / len(cat_indicators)
@@ -697,9 +667,7 @@ def get_indicator_trends(
     import random
 
     if indicator_id not in INDICATOR_DEFINITIONS:
-        raise HTTPException(
-            status_code=404, detail=f"Indicator {indicator_id} not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Indicator {indicator_id} not found")
 
     defn = INDICATOR_DEFINITIONS[indicator_id]
     opt_min = defn.get("optimal_min", defn["min"])
@@ -754,9 +722,7 @@ def get_indicator_trends(
             TrendDirection.UP.value
             if values[-1] > values[0]
             else (
-                TrendDirection.DOWN.value
-                if values[-1] < values[0]
-                else TrendDirection.STABLE.value
+                TrendDirection.DOWN.value if values[-1] < values[0] else TrendDirection.STABLE.value
             )
         ),
     }

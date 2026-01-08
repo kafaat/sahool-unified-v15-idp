@@ -30,9 +30,7 @@ class TestCropHealthToolMock:
         with patch("httpx.AsyncClient.post", new=AsyncMock(return_value=mock_response)):
             tool = CropHealthTool()
 
-            result = await tool.analyze_image(
-                image_path="/tmp/test_crop.jpg", crop_type="wheat"
-            )
+            result = await tool.analyze_image(image_path="/tmp/test_crop.jpg", crop_type="wheat")
 
             assert result["disease_detected"] is True
             assert result["confidence"] > 0.8
@@ -290,9 +288,7 @@ class TestEmbeddingsManagerMock:
         mock_model = Mock()
         mock_model.encode.return_value = [[0.1, 0.2, 0.3, 0.4]]  # Mock embedding vector
 
-        with patch(
-            "sentence_transformers.SentenceTransformer", return_value=mock_model
-        ):
+        with patch("sentence_transformers.SentenceTransformer", return_value=mock_model):
             manager = EmbeddingsManager()
 
             result = manager.get_embeddings(["Test agricultural text"])
@@ -308,9 +304,7 @@ class TestEmbeddingsManagerMock:
         mock_model = Mock()
         mock_model.get_sentence_embedding_dimension = Mock(return_value=384)
 
-        with patch(
-            "sentence_transformers.SentenceTransformer", return_value=mock_model
-        ):
+        with patch("sentence_transformers.SentenceTransformer", return_value=mock_model):
             manager = EmbeddingsManager()
 
             info = manager.get_model_info()
@@ -335,9 +329,7 @@ class TestKnowledgeRetrieverMock:
         # Mock vector store
         mock_docs = [
             Mock(page_content="Document 1 about wheat", metadata={"source": "test1"}),
-            Mock(
-                page_content="Document 2 about irrigation", metadata={"source": "test2"}
-            ),
+            Mock(page_content="Document 2 about irrigation", metadata={"source": "test2"}),
         ]
 
         with patch.object(retriever, "_search_vector_store", return_value=mock_docs):

@@ -101,13 +101,9 @@ class KnowledgeRetriever:
                         distance=Distance.COSINE,
                     ),
                 )
-                logger.info(
-                    "qdrant_collection_created", collection_name=self.collection_name
-                )
+                logger.info("qdrant_collection_created", collection_name=self.collection_name)
             else:
-                logger.info(
-                    "qdrant_collection_exists", collection_name=self.collection_name
-                )
+                logger.info("qdrant_collection_exists", collection_name=self.collection_name)
 
         except Exception as e:
             logger.error("qdrant_collection_check_failed", error=str(e))
@@ -181,9 +177,7 @@ class KnowledgeRetriever:
             return True
 
         except Exception as e:
-            logger.error(
-                "document_addition_failed", error=str(e), num_documents=len(documents)
-            )
+            logger.error("document_addition_failed", error=str(e), num_documents=len(documents))
             return False
 
     def retrieve(
@@ -224,9 +218,7 @@ class KnowledgeRetriever:
                 # تنفيذ بسيط - قم بالتوسيع حسب الحاجة
                 conditions = []
                 for key, value in filters.items():
-                    conditions.append(
-                        FieldCondition(key=key, match=MatchValue(value=value))
-                    )
+                    conditions.append(FieldCondition(key=key, match=MatchValue(value=value)))
                 if conditions:
                     query_filter = Filter(must=conditions)
 
@@ -246,9 +238,7 @@ class KnowledgeRetriever:
             for result in search_results:
                 doc = Document(
                     content=result.payload.get("content", ""),
-                    metadata={
-                        k: v for k, v in result.payload.items() if k != "content"
-                    },
+                    metadata={k: v for k, v in result.payload.items() if k != "content"},
                     score=result.score,
                     id=str(result.id),
                 )
@@ -308,9 +298,7 @@ class KnowledgeRetriever:
             Collection information | معلومات المجموعة
         """
         try:
-            collection_info = self.client.get_collection(
-                collection_name=self.collection_name
-            )
+            collection_info = self.client.get_collection(collection_name=self.collection_name)
 
             return {
                 "collection_name": self.collection_name,

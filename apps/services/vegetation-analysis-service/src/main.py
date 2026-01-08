@@ -25,13 +25,7 @@ from typing import Any
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -40,8 +34,9 @@ logger = logging.getLogger(__name__)
 
 # Add shared modules to path
 import sys
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Multi-provider service
 USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
@@ -216,7 +211,14 @@ except ImportError:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
-    global _multi_provider, _sar_processor, _yield_predictor, _phenology_detector, _cloud_masker, _change_detector, _vra_generator
+    global \
+        _multi_provider, \
+        _sar_processor, \
+        _yield_predictor, \
+        _phenology_detector, \
+        _cloud_masker, \
+        _change_detector, \
+        _vra_generator
 
     print("🛰️ Starting Satellite Service...")
 
@@ -679,18 +681,14 @@ def generate_recommendations(
     recommendations_en = []
 
     if "low_vegetation_cover" in anomalies:
-        recommendations_ar.append(
-            "🌱 الغطاء النباتي منخفض - تحقق من صحة المحصول أو أعد الزراعة"
-        )
+        recommendations_ar.append("🌱 الغطاء النباتي منخفض - تحقق من صحة المحصول أو أعد الزراعة")
         recommendations_en.append(
             "🌱 Low vegetation cover - check crop health or consider replanting"
         )
 
     if "water_stress_detected" in anomalies:
         recommendations_ar.append("💧 إجهاد مائي - زيادة الري فوراً")
-        recommendations_en.append(
-            "💧 Water stress detected - increase irrigation immediately"
-        )
+        recommendations_en.append("💧 Water stress detected - increase irrigation immediately")
 
     if "moisture_deficit" in anomalies:
         recommendations_ar.append("🌡️ نقص الرطوبة - ري تكميلي مطلوب")
@@ -698,22 +696,14 @@ def generate_recommendations(
 
     if "poor_canopy_structure" in anomalies:
         recommendations_ar.append("🍃 بنية المظلة ضعيفة - تحقق من التسميد والآفات")
-        recommendations_en.append(
-            "🍃 Poor canopy structure - check fertilization and pests"
-        )
+        recommendations_en.append("🍃 Poor canopy structure - check fertilization and pests")
 
     if "sparse_leaf_coverage" in anomalies:
-        recommendations_ar.append(
-            "🌿 تغطية الأوراق متناثرة - قد يحتاج المحصول تسميد نيتروجيني"
-        )
-        recommendations_en.append(
-            "🌿 Sparse leaf coverage - crop may need nitrogen fertilization"
-        )
+        recommendations_ar.append("🌿 تغطية الأوراق متناثرة - قد يحتاج المحصول تسميد نيتروجيني")
+        recommendations_en.append("🌿 Sparse leaf coverage - crop may need nitrogen fertilization")
 
     if not anomalies:
-        recommendations_ar.append(
-            "✅ المحصول في حالة صحية جيدة - استمر في الممارسات الحالية"
-        )
+        recommendations_ar.append("✅ المحصول في حالة صحية جيدة - استمر في الممارسات الحالية")
         recommendations_en.append("✅ Crop is healthy - continue current practices")
 
     return recommendations_ar, recommendations_en
@@ -892,11 +882,9 @@ async def request_imagery(request: ImageryRequest):
         cloud_cover_percent=random.uniform(0, request.cloud_cover_max),
         sun_elevation=random.uniform(45, 75),
         bands=bands,
-        scene_id=f"{request.satellite.value.upper()}_{datetime.now().strftime('%Y%m%d')}_{random.randint(1000,9999)}",
-        tile_id=f"T{random.randint(30,40)}Q{chr(random.randint(65,90))}{chr(random.randint(65,90))}",
-        processing_level=(
-            "L2A" if request.satellite == SatelliteSource.SENTINEL2 else "L2"
-        ),
+        scene_id=f"{request.satellite.value.upper()}_{datetime.now().strftime('%Y%m%d')}_{random.randint(1000, 9999)}",
+        tile_id=f"T{random.randint(30, 40)}Q{chr(random.randint(65, 90))}{chr(random.randint(65, 90))}",
+        processing_level=("L2A" if request.satellite == SatelliteSource.SENTINEL2 else "L2"),
     )
 
 
@@ -944,9 +932,7 @@ async def analyze_field(request: ImageryRequest):
     health_score, health_status, anomalies = assess_vegetation_health(indices)
 
     # Generate recommendations
-    recommendations_ar, recommendations_en = generate_recommendations(
-        indices, anomalies
-    )
+    recommendations_ar, recommendations_en = generate_recommendations(indices, anomalies)
 
     return FieldAnalysis(
         field_id=request.field_id,
@@ -995,15 +981,10 @@ def _create_satellite_action_template(
 ) -> dict[str, Any]:
     """Create an ActionTemplate from satellite analysis"""
 
-    urgency = _determine_urgency_from_anomalies(
-        analysis.anomalies, analysis.health_score
-    )
+    urgency = _determine_urgency_from_anomalies(analysis.anomalies, analysis.health_score)
 
     # Determine action type based on anomalies
-    if (
-        "water_stress_detected" in analysis.anomalies
-        or "moisture_deficit" in analysis.anomalies
-    ):
+    if "water_stress_detected" in analysis.anomalies or "moisture_deficit" in analysis.anomalies:
         action_type = "irrigation"
         title_ar = "ري الحقل - إجهاد مائي مكتشف"
         title_en = "Field Irrigation - Water Stress Detected"
@@ -1103,9 +1084,7 @@ async def analyze_field_with_action(
                 farmer_id=request.farmer_id,
                 tenant_id=request.tenant_id,
             )
-            logger.info(
-                f"NATS: Published satellite analysis event for field {request.field_id}"
-            )
+            logger.info(f"NATS: Published satellite analysis event for field {request.field_id}")
         except Exception as e:
             logger.error(f"Failed to publish NATS event: {e}")
 
@@ -1263,11 +1242,7 @@ async def get_timeseries(
         "period_days": days,
         "data_points": len(timeseries),
         "timeseries": timeseries,
-        "trend": (
-            "improving"
-            if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"]
-            else "declining"
-        ),
+        "trend": ("improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining"),
     }
 
 
@@ -1279,14 +1254,10 @@ async def get_timeseries(
 @app.get("/v1/phenology/{field_id}")
 async def get_phenology(
     field_id: str,
-    crop_type: str = Query(
-        ..., description="نوع المحصول (wheat, sorghum, tomato, etc.)"
-    ),
+    crop_type: str = Query(..., description="نوع المحصول (wheat, sorghum, tomato, etc.)"),
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
-    planting_date: str | None = Query(
-        None, description="Planting date (YYYY-MM-DD)"
-    ),
+    planting_date: str | None = Query(None, description="Planting date (YYYY-MM-DD)"),
     days: int = Query(default=60, ge=14, le=365, description="Days of historical data"),
 ):
     """
@@ -1300,15 +1271,12 @@ async def get_phenology(
     4. Provides stage-specific recommendations
     """
     if not _phenology_detector:
-        raise HTTPException(
-            status_code=500, detail="Phenology detector not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     # Get NDVI time series
     timeseries_data = await get_timeseries(field_id, days)
     ndvi_series = [
-        {"date": point["date"], "value": point["ndvi"]}
-        for point in timeseries_data["timeseries"]
+        {"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]
     ]
 
     # Parse planting date
@@ -1356,9 +1324,7 @@ async def get_phenology(
             "pos_date": result.pos_date.isoformat() if result.pos_date else None,
             "eos_date": result.eos_date.isoformat() if result.eos_date else None,
             "estimated_harvest_date": (
-                result.estimated_harvest_date.isoformat()
-                if result.estimated_harvest_date
-                else None
+                result.estimated_harvest_date.isoformat() if result.estimated_harvest_date else None
             ),
         },
         "ndvi_at_detection": result.ndvi_at_detection,
@@ -1383,17 +1349,13 @@ async def get_phenology_timeline(
     Useful for planning irrigation, fertilization, and harvest.
     """
     if not _phenology_detector:
-        raise HTTPException(
-            status_code=500, detail="Phenology detector not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     # Parse planting date
     try:
         planting_dt = datetime.fromisoformat(planting_date).date()
     except ValueError:
-        raise HTTPException(
-            status_code=400, detail="Invalid planting_date format. Use YYYY-MM-DD"
-        )
+        raise HTTPException(status_code=400, detail="Invalid planting_date format. Use YYYY-MM-DD")
 
     # Generate timeline
     try:
@@ -1423,9 +1385,7 @@ async def get_stage_recommendations(crop_type: str, stage: str):
     Example: /v1/phenology/recommendations/wheat/flowering
     """
     if not _phenology_detector:
-        raise HTTPException(
-            status_code=500, detail="Phenology detector not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     # Validate crop type
     crop_type = crop_type.lower()
@@ -1447,14 +1407,12 @@ async def get_stage_recommendations(crop_type: str, stage: str):
     crop_params = _phenology_detector.YEMEN_CROP_SEASONS[crop_type]
 
     # Get recommendations
-    recommendations_ar, recommendations_en = (
-        _phenology_detector._get_stage_recommendations(
-            crop_type=crop_type,
-            stage=growth_stage,
-            days_to_next=7,  # Default estimate
-            current_ndvi=0.5,  # Default
-            crop_params=crop_params,
-        )
+    recommendations_ar, recommendations_en = _phenology_detector._get_stage_recommendations(
+        crop_type=crop_type,
+        stage=growth_stage,
+        days_to_next=7,  # Default estimate
+        current_ndvi=0.5,  # Default
+        crop_params=crop_params,
     )
 
     return {
@@ -1477,9 +1435,7 @@ async def list_supported_crops():
     قائمة جميع المحاصيل المدعومة لكشف مراحل النمو
     """
     if not _phenology_detector:
-        raise HTTPException(
-            status_code=500, detail="Phenology detector not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     return {
         "crops": _phenology_detector.get_supported_crops(),
@@ -1516,15 +1472,12 @@ async def analyze_phenology_with_action(
     3. Publishes event via NATS if enabled
     """
     if not _phenology_detector:
-        raise HTTPException(
-            status_code=500, detail="Phenology detector not initialized"
-        )
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
     # Get NDVI time series
     timeseries_data = await get_timeseries(request.field_id, request.days)
     ndvi_series = [
-        {"date": point["date"], "value": point["ndvi"]}
-        for point in timeseries_data["timeseries"]
+        {"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]
     ]
 
     # Parse planting date
@@ -1633,9 +1586,7 @@ def _create_phenology_action_template(
     crop_params = _phenology_detector.YEMEN_CROP_SEASONS[result.crop_type]
 
     # Determine urgency based on stage and critical periods
-    is_critical = any(
-        cp["stage"] == stage.value for cp in crop_params.get("critical_periods", [])
-    )
+    is_critical = any(cp["stage"] == stage.value for cp in crop_params.get("critical_periods", []))
 
     if is_critical:
         urgency = "high"
@@ -1704,9 +1655,7 @@ def _create_phenology_action_template(
             "pos_date": result.pos_date.isoformat() if result.pos_date else None,
             "eos_date": result.eos_date.isoformat() if result.eos_date else None,
             "estimated_harvest_date": (
-                result.estimated_harvest_date.isoformat()
-                if result.estimated_harvest_date
-                else None
+                result.estimated_harvest_date.isoformat() if result.estimated_harvest_date else None
             ),
         },
         "created_at": datetime.utcnow().isoformat(),
@@ -1723,9 +1672,7 @@ async def get_soil_moisture(
     field_id: str,
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
-    date: str | None = Query(
-        None, description="Target date (YYYY-MM-DD), defaults to today"
-    ),
+    date: str | None = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
 ):
     """
     تقدير رطوبة التربة من بيانات SAR سنتينل-1
@@ -1747,9 +1694,7 @@ async def get_soil_moisture(
         try:
             target_date = datetime.fromisoformat(date)
         except ValueError:
-            raise HTTPException(
-                status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            )
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
     # Get soil moisture estimate
     result = await _sar_processor.get_soil_moisture(
@@ -1760,9 +1705,7 @@ async def get_soil_moisture(
     )
 
     # Get interpretation
-    interpretation = _sar_processor.get_moisture_interpretation(
-        result.soil_moisture_percent
-    )
+    interpretation = _sar_processor.get_moisture_interpretation(result.soil_moisture_percent)
 
     return {
         "field_id": result.field_id,
@@ -1822,9 +1765,7 @@ async def get_irrigation_events(
                 "moisture_change": {
                     "before_percent": event.moisture_before,
                     "after_percent": event.moisture_after,
-                    "increase_percent": round(
-                        event.moisture_after - event.moisture_before, 2
-                    ),
+                    "increase_percent": round(event.moisture_after - event.moisture_before, 2),
                 },
                 "estimated_water_mm": event.estimated_water_mm,
                 "confidence": event.confidence,
@@ -1841,13 +1782,10 @@ async def get_irrigation_events(
         "events_detected": len(events_list),
         "events": events_list,
         "summary": {
-            "total_water_applied_mm": round(
-                sum(e["estimated_water_mm"] for e in events_list), 1
-            ),
+            "total_water_applied_mm": round(sum(e["estimated_water_mm"] for e in events_list), 1),
             "average_application_mm": (
                 round(
-                    sum(e["estimated_water_mm"] for e in events_list)
-                    / len(events_list),
+                    sum(e["estimated_water_mm"] for e in events_list) / len(events_list),
                     1,
                 )
                 if events_list
@@ -1885,14 +1823,10 @@ async def get_sar_timeseries(
         start_dt = datetime.fromisoformat(start_date)
         end_dt = datetime.fromisoformat(end_date)
     except ValueError:
-        raise HTTPException(
-            status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-        )
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
     if start_dt > end_dt:
-        raise HTTPException(
-            status_code=400, detail="start_date must be before end_date"
-        )
+        raise HTTPException(status_code=400, detail="start_date must be before end_date")
 
     if (end_dt - start_dt).days > 365:
         raise HTTPException(status_code=400, detail="Maximum time range is 365 days")
@@ -1930,9 +1864,7 @@ async def get_sar_timeseries(
         avg_moisture = sum(moisture_values) / len(moisture_values)
         min_moisture = min(moisture_values)
         max_moisture = max(moisture_values)
-        moisture_trend = (
-            "increasing" if moisture_values[-1] > moisture_values[0] else "decreasing"
-        )
+        moisture_trend = "increasing" if moisture_values[-1] > moisture_values[0] else "decreasing"
     else:
         avg_moisture = min_moisture = max_moisture = 0
         moisture_trend = "stable"
@@ -1976,9 +1908,7 @@ async def get_all_indices(
     - Corrected: MSAVI, OSAVI, ARVI
     """
     if not _indices_available:
-        raise HTTPException(
-            status_code=503, detail="Advanced indices module not available"
-        )
+        raise HTTPException(status_code=503, detail="Advanced indices module not available")
 
     import random
 
@@ -2019,9 +1949,7 @@ async def get_specific_index(
     lat: float = Query(..., description="Latitude", ge=-90, le=90),
     lon: float = Query(..., description="Longitude", ge=-180, le=180),
     crop_type: str | None = Query(default="unknown", description="نوع المحصول"),
-    growth_stage: str | None = Query(
-        default="vegetative", description="مرحلة النمو"
-    ),
+    growth_stage: str | None = Query(default="vegetative", description="مرحلة النمو"),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
 ):
     """
@@ -2034,9 +1962,7 @@ async def get_specific_index(
     - growth_stage: emergence, vegetative, reproductive, maturation
     """
     if not _indices_available:
-        raise HTTPException(
-            status_code=503, detail="Advanced indices module not available"
-        )
+        raise HTTPException(status_code=503, detail="Advanced indices module not available")
 
     # Validate index name
     try:
@@ -2115,9 +2041,7 @@ async def interpret_indices(request: InterpretRequest):
     }
     """
     if not _indices_available:
-        raise HTTPException(
-            status_code=503, detail="Advanced indices module not available"
-        )
+        raise HTTPException(status_code=503, detail="Advanced indices module not available")
 
     # Validate crop type and growth stage
     try:
@@ -2294,9 +2218,7 @@ class YieldPredictionRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     planting_date: date | None = Field(None, description="تاريخ الزراعة")
-    field_area_ha: float = Field(
-        default=1.0, ge=0.01, description="مساحة الحقل بالهكتار"
-    )
+    field_area_ha: float = Field(default=1.0, ge=0.01, description="مساحة الحقل بالهكتار")
 
     # Optional: provide NDVI time series (if available)
     ndvi_series: list[float] | None = Field(
@@ -2306,17 +2228,11 @@ class YieldPredictionRequest(BaseModel):
 
     # Weather data (optional - will be estimated if not provided)
     precipitation_mm: float | None = Field(None, description="الأمطار الكلية (مم)")
-    avg_temp_min: float | None = Field(
-        None, description="متوسط درجة الحرارة الصغرى (°س)"
-    )
-    avg_temp_max: float | None = Field(
-        None, description="متوسط درجة الحرارة الكبرى (°س)"
-    )
+    avg_temp_min: float | None = Field(None, description="متوسط درجة الحرارة الصغرى (°س)")
+    avg_temp_max: float | None = Field(None, description="متوسط درجة الحرارة الكبرى (°س)")
 
     # Optional: soil moisture from SAR
-    soil_moisture: float | None = Field(
-        None, ge=0, le=1, description="رطوبة التربة (0-1)"
-    )
+    soil_moisture: float | None = Field(None, ge=0, le=1, description="رطوبة التربة (0-1)")
 
 
 class YieldPredictionResponse(BaseModel):
@@ -2386,15 +2302,11 @@ class VRARequest(BaseModel):
     )
     target_rate: float = Field(..., gt=0, description="المعدل المستهدف")
     unit: str = Field(..., description="وحدة القياس (kg/ha, seeds/ha, L/ha, mm/ha)")
-    num_zones: int = Field(
-        default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)"
-    )
+    num_zones: int = Field(default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)")
     zone_method: str = Field(default="ndvi", description="طريقة تصنيف المناطق")
     min_rate: float | None = Field(None, gt=0, description="الحد الأدنى للمعدل")
     max_rate: float | None = Field(None, gt=0, description="الحد الأقصى للمعدل")
-    product_price_per_unit: float | None = Field(
-        None, description="سعر الوحدة للمنتج"
-    )
+    product_price_per_unit: float | None = Field(None, description="سعر الوحدة للمنتج")
     notes: str | None = Field(None, description="ملاحظات (إنجليزي)")
     notes_ar: str | None = Field(None, description="ملاحظات (عربي)")
 
@@ -2520,9 +2432,7 @@ async def predict_yield(request: YieldPredictionRequest):
                 days=90,  # Last 3 months
                 satellite=SatelliteSource.SENTINEL2,
             )
-            request.ndvi_series = [
-                point["ndvi"] for point in timeseries_data["timeseries"]
-            ]
+            request.ndvi_series = [point["ndvi"] for point in timeseries_data["timeseries"]]
             data_sources.append("sentinel-2_ndvi_timeseries")
         except Exception as e:
             logger.warning(f"Failed to fetch NDVI timeseries: {e}")
@@ -2538,12 +2448,8 @@ async def predict_yield(request: YieldPredictionRequest):
     # Prepare weather data
     if request.avg_temp_min is not None and request.avg_temp_max is not None:
         # Generate daily temperature series (assume 90 days)
-        temp_min_series = [
-            request.avg_temp_min + random.uniform(-3, 3) for _ in range(90)
-        ]
-        temp_max_series = [
-            request.avg_temp_max + random.uniform(-3, 3) for _ in range(90)
-        ]
+        temp_min_series = [request.avg_temp_min + random.uniform(-3, 3) for _ in range(90)]
+        temp_max_series = [request.avg_temp_max + random.uniform(-3, 3) for _ in range(90)]
         data_sources.append("user_provided_weather")
     else:
         # Use Yemen regional defaults based on location
@@ -2576,9 +2482,7 @@ async def predict_yield(request: YieldPredictionRequest):
                 end_date=date.today(),
             )
             if sar_result and sar_result.soil_moisture_timeseries:
-                soil_moisture = sar_result.soil_moisture_timeseries[
-                    -1
-                ].soil_moisture_m3m3
+                soil_moisture = sar_result.soil_moisture_timeseries[-1].soil_moisture_m3m3
                 data_sources.append("sentinel-1_sar_soil_moisture")
         except Exception as e:
             logger.warning(f"Failed to fetch SAR soil moisture: {e}")
@@ -2634,9 +2538,7 @@ async def predict_yield(request: YieldPredictionRequest):
 @app.get("/v1/yield-history/{field_id}")
 async def get_yield_history(
     field_id: str,
-    seasons: int = Query(
-        default=5, ge=1, le=20, description="Number of past seasons to retrieve"
-    ),
+    seasons: int = Query(default=5, ge=1, le=20, description="Number of past seasons to retrieve"),
     crop_code: str | None = Query(None, description="Filter by crop code"),
 ):
     """
@@ -2737,9 +2639,7 @@ async def get_yield_history(
 @app.get("/v1/regional-yields/{governorate}")
 async def get_regional_yields(
     governorate: str,
-    crop: str | None = Query(
-        None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"
-    ),
+    crop: str | None = Query(None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"),
 ):
     """
     الحصول على إحصائيات الإنتاجية الإقليمية | Get Regional Yield Statistics
@@ -2799,9 +2699,7 @@ async def get_regional_yields(
         crops_to_show = []
 
     if not crops_to_show:
-        raise HTTPException(
-            status_code=404, detail=f"No crop data available for {governorate}"
-        )
+        raise HTTPException(status_code=404, detail=f"No crop data available for {governorate}")
 
     # Generate regional statistics
     regional_stats = []
@@ -2857,9 +2755,7 @@ async def get_cloud_cover(
     field_id: str,
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
-    date: str | None = Query(
-        None, description="Target date (YYYY-MM-DD), defaults to today"
-    ),
+    date: str | None = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
 ):
     """
     Analyze cloud cover for a field location using Sentinel-2 SCL
@@ -2887,9 +2783,7 @@ async def get_cloud_cover(
             try:
                 target_date = datetime.strptime(date, "%Y-%m-%d")
             except ValueError:
-                raise HTTPException(
-                    status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-                )
+                raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
         # Analyze cloud cover
         result = await _cloud_masker.analyze_cloud_cover(
@@ -2937,15 +2831,11 @@ async def find_clear_observations(
             start_dt = datetime.strptime(start_date, "%Y-%m-%d")
             end_dt = datetime.strptime(end_date, "%Y-%m-%d")
         except ValueError:
-            raise HTTPException(
-                status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            )
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
         # Validate date range
         if end_dt < start_dt:
-            raise HTTPException(
-                status_code=400, detail="End date must be after start date"
-            )
+            raise HTTPException(status_code=400, detail="End date must be after start date")
 
         # Find clear observations
         observations = await _cloud_masker.find_clear_observations(
@@ -2981,9 +2871,7 @@ async def get_best_observation(
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     target_date: str = Query(..., description="Target date (YYYY-MM-DD)"),
-    tolerance_days: int = Query(
-        15, ge=1, le=90, description="Days before/after to search"
-    ),
+    tolerance_days: int = Query(15, ge=1, le=90, description="Days before/after to search"),
 ):
     """
     Find the best (lowest cloud) observation near target date
@@ -3003,9 +2891,7 @@ async def get_best_observation(
         try:
             target_dt = datetime.strptime(target_date, "%Y-%m-%d")
         except ValueError:
-            raise HTTPException(
-                status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            )
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
         # Find best observation
         best_obs = await _cloud_masker.get_best_observation(
@@ -3049,9 +2935,7 @@ async def get_best_observation(
 @app.post("/v1/interpolate-cloudy")
 async def interpolate_cloudy_pixels(
     field_id: str = Query(..., description="Field identifier"),
-    method: str = Query(
-        "linear", description="Interpolation method: linear, spline, previous"
-    ),
+    method: str = Query("linear", description="Interpolation method: linear, spline, previous"),
     ndvi_series: list[dict] = None,
 ):
     """
@@ -3095,9 +2979,7 @@ async def interpolate_cloudy_pixels(
         )
 
         # Count interpolations
-        interpolated_count = sum(
-            1 for obs in interpolated if obs.get("interpolated", False)
-        )
+        interpolated_count = sum(1 for obs in interpolated if obs.get("interpolated", False))
 
         return {
             "success": True,
@@ -3126,9 +3008,7 @@ async def export_analysis(
     field_id: str,
     lat: float = Query(..., ge=-90, le=90, description="Latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
-    format: str = Query(
-        default="geojson", description="Export format: geojson, csv, json, kml"
-    ),
+    format: str = Query(default="geojson", description="Export format: geojson, csv, json, kml"),
 ) -> StreamingResponse:
     """
     Export field analysis data in specified format.
@@ -3161,9 +3041,7 @@ async def export_analysis(
         # Create streaming response
         return StreamingResponse(
             io.BytesIO(
-                result.data.encode("utf-8")
-                if isinstance(result.data, str)
-                else result.data
+                result.data.encode("utf-8") if isinstance(result.data, str) else result.data
             ),
             media_type=result.content_type,
             headers={
@@ -3209,9 +3087,7 @@ async def export_timeseries(
         start_dt = datetime.strptime(start_date, "%Y-%m-%d").date()
         end_dt = datetime.strptime(end_date, "%Y-%m-%d").date()
     except ValueError:
-        raise HTTPException(
-            status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-        )
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
     # Get timeseries data using existing endpoint logic
     try:
@@ -3221,9 +3097,7 @@ async def export_timeseries(
 
         while current_date <= end_dt:
             # Get analysis for each date
-            analysis = await _perform_analysis(
-                field_id, lat, lon, analysis_date=current_date
-            )
+            analysis = await _perform_analysis(field_id, lat, lon, analysis_date=current_date)
 
             point = {
                 "date": current_date.isoformat(),
@@ -3234,9 +3108,7 @@ async def export_timeseries(
                 "evi": analysis.get("indices", {}).get("evi", 0),
                 "health_score": analysis.get("health_score", 0),
                 "health_status": analysis.get("health_status", "unknown"),
-                "cloud_cover": analysis.get("imagery", {}).get(
-                    "cloud_cover_percent", 0
-                ),
+                "cloud_cover": analysis.get("imagery", {}).get("cloud_cover_percent", 0),
             }
             timeseries_data.append(point)
 
@@ -3252,9 +3124,7 @@ async def export_timeseries(
         # Create streaming response
         return StreamingResponse(
             io.BytesIO(
-                result.data.encode("utf-8")
-                if isinstance(result.data, str)
-                else result.data
+                result.data.encode("utf-8") if isinstance(result.data, str) else result.data
             ),
             media_type=result.content_type,
             headers={
@@ -3272,9 +3142,7 @@ async def export_timeseries(
 @app.get("/v1/export/boundaries")
 async def export_boundaries(
     field_ids: str = Query(..., description="Comma-separated field IDs"),
-    format: str = Query(
-        default="geojson", description="Export format: geojson, json, kml"
-    ),
+    format: str = Query(default="geojson", description="Export format: geojson, json, kml"),
 ) -> StreamingResponse:
     """
     Export field boundaries in specified format.
@@ -3334,9 +3202,7 @@ async def export_boundaries(
         # Create streaming response
         return StreamingResponse(
             io.BytesIO(
-                result.data.encode("utf-8")
-                if isinstance(result.data, str)
-                else result.data
+                result.data.encode("utf-8") if isinstance(result.data, str) else result.data
             ),
             media_type=result.content_type,
             headers={
@@ -3356,12 +3222,8 @@ async def export_report(
     field_id: str,
     lat: float = Query(..., ge=-90, le=90, description="Latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
-    report_type: str = Query(
-        default="full", description="Report type: full, summary, changes"
-    ),
-    format: str = Query(
-        default="json", description="Export format: json, csv, geojson"
-    ),
+    report_type: str = Query(default="full", description="Report type: full, summary, changes"),
+    format: str = Query(default="json", description="Export format: json, csv, geojson"),
 ) -> StreamingResponse:
     """
     Export comprehensive field report.
@@ -3404,9 +3266,7 @@ async def export_report(
         else:  # changes
             # Get historical data for comparison
             week_ago = date.today() - timedelta(days=7)
-            historical = await _perform_analysis(
-                field_id, lat, lon, analysis_date=week_ago
-            )
+            historical = await _perform_analysis(field_id, lat, lon, analysis_date=week_ago)
 
             current_ndvi = analysis_data.get("indices", {}).get("ndvi", 0)
             historical_ndvi = historical.get("indices", {}).get("ndvi", 0)
@@ -3441,9 +3301,7 @@ async def export_report(
 
         if report_type == "changes":
             # Use changes export
-            result = exporter.export_changes_report(
-                changes=[report_data], format=export_format
-            )
+            result = exporter.export_changes_report(changes=[report_data], format=export_format)
         else:
             # Use field analysis export
             result = exporter.export_field_analysis(
@@ -3453,9 +3311,7 @@ async def export_report(
         # Create streaming response
         return StreamingResponse(
             io.BytesIO(
-                result.data.encode("utf-8")
-                if isinstance(result.data, str)
-                else result.data
+                result.data.encode("utf-8") if isinstance(result.data, str) else result.data
             ),
             media_type=result.content_type,
             headers={
@@ -3529,9 +3385,7 @@ async def _perform_analysis(
         },
         "health_score": round(health_score, 1),
         "health_status": (
-            "excellent"
-            if health_score > 80
-            else "good" if health_score > 60 else "fair"
+            "excellent" if health_score > 80 else "good" if health_score > 60 else "fair"
         ),
         "anomalies": [],
         "recommendations_ar": ["مراقبة مستمرة"],
@@ -3588,14 +3442,10 @@ async def detect_changes(
 
         # Validate date range
         if end < start:
-            raise HTTPException(
-                status_code=400, detail="End date must be after start date"
-            )
+            raise HTTPException(status_code=400, detail="End date must be after start date")
 
         if (end - start).days > 365:
-            raise HTTPException(
-                status_code=400, detail="Maximum analysis period is 365 days"
-            )
+            raise HTTPException(status_code=400, detail="Maximum analysis period is 365 days")
 
         # Fetch NDVI time series from the satellite service
         # In production, this would call the timeseries endpoint
@@ -3620,14 +3470,10 @@ async def detect_changes(
         return ChangeReportResponse(**report.to_dict())
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid date format: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
     except Exception as e:
         logger.error(f"Error detecting changes: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Change detection failed: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Change detection failed: {str(e)}") from e
 
 
 @app.get("/v1/changes/{field_id}/compare", response_model=ChangeEventResponse)
@@ -3684,14 +3530,10 @@ async def compare_dates(
         return ChangeEventResponse(**event.to_dict())
 
     except ValueError as e:
-        raise HTTPException(
-            status_code=400, detail=f"Invalid date format: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
     except Exception as e:
         logger.error(f"Error comparing dates: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Date comparison failed: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Date comparison failed: {str(e)}") from e
 
 
 @app.get("/v1/changes/{field_id}/anomalies")
@@ -3699,12 +3541,8 @@ async def get_anomalies(
     field_id: str,
     lat: float = Query(..., description="Field latitude", ge=-90, le=90),
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
-    days: int = Query(
-        90, description="Number of days to analyze (default: 90)", ge=1, le=365
-    ),
-    crop_type: str | None = Query(
-        None, description="Crop type for expected pattern"
-    ),
+    days: int = Query(90, description="Number of days to analyze (default: 90)", ge=1, le=365),
+    crop_type: str | None = Query(None, description="Crop type for expected pattern"),
 ):
     """
     كشف الشذوذ | Detect Anomalies
@@ -3725,9 +3563,7 @@ async def get_anomalies(
 
         # Fetch NDVI time series
         logger.info("Fetching NDVI time series for anomaly detection")
-        ndvi_timeseries = await _fetch_ndvi_timeseries(
-            field_id, lat, lon, start_date, end_date
-        )
+        ndvi_timeseries = await _fetch_ndvi_timeseries(field_id, lat, lon, start_date, end_date)
 
         if not ndvi_timeseries:
             return {
@@ -3748,9 +3584,7 @@ async def get_anomalies(
             )
 
         # Detect anomalies
-        anomalies = await _change_detector.detect_anomalies(
-            ndvi_timeseries, expected_pattern
-        )
+        anomalies = await _change_detector.detect_anomalies(ndvi_timeseries, expected_pattern)
 
         # Format response
         return {
@@ -3772,8 +3606,7 @@ async def get_anomalies(
                         if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["severe"]
                         else (
                             "moderate"
-                            if a["z_score"]
-                            >= _change_detector.ANOMALY_THRESHOLDS["moderate"]
+                            if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["moderate"]
                             else "mild"
                         )
                     ),
@@ -3788,9 +3621,7 @@ async def get_anomalies(
 
     except Exception as e:
         logger.error(f"Error detecting anomalies: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Anomaly detection failed: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Anomaly detection failed: {str(e)}") from e
 
 
 # =============================================================================

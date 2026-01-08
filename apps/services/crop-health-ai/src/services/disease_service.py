@@ -226,9 +226,7 @@ class DiseaseService:
         """الحصول على معلومات مرض معين"""
         return self.DISEASE_DATABASE.get(disease_id)
 
-    def get_all_diseases(
-        self, crop_type: CropType | None = None
-    ) -> list[dict[str, Any]]:
+    def get_all_diseases(self, crop_type: CropType | None = None) -> list[dict[str, Any]]:
         """الحصول على قائمة جميع الأمراض"""
         diseases = []
         for key, info in self.DISEASE_DATABASE.items():

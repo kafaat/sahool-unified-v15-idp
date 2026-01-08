@@ -44,10 +44,7 @@ except ImportError:
         print("Error: redis/aioredis is required. Install with: pip install redis")
         sys.exit(1)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("cache-invalidation")
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -74,6 +71,7 @@ INVALIDATION_CHANNEL = "sahool:cache:invalidate"
 # DATA MODELS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class InvalidationEvent:
     timestamp: str
@@ -85,6 +83,7 @@ class InvalidationEvent:
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), ensure_ascii=False)
+
 
 @dataclass
 class InvalidationReport:
@@ -108,9 +107,11 @@ class InvalidationReport:
             print(f"    • {pattern}")
         print("=" * 70 + "\n")
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CACHE INVALIDATION MANAGER
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class CacheInvalidationManager:
     """Manages cache invalidation to maintain database-cache consistency."""
@@ -353,9 +354,11 @@ class CacheInvalidationManager:
                 except json.JSONDecodeError:
                     logger.warning(f"Invalid event data: {message['data']}")
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # INTEGRATION WITH DATA INTEGRITY CHECKER
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def invalidate_after_orphaned_data_cleanup(
     deleted_field_ids: list[str],
@@ -424,36 +427,41 @@ async def invalidate_after_orphaned_data_cleanup(
     finally:
         await manager.disconnect()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CLI INTERFACE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def main():
     parser = argparse.ArgumentParser(
         description="SAHOOL Cache Invalidation Manager - مدير إبطال ذاكرة التخزين المؤقت"
     )
 
-    parser.add_argument("--pattern", "-p", type=str,
-                       help="Cache key pattern to invalidate (e.g., 'field:*')")
-    parser.add_argument("--reason", "-r", type=str, default="manual",
-                       help="Reason for invalidation")
-    parser.add_argument("--entity-type", "-e", type=str,
-                       choices=["fields", "users", "sensor_data", "tasks", "weather", "sessions"],
-                       help="Entity type to invalidate")
-    parser.add_argument("--entity-ids", type=str,
-                       help="Comma-separated entity IDs to invalidate")
-    parser.add_argument("--migration", "-m", type=str,
-                       help="Migration name for post-migration invalidation")
-    parser.add_argument("--tables", "-t", type=str,
-                       help="Comma-separated table names affected by migration")
-    parser.add_argument("--flush-all", action="store_true",
-                       help="Flush all cache keys (DANGEROUS)")
-    parser.add_argument("--confirm", action="store_true",
-                       help="Confirm dangerous operations")
-    parser.add_argument("--listen", action="store_true",
-                       help="Listen for invalidation events")
-    parser.add_argument("--json", action="store_true",
-                       help="Output as JSON")
+    parser.add_argument(
+        "--pattern", "-p", type=str, help="Cache key pattern to invalidate (e.g., 'field:*')"
+    )
+    parser.add_argument(
+        "--reason", "-r", type=str, default="manual", help="Reason for invalidation"
+    )
+    parser.add_argument(
+        "--entity-type",
+        "-e",
+        type=str,
+        choices=["fields", "users", "sensor_data", "tasks", "weather", "sessions"],
+        help="Entity type to invalidate",
+    )
+    parser.add_argument("--entity-ids", type=str, help="Comma-separated entity IDs to invalidate")
+    parser.add_argument(
+        "--migration", "-m", type=str, help="Migration name for post-migration invalidation"
+    )
+    parser.add_argument(
+        "--tables", "-t", type=str, help="Comma-separated table names affected by migration"
+    )
+    parser.add_argument("--flush-all", action="store_true", help="Flush all cache keys (DANGEROUS)")
+    parser.add_argument("--confirm", action="store_true", help="Confirm dangerous operations")
+    parser.add_argument("--listen", action="store_true", help="Listen for invalidation events")
+    parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     args = parser.parse_args()
 
@@ -495,6 +503,7 @@ async def main():
 
     finally:
         await manager.disconnect()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

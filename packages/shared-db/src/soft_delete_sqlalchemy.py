@@ -465,9 +465,7 @@ def restore_many(session: Session, model: type[T], **filters) -> int:
     # Only restore deleted records
     query = query.filter(model.deleted_at.isnot(None))
 
-    count = query.update(
-        {"deleted_at": None, "deleted_by": None}, synchronize_session="fetch"
-    )
+    count = query.update({"deleted_at": None, "deleted_by": None}, synchronize_session="fetch")
 
     return count
 

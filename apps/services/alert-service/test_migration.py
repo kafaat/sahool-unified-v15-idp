@@ -9,7 +9,6 @@ Usage:
     python test_migration.py
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -119,9 +118,7 @@ def test_repository():
         ]
 
         for func_name in required_functions:
-            assert hasattr(
-                repository, func_name
-            ), f"Repository missing function: {func_name}"
+            assert hasattr(repository, func_name), f"Repository missing function: {func_name}"
 
         print("  ✅ All repository functions present")
         return True
@@ -137,11 +134,7 @@ def test_migration_file():
     """Test that migration file exists"""
     print("\nTesting migration files...")
     migration_file = (
-        Path(__file__).parent
-        / "src"
-        / "migrations"
-        / "versions"
-        / "s16_0001_alerts_initial.py"
+        Path(__file__).parent / "src" / "migrations" / "versions" / "s16_0001_alerts_initial.py"
     )
 
     if migration_file.exists():
@@ -223,9 +216,7 @@ def main():
         print("\n🎉 All tests passed! Migration is complete and verified.")
         return 0
     else:
-        print(
-            "\n⚠️  Some tests failed. Please review the errors above."
-        )
+        print("\n⚠️  Some tests failed. Please review the errors above.")
         return 1
 
 

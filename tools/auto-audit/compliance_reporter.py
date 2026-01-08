@@ -19,13 +19,10 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any
-from uuid import UUID
 
 
 class ComplianceFramework(str, Enum):
@@ -380,9 +377,7 @@ class ComplianceReporter:
 
         return entries
 
-    def _find_evidence(
-        self, entries: list[dict], action_patterns: list[str]
-    ) -> list[dict]:
+    def _find_evidence(self, entries: list[dict], action_patterns: list[str]) -> list[dict]:
         """Find audit entries matching action patterns"""
         evidence = []
 
@@ -547,39 +542,27 @@ class ComplianceReporter:
         for category in report.categories:
             all_controls.extend(category.controls)
             # Calculate category score
-            compliant = sum(
-                1 for c in category.controls if c.status == ControlStatus.COMPLIANT
-            )
-            partial = sum(
-                1 for c in category.controls if c.status == ControlStatus.PARTIAL
-            )
-            total = len(
-                [c for c in category.controls if c.status != ControlStatus.NOT_APPLICABLE]
-            )
+            compliant = sum(1 for c in category.controls if c.status == ControlStatus.COMPLIANT)
+            partial = sum(1 for c in category.controls if c.status == ControlStatus.PARTIAL)
+            total = len([c for c in category.controls if c.status != ControlStatus.NOT_APPLICABLE])
             if total > 0:
-                category.compliance_score = round(
-                    (compliant + partial * 0.5) / total * 100, 1
-                )
+                category.compliance_score = round((compliant + partial * 0.5) / total * 100, 1)
 
         report.total_controls = len(all_controls)
         report.compliant_controls = sum(
             1 for c in all_controls if c.status == ControlStatus.COMPLIANT
         )
-        report.partial_controls = sum(
-            1 for c in all_controls if c.status == ControlStatus.PARTIAL
-        )
+        report.partial_controls = sum(1 for c in all_controls if c.status == ControlStatus.PARTIAL)
         report.non_compliant_controls = sum(
             1 for c in all_controls if c.status == ControlStatus.NON_COMPLIANT
         )
 
         # Calculate overall score
-        applicable = [
-            c for c in all_controls if c.status != ControlStatus.NOT_APPLICABLE
-        ]
+        applicable = [c for c in all_controls if c.status != ControlStatus.NOT_APPLICABLE]
         if applicable:
             score = (
-                report.compliant_controls + report.partial_controls * 0.5
-            ) / len(applicable) * 100
+                (report.compliant_controls + report.partial_controls * 0.5) / len(applicable) * 100
+            )
             report.overall_score = round(score, 1)
 
         # Determine risk level

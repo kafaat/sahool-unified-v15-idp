@@ -15,9 +15,9 @@ export class HealthController {
   @Get('health')
   @ApiOperation({ summary: 'Health check endpoint' })
   @ApiResponse({ status: 200, description: 'Service is healthy' })
-  health() {
+  async health() {
     // Check MQTT connection by checking device stats
-    const deviceStats = this.iotService.getDeviceStats();
+    const deviceStats = await this.iotService.getDeviceStats();
     const totalDevices = deviceStats.online + deviceStats.offline + deviceStats.error;
 
     return {

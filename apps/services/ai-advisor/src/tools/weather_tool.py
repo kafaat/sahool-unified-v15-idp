@@ -54,9 +54,7 @@ class WeatherTool:
                 response.raise_for_status()
 
                 result = response.json()
-                logger.info(
-                    "current_weather_retrieved", latitude=latitude, longitude=longitude
-                )
+                logger.info("current_weather_retrieved", latitude=latitude, longitude=longitude)
                 return result
 
         except httpx.HTTPError as e:
@@ -194,9 +192,7 @@ class WeatherTool:
                 if date:
                     params["date"] = date
 
-                response = await client.get(
-                    f"{self.base_url}/api/v1/weather/et0", params=params
-                )
+                response = await client.get(f"{self.base_url}/api/v1/weather/et0", params=params)
                 response.raise_for_status()
 
                 result = response.json()

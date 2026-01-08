@@ -36,9 +36,7 @@ class CircuitState(Enum):
 
     CLOSED = "closed"  # يسمح بجميع الطلبات - Allows all requests
     OPEN = "open"  # يرفض جميع الطلبات - Rejects all requests
-    HALF_OPEN = (
-        "half_open"  # يسمح ببعض الطلبات للاختبار - Allows limited requests for testing
-    )
+    HALF_OPEN = "half_open"  # يسمح ببعض الطلبات للاختبار - Allows limited requests for testing
 
 
 class CircuitBreaker:
@@ -160,8 +158,7 @@ class CircuitBreaker:
             self.last_failure_time = time.time()
 
             logger.warning(
-                f"فشل مسجل - Failure recorded: "
-                f"{self.failure_count}/{self.failure_threshold}"
+                f"فشل مسجل - Failure recorded: {self.failure_count}/{self.failure_threshold}"
             )
 
             # فتح الدائرة إذا تم تجاوز العتبة - Open circuit if threshold exceeded
@@ -180,10 +177,7 @@ class CircuitBreaker:
         self.state = CircuitState.OPEN
         self.opened_at = time.time()
         self.success_count = 0
-        logger.error(
-            f"⚠️ الدائرة مفتوحة الآن - Circuit is now OPEN. "
-            f"فشل {self.failure_count} مرات"
-        )
+        logger.error(f"⚠️ الدائرة مفتوحة الآن - Circuit is now OPEN. فشل {self.failure_count} مرات")
 
     def _transition_to_half_open(self):
         """
@@ -323,9 +317,7 @@ class FallbackManager:
                 recovery_timeout=recovery_timeout,
                 success_threshold=success_threshold,
             )
-            logger.info(
-                f"✅ تم تسجيل احتياطي للخدمة - Registered fallback for: {service_name}"
-            )
+            logger.info(f"✅ تم تسجيل احتياطي للخدمة - Registered fallback for: {service_name}")
 
     def execute_with_fallback(
         self, service_name: str, primary_fn: Callable, *args, **kwargs
@@ -367,9 +359,7 @@ class FallbackManager:
 
             # محاولة استخدام الدالة الاحتياطية - Try fallback function
             if service_name in self._fallbacks:
-                logger.info(
-                    f"🔄 استخدام الدالة الاحتياطية - Using fallback for: {service_name}"
-                )
+                logger.info(f"🔄 استخدام الدالة الاحتياطية - Using fallback for: {service_name}")
                 try:
                     fallback_fn = self._fallbacks[service_name]
                     result = fallback_fn(*args, **kwargs)
@@ -382,9 +372,7 @@ class FallbackManager:
             # محاولة استخدام النتيجة المخزنة - Try cached result
             cached_result = self._get_cached_result(service_name)
             if cached_result is not None:
-                logger.info(
-                    f"💾 استخدام النتيجة المخزنة - Using cached result for: {service_name}"
-                )
+                logger.info(f"💾 استخدام النتيجة المخزنة - Using cached result for: {service_name}")
                 return cached_result
 
             # إذا فشل كل شيء - If everything fails
@@ -455,9 +443,7 @@ class FallbackManager:
         """
         if service_name in self._circuit_breakers:
             self._circuit_breakers[service_name].reset()
-            logger.info(
-                f"🔧 تم إعادة تعيين قاطع الدائرة - Circuit reset for: {service_name}"
-            )
+            logger.info(f"🔧 تم إعادة تعيين قاطع الدائرة - Circuit reset for: {service_name}")
 
     def get_all_statuses(self) -> dict[str, dict[str, Any]]:
         """
@@ -467,10 +453,7 @@ class FallbackManager:
         Returns:
             Dict: حالات جميع القواطع - All circuit breaker statuses
         """
-        return {
-            service: self.get_circuit_status(service)
-            for service in self._circuit_breakers
-        }
+        return {service: self.get_circuit_status(service) for service in self._circuit_breakers}
 
 
 # ===== الديكوريتورز - Decorators =====
@@ -723,9 +706,7 @@ global_fallback_manager.register_fallback(
     recovery_timeout=45,
 )
 
-logger.info(
-    "✅ تم تسجيل جميع الاحتياطيات الافتراضية - All default fallbacks registered"
-)
+logger.info("✅ تم تسجيل جميع الاحتياطيات الافتراضية - All default fallbacks registered")
 
 
 # ===== دوال مساعدة - Helper Functions =====

@@ -1,0 +1,1324 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Platform - Core Services API
+  description: |
+    # SAHOOL Core Services API Documentation
+    ## خدمات SAHOOL الأساسية
+
+    This API provides core functionality for the SAHOOL agricultural platform including:
+    - User Management (إدارة المستخدمين)
+    - Authentication & Authorization (المصادقة والتفويض)
+    - Notification Service (خدمة الإشعارات)
+    - Alert Service (خدمة التنبيهات)
+
+    ## Authentication
+    All endpoints require JWT authentication via the `Authorization: Bearer <token>` header unless otherwise specified.
+
+    ## Rate Limiting
+    - Standard tier: 60 requests/minute
+    - Premium tier: 120 requests/minute
+
+    ## Multi-tenancy
+    Most endpoints require the `X-Tenant-ID` header for tenant isolation.
+
+  version: 16.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+    url: https://sahool.sa
+  license:
+    name: Proprietary
+    url: https://sahool.sa/terms
+
+servers:
+  - url: https://api.sahool.sa/v1
+    description: Production server
+  - url: https://staging-api.sahool.sa/v1
+    description: Staging server
+  - url: http://localhost:3000
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: User authentication and token management - المصادقة وإدارة الرموز
+  - name: Users
+    description: User management operations - إدارة المستخدمين
+  - name: Notifications
+    description: Notification service - خدمة الإشعارات
+  - name: Alerts
+    description: Agricultural alert management - إدارة التنبيهات الزراعية
+  - name: Health
+    description: Service health and readiness checks
+
+paths:
+  # ============================================================================
+  # AUTHENTICATION ENDPOINTS
+  # ============================================================================
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: |
+        Authenticate user with email and password. Returns JWT access and refresh tokens.
+        تسجيل دخول المستخدم بالبريد الإلكتروني وكلمة المرور.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@sahool.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: SecurePassword123!
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  refresh_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  expires_in:
+                    type: integer
+                    example: 1800
+                    description: Token expiration time in seconds
+                  token_type:
+                    type: string
+                    example: Bearer
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: User logout
+      description: |
+        Logout current user and revoke the access token.
+        تسجيل خروج المستخدم وإلغاء الرمز.
+      operationId: logout
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Logged out successfully
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: |
+        Get a new access token using a valid refresh token. Implements refresh token rotation.
+        تجديد رمز الوصول باستخدام رمز التحديث.
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  expires_in:
+                    type: integer
+                  token_type:
+                    type: string
+                    example: Bearer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security: []
+
+  /auth/me:
+    post:
+      tags: [Authentication]
+      summary: Get current user
+      description: Get information about the currently authenticated user
+      operationId: getCurrentUser
+      responses:
+        '200':
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # USER MANAGEMENT ENDPOINTS
+  # ============================================================================
+  /users:
+    get:
+      tags: [Users]
+      summary: List all users
+      description: |
+        Get paginated list of users with optional filtering.
+        الحصول على قائمة المستخدمين مع إمكانية الفلترة.
+      operationId: listUsers
+      parameters:
+        - name: tenantId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [FARMER, AGRONOMIST, ADMIN, FIELD_MANAGER]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, pending]
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: take
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  count:
+                    type: integer
+                  meta:
+                    type: object
+                    properties:
+                      total:
+                        type: integer
+                      skip:
+                        type: integer
+                      take:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+        - bearerAuth: []
+
+    post:
+      tags: [Users]
+      summary: Create a new user
+      description: Create a new user account - إنشاء مستخدم جديد
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUser'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: User already exists
+      security:
+        - bearerAuth: []
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      description: Get detailed user information - تفاصيل المستخدم
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+    put:
+      tags: [Users]
+      summary: Update user
+      description: Update user properties - تحديث المستخدم
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Users]
+      summary: Delete user (soft delete)
+      description: Soft delete a user - حذف المستخدم (حذف ناعم)
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # NOTIFICATION ENDPOINTS
+  # ============================================================================
+  /v1/notifications:
+    post:
+      tags: [Notifications]
+      summary: Create notification
+      description: |
+        Create a custom notification with targeting options.
+        إنشاء إشعار مخصص مع خيارات الاستهداف.
+      operationId: createNotification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotification'
+            examples:
+              weatherAlert:
+                summary: Weather alert example
+                value:
+                  type: weather_alert
+                  priority: high
+                  title: Frost Warning
+                  title_ar: تحذير من الصقيع
+                  body: Expected frost tonight. Protect your crops.
+                  body_ar: يُتوقع صقيع الليلة. قم بحماية محاصيلك.
+                  target_governorates: [sanaa, dhamar]
+                  channels: [push, in_app]
+                  expires_in_hours: 24
+      responses:
+        '200':
+          description: Notification created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      security:
+        - bearerAuth: []
+
+  /v1/notifications/farmer/{farmer_id}:
+    get:
+      tags: [Notifications]
+      summary: Get farmer notifications
+      description: Get all notifications for a specific farmer - إشعارات مزارع معين
+      operationId: getFarmerNotifications
+      parameters:
+        - name: farmer_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/NotificationType'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  farmer_id:
+                    type: string
+                  total:
+                    type: integer
+                  unread_count:
+                    type: integer
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+      security:
+        - bearerAuth: []
+
+  /v1/notifications/{notification_id}/read:
+    patch:
+      tags: [Notifications]
+      summary: Mark notification as read
+      description: Mark a notification as read - تحديد إشعار كمقروء
+      operationId: markNotificationRead
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: farmer_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  notification_id:
+                    type: string
+                  is_read:
+                    type: boolean
+                  read_at:
+                    type: string
+                    format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /v1/alerts/weather:
+    post:
+      tags: [Notifications]
+      summary: Create weather alert
+      description: Create a weather alert for specific governorates
+      operationId: createWeatherAlert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherAlert'
+      responses:
+        '200':
+          description: Weather alert created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # ALERT SERVICE ENDPOINTS
+  # ============================================================================
+  /alerts:
+    post:
+      tags: [Alerts]
+      summary: Create alert
+      description: |
+        Create a new agricultural alert.
+        إنشاء تنبيه زراعي جديد.
+      operationId: createAlert
+      parameters:
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAlert'
+      responses:
+        '200':
+          description: Alert created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+      security:
+        - bearerAuth: []
+
+  /alerts/{alert_id}:
+    get:
+      tags: [Alerts]
+      summary: Get alert by ID
+      description: Get a specific alert - جلب تنبيه محدد
+      operationId: getAlert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Alert retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+    patch:
+      tags: [Alerts]
+      summary: Update alert status
+      description: Update alert status - تحديث حالة التنبيه
+      operationId: updateAlert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/TenantId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAlert'
+      responses:
+        '200':
+          description: Alert updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+    delete:
+      tags: [Alerts]
+      summary: Delete alert
+      description: Delete an alert - حذف تنبيه
+      operationId: deleteAlert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Alert deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: deleted
+                  alert_id:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /alerts/field/{field_id}:
+    get:
+      tags: [Alerts]
+      summary: Get field alerts
+      description: Get all alerts for a specific field - تنبيهات حقل معين
+      operationId: getFieldAlerts
+      parameters:
+        - name: field_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AlertStatus'
+        - name: severity
+          in: query
+          schema:
+            $ref: '#/components/schemas/AlertSeverity'
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/AlertType'
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Alerts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAlerts'
+      security:
+        - bearerAuth: []
+
+  /alerts/{alert_id}/acknowledge:
+    post:
+      tags: [Alerts]
+      summary: Acknowledge alert
+      description: Acknowledge an alert - الإقرار بتنبيه
+      operationId: acknowledgeAlert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Alert acknowledged
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /alerts/{alert_id}/resolve:
+    post:
+      tags: [Alerts]
+      summary: Resolve alert
+      description: Mark alert as resolved - حل تنبيه
+      operationId: resolveAlert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: user_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: note
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Alert resolved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '404':
+          $ref: '#/components/responses/NotFound'
+      security:
+        - bearerAuth: []
+
+  /alerts/stats:
+    get:
+      tags: [Alerts]
+      summary: Get alert statistics
+      description: Get alert statistics - إحصائيات التنبيهات
+      operationId: getAlertStats
+      parameters:
+        - name: field_id
+          in: query
+          schema:
+            type: string
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [7d, 30d, 90d]
+            default: 30d
+        - $ref: '#/components/parameters/TenantId'
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertStats'
+      security:
+        - bearerAuth: []
+
+  # ============================================================================
+  # HEALTH ENDPOINTS
+  # ============================================================================
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      description: Service health check
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  service:
+                    type: string
+                  version:
+                    type: string
+                  timestamp:
+                    type: string
+                    format: date-time
+      security: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /auth/login endpoint
+
+  parameters:
+    TenantId:
+      name: X-Tenant-Id
+      in: header
+      required: true
+      description: Tenant identifier for multi-tenancy
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    # User Schemas
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+          enum: [FARMER, AGRONOMIST, ADMIN, FIELD_MANAGER]
+        tenantId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [active, inactive, pending]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+        tenantId:
+          type: string
+
+    CreateUser:
+      type: object
+      required: [email, firstName, lastName, password]
+      properties:
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 8
+        role:
+          type: string
+          enum: [FARMER, AGRONOMIST, ADMIN, FIELD_MANAGER]
+        tenantId:
+          type: string
+          format: uuid
+
+    UpdateUser:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        role:
+          type: string
+        status:
+          type: string
+
+    # Notification Schemas
+    NotificationType:
+      type: string
+      enum:
+        - weather_alert
+        - pest_outbreak
+        - irrigation_reminder
+        - crop_health
+        - market_price
+        - system
+        - task_reminder
+
+    NotificationPriority:
+      type: string
+      enum: [low, medium, high, critical]
+
+    NotificationChannel:
+      type: string
+      enum: [push, sms, email, whatsapp, in_app]
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/NotificationType'
+        type_ar:
+          type: string
+        priority:
+          $ref: '#/components/schemas/NotificationPriority'
+        priority_ar:
+          type: string
+        title:
+          type: string
+        title_ar:
+          type: string
+        body:
+          type: string
+        body_ar:
+          type: string
+        data:
+          type: object
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        action_url:
+          type: string
+
+    CreateNotification:
+      type: object
+      required: [type, title, title_ar, body, body_ar]
+      properties:
+        type:
+          $ref: '#/components/schemas/NotificationType'
+        priority:
+          $ref: '#/components/schemas/NotificationPriority'
+        title:
+          type: string
+        title_ar:
+          type: string
+        body:
+          type: string
+        body_ar:
+          type: string
+        data:
+          type: object
+        target_farmers:
+          type: array
+          items:
+            type: string
+        target_governorates:
+          type: array
+          items:
+            type: string
+        target_crops:
+          type: array
+          items:
+            type: string
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationChannel'
+        expires_in_hours:
+          type: integer
+
+    NotificationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        title_ar:
+          type: string
+        body:
+          type: string
+        body_ar:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    WeatherAlert:
+      type: object
+      required: [governorates, alert_type, severity, expected_date]
+      properties:
+        governorates:
+          type: array
+          items:
+            type: string
+        alert_type:
+          type: string
+          enum: [frost, heat_wave, storm, flood, drought]
+        severity:
+          $ref: '#/components/schemas/NotificationPriority'
+        expected_date:
+          type: string
+          format: date
+        details:
+          type: object
+
+    # Alert Schemas
+    AlertType:
+      type: string
+      enum:
+        - ndvi_anomaly
+        - weather
+        - pest
+        - disease
+        - soil_moisture
+        - irrigation
+        - general
+
+    AlertSeverity:
+      type: string
+      enum: [low, medium, high, critical]
+
+    AlertStatus:
+      type: string
+      enum: [active, acknowledged, resolved, dismissed, expired]
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        field_id:
+          type: string
+        tenant_id:
+          type: string
+        type:
+          $ref: '#/components/schemas/AlertType'
+        severity:
+          $ref: '#/components/schemas/AlertSeverity'
+        status:
+          $ref: '#/components/schemas/AlertStatus'
+        title:
+          type: string
+        title_en:
+          type: string
+        message:
+          type: string
+        message_en:
+          type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        recommendations_en:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+        source_service:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        acknowledged_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+
+    CreateAlert:
+      type: object
+      required: [field_id, tenant_id, type, severity, title, title_en, message, message_en]
+      properties:
+        field_id:
+          type: string
+        tenant_id:
+          type: string
+        type:
+          $ref: '#/components/schemas/AlertType'
+        severity:
+          $ref: '#/components/schemas/AlertSeverity'
+        title:
+          type: string
+        title_en:
+          type: string
+        message:
+          type: string
+        message_en:
+          type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        recommendations_en:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+        expires_at:
+          type: string
+          format: date-time
+
+    UpdateAlert:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/AlertStatus'
+        acknowledged_by:
+          type: string
+        resolved_by:
+          type: string
+        dismissed_by:
+          type: string
+        resolution_note:
+          type: string
+
+    PaginatedAlerts:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+        total:
+          type: integer
+        skip:
+          type: integer
+        limit:
+          type: integer
+        has_more:
+          type: boolean
+
+    AlertStats:
+      type: object
+      properties:
+        total_alerts:
+          type: integer
+        active_alerts:
+          type: integer
+        by_type:
+          type: object
+        by_severity:
+          type: object
+        by_status:
+          type: object
+        acknowledged_rate:
+          type: number
+        resolved_rate:
+          type: number
+        average_resolution_hours:
+          type: number
+
+    # Error Schema
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+        message:
+          type: string
+        statusCode:
+          type: integer
+        details:
+          type: object
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Validation failed
+            statusCode: 400
+
+    Unauthorized:
+      description: Unauthorized - Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Unauthorized
+            statusCode: 401
+
+    Forbidden:
+      description: Forbidden - Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Forbidden
+            statusCode: 403
+
+    NotFound:
+      description: Not Found - Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Resource not found
+            statusCode: 404
+
+    TooManyRequests:
+      description: Too Many Requests - Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: Request limit per minute
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+          description: Remaining requests
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: Unix timestamp when limit resets
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retry
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            success: false
+            error: Rate limit exceeded
+            statusCode: 429
+
+security:
+  - bearerAuth: []

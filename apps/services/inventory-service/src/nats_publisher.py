@@ -90,9 +90,7 @@ class NATSPublisher:
         logger.info("NATS reconnected")
         self._connected = True
 
-    async def publish_alert(
-        self, alert: dict[str, Any], recipients: list[str] = None
-    ) -> bool:
+    async def publish_alert(self, alert: dict[str, Any], recipients: list[str] = None) -> bool:
         """
         Publish an alert notification to NATS
 
@@ -117,9 +115,7 @@ class NATSPublisher:
                 "alert": alert,
                 "recipients": recipients or ["farm_manager", "owner"],
                 "notification_priority": alert["priority"],
-                "notification_channels": self._get_channels_for_priority(
-                    alert["priority"]
-                ),
+                "notification_channels": self._get_channels_for_priority(alert["priority"]),
                 "action_template": {
                     "title_en": alert["title_en"],
                     "title_ar": alert["title_ar"],

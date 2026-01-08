@@ -42,9 +42,7 @@ class EventProcessor:
         self.rules_engine = rules_engine or RulesEngine()
         self.http_client = httpx.AsyncClient(timeout=10.0)
 
-    async def process_event(
-        self, event: EventCreate, available_rules: list[Rule]
-    ) -> EventResponse:
+    async def process_event(self, event: EventCreate, available_rules: list[Rule]) -> EventResponse:
         """
         معالجة حدث جديد
         Process new event
@@ -80,9 +78,7 @@ class EventProcessor:
                 correlation_id=event.correlation_id,
             )
 
-            logger.info(
-                f"⚡ معالجة حدث جديد: {event.event_type.value} للحقل {event.field_id}"
-            )
+            logger.info(f"⚡ معالجة حدث جديد: {event.event_type.value} للحقل {event.field_id}")
 
             # تقييم القواعد
             execution_results = await self.rules_engine.evaluate_rules(
@@ -100,13 +96,10 @@ class EventProcessor:
 
                     # استخراج المهام والإشعارات من نتائج التنفيذ
                     for detail in result.execution_details:
-                        if detail.get("action_type") == "create_task" and detail.get(
-                            "success"
-                        ):
+                        if detail.get("action_type") == "create_task" and detail.get("success"):
                             created_tasks.append(detail.get("task_id", "unknown"))
-                        elif (
-                            detail.get("action_type") == "send_notification"
-                            and detail.get("success")
+                        elif detail.get("action_type") == "send_notification" and detail.get(
+                            "success"
                         ):
                             notifications_sent += detail.get("recipients_count", 1)
 
@@ -260,7 +253,11 @@ class EventProcessor:
         # تحديد نوع الحدث والخطورة
         if current < moisture_data.optimal_min:
             event_type = EventType.SOIL_MOISTURE_LOW
-            severity = EventSeverity.HIGH if current < moisture_data.optimal_min * 0.7 else EventSeverity.MEDIUM
+            severity = (
+                EventSeverity.HIGH
+                if current < moisture_data.optimal_min * 0.7
+                else EventSeverity.MEDIUM
+            )
             title = "Low Soil Moisture Detected"
             title_ar = "انخفاض في رطوبة التربة"
         elif current > moisture_data.optimal_max:
@@ -350,9 +347,7 @@ class EventProcessor:
 
         return await self.process_event(event, available_rules=[])
 
-    async def fetch_astronomical_calendar(
-        self, date: str, governorate: str | None = None
-    ) -> dict:
+    async def fetch_astronomical_calendar(self, date: str, governorate: str | None = None) -> dict:
         """
         جلب التقويم الفلكي من خدمة التقويم الفلكي
         Fetch astronomical calendar from astronomical-calendar service
@@ -379,9 +374,7 @@ class EventProcessor:
             return response.json()
 
         except Exception as e:
-            logger.error(
-                f"خطأ في جلب التقويم الفلكي: {str(e)}"
-            )
+            logger.error(f"خطأ في جلب التقويم الفلكي: {str(e)}")
             return {}
 
     async def close(self):

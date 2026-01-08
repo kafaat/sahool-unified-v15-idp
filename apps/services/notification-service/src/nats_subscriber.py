@@ -202,8 +202,7 @@ class NATSSubscriber:
             if self._notification_callback:
                 self._notification_callback(notification_data)
                 logger.info(
-                    f"Notification created from event: {event.event_type} "
-                    f"field={event.field_id}"
+                    f"Notification created from event: {event.event_type} field={event.field_id}"
                 )
         except Exception as e:
             logger.error(f"Error creating notification from event: {e}")
@@ -239,15 +238,13 @@ class NATSSubscriber:
 
         # Extract titles from action_template if available
         if event.action_template:
-            title_ar = event.action_template.get(
-                "title_ar", f"توصية جديدة: {event.event_type}"
-            )
+            title_ar = event.action_template.get("title_ar", f"توصية جديدة: {event.event_type}")
             title_en = event.action_template.get(
                 "title_en", f"New Recommendation: {event.event_type}"
             )
-            body_ar = event.action_template.get(
-                "summary_ar"
-            ) or event.action_template.get("description_ar", "")
+            body_ar = event.action_template.get("summary_ar") or event.action_template.get(
+                "description_ar", ""
+            )
             body_en = event.action_template.get("description_en", "")
             urgency = event.action_template.get("urgency", priority)
         else:
@@ -289,9 +286,7 @@ async def get_subscriber(
     global _subscriber_instance
 
     if _subscriber_instance is None:
-        _subscriber_instance = NATSSubscriber(
-            notification_callback=notification_callback
-        )
+        _subscriber_instance = NATSSubscriber(notification_callback=notification_callback)
         await _subscriber_instance.connect()
         await _subscriber_instance.subscribe()
 

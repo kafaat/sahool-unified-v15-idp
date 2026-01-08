@@ -1,0 +1,51 @@
+# OSSF Scorecard - Security Health Assessment
+# تقييم صحة الأمان للمشروع
+#
+# Scorecard is a tool from the Open Source Security Foundation (OpenSSF)
+# that performs automated security health checks on open source projects.
+
+name: OSSF Scorecard
+
+on:
+  # Run on pushes to main branch
+  push:
+    branches: [main]
+  # Run weekly for continuous monitoring
+  schedule:
+    - cron: '0 2 * * 1'  # Every Monday at 2 AM UTC
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to upload the results to code-scanning dashboard
+      security-events: write
+      # Needed to publish results and get a badge
+      id-token: write
+      # Required for private repos
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run Scorecard analysis
+        uses: ossf/scorecard-action@v2.4.0
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          # Publish results to OpenSSF REST API for badge generation
+          publish_results: true
+
+      - name: Upload to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif

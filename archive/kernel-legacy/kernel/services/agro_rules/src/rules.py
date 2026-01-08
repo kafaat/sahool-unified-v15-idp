@@ -288,8 +288,8 @@ def rule_from_irrigation_adjustment(
         return TaskRule(
             title_ar="زيادة ري - ظروف جفاف",
             title_en="Increase Irrigation - Dry Conditions",
-            description_ar=f"زيادة الري بنسبة {int((adjustment_factor-1)*100)}% بسبب الظروف الجوية.",
-            description_en=f"Increase irrigation by {int((adjustment_factor-1)*100)}% due to weather conditions.",
+            description_ar=f"زيادة الري بنسبة {int((adjustment_factor - 1) * 100)}% بسبب الظروف الجوية.",
+            description_en=f"Increase irrigation by {int((adjustment_factor - 1) * 100)}% due to weather conditions.",
             task_type="irrigation",
             priority="high",
             urgency_hours=6,
@@ -299,8 +299,8 @@ def rule_from_irrigation_adjustment(
         return TaskRule(
             title_ar="تقليل ري - رطوبة كافية",
             title_en="Reduce Irrigation - Sufficient Moisture",
-            description_ar=f"تقليل الري بنسبة {int((1-adjustment_factor)*100)}% بسبب الأمطار أو الرطوبة.",
-            description_en=f"Reduce irrigation by {int((1-adjustment_factor)*100)}% due to rain or humidity.",
+            description_ar=f"تقليل الري بنسبة {int((1 - adjustment_factor) * 100)}% بسبب الأمطار أو الرطوبة.",
+            description_en=f"Reduce irrigation by {int((1 - adjustment_factor) * 100)}% due to rain or humidity.",
             task_type="irrigation",
             priority="medium",
             urgency_hours=12,

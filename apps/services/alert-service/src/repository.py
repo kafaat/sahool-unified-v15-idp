@@ -307,9 +307,7 @@ def get_alert_statistics(
             hours = delta.total_seconds() / 3600
             resolution_times.append(hours)
 
-    avg_resolution = (
-        sum(resolution_times) / len(resolution_times) if resolution_times else None
-    )
+    avg_resolution = sum(resolution_times) / len(resolution_times) if resolution_times else None
 
     return {
         "total_alerts": total,
@@ -319,9 +317,7 @@ def get_alert_statistics(
         "by_status": by_status,
         "acknowledged_count": by_status.get("acknowledged", 0),
         "resolved_count": by_status.get("resolved", 0),
-        "average_resolution_hours": (
-            round(avg_resolution, 2) if avg_resolution else None
-        ),
+        "average_resolution_hours": (round(avg_resolution, 2) if avg_resolution else None),
     }
 
 

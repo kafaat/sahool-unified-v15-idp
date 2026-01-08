@@ -17,17 +17,23 @@ from .db_models import Base
 
 # Get database URL from environment
 # Security: No fallback credentials - require DATABASE_URL to be set
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://localhost:5432/sahool_alerts"
-)
+# TLS/SSL: DATABASE_URL must include sslmode=require for production
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://localhost:5432/sahool_alerts")
 
-# Create SQLAlchemy engine
+# Create SQLAlchemy engine with connection pooling and TLS support
+# SSL/TLS is enforced via DATABASE_URL parameter: ?sslmode=require
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,  # Verify connections before using them
     pool_size=10,  # Maximum number of connections in the pool
     max_overflow=20,  # Maximum overflow connections
+    pool_timeout=30,  # Connection timeout (seconds)
+    pool_recycle=3600,  # Recycle connections after 1 hour
     echo=False,  # Set to True for SQL query logging (debug only)
+    connect_args={
+        "connect_timeout": 10,  # Connection timeout in seconds
+        "options": "-c statement_timeout=30000",  # 30s query timeout
+    },
 )
 
 # Create session factory

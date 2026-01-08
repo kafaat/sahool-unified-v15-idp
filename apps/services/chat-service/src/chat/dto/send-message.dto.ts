@@ -5,6 +5,7 @@
 
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, IsUrl, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { SanitizePlainText, IsMoneyValue } from '../../utils/validation';
 
 export enum MessageType {
   TEXT = 'TEXT',
@@ -37,6 +38,7 @@ export class SendMessageDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(10000)
+  @SanitizePlainText()
   content: string;
 
   @ApiPropertyOptional({
@@ -57,12 +59,11 @@ export class SendMessageDto {
   attachmentUrl?: string;
 
   @ApiPropertyOptional({
-    description: 'Offer amount for OFFER type messages',
+    description: 'Offer amount for OFFER type messages (YER, max 2 decimal places)',
     example: 5000.0,
   })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
+  @IsMoneyValue()
   offerAmount?: number;
 
   @ApiPropertyOptional({

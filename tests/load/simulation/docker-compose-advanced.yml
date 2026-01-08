@@ -34,23 +34,23 @@ x-app-common: &app-common
 x-app-env: &app-env
   NODE_ENV: production
   LOG_LEVEL: info
-  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-advanced_pass_123}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_advanced}
+  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_advanced}
   DB_HOST: sahool-pgbouncer
   DB_PORT: "6432"
   DB_USER: ${POSTGRES_USER:-sahool_admin}
-  DB_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
   DB_NAME: ${POSTGRES_DB:-sahool_advanced}
-  REDIS_URL: redis://:${REDIS_PASSWORD:-advanced_redis_123}@sahool-redis:6379
+  REDIS_URL: redis://:${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}@sahool-redis:6379
   REDIS_HOST: sahool-redis
   REDIS_PORT: "6379"
-  REDIS_PASSWORD: ${REDIS_PASSWORD:-advanced_redis_123}
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}
   SESSION_STORE_TYPE: redis
-  SESSION_SECRET: advanced_session_secret_key_456
+  SESSION_SECRET: CHANGE_THIS_SESSION_SECRET
   DB_POOL_MIN: "10"
   DB_POOL_MAX: "50"
   SERVER_MAX_THREADS: "400"
   SERVER_MAX_CONNECTIONS: "20000"
-  JWT_SECRET: advanced_jwt_secret_key_789
+  JWT_SECRET: CHANGE_THIS_JWT_SECRET_MIN_32_CHARS
   JWT_EXPIRY: "7200"
   DEFAULT_TENANT_ID: tenant_advanced
 
@@ -88,7 +88,7 @@ services:
     container_name: sahool_db_advanced
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sahool_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-sahool_advanced}
     command: >
       postgres
@@ -130,7 +130,7 @@ services:
       DB_HOST: sahool-db
       DB_PORT: "5432"
       DB_USER: ${POSTGRES_USER:-sahool_admin}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_THIS_POSTGRES_PASSWORD}
       DB_NAME: ${POSTGRES_DB:-sahool_advanced}
       POOL_MODE: transaction
       MAX_DB_CONNECTIONS: 300
@@ -157,7 +157,7 @@ services:
     command: >
       redis-server
       --appendonly yes
-      --requirepass ${REDIS_PASSWORD:-advanced_redis_123}
+      --requirepass ${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}
       --maxmemory 1gb
       --maxmemory-policy allkeys-lru
       --tcp-keepalive 60
@@ -170,7 +170,7 @@ services:
       sahool-advanced-network:
         ipv4_address: 172.31.0.12
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-advanced_redis_123}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-CHANGE_THIS_REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -317,15 +317,37 @@ services:
     image: influxdb:2.7-alpine
     container_name: sahool_influxdb_advanced
     environment:
+      # Setup mode
       DOCKER_INFLUXDB_INIT_MODE: setup
-      DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: advancedpassword123
-      DOCKER_INFLUXDB_INIT_ORG: sahool
-      DOCKER_INFLUXDB_INIT_BUCKET: k6
-      DOCKER_INFLUXDB_INIT_RETENTION: 14d
-      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: sahool-advanced-k6-token
+      # Admin credentials - MUST use secrets from .env file
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_ADMIN_USERNAME:-admin}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+      # Organization and bucket
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-sahool}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      DOCKER_INFLUXDB_INIT_RETENTION: ${INFLUXDB_RETENTION:-14d}
+      # TLS Configuration (uncomment when certificates are generated)
+      # INFLUXD_TLS_CERT: ${INFLUXDB_TLS_CERT_PATH:-/etc/ssl/influxdb-cert.pem}
+      # INFLUXD_TLS_KEY: ${INFLUXDB_TLS_KEY_PATH:-/etc/ssl/influxdb-key.pem}
+      # Performance and security settings
+      INFLUXD_STORAGE_CACHE_MAX_MEMORY_SIZE: "1073741824"  # 1GB cache
+      INFLUXD_STORAGE_CACHE_SNAPSHOT_MEMORY_SIZE: "26214400"  # 25MB
+      INFLUXD_HTTP_READ_TIMEOUT: "30s"
+      INFLUXD_HTTP_WRITE_TIMEOUT: "30s"
+      INFLUXD_HTTP_IDLE_TIMEOUT: "120s"
+      INFLUXD_QUERY_CONCURRENCY: "100"
+      INFLUXD_LOG_LEVEL: "info"
+      # Enable metrics endpoint for Prometheus
+      INFLUXD_METRICS_DISABLED: "false"
     volumes:
       - adv_influxdb_data:/var/lib/influxdb2
+      # Mount TLS certificates (uncomment when certificates are generated)
+      # - ../ssl/influxdb-advanced-cert.pem:/etc/ssl/influxdb-cert.pem:ro
+      # - ../ssl/influxdb-advanced-key.pem:/etc/ssl/influxdb-key.pem:ro
+    env_file:
+      # Load secrets from environment file (NOT committed to git)
+      - .env.influxdb-advanced.secret
     ports:
       - "127.0.0.1:8088:8086"
     networks:
@@ -336,7 +358,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
 
   sahool-grafana:
     image: grafana/grafana:10.2.0
@@ -370,9 +401,9 @@ services:
     container_name: sahool_k6_standard
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       AGENT_COUNT: "20"
       TEST_TYPE: "standard"
@@ -396,9 +427,9 @@ services:
     container_name: sahool_k6_stress
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       AGENT_COUNT: "50"
       TEST_TYPE: "stress"
@@ -422,9 +453,9 @@ services:
     container_name: sahool_k6_spike
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       AGENT_COUNT: "30"
       TEST_TYPE: "spike"
@@ -448,9 +479,9 @@ services:
     container_name: sahool_k6_chaos
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       AGENT_COUNT: "30"
       CHAOS_LEVEL: "medium"
@@ -477,9 +508,9 @@ services:
     container_name: sahool_k6_mobile
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       MOBILE_VUS: "${MOBILE_VUS:-20}"
       TEST_DURATION: "${TEST_DURATION:-5m}"
@@ -506,9 +537,9 @@ services:
     container_name: sahool_k6_web
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       WEB_VUS: "${WEB_VUS:-15}"
       TEST_DURATION: "${TEST_DURATION:-5m}"
@@ -536,9 +567,9 @@ services:
     container_name: sahool_k6_multiclient
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       TOTAL_VUS: "${TOTAL_VUS:-20}"
       TEST_DURATION: "${TEST_DURATION:-5m}"
@@ -566,9 +597,9 @@ services:
     container_name: sahool_k6_production
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       TOTAL_VUS: "${TOTAL_VUS:-50}"
       TEST_DURATION: "${TEST_DURATION:-10m}"
@@ -596,9 +627,9 @@ services:
     container_name: sahool_k6_mqtt
     environment:
       K6_OUT: influxdb=http://sahool-influxdb:8086/k6
-      K6_INFLUXDB_ORGANIZATION: sahool
-      K6_INFLUXDB_BUCKET: k6
-      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      K6_INFLUXDB_ORGANIZATION: ${INFLUXDB_ORG:-sahool}
+      K6_INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-k6}
+      K6_INFLUXDB_TOKEN: ${INFLUXDB_K6_WRITE_TOKEN}
       BASE_URL: http://sahool-nginx:80
       IOT_GATEWAY_URL: http://sahool-nginx:80/api/iot
       TOTAL_DEVICES: "${TOTAL_DEVICES:-50}"

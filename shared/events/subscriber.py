@@ -83,15 +83,9 @@ class SubscriberConfig(BaseModel):
         default_factory=lambda: os.getenv("SERVICE_NAME", "sahool-subscriber"),
         description="Subscriber client name",
     )
-    reconnect_time_wait: int = Field(
-        default=2, description="Seconds between reconnect attempts"
-    )
-    max_reconnect_attempts: int = Field(
-        default=60, description="Maximum reconnect attempts"
-    )
-    connect_timeout: int = Field(
-        default=10, description="Connection timeout in seconds"
-    )
+    reconnect_time_wait: int = Field(default=2, description="Seconds between reconnect attempts")
+    max_reconnect_attempts: int = Field(default=60, description="Maximum reconnect attempts")
+    connect_timeout: int = Field(default=10, description="Connection timeout in seconds")
 
     # JetStream
     enable_jetstream: bool = Field(default=True, description="Use JetStream consumers")
@@ -99,20 +93,14 @@ class SubscriberConfig(BaseModel):
 
     # Error handling (DEPRECATED - use dlq_config instead)
     enable_error_retry: bool = Field(default=True, description="Retry failed messages")
-    max_error_retries: int = Field(
-        default=3, description="Maximum error retries per message"
-    )
-    error_retry_delay: float = Field(
-        default=1.0, description="Delay between error retries"
-    )
+    max_error_retries: int = Field(default=3, description="Maximum error retries per message")
+    error_retry_delay: float = Field(default=1.0, description="Delay between error retries")
 
     # Performance
     max_concurrent_messages: int = Field(
         default=10, description="Max concurrent message processing"
     )
-    pending_messages_limit: int = Field(
-        default=1000, description="Pending messages limit"
-    )
+    pending_messages_limit: int = Field(default=1000, description="Pending messages limit")
 
     # Dead Letter Queue
     enable_dlq: bool = Field(
@@ -131,18 +119,10 @@ class Subscription(BaseModel):
 
     subject: str = Field(..., description="NATS subject")
     handler: Any = Field(..., description="Message handler function")
-    event_class: type[BaseEvent] | None = Field(
-        None, description="Expected event class"
-    )
-    queue_group: str | None = Field(
-        None, description="Queue group for load balancing"
-    )
-    durable_name: str | None = Field(
-        None, description="Durable consumer name (JetStream)"
-    )
-    auto_ack: bool = Field(
-        default=True, description="Automatically acknowledge messages"
-    )
+    event_class: type[BaseEvent] | None = Field(None, description="Expected event class")
+    queue_group: str | None = Field(None, description="Queue group for load balancing")
+    durable_name: str | None = Field(None, description="Durable consumer name (JetStream)")
+    auto_ack: bool = Field(default=True, description="Automatically acknowledge messages")
 
     class Config:
         arbitrary_types_allowed = True
@@ -198,9 +178,7 @@ class EventSubscriber:
         self._error_count = 0
         self._dlq_count = 0
         self._retry_count = 0
-        self._processing_semaphore = asyncio.Semaphore(
-            self.config.max_concurrent_messages
-        )
+        self._processing_semaphore = asyncio.Semaphore(self.config.max_concurrent_messages)
 
         # DLQ configuration
         self._dlq_config = self.config.dlq_config or DLQConfig()
@@ -235,9 +213,7 @@ class EventSubscriber:
             True if connected successfully, False otherwise
         """
         if not _nats_available:
-            logger.error(
-                "NATS library not available. Install with: pip install nats-py"
-            )
+            logger.error("NATS library not available. Install with: pip install nats-py")
             return False
 
         if self.is_connected:
@@ -365,10 +341,7 @@ class EventSubscriber:
             self._subscriptions.append(sub)
             self._handlers[subject] = subscription
 
-            logger.info(
-                f"✅ Subscribed to {subject} "
-                f"(queue={queue_group}, durable={durable_name})"
-            )
+            logger.info(f"✅ Subscribed to {subject} (queue={queue_group}, durable={durable_name})")
             return True
 
         except Exception as e:
@@ -442,9 +415,7 @@ class EventSubscriber:
         return await self._nc.subscribe(
             subscription.subject,
             queue=subscription.queue_group,
-            cb=lambda msg: asyncio.create_task(
-                self._message_handler(msg, subscription)
-            ),
+            cb=lambda msg: asyncio.create_task(self._message_handler(msg, subscription)),
         )
 
     async def _subscribe_jetstream(self, subscription: Subscription):
@@ -452,9 +423,7 @@ class EventSubscriber:
         return await self._js.subscribe(
             subscription.subject,
             durable=subscription.durable_name,
-            cb=lambda msg: asyncio.create_task(
-                self._message_handler(msg, subscription)
-            ),
+            cb=lambda msg: asyncio.create_task(self._message_handler(msg, subscription)),
         )
 
     # ─────────────────────────────────────────────────────────────────────────

@@ -134,9 +134,7 @@ class TestIndicatorHistory:
     """Test indicator history"""
 
     def test_get_indicator_history(self, client):
-        response = client.get(
-            "/api/v1/fields/field_001/indicators/history?indicator=ndvi"
-        )
+        response = client.get("/api/v1/fields/field_001/indicators/history?indicator=ndvi")
         assert response.status_code == 200
         data = response.json()
         assert data["indicator"] == "ndvi"
@@ -144,9 +142,7 @@ class TestIndicatorHistory:
         assert len(data["data"]) > 0
 
     def test_history_has_statistics(self, client):
-        response = client.get(
-            "/api/v1/fields/field_001/indicators/history?indicator=ndvi"
-        )
+        response = client.get("/api/v1/fields/field_001/indicators/history?indicator=ndvi")
         assert response.status_code == 200
         stats = response.json()["statistics"]
         assert "min" in stats

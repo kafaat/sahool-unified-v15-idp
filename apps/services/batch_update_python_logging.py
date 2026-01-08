@@ -19,6 +19,7 @@ setup_logging(service_name="{service_name}")
 logger = get_logger(__name__)
 """
 
+
 def update_python_service(service_path: Path, service_name: str) -> bool:
     """Update a Python service with structured logging"""
     main_file = service_path / "src" / "main.py"
@@ -26,40 +27,43 @@ def update_python_service(service_path: Path, service_name: str) -> bool:
         main_file = service_path / "main.py"
 
     if not main_file.exists():
-        print(f"  ⚠️  No main.py found")
+        print("  ⚠️  No main.py found")
         return False
 
     content = main_file.read_text()
 
     # Skip if already configured
-    if "from shared.logging_config import" in content or "from ..shared.logging_config import" in content:
-        print(f"  ✓  Already configured")
+    if (
+        "from shared.logging_config import" in content
+        or "from ..shared.logging_config import" in content
+    ):
+        print("  ✓  Already configured")
         return True
 
     if "setup_logging" in content:
-        print(f"  ✓  Already has logging setup")
+        print("  ✓  Already has logging setup")
         return True
 
     # Check if service is deprecated or demo
     if "DEPRECATED" in content[:500] or service_name == "demo-data":
-        print(f"  ⏭️  Skipped (deprecated/demo)")
+        print("  ⏭️  Skipped (deprecated/demo)")
         return False
 
     # Find the imports section
     # Look for FastAPI import
-    fastapi_match = re.search(r'(from fastapi import .+)', content)
+    fastapi_match = re.search(r"(from fastapi import .+)", content)
     if not fastapi_match:
-        print(f"  ⚠️  No FastAPI import found")
+        print("  ⚠️  No FastAPI import found")
         return False
 
     # Check if sys is already imported
-    has_sys_import = re.search(r'^\s*import sys', content, re.MULTILINE)
-    has_os_import = re.search(r'^\s*import os', content, re.MULTILINE)
+    has_sys_import = re.search(r"^\s*import sys", content, re.MULTILINE)
+    has_os_import = re.search(r"^\s*import os", content, re.MULTILINE)
 
     # Prepare logging setup code
     logging_code = f"""# Import shared logging configuration
-{'# sys already imported above' if has_sys_import else 'import sys'}
-{'# os already imported above' if has_os_import else 'import os'}
+{"# sys already imported above" if has_sys_import else "import sys"}
+{"# os already imported above" if has_os_import else "import os"}
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from shared.logging_config import setup_logging, get_logger, RequestLoggingMiddleware
 
@@ -70,11 +74,11 @@ logger = get_logger(__name__)
 
     # Find a good insertion point (after all imports)
     # Look for the last import statement before any class/function definitions
-    import_pattern = r'((?:^(?:from|import)\s+.+$\s*)+)'
+    import_pattern = r"((?:^(?:from|import)\s+.+$\s*)+)"
     matches = list(re.finditer(import_pattern, content, re.MULTILINE))
 
     if not matches:
-        print(f"  ⚠️  Could not find import section")
+        print("  ⚠️  Could not find import section")
         return False
 
     last_import = matches[-1]
@@ -88,22 +92,26 @@ logger = get_logger(__name__)
     new_content = re.sub(
         r'print\("(.+?)"\)',
         lambda m: f'logger.info("{m.group(1).lower().replace(" ", "_").replace("!", "").replace("...", "").strip()}")',
-        new_content
+        new_content,
     )
 
     # Add middleware to FastAPI app
     # Find app = FastAPI(... ) block
-    app_pattern = r'(app = FastAPI\([^)]+\))'
+    app_pattern = r"(app = FastAPI\([^)]+\))"
     app_match = re.search(app_pattern, new_content, re.DOTALL)
 
     if app_match:
         app_end = app_match.end()
-        middleware_code = '\n\n# Add request logging middleware\napp.add_middleware(RequestLoggingMiddleware, service_name="' + service_name + '")\n'
+        middleware_code = (
+            '\n\n# Add request logging middleware\napp.add_middleware(RequestLoggingMiddleware, service_name="'
+            + service_name
+            + '")\n'
+        )
         new_content = new_content[:app_end] + middleware_code + new_content[app_end:]
 
     # Write updated content
     main_file.write_text(new_content)
-    print(f"  ✅ Updated successfully")
+    print("  ✅ Updated successfully")
     return True
 
 
@@ -146,6 +154,7 @@ SERVICES_TO_UPDATE = [
     ("mcp-server", "mcp-server"),
 ]
 
+
 def main():
     print("=" * 70)
     print("Batch Updating Python Services with Structured JSON Logging")
@@ -160,7 +169,7 @@ def main():
         service_path = SERVICES_DIR / service_dir
 
         if not service_path.exists():
-            print(f"  ⚠️  Directory not found")
+            print("  ⚠️  Directory not found")
             errors += 1
             continue
 
@@ -181,6 +190,7 @@ def main():
     print(f"❌ Errors: {errors}")
     print(f"📊 Total: {updated + skipped + errors}")
     print("=" * 70)
+
 
 if __name__ == "__main__":
     main()

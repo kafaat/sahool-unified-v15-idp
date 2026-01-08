@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class TemplateCategory(str, Enum):
     """فئات القوالب - Template Categories"""
+
     ALERT = "alert"  # تنبيهات عاجلة
     REMINDER = "reminder"  # تذكيرات
     REPORT = "report"  # تقارير
@@ -26,6 +27,7 @@ class TemplateCategory(str, Enum):
 
 class NotificationChannel(str, Enum):
     """قنوات الإشعارات - Notification Channels"""
+
     PUSH = "push"  # إشعار دفع
     SMS = "sms"  # رسالة نصية
     EMAIL = "email"  # بريد إلكتروني
@@ -49,7 +51,7 @@ class NotificationTemplate:
         action_url: str | None = None,
         icon: str | None = None,
         priority: str = "medium",
-        metadata: dict[str, Any] | None = None
+        metadata: dict[str, Any] | None = None,
     ):
         self.template_id = template_id
         self.category = category
@@ -70,7 +72,7 @@ class NotificationTemplate:
             "action_url": self.action_url,
             "icon": self.icon,
             "priority": self.priority,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
@@ -84,7 +86,7 @@ class NotificationTemplate:
             action_url=data.get("action_url"),
             icon=data.get("icon"),
             priority=data.get("priority", "medium"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
 
@@ -124,14 +126,14 @@ class NotificationTemplateManager:
             if ar_dir.exists():
                 for template_file in ar_dir.glob("*.json"):
                     try:
-                        with open(template_file, encoding='utf-8') as f:
+                        with open(template_file, encoding="utf-8") as f:
                             data = json.load(f)
 
                             # Load corresponding English template if exists
                             en_file = self.templates_dir / "en" / template_file.name
                             en_data = {}
                             if en_file.exists():
-                                with open(en_file, encoding='utf-8') as ef:
+                                with open(en_file, encoding="utf-8") as ef:
                                     en_data = json.load(ef)
 
                             # Register template
@@ -154,25 +156,21 @@ class NotificationTemplateManager:
             category=TemplateCategory(ar_data.get("category", "alert")),
             title={
                 "ar": ar_data.get("title", ""),
-                "en": en_data.get("title", ar_data.get("title", ""))
+                "en": en_data.get("title", ar_data.get("title", "")),
             },
             body={
                 "ar": ar_data.get("body", ""),
-                "en": en_data.get("body", ar_data.get("body", ""))
+                "en": en_data.get("body", ar_data.get("body", "")),
             },
             action_url=ar_data.get("action_url"),
             icon=ar_data.get("icon"),
             priority=ar_data.get("priority", "medium"),
-            metadata=ar_data.get("metadata", {})
+            metadata=ar_data.get("metadata", {}),
         )
 
         self.templates[template_id] = template
 
-    def get_template(
-        self,
-        template_id: str,
-        language: str = 'ar'
-    ) -> NotificationTemplate | None:
+    def get_template(self, template_id: str, language: str = "ar") -> NotificationTemplate | None:
         """
         الحصول على قالب
 
@@ -186,10 +184,7 @@ class NotificationTemplateManager:
         return self.templates.get(template_id)
 
     def render_template(
-        self,
-        template_id: str,
-        context: dict[str, Any],
-        language: str = 'ar'
+        self, template_id: str, context: dict[str, Any], language: str = "ar"
     ) -> dict[str, str]:
         """
         عرض قالب مع السياق
@@ -208,18 +203,16 @@ class NotificationTemplateManager:
             logger.warning(f"Template {template_id} not found")
             return {
                 "title": "إشعار" if language == "ar" else "Notification",
-                "body": "محتوى الإشعار" if language == "ar" else "Notification content"
+                "body": "محتوى الإشعار" if language == "ar" else "Notification content",
             }
 
         # Render title and body with context
         try:
             rendered_title = self._render_string(
-                template.title.get(language, template.title.get("ar", "")),
-                context
+                template.title.get(language, template.title.get("ar", "")), context
             )
             rendered_body = self._render_string(
-                template.body.get(language, template.body.get("ar", "")),
-                context
+                template.body.get(language, template.body.get("ar", "")), context
             )
 
             result = {
@@ -227,7 +220,7 @@ class NotificationTemplateManager:
                 "body": rendered_body,
                 "action_url": template.action_url,
                 "icon": template.icon,
-                "priority": template.priority
+                "priority": template.priority,
             }
 
             # Render action_url if it has placeholders
@@ -240,7 +233,7 @@ class NotificationTemplateManager:
             logger.error(f"Error rendering template {template_id}: {e}")
             return {
                 "title": template.title.get(language, ""),
-                "body": template.body.get(language, "")
+                "body": template.body.get(language, ""),
             }
 
     def _render_string(self, template_str: str, context: dict[str, Any]) -> str:
@@ -266,11 +259,7 @@ class NotificationTemplateManager:
                 result = result.replace(f"{{{key}}}", str(value if value is not None else ""))
             return result
 
-    def register_template(
-        self,
-        template_id: str,
-        template: NotificationTemplate
-    ):
+    def register_template(self, template_id: str, template: NotificationTemplate):
         """
         تسجيل قالب
 
@@ -281,10 +270,7 @@ class NotificationTemplateManager:
         self.templates[template_id] = template
         logger.info(f"Registered template: {template_id}")
 
-    def list_templates(
-        self,
-        category: TemplateCategory | None = None
-    ) -> list[str]:
+    def list_templates(self, category: TemplateCategory | None = None) -> list[str]:
         """
         قائمة القوالب
 
@@ -296,8 +282,7 @@ class NotificationTemplateManager:
         """
         if category:
             return [
-                tid for tid, template in self.templates.items()
-                if template.category == category
+                tid for tid, template in self.templates.items() if template.category == category
             ]
         return list(self.templates.keys())
 
@@ -306,10 +291,7 @@ class NotificationTemplateManager:
     # =========================================================================
 
     def format_for_push(
-        self,
-        template_id: str,
-        context: dict[str, Any],
-        language: str = 'ar'
+        self, template_id: str, context: dict[str, Any], language: str = "ar"
     ) -> dict[str, Any]:
         """
         تنسيق للإشعارات الدفعية
@@ -332,23 +314,19 @@ class NotificationTemplateManager:
                 "action_url": rendered.get("action_url"),
                 "template_id": template_id,
                 "priority": rendered.get("priority", "medium"),
-                **context
+                **context,
             },
             "notification": {
                 "title": rendered["title"],
                 "body": rendered["body"],
                 "icon": rendered.get("icon", "🌾"),
                 "sound": "default",
-                "badge": 1
-            }
+                "badge": 1,
+            },
         }
 
     def format_for_sms(
-        self,
-        template_id: str,
-        context: dict[str, Any],
-        language: str = 'ar',
-        max_length: int = 160
+        self, template_id: str, context: dict[str, Any], language: str = "ar", max_length: int = 160
     ) -> str:
         """
         تنسيق للرسائل النصية (SMS)
@@ -373,15 +351,12 @@ class NotificationTemplateManager:
 
         # Truncate if too long
         if len(sms_text) > max_length:
-            sms_text = sms_text[:max_length - 3] + "..."
+            sms_text = sms_text[: max_length - 3] + "..."
 
         return sms_text
 
     def format_for_email(
-        self,
-        template_id: str,
-        context: dict[str, Any],
-        language: str = 'ar'
+        self, template_id: str, context: dict[str, Any], language: str = "ar"
     ) -> dict[str, str]:
         """
         تنسيق للبريد الإلكتروني (HTML)
@@ -403,7 +378,7 @@ class NotificationTemplateManager:
             body=rendered["body"],
             action_url=rendered.get("action_url"),
             icon=rendered.get("icon"),
-            language=language
+            language=language,
         )
 
         # Plain text version
@@ -411,17 +386,10 @@ class NotificationTemplateManager:
         if rendered.get("action_url"):
             text_body += f"\n\n{rendered['action_url']}"
 
-        return {
-            "subject": rendered["title"],
-            "html_body": html_body,
-            "text_body": text_body
-        }
+        return {"subject": rendered["title"], "html_body": html_body, "text_body": text_body}
 
     def format_for_whatsapp(
-        self,
-        template_id: str,
-        context: dict[str, Any],
-        language: str = 'ar'
+        self, template_id: str, context: dict[str, Any], language: str = "ar"
     ) -> str:
         """
         تنسيق لواتساب
@@ -443,7 +411,11 @@ class NotificationTemplateManager:
             whatsapp_text += f"\n\n🔗 {rendered['action_url']}"
 
         # Add SAHOOL branding
-        footer = "\n\n_سَهُول SAHOOL - الزراعة الذكية_" if language == "ar" else "\n\n_SAHOOL - Smart Agriculture_"
+        footer = (
+            "\n\n_سَهُول SAHOOL - الزراعة الذكية_"
+            if language == "ar"
+            else "\n\n_SAHOOL - Smart Agriculture_"
+        )
         whatsapp_text += footer
 
         return whatsapp_text
@@ -457,21 +429,21 @@ class NotificationTemplateManager:
         # Remove emojis using comprehensive regex
         emoji_pattern = re.compile(
             "["
-            "\U0001F600-\U0001F64F"  # emoticons
-            "\U0001F300-\U0001F5FF"  # symbols & pictographs
-            "\U0001F680-\U0001F6FF"  # transport & map symbols
-            "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-            "\U0001F900-\U0001F9FF"  # supplemental symbols (includes 🦠)
-            "\U0001FA00-\U0001FA6F"  # chess symbols
-            "\U0001FA70-\U0001FAFF"  # symbols and pictographs extended-A
-            "\U00002702-\U000027B0"  # dingbats
-            "\U000024C2-\U0001F251"
-            "\U0001F780-\U0001F7FF"  # geometric shapes
-            "\U0001F800-\U0001F8FF"  # supplemental arrows-C
+            "\U0001f600-\U0001f64f"  # emoticons
+            "\U0001f300-\U0001f5ff"  # symbols & pictographs
+            "\U0001f680-\U0001f6ff"  # transport & map symbols
+            "\U0001f1e0-\U0001f1ff"  # flags (iOS)
+            "\U0001f900-\U0001f9ff"  # supplemental symbols (includes 🦠)
+            "\U0001fa00-\U0001fa6f"  # chess symbols
+            "\U0001fa70-\U0001faff"  # symbols and pictographs extended-A
+            "\U00002702-\U000027b0"  # dingbats
+            "\U000024c2-\U0001f251"
+            "\U0001f780-\U0001f7ff"  # geometric shapes
+            "\U0001f800-\U0001f8ff"  # supplemental arrows-C
             "]+",
-            flags=re.UNICODE
+            flags=re.UNICODE,
         )
-        return emoji_pattern.sub('', text).strip()
+        return emoji_pattern.sub("", text).strip()
 
     def _create_html_email(
         self,
@@ -479,7 +451,7 @@ class NotificationTemplateManager:
         body: str,
         action_url: str | None = None,
         icon: str | None = None,
-        language: str = 'ar'
+        language: str = "ar",
     ) -> str:
         """إنشاء بريد إلكتروني HTML"""
         direction = "rtl" if language == "ar" else "ltr"
@@ -556,13 +528,13 @@ class NotificationTemplateManager:
 <body>
     <div class="container">
         <div class="header">
-            {f'<div class="icon">{icon}</div>' if icon else ''}
+            {f'<div class="icon">{icon}</div>' if icon else ""}
             <div class="title">{title}</div>
         </div>
         <div class="body">
-            {body.replace(chr(10), '<br>')}
+            {body.replace(chr(10), "<br>")}
         </div>
-        {f'<div style="text-align: center;"><a href="{action_url}" class="action-button">{"عرض التفاصيل" if language == "ar" else "View Details"}</a></div>' if action_url else ''}
+        {f'<div style="text-align: center;"><a href="{action_url}" class="action-button">{"عرض التفاصيل" if language == "ar" else "View Details"}</a></div>' if action_url else ""}
         <div class="footer">
             <div class="logo">🌾 سَهُول SAHOOL</div>
             <div>{"الزراعة الذكية لليمن" if language == "ar" else "Smart Agriculture for Yemen"}</div>
@@ -595,11 +567,12 @@ def get_template_manager() -> NotificationTemplateManager:
 # Convenience Functions
 # =============================================================================
 
+
 def render_notification(
     template_id: str,
     context: dict[str, Any],
-    language: str = 'ar',
-    channel: NotificationChannel = NotificationChannel.PUSH
+    language: str = "ar",
+    channel: NotificationChannel = NotificationChannel.PUSH,
 ) -> Any:
     """
     عرض إشعار

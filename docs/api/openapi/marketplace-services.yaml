@@ -1,0 +1,1376 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Marketplace Services API
+  description: |
+    Agricultural Marketplace and E-Commerce API for the SAHOOL Platform
+
+    This API provides comprehensive marketplace functionality including product
+    listings, order management, shopping cart, payments, and seller profiles.
+
+    Features:
+    - Product management (seeds, fertilizers, equipment, etc.)
+    - Order creation and tracking
+    - Shopping cart functionality
+    - Payment processing
+    - Product search and filtering
+    - Seller and buyer profiles
+    - Product reviews and ratings
+    - Category management
+    - Real-time order updates via WebSocket
+
+    Arabic Support: جميع واجهات API تدعم اللغة العربية
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.sahool.sa/api/v1
+    description: Production server
+  - url: https://staging-api.sahool.sa/api/v1
+    description: Staging server
+  - url: http://localhost:3000/api/v1
+    description: Local development server
+
+tags:
+  - name: Products
+    description: Product listing and management
+  - name: Categories
+    description: Product category operations
+  - name: Orders
+    description: Order creation and management
+  - name: Cart
+    description: Shopping cart operations
+  - name: Search
+    description: Product search functionality
+  - name: Reviews
+    description: Product reviews and ratings
+  - name: Sellers
+    description: Seller profile and product management
+
+security:
+  - BearerAuth: []
+
+paths:
+  /marketplace/products:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      description: |
+        Retrieve a list of products with optional filtering and sorting
+        جلب جميع المنتجات مع إمكانية التصفية والترتيب
+      operationId: getProducts
+      parameters:
+        - name: category
+          in: query
+          description: Filter by product category
+          schema:
+            $ref: '#/components/schemas/ProductCategory'
+        - name: search
+          in: query
+          description: Search by product name or description
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          description: Minimum price filter
+          schema:
+            type: number
+            format: float
+        - name: maxPrice
+          in: query
+          description: Maximum price filter
+          schema:
+            type: number
+            format: float
+        - name: status
+          in: query
+          description: Filter by product status
+          schema:
+            $ref: '#/components/schemas/ProductStatus'
+        - name: sellerId
+          in: query
+          description: Filter by seller ID
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            enum: [price_asc, price_desc, name, newest, rating]
+            default: newest
+        - name: page
+          in: query
+          description: Page number (1-based)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: Items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: "prod-001"
+                        name: "Organic Wheat Seeds"
+                        nameAr: "بذور قمح عضوية"
+                        description: "High-quality organic wheat seeds"
+                        descriptionAr: "بذور قمح عضوية عالية الجودة"
+                        category: "seeds"
+                        price: 150
+                        currency: "SAR"
+                        unit: "kg"
+                        unitAr: "كجم"
+                        status: "available"
+                        stock: 500
+                        imageUrl: "https://cdn.sahool.sa/products/wheat-seeds.jpg"
+                        sellerId: "seller-001"
+                        sellerName: "مؤسسة البذور الزراعية"
+                        sellerRating: 4.5
+                        location:
+                          city: "Riyadh"
+                          cityAr: "الرياض"
+                          region: "Central"
+                          regionAr: "الوسطى"
+                        tags: ["organic", "wheat", "seeds"]
+                        createdAt: "2024-01-01T00:00:00Z"
+                        updatedAt: "2024-01-15T10:30:00Z"
+                    pagination:
+                      page: 1
+                      limit: 20
+                      total: 150
+                      totalPages: 8
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+
+    post:
+      tags:
+        - Products
+      summary: Create a new product
+      description: |
+        Create a new product listing
+        إنشاء منتج جديد
+      operationId: createProduct
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+            example:
+              name: "NPK Fertilizer 20-20-20"
+              nameAr: "سماد NPK 20-20-20"
+              description: "Balanced NPK fertilizer for all crops"
+              descriptionAr: "سماد NPK متوازن لجميع المحاصيل"
+              category: "fertilizers"
+              price: 85
+              currency: "SAR"
+              unit: "bag (25kg)"
+              unitAr: "كيس (25 كجم)"
+              stock: 200
+              imageUrl: "https://cdn.sahool.sa/products/npk-fertilizer.jpg"
+              location:
+                city: "Jeddah"
+                cityAr: "جدة"
+                region: "Western"
+                regionAr: "الغربية"
+              tags: ["fertilizer", "NPK", "nutrients"]
+              specifications:
+                nitrogen: "20%"
+                phosphorus: "20%"
+                potassium: "20%"
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /marketplace/products/{productId}:
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      description: Retrieve detailed information about a specific product
+      operationId: getProductById
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: Product ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    patch:
+      tags:
+        - Products
+      summary: Update product
+      description: Update product information (seller only)
+      operationId: updateProduct
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Product'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags:
+        - Products
+      summary: Delete product
+      description: Remove a product listing (seller only)
+      operationId: deleteProduct
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Product deleted successfully
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /marketplace/products/featured:
+    get:
+      tags:
+        - Products
+      summary: Get featured products
+      description: Retrieve featured/promoted products
+      operationId: getFeaturedProducts
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Featured products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+
+  /marketplace/products/search:
+    get:
+      tags:
+        - Search
+      summary: Search products
+      description: |
+        Full-text search across product names and descriptions
+        البحث الشامل في المنتجات
+      operationId: searchProducts
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            $ref: '#/components/schemas/ProductCategory'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Search results retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  query:
+                    type: string
+                  resultsCount:
+                    type: integer
+
+  /marketplace/categories:
+    get:
+      tags:
+        - Categories
+      summary: Get all categories
+      description: Retrieve all product categories with product counts
+      operationId: getCategories
+      responses:
+        '200':
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+              examples:
+                success:
+                  value:
+                    data:
+                      - id: "seeds"
+                        name: "Seeds"
+                        nameAr: "البذور"
+                        count: 45
+                      - id: "fertilizers"
+                        name: "Fertilizers"
+                        nameAr: "الأسمدة"
+                        count: 32
+                      - id: "equipment"
+                        name: "Equipment"
+                        nameAr: "المعدات"
+                        count: 56
+
+  /marketplace/orders:
+    get:
+      tags:
+        - Orders
+      summary: Get user orders
+      description: |
+        Retrieve orders for the authenticated user
+        جلب طلبات المستخدم
+      operationId: getUserOrders
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by order status
+          schema:
+            $ref: '#/components/schemas/OrderStatus'
+        - name: paymentStatus
+          in: query
+          description: Filter by payment status
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+        - name: dateFrom
+          in: query
+          description: Start date filter (ISO 8601)
+          schema:
+            type: string
+            format: date
+        - name: dateTo
+          in: query
+          description: End date filter (ISO 8601)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+    post:
+      tags:
+        - Orders
+      summary: Create order
+      description: |
+        Create a new order from cart items
+        إنشاء طلب جديد
+      operationId: createOrder
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+            example:
+              items:
+                - productId: "prod-001"
+                  quantity: 10
+                - productId: "prod-002"
+                  quantity: 5
+              shippingAddress:
+                name: "Ahmed Al-Saud"
+                phone: "+966501234567"
+                addressLine1: "123 King Fahd Road"
+                city: "Riyadh"
+                region: "Central"
+                postalCode: "11564"
+                country: "Saudi Arabia"
+              notes: "Please deliver in the morning"
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /marketplace/orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      summary: Get order by ID
+      description: Retrieve detailed information about a specific order
+      operationId: getOrderById
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Order retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Order'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /marketplace/orders/{orderId}/cancel:
+    post:
+      tags:
+        - Orders
+      summary: Cancel order
+      description: |
+        Cancel an order (if status allows)
+        إلغاء الطلب
+      operationId: cancelOrder
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  description: Cancellation reason
+      responses:
+        '200':
+          description: Order cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Order cannot be cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /marketplace/cart:
+    get:
+      tags:
+        - Cart
+      summary: Get cart items
+      description: |
+        Retrieve current shopping cart items
+        جلب محتويات السلة
+      operationId: getCart
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Cart retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CartItem'
+                  summary:
+                    $ref: '#/components/schemas/CartSummary'
+              examples:
+                success:
+                  value:
+                    data:
+                      - productId: "prod-001"
+                        product:
+                          id: "prod-001"
+                          name: "Organic Wheat Seeds"
+                          nameAr: "بذور قمح عضوية"
+                          price: 150
+                          currency: "SAR"
+                          imageUrl: "https://cdn.sahool.sa/products/wheat-seeds.jpg"
+                        quantity: 10
+                        addedAt: "2024-01-15T10:00:00Z"
+                    summary:
+                      subtotal: 1500
+                      tax: 225
+                      shipping: 50
+                      total: 1775
+                      currency: "SAR"
+                      itemCount: 1
+
+    post:
+      tags:
+        - Cart
+      summary: Add item to cart
+      description: |
+        Add a product to the shopping cart
+        إضافة منتج إلى السلة
+      operationId: addToCart
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - quantity
+              properties:
+                productId:
+                  type: string
+                quantity:
+                  type: integer
+                  minimum: 1
+            example:
+              productId: "prod-001"
+              quantity: 5
+      responses:
+        '200':
+          description: Item added to cart successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CartItem'
+
+    delete:
+      tags:
+        - Cart
+      summary: Clear cart
+      description: Remove all items from the cart
+      operationId: clearCart
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Cart cleared successfully
+
+  /marketplace/cart/{itemId}:
+    patch:
+      tags:
+        - Cart
+      summary: Update cart item
+      description: Update quantity of a cart item
+      operationId: updateCartItem
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Cart item updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CartItem'
+
+    delete:
+      tags:
+        - Cart
+      summary: Remove cart item
+      description: Remove a specific item from the cart
+      operationId: removeFromCart
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Item removed from cart successfully
+
+  /marketplace/products/{productId}/reviews:
+    get:
+      tags:
+        - Reviews
+      summary: Get product reviews
+      description: Retrieve reviews for a specific product
+      operationId: getProductReviews
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProductReview'
+                  averageRating:
+                    type: number
+                    format: float
+                  totalReviews:
+                    type: integer
+
+    post:
+      tags:
+        - Reviews
+      summary: Add product review
+      description: |
+        Add a review for a product (requires purchase)
+        إضافة تقييم للمنتج
+      operationId: addProductReview
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - rating
+                - comment
+              properties:
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                comment:
+                  type: string
+                  minLength: 10
+            example:
+              rating: 5
+              comment: "Excellent quality seeds, highly recommended!"
+      responses:
+        '201':
+          description: Review added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProductReview'
+
+  /marketplace/sellers/{sellerId}/products:
+    get:
+      tags:
+        - Sellers
+      summary: Get seller products
+      description: Retrieve all products from a specific seller
+      operationId: getSellerProducts
+      parameters:
+        - name: sellerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Seller products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  seller:
+                    $ref: '#/components/schemas/SellerInfo'
+
+  /marketplace/stats:
+    get:
+      tags:
+        - Products
+      summary: Get marketplace statistics
+      description: Retrieve overall marketplace statistics
+      operationId: getMarketplaceStats
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      totalProducts:
+                        type: integer
+                      totalSellers:
+                        type: integer
+                      totalOrders:
+                        type: integer
+                      categoryCounts:
+                        type: object
+                        additionalProperties:
+                          type: integer
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT authentication token
+
+  schemas:
+    ProductCategory:
+      type: string
+      enum:
+        - seeds
+        - fertilizers
+        - pesticides
+        - equipment
+        - tools
+        - irrigation
+        - produce
+        - other
+      description: Product category
+
+    ProductStatus:
+      type: string
+      enum:
+        - available
+        - out_of_stock
+        - discontinued
+      description: Product availability status
+
+    OrderStatus:
+      type: string
+      enum:
+        - pending
+        - confirmed
+        - processing
+        - shipped
+        - delivered
+        - cancelled
+      description: Order processing status
+
+    PaymentStatus:
+      type: string
+      enum:
+        - pending
+        - paid
+        - failed
+        - refunded
+      description: Payment status
+
+    Location:
+      type: object
+      properties:
+        city:
+          type: string
+        cityAr:
+          type: string
+        region:
+          type: string
+        regionAr:
+          type: string
+
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - nameAr
+        - category
+        - price
+        - currency
+        - unit
+        - status
+        - sellerId
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        category:
+          $ref: '#/components/schemas/ProductCategory'
+        price:
+          type: number
+          format: float
+        currency:
+          type: string
+          example: "SAR"
+        unit:
+          type: string
+        unitAr:
+          type: string
+        status:
+          $ref: '#/components/schemas/ProductStatus'
+        stock:
+          type: integer
+          minimum: 0
+        imageUrl:
+          type: string
+          format: uri
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        sellerId:
+          type: string
+        sellerName:
+          type: string
+        sellerRating:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 5
+        location:
+          $ref: '#/components/schemas/Location'
+        specifications:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+        discount:
+          type: object
+          properties:
+            percentage:
+              type: number
+              format: float
+            validUntil:
+              type: string
+              format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ShippingAddress:
+      type: object
+      required:
+        - name
+        - phone
+        - addressLine1
+        - city
+        - region
+        - country
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        city:
+          type: string
+        region:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        productName:
+          type: string
+        productNameAr:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+          format: float
+        subtotal:
+          type: number
+          format: float
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        orderNumber:
+          type: string
+        userId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+        subtotal:
+          type: number
+          format: float
+        tax:
+          type: number
+          format: float
+        shipping:
+          type: number
+          format: float
+        total:
+          type: number
+          format: float
+        currency:
+          type: string
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatus'
+        paymentMethod:
+          type: string
+        shippingAddress:
+          $ref: '#/components/schemas/ShippingAddress'
+        notes:
+          type: string
+        trackingNumber:
+          type: string
+        estimatedDelivery:
+          type: string
+          format: date-time
+        deliveredAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CartItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        product:
+          $ref: '#/components/schemas/Product'
+        quantity:
+          type: integer
+        addedAt:
+          type: string
+          format: date-time
+
+    CartSummary:
+      type: object
+      properties:
+        subtotal:
+          type: number
+          format: float
+        tax:
+          type: number
+          format: float
+        shipping:
+          type: number
+          format: float
+        total:
+          type: number
+          format: float
+        currency:
+          type: string
+        itemCount:
+          type: integer
+
+    ProductReview:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        userName:
+          type: string
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        count:
+          type: integer
+          description: Number of products in this category
+
+    SellerInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: string
+        rating:
+          type: number
+          format: float
+        totalProducts:
+          type: integer
+        totalSales:
+          type: integer
+        location:
+          $ref: '#/components/schemas/Location'
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        totalPages:
+          type: integer
+
+    CreateProductRequest:
+      type: object
+      required:
+        - name
+        - nameAr
+        - description
+        - descriptionAr
+        - category
+        - price
+        - currency
+        - unit
+        - unitAr
+        - stock
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        category:
+          $ref: '#/components/schemas/ProductCategory'
+        price:
+          type: number
+          format: float
+        currency:
+          type: string
+        unit:
+          type: string
+        unitAr:
+          type: string
+        stock:
+          type: integer
+        imageUrl:
+          type: string
+          format: uri
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        location:
+          $ref: '#/components/schemas/Location'
+        specifications:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+
+    UpdateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        nameAr:
+          type: string
+        description:
+          type: string
+        descriptionAr:
+          type: string
+        price:
+          type: number
+          format: float
+        stock:
+          type: integer
+        status:
+          $ref: '#/components/schemas/ProductStatus'
+        imageUrl:
+          type: string
+          format: uri
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        specifications:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+
+    CreateOrderRequest:
+      type: object
+      required:
+        - items
+        - shippingAddress
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - productId
+              - quantity
+            properties:
+              productId:
+                type: string
+              quantity:
+                type: integer
+                minimum: 1
+        shippingAddress:
+          $ref: '#/components/schemas/ShippingAddress'
+        notes:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+  responses:
+    BadRequestError:
+      description: Bad request - Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "BAD_REQUEST"
+            message: "Invalid product data provided"
+
+    UnauthorizedError:
+      description: Unauthorized - Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "UNAUTHORIZED"
+            message: "Authentication token is required"
+
+    ForbiddenError:
+      description: Forbidden - Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "FORBIDDEN"
+            message: "You don't have permission to perform this action"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "NOT_FOUND"
+            message: "Product not found"

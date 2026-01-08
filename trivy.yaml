@@ -1,0 +1,53 @@
+# Trivy Security Scanner Configuration for SAHOOL
+# إعدادات فحص الأمان Trivy لمنصة سهول
+
+# Scan severity levels to report
+severity:
+  - CRITICAL
+  - HIGH
+
+# Vulnerability scanning settings
+vulnerability:
+  # Ignore unfixed vulnerabilities (can't patch yet)
+  ignore-unfixed: true
+
+# Secret scanning settings
+secret:
+  # Enable secret detection
+  config: ""
+
+# Misconfiguration scanning settings
+misconfiguration:
+  # Scan infrastructure files
+  include:
+    - "**/*.yaml"
+    - "**/*.yml"
+    - "**/*.json"
+    - "**/Dockerfile"
+    - "**/docker-compose*.yml"
+  # Exclude test and example files
+  exclude:
+    - "**/test_*.py"
+    - "**/*_test.py"
+    - "**/tests/**"
+    - "**/examples/**"
+    - "**/archive/**"
+    - "**/node_modules/**"
+
+# Scan types to perform
+scan:
+  # Scan for vulnerabilities in dependencies
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+
+# Output format
+format: sarif
+
+# Exit code behavior
+exit-code: 0
+
+# Ignore specific CVEs if needed (add CVE IDs here)
+# ignore-cves:
+#   - CVE-XXXX-XXXX

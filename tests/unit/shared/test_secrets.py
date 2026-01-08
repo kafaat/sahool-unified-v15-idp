@@ -4,13 +4,15 @@ Tests for Secrets Manager
 """
 
 import os
+
 import pytest
+
 from shared.secrets.manager import (
-    SecretKey,
+    EnvironmentSecretsProvider,
     SecretBackend,
+    SecretKey,
     SecretsManager,
     SecretsManagerConfig,
-    EnvironmentSecretsProvider,
 )
 
 

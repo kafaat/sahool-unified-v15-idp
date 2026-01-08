@@ -21,9 +21,7 @@ import pytest
 def setup_test_env():
     """Configure test environment variables before all tests"""
     os.environ.setdefault("ENVIRONMENT", "test")
-    os.environ.setdefault(
-        "JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars"
-    )
+    os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
     os.environ.setdefault("JWT_ALGORITHM", "HS256")
     os.environ.setdefault("JWT_ISSUER", "sahool-idp")
     os.environ.setdefault("JWT_AUDIENCE", "sahool-platform")
@@ -167,9 +165,7 @@ def sample_field_data(test_tenant_id) -> dict:
         "crop_type": "wheat",
         "geometry": {
             "type": "Polygon",
-            "coordinates": [
-                [[45.0, 15.0], [45.1, 15.0], [45.1, 15.1], [45.0, 15.1], [45.0, 15.0]]
-            ],
+            "coordinates": [[[45.0, 15.0], [45.1, 15.0], [45.1, 15.1], [45.0, 15.1], [45.0, 15.0]]],
         },
     }
 

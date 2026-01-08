@@ -96,9 +96,7 @@ class TestCropRotationPlanner:
 
         assert len(suggestions) > 0
         assert all(0 <= s.suitability_score <= 100 for s in suggestions)
-        assert (
-            suggestions[0].suitability_score >= suggestions[-1].suitability_score
-        )  # Sorted
+        assert suggestions[0].suitability_score >= suggestions[-1].suitability_score  # Sorted
 
     def test_evaluate_rotation(self, planner, sample_history):
         """Test evaluating a rotation plan"""
@@ -249,12 +247,14 @@ class TestCropRotationPlanner:
         """Test root depth alternation logic"""
         # Shallow vs deep should alternate
         assert planner._check_root_alternation(
-            CropFamily.CUCURBITS, CropFamily.ROOT_CROPS  # shallow  # deep
+            CropFamily.CUCURBITS,
+            CropFamily.ROOT_CROPS,  # shallow  # deep
         )
 
         # Same depth should not alternate
         assert not planner._check_root_alternation(
-            CropFamily.CUCURBITS, CropFamily.ALLIUMS  # shallow  # shallow
+            CropFamily.CUCURBITS,
+            CropFamily.ALLIUMS,  # shallow  # shallow
         )
 
     def test_intensive_cultivation_detection(self, planner):
@@ -312,9 +312,7 @@ class TestRotationRecommendations:
         suggestions = await planner.suggest_next_crop("F001", history)
 
         # Legumes should be highly ranked
-        legume_suggestions = [
-            s for s in suggestions if s.crop_family == CropFamily.LEGUMES
-        ]
+        legume_suggestions = [s for s in suggestions if s.crop_family == CropFamily.LEGUMES]
         assert len(legume_suggestions) > 0
         assert any(s.suitability_score > 70 for s in legume_suggestions)
 
@@ -338,9 +336,7 @@ class TestRotationRecommendations:
         suggestions = await planner.suggest_next_crop("F001", history)
 
         # Fallow should be suggested
-        fallow_suggestions = [
-            s for s in suggestions if s.crop_family == CropFamily.FALLOW
-        ]
+        fallow_suggestions = [s for s in suggestions if s.crop_family == CropFamily.FALLOW]
         assert len(fallow_suggestions) > 0
 
 

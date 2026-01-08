@@ -37,6 +37,7 @@ class TaskType(str, Enum):
     أنواع المهام المدعومة
     Supported task types
     """
+
     SATELLITE_IMAGE_PROCESSING = "satellite_image_processing"  # معالجة صور الأقمار الصناعية
     NDVI_CALCULATION = "ndvi_calculation"  # حساب NDVI
     DISEASE_DETECTION = "disease_detection"  # كشف الأمراض
@@ -51,6 +52,7 @@ class TaskStatus(str, Enum):
     حالات المهمة
     Task states
     """
+
     PENDING = "pending"  # في انتظار المعالجة
     PROCESSING = "processing"  # قيد المعالجة
     COMPLETED = "completed"  # مكتمل
@@ -69,6 +71,7 @@ class TaskPriority(int, Enum):
     - 7-9: High (alerts, real-time) - عالية
     - 10: Critical (emergencies) - حرجة
     """
+
     LOW = 3  # تقارير، تصدير
     NORMAL = 5  # تحليلات
     HIGH = 8  # تنبيهات، وقت فعلي
@@ -87,6 +90,7 @@ class Task:
     نموذج بيانات المهمة
     Task data model
     """
+
     task_id: str
     task_type: TaskType
     payload: dict[str, Any]
@@ -108,26 +112,32 @@ class Task:
         """تحويل إلى قاموس / Convert to dictionary"""
         data = asdict(self)
         # تحويل datetime إلى ISO format
-        for key in ['created_at', 'updated_at', 'scheduled_at', 'started_at', 'completed_at']:
+        for key in ["created_at", "updated_at", "scheduled_at", "started_at", "completed_at"]:
             if data[key]:
                 data[key] = data[key].isoformat() if isinstance(data[key], datetime) else data[key]
         # تحويل Enums إلى strings
-        data['task_type'] = data['task_type'].value if isinstance(data['task_type'], Enum) else data['task_type']
-        data['status'] = data['status'].value if isinstance(data['status'], Enum) else data['status']
+        data["task_type"] = (
+            data["task_type"].value if isinstance(data["task_type"], Enum) else data["task_type"]
+        )
+        data["status"] = (
+            data["status"].value if isinstance(data["status"], Enum) else data["status"]
+        )
         return data
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> 'Task':
+    def from_dict(cls, data: dict[str, Any]) -> "Task":
         """إنشاء من قاموس / Create from dictionary"""
         # تحويل strings إلى datetime
-        for key in ['created_at', 'updated_at', 'scheduled_at', 'started_at', 'completed_at']:
+        for key in ["created_at", "updated_at", "scheduled_at", "started_at", "completed_at"]:
             if data.get(key):
-                data[key] = datetime.fromisoformat(data[key]) if isinstance(data[key], str) else data[key]
+                data[key] = (
+                    datetime.fromisoformat(data[key]) if isinstance(data[key], str) else data[key]
+                )
         # تحويل strings إلى Enums
-        if isinstance(data.get('task_type'), str):
-            data['task_type'] = TaskType(data['task_type'])
-        if isinstance(data.get('status'), str):
-            data['status'] = TaskStatus(data['status'])
+        if isinstance(data.get("task_type"), str):
+            data["task_type"] = TaskType(data["task_type"])
+        if isinstance(data.get("status"), str):
+            data["status"] = TaskStatus(data["status"])
         return cls(**data)
 
 
@@ -189,7 +199,7 @@ class TaskQueue:
         priority: int = TaskPriority.NORMAL.value,
         max_retries: int = 3,
         timeout_seconds: int = 300,
-        scheduled_at: datetime | None = None
+        scheduled_at: datetime | None = None,
     ) -> str:
         """
         إضافة مهمة إلى قائمة الانتظار
@@ -223,7 +233,7 @@ class TaskQueue:
             updated_at=now,
             scheduled_at=scheduled_at,
             max_retries=max_retries,
-            timeout_seconds=timeout_seconds
+            timeout_seconds=timeout_seconds,
         )
 
         try:
@@ -253,11 +263,7 @@ class TaskQueue:
             logger.error(f"Failed to enqueue task: {e}")
             raise
 
-    def process_next(
-        self,
-        worker_id: str,
-        task_types: list[TaskType] | None = None
-    ) -> Task | None:
+    def process_next(self, worker_id: str, task_types: list[TaskType] | None = None) -> Task | None:
         """
         معالجة المهمة التالية في قائمة الانتظار
         Process next task in queue
@@ -285,7 +291,11 @@ class TaskQueue:
                 task_ids = self.redis.zrangebyscore(queue_key, 0, now, start=0, num=1)
 
                 if task_ids:
-                    task_id = task_ids[0].decode('utf-8') if isinstance(task_ids[0], bytes) else task_ids[0]
+                    task_id = (
+                        task_ids[0].decode("utf-8")
+                        if isinstance(task_ids[0], bytes)
+                        else task_ids[0]
+                    )
 
                     # الحصول على بيانات المهمة
                     # Get task data
@@ -334,10 +344,7 @@ class TaskQueue:
             raise
 
     def complete_task(
-        self,
-        task_id: str,
-        result: dict[str, Any] | None = None,
-        worker_id: str | None = None
+        self, task_id: str, result: dict[str, Any] | None = None, worker_id: str | None = None
     ) -> bool:
         """
         تمييز المهمة كمكتملة
@@ -397,11 +404,7 @@ class TaskQueue:
             return False
 
     def fail_task(
-        self,
-        task_id: str,
-        error_message: str,
-        worker_id: str | None = None,
-        retry: bool = True
+        self, task_id: str, error_message: str, worker_id: str | None = None, retry: bool = True
     ) -> bool:
         """
         تمييز المهمة كفاشلة
@@ -437,7 +440,7 @@ class TaskQueue:
             if retry and task.retry_count < task.max_retries:
                 # إعادة المهمة إلى قائمة الانتظار مع تأخير أسي
                 # Re-queue task with exponential backoff
-                backoff_seconds = 2 ** task.retry_count  # 2, 4, 8, 16, ...
+                backoff_seconds = 2**task.retry_count  # 2, 4, 8, 16, ...
                 scheduled_at = datetime.utcnow() + timedelta(seconds=backoff_seconds)
                 task.scheduled_at = scheduled_at
                 task.status = TaskStatus.PENDING
@@ -654,7 +657,7 @@ class TaskQueue:
                 "failed": 0,
                 "cancelled": 0,
                 "dlq_size": 0,
-                "by_type": {}
+                "by_type": {},
             }
 
             # حساب المهام في كل قائمة أولوية
@@ -670,9 +673,12 @@ class TaskQueue:
             # Get statistics
             stats_data = self.redis.hgetall(self.stats_key)
             if stats_data:
-                stats = {k.decode('utf-8') if isinstance(k, bytes) else k:
-                        int(v.decode('utf-8') if isinstance(v, bytes) else v)
-                        for k, v in stats_data.items()}
+                stats = {
+                    k.decode("utf-8") if isinstance(k, bytes) else k: int(
+                        v.decode("utf-8") if isinstance(v, bytes) else v
+                    )
+                    for k, v in stats_data.items()
+                }
 
                 status["processing"] = stats.get("total_processing", 0)
                 status["completed"] = stats.get("total_completed", 0)
@@ -685,7 +691,7 @@ class TaskQueue:
                     type_stats = {
                         "enqueued": stats.get(f"enqueued_{task_type.value}", 0),
                         "completed": stats.get(f"completed_{task_type.value}", 0),
-                        "failed": stats.get(f"failed_{task_type.value}", 0)
+                        "failed": stats.get(f"failed_{task_type.value}", 0),
                     }
                     if any(type_stats.values()):
                         status["by_type"][task_type.value] = type_stats
@@ -754,7 +760,9 @@ class TaskQueue:
                         # إزالة من مجموعة المهام قيد المعالجة
                         # Remove from processing tasks set
                         if task.worker_id:
-                            processing_key = self.processing_key_pattern.format(worker_id=task.worker_id)
+                            processing_key = self.processing_key_pattern.format(
+                                worker_id=task.worker_id
+                            )
                             self.redis.srem(processing_key, task.task_id)
 
                         timed_out.append(task.task_id)
@@ -773,15 +781,14 @@ class TaskQueue:
 
     def _serialize_task(self, task_dict: dict[str, Any]) -> dict[str, str]:
         """تحويل قاموس المهمة إلى سلاسل نصية / Serialize task dict to strings"""
-        return {k: json.dumps(v) if not isinstance(v, str) else v
-                for k, v in task_dict.items()}
+        return {k: json.dumps(v) if not isinstance(v, str) else v for k, v in task_dict.items()}
 
     def _deserialize_task(self, task_data: dict) -> dict[str, Any]:
         """تحويل البيانات من Redis إلى قاموس / Deserialize Redis data to dict"""
         result = {}
         for k, v in task_data.items():
-            key = k.decode('utf-8') if isinstance(k, bytes) else k
-            value = v.decode('utf-8') if isinstance(v, bytes) else v
+            key = k.decode("utf-8") if isinstance(k, bytes) else k
+            value = v.decode("utf-8") if isinstance(v, bytes) else v
             try:
                 result[key] = json.loads(value)
             except (json.JSONDecodeError, TypeError):

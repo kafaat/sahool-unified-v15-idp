@@ -231,9 +231,7 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
     return {
         "id": disease_id,
         **disease,
-        "actions_details": [
-            get_action_details(action, lang) for action in disease["actions"]
-        ],
+        "actions_details": [get_action_details(action, lang) for action in disease["actions"]],
     }
 
 

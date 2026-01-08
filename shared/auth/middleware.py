@@ -3,6 +3,7 @@ JWT Authentication Middleware for FastAPI
 Middleware to extract and validate JWT tokens from requests
 """
 
+import ipaddress
 import json
 import logging
 import time
@@ -254,9 +255,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.exclude_paths = exclude_paths or ["/health", "/docs", "/redoc", "/metrics"]
 
         # Redis connection (lazy initialized)
-        self._redis_url = (
-            redis_url or config.REDIS_URL if hasattr(config, "REDIS_URL") else None
-        )
+        self._redis_url = redis_url or config.REDIS_URL if hasattr(config, "REDIS_URL") else None
         self._redis = None
         self._redis_available = False
 
@@ -274,9 +273,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         try:
             import redis.asyncio as redis
 
-            self._redis = redis.from_url(
-                self._redis_url, encoding="utf-8", decode_responses=True
-            )
+            self._redis = redis.from_url(self._redis_url, encoding="utf-8", decode_responses=True)
             await self._redis.ping()
             self._redis_available = True
             logger.info("Rate limiter connected to Redis successfully")
@@ -284,9 +281,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             logger.warning("redis package not installed, using in-memory rate limiting")
             self._redis_available = False
         except Exception as e:
-            logger.warning(
-                f"Redis connection failed: {e}, using in-memory rate limiting"
-            )
+            logger.warning(f"Redis connection failed: {e}, using in-memory rate limiting")
             self._redis_available = False
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
@@ -349,8 +344,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         return response
 
+    def _is_valid_ip(self, ip_str: str) -> bool:
+        """Validate IP address format to prevent injection attacks."""
+        try:
+            ipaddress.ip_address(ip_str)
+            return True
+        except (ValueError, TypeError):
+            return False
+
     def _get_identifier(self, request: Request) -> str:
-        """Get unique identifier for rate limiting (not a Flask route)"""
+        """Get unique identifier for rate limiting with IP validation."""
         if hasattr(request.state, "user") and request.state.user:
             # nosemgrep
             return f"user:{request.state.user.id}"
@@ -358,9 +361,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Fallback to IP address (check for proxy headers)
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
-            client_ip = forwarded_for.split(",")[0].strip()
+            try:
+                # SECURITY: Validate and extract first IP from comma-separated list
+                ips = [ip.strip() for ip in forwarded_for.split(",")]
+                if ips and self._is_valid_ip(ips[0]):
+                    client_ip = ips[0]
+                else:
+                    logger.warning(f"Invalid X-Forwarded-For header format: {forwarded_for[:50]}")
+                    client_ip = "unknown"
+            except (ValueError, AttributeError) as e:
+                logger.warning(f"Error parsing X-Forwarded-For header: {e}")
+                client_ip = "unknown"
         else:
-            client_ip = request.client.host if request.client else "unknown"
+            # Validate direct client IP
+            raw_ip = request.client.host if request.client else None
+            client_ip = raw_ip if raw_ip and self._is_valid_ip(raw_ip) else "unknown"
 
         # nosemgrep
         return f"ip:{client_ip}"
@@ -550,8 +565,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Strict-Transport-Security"] = (
-            "max-age=31536000; includeSubDomains"
-        )
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
         return response

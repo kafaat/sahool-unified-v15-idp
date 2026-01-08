@@ -7,6 +7,7 @@ FastAPI service exposing the hierarchical multi-agent system.
 
 import logging
 import os
+import sys
 from datetime import datetime
 from typing import Any
 
@@ -22,17 +23,12 @@ from agents import (
 from fastapi import FastAPI, HTTPException
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware import setup_cors
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -49,19 +45,39 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
-# CORS - Configure allowed origins from environment
-CORS_ORIGINS = os.getenv(
-    "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:8080,https://sahool.com,https://app.sahool.com",
-).split(",")
+# Setup CORS
+setup_cors(app)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
-)
+# Rate Limiting - Critical for AI agent endpoints
+try:
+    from shared.middleware.rate_limiter import setup_rate_limiting, RateLimitTier
+    from fastapi import Request
+
+    def ai_agents_tier_func(request: Request) -> RateLimitTier:
+        """Determine rate limit tier for AI agents endpoints"""
+        # Check for internal service header
+        if request.headers.get("X-Internal-Service"):
+            return RateLimitTier.INTERNAL
+
+        # AI analysis endpoints are resource-intensive, use stricter limits
+        if request.url.path.startswith("/api/v1/analyze"):
+            return RateLimitTier.STANDARD
+
+        # Edge endpoints can have higher limits
+        if request.url.path.startswith("/api/v1/edge"):
+            return RateLimitTier.PREMIUM
+
+        return RateLimitTier.STANDARD
+
+    rate_limiter = setup_rate_limiting(
+        app,
+        use_redis=os.getenv("REDIS_URL") is not None,
+        tier_func=ai_agents_tier_func,
+        exclude_paths=["/healthz", "/api/v1/system/status"],
+    )
+    logger.info("Rate limiting enabled for ai-agents-core")
+except ImportError:
+    logger.warning("Rate limiter not available - proceeding without rate limiting")
 
 # Initialize agents
 coordinator = MasterCoordinatorAgent()

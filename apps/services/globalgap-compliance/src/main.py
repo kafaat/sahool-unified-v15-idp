@@ -14,18 +14,12 @@ import structlog
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 try:
     from cors_config import setup_cors_middleware
@@ -82,9 +76,7 @@ logger = structlog.get_logger(__name__)
 # ============== Authentication ==============
 
 
-def get_tenant_id(
-    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
-) -> str:
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
     """
     Extract and validate tenant ID from X-Tenant-Id header
     استخراج والتحقق من معرف المستأجر من رأس X-Tenant-Id
@@ -121,22 +113,37 @@ async def lifespan(app: FastAPI):
     app.state.compliance_service = ComplianceService()
     app.state.audit_service = AuditService()
 
-    # TODO: Connect to NATS for event publishing
-    # TODO: الاتصال بـ NATS لنشر الأحداث
-    # try:
-    #     from .events import get_publisher
-    #     publisher = await get_publisher()
-    #     app.state.publisher = publisher
-    #     logger.info("nats_connected")
-    # except Exception as e:
-    #     logger.warning("nats_connection_failed", error=str(e))
-    #     app.state.publisher = None
+    # Connect to NATS for event publishing | الاتصال بـ NATS لنشر الأحداث
+    nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
+    try:
+        from .events import NatsPublisher
+        from .events.nats_publisher import set_publisher
+
+        publisher = NatsPublisher()
+        connected = await publisher.connect(nats_url)
+        if connected:
+            set_publisher(publisher)
+            app.state.nats_publisher = publisher
+            logger.info("nats_connected", nats_url=nats_url)
+        else:
+            app.state.nats_publisher = None
+            logger.warning("nats_connection_failed", nats_url=nats_url)
+    except Exception as e:
+        logger.warning("nats_connection_error", error=str(e))
+        app.state.nats_publisher = None
 
     logger.info("globalgap_compliance_service_ready", port=settings.service_port)
     yield
 
     # Cleanup | التنظيف
     logger.info("globalgap_compliance_service_shutting_down")
+
+    # Disconnect from NATS | قطع الاتصال بـ NATS
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            await app.state.nats_publisher.disconnect()
+        except Exception as e:
+            logger.error("nats_disconnect_error", error=str(e))
 
 
 # ============== Application Setup ==============
@@ -177,6 +184,11 @@ def health():
     Health check with dependencies
     فحص الصحة مع التبعيات
     """
+    # Check NATS connection status | فحص حالة اتصال NATS
+    nats_status = "disconnected"
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        nats_status = "connected" if app.state.nats_publisher.connected else "disconnected"
+
     return {
         "status": "healthy",
         "service": settings.service_name,
@@ -184,7 +196,7 @@ def health():
         "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
             "database": "disconnected",  # TODO: Implement database health check
-            "nats": "disconnected",  # TODO: Implement NATS health check
+            "nats": nats_status,
         },
     }
 
@@ -208,11 +220,16 @@ def readiness():
     Kubernetes readiness probe
     فحص الجاهزية - Kubernetes readiness probe
     """
+    # Check NATS readiness | فحص جاهزية NATS
+    nats_ready = False
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        nats_ready = app.state.nats_publisher.connected
+
     return {
         "status": "ready",
         "service": settings.service_name,
         "database": False,  # TODO: Implement database readiness check
-        "nats": False,  # TODO: Implement NATS readiness check
+        "nats": nats_ready,
     }
 
 
@@ -274,6 +291,20 @@ async def create_or_update_compliance(
         status=saved_record.overall_status.value,
         compliance_percentage=saved_record.compliance_percentage,
     )
+
+    # Publish compliance updated event | نشر حدث تحديث الامتثال
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from .events import publish_compliance_updated
+
+            await publish_compliance_updated(
+                farm_id=farm_id,
+                tenant_id=tenant_id,
+                overall_status=saved_record.overall_status.value,
+                compliance_percentage=saved_record.compliance_percentage,
+            )
+        except Exception as e:
+            logger.warning("failed_to_publish_compliance_event", error=str(e))
 
     return saved_record
 
@@ -337,18 +368,14 @@ async def get_checklist_items(
     الحصول على عناصر قائمة المراجعة (نقاط التحكم)
     """
     # Filter items | تصفية العناصر
-    filtered = [
-        item for item in _checklist_items.values() if item.get("is_active", True)
-    ]
+    filtered = [item for item in _checklist_items.values() if item.get("is_active", True)]
 
     if category:
         filtered = [item for item in filtered if item.get("category") == category.value]
 
     if compliance_level:
         filtered = [
-            item
-            for item in filtered
-            if item.get("compliance_level") == compliance_level.value
+            item for item in filtered if item.get("compliance_level") == compliance_level.value
         ]
 
     return {"checklist_id": checklist_id, "items": filtered, "total": len(filtered)}
@@ -413,9 +440,7 @@ async def get_farm_assessments(
 @app.post("/audits", status_code=201)
 async def create_audit(
     farm_id: str = Query(..., description="Farm identifier"),
-    audit_type: str = Query(
-        "internal", description="internal, external, certification"
-    ),
+    audit_type: str = Query("internal", description="internal, external, certification"),
     auditor_name: str = Query(..., description="Name of auditor"),
     tenant_id: str = Depends(get_tenant_id),
 ):
@@ -458,6 +483,23 @@ async def create_audit(
         audit_status=saved_audit.audit_status,
         overall_score=saved_audit.overall_score,
     )
+
+    # Publish audit completed event | نشر حدث اكتمال التدقيق
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from .events import publish_audit_completed
+
+            await publish_audit_completed(
+                audit_id=saved_audit.id,
+                farm_id=farm_id,
+                tenant_id=tenant_id,
+                audit_type=audit_type,
+                audit_status=saved_audit.audit_status,
+                overall_score=saved_audit.overall_score,
+                auditor_name=auditor_name,
+            )
+        except Exception as e:
+            logger.warning("failed_to_publish_audit_event", error=str(e))
 
     return saved_audit
 
@@ -544,6 +586,22 @@ async def create_non_conformity(
         severity=non_conformity.severity.value,
     )
 
+    # Publish non-conformity created event | نشر حدث إنشاء عدم مطابقة
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from .events import publish_non_conformity_created
+
+            await publish_non_conformity_created(
+                non_conformity_id=created.id,
+                farm_id=created.farm_id,
+                tenant_id=tenant_id,
+                control_point_number=created.control_point_number,
+                severity=created.severity.value,
+                description=created.description or "",
+            )
+        except Exception as e:
+            logger.warning("failed_to_publish_non_conformity_event", error=str(e))
+
     return created
 
 
@@ -574,9 +632,7 @@ async def get_farm_certificates(
 
 
 @app.post("/certificates", status_code=201)
-async def create_certificate(
-    certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id)
-):
+async def create_certificate(certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id)):
     """
     Create a new GGN certificate
     إنشاء شهادة GGN جديدة
@@ -597,6 +653,23 @@ async def create_certificate(
         ggn_number=certificate.ggn_number,
         status=certificate.status.value,
     )
+
+    # Publish certificate created event | نشر حدث إنشاء شهادة
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from .events import publish_certificate_created
+
+            await publish_certificate_created(
+                certificate_id=cert_id,
+                farm_id=certificate.farm_id,
+                tenant_id=tenant_id,
+                ggn_number=certificate.ggn_number,
+                certificate_type=certificate.certificate_type or "standard",
+                issued_date=certificate.issued_date.isoformat() if certificate.issued_date else "",
+                expiry_date=certificate.expiry_date.isoformat() if certificate.expiry_date else "",
+            )
+        except Exception as e:
+            logger.warning("failed_to_publish_certificate_event", error=str(e))
 
     return cert_data
 

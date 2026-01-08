@@ -1,0 +1,145 @@
+# Vercel Preview Deployments
+# نشر معاينة على Vercel لكل PR
+#
+# Vercel يوفر:
+# - رابط معاينة فريد لكل PR
+# - HTTPS تلقائي
+# - أداء عالي مع CDN عالمي
+# - تحديث فوري
+
+name: Vercel Preview
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: write
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy-preview:
+    name: Deploy Preview to Vercel
+    runs-on: ubuntu-latest
+    if: env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/frontend/web
+
+      - name: Build Project
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/frontend/web
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+        working-directory: apps/frontend/web
+
+      - name: Comment Preview URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployUrl = '${{ steps.deploy.outputs.url }}';
+
+            const body = `## 🚀 Vercel Preview Deployment
+
+            ✅ **تم النشر بنجاح!**
+
+            | البيئة | الرابط |
+            |--------|--------|
+            | 🔗 **Preview** | [${deployUrl}](${deployUrl}) |
+
+            ---
+
+            ### 📊 معلومات النشر:
+            - **Commit:** \`${{ github.sha.substring(0, 7) }}\`
+            - **Branch:** \`${{ github.head_ref }}\`
+            - **وقت النشر:** ${new Date().toISOString()}
+
+            ---
+
+            > 💡 الرابط صالح حتى يتم دمج الـ PR أو إغلاقه
+            `;
+
+            // Update or create comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('Vercel Preview')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
+
+  # Production deployment on main branch
+  deploy-production:
+    name: Deploy Production to Vercel
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/frontend/web
+
+      - name: Build Project
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/frontend/web
+
+      - name: Deploy to Production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: apps/frontend/web

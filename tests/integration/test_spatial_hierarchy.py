@@ -57,9 +57,7 @@ class TestZoneBoundary:
         wkt = boundary.to_wkt()
 
         assert wkt.startswith("POLYGON((")
-        assert (
-            "31 30" in wkt or "31.0 30.0" in wkt
-        )  # lon lat format (with or without decimals)
+        assert "31 30" in wkt or "31.0 30.0" in wkt  # lon lat format (with or without decimals)
         assert wkt.endswith("))")
 
     def test_to_wkt_closes_polygon(self):

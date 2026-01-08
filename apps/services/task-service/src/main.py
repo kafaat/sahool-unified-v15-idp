@@ -14,46 +14,57 @@ Provides task management for agricultural operations:
 
 import logging
 import os
+import sys
 import uuid
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Optional
 
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
-
-# Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
-
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from repository import TaskRepository
 from sqlalchemy.orm import Session
 
 # Database imports
-from database import init_database, close_database, get_db, init_demo_data_if_needed
-from repository import TaskRepository
-from models import Task as TaskModel, TaskEvidence as TaskEvidenceModel
+from database import close_database, get_db, init_database, init_demo_data_if_needed
+from models import Task as TaskModel
 
-# Import authentication dependencies
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 try:
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.middleware import (
+        RequestLoggingMiddleware,
+        TenantContextMiddleware,
+        setup_cors,
+    )
+    from shared.observability.middleware import ObservabilityMiddleware
+except ImportError:
+    RequestLoggingMiddleware = None
+    TenantContextMiddleware = None
+    setup_cors = None
+    ObservabilityMiddleware = None
+
+# Import authentication dependencies and error handling
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+
     AUTH_AVAILABLE = True
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
     User = None
+    setup_exception_handlers = None
+    add_request_id_middleware = None
+
     def get_current_user():
         """Placeholder when auth not available"""
         return None
+
 
 # Configure logging
 logging.basicConfig(
@@ -81,14 +92,13 @@ app = FastAPI(
 )
 
 # Setup unified error handling
-setup_exception_handlers(app)
-add_request_id_middleware(app)
+if setup_exception_handlers:
+    setup_exception_handlers(app)
+if add_request_id_middleware:
+    add_request_id_middleware(app)
 
 # CORS - Secure configuration
 # In production, use explicit origins from environment or CORS_SETTINGS
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
     from shared.cors_config import CORS_SETTINGS
 
@@ -157,12 +167,22 @@ class TaskCreate(BaseModel):
     metadata: dict | None = None
 
     # Astronomical fields (auto-populated if due_date is provided) - حقول فلكية
-    astronomical_score: Optional[int] = Field(None, ge=1, le=10, description="Astronomical score (1-10) - التصنيف الفلكي")
-    moon_phase_at_due_date: Optional[str] = Field(None, description="Moon phase - مرحلة القمر")
-    lunar_mansion_at_due_date: Optional[str] = Field(None, description="Lunar mansion - المنزلة القمرية")
-    optimal_time_of_day: Optional[str] = Field(None, description="Optimal time of day - أفضل وقت في اليوم")
-    suggested_by_calendar: bool = Field(False, description="Suggested by astronomical calendar - مقترح من التقويم الفلكي")
-    astronomical_recommendation: Optional[dict] = Field(None, description="Full astronomical data - البيانات الفلكية الكاملة")
+    astronomical_score: int | None = Field(
+        None, ge=1, le=10, description="Astronomical score (1-10) - التصنيف الفلكي"
+    )
+    moon_phase_at_due_date: str | None = Field(None, description="Moon phase - مرحلة القمر")
+    lunar_mansion_at_due_date: str | None = Field(
+        None, description="Lunar mansion - المنزلة القمرية"
+    )
+    optimal_time_of_day: str | None = Field(
+        None, description="Optimal time of day - أفضل وقت في اليوم"
+    )
+    suggested_by_calendar: bool = Field(
+        False, description="Suggested by astronomical calendar - مقترح من التقويم الفلكي"
+    )
+    astronomical_recommendation: dict | None = Field(
+        None, description="Full astronomical data - البيانات الفلكية الكاملة"
+    )
 
 
 class TaskUpdate(BaseModel):
@@ -184,14 +204,22 @@ class TaskUpdate(BaseModel):
     metadata: dict | None = None
 
     # Astronomical fields (auto-populated if due_date is changed) - حقول فلكية
-    astronomical_score: Optional[int] = Field(None, ge=1, le=10, description="Astronomical score (1-10) - التصنيف الفلكي")
-    moon_phase_at_due_date: Optional[str] = Field(None, description="Moon phase - مرحلة القمر")
-    lunar_mansion_at_due_date: Optional[str] = Field(None, description="Lunar mansion - المنزلة القمرية")
-    optimal_time_of_day: Optional[str] = Field(None, description="Optimal time of day - أفضل وقت في اليوم")
-    suggested_by_calendar: Optional[bool] = Field(None, description="Suggested by astronomical calendar - مقترح من التقويم الفلكي")
-    astronomical_recommendation: Optional[dict] = Field(None, description="Full astronomical data - البيانات الفلكية الكاملة")
-
-
+    astronomical_score: int | None = Field(
+        None, ge=1, le=10, description="Astronomical score (1-10) - التصنيف الفلكي"
+    )
+    moon_phase_at_due_date: str | None = Field(None, description="Moon phase - مرحلة القمر")
+    lunar_mansion_at_due_date: str | None = Field(
+        None, description="Lunar mansion - المنزلة القمرية"
+    )
+    optimal_time_of_day: str | None = Field(
+        None, description="Optimal time of day - أفضل وقت في اليوم"
+    )
+    suggested_by_calendar: bool | None = Field(
+        None, description="Suggested by astronomical calendar - مقترح من التقويم الفلكي"
+    )
+    astronomical_recommendation: dict | None = Field(
+        None, description="Full astronomical data - البيانات الفلكية الكاملة"
+    )
 
 
 class TaskComplete(BaseModel):
@@ -213,12 +241,8 @@ class NdviAlertTaskRequest(BaseModel):
     previous_ndvi: float | None = Field(
         None, ge=-1, le=1, description="Previous NDVI value for comparison"
     )
-    alert_type: str = Field(
-        ..., description="Alert type: 'drop', 'critical', 'anomaly'"
-    )
-    auto_assign: bool = Field(
-        default=False, description="Auto-assign to field manager"
-    )
+    alert_type: str = Field(..., description="Alert type: 'drop', 'critical', 'anomaly'")
+    auto_assign: bool = Field(default=False, description="Auto-assign to field manager")
     assigned_to: str | None = Field(None, description="Specific user to assign to")
     alert_metadata: dict | None = Field(
         None, description="Additional alert context (z_score, deviation_pct, etc.)"
@@ -237,9 +261,7 @@ class TaskSuggestion(BaseModel):
     reason: str
     reason_ar: str
     confidence: float = Field(..., ge=0, le=1, description="Confidence score")
-    suggested_due_days: int = Field(
-        ..., description="Suggested days until due date"
-    )
+    suggested_due_days: int = Field(..., description="Suggested days until due date")
     metadata: dict | None = None
 
 
@@ -247,12 +269,8 @@ class TaskAutoCreateRequest(BaseModel):
     """Batch create tasks from recommendations"""
 
     field_id: str = Field(..., description="Field ID for task creation")
-    suggestions: list[TaskSuggestion] = Field(
-        ..., description="List of task suggestions to create"
-    )
-    auto_assign: bool = Field(
-        default=False, description="Auto-assign tasks to field manager"
-    )
+    suggestions: list[TaskSuggestion] = Field(..., description="List of task suggestions to create")
+    auto_assign: bool = Field(default=False, description="Auto-assign tasks to field manager")
     assigned_to: str | None = Field(None, description="Specific user to assign to")
 
 
@@ -295,15 +313,26 @@ class Task(BaseModel):
     metadata: dict | None = None
 
     # Astronomical fields - البيانات الفلكية
-    astronomical_score: Optional[int] = Field(None, ge=1, le=10, description="Astronomical score (1-10) - التصنيف الفلكي")
-    moon_phase_at_due_date: Optional[str] = Field(None, description="Moon phase - مرحلة القمر")
-    lunar_mansion_at_due_date: Optional[str] = Field(None, description="Lunar mansion - المنزلة القمرية")
-    optimal_time_of_day: Optional[str] = Field(None, description="Optimal time of day - أفضل وقت في اليوم")
-    suggested_by_calendar: bool = Field(False, description="Suggested by astronomical calendar - مقترح من التقويم الفلكي")
-    astronomical_recommendation: Optional[dict] = Field(None, description="Full astronomical data - البيانات الفلكية الكاملة")
-    astronomical_warnings: list[str] = Field(default_factory=list, description="Warnings about non-optimal dates - تحذيرات حول التواريخ غير المثالية")
-
-
+    astronomical_score: int | None = Field(
+        None, ge=1, le=10, description="Astronomical score (1-10) - التصنيف الفلكي"
+    )
+    moon_phase_at_due_date: str | None = Field(None, description="Moon phase - مرحلة القمر")
+    lunar_mansion_at_due_date: str | None = Field(
+        None, description="Lunar mansion - المنزلة القمرية"
+    )
+    optimal_time_of_day: str | None = Field(
+        None, description="Optimal time of day - أفضل وقت في اليوم"
+    )
+    suggested_by_calendar: bool = Field(
+        False, description="Suggested by astronomical calendar - مقترح من التقويم الفلكي"
+    )
+    astronomical_recommendation: dict | None = Field(
+        None, description="Full astronomical data - البيانات الفلكية الكاملة"
+    )
+    astronomical_warnings: list[str] = Field(
+        default_factory=list,
+        description="Warnings about non-optimal dates - تحذيرات حول التواريخ غير المثالية",
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -325,8 +354,8 @@ class BestDayResponse(BaseModel):
     lunar_mansion_ar: str = Field(..., description="المنزلة القمرية بالعربية")
     reason: str = Field(..., description="السبب باللغة الإنجليزية")
     reason_ar: str = Field(..., description="السبب بالعربية")
-    best_time: Optional[str] = Field(None, description="أفضل وقت في اليوم")
-    hijri_date: Optional[str] = Field(None, description="التاريخ الهجري")
+    best_time: str | None = Field(None, description="أفضل وقت في اليوم")
+    hijri_date: str | None = Field(None, description="التاريخ الهجري")
 
 
 class AstronomicalTaskCreate(BaseModel):
@@ -335,36 +364,26 @@ class AstronomicalTaskCreate(BaseModel):
     field_id: str = Field(..., description="معرف الحقل")
     task_type: TaskType = Field(..., description="نوع المهمة")
     title: str = Field(..., min_length=1, max_length=200, description="عنوان المهمة")
-    title_ar: Optional[str] = Field(None, description="عنوان المهمة بالعربية")
-    description: Optional[str] = Field(None, description="وصف المهمة")
-    description_ar: Optional[str] = Field(None, description="وصف المهمة بالعربية")
+    title_ar: str | None = Field(None, description="عنوان المهمة بالعربية")
+    description: str | None = Field(None, description="وصف المهمة")
+    description_ar: str | None = Field(None, description="وصف المهمة بالعربية")
     activity: str = Field(
         ...,
         description="النشاط الفلكي: زراعة، ري، حصاد، تسميد، تقليم، غرس",
     )
-    use_best_date: bool = Field(
-        default=True, description="استخدام أفضل تاريخ من التقويم الفلكي"
-    )
-    assigned_to: Optional[str] = Field(None, description="المستخدم المعين للمهمة")
-    zone_id: Optional[str] = Field(None, description="معرف المنطقة")
-    priority: TaskPriority = Field(
-        default=TaskPriority.MEDIUM, description="أولوية المهمة"
-    )
-    estimated_duration_minutes: Optional[int] = Field(
-        None, description="المدة المقدرة بالدقائق"
-    )
-    search_days: int = Field(
-        default=30, ge=7, le=90, description="عدد الأيام للبحث عن أفضل تاريخ"
-    )
+    use_best_date: bool = Field(default=True, description="استخدام أفضل تاريخ من التقويم الفلكي")
+    assigned_to: str | None = Field(None, description="المستخدم المعين للمهمة")
+    zone_id: str | None = Field(None, description="معرف المنطقة")
+    priority: TaskPriority = Field(default=TaskPriority.MEDIUM, description="أولوية المهمة")
+    estimated_duration_minutes: int | None = Field(None, description="المدة المقدرة بالدقائق")
+    search_days: int = Field(default=30, ge=7, le=90, description="عدد الأيام للبحث عن أفضل تاريخ")
 
 
 class DateValidationRequest(BaseModel):
     """Validate date suitability for activity - التحقق من ملاءمة التاريخ للنشاط"""
 
     date: str = Field(..., description="التاريخ للتحقق منه (YYYY-MM-DD)")
-    activity: str = Field(
-        ..., description="النشاط: زراعة، ري، حصاد، تسميد، تقليم، غرس"
-    )
+    activity: str = Field(..., description="النشاط: زراعة، ري، حصاد، تسميد، تقليم، غرس")
 
 
 class DateValidationResponse(BaseModel):
@@ -381,10 +400,8 @@ class DateValidationResponse(BaseModel):
     lunar_mansion_ar: str = Field(..., description="المنزلة القمرية بالعربية")
     recommendation: str = Field(..., description="التوصية بالإنجليزية")
     recommendation_ar: str = Field(..., description="التوصية بالعربية")
-    best_time: Optional[str] = Field(None, description="أفضل وقت")
-    alternative_dates: list[str] = Field(
-        default=[], description="تواريخ بديلة أفضل"
-    )
+    best_time: str | None = Field(None, description="أفضل وقت")
+    alternative_dates: list[str] = Field(default=[], description="تواريخ بديلة أفضل")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -410,12 +427,41 @@ async def startup_event():
         logger.error(f"Failed to initialize database: {e}", exc_info=True)
         # Don't raise - allow service to start even if DB fails
 
+    # Initialize NATS connection
+    nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
+    logger.info(f"Connecting to NATS at {nats_url}...")
+    try:
+        sys.path.insert(0, os.path.dirname(__file__))
+        from events import NatsPublisher
+        from events.nats_publisher import set_publisher
+
+        publisher = NatsPublisher()
+        connected = await publisher.connect(nats_url)
+        if connected:
+            set_publisher(publisher)
+            app.state.nats_publisher = publisher
+            logger.info(f"✅ NATS connected: {nats_url}")
+        else:
+            app.state.nats_publisher = None
+            logger.warning(f"⚠️ NATS connection failed: {nats_url}")
+    except Exception as e:
+        logger.warning(f"⚠️ NATS connection error: {e}")
+        app.state.nats_publisher = None
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Close database connections"""
     logger.info("Closing task-service database connections...")
     close_database()
+
+    # Disconnect from NATS
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            await app.state.nats_publisher.disconnect()
+            logger.info("✅ NATS disconnected")
+        except Exception as e:
+            logger.error(f"❌ Error disconnecting from NATS: {e}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -425,13 +471,15 @@ async def shutdown_event():
 
 def get_tenant_id(
     user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
-    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
 ) -> str:
     """Extract tenant ID from authenticated user or X-Tenant-Id header (fallback)"""
     if AUTH_AVAILABLE and user:
         return user.tenant_id
     if not x_tenant_id:
-        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required or authentication required")
+        raise HTTPException(
+            status_code=400, detail="X-Tenant-Id header is required or authentication required"
+        )
     return x_tenant_id
 
 
@@ -502,9 +550,7 @@ def calculate_ndvi_priority(
     """
     # Critical NDVI levels (below 0.2 indicates severe stress)
     if ndvi_value < 0.2:
-        logger.info(
-            f"Critical NDVI detected: {ndvi_value:.3f} - Setting URGENT priority"
-        )
+        logger.info(f"Critical NDVI detected: {ndvi_value:.3f} - Setting URGENT priority")
         return TaskPriority.URGENT
 
     # Significant drop detection
@@ -514,9 +560,7 @@ def calculate_ndvi_priority(
             logger.info(f"Severe NDVI drop: {drop_pct:.1f}% - Setting URGENT priority")
             return TaskPriority.URGENT
         elif drop_pct > 20:  # 20-30% drop
-            logger.info(
-                f"Significant NDVI drop: {drop_pct:.1f}% - Setting HIGH priority"
-            )
+            logger.info(f"Significant NDVI drop: {drop_pct:.1f}% - Setting HIGH priority")
             return TaskPriority.HIGH
 
     # Alert type based priority
@@ -612,8 +656,7 @@ def generate_ndvi_task_content(
                 f"Field inspection recommended."
             )
             description_ar = (
-                f"الصحة النباتية أقل من المتوقع (NDVI: {ndvi_value:.3f}). "
-                f"يُنصح بفحص الحقل."
+                f"الصحة النباتية أقل من المتوقع (NDVI: {ndvi_value:.3f}). يُنصح بفحص الحقل."
             )
     else:  # anomaly
         title = f"Unusual Vegetation Pattern{zone_text}"
@@ -657,9 +700,7 @@ async def send_task_notification(
     """
     try:
         # Import ServiceClient here to avoid circular imports
-        sys.path.insert(
-            0, os.path.join(os.path.dirname(__file__), "..", "..", "shared")
-        )
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
         from integration.client import ServiceName, get_service_client
 
         notification_client = get_service_client(ServiceName.NOTIFICATION)
@@ -693,19 +734,13 @@ async def send_task_notification(
             "action_url": f"/tasks/{task.task_id}",
         }
 
-        response = await notification_client.post(
-            "/api/v1/notifications", json=notification_data
-        )
+        response = await notification_client.post("/api/v1/notifications", json=notification_data)
 
         if response.success:
-            logger.info(
-                f"Notification sent for task {task.task_id} to user {task.assigned_to}"
-            )
+            logger.info(f"Notification sent for task {task.task_id} to user {task.assigned_to}")
             return True
         else:
-            logger.warning(
-                f"Failed to send notification for task {task.task_id}: {response.error}"
-            )
+            logger.warning(f"Failed to send notification for task {task.task_id}: {response.error}")
             return False
 
     except Exception as e:
@@ -753,9 +788,7 @@ def get_activity_translation(activity: str) -> tuple[str, str]:
     return (activity, activity)
 
 
-async def fetch_astronomical_best_days(
-    activity: str, days: int = 30
-) -> dict:
+async def fetch_astronomical_best_days(activity: str, days: int = 30) -> dict:
     """
     Fetch best days for activity from astronomical calendar service
     جلب أفضل الأيام للنشاط من خدمة التقويم الفلكي
@@ -860,8 +893,6 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
         )
 
 
-
-
 async def fetch_astronomical_data(due_date: datetime, task_type: TaskType) -> dict:
     """
     Fetch astronomical data from astronomical calendar service
@@ -893,9 +924,7 @@ async def fetch_astronomical_data(due_date: datetime, task_type: TaskType) -> di
 
         # Fetch astronomical data for the specific date
         async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(
-                f"{ASTRONOMICAL_SERVICE_URL}/v1/date/{date_str}"
-            )
+            response = await client.get(f"{ASTRONOMICAL_SERVICE_URL}/v1/date/{date_str}")
             response.raise_for_status()
             astro_data = response.json()
 
@@ -931,12 +960,8 @@ async def fetch_astronomical_data(due_date: datetime, task_type: TaskType) -> di
                 )
 
             if not result["farming_good"]:
-                warnings.append(
-                    f"مرحلة القمر ({result['moon_phase_ar']}) غير مناسبة للزراعة"
-                )
-                warnings.append(
-                    f"Moon phase ({result['moon_phase']}) is not suitable for planting"
-                )
+                warnings.append(f"مرحلة القمر ({result['moon_phase_ar']}) غير مناسبة للزراعة")
+                warnings.append(f"Moon phase ({result['moon_phase']}) is not suitable for planting")
 
             result["warnings"] = warnings
 
@@ -973,9 +998,7 @@ async def fetch_astronomical_data(due_date: datetime, task_type: TaskType) -> di
         }
 
 
-async def validate_and_enrich_task_with_astronomy(
-    task: Task, task_type: TaskType
-) -> Task:
+async def validate_and_enrich_task_with_astronomy(task: Task, task_type: TaskType) -> Task:
     """
     Validate task due date against astronomical calendar and enrich with astronomical data
     التحقق من تاريخ المهمة مقابل التقويم الفلكي وإثرائها بالبيانات الفلكية
@@ -1018,7 +1041,18 @@ async def validate_and_enrich_task_with_astronomy(
 @app.get("/healthz")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "service": SERVICE_NAME}
+    nats_status = "disconnected"
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        nats_status = "connected" if app.state.nats_publisher.connected else "disconnected"
+
+    return {
+        "status": "healthy",
+        "service": SERVICE_NAME,
+        "dependencies": {
+            "database": "connected",  # Assuming DB is connected if service started
+            "nats": nats_status,
+        },
+    }
 
 
 @app.get("/api/v1/tasks", response_model=dict)
@@ -1071,9 +1105,7 @@ async def get_today_tasks(
     today_tasks = [
         t
         for t in tasks_db.values()
-        if t.tenant_id == tenant_id
-        and t.due_date
-        and today_start <= t.due_date < today_end
+        if t.tenant_id == tenant_id and t.due_date and today_start <= t.due_date < today_end
     ]
 
     return {
@@ -1090,9 +1122,7 @@ async def get_upcoming_tasks(
     """Get upcoming tasks for the next N days"""
     now = datetime.utcnow()
     future = now + timedelta(days=days)
-    tomorrow = (now + timedelta(days=1)).replace(
-        hour=0, minute=0, second=0, microsecond=0
-    )
+    tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
 
     upcoming = [
         t
@@ -1122,21 +1152,15 @@ async def get_task_stats(
     week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
     week_end = week_start + timedelta(days=7)
 
-    week_tasks = [
-        t for t in tenant_tasks if t.due_date and week_start <= t.due_date < week_end
-    ]
+    week_tasks = [t for t in tenant_tasks if t.due_date and week_start <= t.due_date < week_end]
 
-    completed_this_week = len(
-        [t for t in week_tasks if t.status == TaskStatus.COMPLETED]
-    )
+    completed_this_week = len([t for t in week_tasks if t.status == TaskStatus.COMPLETED])
     total_this_week = len(week_tasks)
 
     return {
         "total": len(tenant_tasks),
         "pending": len([t for t in tenant_tasks if t.status == TaskStatus.PENDING]),
-        "in_progress": len(
-            [t for t in tenant_tasks if t.status == TaskStatus.IN_PROGRESS]
-        ),
+        "in_progress": len([t for t in tenant_tasks if t.status == TaskStatus.IN_PROGRESS]),
         "completed": len([t for t in tenant_tasks if t.status == TaskStatus.COMPLETED]),
         "overdue": len(
             [
@@ -1151,9 +1175,7 @@ async def get_task_stats(
             "completed": completed_this_week,
             "total": total_this_week,
             "percentage": (
-                round(completed_this_week / total_this_week * 100)
-                if total_this_week > 0
-                else 0
+                round(completed_this_week / total_this_week * 100) if total_this_week > 0 else 0
             ),
         },
     }
@@ -1216,6 +1238,24 @@ async def create_task(
         task.astronomical_recommendation = data.astronomical_recommendation
 
     tasks_db[task_id] = task
+
+    # Publish task created event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_created
+
+            await publish_task_created(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                task_type=task.task_type.value,
+                priority=task.priority.value,
+                field_id=task.field_id,
+                assigned_to=task.assigned_to,
+                due_date=task.due_date.isoformat() if task.due_date else None,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_created event: {e}")
+
     return task
 
 
@@ -1240,6 +1280,20 @@ async def update_task(
 
     task.updated_at = datetime.utcnow()
     tasks_db[task_id] = task
+
+    # Publish task updated event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_updated
+
+            await publish_task_updated(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                changes=update_data,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_updated event: {e}")
+
     return task
 
 
@@ -1280,6 +1334,21 @@ async def complete_task(
         task.metadata = {**(task.metadata or {}), **data.completion_metadata}
 
     tasks_db[task_id] = task
+
+    # Publish task completed event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_completed
+
+            await publish_task_completed(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                completed_by=task.assigned_to or "system",
+                actual_duration_minutes=data.actual_duration_minutes,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_completed event: {e}")
+
     return task
 
 
@@ -1299,6 +1368,20 @@ async def start_task(
     task.status = TaskStatus.IN_PROGRESS
     task.updated_at = datetime.utcnow()
     tasks_db[task_id] = task
+
+    # Publish task started event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_started
+
+            await publish_task_started(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                started_by=task.assigned_to or "system",
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_started event: {e}")
+
     return task
 
 
@@ -1319,6 +1402,21 @@ async def cancel_task(
         task.metadata = {**(task.metadata or {}), "cancel_reason": reason}
 
     tasks_db[task_id] = task
+
+    # Publish task cancelled event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_cancelled
+
+            await publish_task_cancelled(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                cancelled_by=task.assigned_to or "system",
+                reason=reason,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_cancelled event: {e}")
+
     return task
 
 
@@ -1338,9 +1436,7 @@ async def delete_task(
 @app.post("/api/v1/tasks/{task_id}/evidence", response_model=Evidence, status_code=201)
 async def add_evidence(
     task_id: str,
-    evidence_type: str = Query(
-        ..., description="Type: photo, note, voice, measurement"
-    ),
+    evidence_type: str = Query(..., description="Type: photo, note, voice, measurement"),
     content: str = Query(..., description="URL or text content"),
     lat: float | None = None,
     lon: float | None = None,
@@ -1627,9 +1723,7 @@ async def auto_create_tasks(
     - Sends batch notifications
     - Returns summary of created tasks
     """
-    logger.info(
-        f"Auto-creating {len(data.suggestions)} tasks for field {data.field_id}"
-    )
+    logger.info(f"Auto-creating {len(data.suggestions)} tasks for field {data.field_id}")
 
     created_tasks = []
     failed_tasks = []
@@ -1685,9 +1779,7 @@ async def auto_create_tasks(
                 )
 
             except Exception as task_error:
-                logger.error(
-                    f"Failed to create task from suggestion {idx}: {task_error}"
-                )
+                logger.error(f"Failed to create task from suggestion {idx}: {task_error}")
                 failed_tasks.append(
                     {
                         "index": idx,
@@ -1726,8 +1818,7 @@ async def auto_create_tasks(
                 logger.warning(f"Failed to send batch notification: {notif_error}")
 
         logger.info(
-            f"Auto-create completed: {len(created_tasks)} created, "
-            f"{len(failed_tasks)} failed"
+            f"Auto-create completed: {len(created_tasks)} created, {len(failed_tasks)} failed"
         )
 
         return {
@@ -1744,9 +1835,8 @@ async def auto_create_tasks(
 
     except Exception as e:
         logger.error(f"Error in auto-create tasks: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Failed to auto-create tasks: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Failed to auto-create tasks: {str(e)}")
+
 
 # Astronomical-Based Task Endpoints - نقاط نهاية المهام الفلكية
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1796,12 +1886,8 @@ async def get_best_days_for_activity(
                 moon_phase_ar=day_data.get("moon_phase", "غير معروف"),
                 lunar_mansion=day_data.get("lunar_mansion", "Unknown"),
                 lunar_mansion_ar=day_data.get("lunar_mansion", "غير معروف"),
-                reason=day_data.get(
-                    "reason", f"Good day for {activity_en}"
-                ),
-                reason_ar=day_data.get(
-                    "reason", f"يوم جيد لـ{activity_ar}"
-                ),
+                reason=day_data.get("reason", f"Good day for {activity_en}"),
+                reason_ar=day_data.get("reason", f"يوم جيد لـ{activity_ar}"),
                 best_time=None,  # Can be added if available from service
                 hijri_date=day_data.get("hijri_date"),
             )
@@ -1836,9 +1922,7 @@ async def create_task_with_astronomical_recommendation(
     If use_best_date is True, the task will be scheduled on the best astronomical date.
     إذا كان use_best_date صحيحاً، سيتم جدولة المهمة في أفضل تاريخ فلكي.
     """
-    logger.info(
-        f"Creating astronomical task for activity: {data.activity}, field: {data.field_id}"
-    )
+    logger.info(f"Creating astronomical task for activity: {data.activity}, field: {data.field_id}")
 
     now = datetime.utcnow()
     task_id = f"task_{uuid.uuid4().hex[:12]}"
@@ -1852,9 +1936,7 @@ async def create_task_with_astronomical_recommendation(
 
     if data.use_best_date:
         # Fetch best days from astronomical calendar
-        astro_data = await fetch_astronomical_best_days(
-            data.activity, data.search_days
-        )
+        astro_data = await fetch_astronomical_best_days(data.activity, data.search_days)
 
         best_days = astro_data.get("best_days", [])
         if best_days:

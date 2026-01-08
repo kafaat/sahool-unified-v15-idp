@@ -16,21 +16,15 @@ Version: 15.5.0
 
 import math
 import os
+import sys
 from datetime import datetime, timedelta
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -1586,7 +1580,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "age_years": 3000,
             "techniques": ["حجارة جافة", "قنوات تصريف", "جدران احتفاظ"],
             "image_url": None,
-            "significance": "تمثل إنجازاً هندسياً فريداً يعكس ذكاء المزارع اليمني في التعامل مع التضاريس الصعبة"
+            "significance": "تمثل إنجازاً هندسياً فريداً يعكس ذكاء المزارع اليمني في التعامل مع التضاريس الصعبة",
         },
         "مدرجات حراز": {
             "name": "مدرجات حراز",
@@ -1600,7 +1594,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "age_years": 2500,
             "techniques": ["بناء حجري متقن", "نظام ري بالغيول", "تربة محسنة"],
             "image_url": None,
-            "significance": "موطن أجود أنواع البن اليمني"
+            "significance": "موطن أجود أنواع البن اليمني",
         },
         "مدرجات ريمة": {
             "name": "مدرجات ريمة",
@@ -1614,7 +1608,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "age_years": 2000,
             "techniques": ["تدريج دقيق", "استغلال الأمطار", "تنوع بيولوجي"],
             "image_url": None,
-            "significance": "تجمع بين الزراعة والحفاظ على التنوع البيولوجي"
+            "significance": "تجمع بين الزراعة والحفاظ على التنوع البيولوجي",
         },
         "مدرجات صعدة": {
             "name": "مدرجات صعدة",
@@ -1628,8 +1622,8 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "age_years": 2200,
             "techniques": ["زراعة موسمية", "استغلال مياه الأمطار", "تخزين التربة"],
             "image_url": None,
-            "significance": "تمثل النمط الزراعي التقليدي في المرتفعات الشمالية"
-        }
+            "significance": "تمثل النمط الزراعي التقليدي في المرتفعات الشمالية",
+        },
     },
     "dams": {
         "سد مأرب": {
@@ -1646,7 +1640,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "height_meters": 16,
             "capacity_cubic_meters": 30000000,
             "engineering_features": ["سدتان جانبيتان", "قنوات توزيع", "بوابات تحكم"],
-            "historical_significance": "ذُكر في القرآن الكريم وكان سبب ازدهار حضارة سبأ"
+            "historical_significance": "ذُكر في القرآن الكريم وكان سبب ازدهار حضارة سبأ",
         },
         "سد أذينة": {
             "name": "سد أذينة",
@@ -1662,7 +1656,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "height_meters": 8,
             "capacity_cubic_meters": 500000,
             "engineering_features": ["بناء حجري", "قنوات فرعية"],
-            "historical_significance": "يعكس تطور تقنيات الري في الحضارة الحميرية"
+            "historical_significance": "يعكس تطور تقنيات الري في الحضارة الحميرية",
         },
         "سد الخانق": {
             "name": "سد الخانق",
@@ -1678,7 +1672,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "height_meters": 12,
             "capacity_cubic_meters": 350000,
             "engineering_features": ["استغلال التضاريس", "قنوات طبيعية"],
-            "historical_significance": "نموذج للهندسة المائية الذكية"
+            "historical_significance": "نموذج للهندسة المائية الذكية",
         },
         "سد جفينة": {
             "name": "سد جفينة",
@@ -1694,8 +1688,8 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "height_meters": 10,
             "capacity_cubic_meters": 800000,
             "engineering_features": ["نظام ري متطور", "بوابات خشبية"],
-            "historical_significance": "شاهد على ازدهار الزراعة في الجنوب اليمني"
-        }
+            "historical_significance": "شاهد على ازدهار الزراعة في الجنوب اليمني",
+        },
     },
     "water_systems": {
         "الغيول": {
@@ -1710,7 +1704,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "water_source": "ينابيع جبلية، عيون طبيعية",
             "distribution_method": "توزيع عادل حسب الأوقات المحددة",
             "maintenance": "صيانة جماعية موسمية",
-            "social_aspect": "نظام إدارة مجتمعي تقليدي"
+            "social_aspect": "نظام إدارة مجتمعي تقليدي",
         },
         "الآبار الارتوازية": {
             "name": "الآبار الارتوازية التقليدية",
@@ -1724,7 +1718,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "water_source": "المياه الجوفية",
             "distribution_method": "رفع بالدلو أو البكرة",
             "maintenance": "تنظيف دوري، إصلاح الجدران",
-            "social_aspect": "ملكية مشتركة أو عامة"
+            "social_aspect": "ملكية مشتركة أو عامة",
         },
         "السواقي": {
             "name": "السواقي",
@@ -1738,7 +1732,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "water_source": "آبار، أنهار",
             "distribution_method": "قنوات صغيرة متفرعة",
             "maintenance": "تشحيم، تبديل الأجزاء الخشبية",
-            "social_aspect": "ملكية فردية أو عائلية"
+            "social_aspect": "ملكية فردية أو عائلية",
         },
         "الأحواض والبرك": {
             "name": "أحواض تجميع المياه",
@@ -1752,8 +1746,8 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "water_source": "مياه أمطار، فائض الغيول",
             "distribution_method": "استخدام مباشر أو توزيع بالجرار",
             "maintenance": "تنظيف سنوي قبل موسم الأمطار",
-            "social_aspect": "ملكية مشتركة للقرية"
-        }
+            "social_aspect": "ملكية مشتركة للقرية",
+        },
     },
     "storage": {
         "المخازن الحجرية": {
@@ -1767,7 +1761,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "preservation_method": "التهوية الطبيعية، العزل الحراري",
             "age_years": 800,
             "design_features": ["فتحات تهوية علوية", "أرضيات مرتفعة", "جدران عازلة"],
-            "cultural_significance": "جزء من العمارة اليمنية التقليدية"
+            "cultural_significance": "جزء من العمارة اليمنية التقليدية",
         },
         "الصوامع التقليدية": {
             "name": "الصوامع الطينية",
@@ -1780,7 +1774,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "preservation_method": "العزل الطبيعي، التجفيف الشمسي",
             "age_years": 600,
             "design_features": ["شكل أسطواني", "غطاء محكم", "قاعدة مرتفعة"],
-            "cultural_significance": "تكنولوجيا تخزين تقليدية فعالة"
+            "cultural_significance": "تكنولوجيا تخزين تقليدية فعالة",
         },
         "القمريات": {
             "name": "القمريات",
@@ -1793,7 +1787,7 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "preservation_method": "التهوية المتقاطعة، الارتفاع",
             "age_years": 500,
             "design_features": ["نوافذ قمرية للتهوية", "أرضيات خشبية", "عزل طبيعي"],
-            "cultural_significance": "جزء من التراث المعماري اليمني"
+            "cultural_significance": "جزء من التراث المعماري اليمني",
         },
         "الكهوف التخزينية": {
             "name": "كهوف التخزين",
@@ -1806,9 +1800,9 @@ YEMENI_AGRICULTURAL_LANDMARKS = {
             "preservation_method": "حرارة ثابتة، رطوبة منخفضة",
             "age_years": 2000,
             "design_features": ["درجة حرارة ثابتة", "رطوبة منخفضة", "حماية من الحشرات"],
-            "cultural_significance": "أقدم طرق التخزين في اليمن"
-        }
-    }
+            "cultural_significance": "أقدم طرق التخزين في اليمن",
+        },
+    },
 }
 
 # المواسم الزراعية اليمنية التقليدية
@@ -2826,12 +2820,8 @@ class DailyAstronomicalData(BaseModel):
     lunar_mansion: LunarMansion = Field(..., description="المنزلة القمرية")
     zodiac: ZodiacInfo = Field(..., description="البرج")
     season: SeasonInfo = Field(..., description="الموسم")
-    overall_farming_score: int = Field(
-        ..., ge=1, le=10, description="درجة الزراعة الإجمالية"
-    )
-    recommendations: list[FarmingRecommendation] = Field(
-        ..., description="التوصيات الزراعية"
-    )
+    overall_farming_score: int = Field(..., ge=1, le=10, description="درجة الزراعة الإجمالية")
+    recommendations: list[FarmingRecommendation] = Field(..., description="التوصيات الزراعية")
 
 
 class WeeklyForecast(BaseModel):
@@ -3006,8 +2996,7 @@ def get_zodiac_sign(dt: datetime) -> ZodiacInfo:
     sign_key = "capricorn"  # افتراضي
     for zd in zodiac_dates:
         if (month == zd[0] and day >= zd[1]) or (
-            month == zd[0] + 1
-            and day < zodiac_dates[(zodiac_dates.index(zd) + 1) % 12][1]
+            month == zd[0] + 1 and day < zodiac_dates[(zodiac_dates.index(zd) + 1) % 12][1]
         ):
             sign_key = zd[2]
             break
@@ -3084,11 +3073,7 @@ def calculate_farming_recommendations(
     planting_suitability = (
         "ممتازة"
         if planting_score >= 8
-        else (
-            "جيدة"
-            if planting_score >= 6
-            else "متوسطة" if planting_score >= 4 else "ضعيفة"
-        )
+        else ("جيدة" if planting_score >= 6 else "متوسطة" if planting_score >= 4 else "ضعيفة")
     )
 
     recommendations.append(
@@ -3113,9 +3098,7 @@ def calculate_farming_recommendations(
         FarmingRecommendation(
             activity="ري",
             suitability=(
-                "ممتازة"
-                if irrigation_score >= 8
-                else "جيدة" if irrigation_score >= 6 else "متوسطة"
+                "ممتازة" if irrigation_score >= 8 else "جيدة" if irrigation_score >= 6 else "متوسطة"
             ),
             suitability_score=irrigation_score,
             reason=f"عنصر البرج: {zodiac.element}, عنصر المنزلة: {lunar_mansion.element}",
@@ -3135,9 +3118,7 @@ def calculate_farming_recommendations(
         FarmingRecommendation(
             activity="حصاد",
             suitability=(
-                "ممتازة"
-                if harvest_score >= 8
-                else "جيدة" if harvest_score >= 6 else "متوسطة"
+                "ممتازة" if harvest_score >= 8 else "جيدة" if harvest_score >= 6 else "متوسطة"
             ),
             suitability_score=harvest_score,
             reason=f"القمر {'متناقص' if not moon_phase.is_waxing else 'متزايد'} - {'مناسب' if not moon_phase.is_waxing else 'غير مثالي'} للحصاد",
@@ -3157,9 +3138,7 @@ def calculate_farming_recommendations(
         FarmingRecommendation(
             activity="تقليم",
             suitability=(
-                "ممتازة"
-                if pruning_score >= 8
-                else "جيدة" if pruning_score >= 6 else "متوسطة"
+                "ممتازة" if pruning_score >= 8 else "جيدة" if pruning_score >= 6 else "متوسطة"
             ),
             suitability_score=pruning_score,
             reason="القمر المتناقص أفضل للتقليم",
@@ -3196,9 +3175,7 @@ def get_daily_astronomical_data(dt: datetime) -> DailyAstronomicalData:
     season = get_current_season(dt.month)
     hijri = gregorian_to_hijri(dt.year, dt.month, dt.day)
 
-    recommendations = calculate_farming_recommendations(
-        moon_phase, lunar_mansion, zodiac
-    )
+    recommendations = calculate_farming_recommendations(moon_phase, lunar_mansion, zodiac)
     overall_score = calculate_overall_score(moon_phase, lunar_mansion, zodiac)
 
     return DailyAstronomicalData(
@@ -3257,14 +3234,12 @@ def get_date(date_str: str):
         dt = datetime.strptime(date_str, "%Y-%m-%d")
         return get_daily_astronomical_data(dt)
     except ValueError:
-        raise HTTPException(
-            status_code=400, detail="صيغة التاريخ غير صحيحة. استخدم YYYY-MM-DD"
-        )
+        raise HTTPException(status_code=400, detail="صيغة التاريخ غير صحيحة. استخدم YYYY-MM-DD")
 
 
 @app.get("/v1/week", response_model=WeeklyForecast, tags=["Calendar"])
 def get_weekly_forecast(
-    start_date: str | None = Query(None, description="تاريخ البداية (YYYY-MM-DD)")
+    start_date: str | None = Query(None, description="تاريخ البداية (YYYY-MM-DD)"),
 ):
     """
     الحصول على التوقعات الفلكية الأسبوعية
@@ -3295,9 +3270,7 @@ def get_weekly_forecast(
             best_planting.append(date_str)
 
         # أفضل أيام الحصاد: القمر متناقص + درجة جيدة
-        harvest_rec = next(
-            (r for r in data.recommendations if r.activity == "حصاد"), None
-        )
+        harvest_rec = next((r for r in data.recommendations if r.activity == "حصاد"), None)
         if harvest_rec and harvest_rec.suitability_score >= 7:
             best_harvesting.append(date_str)
 
@@ -3317,9 +3290,7 @@ def get_weekly_forecast(
 
 
 @app.get("/v1/moon-phase", response_model=MoonPhase, tags=["Astronomy"])
-def get_moon_phase(
-    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")
-):
+def get_moon_phase(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")):
     """الحصول على مرحلة القمر"""
     if date_str:
         try:
@@ -3333,9 +3304,7 @@ def get_moon_phase(
 
 
 @app.get("/v1/lunar-mansion", response_model=LunarMansion, tags=["Astronomy"])
-def get_lunar_mansion(
-    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")
-):
+def get_lunar_mansion(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")):
     """الحصول على المنزلة القمرية الحالية"""
     if date_str:
         try:
@@ -3368,9 +3337,7 @@ def list_lunar_mansions():
 
 
 @app.get("/v1/hijri", response_model=HijriDate, tags=["Calendar"])
-def get_hijri_date(
-    date_str: str | None = Query(None, description="التاريخ الميلادي (YYYY-MM-DD)")
-):
+def get_hijri_date(date_str: str | None = Query(None, description="التاريخ الميلادي (YYYY-MM-DD)")):
     """تحويل تاريخ ميلادي إلى هجري"""
     if date_str:
         try:
@@ -3390,9 +3357,7 @@ def list_hijri_months():
 
 
 @app.get("/v1/zodiac", response_model=ZodiacInfo, tags=["Astronomy"])
-def get_zodiac(
-    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")
-):
+def get_zodiac(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")):
     """الحصول على البرج الشمسي"""
     if date_str:
         try:
@@ -3593,22 +3558,24 @@ def get_regions():
     """
     regions_summary = []
     for region_id, region_data in YEMENI_AGRICULTURAL_REGIONS.items():
-        regions_summary.append({
-            "id": region_id,
-            "name": region_data["name"],
-            "name_en": region_data["name_en"],
-            "governorates": region_data["governorates"],
-            "climate_type": region_data["climate"]["type"],
-            "altitude": region_data["altitude"],
-            "main_crops_count": len(region_data["main_crops"]),
-            "famous_products": region_data["famous_products"][:3],  # Top 3
-            "description": region_data["description"],
-        })
+        regions_summary.append(
+            {
+                "id": region_id,
+                "name": region_data["name"],
+                "name_en": region_data["name_en"],
+                "governorates": region_data["governorates"],
+                "climate_type": region_data["climate"]["type"],
+                "altitude": region_data["altitude"],
+                "main_crops_count": len(region_data["main_crops"]),
+                "famous_products": region_data["famous_products"][:3],  # Top 3
+                "description": region_data["description"],
+            }
+        )
 
     return {
         "regions": regions_summary,
         "total": len(regions_summary),
-        "note": "استخدم /v1/regions/{region_id} للحصول على تفاصيل كاملة لمنطقة معينة"
+        "note": "استخدم /v1/regions/{region_id} للحصول على تفاصيل كاملة لمنطقة معينة",
     }
 
 
@@ -3631,7 +3598,7 @@ def get_region(region_id: str):
         available_regions = list(YEMENI_AGRICULTURAL_REGIONS.keys())
         raise HTTPException(
             status_code=404,
-            detail=f"المنطقة '{region_id}' غير موجودة. المناطق المتاحة: {', '.join(available_regions)}"
+            detail=f"المنطقة '{region_id}' غير موجودة. المناطق المتاحة: {', '.join(available_regions)}",
         )
 
     region_data = YEMENI_AGRICULTURAL_REGIONS[region_id]
@@ -3643,9 +3610,18 @@ def get_region(region_id: str):
 
     # تحديد الموسم الحالي
     month_names_ar = {
-        1: "يناير", 2: "فبراير", 3: "مارس", 4: "أبريل",
-        5: "مايو", 6: "يونيو", 7: "يوليو", 8: "أغسطس",
-        9: "سبتمبر", 10: "أكتوبر", 11: "نوفمبر", 12: "ديسمبر"
+        1: "يناير",
+        2: "فبراير",
+        3: "مارس",
+        4: "أبريل",
+        5: "مايو",
+        6: "يونيو",
+        7: "يوليو",
+        8: "أغسطس",
+        9: "سبتمبر",
+        10: "أكتوبر",
+        11: "نوفمبر",
+        12: "ديسمبر",
     }
 
     current_month_name = month_names_ar[current_month]
@@ -3693,9 +3669,13 @@ def get_region(region_id: str):
         "current_recommendations": {
             "month": current_month_name,
             "season": current_season if current_season else "غير محدد",
-            "recommended_crops": recommended_crops if recommended_crops else ["لا توجد توصيات لهذا الشهر"],
-            "note": f"الموسم الحالي: {current_season}" if current_season else "خارج المواسم الرئيسية"
-        }
+            "recommended_crops": recommended_crops
+            if recommended_crops
+            else ["لا توجد توصيات لهذا الشهر"],
+            "note": f"الموسم الحالي: {current_season}"
+            if current_season
+            else "خارج المواسم الرئيسية",
+        },
     }
 
 
@@ -3715,7 +3695,7 @@ def get_region_crops(region_id: str):
         available_regions = list(YEMENI_AGRICULTURAL_REGIONS.keys())
         raise HTTPException(
             status_code=404,
-            detail=f"المنطقة '{region_id}' غير موجودة. المناطق المتاحة: {', '.join(available_regions)}"
+            detail=f"المنطقة '{region_id}' غير موجودة. المناطق المتاحة: {', '.join(available_regions)}",
         )
 
     region_data = YEMENI_AGRICULTURAL_REGIONS[region_id]
@@ -3727,7 +3707,7 @@ def get_region_crops(region_id: str):
             "name": season_name,
             "months": season_info["months"],
             "months_en": season_info["months_en"],
-            "crops": season_info["crops"]
+            "crops": season_info["crops"],
         }
 
     # إحصائيات
@@ -3741,26 +3721,26 @@ def get_region_crops(region_id: str):
         "all_crops": {
             "arabic": region_data["main_crops"],
             "english": region_data["main_crops_en"],
-            "total": total_crops
+            "total": total_crops,
         },
         "crops_by_season": crops_by_season,
         "famous_products": {
             "arabic": region_data["famous_products"],
             "english": region_data["famous_products_en"],
-            "total": total_famous_products
+            "total": total_famous_products,
         },
         "climate_suitability": {
             "climate_type": region_data["climate"]["type"],
             "avg_temp_summer": region_data["climate"]["avg_temp_summer"],
             "avg_temp_winter": region_data["climate"]["avg_temp_winter"],
             "rainfall_mm": region_data["climate"]["rainfall_mm"],
-            "note": f"المنطقة مناسبة لـ {total_crops} نوع من المحاصيل"
+            "note": f"المنطقة مناسبة لـ {total_crops} نوع من المحاصيل",
         },
         "agricultural_heritage": {
             "traditional_irrigation": region_data["traditional_irrigation"],
             "soil_type": region_data["soil_type"],
-            "water_sources": region_data["water_sources"]
-        }
+            "water_sources": region_data["water_sources"],
+        },
     }
 
 
@@ -3851,9 +3831,7 @@ async def get_integrated_data(
                     "⚠️ درجة الحرارة مرتفعة - يُنصح بالري في الصباح الباكر أو المساء"
                 )
             elif rec.activity == "زراعة" and temp < 10:
-                integrated_rec["weather_note"] = (
-                    "⚠️ درجة الحرارة منخفضة - قد تؤثر على الإنبات"
-                )
+                integrated_rec["weather_note"] = "⚠️ درجة الحرارة منخفضة - قد تؤثر على الإنبات"
 
         integrated_recommendations.append(integrated_rec)
 
@@ -3885,21 +3863,23 @@ async def get_integrated_data(
 def list_detailed_crops():
     """
     قائمة المحاصيل مع التفاصيل الكاملة
-    
+
     يرجع معلومات موجزة عن جميع المحاصيل في التقويم التفصيلي
     """
     crops_summary = []
     for crop_id, crop_data in DETAILED_CROP_CALENDAR.items():
-        crops_summary.append({
-            "crop_id": crop_id,
-            "name": crop_data["name"],
-            "name_en": crop_data["name_en"],
-            "regions": crop_data["regions"],
-            "altitude_range": crop_data["altitude_range"],
-            "lifecycle_years": crop_data["lifecycle_years"],
-            "market_price_yer_kg": crop_data["market_price_yer_kg"],
-        })
-    
+        crops_summary.append(
+            {
+                "crop_id": crop_id,
+                "name": crop_data["name"],
+                "name_en": crop_data["name_en"],
+                "regions": crop_data["regions"],
+                "altitude_range": crop_data["altitude_range"],
+                "lifecycle_years": crop_data["lifecycle_years"],
+                "market_price_yer_kg": crop_data["market_price_yer_kg"],
+            }
+        )
+
     return {
         "total_crops": len(crops_summary),
         "crops": crops_summary,
@@ -3910,7 +3890,7 @@ def list_detailed_crops():
 def get_crop_details(crop_id: str):
     """
     تفاصيل محصول كاملة
-    
+
     يرجع جميع المعلومات عن محصول معين بما في ذلك:
     - الأصناف والمناطق
     - معلومات الزراعة التفصيلية
@@ -3920,45 +3900,48 @@ def get_crop_details(crop_id: str):
     """
     if crop_id not in DETAILED_CROP_CALENDAR:
         raise HTTPException(
-            status_code=404,
-            detail=f"المحصول '{crop_id}' غير موجود في التقويم التفصيلي"
+            status_code=404, detail=f"المحصول '{crop_id}' غير موجود في التقويم التفصيلي"
         )
-    
+
     crop_data = DETAILED_CROP_CALENDAR[crop_id]
-    
+
     # حساب ملاءمة اليوم الحالي للزراعة
     today = get_daily_astronomical_data(datetime.utcnow())
     current_month = datetime.utcnow().month
-    
+
     planting_suitability = {
         "score": 5,
         "suitable_now": False,
         "reason": [],
     }
-    
+
     # Check if current month is in optimal planting months
     if current_month in crop_data["planting"]["gregorian_months"]:
         planting_suitability["score"] += 2
         planting_suitability["suitable_now"] = True
         planting_suitability["reason"].append("الشهر الحالي مناسب للزراعة")
-    
+
     # Check if current lunar mansion is optimal
     if today.lunar_mansion.number in crop_data["planting"]["lunar_mansions"]:
         planting_suitability["score"] += 2
         planting_suitability["suitable_now"] = True
-        planting_suitability["reason"].append(f"المنزلة الحالية ({today.lunar_mansion.name}) مناسبة")
-    
+        planting_suitability["reason"].append(
+            f"المنزلة الحالية ({today.lunar_mansion.name}) مناسبة"
+        )
+
     # Check moon phase
     required_phase = crop_data["planting"]["moon_phase"]
-    if (required_phase == "متزايد" and today.moon_phase.is_waxing) or        (required_phase == "متناقص" and not today.moon_phase.is_waxing):
+    if (required_phase == "متزايد" and today.moon_phase.is_waxing) or (
+        required_phase == "متناقص" and not today.moon_phase.is_waxing
+    ):
         planting_suitability["score"] += 1
         planting_suitability["reason"].append(f"مرحلة القمر مناسبة ({today.moon_phase.name})")
-    
+
     planting_suitability["score"] = min(10, planting_suitability["score"])
-    
+
     if not planting_suitability["reason"]:
         planting_suitability["reason"].append("الوقت الحالي غير مثالي للزراعة")
-    
+
     return {
         **crop_data,
         "crop_id": crop_id,
@@ -3973,17 +3956,16 @@ def get_crop_details(crop_id: str):
 def get_planting_guide(crop_id: str):
     """
     دليل زراعة المحصول المفصل
-    
+
     يرجع دليل خطوة بخطوة لزراعة المحصول المحدد
     """
     if crop_id not in DETAILED_CROP_CALENDAR:
         raise HTTPException(
-            status_code=404,
-            detail=f"المحصول '{crop_id}' غير موجود في التقويم التفصيلي"
+            status_code=404, detail=f"المحصول '{crop_id}' غير موجود في التقويم التفصيلي"
         )
-    
+
     crop_data = DETAILED_CROP_CALENDAR[crop_id]
-    
+
     # Build comprehensive planting guide
     guide = {
         "crop_id": crop_id,
@@ -4038,7 +4020,7 @@ def get_planting_guide(crop_id: str):
             "market_price_yer_per_kg": crop_data["market_price_yer_kg"],
         },
     }
-    
+
     return guide
 
 
@@ -4050,7 +4032,7 @@ def what_to_plant_now(
 ):
     """
     ماذا أزرع الآن؟
-    
+
     يوصي بالمحاصيل المناسبة للزراعة في الوقت الحالي بناءً على:
     - التاريخ الحالي (الشهر الميلادي والهجري)
     - المنزلة القمرية
@@ -4061,38 +4043,42 @@ def what_to_plant_now(
     today = get_daily_astronomical_data(datetime.utcnow())
     current_month = datetime.utcnow().month
     current_hijri_month = today.date_hijri.month_name
-    
+
     recommendations = []
-    
+
     for crop_id, crop_data in DETAILED_CROP_CALENDAR.items():
         score = 0
         reasons = []
-        
+
         # Check if current month is suitable
         if current_month in crop_data["planting"]["gregorian_months"]:
             score += 3
             reasons.append(f"الشهر الحالي ({current_month}) مناسب للزراعة")
-        
+
         # Check if current lunar mansion is suitable
         if today.lunar_mansion.number in crop_data["planting"]["lunar_mansions"]:
             score += 3
             reasons.append(f"المنزلة القمرية ({today.lunar_mansion.name}) مناسبة")
-        
+
         # Check moon phase
         required_phase = crop_data["planting"]["moon_phase"]
-        if (required_phase == "متزايد" and today.moon_phase.is_waxing) or            (required_phase == "متناقص" and not today.moon_phase.is_waxing):
+        if (required_phase == "متزايد" and today.moon_phase.is_waxing) or (
+            required_phase == "متناقص" and not today.moon_phase.is_waxing
+        ):
             score += 2
             reasons.append(f"مرحلة القمر ({today.moon_phase.name}) مناسبة")
-        
+
         # Filter by region if specified
         if region:
-            if region in crop_data["regions"] or any(region.lower() in r.lower() for r in crop_data["regions"]):
+            if region in crop_data["regions"] or any(
+                region.lower() in r.lower() for r in crop_data["regions"]
+            ):
                 score += 2
                 reasons.append(f"مناسب لمنطقة {region}")
             else:
                 # Significantly reduce score if region doesn't match
                 score -= 5
-        
+
         # Filter by altitude if specified
         if altitude_min is not None or altitude_max is not None:
             # Parse altitude range from crop data (format: "1400-2400م")
@@ -4100,39 +4086,41 @@ def what_to_plant_now(
             try:
                 crop_alt_min = int(alt_range[0])
                 crop_alt_max = int(alt_range[1])
-                
+
                 user_alt_min = altitude_min if altitude_min is not None else 0
                 user_alt_max = altitude_max if altitude_max is not None else 10000
-                
+
                 # Check if there's overlap
                 if crop_alt_min <= user_alt_max and crop_alt_max >= user_alt_min:
                     score += 2
-                    reasons.append(f"مناسب للارتفاع المطلوب")
+                    reasons.append("مناسب للارتفاع المطلوب")
                 else:
                     score -= 5
             except:
                 pass
-        
+
         # Only include if score is positive
         if score > 0:
-            recommendations.append({
-                "crop_id": crop_id,
-                "name": crop_data["name"],
-                "name_en": crop_data["name_en"],
-                "suitability_score": min(10, score),
-                "reasons": reasons,
-                "planting_method": crop_data["planting"]["method"],
-                "spacing_m": crop_data["planting"]["spacing_m"],
-                "regions": crop_data["regions"],
-                "altitude_range": crop_data["altitude_range"],
-                "first_harvest_in_years": crop_data["first_harvest_year"],
-                "expected_yield": crop_data["harvest"]["yield_kg_per_tree"],
-                "market_price_yer_kg": crop_data["market_price_yer_kg"],
-            })
-    
+            recommendations.append(
+                {
+                    "crop_id": crop_id,
+                    "name": crop_data["name"],
+                    "name_en": crop_data["name_en"],
+                    "suitability_score": min(10, score),
+                    "reasons": reasons,
+                    "planting_method": crop_data["planting"]["method"],
+                    "spacing_m": crop_data["planting"]["spacing_m"],
+                    "regions": crop_data["regions"],
+                    "altitude_range": crop_data["altitude_range"],
+                    "first_harvest_in_years": crop_data["first_harvest_year"],
+                    "expected_yield": crop_data["harvest"]["yield_kg_per_tree"],
+                    "market_price_yer_kg": crop_data["market_price_yer_kg"],
+                }
+            )
+
     # Sort by suitability score
     recommendations.sort(key=lambda x: x["suitability_score"], reverse=True)
-    
+
     return {
         "query_date": datetime.utcnow().strftime("%Y-%m-%d"),
         "hijri_date": f"{today.date_hijri.day} {current_hijri_month} {today.date_hijri.year}هـ",
@@ -4245,9 +4233,7 @@ def get_mansion_proverbs(mansion_name: str):
     الحصول على الأمثال المرتبطة بمنزلة قمرية معينة
     """
     matching_proverbs = [
-        p
-        for p in YEMENI_FARMING_PROVERBS["general"]
-        if p.get("mansion") == mansion_name
+        p for p in YEMENI_FARMING_PROVERBS["general"] if p.get("mansion") == mansion_name
     ]
 
     # البحث في المنازل للحصول على معلومات إضافية
@@ -4337,18 +4323,18 @@ def get_landmarks():
         "total_water_systems": len(YEMENI_AGRICULTURAL_LANDMARKS["water_systems"]),
         "total_storage_systems": len(YEMENI_AGRICULTURAL_LANDMARKS["storage"]),
         "total_landmarks": (
-            len(YEMENI_AGRICULTURAL_LANDMARKS["terraces"]) +
-            len(YEMENI_AGRICULTURAL_LANDMARKS["dams"]) +
-            len(YEMENI_AGRICULTURAL_LANDMARKS["water_systems"]) +
-            len(YEMENI_AGRICULTURAL_LANDMARKS["storage"])
-        )
+            len(YEMENI_AGRICULTURAL_LANDMARKS["terraces"])
+            + len(YEMENI_AGRICULTURAL_LANDMARKS["dams"])
+            + len(YEMENI_AGRICULTURAL_LANDMARKS["water_systems"])
+            + len(YEMENI_AGRICULTURAL_LANDMARKS["storage"])
+        ),
     }
 
     return {
         "landmarks": YEMENI_AGRICULTURAL_LANDMARKS,
         "statistics": stats,
         "categories": ["terraces", "dams", "water_systems", "storage"],
-        "description": "التراث الزراعي اليمني - تقنيات عمرها آلاف السنين ما زالت مستخدمة حتى اليوم"
+        "description": "التراث الزراعي اليمني - تقنيات عمرها آلاف السنين ما زالت مستخدمة حتى اليوم",
     }
 
 
@@ -4368,7 +4354,7 @@ def get_landmarks_by_category(category: str):
     if category not in valid_categories:
         raise HTTPException(
             status_code=404,
-            detail=f"الفئة '{category}' غير موجودة. الفئات المتاحة: {', '.join(valid_categories)}"
+            detail=f"الفئة '{category}' غير موجودة. الفئات المتاحة: {', '.join(valid_categories)}",
         )
 
     category_data = YEMENI_AGRICULTURAL_LANDMARKS[category]
@@ -4378,14 +4364,14 @@ def get_landmarks_by_category(category: str):
         "terraces": "المدرجات الجبلية",
         "dams": "السدود التاريخية",
         "water_systems": "أنظمة الري التقليدية",
-        "storage": "أنظمة التخزين"
+        "storage": "أنظمة التخزين",
     }
 
     category_descriptions = {
         "terraces": "المدرجات الجبلية اليمنية تمثل إحدى أعظم الإنجازات الهندسية الزراعية في التاريخ",
         "dams": "السدود اليمنية القديمة شاهدة على عظمة الحضارات اليمنية القديمة",
         "water_systems": "أنظمة الري التقليدية تعكس الحكمة اليمنية في إدارة الموارد المائية",
-        "storage": "أنظمة التخزين التقليدية تحافظ على المحاصيل بطرق طبيعية وفعالة"
+        "storage": "أنظمة التخزين التقليدية تحافظ على المحاصيل بطرق طبيعية وفعالة",
     }
 
     return {
@@ -4394,7 +4380,7 @@ def get_landmarks_by_category(category: str):
         "description": category_descriptions[category],
         "landmarks": category_data,
         "count": len(category_data),
-        "items": list(category_data.keys())
+        "items": list(category_data.keys()),
     }
 
 
@@ -4408,10 +4394,7 @@ def get_specific_landmark(category: str, landmark_name: str):
     valid_categories = ["terraces", "dams", "water_systems", "storage"]
 
     if category not in valid_categories:
-        raise HTTPException(
-            status_code=404,
-            detail=f"الفئة '{category}' غير موجودة"
-        )
+        raise HTTPException(status_code=404, detail=f"الفئة '{category}' غير موجودة")
 
     category_data = YEMENI_AGRICULTURAL_LANDMARKS[category]
 
@@ -4419,7 +4402,7 @@ def get_specific_landmark(category: str, landmark_name: str):
         available_landmarks = list(category_data.keys())
         raise HTTPException(
             status_code=404,
-            detail=f"المعلم '{landmark_name}' غير موجود في هذه الفئة. المعالم المتاحة: {', '.join(available_landmarks)}"
+            detail=f"المعلم '{landmark_name}' غير موجود في هذه الفئة. المعالم المتاحة: {', '.join(available_landmarks)}",
         )
 
     landmark = category_data[landmark_name]
@@ -4429,7 +4412,7 @@ def get_specific_landmark(category: str, landmark_name: str):
         "category": category,
         "landmark": landmark,
         "related_categories": valid_categories,
-        "preservation_note": "هذه المعالم تحتاج للحماية والصيانة للحفاظ على التراث الزراعي اليمني"
+        "preservation_note": "هذه المعالم تحتاج للحماية والصيانة للحفاظ على التراث الزراعي اليمني",
     }
 
 
@@ -4465,9 +4448,7 @@ def get_daily_wisdom():
         mansion_tips.append(
             f"🌟 اليوم مناسب للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10"
         )
-        mansion_tips.append(
-            f"المحاصيل المقترحة: {', '.join(astro_data.lunar_mansion.crops[:3])}"
-        )
+        mansion_tips.append(f"المحاصيل المقترحة: {', '.join(astro_data.lunar_mansion.crops[:3])}")
     else:
         mansion_tips.append(
             f"⚠️ اليوم غير مثالي للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10"
@@ -4516,8 +4497,8 @@ def get_daily_wisdom():
 🌾 درجة الزراعة: {astro_data.overall_farming_score}/10
 
 📜 مثل اليوم:
-"{proverb['proverb']}"
-- {proverb['meaning']}
+"{proverb["proverb"]}"
+- {proverb["meaning"]}
         """.strip(),
     }
 
@@ -4650,11 +4631,7 @@ def get_technique_details(category: str, technique_id: str):
 
     # فحص المنزلة القمرية
     mansion_appropriate = False
-    if category == "plowing" and current_data.lunar_mansion.farming_score >= 6:
-        mansion_appropriate = True
-    elif category == "irrigation" and current_data.lunar_mansion.element == "ماء":
-        mansion_appropriate = True
-    elif category == "fertilization" and current_data.moon_phase.is_waxing:
+    if category == "plowing" and current_data.lunar_mansion.farming_score >= 6 or category == "irrigation" and current_data.lunar_mansion.element == "ماء" or category == "fertilization" and current_data.moon_phase.is_waxing:
         mansion_appropriate = True
 
     if mansion_appropriate:
@@ -4679,7 +4656,9 @@ def get_technique_details(category: str, technique_id: str):
                 else (
                     "جيد - يمكن التطبيق"
                     if suitability_score >= 6
-                    else "متوسط - انتظر وقتاً أفضل" if suitability_score >= 4 else "غير مناسب اليوم"
+                    else "متوسط - انتظر وقتاً أفضل"
+                    if suitability_score >= 4
+                    else "غير مناسب اليوم"
                 )
             ),
         },

@@ -43,9 +43,7 @@ def create_job(
 
     # تقدير وقت الإنجاز
     estimated_minutes = random.randint(2, 10)
-    estimated = (
-        datetime.now(UTC) + timedelta(minutes=estimated_minutes)
-    ).isoformat()
+    estimated = (datetime.now(UTC) + timedelta(minutes=estimated_minutes)).isoformat()
 
     job = {
         "job_id": job_id,
@@ -95,9 +93,7 @@ def update_job_status(
 
     if status in [JobStatus.COMPLETED, JobStatus.FAILED]:
         job["completed_at"] = datetime.now(UTC).isoformat()
-        job["progress_percent"] = (
-            100 if status == JobStatus.COMPLETED else job["progress_percent"]
-        )
+        job["progress_percent"] = 100 if status == JobStatus.COMPLETED else job["progress_percent"]
 
     if result:
         job["result"] = result
@@ -124,9 +120,7 @@ def cancel_job(job_id: str) -> bool:
     return True
 
 
-def list_jobs(
-    tenant_id: str = None, field_id: str = None, status: str = None
-) -> list[dict]:
+def list_jobs(tenant_id: str = None, field_id: str = None, status: str = None) -> list[dict]:
     """قائمة المهام"""
     jobs = list(_jobs.values())
 
@@ -180,9 +174,7 @@ def process_ndvi_mock(
 
     # معلومات المعالجة
     processing_info = ProcessingInfo(
-        atmospheric_correction=(
-            "sen2cor" if options.get("atmospheric_correction", True) else None
-        ),
+        atmospheric_correction=("sen2cor" if options.get("atmospheric_correction", True) else None),
         cloud_mask="s2cloudless" if options.get("cloud_masking", True) else None,
         processed_at=now.isoformat(),
     )
@@ -257,9 +249,7 @@ def get_field_ndvi(field_id: str, date: str = None) -> dict | None:
     return sorted(results, key=lambda x: x["date"], reverse=True)[0]
 
 
-def get_ndvi_timeseries(
-    field_id: str, start_date: str, end_date: str
-) -> list[TimeseriesPoint]:
+def get_ndvi_timeseries(field_id: str, start_date: str, end_date: str) -> list[TimeseriesPoint]:
     """جلب السلسلة الزمنية"""
     if field_id not in _results:
         # توليد بيانات محاكاة
@@ -324,9 +314,7 @@ def _generate_mock_timeseries(
 # ============== Change Analysis ==============
 
 
-def analyze_change(
-    field_id: str, date1: str, date2: str, include_zones: bool = True
-) -> dict:
+def analyze_change(field_id: str, date1: str, date2: str, include_zones: bool = True) -> dict:
     """تحليل التغير بين تاريخين"""
     from datetime import datetime
 
@@ -379,9 +367,7 @@ def analyze_change(
                 change=round(random.uniform(-0.15, 0.05), 3),
                 change_percent=round(random.uniform(-20, 10), 1),
                 trend=(
-                    TrendDirection.DECLINING
-                    if random.random() > 0.5
-                    else TrendDirection.STABLE
+                    TrendDirection.DECLINING if random.random() > 0.5 else TrendDirection.STABLE
                 ),
             ),
             ZoneChange(
@@ -478,9 +464,7 @@ def detect_anomaly(field_id: str, date: str, current_ndvi: float = None) -> dict
     historical_mean = random.uniform(0.5, 0.7)
     historical_std = random.uniform(0.05, 0.1)
 
-    z_score = (
-        (current_ndvi - historical_mean) / historical_std if historical_std > 0 else 0
-    )
+    z_score = (current_ndvi - historical_mean) / historical_std if historical_std > 0 else 0
     is_anomaly = abs(z_score) > 2.0
 
     anomaly_type = None

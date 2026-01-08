@@ -30,25 +30,38 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 
 from fastapi import FastAPI, Request, Response
-
-# Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
-
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from prometheus_client import Counter, Histogram, generate_latest
 
 # Add parent directories to path for imports
-sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
-from errors_py import setup_exception_handlers, add_request_id_middleware
-)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+try:
+    from shared.middleware import (
+        RequestLoggingMiddleware,
+        TenantContextMiddleware,
+        setup_cors,
+    )
+    from shared.observability.middleware import ObservabilityMiddleware
+except ImportError:
+    RequestLoggingMiddleware = None
+    TenantContextMiddleware = None
+    setup_cors = None
+    ObservabilityMiddleware = None
+
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+except ImportError:
+
+    def setup_exception_handlers(app):
+        pass
+
+    def add_request_id_middleware(app):
+        pass
+
 
 from shared.mcp.server import MCPServer
 
@@ -243,9 +256,7 @@ async def handle_mcp_request(request: Request):
             uri = data.get("params", {}).get("uri", "unknown")
             resource_type = uri.split("://")[0] if "://" in uri else "unknown"
             status = "error" if response.error else "success"
-            resource_reads_total.labels(
-                resource_type=resource_type, status=status
-            ).inc()
+            resource_reads_total.labels(resource_type=resource_type, status=status).inc()
 
         logger.info(
             f"MCP Response: {method} (id: {data.get('id')}) - "

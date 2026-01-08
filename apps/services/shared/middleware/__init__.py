@@ -5,6 +5,7 @@ SAHOOL Shared Middleware
 This module provides reusable middleware components for FastAPI services.
 """
 
+from .cors import setup_cors
 from .health import (
     HealthStatus,
     setup_health_endpoints,
@@ -16,6 +17,8 @@ from .rate_limiter import (
     get_rate_limit_headers,
     setup_rate_limiting,
 )
+from .request_logging import RequestLoggingMiddleware
+from .tenant_context import TenantContextMiddleware
 
 __all__ = [
     # Rate Limiting
@@ -27,4 +30,10 @@ __all__ = [
     # Health Checks
     "setup_health_endpoints",
     "HealthStatus",
+    # Request Logging
+    "RequestLoggingMiddleware",
+    # Tenant Context
+    "TenantContextMiddleware",
+    # CORS
+    "setup_cors",
 ]

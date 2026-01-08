@@ -45,9 +45,7 @@ class RevokeUserTokensRequest(BaseModel):
     reason: str | None = Field("manual", description="Reason for revocation")
 
     class Config:
-        json_schema_extra = {
-            "example": {"user_id": "user-123", "reason": "password_change"}
-        }
+        json_schema_extra = {"example": {"user_id": "user-123", "reason": "password_change"}}
 
 
 class RevokeTenantTokensRequest(BaseModel):
@@ -57,9 +55,7 @@ class RevokeTenantTokensRequest(BaseModel):
     reason: str | None = Field("security", description="Reason for revocation")
 
     class Config:
-        json_schema_extra = {
-            "example": {"tenant_id": "tenant-456", "reason": "security_breach"}
-        }
+        json_schema_extra = {"example": {"tenant_id": "tenant-456", "reason": "security_breach"}}
 
 
 class RevocationResponse(BaseModel):
@@ -102,9 +98,7 @@ class RevocationStatsResponse(BaseModel):
     initialized: bool = Field(..., description="Store initialization status")
     revoked_tokens: int = Field(..., description="Number of revoked tokens")
     revoked_users: int = Field(..., description="Number of users with revoked tokens")
-    revoked_tenants: int = Field(
-        ..., description="Number of tenants with revoked tokens"
-    )
+    revoked_tenants: int = Field(..., description="Number of tenants with revoked tokens")
     redis_url: str | None = Field(None, description="Redis connection URL (masked)")
 
     class Config:
@@ -197,9 +191,7 @@ async def revoke_current_token(
         # Extract token from request
         authorization = request.headers.get("Authorization")
         if not authorization:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="No token provided"
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No token provided")
 
         # Extract JTI from token
         token = authorization.split(" ")[1]

@@ -13,38 +13,37 @@ Migration Path:
 """
 
 import os
+import sys
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field
 
 # Import authentication dependencies
 try:
-    import sys
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
-    from errors_py import setup_exception_handlers, add_request_id_middleware
+
     AUTH_AVAILABLE = True
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
     # Fallback error handling
-    from errors_py import setup_exception_handlers, add_request_id_middleware
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     User = None
+
     def get_current_user():
         """Placeholder when auth not available"""
         return None
+
 
 from .compute import (
     analyze_ndvi_zones,
@@ -104,7 +103,9 @@ async def add_deprecation_header(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-API-Deprecated"] = "true"
     response.headers["X-API-Deprecation-Date"] = "2026-01-06"
-    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use vegetation-analysis-service instead."
+    response.headers["X-API-Deprecation-Info"] = (
+        "This service is deprecated. Use vegetation-analysis-service instead."
+    )
     response.headers["X-API-Sunset"] = "2026-06-01"
     response.headers["Link"] = '<http://vegetation-analysis-service:8090>; rel="successor-version"'
     response.headers["Deprecation"] = "true"
@@ -157,8 +158,7 @@ class AnomalyRequest(BaseModel):
 
 @app.post("/ndvi/compute")
 async def compute_ndvi(
-    req: NdviComputeRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: NdviComputeRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """
     Compute NDVI for a field
@@ -217,8 +217,7 @@ async def compute_ndvi(
 
 @app.post("/ndvi/zones")
 async def get_ndvi_zones(
-    req: NdviZonesRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: NdviZonesRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Analyze NDVI zones within a field"""
     zones = analyze_ndvi_zones(req.field_id)
@@ -265,8 +264,7 @@ def calculate_indices(req: IndicesRequest):
 
 @app.post("/ndvi/anomaly")
 async def check_anomaly(
-    req: AnomalyRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: AnomalyRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Check for NDVI anomalies"""
     anomaly = detect_anomalies(

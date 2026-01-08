@@ -651,8 +651,7 @@ class PhenologyDetector:
         # Smooth the series
         smoothed = self._smooth_ndvi_series([x["value"] for x in ndvi_series])
         ndvi_smooth = [
-            {"date": ndvi_series[i]["date"], "value": smoothed[i]}
-            for i in range(len(ndvi_series))
+            {"date": ndvi_series[i]["date"], "value": smoothed[i]} for i in range(len(ndvi_series))
         ]
 
         # Detect phenological events
@@ -672,16 +671,12 @@ class PhenologyDetector:
         )
 
         # Predict next stage
-        next_stage, days_to_next = self._predict_next_stage(
-            stage, days_in_stage, crop_params
-        )
+        next_stage, days_to_next = self._predict_next_stage(stage, days_in_stage, crop_params)
 
         # Calculate season progress
         if sos_date and current_date:
             days_since_sos = (current_date - sos_date).days
-            season_progress = min(
-                100, (days_since_sos / crop_params["season_length_days"]) * 100
-            )
+            season_progress = min(100, (days_since_sos / crop_params["season_length_days"]) * 100)
         else:
             season_progress = 0
 
@@ -792,9 +787,7 @@ class PhenologyDetector:
             critical_periods=critical_periods,
         )
 
-    def _smooth_ndvi_series(
-        self, ndvi_values: list[float], window_size: int = 5
-    ) -> list[float]:
+    def _smooth_ndvi_series(self, ndvi_values: list[float], window_size: int = 5) -> list[float]:
         """
         Apply simple moving average smoothing to remove noise.
 
@@ -868,9 +861,7 @@ class PhenologyDetector:
         dt = max_point["date"]
         return dt if isinstance(dt, date) else datetime.fromisoformat(dt).date()
 
-    def _detect_eos(
-        self, ndvi_series: list[dict], pos_date: date | None
-    ) -> date | None:
+    def _detect_eos(self, ndvi_series: list[dict], pos_date: date | None) -> date | None:
         """
         Detect End of Season (EOS).
 
@@ -1010,9 +1001,7 @@ class PhenologyDetector:
                 ndvi_match = 1.0
             else:
                 # How far outside range?
-                deviation = min(
-                    abs(current_ndvi - ndvi_min), abs(current_ndvi - ndvi_max)
-                )
+                deviation = min(abs(current_ndvi - ndvi_min), abs(current_ndvi - ndvi_max))
                 ndvi_match = max(0.3, 1.0 - deviation)
         else:
             ndvi_match = 0.6

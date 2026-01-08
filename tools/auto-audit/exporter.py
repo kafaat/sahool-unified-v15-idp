@@ -24,12 +24,11 @@ import hashlib
 import json
 import sys
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from enum import Enum
 from io import StringIO
 from pathlib import Path
-from typing import Any, Callable, Iterator
-from uuid import UUID
+from typing import Any
 
 
 class ExportFormat(str, Enum):
@@ -170,9 +169,7 @@ class AuditDataExporter:
                 )
         return None
 
-    def save_checkpoint(
-        self, checkpoint_file: Path, checkpoint: ExportCheckpoint
-    ) -> None:
+    def save_checkpoint(self, checkpoint_file: Path, checkpoint: ExportCheckpoint) -> None:
         """Save export checkpoint"""
         with open(checkpoint_file, "w") as f:
             json.dump(
@@ -360,9 +357,7 @@ class AuditDataExporter:
         if "details_json" in redacted:
             try:
                 details = json.loads(redacted["details_json"])
-                redacted_details = {
-                    k: redact_value(k, v) for k, v in details.items()
-                }
+                redacted_details = {k: redact_value(k, v) for k, v in details.items()}
                 redacted["details_json"] = json.dumps(redacted_details)
             except (json.JSONDecodeError, TypeError):
                 pass
@@ -392,9 +387,7 @@ class AuditDataExporter:
         for key in ["created_at", "updated_at", "timestamp"]:
             if key in formatted and formatted[key]:
                 try:
-                    ts = datetime.fromisoformat(
-                        str(formatted[key]).replace("Z", "+00:00")
-                    )
+                    ts = datetime.fromisoformat(str(formatted[key]).replace("Z", "+00:00"))
                     if format_type == "unix":
                         formatted[key] = ts.timestamp()
                     elif format_type == "rfc2822":
@@ -559,11 +552,11 @@ class AuditDataExporter:
                 f"suser={entry.get('actor_id', '')}",
                 f"duser={entry.get('resource_id', '')}",
                 f"cs1={entry.get('tenant_id', '')}",
-                f"cs1Label=TenantID",
+                "cs1Label=TenantID",
                 f"cs2={entry.get('correlation_id', '')}",
-                f"cs2Label=CorrelationID",
+                "cs2Label=CorrelationID",
                 f"cs3={entry.get('resource_type', '')}",
-                f"cs3Label=ResourceType",
+                "cs3Label=ResourceType",
                 f"rt={entry.get('created_at', '')}",
             ]
 

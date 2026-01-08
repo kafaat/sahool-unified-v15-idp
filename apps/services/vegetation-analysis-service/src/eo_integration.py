@@ -36,9 +36,7 @@ try:
     logger.info("sahool-eo package available")
 
     # Check if Sentinel Hub is configured
-    if os.environ.get("SENTINEL_HUB_CLIENT_ID") and os.environ.get(
-        "SENTINEL_HUB_CLIENT_SECRET"
-    ):
+    if os.environ.get("SENTINEL_HUB_CLIENT_ID") and os.environ.get("SENTINEL_HUB_CLIENT_SECRET"):
         SENTINEL_HUB_CONFIGURED = True
         logger.info("Sentinel Hub credentials configured")
     else:
@@ -209,9 +207,7 @@ def get_data_source_status() -> dict[str, Any]:
     return {
         "eo_learn_available": EO_LEARN_AVAILABLE,
         "sentinel_hub_configured": SENTINEL_HUB_CONFIGURED,
-        "data_mode": (
-            "real" if (EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED) else "simulated"
-        ),
+        "data_mode": ("real" if (EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED) else "simulated"),
         "message": (
             "Using real Sentinel Hub data"
             if SENTINEL_HUB_CONFIGURED
@@ -265,8 +261,7 @@ def check_eo_configuration() -> dict[str, Any]:
         pass
 
     checks["credentials_configured"] = bool(
-        os.environ.get("SENTINEL_HUB_CLIENT_ID")
-        and os.environ.get("SENTINEL_HUB_CLIENT_SECRET")
+        os.environ.get("SENTINEL_HUB_CLIENT_ID") and os.environ.get("SENTINEL_HUB_CLIENT_SECRET")
     )
 
     checks["all_ready"] = all(

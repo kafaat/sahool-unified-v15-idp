@@ -36,10 +36,10 @@ async def test_spray_forecast():
     ]
 
     for location in locations:
-        print(f"\n{'='*80}")
+        print(f"\n{'=' * 80}")
         print(f"📍 Location: {location['name']} ({location['type']})")
         print(f"   Coordinates: {location['lat']:.4f}, {location['lon']:.4f}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
         try:
             # Get 7-day forecast for herbicide
@@ -92,7 +92,7 @@ async def test_spray_forecast():
             print(f"❌ Error: {e}")
 
     await advisor.close()
-    print(f"\n{'='*80}\n")
+    print(f"\n{'=' * 80}\n")
 
 
 async def test_best_spray_time():
@@ -150,7 +150,7 @@ async def test_best_spray_time():
         print(f"❌ Error: {e}")
 
     await advisor.close()
-    print(f"\n{'='*80}\n")
+    print(f"\n{'=' * 80}\n")
 
 
 async def test_evaluate_specific_time():
@@ -220,7 +220,7 @@ async def test_evaluate_specific_time():
             print(f"      • {rec}")
 
         # Decision
-        print(f"\n   {'='*76}")
+        print(f"\n   {'=' * 76}")
         if evaluation.condition in [SprayCondition.EXCELLENT, SprayCondition.GOOD]:
             print("   ✅ RECOMMENDATION: Safe to spray at this time")
             print("   ✅ التوصية: آمن للرش في هذا الوقت")
@@ -230,13 +230,13 @@ async def test_evaluate_specific_time():
         else:
             print("   ❌ RECOMMENDATION: NOT recommended - reschedule")
             print("   ❌ التوصية: غير موصى به - أعد الجدولة")
-        print(f"   {'='*76}")
+        print(f"   {'=' * 76}")
 
     except Exception as e:
         print(f"❌ Error: {e}")
 
     await advisor.close()
-    print(f"\n{'='*80}\n")
+    print(f"\n{'=' * 80}\n")
 
 
 async def test_product_comparison():
@@ -264,7 +264,7 @@ async def test_product_comparison():
     ]
 
     print(f"{'Product':<30} {'Score':<10} {'Condition':<15} {'Risks'}")
-    print(f"{'-'*80}")
+    print(f"{'-' * 80}")
 
     for product, name in products:
         try:
@@ -277,7 +277,7 @@ async def test_product_comparison():
 
             risks_str = ", ".join(evaluation.risks[:2]) if evaluation.risks else "None"
             if len(evaluation.risks) > 2:
-                risks_str += f" +{len(evaluation.risks)-2} more"
+                risks_str += f" +{len(evaluation.risks) - 2} more"
 
             print(
                 f"{name:<30} {evaluation.score:>6.1f}/100  {evaluation.condition.value.upper():<15} {risks_str}"
@@ -287,7 +287,7 @@ async def test_product_comparison():
             print(f"{name:<30} Error: {e}")
 
     await advisor.close()
-    print(f"\n{'='*80}\n")
+    print(f"\n{'=' * 80}\n")
 
 
 async def test_delta_t_calculation():
@@ -309,10 +309,8 @@ async def test_delta_t_calculation():
         (28, 60, "Typical morning"),
     ]
 
-    print(
-        f"{'Temp (°C)':<12} {'Humidity (%)':<15} {'Delta-T (°C)':<15} {'Condition':<20} {'Note'}"
-    )
-    print(f"{'-'*80}")
+    print(f"{'Temp (°C)':<12} {'Humidity (%)':<15} {'Delta-T (°C)':<15} {'Condition':<20} {'Note'}")
+    print(f"{'-' * 80}")
 
     for temp, humidity, note in test_cases:
         delta_t = advisor._calculate_delta_t(temp, humidity)
@@ -330,7 +328,7 @@ async def test_delta_t_calculation():
             print(f"{temp:<12} {humidity:<15} {'N/A':<15} {'Error':<20} {note}")
 
     await advisor.close()
-    print(f"\n{'='*80}\n")
+    print(f"\n{'=' * 80}\n")
 
 
 async def main():

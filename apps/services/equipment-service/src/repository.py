@@ -153,10 +153,14 @@ def update_equipment(
     Returns:
         Updated equipment or None if not found
     """
-    equipment = db.query(Equipment).filter(
-        Equipment.equipment_id == equipment_id,
-        Equipment.tenant_id == tenant_id,
-    ).first()
+    equipment = (
+        db.query(Equipment)
+        .filter(
+            Equipment.equipment_id == equipment_id,
+            Equipment.tenant_id == tenant_id,
+        )
+        .first()
+    )
 
     if not equipment:
         return None
@@ -182,10 +186,14 @@ def delete_equipment(db: Session, equipment_id: str, tenant_id: str) -> bool:
     Returns:
         True if deleted, False if not found
     """
-    equipment = db.query(Equipment).filter(
-        Equipment.equipment_id == equipment_id,
-        Equipment.tenant_id == tenant_id,
-    ).first()
+    equipment = (
+        db.query(Equipment)
+        .filter(
+            Equipment.equipment_id == equipment_id,
+            Equipment.tenant_id == tenant_id,
+        )
+        .first()
+    )
 
     if not equipment:
         return False
@@ -209,9 +217,7 @@ def get_equipment_stats(
     Returns:
         Dictionary with statistics
     """
-    equipment_list = db.query(Equipment).filter(
-        Equipment.tenant_id == tenant_id
-    ).all()
+    equipment_list = db.query(Equipment).filter(Equipment.tenant_id == tenant_id).all()
 
     by_type = {}
     by_status = {}
@@ -235,9 +241,7 @@ def get_equipment_stats(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def create_maintenance_record(
-    db: Session, record: MaintenanceRecord
-) -> MaintenanceRecord:
+def create_maintenance_record(db: Session, record: MaintenanceRecord) -> MaintenanceRecord:
     """
     Create a new maintenance record.
 
@@ -285,9 +289,7 @@ def get_maintenance_history(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def create_maintenance_alert(
-    db: Session, alert: MaintenanceAlert
-) -> MaintenanceAlert:
+def create_maintenance_alert(db: Session, alert: MaintenanceAlert) -> MaintenanceAlert:
     """
     Create a new maintenance alert.
 
@@ -323,19 +325,13 @@ def get_maintenance_alerts(
         List of maintenance alerts
     """
     # Get equipment IDs for this tenant
-    equipment_ids = (
-        db.query(Equipment.equipment_id)
-        .filter(Equipment.tenant_id == tenant_id)
-        .all()
-    )
+    equipment_ids = db.query(Equipment.equipment_id).filter(Equipment.tenant_id == tenant_id).all()
     equipment_id_list = [eq[0] for eq in equipment_ids]
 
     if not equipment_id_list:
         return []
 
-    query = select(MaintenanceAlert).where(
-        MaintenanceAlert.equipment_id.in_(equipment_id_list)
-    )
+    query = select(MaintenanceAlert).where(MaintenanceAlert.equipment_id.in_(equipment_id_list))
 
     if priority:
         query = query.where(MaintenanceAlert.priority == priority)
@@ -363,9 +359,7 @@ def delete_maintenance_alert(db: Session, alert_id: str) -> bool:
     Returns:
         True if deleted, False if not found
     """
-    alert = db.query(MaintenanceAlert).filter(
-        MaintenanceAlert.alert_id == alert_id
-    ).first()
+    alert = db.query(MaintenanceAlert).filter(MaintenanceAlert.alert_id == alert_id).first()
 
     if not alert:
         return False

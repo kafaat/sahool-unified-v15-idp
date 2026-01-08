@@ -10,6 +10,7 @@ Please use 'weather-service' instead.
 import logging
 import math
 import os
+import sys
 import uuid
 from datetime import date, datetime, timedelta
 from enum import Enum
@@ -19,25 +20,17 @@ import httpx
 from fastapi import FastAPI, HTTPException, Query, Request
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from errors_py import setup_exception_handlers, add_request_id_middleware
 from pydantic import BaseModel
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Weather API Configuration
-WEATHER_API_PROVIDER = os.getenv(
-    "WEATHER_API_PROVIDER", "open-meteo"
-)  # open-meteo, openweathermap
+WEATHER_API_PROVIDER = os.getenv("WEATHER_API_PROVIDER", "open-meteo")  # open-meteo, openweathermap
 OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY", "")
 WEATHER_CACHE_TTL_MINUTES = int(os.getenv("WEATHER_CACHE_TTL_MINUTES", "30"))
 
@@ -489,9 +482,7 @@ async def fetch_open_meteo_current(lat: float, lon: float) -> dict[str, Any] | N
         return None
 
 
-async def fetch_open_meteo_forecast(
-    lat: float, lon: float, days: int = 7
-) -> dict[str, Any] | None:
+async def fetch_open_meteo_forecast(lat: float, lon: float, days: int = 7) -> dict[str, Any] | None:
     """
     Fetch weather forecast from Open-Meteo API
     جلب توقعات الطقس من Open-Meteo API
@@ -539,9 +530,7 @@ async def fetch_open_meteo_forecast(
         return None
 
 
-async def fetch_openweathermap_current(
-    lat: float, lon: float
-) -> dict[str, Any] | None:
+async def fetch_openweathermap_current(lat: float, lon: float) -> dict[str, Any] | None:
     """
     Fetch current weather from OpenWeatherMap API
     جلب الطقس الحالي من OpenWeatherMap API
@@ -570,9 +559,7 @@ async def fetch_openweathermap_current(
         return None
 
 
-async def fetch_openweathermap_forecast(
-    lat: float, lon: float
-) -> dict[str, Any] | None:
+async def fetch_openweathermap_forecast(lat: float, lon: float) -> dict[str, Any] | None:
     """
     Fetch 5-day forecast from OpenWeatherMap API (free tier)
     جلب توقعات 5 أيام من OpenWeatherMap API
@@ -660,25 +647,15 @@ def parse_open_meteo_forecast(
             HourlyForecast(
                 datetime=datetime.fromisoformat(time_str),
                 temperature_c=round(hourly_data.get("temperature_2m", [25] * 48)[i], 1),
-                feels_like_c=round(
-                    hourly_data.get("apparent_temperature", [25] * 48)[i], 1
-                ),
-                humidity_percent=round(
-                    hourly_data.get("relative_humidity_2m", [50] * 48)[i], 0
-                ),
-                wind_speed_kmh=round(
-                    hourly_data.get("wind_speed_10m", [10] * 48)[i], 1
-                ),
+                feels_like_c=round(hourly_data.get("apparent_temperature", [25] * 48)[i], 1),
+                humidity_percent=round(hourly_data.get("relative_humidity_2m", [50] * 48)[i], 0),
+                wind_speed_kmh=round(hourly_data.get("wind_speed_10m", [10] * 48)[i], 1),
                 wind_direction=wind_dir,
-                precipitation_mm=round(
-                    hourly_data.get("precipitation", [0] * 48)[i], 1
-                ),
+                precipitation_mm=round(hourly_data.get("precipitation", [0] * 48)[i], 1),
                 precipitation_probability=round(
                     hourly_data.get("precipitation_probability", [0] * 48)[i], 0
                 ),
-                cloud_cover_percent=round(
-                    hourly_data.get("cloud_cover", [0] * 48)[i], 0
-                ),
+                cloud_cover_percent=round(hourly_data.get("cloud_cover", [0] * 48)[i], 0),
                 uv_index=round(hourly_data.get("uv_index", [5] * 48)[i], 1),
                 condition=condition,
                 condition_ar=CONDITION_TRANSLATIONS[condition],
@@ -700,9 +677,7 @@ def parse_open_meteo_forecast(
         # Agricultural summary based on conditions
         if temp_max > 38:
             summary_ar = "⚠️ حرارة مرتفعة - ري إضافي مطلوب وتجنب العمل وقت الذروة"
-            summary_en = (
-                "⚠️ High heat - extra irrigation needed, avoid work during peak hours"
-            )
+            summary_en = "⚠️ High heat - extra irrigation needed, avoid work during peak hours"
         elif precip > 20:
             summary_ar = "🌧️ أمطار متوقعة - تأجيل الرش والتسميد"
             summary_en = "🌧️ Rain expected - postpone spraying and fertilization"
@@ -800,9 +775,7 @@ async def get_real_current_weather(location_id: str) -> CurrentWeather | None:
                 visibility_km=round(data.get("visibility", 10000) / 1000, 1),
                 cloud_cover_percent=round(clouds.get("all", 0), 0),
                 uv_index=5.0,  # Not in basic OWM API
-                dew_point_c=round(
-                    main.get("temp", 25) - (100 - main.get("humidity", 50)) / 5, 1
-                ),
+                dew_point_c=round(main.get("temp", 25) - (100 - main.get("humidity", 50)) / 5, 1),
                 condition=condition,
                 condition_ar=CONDITION_TRANSLATIONS[condition],
             )
@@ -863,9 +836,7 @@ def get_seasonal_base_temp(location_id: str, day_of_year: int) -> tuple[float, f
     return daily_high, daily_low
 
 
-def generate_weather_condition(
-    temp: float, humidity: float, month: int
-) -> WeatherCondition:
+def generate_weather_condition(temp: float, humidity: float, month: int) -> WeatherCondition:
     """Generate realistic weather condition"""
     import random
 
@@ -905,18 +876,14 @@ def calculate_evapotranspiration(
     return round(max(0, et0), 2)
 
 
-def calculate_growing_degree_days(
-    temp_max: float, temp_min: float, base_temp: float = 10
-) -> float:
+def calculate_growing_degree_days(temp_max: float, temp_min: float, base_temp: float = 10) -> float:
     """Calculate Growing Degree Days"""
     avg_temp = (temp_max + temp_min) / 2
     gdd = max(0, avg_temp - base_temp)
     return round(gdd, 1)
 
 
-def check_for_alerts(
-    forecast: list[DailyForecast], location_id: str
-) -> list[WeatherAlert]:
+def check_for_alerts(forecast: list[DailyForecast], location_id: str) -> list[WeatherAlert]:
     """Check forecast for agricultural weather alerts"""
     alerts = []
 
@@ -928,9 +895,7 @@ def check_for_alerts(
                     alert_id=str(uuid.uuid4()),
                     alert_type=AlertType.HEAT_WAVE,
                     severity=(
-                        AlertSeverity.WARNING
-                        if day.temp_max_c < 45
-                        else AlertSeverity.EMERGENCY
+                        AlertSeverity.WARNING if day.temp_max_c < 45 else AlertSeverity.EMERGENCY
                     ),
                     title_ar="تحذير: موجة حر شديدة",
                     title_en="Warning: Extreme Heat Wave",
@@ -1191,8 +1156,7 @@ async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=1
 
         # Calculate GDD from real forecast
         total_gdd = sum(
-            calculate_growing_degree_days(day.temp_max_c, day.temp_min_c)
-            for day in daily_forecast
+            calculate_growing_degree_days(day.temp_max_c, day.temp_min_c) for day in daily_forecast
         )
 
         # Check for alerts
@@ -1212,14 +1176,10 @@ async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=1
             irrig_en = f"💧 High irrigation need today ({et0} mm) - morning and evening irrigation required"
         elif et0 > 4:
             irrig_ar = f"💧 احتياج ري متوسط ({et0} ملم) - ري واحد كافي"
-            irrig_en = (
-                f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
-            )
+            irrig_en = f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
         else:
             irrig_ar = f"💧 احتياج ري منخفض ({et0} ملم) - تقليل الري ممكن"
-            irrig_en = (
-                f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
-            )
+            irrig_en = f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
 
         return AgriculturalWeatherReport(
             location_id=location_id,
@@ -1273,9 +1233,7 @@ async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=1
                 humidity_percent=round(humidity, 0),
                 wind_speed_kmh=round(wind_speed, 1),
                 wind_direction=random.choice(WIND_DIRECTIONS),
-                precipitation_mm=round(
-                    random.uniform(0, 5) if precip_prob > 0.3 else 0, 1
-                ),
+                precipitation_mm=round(random.uniform(0, 5) if precip_prob > 0.3 else 0, 1),
                 precipitation_probability=round(precip_prob * 100, 0),
                 cloud_cover_percent=round(random.uniform(0, 80), 0),
                 uv_index=round(random.uniform(0, 11) if 6 <= hour <= 18 else 0, 1),
@@ -1322,9 +1280,7 @@ async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=1
         # Agricultural summaries
         if temp_high > 38:
             summary_ar = "⚠️ حرارة مرتفعة - ري إضافي مطلوب وتجنب العمل وقت الذروة"
-            summary_en = (
-                "⚠️ High heat - extra irrigation needed, avoid work during peak hours"
-            )
+            summary_en = "⚠️ High heat - extra irrigation needed, avoid work during peak hours"
         elif precip_total > 20:
             summary_ar = "🌧️ أمطار متوقعة - تأجيل الرش والتسميد"
             summary_en = "🌧️ Rain expected - postpone spraying and fertilization"
@@ -1368,17 +1324,15 @@ async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=1
     # Irrigation recommendation
     if et0 > 6:
         irrig_ar = f"💧 احتياج ري عالي اليوم ({et0} ملم) - ري صباحي ومسائي مطلوب"
-        irrig_en = f"💧 High irrigation need today ({et0} mm) - morning and evening irrigation required"
+        irrig_en = (
+            f"💧 High irrigation need today ({et0} mm) - morning and evening irrigation required"
+        )
     elif et0 > 4:
         irrig_ar = f"💧 احتياج ري متوسط ({et0} ملم) - ري واحد كافي"
-        irrig_en = (
-            f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
-        )
+        irrig_en = f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
     else:
         irrig_ar = f"💧 احتياج ري منخفض ({et0} ملم) - تقليل الري ممكن"
-        irrig_en = (
-            f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
-        )
+        irrig_en = f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
 
     return AgriculturalWeatherReport(
         location_id=location_id,

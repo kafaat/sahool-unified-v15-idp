@@ -13,7 +13,17 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
-import { User, UserStatus } from '@prisma/client';
+import { UserStatus } from '../utils/validation';
+
+// User type - use when Prisma types are generated
+type User = any;
+import {
+  calculatePagination,
+  createPaginatedResponse,
+  CommonSelects,
+  type PaginationParams,
+  type PaginatedResponse,
+} from '../utils/db-utils';
 
 @Injectable()
 export class UsersService {
@@ -27,6 +37,7 @@ export class UsersService {
     // Check if user with email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
+      select: { id: true },
     });
 
     if (existingUser) {
@@ -50,42 +61,68 @@ export class UsersService {
         emailVerified: createUserDto.emailVerified || false,
         phoneVerified: createUserDto.phoneVerified || false,
       },
-      include: {
-        profile: true,
+      select: {
+        ...CommonSelects.userBasic,
+        profile: {
+          select: {
+            id: true,
+            avatar: true,
+            bio: true,
+            location: true,
+          },
+        },
       },
     });
 
-    return user;
+    return user as User;
   }
 
   /**
-   * Get all users with optional filtering
-   * الحصول على جميع المستخدمين مع إمكانية التصفية
+   * Get all users with optional filtering and pagination
+   * الحصول على جميع المستخدمين مع إمكانية التصفية والترقيم
    */
   async findAll(params?: {
     tenantId?: string;
     role?: string;
     status?: string;
-    skip?: number;
-    take?: number;
-  }): Promise<User[]> {
-    const { tenantId, role, status, skip, take } = params || {};
+  } & PaginationParams): Promise<PaginatedResponse<User>> {
+    const { tenantId, role, status, ...paginationParams } = params || {};
 
-    return this.prisma.user.findMany({
-      where: {
-        ...(tenantId && { tenantId }),
-        ...(role && { role: role as any }),
-        ...(status && { status: status as any }),
-      },
-      include: {
-        profile: true,
-      },
-      skip,
-      take,
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    // Calculate pagination with enforced limits
+    const { skip, take, page } = calculatePagination(paginationParams);
+
+    // Build where clause
+    const where: any = {
+      ...(tenantId && { tenantId }),
+      ...(role && { role: role as any }),
+      ...(status && { status: status as any }),
+    };
+
+    // Execute queries in parallel
+    const [data, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        select: {
+          ...CommonSelects.userBasic,
+          profile: {
+            select: {
+              id: true,
+              avatar: true,
+              bio: true,
+              location: true,
+            },
+          },
+        },
+        skip,
+        take,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return createPaginatedResponse(data as User[], total, { page, take });
   }
 
   /**
@@ -95,13 +132,34 @@ export class UsersService {
   async findOne(id: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: {
-        profile: true,
+      select: {
+        ...CommonSelects.userBasic,
+        phone: true,
+        emailVerified: true,
+        phoneVerified: true,
+        lastLoginAt: true,
+        tenantId: true,
+        profile: {
+          select: {
+            id: true,
+            avatar: true,
+            bio: true,
+            location: true,
+            dateOfBirth: true,
+            language: true,
+          },
+        },
         sessions: {
           where: {
             expiresAt: {
               gte: new Date(),
             },
+          },
+          select: {
+            id: true,
+            expiresAt: true,
+            deviceInfo: true,
+            ipAddress: true,
           },
         },
       },
@@ -111,7 +169,7 @@ export class UsersService {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
-    return user;
+    return user as User;
   }
 
   /**
@@ -119,12 +177,27 @@ export class UsersService {
    * الحصول على مستخدم بواسطة البريد الإلكتروني
    */
   async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { email },
-      include: {
-        profile: true,
+      select: {
+        ...CommonSelects.userBasic,
+        passwordHash: true, // Needed for authentication
+        phone: true,
+        emailVerified: true,
+        phoneVerified: true,
+        tenantId: true,
+        profile: {
+          select: {
+            id: true,
+            avatar: true,
+            bio: true,
+            location: true,
+          },
+        },
       },
     });
+
+    return user as User | null;
   }
 
   /**
@@ -135,6 +208,7 @@ export class UsersService {
     // Check if user exists
     const existingUser = await this.prisma.user.findUnique({
       where: { id },
+      select: { id: true, email: true },
     });
 
     if (!existingUser) {
@@ -145,6 +219,7 @@ export class UsersService {
     if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
       const emailExists = await this.prisma.user.findUnique({
         where: { email: updateUserDto.email },
+        select: { id: true },
       });
 
       if (emailExists) {
@@ -178,12 +253,24 @@ export class UsersService {
     const user = await this.prisma.user.update({
       where: { id },
       data: updateData,
-      include: {
-        profile: true,
+      select: {
+        ...CommonSelects.userBasic,
+        phone: true,
+        emailVerified: true,
+        phoneVerified: true,
+        tenantId: true,
+        profile: {
+          select: {
+            id: true,
+            avatar: true,
+            bio: true,
+            location: true,
+          },
+        },
       },
     });
 
-    return user;
+    return user as User;
   }
 
   /**

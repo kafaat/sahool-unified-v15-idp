@@ -100,12 +100,8 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
                     return JSONResponse(
                         status_code=403,
                         content={
-                            "error": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL[
-                                "code"
-                            ],
-                            "message": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL[
-                                "en"
-                            ],
+                            "error": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["code"],
+                            "message": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["en"],
                         },
                     )
 
@@ -252,9 +248,7 @@ def require_service_auth(allowed_services: list[str] | None = None):
         from fastapi import HTTPException
 
         if allowed_services and service_info["service_name"] not in allowed_services:
-            logger.warning(
-                f"Service {service_info['service_name']} not in allowed list"
-            )
+            logger.warning(f"Service {service_info['service_name']} not in allowed list")
             raise HTTPException(
                 status_code=403,
                 detail={

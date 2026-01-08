@@ -192,11 +192,7 @@ class SentinelHubProvider(SatelliteProvider):
 
     async def _get_token(self) -> str | None:
         """Get OAuth2 token"""
-        if (
-            self._token
-            and self._token_expires
-            and datetime.utcnow() < self._token_expires
-        ):
+        if self._token and self._token_expires and datetime.utcnow() < self._token_expires:
             return self._token
 
         if not self.is_configured:
@@ -337,10 +333,8 @@ class SentinelHubProvider(SatelliteProvider):
                                 "type": "sentinel-2-l2a",
                                 "dataFilter": {
                                     "timeRange": {
-                                        "from": acquisition_date.isoformat()
-                                        + "T00:00:00Z",
-                                        "to": acquisition_date.isoformat()
-                                        + "T23:59:59Z",
+                                        "from": acquisition_date.isoformat() + "T00:00:00Z",
+                                        "to": acquisition_date.isoformat() + "T23:59:59Z",
                                     },
                                     "maxCloudCoverage": 50,
                                 },
@@ -433,9 +427,7 @@ class NASAEarthdataProvider(SatelliteProvider):
                         scene_id=entry.get("id", ""),
                         satellite=SatelliteType.MODIS,
                         acquisition_date=datetime.fromisoformat(
-                            entry.get(
-                                "time_start", datetime.utcnow().isoformat()
-                            ).replace("Z", "")
+                            entry.get("time_start", datetime.utcnow().isoformat()).replace("Z", "")
                         ),
                         cloud_cover_pct=0,  # MODIS products are composites
                         sun_elevation=45,
@@ -532,9 +524,7 @@ class CopernicusSTACProvider(SatelliteProvider):
                         cloud_cover_pct=props.get("eo:cloud_cover", 0),
                         sun_elevation=props.get("view:sun_elevation", 45),
                         bbox=tuple(feature.get("bbox", [0, 0, 0, 0])),
-                        thumbnail_url=feature.get("assets", {})
-                        .get("thumbnail", {})
-                        .get("href"),
+                        thumbnail_url=feature.get("assets", {}).get("thumbnail", {}).get("href"),
                         provider=self.name,
                     )
                 )
@@ -703,9 +693,7 @@ class MultiSatelliteService:
         satellite: SatelliteType | None = None,
     ) -> SatelliteResult:
         """Search for satellite scenes with automatic fallback"""
-        cache_key = (
-            f"search_{lat:.2f}_{lon:.2f}_{start_date}_{end_date}_{max_cloud_cover}"
-        )
+        cache_key = f"search_{lat:.2f}_{lon:.2f}_{start_date}_{end_date}_{max_cloud_cover}"
 
         cached = self._get_cached(cache_key)
         if cached:
@@ -801,14 +789,10 @@ class MultiSatelliteService:
         indices = indices_result.data
 
         # Calculate health score and status
-        health_score, health_status, health_status_ar, anomalies = self._assess_health(
-            indices
-        )
+        health_score, health_status, health_status_ar, anomalies = self._assess_health(indices)
 
         # Generate recommendations
-        recommendations_ar, recommendations_en = self._generate_recommendations(
-            anomalies
-        )
+        recommendations_ar, recommendations_en = self._generate_recommendations(anomalies)
 
         analysis = SatelliteAnalysis(
             field_id=field_id,
@@ -832,9 +816,7 @@ class MultiSatelliteService:
             is_simulated=indices_result.is_simulated,
         )
 
-    def _assess_health(
-        self, indices: VegetationIndices
-    ) -> tuple[float, str, str, list[str]]:
+    def _assess_health(self, indices: VegetationIndices) -> tuple[float, str, str, list[str]]:
         """Assess vegetation health from indices"""
         anomalies = []
         score = 50.0
@@ -891,9 +873,7 @@ class MultiSatelliteService:
 
         return score, status, status_ar, anomalies
 
-    def _generate_recommendations(
-        self, anomalies: list[str]
-    ) -> tuple[list[str], list[str]]:
+    def _generate_recommendations(self, anomalies: list[str]) -> tuple[list[str], list[str]]:
         """Generate bilingual recommendations"""
         ar, en = [], []
 

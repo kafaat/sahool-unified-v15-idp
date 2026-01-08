@@ -238,9 +238,7 @@ async def main():
         )
     ]
 
-    is_valid, messages = planner.check_rotation_rule(
-        CropFamily.SOLANACEAE, test_history
-    )
+    is_valid, messages = planner.check_rotation_rule(CropFamily.SOLANACEAE, test_history)
 
     print("Test: Can we plant tomatoes (Solanaceae) after wheat?")
     print(f"Result: {'✓ Compatible' if is_valid else '✗ Not Compatible'}")
@@ -262,9 +260,7 @@ async def main():
         )
     ]
 
-    is_valid2, messages2 = planner.check_rotation_rule(
-        CropFamily.SOLANACEAE, test_history2
-    )
+    is_valid2, messages2 = planner.check_rotation_rule(CropFamily.SOLANACEAE, test_history2)
 
     print("Test: Can we plant tomatoes again immediately after tomatoes?")
     print(f"Result: {'✓ Compatible' if is_valid2 else '✗ Not Compatible'}")
@@ -287,12 +283,8 @@ async def main():
         print(f"  Nitrogen effect: {rule.nitrogen_effect}")
         print(f"  Root depth: {rule.root_depth}")
         print(f"  Nutrient demand: {rule.nutrient_demand}")
-        print(
-            f"  Good predecessors: {', '.join(f.value for f in rule.good_predecessors)}"
-        )
-        print(
-            f"  Bad predecessors: {', '.join(f.value for f in rule.bad_predecessors)}"
-        )
+        print(f"  Good predecessors: {', '.join(f.value for f in rule.good_predecessors)}")
+        print(f"  Bad predecessors: {', '.join(f.value for f in rule.bad_predecessors)}")
         print()
 
     print("=" * 80)

@@ -288,9 +288,7 @@ class BaseAgent(ABC):
             if tool.name == tool_name:
                 try:
                     result = await tool.arun(**kwargs)
-                    logger.info(
-                        "tool_executed", agent_name=self.name, tool_name=tool_name
-                    )
+                    logger.info("tool_executed", agent_name=self.name, tool_name=tool_name)
                     return result
                 except Exception as e:
                     logger.error(

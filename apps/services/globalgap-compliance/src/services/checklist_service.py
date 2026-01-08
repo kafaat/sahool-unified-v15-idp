@@ -193,22 +193,14 @@ class ChecklistService:
         Returns:
             List of checklist items | قائمة عناصر قائمة المراجعة
         """
-        items = [
-            item
-            for item in self.checklist_items.values()
-            if item.ifa_version == ifa_version
-        ]
+        items = [item for item in self.checklist_items.values() if item.ifa_version == ifa_version]
 
         if compliance_level:
-            items = [
-                item for item in items if item.compliance_level == compliance_level
-            ]
+            items = [item for item in items if item.compliance_level == compliance_level]
 
         return items
 
-    async def get_checklist_item(
-        self, control_point_number: str
-    ) -> ChecklistItem | None:
+    async def get_checklist_item(self, control_point_number: str) -> ChecklistItem | None:
         """
         Get a specific checklist item by control point number
         الحصول على عنصر قائمة المراجعة حسب رقم نقطة التحكم
@@ -247,19 +239,13 @@ class ChecklistService:
         # Count by compliance level
         # العد حسب مستوى الامتثال
         major_must = sum(
-            1
-            for item in all_items
-            if item.compliance_level == ComplianceLevel.MAJOR_MUST
+            1 for item in all_items if item.compliance_level == ComplianceLevel.MAJOR_MUST
         )
         minor_must = sum(
-            1
-            for item in all_items
-            if item.compliance_level == ComplianceLevel.MINOR_MUST
+            1 for item in all_items if item.compliance_level == ComplianceLevel.MINOR_MUST
         )
         recommendations = sum(
-            1
-            for item in all_items
-            if item.compliance_level == ComplianceLevel.RECOMMENDATION
+            1 for item in all_items if item.compliance_level == ComplianceLevel.RECOMMENDATION
         )
 
         # Create checklist
@@ -281,9 +267,7 @@ class ChecklistService:
         self.checklists[checklist.id] = checklist
         return checklist
 
-    async def create_assessment(
-        self, assessment: ChecklistAssessment
-    ) -> ChecklistAssessment:
+    async def create_assessment(self, assessment: ChecklistAssessment) -> ChecklistAssessment:
         """
         Create a new checklist assessment
         إنشاء تقييم جديد لقائمة المراجعة
@@ -327,9 +311,7 @@ class ChecklistService:
         # الآن، إرجاع تقييم محدث وهمي
         return None
 
-    async def get_farm_assessments(
-        self, farm_id: str, tenant_id: str
-    ) -> list[ChecklistAssessment]:
+    async def get_farm_assessments(self, farm_id: str, tenant_id: str) -> list[ChecklistAssessment]:
         """
         Get all assessments for a farm
         الحصول على جميع التقييمات للمزرعة
@@ -345,9 +327,7 @@ class ChecklistService:
         # في التطبيق الفعلي، الاستعلام من قاعدة البيانات
         return []
 
-    async def get_assessment_summary(
-        self, farm_id: str, tenant_id: str
-    ) -> dict[str, Any]:
+    async def get_assessment_summary(self, farm_id: str, tenant_id: str) -> dict[str, Any]:
         """
         Get assessment summary for a farm
         الحصول على ملخص التقييم للمزرعة
@@ -363,9 +343,7 @@ class ChecklistService:
 
         summary = {
             "total_assessments": len(assessments),
-            "compliant": sum(
-                1 for a in assessments if a.status == ControlPointStatus.COMPLIANT
-            ),
+            "compliant": sum(1 for a in assessments if a.status == ControlPointStatus.COMPLIANT),
             "non_compliant": sum(
                 1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT
             ),
@@ -376,13 +354,7 @@ class ChecklistService:
                 1 for a in assessments if a.status == ControlPointStatus.NOT_ASSESSED
             ),
             "completion_percentage": (
-                len(
-                    [
-                        a
-                        for a in assessments
-                        if a.status != ControlPointStatus.NOT_ASSESSED
-                    ]
-                )
+                len([a for a in assessments if a.status != ControlPointStatus.NOT_ASSESSED])
                 / len(assessments)
                 * 100
                 if assessments
@@ -392,9 +364,7 @@ class ChecklistService:
 
         return summary
 
-    async def search_checklist_items(
-        self, query: str, language: str = "ar"
-    ) -> list[ChecklistItem]:
+    async def search_checklist_items(self, query: str, language: str = "ar") -> list[ChecklistItem]:
         """
         Search checklist items by keyword
         البحث في عناصر قائمة المراجعة بالكلمات الرئيسية

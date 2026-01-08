@@ -33,7 +33,7 @@ jobs:
   secrets-scan:
     name: Secrets Detection
     runs-on: ubuntu-latest
-    continue-on-error: true
+    # SECURITY FIX: Security scans must block the pipeline on failure
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,14 +42,14 @@ jobs:
 
       - name: TruffleHog Secrets Scan
         uses: trufflesecurity/trufflehog@v3.88.0
-        continue-on-error: true
+        # Secrets detection must fail the pipeline
         with:
           path: ./
           base: ""
           extra_args: --only-verified --no-update
 
       - name: Detect hardcoded secrets
-        continue-on-error: true
+        # SECURITY: Hardcoded secrets must fail the pipeline
         run: |
           echo "🔍 Scanning for hardcoded secrets..."
 
@@ -79,7 +79,7 @@ jobs:
           echo "✅ No secrets detected"
 
       - name: Check for sensitive files
-        continue-on-error: true
+        # SECURITY: Sensitive files must fail the pipeline
         run: |
           echo "🔍 Checking for sensitive files..."
 

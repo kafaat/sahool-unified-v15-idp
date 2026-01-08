@@ -108,9 +108,7 @@ class SahoolAnalyzer:
 
                         # Check for rate limiting
                         plugins = service.get("plugins", [])
-                        has_rate_limit = any(
-                            p.get("name") == "rate-limiting" for p in plugins
-                        )
+                        has_rate_limit = any(p.get("name") == "rate-limiting" for p in plugins)
                         if not has_rate_limit:
                             self.report["warnings"].append(
                                 {
@@ -418,9 +416,7 @@ def main():
     if report["critical"]:
         print("\n🔴 Critical Issues:")
         for issue in report["critical"][:5]:
-            print(
-                f"  - [{issue['type']}] {issue.get('platform', issue.get('file', 'N/A'))}"
-            )
+            print(f"  - [{issue['type']}] {issue.get('platform', issue.get('file', 'N/A'))}")
 
     print("\n📄 Full report saved: analysis-report.json")
 

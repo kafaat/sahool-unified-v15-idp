@@ -66,9 +66,7 @@ class TwoFAVerifyResponse(BaseModel):
     """Response for 2FA verification"""
 
     success: bool = Field(..., description="Whether 2FA was enabled successfully")
-    backup_codes: list[str] = Field(
-        ..., description="Backup codes for account recovery"
-    )
+    backup_codes: list[str] = Field(..., description="Backup codes for account recovery")
     message: str = Field(..., description="Success message")
 
     class Config:
@@ -94,9 +92,7 @@ class TwoFAStatusResponse(BaseModel):
     """Response for 2FA status"""
 
     enabled: bool = Field(..., description="Whether 2FA is enabled")
-    backup_codes_remaining: int = Field(
-        ..., description="Number of unused backup codes"
-    )
+    backup_codes_remaining: int = Field(..., description="Number of unused backup codes")
 
     class Config:
         json_schema_extra = {"example": {"enabled": True, "backup_codes_remaining": 8}}
@@ -405,9 +401,7 @@ async def regenerate_backup_codes(
         # Verify TOTP token
         is_valid = twofa_service.verify_totp(user_data.twofa_secret, request.token)
         if not is_valid:
-            logger.warning(
-                f"Invalid TOTP token for backup code regeneration by user {user.id}"
-            )
+            logger.warning(f"Invalid TOTP token for backup code regeneration by user {user.id}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid verification code",

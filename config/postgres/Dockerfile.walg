@@ -1,0 +1,78 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - PostgreSQL with WAL-G for S3 Archiving
+# PostgreSQL 16 + PostGIS 3.4 + WAL-G
+# ═══════════════════════════════════════════════════════════════════════════════
+# Purpose: PostgreSQL container with WAL-G for continuous archiving to S3/MinIO
+# Base: Official PostGIS image (includes PostgreSQL 16 + PostGIS 3.4)
+# Added: WAL-G for backup and WAL archiving to S3-compatible storage
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FROM postgis/postgis:16-3.4
+
+# Metadata
+LABEL maintainer="SAHOOL Platform <devops@sahool.com>"
+LABEL description="PostgreSQL 16 with PostGIS 3.4 and WAL-G for S3 archiving"
+LABEL version="1.0.0"
+
+# Install dependencies and WAL-G
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install WAL-G (latest stable version)
+# WAL-G is a continuous archiving tool for PostgreSQL with S3 support
+ARG WALG_VERSION=v2.0.1
+RUN set -ex && \
+    arch="$(dpkg --print-architecture)" && \
+    case "$arch" in \
+        amd64) walg_arch='amd64' ;; \
+        arm64) walg_arch='arm64' ;; \
+        *) echo "Unsupported architecture: $arch"; exit 1 ;; \
+    esac && \
+    wget -O /tmp/wal-g.tar.gz \
+        "https://github.com/wal-g/wal-g/releases/download/${WALG_VERSION}/wal-g-pg-ubuntu-20.04-${walg_arch}.tar.gz" && \
+    tar -xzf /tmp/wal-g.tar.gz -C /usr/local/bin && \
+    chmod +x /usr/local/bin/wal-g && \
+    rm /tmp/wal-g.tar.gz && \
+    wal-g --version
+
+# Install AWS CLI for S3 operations (fallback method)
+RUN set -ex && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-$(uname -m).zip" -o "/tmp/awscliv2.zip" && \
+    unzip /tmp/awscliv2.zip -d /tmp && \
+    /tmp/aws/install && \
+    rm -rf /tmp/aws /tmp/awscliv2.zip && \
+    aws --version
+
+# Create directories for WAL archiving
+RUN mkdir -p \
+    /var/lib/postgresql/wal_archive \
+    /var/log/postgresql \
+    /usr/local/bin
+
+# Copy WAL archiving scripts
+COPY scripts/wal-archive.sh /usr/local/bin/wal-archive.sh
+COPY scripts/wal-restore.sh /usr/local/bin/wal-restore.sh
+RUN chmod +x /usr/local/bin/wal-archive.sh /usr/local/bin/wal-restore.sh
+
+# Copy PostgreSQL configuration with WAL-G settings
+COPY postgresql.conf /etc/postgresql/postgresql.conf
+
+# Set permissions
+RUN chown -R postgres:postgres \
+    /var/lib/postgresql/wal_archive \
+    /var/log/postgresql \
+    /usr/local/bin/wal-archive.sh \
+    /usr/local/bin/wal-restore.sh
+
+# Environment variables for WAL-G (can be overridden in docker-compose)
+ENV WALG_COMPRESSION_METHOD=brotli
+ENV WALG_DELTA_MAX_STEPS=6
+ENV WALG_UPLOAD_CONCURRENCY=4
+ENV WALG_DOWNLOAD_CONCURRENCY=4
+ENV AWS_S3_FORCE_PATH_STYLE=true
+
+# Use custom PostgreSQL configuration
+CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]

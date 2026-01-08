@@ -92,9 +92,7 @@ def init_tracer(
 
     # Auto-detect service name from environment
     if not service_name:
-        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv(
-            "SERVICE_NAME", "sahool-service"
-        )
+        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv("SERVICE_NAME", "sahool-service")
 
     if not service_version:
         service_version = os.getenv("SERVICE_VERSION", "1.0.0")
@@ -103,9 +101,7 @@ def init_tracer(
         environment = os.getenv("ENVIRONMENT", "development")
 
     if not otlp_endpoint:
-        otlp_endpoint = os.getenv(
-            "OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317"
-        )
+        otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317")
 
     # Create resource with service information
     resource = Resource.create(

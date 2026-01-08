@@ -37,11 +37,7 @@ def generate_service_compose(name: str, config: dict) -> dict:
         "ports": [f"{port}:{port}"],
         "environment": [
             f"PORT={port}",
-            (
-                "NODE_ENV=production"
-                if service_type == "nestjs"
-                else "ENVIRONMENT=production"
-            ),
+            ("NODE_ENV=production" if service_type == "nestjs" else "ENVIRONMENT=production"),
         ],
         "healthcheck": {
             "test": [
@@ -107,9 +103,7 @@ def write_compose_file(filename: str, services: dict):
 
     output_path = OUTPUT_DIR / filename
     with open(output_path, "w") as f:
-        yaml.dump(
-            compose, f, default_flow_style=False, allow_unicode=True, sort_keys=False
-        )
+        yaml.dump(compose, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
     print(f"  Generated: {output_path}")
 

@@ -6,22 +6,12 @@ Port: 8081
 
 import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime
 from uuid import uuid4
 
 from fastapi import (
-
-# Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
-
-from errors_py import setup_exception_handlers, add_request_id_middleware
     FastAPI,
     Header,
     HTTPException,
@@ -29,8 +19,13 @@ from errors_py import setup_exception_handlers, add_request_id_middleware
     WebSocket,
     WebSocketDisconnect,
 )
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
 from jose import JWTError, jwt
 from pydantic import BaseModel
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .handlers import WebSocketMessageHandler
 from .nats_bridge import NATSBridge
@@ -314,9 +309,7 @@ async def broadcast_message(
         token = authorization[7:] if authorization.startswith("Bearer ") else authorization
 
     if not token:
-        raise HTTPException(
-            status_code=401, detail="Authorization token required for broadcast"
-        )
+        raise HTTPException(status_code=401, detail="Authorization token required for broadcast")
 
     try:
         # Validate token and check tenant ownership

@@ -145,9 +145,7 @@ def run_rag_with_fallback(
 
     if response.confidence < min_confidence and response.mode == "rag":
         # Add low confidence disclaimer
-        disclaimer = (
-            "\n\n⚠️ ملاحظة: مستوى الثقة في هذه الإجابة منخفض. يرجى التحقق من المصادر."
-        )
+        disclaimer = "\n\n⚠️ ملاحظة: مستوى الثقة في هذه الإجابة منخفض. يرجى التحقق من المصادر."
         return RagResponse(
             answer=response.answer + disclaimer,
             confidence=response.confidence,

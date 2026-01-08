@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     // Call backend to revoke the token if it exists
     if (accessToken) {
       try {
-        const backendUrl = process.env.USER_SERVICE_URL || 'http://localhost:3020';
+        const backendUrl = process.env.USER_SERVICE_URL || 'http://localhost:3025';
         const response = await fetch(`${backendUrl}/api/v1/auth/logout`, {
           method: 'POST',
           headers: {

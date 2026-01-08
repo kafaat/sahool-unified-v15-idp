@@ -1,0 +1,118 @@
+{
+  "@@locale": "ar",
+  "@@last_modified": "2026-01-07",
+
+  "appTitle": "سهول",
+  "@appTitle": {"description": "اسم التطبيق"},
+
+  "save": "حفظ",
+  "@save": {"description": "زر الحفظ"},
+
+  "cancel": "إلغاء",
+  "@cancel": {"description": "زر الإلغاء"},
+
+  "delete": "حذف",
+  "@delete": {"description": "زر الحذف"},
+
+  "edit": "تعديل",
+  "@edit": {"description": "زر التعديل"},
+
+  "add": "إضافة",
+  "@add": {"description": "زر الإضافة"},
+
+  "close": "إغلاق",
+  "@close": {"description": "زر الإغلاق"},
+
+  "confirm": "تأكيد",
+  "@confirm": {"description": "زر التأكيد"},
+
+  "loading": "جاري التحميل...",
+  "@loading": {"description": "رسالة التحميل"},
+
+  "error": "خطأ",
+  "@error": {"description": "رسالة الخطأ"},
+
+  "success": "تم بنجاح",
+  "@success": {"description": "رسالة النجاح"},
+
+  "warning": "تحذير",
+  "@warning": {"description": "رسالة التحذير"},
+
+  "login": "تسجيل الدخول",
+  "@login": {"description": "زر تسجيل الدخول"},
+
+  "logout": "تسجيل الخروج",
+  "@logout": {"description": "زر تسجيل الخروج"},
+
+  "email": "البريد الإلكتروني",
+  "@email": {"description": "حقل البريد الإلكتروني"},
+
+  "password": "كلمة المرور",
+  "@password": {"description": "حقل كلمة المرور"},
+
+  "forgotPassword": "نسيت كلمة المرور؟",
+  "@forgotPassword": {"description": "رابط استعادة كلمة المرور"},
+
+  "home": "الرئيسية",
+  "@home": {"description": "الشاشة الرئيسية"},
+
+  "settings": "الإعدادات",
+  "@settings": {"description": "شاشة الإعدادات"},
+
+  "profile": "الملف الشخصي",
+  "@profile": {"description": "شاشة الملف الشخصي"},
+
+  "notifications": "الإشعارات",
+  "@notifications": {"description": "شاشة الإشعارات"},
+
+  "fieldName": "اسم الحقل",
+  "@fieldName": {"description": "اسم الحقل الزراعي"},
+
+  "area": "المساحة",
+  "@area": {"description": "مساحة الحقل"},
+
+  "cropType": "نوع المحصول",
+  "@cropType": {"description": "نوع المحصول"},
+
+  "status": "الحالة",
+  "@status": {"description": "حالة الحقل"},
+
+  "temperature": "درجة الحرارة",
+  "@temperature": {"description": "درجة الحرارة"},
+
+  "humidity": "الرطوبة",
+  "@humidity": {"description": "نسبة الرطوبة"},
+
+  "wind": "الرياح",
+  "@wind": {"description": "سرعة الرياح"},
+
+  "rain": "المطر",
+  "@rain": {"description": "كمية الأمطار"},
+
+  "retry": "إعادة المحاولة",
+  "@retry": {"description": "زر إعادة المحاولة"},
+
+  "noData": "لا توجد بيانات",
+  "@noData": {"description": "رسالة عدم وجود بيانات"},
+
+  "search": "بحث",
+  "@search": {"description": "حقل البحث"},
+
+  "filter": "تصفية",
+  "@filter": {"description": "زر التصفية"},
+
+  "refresh": "تحديث",
+  "@refresh": {"description": "زر التحديث"},
+
+  "offline": "غير متصل",
+  "@offline": {"description": "حالة عدم الاتصال"},
+
+  "online": "متصل",
+  "@online": {"description": "حالة الاتصال"},
+
+  "sync": "مزامنة",
+  "@sync": {"description": "زر المزامنة"},
+
+  "syncing": "جاري المزامنة...",
+  "@syncing": {"description": "رسالة المزامنة"}
+}

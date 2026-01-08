@@ -86,9 +86,7 @@ def generate_compose_service(name: str, service: dict[str, Any]) -> dict[str, An
     if "message_broker" in service:
         broker = service["message_broker"]
         if broker.get("type") == "mqtt":
-            compose_service["environment"].append(
-                "MQTT_URL=${MQTT_URL:-mqtt://mqtt:1883}"
-            )
+            compose_service["environment"].append("MQTT_URL=${MQTT_URL:-mqtt://mqtt:1883}")
             compose_service["depends_on"]["mqtt"] = {"condition": "service_started"}
 
     # Add labels for service discovery
@@ -362,9 +360,7 @@ def generate_helm_values(data: dict[str, Any]) -> dict[str, Any]:
 
 def clean_yaml_output(data: dict[str, Any]) -> str:
     """Convert to YAML and clean up comment markers"""
-    yaml_str = yaml.dump(
-        data, default_flow_style=False, allow_unicode=True, sort_keys=False
-    )
+    yaml_str = yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
     # Add header (no timestamp to avoid spurious diffs in CI)
     header = """# ═══════════════════════════════════════════════════════════════════════════════
@@ -392,17 +388,11 @@ def clean_yaml_output(data: dict[str, Any]) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Generate infrastructure from services.yaml"
-    )
-    parser.add_argument(
-        "--compose", action="store_true", help="Generate Docker Compose only"
-    )
+    parser = argparse.ArgumentParser(description="Generate infrastructure from services.yaml")
+    parser.add_argument("--compose", action="store_true", help="Generate Docker Compose only")
     parser.add_argument("--helm", action="store_true", help="Generate Helm values only")
     parser.add_argument("--all", action="store_true", help="Generate all (default)")
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Print without writing files"
-    )
+    parser.add_argument("--dry-run", action="store_true", help="Print without writing files")
     args = parser.parse_args()
 
     # Default to all if no specific option

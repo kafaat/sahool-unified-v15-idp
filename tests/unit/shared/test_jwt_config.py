@@ -4,6 +4,7 @@ Tests for JWT Configuration
 """
 
 import os
+
 import pytest
 
 
@@ -16,12 +17,25 @@ class TestJWTConfig:
         # Store original env vars
         self.original_env = {}
         env_vars = [
-            "JWT_SECRET_KEY", "JWT_SECRET", "JWT_ALGORITHM",
-            "JWT_ACCESS_TOKEN_EXPIRE_MINUTES", "JWT_REFRESH_TOKEN_EXPIRE_DAYS",
-            "JWT_ISSUER", "JWT_AUDIENCE", "JWT_PUBLIC_KEY", "JWT_PRIVATE_KEY",
-            "RATE_LIMIT_ENABLED", "RATE_LIMIT_REQUESTS", "RATE_LIMIT_WINDOW_SECONDS",
-            "TOKEN_REVOCATION_ENABLED", "REDIS_URL", "REDIS_HOST", "REDIS_PORT",
-            "REDIS_DB", "REDIS_PASSWORD", "ENVIRONMENT"
+            "JWT_SECRET_KEY",
+            "JWT_SECRET",
+            "JWT_ALGORITHM",
+            "JWT_ACCESS_TOKEN_EXPIRE_MINUTES",
+            "JWT_REFRESH_TOKEN_EXPIRE_DAYS",
+            "JWT_ISSUER",
+            "JWT_AUDIENCE",
+            "JWT_PUBLIC_KEY",
+            "JWT_PRIVATE_KEY",
+            "RATE_LIMIT_ENABLED",
+            "RATE_LIMIT_REQUESTS",
+            "RATE_LIMIT_WINDOW_SECONDS",
+            "TOKEN_REVOCATION_ENABLED",
+            "REDIS_URL",
+            "REDIS_HOST",
+            "REDIS_PORT",
+            "REDIS_DB",
+            "REDIS_PASSWORD",
+            "ENVIRONMENT",
         ]
         for var in env_vars:
             self.original_env[var] = os.environ.get(var)
@@ -37,21 +51,21 @@ class TestJWTConfig:
         """Test JWTConfig can be imported"""
         # Import directly to avoid jwt dependency
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        assert hasattr(module, 'JWTConfig')
+        assert hasattr(module, "JWTConfig")
 
     def test_jwt_algorithm_default(self):
         """Test default JWT algorithm is HS256"""
         os.environ.pop("JWT_ALGORITHM", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -61,9 +75,9 @@ class TestJWTConfig:
         """Test default JWT issuer"""
         os.environ.pop("JWT_ISSUER", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -73,9 +87,9 @@ class TestJWTConfig:
         """Test default JWT audience"""
         os.environ.pop("JWT_AUDIENCE", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -85,9 +99,9 @@ class TestJWTConfig:
         """Test default access token expiry is 30 minutes"""
         os.environ.pop("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -97,9 +111,9 @@ class TestJWTConfig:
         """Test default refresh token expiry is 7 days"""
         os.environ.pop("JWT_REFRESH_TOKEN_EXPIRE_DAYS", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -108,9 +122,9 @@ class TestJWTConfig:
     def test_token_header_default(self):
         """Test default token header is Authorization"""
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -121,9 +135,9 @@ class TestJWTConfig:
         """Test rate limiting is enabled by default"""
         os.environ.pop("RATE_LIMIT_ENABLED", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -133,9 +147,9 @@ class TestJWTConfig:
         """Test default rate limit is 100 requests"""
         os.environ.pop("RATE_LIMIT_REQUESTS", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -145,9 +159,9 @@ class TestJWTConfig:
         """Test default rate limit window is 60 seconds"""
         os.environ.pop("RATE_LIMIT_WINDOW_SECONDS", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -157,9 +171,9 @@ class TestJWTConfig:
         """Test token revocation is enabled by default"""
         os.environ.pop("TOKEN_REVOCATION_ENABLED", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -169,9 +183,9 @@ class TestJWTConfig:
         """Test default Redis host is localhost"""
         os.environ.pop("REDIS_HOST", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -181,9 +195,9 @@ class TestJWTConfig:
         """Test default Redis port is 6379"""
         os.environ.pop("REDIS_PORT", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -193,9 +207,9 @@ class TestJWTConfig:
         """Test default Redis DB is 0"""
         os.environ.pop("REDIS_DB", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -205,9 +219,9 @@ class TestJWTConfig:
         """Test JWT algorithm from environment"""
         os.environ["JWT_ALGORITHM"] = "RS256"
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -217,9 +231,9 @@ class TestJWTConfig:
         """Test access token expiry from environment"""
         os.environ["JWT_ACCESS_TOKEN_EXPIRE_MINUTES"] = "60"
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -231,9 +245,9 @@ class TestJWTConfig:
         os.environ.pop("JWT_SECRET_KEY", None)
         os.environ.pop("JWT_SECRET", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -247,9 +261,9 @@ class TestJWTConfig:
         os.environ.pop("JWT_SECRET_KEY", None)
         os.environ.pop("JWT_SECRET", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -262,9 +276,9 @@ class TestJWTConfig:
         os.environ["JWT_ALGORITHM"] = "HS256"
         os.environ["JWT_SECRET_KEY"] = "a" * 32  # 32 character secret
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -276,9 +290,9 @@ class TestJWTConfig:
         os.environ["JWT_ALGORITHM"] = "HS256"
         os.environ["JWT_SECRET_KEY"] = "test_secret_key"
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -290,9 +304,9 @@ class TestJWTConfig:
         os.environ["JWT_ALGORITHM"] = "HS256"
         os.environ["JWT_SECRET_KEY"] = "test_secret_key"
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -304,9 +318,9 @@ class TestJWTConfig:
         os.environ["JWT_ALGORITHM"] = "RS256"
         os.environ.pop("JWT_PRIVATE_KEY", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -318,9 +332,9 @@ class TestJWTConfig:
         os.environ["JWT_ALGORITHM"] = "RS256"
         os.environ.pop("JWT_PUBLIC_KEY", None)
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -331,9 +345,9 @@ class TestJWTConfig:
         """Test rate limiting can be disabled"""
         os.environ["RATE_LIMIT_ENABLED"] = "false"
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -343,9 +357,9 @@ class TestJWTConfig:
         """Test token revocation can be disabled"""
         os.environ["TOKEN_REVOCATION_ENABLED"] = "false"
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -354,11 +368,11 @@ class TestJWTConfig:
     def test_config_singleton_exists(self):
         """Test config singleton is created"""
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
+            "config", "/home/user/sahool-unified-v15-idp/shared/auth/config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        assert hasattr(module, 'config')
+        assert hasattr(module, "config")
         assert isinstance(module.config, module.JWTConfig)

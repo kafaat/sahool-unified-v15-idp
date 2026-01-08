@@ -14,22 +14,21 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
-from pathlib import Path
 from typing import Any
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import structlog
 
-# Import A2A Protocol components
-from shared.a2a.agent import A2AAgent, AgentCapability
-from shared.a2a.protocol import TaskMessage, TaskResultMessage, TaskState
-
 # Import Auto Audit Tools
 from tools.auto_audit.analyzer import AuditLogAnalyzer
-from tools.auto_audit.anomaly_detector import AuditAnomalyDetector, SeverityLevel
+from tools.auto_audit.anomaly_detector import AuditAnomalyDetector
 from tools.auto_audit.compliance_reporter import ComplianceFramework, ComplianceReporter
 from tools.auto_audit.exporter import AuditDataExporter, ExportConfig, ExportFormat
 from tools.auto_audit.hashchain_validator import HashChainValidator
+
+# Import A2A Protocol components
+from shared.a2a.agent import A2AAgent, AgentCapability
+from shared.a2a.protocol import TaskMessage
 
 logger = structlog.get_logger()
 
@@ -221,7 +220,10 @@ class AuditAgent(A2AAgent):
                     "properties": {
                         "tenant_id": {"type": "string"},
                         "issues": {"type": "array"},
-                        "priority": {"type": "string", "enum": ["critical", "high", "medium", "all"]},
+                        "priority": {
+                            "type": "string",
+                            "enum": ["critical", "high", "medium", "all"],
+                        },
                     },
                 },
                 output_schema={
@@ -394,30 +396,34 @@ class AuditAgent(A2AAgent):
 
         for error in report.errors[:10]:
             if error.error_type == "hash_mismatch":
-                suggestions.append({
-                    "issue": f"Hash mismatch at entry {error.entry_index}",
-                    "severity": "critical",
-                    "action": "Compare with backup data",
-                    "auto_fixable": False,
-                    "steps": [
-                        "Retrieve backup of affected entries",
-                        "Compare current values with backup",
-                        "Identify modified fields",
-                        "Restore from backup if tampering confirmed",
-                    ],
-                })
+                suggestions.append(
+                    {
+                        "issue": f"Hash mismatch at entry {error.entry_index}",
+                        "severity": "critical",
+                        "action": "Compare with backup data",
+                        "auto_fixable": False,
+                        "steps": [
+                            "Retrieve backup of affected entries",
+                            "Compare current values with backup",
+                            "Identify modified fields",
+                            "Restore from backup if tampering confirmed",
+                        ],
+                    }
+                )
             elif error.error_type == "chain_break":
-                suggestions.append({
-                    "issue": f"Chain break at entry {error.entry_index}",
-                    "severity": "high",
-                    "action": "Investigate missing entries",
-                    "auto_fixable": False,
-                    "steps": [
-                        "Check for deleted entries",
-                        "Verify database replication",
-                        "Look for timestamp gaps",
-                    ],
-                })
+                suggestions.append(
+                    {
+                        "issue": f"Chain break at entry {error.entry_index}",
+                        "severity": "high",
+                        "action": "Investigate missing entries",
+                        "auto_fixable": False,
+                        "steps": [
+                            "Check for deleted entries",
+                            "Verify database replication",
+                            "Look for timestamp gaps",
+                        ],
+                    }
+                )
 
         return suggestions
 
@@ -533,9 +539,7 @@ class AuditAgent(A2AAgent):
 
         # Sort by priority
         priority_order = ["critical", "high", "medium", "low"]
-        recommendations.sort(
-            key=lambda x: priority_order.index(x.get("severity", "medium"))
-        )
+        recommendations.sort(key=lambda x: priority_order.index(x.get("severity", "medium")))
 
         return {
             "tenant_id": tenant_id,
@@ -750,7 +754,8 @@ class AuditAgent(A2AAgent):
             "integrity_report": {
                 "is_valid": validation.get("is_valid"),
                 "chain_integrity": validation.get("chain_integrity"),
-                "issues_found": validation.get("chain_breaks", 0) + validation.get("tamper_indicators", 0),
+                "issues_found": validation.get("chain_breaks", 0)
+                + validation.get("tamper_indicators", 0),
             },
             "compliance_report": {
                 "framework": compliance.get("framework"),

@@ -67,9 +67,7 @@ def register_boundary_endpoints(app, boundary_detector):
             }
         """
         if not boundary_detector:
-            raise HTTPException(
-                status_code=503, detail="Field boundary detector not initialized"
-            )
+            raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 
         try:
             # Parse date if provided
@@ -99,9 +97,7 @@ def register_boundary_endpoints(app, boundary_detector):
                     "radius_meters": radius_m,
                     "detection_date": (detection_date or datetime.now()).isoformat(),
                     "fields_detected": len(boundaries),
-                    "total_area_hectares": round(
-                        sum(b.area_hectares for b in boundaries), 2
-                    ),
+                    "total_area_hectares": round(sum(b.area_hectares for b in boundaries), 2),
                     "method": "ndvi_edge_detection",
                 },
             }
@@ -140,9 +136,7 @@ def register_boundary_endpoints(app, boundary_detector):
             }
         """
         if not boundary_detector:
-            raise HTTPException(
-                status_code=503, detail="Field boundary detector not initialized"
-            )
+            raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 
         try:
             # Convert to tuple format
@@ -181,9 +175,7 @@ def register_boundary_endpoints(app, boundary_detector):
     async def get_boundary_changes(
         field_id: str,
         since_date: str = Query(..., description="Compare to this date (ISO format)"),
-        previous_coords: str = Query(
-            ..., description="Previous boundary coordinates (JSON array)"
-        ),
+        previous_coords: str = Query(..., description="Previous boundary coordinates (JSON array)"),
     ):
         """
         Detect changes in field boundary over time.
@@ -209,9 +201,7 @@ def register_boundary_endpoints(app, boundary_detector):
             }
         """
         if not boundary_detector:
-            raise HTTPException(
-                status_code=503, detail="Field boundary detector not initialized"
-            )
+            raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 
         try:
             # Parse previous coordinates
@@ -228,9 +218,7 @@ def register_boundary_endpoints(app, boundary_detector):
             try:
                 current_date = datetime.fromisoformat(since_date.replace("Z", "+00:00"))
             except ValueError:
-                raise HTTPException(
-                    status_code=400, detail="Invalid date format. Use ISO format"
-                )
+                raise HTTPException(status_code=400, detail="Invalid date format. Use ISO format")
 
             # Detect changes
             change = await boundary_detector.detect_boundary_change(
@@ -248,9 +236,7 @@ def register_boundary_endpoints(app, boundary_detector):
                     "previous_area_hectares": round(change.previous_area, 2),
                     "current_area_hectares": round(change.current_area, 2),
                     "area_change_hectares": (
-                        round(change.area_change_hectares, 2)
-                        if change.area_change_hectares
-                        else 0
+                        round(change.area_change_hectares, 2) if change.area_change_hectares else 0
                     ),
                     "boundary_shift_meters": (
                         round(change.boundary_shift_meters, 2)
@@ -262,9 +248,7 @@ def register_boundary_endpoints(app, boundary_detector):
                 "affected_area": (
                     {
                         "type": "MultiPoint",
-                        "coordinates": [
-                            [lon, lat] for lon, lat in change.affected_coordinates
-                        ],
+                        "coordinates": [[lon, lat] for lon, lat in change.affected_coordinates],
                     }
                     if change.affected_coordinates
                     else None

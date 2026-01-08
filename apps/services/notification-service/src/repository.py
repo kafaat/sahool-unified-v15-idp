@@ -66,9 +66,7 @@ class NotificationRepository:
             target_governorates=target_governorates,
             target_crops=target_crops,
             expires_at=(
-                datetime.utcnow() + timedelta(hours=expires_in_hours)
-                if expires_in_hours
-                else None
+                datetime.utcnow() + timedelta(hours=expires_in_hours) if expires_in_hours else None
             ),
         )
 
@@ -147,9 +145,7 @@ class NotificationRepository:
 
         # Filter expired notifications
         if not include_expired:
-            query = query.filter(
-                Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow())
-            )
+            query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow()))
 
         # Order by creation date
         query = query.order_by("-created_at")
@@ -174,17 +170,13 @@ class NotificationRepository:
             query = query.filter(tenant_id=tenant_id)
 
         # Exclude expired
-        query = query.filter(
-            Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow())
-        )
+        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow()))
 
         count = await query.count()
         return count
 
     @staticmethod
-    async def mark_as_read(
-        notification_id: UUID, read_at: datetime | None = None
-    ) -> bool:
+    async def mark_as_read(notification_id: UUID, read_at: datetime | None = None) -> bool:
         """
         تحديد إشعار كمقروء
         Mark notification as read
@@ -298,9 +290,7 @@ class NotificationRepository:
             query = query.filter(channel=channel)
 
         # Only get non-expired
-        query = query.filter(
-            Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow())
-        )
+        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow()))
 
         notifications = await query.order_by("created_at").limit(limit).all()
         return notifications
@@ -326,9 +316,7 @@ class NotificationRepository:
             query = query.filter(target_crops__contains=[crop])
 
         # Only non-expired
-        query = query.filter(
-            Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow())
-        )
+        query = query.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=datetime.utcnow()))
 
         notifications = await query.order_by("-created_at").limit(limit).all()
         return notifications
@@ -634,9 +622,7 @@ class NotificationPreferenceRepository:
         return await query.first()
 
     @staticmethod
-    async def is_event_enabled(
-        user_id: str, event_type: str, tenant_id: str | None = None
-    ) -> bool:
+    async def is_event_enabled(user_id: str, event_type: str, tenant_id: str | None = None) -> bool:
         """التحقق من تفعيل نوع حدث معين"""
         preference = await NotificationPreferenceRepository.get_event_preference(
             user_id, event_type, tenant_id
@@ -700,9 +686,7 @@ class NotificationPreferenceRepository:
             quiet_hours_end=end_time,
         )
 
-        logger.info(
-            f"Updated quiet hours for user {user_id}: {updated} preferences updated"
-        )
+        logger.info(f"Updated quiet hours for user {user_id}: {updated} preferences updated")
         return updated > 0
 
 
@@ -762,9 +746,375 @@ class NotificationLogRepository:
         log = await NotificationLog.filter(id=log_id).first()
         if log:
             log.retry_count += 1
-            log.next_retry_at = datetime.utcnow() + timedelta(
-                minutes=5 * (log.retry_count)
-            )
+            log.next_retry_at = datetime.utcnow() + timedelta(minutes=5 * (log.retry_count))
             await log.save()
             return True
         return False
+
+
+class FarmerProfileRepository:
+    """
+    مستودع ملفات المزارعين
+    Repository for managing farmer profiles
+    """
+
+    @staticmethod
+    async def create(
+        farmer_id: str,
+        name: str,
+        governorate: str,
+        crops: list[str],
+        name_ar: str | None = None,
+        district: str | None = None,
+        field_ids: list[str] | None = None,
+        phone: str | None = None,
+        email: str | None = None,
+        fcm_token: str | None = None,
+        language: str = "ar",
+        tenant_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ):
+        """
+        إنشاء ملف مزارع جديد
+        Create a new farmer profile with crops and fields
+        """
+        from .models import FarmerCrop, FarmerField, FarmerProfile
+
+        # Check if farmer already exists
+        existing = await FarmerProfile.filter(farmer_id=farmer_id).first()
+        if existing:
+            logger.warning(f"Farmer {farmer_id} already exists, updating instead")
+            return await FarmerProfileRepository.update(
+                farmer_id=farmer_id,
+                name=name,
+                governorate=governorate,
+                crops=crops,
+                name_ar=name_ar,
+                district=district,
+                field_ids=field_ids,
+                phone=phone,
+                email=email,
+                fcm_token=fcm_token,
+                language=language,
+                metadata=metadata,
+            )
+
+        # Create farmer profile
+        profile = await FarmerProfile.create(
+            id=uuid4(),
+            tenant_id=tenant_id,
+            farmer_id=farmer_id,
+            name=name,
+            name_ar=name_ar or name,
+            governorate=governorate,
+            district=district,
+            phone=phone,
+            email=email,
+            fcm_token=fcm_token,
+            language=language,
+            metadata=metadata or {},
+            is_active=True,
+        )
+
+        # Create crop associations
+        if crops:
+            for crop_type in crops:
+                await FarmerCrop.create(
+                    id=uuid4(),
+                    farmer=profile,
+                    crop_type=crop_type,
+                    is_active=True,
+                )
+
+        # Create field associations
+        if field_ids:
+            for field_id in field_ids:
+                await FarmerField.create(
+                    id=uuid4(),
+                    farmer=profile,
+                    field_id=field_id,
+                    is_active=True,
+                )
+
+        logger.info(
+            f"Created farmer profile {farmer_id} with {len(crops or [])} crops and {len(field_ids or [])} fields"
+        )
+        return profile
+
+    @staticmethod
+    async def get_by_farmer_id(farmer_id: str) -> Any | None:
+        """
+        الحصول على ملف مزارع بواسطة المعرف
+        Get farmer profile by farmer_id with prefetched crops and fields
+        """
+        from .models import FarmerProfile
+
+        profile = (
+            await FarmerProfile.filter(farmer_id=farmer_id)
+            .prefetch_related("farmer_crops", "farmer_fields")
+            .first()
+        )
+        return profile
+
+    @staticmethod
+    async def get_by_id(profile_id: UUID) -> Any | None:
+        """Get farmer profile by UUID"""
+        from .models import FarmerProfile
+
+        return await FarmerProfile.filter(id=profile_id).first()
+
+    @staticmethod
+    async def update(
+        farmer_id: str,
+        name: str | None = None,
+        governorate: str | None = None,
+        crops: list[str] | None = None,
+        name_ar: str | None = None,
+        district: str | None = None,
+        field_ids: list[str] | None = None,
+        phone: str | None = None,
+        email: str | None = None,
+        fcm_token: str | None = None,
+        language: str | None = None,
+        metadata: dict[str, Any] | None = None,
+        is_active: bool | None = None,
+    ):
+        """
+        تحديث ملف مزارع
+        Update farmer profile
+        """
+        from .models import FarmerCrop, FarmerField, FarmerProfile
+
+        profile = await FarmerProfile.filter(farmer_id=farmer_id).first()
+        if not profile:
+            raise ValueError(f"Farmer {farmer_id} not found")
+
+        # Update basic fields
+        update_data = {}
+        if name is not None:
+            update_data["name"] = name
+        if name_ar is not None:
+            update_data["name_ar"] = name_ar
+        if governorate is not None:
+            update_data["governorate"] = governorate
+        if district is not None:
+            update_data["district"] = district
+        if phone is not None:
+            update_data["phone"] = phone
+        if email is not None:
+            update_data["email"] = email
+        if fcm_token is not None:
+            update_data["fcm_token"] = fcm_token
+        if language is not None:
+            update_data["language"] = language
+        if metadata is not None:
+            update_data["metadata"] = metadata
+        if is_active is not None:
+            update_data["is_active"] = is_active
+
+        if update_data:
+            await FarmerProfile.filter(farmer_id=farmer_id).update(**update_data)
+
+        # Update crops if provided
+        if crops is not None:
+            # Get existing crops
+            existing_crops = await FarmerCrop.filter(farmer=profile).all()
+            existing_crop_types = {c.crop_type for c in existing_crops}
+            new_crop_types = set(crops)
+
+            # Remove crops that are no longer in the list
+            crops_to_remove = existing_crop_types - new_crop_types
+            if crops_to_remove:
+                await FarmerCrop.filter(farmer=profile, crop_type__in=list(crops_to_remove)).delete()
+
+            # Add new crops
+            crops_to_add = new_crop_types - existing_crop_types
+            for crop_type in crops_to_add:
+                await FarmerCrop.create(
+                    id=uuid4(),
+                    farmer=profile,
+                    crop_type=crop_type,
+                    is_active=True,
+                )
+
+        # Update fields if provided
+        if field_ids is not None:
+            # Get existing fields
+            existing_fields = await FarmerField.filter(farmer=profile).all()
+            existing_field_ids = {f.field_id for f in existing_fields}
+            new_field_ids = set(field_ids)
+
+            # Remove fields that are no longer in the list
+            fields_to_remove = existing_field_ids - new_field_ids
+            if fields_to_remove:
+                await FarmerField.filter(farmer=profile, field_id__in=list(fields_to_remove)).delete()
+
+            # Add new fields
+            fields_to_add = new_field_ids - existing_field_ids
+            for field_id in fields_to_add:
+                await FarmerField.create(
+                    id=uuid4(),
+                    farmer=profile,
+                    field_id=field_id,
+                    is_active=True,
+                )
+
+        logger.info(f"Updated farmer profile {farmer_id}")
+
+        # Return updated profile
+        return await FarmerProfileRepository.get_by_farmer_id(farmer_id)
+
+    @staticmethod
+    async def delete(farmer_id: str) -> bool:
+        """
+        حذف ملف مزارع
+        Delete farmer profile (also deletes associated crops and fields via CASCADE)
+        """
+        from .models import FarmerProfile
+
+        deleted = await FarmerProfile.filter(farmer_id=farmer_id).delete()
+        if deleted:
+            logger.info(f"Deleted farmer profile {farmer_id}")
+            return True
+        return False
+
+    @staticmethod
+    async def get_all(
+        tenant_id: str | None = None,
+        governorate: str | None = None,
+        is_active: bool = True,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[Any]:
+        """
+        الحصول على جميع ملفات المزارعين
+        Get all farmer profiles with optional filters
+        """
+        from .models import FarmerProfile
+
+        query = FarmerProfile.filter()
+
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        if governorate:
+            query = query.filter(governorate=governorate)
+
+        if is_active is not None:
+            query = query.filter(is_active=is_active)
+
+        profiles = (
+            await query.prefetch_related("farmer_crops", "farmer_fields")
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+
+        return profiles
+
+    @staticmethod
+    async def get_count(
+        tenant_id: str | None = None,
+        governorate: str | None = None,
+        is_active: bool = True,
+    ) -> int:
+        """
+        الحصول على عدد المزارعين
+        Get count of farmer profiles
+        """
+        from .models import FarmerProfile
+
+        query = FarmerProfile.filter()
+
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        if governorate:
+            query = query.filter(governorate=governorate)
+
+        if is_active is not None:
+            query = query.filter(is_active=is_active)
+
+        return await query.count()
+
+    @staticmethod
+    async def find_by_criteria(
+        governorates: list[str] | None = None,
+        crops: list[str] | None = None,
+        is_active: bool = True,
+        tenant_id: str | None = None,
+    ) -> list[Any]:
+        """
+        البحث عن مزارعين بناءً على معايير
+        Find farmers by criteria (governorate, crops)
+        """
+        from .models import FarmerCrop, FarmerProfile
+
+        query = FarmerProfile.filter(is_active=is_active)
+
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        # Filter by governorate
+        if governorates:
+            query = query.filter(governorate__in=governorates)
+
+        # Filter by crops (farmers who have at least one of these crops)
+        if crops:
+            # Get farmer IDs that have any of the specified crops
+            farmer_ids_with_crops = await FarmerCrop.filter(
+                crop_type__in=crops,
+                is_active=True,
+            ).values_list("farmer_id", flat=True)
+
+            if farmer_ids_with_crops:
+                query = query.filter(id__in=farmer_ids_with_crops)
+            else:
+                # No farmers found with these crops
+                return []
+
+        profiles = await query.prefetch_related("farmer_crops", "farmer_fields").all()
+        return profiles
+
+    @staticmethod
+    async def update_last_login(farmer_id: str) -> bool:
+        """
+        تحديث آخر تسجيل دخول
+        Update last login timestamp
+        """
+        from .models import FarmerProfile
+
+        updated = await FarmerProfile.filter(farmer_id=farmer_id).update(
+            last_login_at=datetime.utcnow()
+        )
+        return updated > 0
+
+    @staticmethod
+    async def get_farmer_crops(farmer_id: str) -> list[str]:
+        """
+        الحصول على محاصيل المزارع
+        Get farmer's crop types
+        """
+        from .models import FarmerCrop, FarmerProfile
+
+        profile = await FarmerProfile.filter(farmer_id=farmer_id).first()
+        if not profile:
+            return []
+
+        crops = await FarmerCrop.filter(farmer=profile, is_active=True).all()
+        return [crop.crop_type for crop in crops]
+
+    @staticmethod
+    async def get_farmer_fields(farmer_id: str) -> list[str]:
+        """
+        الحصول على حقول المزارع
+        Get farmer's field IDs
+        """
+        from .models import FarmerField, FarmerProfile
+
+        profile = await FarmerProfile.filter(farmer_id=farmer_id).first()
+        if not profile:
+            return []
+
+        fields = await FarmerField.filter(farmer=profile, is_active=True).all()
+        return [field.field_id for field in fields]

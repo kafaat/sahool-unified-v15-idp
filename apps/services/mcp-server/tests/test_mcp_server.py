@@ -2,7 +2,6 @@
 Tests for SAHOOL MCP Server
 """
 
-
 import os
 
 # Import after adding to path
@@ -11,9 +10,7 @@ import sys
 import pytest
 from fastapi.testclient import TestClient
 
-sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
-)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 
 from apps.services.mcp_server.src.main import app
 

@@ -1,0 +1,199 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - NATS Prometheus Scrape Configuration
+# إعدادات Prometheus لمراقبة NATS
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-01-07
+# Purpose: Configure Prometheus to scrape NATS JetStream metrics
+#
+# NATS exposes Prometheus metrics on its HTTP monitoring port (8222) at:
+# - /metrics - Prometheus format metrics
+# - /varz    - General server information (JSON)
+# - /connz   - Connection information (JSON)
+# - /subsz   - Subscription information (JSON)
+# - /routez  - Routing information (JSON)
+# - /jsz     - JetStream information (JSON)
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NATS Server - Core Metrics
+# ─────────────────────────────────────────────────────────────────────────────
+# Add this job to your prometheus.yml scrape_configs section
+
+scrape_configs:
+  # NATS Server - Prometheus Metrics
+  - job_name: 'nats-server'
+    static_configs:
+      - targets: ['nats:8222']
+        labels:
+          tier: 'infrastructure'
+          component: 'message-queue'
+          service: 'nats'
+          description: 'NATS JetStream Message Queue'
+          description_ar: 'نظام الرسائل NATS JetStream'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+  # NATS Server - Detailed Server Metrics (varz endpoint)
+  # This provides additional metrics in JSON format
+  - job_name: 'nats-varz'
+    static_configs:
+      - targets: ['nats:8222']
+        labels:
+          tier: 'infrastructure'
+          component: 'message-queue'
+          service: 'nats'
+          endpoint: 'varz'
+    metrics_path: /varz
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    # Use json format, Prometheus will parse it
+    params:
+      format: ['prometheus']
+
+  # NATS JetStream - Stream and Consumer Metrics
+  - job_name: 'nats-jetstream'
+    static_configs:
+      - targets: ['nats:8222']
+        labels:
+          tier: 'infrastructure'
+          component: 'message-queue'
+          service: 'nats-jetstream'
+          description: 'JetStream Persistent Streaming'
+          description_ar: 'JetStream البث المستمر'
+    metrics_path: /jsz
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
+
+  # NATS Connections - Active Connections Monitoring
+  - job_name: 'nats-connections'
+    static_configs:
+      - targets: ['nats:8222']
+        labels:
+          tier: 'infrastructure'
+          component: 'message-queue'
+          service: 'nats-connections'
+    metrics_path: /connz
+    scrape_interval: 60s
+    scrape_timeout: 10s
+
+# ─────────────────────────────────────────────────────────────────────────────
+# NATS Prometheus Exporter (Optional - Enhanced Metrics)
+# ─────────────────────────────────────────────────────────────────────────────
+# If using nats-prometheus-exporter service, add this configuration:
+
+  # NATS Prometheus Exporter - Enhanced Metrics Collection
+  - job_name: 'nats-exporter'
+    static_configs:
+      - targets: ['nats-prometheus-exporter:7777']
+        labels:
+          tier: 'monitoring'
+          component: 'metrics-exporter'
+          service: 'nats-exporter'
+          description: 'NATS Prometheus Exporter'
+          description_ar: 'مُصدِّر مقاييس NATS'
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Key NATS Metrics Exposed
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Core Server Metrics:
+# -------------------
+# - gnatsd_varz_connections        - Current number of client connections
+# - gnatsd_varz_in_msgs            - Total incoming messages
+# - gnatsd_varz_out_msgs           - Total outgoing messages
+# - gnatsd_varz_in_bytes           - Total incoming bytes
+# - gnatsd_varz_out_bytes          - Total outgoing bytes
+# - gnatsd_varz_slow_consumers     - Number of slow consumers detected
+# - gnatsd_varz_subscriptions      - Current number of subscriptions
+# - gnatsd_varz_mem                - Memory usage in bytes
+# - gnatsd_varz_cpu                - CPU usage percentage
+# - gnatsd_varz_max_connections    - Maximum connections configured
+#
+# JetStream Metrics:
+# -----------------
+# - gnatsd_jetstream_enabled               - JetStream enabled (1 or 0)
+# - gnatsd_jetstream_memory_used           - JetStream memory usage
+# - gnatsd_jetstream_storage_used          - JetStream disk storage used
+# - gnatsd_jetstream_streams               - Number of streams
+# - gnatsd_jetstream_consumers             - Number of consumers
+# - gnatsd_jetstream_messages              - Total messages in all streams
+#
+# Stream-specific Metrics (via exporter):
+# ---------------------------------------
+# - nats_jetstream_stream_messages         - Messages in stream
+# - nats_jetstream_stream_bytes            - Bytes in stream
+# - nats_jetstream_stream_first_seq        - First sequence number
+# - nats_jetstream_stream_last_seq         - Last sequence number
+# - nats_jetstream_consumer_num_pending    - Pending messages for consumer
+# - nats_jetstream_consumer_num_ack_pending - Unacknowledged messages
+# - nats_jetstream_consumer_delivered      - Delivered message count
+# - nats_jetstream_consumer_redelivered    - Redelivered message count
+#
+# Connection Metrics:
+# ------------------
+# - gnatsd_connz_total                     - Total connections
+# - gnatsd_connz_num_connections           - Current connections by type
+# - gnatsd_connz_in_msgs                   - Messages per connection
+# - gnatsd_connz_out_msgs                  - Outgoing messages per connection
+# - gnatsd_connz_pending_bytes             - Pending bytes per connection
+#
+# Route Metrics (for clustering):
+# ------------------------------
+# - gnatsd_routez_num_routes               - Number of cluster routes
+# - gnatsd_routez_pending_size             - Pending data on routes
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# Integration Instructions
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 1. Update Main Prometheus Configuration:
+#    Add the scrape_configs from this file to:
+#    infrastructure/monitoring/prometheus/prometheus.yml
+#
+# 2. Deploy NATS Prometheus Exporter (Optional):
+#    Use docker-compose.nats-monitoring.yml to deploy enhanced exporter
+#
+# 3. Restart Prometheus:
+#    docker-compose -f infrastructure/monitoring/docker-compose.monitoring.yml restart prometheus
+#
+# 4. Verify Metrics Collection:
+#    curl http://localhost:9090/api/v1/targets | grep nats
+#
+# 5. Check NATS Metrics Directly:
+#    curl http://nats:8222/metrics
+#    curl http://nats:8222/varz
+#    curl http://nats:8222/jsz?acc=APP
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+# Notes:
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# 1. NATS Native Metrics:
+#    NATS 2.10+ includes built-in Prometheus metrics on the HTTP monitoring port
+#    No additional exporter is strictly necessary for basic monitoring
+#
+# 2. NATS Prometheus Exporter:
+#    Provides enhanced JetStream-specific metrics and per-stream/consumer details
+#    Recommended for production deployments with JetStream
+#
+# 3. Authentication:
+#    The HTTP monitoring port (8222) should be accessible within the Docker network
+#    For production, consider restricting access or adding authentication
+#
+# 4. High Cardinality:
+#    Be mindful of label cardinality when monitoring many streams/consumers
+#    Use relabeling rules to limit or aggregate high-cardinality metrics
+#
+# 5. System Account:
+#    The exporter can use the NATS system account for detailed monitoring
+#    Configure using NATS_SYSTEM_USER and NATS_SYSTEM_PASSWORD
+#
+# ═══════════════════════════════════════════════════════════════════════════════

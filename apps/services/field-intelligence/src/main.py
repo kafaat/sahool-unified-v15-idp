@@ -22,13 +22,7 @@ from pathlib import Path as PathLib
 from fastapi import FastAPI
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 # Add path to shared modules
@@ -39,7 +33,6 @@ if not SHARED_PATH.exists():
     SHARED_PATH = PathLib(__file__).parent.parent.parent / "shared"
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
-from errors_py import setup_exception_handlers, add_request_id_middleware
 
 try:
     from config.cors_config import setup_cors_middleware
@@ -252,6 +245,8 @@ async def seed_demo_rules():
     بذر قواعد تجريبية - Seed demo rules (Development only)
     Creates sample automation rules for testing
     """
+    from uuid import uuid4
+
     from .api.routes import rules_db
     from .models.rules import (
         ActionConfig,
@@ -259,12 +254,11 @@ async def seed_demo_rules():
         ConditionOperator,
         NotificationConfig,
         Rule,
-        RuleConditionGroup,
         RuleCondition,
+        RuleConditionGroup,
         RuleStatus,
         TaskConfig,
     )
-    from uuid import uuid4
 
     demo_rules = []
 

@@ -27,3 +27,27 @@ node_modules/
 # Docker volumes
 grafana-data/
 influxdb-data/
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# InfluxDB Security Files - DO NOT COMMIT
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Secret environment files containing credentials
+.env.influxdb.secret
+.env.influxdb-advanced.secret
+*.secret
+
+# TLS private keys (certificates can be committed, but NOT private keys)
+ssl/*-key.pem
+
+# Backup files (may contain sensitive data)
+/var/backups/
+backups/
+*.backup
+*.bak
+
+# Database exports
+*.sql
+*.dump
+
+# ═══════════════════════════════════════════════════════════════════════════════

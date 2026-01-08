@@ -459,9 +459,7 @@ class CropRotationPlanner:
                 suggestions = await self.suggest_next_crop(
                     field_id=field_id, history=all_history, season="winter"
                 )
-                next_family = (
-                    suggestions[0].crop_family if suggestions else CropFamily.CEREALS
-                )
+                next_family = suggestions[0].crop_family if suggestions else CropFamily.CEREALS
             else:
                 next_family = rotation_cycle[year_offset % len(rotation_cycle)]
 
@@ -636,9 +634,7 @@ class CropRotationPlanner:
 
         # Check for nitrogen fixers
         nitrogen_fixers = sum(
-            1
-            for s in seasons
-            if self.ROTATION_RULES[s.crop_family].nitrogen_effect == "fix"
+            1 for s in seasons if self.ROTATION_RULES[s.crop_family].nitrogen_effect == "fix"
         )
         if nitrogen_fixers > 0:
             soil_health_score += 20
@@ -647,9 +643,7 @@ class CropRotationPlanner:
         root_alternations = sum(
             1
             for i in range(1, len(seasons))
-            if self._check_root_alternation(
-                seasons[i].crop_family, seasons[i - 1].crop_family
-            )
+            if self._check_root_alternation(seasons[i].crop_family, seasons[i - 1].crop_family)
         )
         soil_health_score += min(20, root_alternations * 5)
 
@@ -661,9 +655,7 @@ class CropRotationPlanner:
         # Calculate disease risk score
         disease_risks = self.get_disease_risk(seasons)
         avg_disease_risk = (
-            sum(disease_risks.values()) / max(1, len(disease_risks))
-            if disease_risks
-            else 0
+            sum(disease_risks.values()) / max(1, len(disease_risks)) if disease_risks else 0
         )
         disease_risk_score = avg_disease_risk * 100
 
@@ -690,9 +682,7 @@ class CropRotationPlanner:
 
         if fallow_periods == 0 and len(seasons) > 4:
             recommendations_ar.append("النظر في إضافة فترة بور لتجديد التربة")
-            recommendations_en.append(
-                "Consider adding fallow period for soil regeneration"
-            )
+            recommendations_en.append("Consider adding fallow period for soil regeneration")
 
         return {
             "diversity_score": diversity_score,
@@ -784,9 +774,7 @@ class CropRotationPlanner:
             rule = self.ROTATION_RULES[season.crop_family]
 
             # Diseases accumulate more if crops are repeated
-            decay_factor = 0.7 ** (
-                len(seasons) - i - 1
-            )  # Recent seasons have higher impact
+            decay_factor = 0.7 ** (len(seasons) - i - 1)  # Recent seasons have higher impact
 
             for disease, risk in rule.disease_risk.items():
                 if disease not in disease_risks:
@@ -932,9 +920,7 @@ class CropRotationPlanner:
 
         return not has_fallow and heavy_feeders >= 3
 
-    async def get_field_history(
-        self, field_id: str, years: int = 5
-    ) -> list[SeasonPlan]:
+    async def get_field_history(self, field_id: str, years: int = 5) -> list[SeasonPlan]:
         """
         Get crop history for a field.
         الحصول على سجل المحاصيل للحقل.

@@ -3,8 +3,9 @@ Tests for Two-Factor Authentication Configuration
 اختبارات إعدادات المصادقة الثنائية
 """
 
+from datetime import UTC, datetime, timedelta
+
 import pytest
-from datetime import datetime, timedelta, UTC
 
 
 class TestTwoFAEnforcementLevel:
@@ -14,9 +15,9 @@ class TestTwoFAEnforcementLevel:
         """Test OPTIONAL enforcement level"""
         # Import directly to avoid jwt dependency chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "twofa_config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
+            "twofa_config", "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -26,9 +27,9 @@ class TestTwoFAEnforcementLevel:
     def test_recommended_value(self):
         """Test RECOMMENDED enforcement level"""
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "twofa_config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
+            "twofa_config", "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -38,9 +39,9 @@ class TestTwoFAEnforcementLevel:
     def test_required_for_admin_value(self):
         """Test REQUIRED_FOR_ADMIN enforcement level"""
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "twofa_config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
+            "twofa_config", "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -50,9 +51,9 @@ class TestTwoFAEnforcementLevel:
     def test_required_for_all_value(self):
         """Test REQUIRED_FOR_ALL enforcement level"""
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "twofa_config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
+            "twofa_config", "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -67,9 +68,9 @@ class TestTwoFAConfig:
     def module(self):
         """Load module directly to avoid import chain"""
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "twofa_config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
+            "twofa_config", "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -107,9 +108,7 @@ class TestTwoFAConfig:
 
     def test_is_2fa_required_optional(self, module):
         """Test is_2fa_required_for_user with OPTIONAL enforcement"""
-        config = module.TwoFAConfig(
-            enforcement_level=module.TwoFAEnforcementLevel.OPTIONAL
-        )
+        config = module.TwoFAConfig(enforcement_level=module.TwoFAEnforcementLevel.OPTIONAL)
         assert config.is_2fa_required_for_user(["admin"]) is False
         assert config.is_2fa_required_for_user(["user"]) is False
 
@@ -131,9 +130,7 @@ class TestTwoFAConfig:
 
     def test_is_2fa_required_for_all(self, module):
         """Test is_2fa_required_for_user with REQUIRED_FOR_ALL"""
-        config = module.TwoFAConfig(
-            enforcement_level=module.TwoFAEnforcementLevel.REQUIRED_FOR_ALL
-        )
+        config = module.TwoFAConfig(enforcement_level=module.TwoFAEnforcementLevel.REQUIRED_FOR_ALL)
         assert config.is_2fa_required_for_user(["admin"]) is True
         assert config.is_2fa_required_for_user(["user"]) is True
         assert config.is_2fa_required_for_user(["farmer"]) is True
@@ -164,9 +161,9 @@ class TestConfigPresets:
     def module(self):
         """Load module directly"""
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "twofa_config",
-            "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
+            "twofa_config", "/home/user/sahool-unified-v15-idp/shared/auth/twofa_config.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

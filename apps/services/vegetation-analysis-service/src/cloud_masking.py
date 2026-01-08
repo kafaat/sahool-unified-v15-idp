@@ -171,9 +171,7 @@ class CloudMasker:
         clear_cover = self._calculate_clear_cover(scl_distribution)
 
         # Calculate quality score
-        quality_score = self.calculate_quality_score(
-            cloud_cover, shadow_cover, clear_cover
-        )
+        quality_score = self.calculate_quality_score(cloud_cover, shadow_cover, clear_cover)
 
         # Determine usability
         usable = (
@@ -229,9 +227,7 @@ class CloudMasker:
         current_date = start_date
         while current_date <= end_date:
             # Analyze this date
-            result = await self.analyze_cloud_cover(
-                field_id, latitude, longitude, current_date
-            )
+            result = await self.analyze_cloud_cover(field_id, latitude, longitude, current_date)
 
             # Check if meets criteria
             if result.cloud_cover_percent <= max_cloud_cover and result.usable:
@@ -350,9 +346,7 @@ class CloudMasker:
         # Clamp to [0, 1]
         return max(0.0, min(1.0, score))
 
-    async def apply_cloud_mask(
-        self, ndvi_value: float, scl_class: SCLClass
-    ) -> float | None:
+    async def apply_cloud_mask(self, ndvi_value: float, scl_class: SCLClass) -> float | None:
         """
         Apply cloud mask to NDVI value.
         Returns None if masked, original value if clear.
@@ -416,8 +410,7 @@ class CloudMasker:
 
         if len(valid_obs) < 2:
             logger.warning(
-                f"Not enough valid observations ({len(valid_obs)}) "
-                f"to interpolate for {field_id}"
+                f"Not enough valid observations ({len(valid_obs)}) to interpolate for {field_id}"
             )
             return ndvi_series
 
@@ -456,9 +449,7 @@ class CloudMasker:
     # Private Helper Methods
     # =========================================================================
 
-    async def _fetch_scl_data(
-        self, latitude: float, longitude: float, date: datetime
-    ) -> list[int]:
+    async def _fetch_scl_data(self, latitude: float, longitude: float, date: datetime) -> list[int]:
         """
         Fetch SCL data from satellite provider.
         Currently simulated - would connect to real API in production.
@@ -573,9 +564,7 @@ class CloudMasker:
         day_of_year = date.timetuple().tm_yday
         return "Sentinel-2A" if day_of_year % 10 < 5 else "Sentinel-2B"
 
-    def _linear_interpolate(
-        self, target_date: datetime, valid_obs: list[dict]
-    ) -> float | None:
+    def _linear_interpolate(self, target_date: datetime, valid_obs: list[dict]) -> float | None:
         """Linear interpolation between two valid neighbors"""
         # Find neighbors before and after target date
         before = None
@@ -608,9 +597,7 @@ class CloudMasker:
         value = before["ndvi"] + fraction * (after["ndvi"] - before["ndvi"])
         return round(value, 4)
 
-    def _spline_interpolate(
-        self, target_date: datetime, valid_obs: list[dict]
-    ) -> float | None:
+    def _spline_interpolate(self, target_date: datetime, valid_obs: list[dict]) -> float | None:
         """
         Spline interpolation using multiple neighbors.
         Falls back to linear if not enough points.
@@ -639,9 +626,7 @@ class CloudMasker:
         # For production, use proper spline library
         return self._linear_interpolate(target_date, nearest_4)
 
-    def _previous_interpolate(
-        self, target_date: datetime, valid_obs: list[dict]
-    ) -> float | None:
+    def _previous_interpolate(self, target_date: datetime, valid_obs: list[dict]) -> float | None:
         """Use previous valid value (forward fill)"""
         # Find most recent observation before target date
         previous = None
@@ -649,9 +634,7 @@ class CloudMasker:
         for obs in valid_obs:
             obs_date = datetime.fromisoformat(obs["date"])
             if obs_date <= target_date:
-                if previous is None or obs_date > datetime.fromisoformat(
-                    previous["date"]
-                ):
+                if previous is None or obs_date > datetime.fromisoformat(previous["date"]):
                     previous = obs
 
         if previous is None:

@@ -287,9 +287,7 @@ class IrrigationScheduler:
 
         return gross_irrigation
 
-    def adjust_for_soil_type(
-        self, base_requirement: float, soil_type: SoilType
-    ) -> float:
+    def adjust_for_soil_type(self, base_requirement: float, soil_type: SoilType) -> float:
         """
         تعديل احتياجات المياه حسب نوع التربة
         Adjust water requirements based on soil type
@@ -332,10 +330,7 @@ class IrrigationScheduler:
             float: التبخر المرجعي (مم/يوم) - Reference ET0 (mm/day)
         """
         # معاملات الحساب - Calculation parameters
-        T = (
-            weather_data.temp_mean
-            or (weather_data.temp_max + weather_data.temp_min) / 2
-        )
+        T = weather_data.temp_mean or (weather_data.temp_max + weather_data.temp_min) / 2
         T_max = weather_data.temp_max
         T_min = weather_data.temp_min
         u2 = weather_data.wind_speed
@@ -349,9 +344,7 @@ class IrrigationScheduler:
         gamma = 0.000665 * P
 
         # ميل منحنى ضغط البخار - Slope of saturation vapour pressure curve (kPa/°C)
-        delta = (
-            4098 * (0.6108 * math.exp((17.27 * T) / (T + 237.3))) / ((T + 237.3) ** 2)
-        )
+        delta = 4098 * (0.6108 * math.exp((17.27 * T) / (T + 237.3))) / ((T + 237.3) ** 2)
 
         # ضغط البخار المشبع - Saturation vapour pressure (kPa)
         e_T_max = 0.6108 * math.exp((17.27 * T_max) / (T_max + 237.3))
@@ -403,9 +396,7 @@ class IrrigationScheduler:
         G = 0
 
         # معادلة Penman-Monteith الكاملة - Full Penman-Monteith equation
-        numerator = 0.408 * delta * (Rn - G) + gamma * (900 / (T + 273)) * u2 * (
-            es - ea
-        )
+        numerator = 0.408 * delta * (Rn - G) + gamma * (900 / (T + 273)) * u2 * (es - ea)
         denominator = delta + gamma * (1 + 0.34 * u2)
 
         et0 = numerator / denominator
@@ -438,9 +429,7 @@ class IrrigationScheduler:
 
         return Rs
 
-    def _calculate_extraterrestrial_radiation(
-        self, latitude: float, date_val: date
-    ) -> float:
+    def _calculate_extraterrestrial_radiation(self, latitude: float, date_val: date) -> float:
         """
         حساب الإشعاع خارج الغلاف الجوي
         Calculate extraterrestrial radiation (Ra)
@@ -492,9 +481,7 @@ class IrrigationScheduler:
 
     # ============== حساب الأمطار الفعالة - Effective Rainfall ==============
 
-    def calculate_effective_rainfall(
-        self, total_rainfall: float, soil_type: SoilType
-    ) -> float:
+    def calculate_effective_rainfall(self, total_rainfall: float, soil_type: SoilType) -> float:
         """
         حساب الأمطار الفعالة (الجزء الذي يستفيد منه المحصول)
         Calculate effective rainfall using USDA method
@@ -748,9 +735,7 @@ class IrrigationScheduler:
                 current_balance = temp_balance
 
         # حساب الإحصائيات - Calculate statistics
-        schedule = self._calculate_schedule_statistics(
-            schedule, electricity_night_discount
-        )
+        schedule = self._calculate_schedule_statistics(schedule, electricity_night_discount)
 
         return schedule
 
@@ -807,9 +792,7 @@ class IrrigationScheduler:
         Calculate irrigation priority (1 = highest, 5 = lowest)
         """
         # النسبة المئوية للمحتوى المائي - Water content percentage
-        water_percent = (
-            water_balance.soil_water_content / soil_properties.total_available_water
-        )
+        water_percent = water_balance.soil_water_content / soil_properties.total_available_water
 
         if water_percent < 0.3:
             return 1  # حرج - Critical
@@ -820,9 +803,7 @@ class IrrigationScheduler:
         else:
             return 4  # منخفض - Low
 
-    def _estimate_flow_rate(
-        self, irrigation_type: IrrigationType, area_ha: float
-    ) -> float:
+    def _estimate_flow_rate(self, irrigation_type: IrrigationType, area_ha: float) -> float:
         """
         تقدير معدل التدفق (م³/ساعة)
         Estimate flow rate (m³/hour)
@@ -884,18 +865,14 @@ class IrrigationScheduler:
         # بناءً على تقليل الهدر وتوقيت الري
         schedule.water_efficiency_score = min(
             100,
-            60
-            + night_ratio * 20
-            + (1 if schedule.average_interval_days > 3 else 0) * 20,
+            60 + night_ratio * 20 + (1 if schedule.average_interval_days > 3 else 0) * 20,
         )
 
         return schedule
 
     # ============== دوال مساعدة - Helper Functions ==============
 
-    def _get_crop_coefficient(
-        self, crop_type: CropType, growth_stage: GrowthStage
-    ) -> float:
+    def _get_crop_coefficient(self, crop_type: CropType, growth_stage: GrowthStage) -> float:
         """
         الحصول على معامل المحصول
         Get crop coefficient (Kc)
@@ -933,9 +910,7 @@ class IrrigationScheduler:
             )
 
             # تحديد الأهمية
-            water_percent = (
-                water_balance.soil_water_content / soil_properties.total_available_water
-            )
+            water_percent = water_balance.soil_water_content / soil_properties.total_available_water
 
             if water_percent < 0.3:
                 urgency = "critical"
@@ -952,9 +927,7 @@ class IrrigationScheduler:
         if should_irrigate:
             # الليل للتوفير في الكهرباء
             tomorrow = date.today() + timedelta(days=1)
-            best_time = datetime.combine(tomorrow, datetime.min.time()) + timedelta(
-                hours=23
-            )
+            best_time = datetime.combine(tomorrow, datetime.min.time()) + timedelta(hours=23)
 
         return IrrigationRecommendation(
             field_id=field_id,

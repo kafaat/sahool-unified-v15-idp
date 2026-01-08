@@ -154,9 +154,7 @@ async def login(
     """Login endpoint with strict rate limiting (5 req/min)."""
 
     # Check rate limit - raises HTTPException if exceeded
-    allowed, remaining, limit, reset = await limiter.check_login_limit(
-        request, credentials.email
-    )
+    allowed, remaining, limit, reset = await limiter.check_login_limit(request, credentials.email)
 
     # Add rate limit headers to response
     for header, value in get_rate_limit_headers(remaining, limit, reset).items():
@@ -229,9 +227,7 @@ async def register(
     for header, value in get_rate_limit_headers(remaining, limit, reset).items():
         response.headers[header] = value
 
-    logger.info(
-        f"Registration attempt - Email: {user_data.email}, IP: {request.client.host}"
-    )
+    logger.info(f"Registration attempt - Email: {user_data.email}, IP: {request.client.host}")
 
     # TODO: Implement registration logic
     # - Check if email exists
@@ -274,17 +270,13 @@ async def forgot_password(
     """Password reset request endpoint with very strict rate limiting (3 req/min)."""
 
     # Check rate limit
-    allowed, remaining, limit, reset = await limiter.check_password_reset_limit(
-        request, data.email
-    )
+    allowed, remaining, limit, reset = await limiter.check_password_reset_limit(request, data.email)
 
     # Add rate limit headers
     for header, value in get_rate_limit_headers(remaining, limit, reset).items():
         response.headers[header] = value
 
-    logger.info(
-        f"Password reset request - Email: {data.email}, IP: {request.client.host}"
-    )
+    logger.info(f"Password reset request - Email: {data.email}, IP: {request.client.host}")
 
     # TODO: Implement password reset logic
     # - Check if user exists
@@ -293,9 +285,7 @@ async def forgot_password(
     # - Store token with expiration
 
     # Always return success to prevent email enumeration
-    return MessageResponse(
-        message="If the email exists, a password reset link has been sent."
-    )
+    return MessageResponse(message="If the email exists, a password reset link has been sent.")
 
 
 @router.post(
@@ -380,9 +370,7 @@ async def refresh_token(
     # TODO: Extract user_id from refresh_token and use it
     user_id = "user_from_token"
 
-    allowed, remaining, limit, reset = await limiter.check_token_refresh_limit(
-        request, user_id
-    )
+    allowed, remaining, limit, reset = await limiter.check_token_refresh_limit(request, user_id)
 
     # Add rate limit headers
     for header, value in get_rate_limit_headers(remaining, limit, reset).items():

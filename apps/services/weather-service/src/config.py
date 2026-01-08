@@ -123,9 +123,7 @@ class WeatherServiceConfig:
     thresholds: AlertThresholds = field(default_factory=AlertThresholds)
 
     # Agricultural indices - المؤشرات الزراعية
-    ag_indices: AgriculturalIndicesConfig = field(
-        default_factory=AgriculturalIndicesConfig
-    )
+    ag_indices: AgriculturalIndicesConfig = field(default_factory=AgriculturalIndicesConfig)
 
     # Service settings - إعدادات الخدمة
     enable_alerts: bool = True  # تفعيل التنبيهات
@@ -194,36 +192,24 @@ def load_config_from_env() -> WeatherServiceConfig:
     # Cache settings from environment
     # إعدادات التخزين المؤقت من البيئة
     config.cache.enabled = os.getenv("WEATHER_CACHE_ENABLED", "true").lower() == "true"
-    config.cache.current_weather_ttl_minutes = int(
-        os.getenv("WEATHER_CACHE_CURRENT_TTL", "10")
-    )
-    config.cache.forecast_ttl_minutes = int(
-        os.getenv("WEATHER_CACHE_FORECAST_TTL", "60")
-    )
+    config.cache.current_weather_ttl_minutes = int(os.getenv("WEATHER_CACHE_CURRENT_TTL", "10"))
+    config.cache.forecast_ttl_minutes = int(os.getenv("WEATHER_CACHE_FORECAST_TTL", "60"))
 
     # Alert settings from environment
     # إعدادات التنبيهات من البيئة
     config.enable_alerts = os.getenv("WEATHER_ALERTS_ENABLED", "true").lower() == "true"
-    config.enable_ag_indices = (
-        os.getenv("WEATHER_AG_INDICES_ENABLED", "true").lower() == "true"
-    )
+    config.enable_ag_indices = os.getenv("WEATHER_AG_INDICES_ENABLED", "true").lower() == "true"
 
     # Alert thresholds customization
     # تخصيص عتبات التنبيهات
     config.thresholds.frost_critical_c = float(os.getenv("FROST_CRITICAL_TEMP", "0"))
-    config.thresholds.heat_wave_critical_c = float(
-        os.getenv("HEAT_WAVE_CRITICAL_TEMP", "45")
-    )
-    config.thresholds.heavy_rain_critical_mm = float(
-        os.getenv("HEAVY_RAIN_CRITICAL_MM", "50")
-    )
+    config.thresholds.heat_wave_critical_c = float(os.getenv("HEAT_WAVE_CRITICAL_TEMP", "45"))
+    config.thresholds.heavy_rain_critical_mm = float(os.getenv("HEAVY_RAIN_CRITICAL_MM", "50"))
 
     # Agricultural indices settings
     # إعدادات المؤشرات الزراعية
     config.ag_indices.gdd_base_temp_c = float(os.getenv("GDD_BASE_TEMP", "10"))
-    config.ag_indices.chill_hours_threshold_c = float(
-        os.getenv("CHILL_HOURS_THRESHOLD", "7.2")
-    )
+    config.ag_indices.chill_hours_threshold_c = float(os.getenv("CHILL_HOURS_THRESHOLD", "7.2"))
 
     return config
 

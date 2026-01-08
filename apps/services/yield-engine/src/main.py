@@ -13,23 +13,18 @@ Port: 8098
 
 import logging
 import os
+import sys
 from datetime import datetime
 from enum import Enum
 
 from fastapi import FastAPI, HTTPException
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from errors_py import setup_exception_handlers, add_request_id_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -101,9 +96,7 @@ class YieldRequest(BaseModel):
     crop_type: CropType = Field(..., description="نوع المحصول")
     avg_rainfall: float | None = Field(None, ge=0, description="متوسط الأمطار (مم)")
     avg_temperature: float | None = Field(None, description="متوسط درجة الحرارة")
-    soil_quality: str | None = Field(
-        "medium", description="جودة التربة: poor/medium/good"
-    )
+    soil_quality: str | None = Field("medium", description="جودة التربة: poor/medium/good")
     irrigation_type: str | None = Field("rain-fed", description="نوع الري")
     governorate: str | None = Field(None, description="المحافظة")
 
@@ -492,9 +485,7 @@ class YieldPredictor:
         factor, desc = soil_factors.get(soil_quality, (1.0, ""))
         return factor, [desc] if desc else []
 
-    def _calculate_irrigation_factor(
-        self, irrigation_type: str, crop_type: CropType
-    ) -> tuple:
+    def _calculate_irrigation_factor(self, irrigation_type: str, crop_type: CropType) -> tuple:
         """حساب معامل الري"""
         water_req = CROP_DATA[crop_type]["water_requirement"]
 
@@ -539,9 +530,7 @@ class YieldPredictor:
         all_factors.extend(weather_desc)
 
         # معامل التربة
-        soil_factor, soil_desc = self._calculate_soil_factor(
-            request.soil_quality or "medium"
-        )
+        soil_factor, soil_desc = self._calculate_soil_factor(request.soil_quality or "medium")
         total_factor *= soil_factor
         all_factors.extend(soil_desc)
 
@@ -616,9 +605,7 @@ class YieldPredictor:
             recommendations.append("الإنتاجية المتوقعة منخفضة - راجع ظروف الزراعة")
 
         if irrigation_type == "rain-fed":
-            recommendations.append(
-                "فكر في تركيب نظام ري بالتنقيط لزيادة الإنتاج 15-20%"
-            )
+            recommendations.append("فكر في تركيب نظام ري بالتنقيط لزيادة الإنتاج 15-20%")
 
         if soil_quality == "poor":
             recommendations.append("أضف سماد عضوي لتحسين جودة التربة")
@@ -757,6 +744,4 @@ async def get_crop_price(crop_type: CropType):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(
-        "main:app", host="0.0.0.0", port=SERVICE_PORT, reload=True, log_level="info"
-    )
+    uvicorn.run("main:app", host="0.0.0.0", port=SERVICE_PORT, reload=True, log_level="info")

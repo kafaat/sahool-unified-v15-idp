@@ -7,7 +7,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from '../prisma/prisma.service';
-import { JWTConfig } from '@sahool/nestjs-auth/config/jwt.config';
+import { JWTConfig } from '../utils/jwt.config';
 
 export interface JwtPayload {
   sub: string;

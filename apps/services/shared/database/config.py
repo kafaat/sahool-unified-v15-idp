@@ -71,7 +71,9 @@ class DatabaseConfig:
         """Generate database URL"""
         driver = "postgresql+asyncpg" if async_driver else "postgresql+psycopg2"
         encoded_password = quote_plus(self.password)
-        return f"{driver}://{self.username}:{encoded_password}@{self.host}:{self.port}/{self.database}"
+        return (
+            f"{driver}://{self.username}:{encoded_password}@{self.host}:{self.port}/{self.database}"
+        )
 
 
 def get_database_url(async_driver: bool = False) -> str:
@@ -82,9 +84,7 @@ def get_database_url(async_driver: bool = False) -> str:
         if async_driver and "postgresql://" in database_url:
             return database_url.replace("postgresql://", "postgresql+asyncpg://")
         elif not async_driver and "postgresql+asyncpg://" in database_url:
-            return database_url.replace(
-                "postgresql+asyncpg://", "postgresql+psycopg2://"
-            )
+            return database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
         return database_url
 
     # Build from individual env vars

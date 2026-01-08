@@ -46,9 +46,7 @@ class TestCircuitBreakerStates:
         cb = CircuitBreaker()
 
         assert await cb._is_circuit_open("test-service") is False
-        assert (
-            cb._states.get("test-service", CircuitState.CLOSED) == CircuitState.CLOSED
-        )
+        assert cb._states.get("test-service", CircuitState.CLOSED) == CircuitState.CLOSED
 
     @pytest.mark.asyncio
     async def test_circuit_opens_after_failures(self):
@@ -71,9 +69,7 @@ class TestCircuitBreakerStates:
         for _ in range(4):
             await cb._on_failure("test-service")
 
-        assert (
-            cb._states.get("test-service", CircuitState.CLOSED) == CircuitState.CLOSED
-        )
+        assert cb._states.get("test-service", CircuitState.CLOSED) == CircuitState.CLOSED
 
     @pytest.mark.asyncio
     async def test_success_resets_failure_count(self):
@@ -179,9 +175,7 @@ class TestCircuitBreakerCall:
         """Test call returns fallback when aiohttp not available"""
         cb = CircuitBreaker()
 
-        with patch.object(
-            cb, "_try_endpoint", side_effect=RuntimeError("aiohttp not installed")
-        ):
+        with patch.object(cb, "_try_endpoint", side_effect=RuntimeError("aiohttp not installed")):
             result = await cb.call("test-service", "/api/test")
 
         # Should return fallback after all endpoints fail

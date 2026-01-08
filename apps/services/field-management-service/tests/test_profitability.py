@@ -151,9 +151,7 @@ class TestProfitabilityAnalyzer:
     async def test_compare_crops(self, analyzer):
         """Test crop comparison"""
         crops = ["wheat", "tomato", "potato"]
-        result = await analyzer.compare_crops(
-            crop_codes=crops, area_ha=1.0, region="sanaa"
-        )
+        result = await analyzer.compare_crops(crop_codes=crops, area_ha=1.0, region="sanaa")
 
         assert len(result) == 3
         assert all("crop_code" in crop for crop in result)
@@ -213,9 +211,7 @@ class TestProfitabilityAnalyzer:
     @pytest.mark.asyncio
     async def test_regional_benchmarks(self, analyzer):
         """Test regional benchmark retrieval"""
-        result = await analyzer.get_regional_benchmarks(
-            crop_code="coffee", region="sanaa"
-        )
+        result = await analyzer.get_regional_benchmarks(crop_code="coffee", region="sanaa")
 
         assert result["crop_code"] == "coffee"
         assert result["crop_name_en"] == "Coffee"

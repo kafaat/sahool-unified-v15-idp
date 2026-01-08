@@ -1134,17 +1134,13 @@ def get_crops_by_category(category: CropCategory) -> list[CropInfo]:
 
 def get_crops_by_water_requirement(requirement: WaterRequirement) -> list[CropInfo]:
     """Get crops by water requirement"""
-    return [
-        crop for crop in ALL_CROPS.values() if crop.water_requirement == requirement
-    ]
+    return [crop for crop in ALL_CROPS.values() if crop.water_requirement == requirement]
 
 
 def get_crops_for_region(region: str) -> list[CropInfo]:
     """Get crops suitable for a Yemen region"""
     return [
-        crop
-        for crop in ALL_CROPS.values()
-        if crop.yemen_regions and region in crop.yemen_regions
+        crop for crop in ALL_CROPS.values() if crop.yemen_regions and region in crop.yemen_regions
     ]
 
 
@@ -1186,6 +1182,4 @@ if __name__ == "__main__":
     print("\nYemen-specific crops:")
     for crop in ALL_CROPS.values():
         if crop.local_varieties:
-            print(
-                f"  - {crop.name_ar} ({crop.name_en}): {', '.join(crop.local_varieties)}"
-            )
+            print(f"  - {crop.name_ar} ({crop.name_en}): {', '.join(crop.local_varieties)}")

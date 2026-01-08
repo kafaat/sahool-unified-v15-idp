@@ -10,10 +10,12 @@ from contextlib import asynccontextmanager, suppress
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 
 # Add path to shared middleware and config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../.."))
+import logging
+
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -21,11 +23,7 @@ from shared.middleware import (
 )
 from shared.observability.middleware import (
     ObservabilityMiddleware,
-    MetricsMiddleware,
 )
-from errors_py import setup_exception_handlers
-
-import logging
 
 from .events import get_publisher
 from .geo import (
@@ -67,6 +65,7 @@ logger = logging.getLogger(__name__)
 # ============== Authentication ==============
 
 from shared.middleware.tenant_context import get_current_tenant_id
+
 
 def get_tenant_id() -> str:
     """Get tenant ID from context (set by TenantContextMiddleware)"""
@@ -236,9 +235,7 @@ async def create_field(field: FieldCreate, tenant_id: str = Depends(get_tenant_i
         "boundary": field.boundary.model_dump() if field.boundary else None,
         "area_hectares": field.area_hectares,
         "soil_type": field.soil_type.value if field.soil_type else None,
-        "irrigation_source": (
-            field.irrigation_source.value if field.irrigation_source else None
-        ),
+        "irrigation_source": (field.irrigation_source.value if field.irrigation_source else None),
         "current_crop": field.current_crop,
         "metadata": field.metadata or {},
         "created_at": now,
@@ -344,9 +341,7 @@ async def list_fields(
 
 
 @app.patch("/fields/{field_id}", response_model=FieldResponse)
-async def update_field(
-    field_id: str, update: FieldUpdate, tenant_id: str = Depends(get_tenant_id)
-):
+async def update_field(field_id: str, update: FieldUpdate, tenant_id: str = Depends(get_tenant_id)):
     """تحديث بيانات حقل"""
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
@@ -361,9 +356,7 @@ async def update_field(
     for key, value in update_dict.items():
         if value is not None:
             if key == "location":
-                field_data[key] = (
-                    value.model_dump() if hasattr(value, "model_dump") else value
-                )
+                field_data[key] = value.model_dump() if hasattr(value, "model_dump") else value
             elif key in ["soil_type", "irrigation_source", "status"]:
                 field_data[key] = value.value if hasattr(value, "value") else value
             else:
@@ -404,9 +397,7 @@ async def delete_field(field_id: str, tenant_id: str = Depends(get_tenant_id)):
     for z_id in zones_to_delete:
         del _zones[z_id]
 
-    seasons_to_delete = [
-        s_id for s_id, s in _seasons.items() if s["field_id"] == field_id
-    ]
+    seasons_to_delete = [s_id for s_id, s in _seasons.items() if s["field_id"] == field_id]
     for s_id in seasons_to_delete:
         del _seasons[s_id]
 
@@ -588,9 +579,7 @@ async def export_field_geojson(field_id: str):
 # ============== Crop Season Endpoints ==============
 
 
-@app.post(
-    "/fields/{field_id}/crops", response_model=CropSeasonResponse, status_code=201
-)
+@app.post("/fields/{field_id}/crops", response_model=CropSeasonResponse, status_code=201)
 async def start_crop_season(field_id: str, season: CropSeasonCreate):
     """بدء موسم محصول جديد"""
     if field_id not in _fields:
@@ -603,9 +592,7 @@ async def start_crop_season(field_id: str, season: CropSeasonCreate):
         if s["field_id"] == field_id and s["status"] == CropSeasonStatus.ACTIVE.value
     ]
     if active_seasons:
-        raise HTTPException(
-            status_code=400, detail="يوجد موسم نشط بالفعل. يجب إنهاءه أولاً"
-        )
+        raise HTTPException(status_code=400, detail="يوجد موسم نشط بالفعل. يجب إنهاءه أولاً")
 
     season_id = str(uuid4())
     now = datetime.now(UTC).isoformat()
@@ -689,9 +676,7 @@ async def close_crop_season(field_id: str, close_data: CropSeasonClose):
     season_data["harvest_date"] = close_data.harvest_date
     season_data["actual_yield_kg"] = close_data.actual_yield_kg
     if close_data.notes:
-        season_data["notes"] = (
-            season_data.get("notes") or ""
-        ) + f"\n{close_data.notes}"
+        season_data["notes"] = (season_data.get("notes") or "") + f"\n{close_data.notes}"
 
     _seasons[season_id] = season_data
 
@@ -767,9 +752,7 @@ async def list_zones(field_id: str):
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
 
-    field_zones = [
-        ZoneResponse(**z) for z in _zones.values() if z["field_id"] == field_id
-    ]
+    field_zones = [ZoneResponse(**z) for z in _zones.values() if z["field_id"] == field_id]
 
     return {
         "field_id": field_id,

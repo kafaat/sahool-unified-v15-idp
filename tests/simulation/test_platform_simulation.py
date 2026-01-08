@@ -61,9 +61,7 @@ def create_test_field(
         "area_hectares": area_hectares,
         "geometry": {
             "type": "Polygon",
-            "coordinates": [
-                [[44.0, 15.0], [44.1, 15.0], [44.1, 15.1], [44.0, 15.1], [44.0, 15.0]]
-            ],
+            "coordinates": [[[44.0, 15.0], [44.1, 15.0], [44.1, 15.1], [44.0, 15.1], [44.0, 15.0]]],
         },
         "created_at": datetime.now().isoformat(),
         "status": "active",
@@ -142,9 +140,7 @@ class TestEventFlowSimulation:
         events = []
 
         async def track_event(subject: str, payload: dict):
-            events.append(
-                {"subject": subject, "payload": payload, "time": datetime.now()}
-            )
+            events.append({"subject": subject, "payload": payload, "time": datetime.now()})
 
         # Step 1: Low NDVI detected
         low_ndvi = create_ndvi_observation(field_id, value=0.15)  # Critically low
@@ -245,9 +241,7 @@ class TestAuthenticationSimulation:
         """
         from shared.security.rbac import Permission, has_permission
 
-        super_admin = create_test_principal(
-            tenant_id=generate_tenant_id(), roles=["super_admin"]
-        )
+        super_admin = create_test_principal(tenant_id=generate_tenant_id(), roles=["super_admin"])
 
         # Super admin has all permissions
         assert has_permission(super_admin, Permission.ADMIN_USERS_CREATE) is True
@@ -407,9 +401,7 @@ class TestErrorHandlingSimulation:
 
         from shared.security.guard import require
 
-        principal = create_test_principal(
-            tenant_id=generate_tenant_id(), roles=["viewer"]
-        )
+        principal = create_test_principal(tenant_id=generate_tenant_id(), roles=["viewer"])
 
         try:
             require(principal, "admin:users.delete")

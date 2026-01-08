@@ -34,13 +34,14 @@ from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from errors_py import setup_exception_handlers
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+from shared.errors_py import setup_exception_handlers
+
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
-    setup_cors,
     rate_limit_middleware,
+    setup_cors,
 )
 from shared.observability.middleware import ObservabilityMiddleware
 
@@ -70,6 +71,16 @@ except ImportError:
     A2A_AVAILABLE = False
     logger.warning("A2A protocol support not available")
 
+# Import Token Revocation Support | استيراد دعم إلغاء الرموز
+try:
+    from auth.revocation_middleware import TokenRevocationMiddleware
+    from auth.token_revocation import get_revocation_store
+
+    REVOCATION_AVAILABLE = True
+except ImportError:
+    REVOCATION_AVAILABLE = False
+    logger.warning("Token revocation support not available")
+
 
 # Pydantic models for requests/responses
 # نماذج Pydantic للطلبات/الاستجابات
@@ -80,9 +91,7 @@ class QuestionRequest(BaseModel):
 
     question: str = Field(..., description="User question")
     language: str = Field(default="en", description="Response language (en/ar)")
-    context: dict[str, Any] | None = Field(
-        default=None, description="Additional context"
-    )
+    context: dict[str, Any] | None = Field(default=None, description="Additional context")
 
 
 class DiagnoseRequest(BaseModel):
@@ -99,9 +108,7 @@ class RecommendationRequest(BaseModel):
 
     crop_type: str = Field(..., description="Type of crop")
     growth_stage: str = Field(..., description="Current growth stage")
-    recommendation_type: str = Field(
-        ..., description="Type (irrigation/fertilizer/pest)"
-    )
+    recommendation_type: str = Field(..., description="Type (irrigation/fertilizer/pest)")
     field_data: dict[str, Any] | None = Field(default=None, description="Field data")
 
 
@@ -110,15 +117,9 @@ class FieldAnalysisRequest(BaseModel):
 
     field_id: str = Field(..., description="Field identifier")
     crop_type: str = Field(..., description="Type of crop")
-    include_disease_check: bool = Field(
-        default=True, description="Include disease analysis"
-    )
-    include_irrigation: bool = Field(
-        default=True, description="Include irrigation advice"
-    )
-    include_yield_prediction: bool = Field(
-        default=True, description="Include yield prediction"
-    )
+    include_disease_check: bool = Field(default=True, description="Include disease analysis")
+    include_irrigation: bool = Field(default=True, description="Include irrigation advice")
+    include_yield_prediction: bool = Field(default=True, description="Include yield prediction")
 
 
 class AgentResponse(BaseModel):
@@ -158,9 +159,7 @@ async def lifespan(app: FastAPI):
 
         disease_expert = DiseaseExpertAgent(tools=[], retriever=knowledge_retriever)
 
-        irrigation_advisor = IrrigationAdvisorAgent(
-            tools=[], retriever=knowledge_retriever
-        )
+        irrigation_advisor = IrrigationAdvisorAgent(tools=[], retriever=knowledge_retriever)
 
         yield_predictor = YieldPredictorAgent(tools=[], retriever=knowledge_retriever)
 
@@ -200,6 +199,16 @@ async def lifespan(app: FastAPI):
             except Exception as e:
                 logger.error("a2a_agent_initialization_failed", error=str(e))
 
+        # Initialize token revocation store | تهيئة مخزن إلغاء الرموز
+        if REVOCATION_AVAILABLE:
+            try:
+                revocation_store = get_revocation_store()
+                await revocation_store.initialize()
+                app_state["revocation_store"] = revocation_store
+                logger.info("token_revocation_store_initialized")
+            except Exception as e:
+                logger.error("token_revocation_initialization_failed", error=str(e))
+
         logger.info("ai_advisor_service_started_successfully")
 
     except Exception as e:
@@ -210,6 +219,9 @@ async def lifespan(app: FastAPI):
 
     # Shutdown | الإغلاق
     logger.info("ai_advisor_service_shutting_down")
+    # Close revocation store
+    if revocation_store := app_state.get("revocation_store"):
+        await revocation_store.close()
     app_state.clear()
 
 
@@ -258,6 +270,13 @@ app.add_middleware(InputValidationMiddleware)
 # 6. Rate limiting middleware - Prevent abuse of AI endpoints
 app.add_middleware(rate_limit_middleware, rate_limiter=rate_limiter)
 
+# 7. Token revocation middleware - Check if tokens are revoked
+if REVOCATION_AVAILABLE:
+    app.add_middleware(
+        TokenRevocationMiddleware,
+        exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json", "/a2a"],
+    )
+
 # Add A2A router if available | إضافة موجه A2A إذا كان متاحاً
 if A2A_AVAILABLE:
 
@@ -282,7 +301,9 @@ async def health_check():
     """
     embeddings_ok = embeddings_manager is not None
     retriever_ok = knowledge_retriever is not None
-    agents_count = len([a for a in [field_analyst, disease_expert, irrigation_advisor, yield_predictor] if a])
+    agents_count = len(
+        [a for a in [field_analyst, disease_expert, irrigation_advisor, yield_predictor] if a]
+    )
 
     is_healthy = embeddings_ok or retriever_ok or agents_count > 0
 
@@ -337,9 +358,7 @@ async def ask_question(request: QuestionRequest):
 
     except Exception as e:
         logger.error("ask_question_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.post("/v1/advisor/diagnose", response_model=AgentResponse, tags=["Advisor"])
@@ -384,9 +403,7 @@ async def diagnose_disease(request: DiagnoseRequest):
 
     except Exception as e:
         logger.error("diagnose_disease_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.post("/v1/advisor/recommend", response_model=AgentResponse, tags=["Advisor"])
@@ -413,12 +430,8 @@ async def get_recommendations(request: RecommendationRequest):
             result = await agent.recommend_irrigation(
                 crop_type=request.crop_type,
                 growth_stage=request.growth_stage,
-                soil_data=(
-                    request.field_data.get("soil", {}) if request.field_data else {}
-                ),
-                weather_data=(
-                    request.field_data.get("weather", {}) if request.field_data else {}
-                ),
+                soil_data=(request.field_data.get("soil", {}) if request.field_data else {}),
+                weather_data=(request.field_data.get("weather", {}) if request.field_data else {}),
             )
         elif request.recommendation_type in ["fertilizer", "pest"]:
             supervisor = app_state.get("supervisor")
@@ -439,9 +452,7 @@ async def get_recommendations(request: RecommendationRequest):
         raise
     except Exception as e:
         logger.error("get_recommendations_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.post("/v1/advisor/analyze-field", response_model=AgentResponse, tags=["Advisor"])
@@ -528,9 +539,7 @@ async def analyze_field(request: FieldAnalysisRequest):
 
     except Exception as e:
         logger.error("analyze_field_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.get("/v1/advisor/agents", tags=["Advisor"])
@@ -560,9 +569,7 @@ async def list_agents():
 
     except Exception as e:
         logger.error("list_agents_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.get("/v1/advisor/tools", tags=["Advisor"])
@@ -607,9 +614,7 @@ async def get_rag_info():
 
     except Exception as e:
         logger.error("get_rag_info_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @app.get("/v1/advisor/cost/usage", tags=["Monitoring"])
@@ -634,16 +639,20 @@ async def get_cost_usage(user_id: str | None = None):
                 "total_requests": stats["total_requests"],
                 "daily_remaining_usd": round(stats["daily_limit"] - stats["daily_cost"], 4),
                 "monthly_remaining_usd": round(stats["monthly_limit"] - stats["monthly_cost"], 4),
-                "daily_usage_percent": round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2) if stats["daily_limit"] > 0 else 0,
-                "monthly_usage_percent": round((stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2) if stats["monthly_limit"] > 0 else 0,
+                "daily_usage_percent": round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2)
+                if stats["daily_limit"] > 0
+                else 0,
+                "monthly_usage_percent": round(
+                    (stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2
+                )
+                if stats["monthly_limit"] > 0
+                else 0,
             },
             "user_id": user_id or "anonymous",
         }
     except Exception as e:
         logger.error("get_cost_usage_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 if __name__ == "__main__":

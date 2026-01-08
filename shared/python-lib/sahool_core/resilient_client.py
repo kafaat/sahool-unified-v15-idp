@@ -167,9 +167,7 @@ class CircuitBreaker:
         self._last_failure_time[service] = datetime.now()
 
         if self._failure_counts[service] >= self.failure_threshold:
-            logger.critical(
-                f"Circuit OPEN for {service} after {self.failure_threshold} failures"
-            )
+            logger.critical(f"Circuit OPEN for {service} after {self.failure_threshold} failures")
             self._states[service] = CircuitState.OPEN
 
     async def _on_success(self, service: str) -> None:
@@ -229,9 +227,7 @@ class CircuitBreaker:
                     "failures": self._failure_counts.get(service, 0),
                     "last_failure": str(self._last_failure_time.get(service, "N/A")),
                 }
-                for service in set(
-                    list(self._states.keys()) + list(self._failure_counts.keys())
-                )
+                for service in set(list(self._states.keys()) + list(self._failure_counts.keys()))
             },
             "endpoints": self._endpoints,
             "config": {

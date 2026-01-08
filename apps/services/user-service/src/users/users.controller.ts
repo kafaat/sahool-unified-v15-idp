@@ -28,7 +28,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CurrentUser } from '@sahool/nestjs-auth/decorators';
+import { CurrentUser } from '../utils/auth-decorators';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -105,7 +105,7 @@ export class UsersController {
     @Query('skip') skip?: string,
     @Query('take') take?: string,
   ) {
-    const users = await this.usersService.findAll({
+    const result = await this.usersService.findAll({
       tenantId,
       role,
       status,
@@ -114,7 +114,7 @@ export class UsersController {
     });
 
     // Remove password hashes from response
-    const usersWithoutPasswords = users.map((user) => {
+    const usersWithoutPasswords = result.data.map((user) => {
       const { passwordHash, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
@@ -123,6 +123,7 @@ export class UsersController {
       success: true,
       data: usersWithoutPasswords,
       count: usersWithoutPasswords.length,
+      meta: result.meta,
     };
   }
 

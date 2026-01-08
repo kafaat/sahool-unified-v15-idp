@@ -285,9 +285,7 @@ class ExternalServiceException(AppException):
         )
 
     @classmethod
-    def satellite_service(
-        cls, error: Any | None = None
-    ) -> "ExternalServiceException":
+    def satellite_service(cls, error: Any | None = None) -> "ExternalServiceException":
         """Create exception for satellite service error"""
         return cls(
             ErrorCode.SATELLITE_SERVICE_UNAVAILABLE,

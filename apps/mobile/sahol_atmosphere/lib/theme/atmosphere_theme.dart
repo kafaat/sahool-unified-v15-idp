@@ -86,10 +86,14 @@ class AtmosphereTypography {
   AtmosphereTypography._();
 
   // Display font for headlines
-  static const String fontDisplay = 'SpaceGrotesk';
+  // Note: Using null (system default) until SpaceGrotesk is installed
+  // To use custom font, download from https://fonts.google.com/specimen/Space+Grotesk
+  static const String? fontDisplay = null; // 'SpaceGrotesk' when available
 
   // Body font for content
-  static const String fontBody = 'Inter';
+  // Note: Using null (system default) until Inter is installed
+  // To use custom font, download from https://fonts.google.com/specimen/Inter
+  static const String? fontBody = null; // 'Inter' when available
 
   // Text Styles
   static const TextStyle displayLarge = TextStyle(

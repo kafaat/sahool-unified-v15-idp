@@ -151,10 +151,7 @@ def example_search_endpoints():
 
     for service in generator.services.values():
         for endpoint in service.endpoints:
-            if (
-                search_term in endpoint.path.lower()
-                or search_term in endpoint.summary.lower()
-            ):
+            if search_term in endpoint.path.lower() or search_term in endpoint.summary.lower():
                 matching_endpoints.append(
                     {
                         "service": service.name,

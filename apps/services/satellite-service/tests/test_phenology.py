@@ -73,9 +73,7 @@ def test_wheat_phenology():
             planting_date=planting_date,
         )
 
-        print(
-            f"Current Stage: {result.current_stage.label_en} ({result.current_stage.label_ar})"
-        )
+        print(f"Current Stage: {result.current_stage.label_en} ({result.current_stage.label_ar})")
         print(f"Days in Stage: {result.days_in_stage}")
         print(
             f"Next Stage: {result.expected_next_stage.label_en} in {result.days_to_next_stage} days"

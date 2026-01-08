@@ -47,9 +47,7 @@ class Notification(Model):
         max_length=255, null=True, description="Notification title (Arabic)"
     )
     body = fields.TextField(description="Notification body/content (English)")
-    body_ar = fields.TextField(
-        null=True, description="Notification body/content (Arabic)"
-    )
+    body_ar = fields.TextField(null=True, description="Notification body/content (Arabic)")
 
     # Categorization
     type = fields.CharField(
@@ -71,28 +69,18 @@ class Notification(Model):
         index=True,
         description="pending, sent, failed, read",
     )
-    sent_at = fields.DatetimeField(
-        null=True, description="When the notification was sent"
-    )
-    read_at = fields.DatetimeField(
-        null=True, description="When the user read the notification"
-    )
+    sent_at = fields.DatetimeField(null=True, description="When the notification was sent")
+    read_at = fields.DatetimeField(null=True, description="When the user read the notification")
 
     # Metadata
-    data = fields.JSONField(
-        null=True, description="Additional data/context for the notification"
-    )
-    action_url = fields.CharField(
-        max_length=500, null=True, description="Deep link or action URL"
-    )
+    data = fields.JSONField(null=True, description="Additional data/context for the notification")
+    action_url = fields.CharField(max_length=500, null=True, description="Deep link or action URL")
 
     # Targeting
     target_governorates = fields.JSONField(
         null=True, description="List of governorates this applies to"
     )
-    target_crops = fields.JSONField(
-        null=True, description="List of crop types this applies to"
-    )
+    target_crops = fields.JSONField(null=True, description="List of crop types this applies to")
 
     # Timestamps
     created_at = fields.DatetimeField(auto_now_add=True, index=True)
@@ -137,9 +125,7 @@ class NotificationTemplate(Model):
     tenant_id = fields.CharField(max_length=100, index=True, null=True)
 
     # Template identification
-    name = fields.CharField(
-        max_length=100, unique=True, description="Template name/slug"
-    )
+    name = fields.CharField(max_length=100, unique=True, description="Template name/slug")
     description = fields.CharField(max_length=255, null=True)
 
     # Template content (supports Jinja2-style variables)
@@ -197,12 +183,8 @@ class NotificationChannel(Model):
     )
 
     # Verification
-    verified = fields.BooleanField(
-        default=False, description="Whether this channel is verified"
-    )
-    verified_at = fields.DatetimeField(
-        null=True, description="When the channel was verified"
-    )
+    verified = fields.BooleanField(default=False, description="Whether this channel is verified")
+    verified_at = fields.DatetimeField(null=True, description="When the channel was verified")
     verification_code = fields.CharField(
         max_length=10,
         null=True,
@@ -266,14 +248,10 @@ class NotificationPreference(Model):
     quiet_hours_start = fields.TimeField(
         null=True, description="Start of quiet hours (e.g., 22:00)"
     )
-    quiet_hours_end = fields.TimeField(
-        null=True, description="End of quiet hours (e.g., 06:00)"
-    )
+    quiet_hours_end = fields.TimeField(null=True, description="End of quiet hours (e.g., 06:00)")
 
     # Metadata
-    metadata = fields.JSONField(
-        null=True, description="Additional preferences metadata"
-    )
+    metadata = fields.JSONField(null=True, description="Additional preferences metadata")
 
     # Timestamps
     created_at = fields.DatetimeField(auto_now_add=True)
@@ -299,10 +277,7 @@ class NotificationPreference(Model):
 
         # Handle overnight quiet hours (e.g., 22:00 to 06:00)
         if self.quiet_hours_start > self.quiet_hours_end:
-            return (
-                check_time >= self.quiet_hours_start
-                or check_time <= self.quiet_hours_end
-            )
+            return check_time >= self.quiet_hours_start or check_time <= self.quiet_hours_end
         else:
             return self.quiet_hours_start <= check_time <= self.quiet_hours_end
 
@@ -325,9 +300,7 @@ class NotificationLog(Model):
     )
 
     # Error tracking
-    error_message = fields.TextField(
-        null=True, description="Error message if delivery failed"
-    )
+    error_message = fields.TextField(null=True, description="Error message if delivery failed")
     error_code = fields.CharField(max_length=50, null=True)
 
     # Provider response
@@ -355,3 +328,163 @@ class NotificationLog(Model):
 
     def __str__(self):
         return f"NotificationLog({self.notification_id}, {self.channel}, {self.status})"
+
+
+class FarmerProfile(Model):
+    """
+    نموذج ملف المزارع
+    Farmer Profile - stores farmer information for personalized notifications
+    """
+
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=100, index=True, null=True)
+
+    # Farmer identification
+    farmer_id = fields.CharField(
+        max_length=100,
+        unique=True,
+        index=True,
+        description="Unique farmer identifier (from auth system)",
+    )
+
+    # Basic information
+    name = fields.CharField(max_length=255, description="Farmer name (English)")
+    name_ar = fields.CharField(max_length=255, null=True, description="Farmer name (Arabic)")
+
+    # Location
+    governorate = fields.CharField(
+        max_length=50,
+        index=True,
+        description="Governorate (sanaa, aden, taiz, etc.)",
+    )
+    district = fields.CharField(max_length=100, null=True, description="District/Area")
+
+    # Contact information
+    phone = fields.CharField(max_length=20, null=True, description="Phone number for SMS/WhatsApp")
+    email = fields.CharField(max_length=255, null=True, description="Email address")
+    fcm_token = fields.CharField(
+        max_length=500,
+        null=True,
+        description="Firebase Cloud Messaging token for push notifications",
+    )
+
+    # Preferences
+    language = fields.CharField(
+        max_length=5,
+        default="ar",
+        description="Preferred language (ar, en)",
+    )
+
+    # Status
+    is_active = fields.BooleanField(default=True, index=True, description="Whether profile is active")
+
+    # Metadata
+    metadata = fields.JSONField(null=True, description="Additional farmer metadata")
+
+    # Timestamps
+    created_at = fields.DatetimeField(auto_now_add=True, index=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+    last_login_at = fields.DatetimeField(
+        null=True,
+        description="Last time farmer logged in or interacted",
+    )
+
+    class Meta:
+        table = "farmer_profiles"
+        ordering = ["-created_at"]
+        indexes = [
+            ("tenant_id", "farmer_id"),
+            ("governorate", "is_active"),
+        ]
+
+    def __str__(self):
+        return f"FarmerProfile({self.farmer_id}, {self.name_ar or self.name})"
+
+
+class FarmerCrop(Model):
+    """
+    نموذج محاصيل المزارع
+    Farmer Crop - junction table for farmer's crops
+    """
+
+    id = fields.UUIDField(pk=True)
+    farmer = fields.ForeignKeyField(
+        "models.FarmerProfile",
+        related_name="farmer_crops",
+        on_delete=fields.CASCADE,
+    )
+
+    # Crop information
+    crop_type = fields.CharField(
+        max_length=50,
+        index=True,
+        description="Crop type (tomato, wheat, coffee, etc.)",
+    )
+
+    # Optional: specific crop details
+    area_hectares = fields.FloatField(
+        null=True,
+        description="Cultivated area in hectares",
+    )
+    planting_date = fields.DateField(null=True, description="When the crop was planted")
+    harvest_date = fields.DateField(null=True, description="Expected harvest date")
+
+    # Status
+    is_active = fields.BooleanField(default=True, description="Whether this crop is still active")
+
+    # Timestamps
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "farmer_crops"
+        unique_together = (("farmer_id", "crop_type"),)
+        indexes = [
+            ("crop_type", "is_active"),
+        ]
+
+    def __str__(self):
+        return f"FarmerCrop({self.farmer_id}, {self.crop_type})"
+
+
+class FarmerField(Model):
+    """
+    نموذج حقول المزارع
+    Farmer Field - junction table for farmer's field IDs
+    """
+
+    id = fields.UUIDField(pk=True)
+    farmer = fields.ForeignKeyField(
+        "models.FarmerProfile",
+        related_name="farmer_fields",
+        on_delete=fields.CASCADE,
+    )
+
+    # Field information
+    field_id = fields.CharField(
+        max_length=100,
+        index=True,
+        description="Field identifier (from field management system)",
+    )
+    field_name = fields.CharField(max_length=255, null=True, description="Field name/label")
+
+    # Location (optional, can be more specific than farmer's general location)
+    latitude = fields.FloatField(null=True, description="Field latitude")
+    longitude = fields.FloatField(null=True, description="Field longitude")
+
+    # Status
+    is_active = fields.BooleanField(default=True, description="Whether this field is still active")
+
+    # Timestamps
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "farmer_fields"
+        unique_together = (("farmer_id", "field_id"),)
+        indexes = [
+            ("field_id", "is_active"),
+        ]
+
+    def __str__(self):
+        return f"FarmerField({self.farmer_id}, {self.field_id})"

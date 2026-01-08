@@ -23,13 +23,13 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Copy requirements
-COPY requirements.txt .
+COPY apps/services/agent-registry/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy service code
-COPY src /app/src
+COPY apps/services/agent-registry/src /app/src
 
 # Set ownership
 RUN chown -R sahool:sahool /app

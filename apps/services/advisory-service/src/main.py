@@ -12,13 +12,7 @@ from pathlib import Path
 from fastapi import Depends, FastAPI
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field
 
@@ -43,7 +37,7 @@ from crops import (
 from crops import (
     search_crops as search_crops_catalog,
 )
-from errors_py import (
+from shared.errors_py import (
     ErrorCode,
     NotFoundException,
     ValidationException,
@@ -59,17 +53,21 @@ from yemen_varieties import (
 try:
     from auth.dependencies import get_current_user, get_optional_user
     from auth.models import User
+
     AUTH_AVAILABLE = True
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
     User = None
+
     def get_current_user():
         """Placeholder when auth not available"""
         return None
+
     def get_optional_user():
         """Placeholder when auth not available"""
         return None
+
 
 from .engine import (
     CROP_REQUIREMENTS,
@@ -92,11 +90,22 @@ from .kb import (
 )
 
 
+# Import token revocation
+try:
+    from auth.token_revocation import get_revocation_store
+    from auth.revocation_middleware import TokenRevocationMiddleware
+
+    REVOCATION_AVAILABLE = True
+except ImportError:
+    REVOCATION_AVAILABLE = False
+
+
 # Lifespan context manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup - initialize state first to avoid AttributeError
     app.state.publisher = None
+    app.state.revocation_store = None
     print("🌱 Starting Agro Advisor Service...")
     try:
         publisher = await get_publisher()
@@ -105,11 +114,23 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️ NATS connection failed (running without events): {e}")
 
+    # Initialize token revocation store
+    if REVOCATION_AVAILABLE:
+        try:
+            revocation_store = get_revocation_store()
+            await revocation_store.initialize()
+            app.state.revocation_store = revocation_store
+            print("✅ Token revocation store initialized")
+        except Exception as e:
+            print(f"⚠️ Token revocation store failed (running without revocation): {e}")
+
     yield
 
     # Shutdown
     if getattr(app.state, "publisher", None):
         await app.state.publisher.close()
+    if getattr(app.state, "revocation_store", None):
+        await app.state.revocation_store.close()
     print("👋 Agro Advisor shutting down")
 
 
@@ -123,6 +144,13 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Add token revocation middleware
+if REVOCATION_AVAILABLE:
+    app.add_middleware(
+        TokenRevocationMiddleware,
+        exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
+    )
 
 
 # ============== Health Check ==============
@@ -192,8 +220,7 @@ class FertilizerPlanRequest(BaseModel):
 
 @app.post("/disease/assess")
 async def assess_disease(
-    req: DiseaseAssessRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: DiseaseAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Assess disease from image classification result"""
     assessment = assess_from_image_event(
@@ -236,8 +263,7 @@ async def assess_disease(
 
 @app.post("/disease/symptoms")
 async def assess_symptoms(
-    req: SymptomAssessRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: SymptomAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Assess possible diseases from reported symptoms"""
     assessments = assess_from_symptoms(
@@ -306,9 +332,7 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
         {
             "id": disease_id,
             **disease,
-            "actions_details": [
-                get_action_details(action, lang) for action in disease["actions"]
-            ],
+            "actions_details": [get_action_details(action, lang) for action in disease["actions"]],
         }
     )
 
@@ -318,8 +342,7 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
 
 @app.post("/nutrient/ndvi")
 async def assess_from_ndvi_endpoint(
-    req: NDVIAssessRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: NDVIAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Assess nutrient deficiency from NDVI data"""
     assessments = assess_from_ndvi(
@@ -356,8 +379,7 @@ async def assess_from_ndvi_endpoint(
 
 @app.post("/nutrient/visual")
 async def assess_visual_endpoint(
-    req: VisualAssessRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: VisualAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Assess nutrient deficiency from visual indicators"""
     indicators = {
@@ -411,8 +433,7 @@ def get_deficiency_info(deficiency_id: str):
 
 @app.post("/fertilizer/plan")
 async def create_fertilizer_plan(
-    req: FertilizerPlanRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: FertilizerPlanRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Generate fertilizer plan for crop and stage"""
     plan = fertilizer_plan(

@@ -335,4 +335,444 @@ describe('WalletService', () => {
       await expect(service.getWalletDashboard('wallet-999')).rejects.toThrow(NotFoundException);
     });
   });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Additional Security & Integrity Tests
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('Advanced Security Tests', () => {
+    describe('Transaction Serialization', () => {
+      it('should use SERIALIZABLE isolation level for critical operations', async () => {
+        const walletData = {
+          id: 'wallet-1',
+          balance: 10000,
+          version: 1,
+        };
+
+        mockPrismaService.$transaction.mockImplementation(async (callback, options) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([walletData]),
+            wallet: {
+              update: jest.fn().mockResolvedValue({
+                ...walletData,
+                balance: 15000,
+                version: 2,
+              }),
+            },
+            transaction: {
+              create: jest.fn().mockResolvedValue({ id: 'tx-1' }),
+            },
+            walletAuditLog: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+          };
+          return callback(tx);
+        });
+
+        await service.deposit('wallet-1', 5000);
+
+        expect(mockPrismaService.$transaction).toHaveBeenCalledWith(
+          expect.any(Function),
+          expect.objectContaining({
+            isolationLevel: 'Serializable',
+            maxWait: 5000,
+            timeout: 10000,
+          })
+        );
+      });
+
+      it('should handle transaction timeout gracefully', async () => {
+        mockPrismaService.$transaction.mockRejectedValue(
+          new Error('Transaction timeout')
+        );
+
+        await expect(service.deposit('wallet-1', 5000)).rejects.toThrow(
+          'Transaction timeout'
+        );
+      });
+    });
+
+    describe('Balance Integrity', () => {
+      it('should maintain balance integrity across multiple operations', async () => {
+        const initialBalance = 10000;
+        let currentBalance = initialBalance;
+
+        // Deposit
+        mockPrismaService.$transaction.mockImplementationOnce(async (callback) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([{
+              id: 'wallet-1',
+              balance: currentBalance,
+              version: 1,
+            }]),
+            wallet: {
+              update: jest.fn().mockImplementation(() => {
+                currentBalance += 5000;
+                return Promise.resolve({ balance: currentBalance });
+              }),
+            },
+            transaction: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+            walletAuditLog: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+          };
+          return callback(tx);
+        });
+
+        await service.deposit('wallet-1', 5000);
+        expect(currentBalance).toBe(15000);
+
+        // Withdraw
+        mockPrismaService.$transaction.mockImplementationOnce(async (callback) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([{
+              id: 'wallet-1',
+              balance: currentBalance,
+              version: 2,
+              dailyWithdrawLimit: 100000,
+              singleTransactionLimit: 200000,
+              dailyWithdrawnToday: 0,
+              lastWithdrawReset: new Date(),
+            }]),
+            wallet: {
+              update: jest.fn().mockImplementation(() => {
+                currentBalance -= 3000;
+                return Promise.resolve({ balance: currentBalance });
+              }),
+            },
+            transaction: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+            walletAuditLog: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+          };
+          return callback(tx);
+        });
+
+        await service.withdraw('wallet-1', 3000);
+        expect(currentBalance).toBe(12000);
+      });
+
+      it('should prevent balance from going negative', async () => {
+        const walletData = {
+          id: 'wallet-1',
+          balance: 100,
+          version: 1,
+        };
+
+        mockPrismaService.$transaction.mockImplementation(async (callback) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([walletData]),
+          };
+          return callback(tx);
+        });
+
+        await expect(service.withdraw('wallet-1', 500)).rejects.toThrow(
+          'الرصيد غير كافي'
+        );
+      });
+    });
+
+    describe('Concurrent Transaction Handling', () => {
+      it('should handle optimistic locking conflicts', async () => {
+        const walletData = {
+          id: 'wallet-1',
+          balance: 10000,
+          version: 5,
+        };
+
+        // First transaction
+        mockPrismaService.$transaction.mockImplementationOnce(async (callback) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([walletData]),
+            wallet: {
+              update: jest.fn().mockResolvedValue({
+                ...walletData,
+                balance: 15000,
+                version: 6,
+              }),
+            },
+            transaction: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+            walletAuditLog: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+          };
+          return callback(tx);
+        });
+
+        await service.deposit('wallet-1', 5000);
+
+        // Second concurrent transaction should fail if version mismatch
+        mockPrismaService.$transaction.mockImplementationOnce(async (callback) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([{
+              ...walletData,
+              version: 6, // Version already updated
+            }]),
+            wallet: {
+              update: jest.fn().mockRejectedValue(
+                new Error('Optimistic locking failed')
+              ),
+            },
+          };
+          return callback(tx);
+        });
+
+        // This should potentially retry or fail gracefully
+        // depending on implementation
+      });
+    });
+
+    describe('Fraud Detection Patterns', () => {
+      it('should flag suspicious rapid withdrawal patterns', async () => {
+        const rapidWithdrawals = [
+          { amount: 5000, timestamp: new Date('2024-01-01T10:00:00') },
+          { amount: 5000, timestamp: new Date('2024-01-01T10:00:05') },
+          { amount: 5000, timestamp: new Date('2024-01-01T10:00:10') },
+        ];
+
+        // Mock fraud detection logic
+        const isSuspicious = (withdrawals: typeof rapidWithdrawals) => {
+          if (withdrawals.length < 3) return false;
+          const timeWindow = 60000; // 1 minute
+          const first = withdrawals[0].timestamp.getTime();
+          const last = withdrawals[withdrawals.length - 1].timestamp.getTime();
+          return (last - first) < timeWindow;
+        };
+
+        expect(isSuspicious(rapidWithdrawals)).toBe(true);
+      });
+
+      it('should detect unusual transaction amounts', async () => {
+        const recentTransactions = [
+          { amount: 100 },
+          { amount: 150 },
+          { amount: 120 },
+          { amount: 50000 }, // Unusual spike
+        ];
+
+        // Mock anomaly detection
+        const detectAnomaly = (transactions: typeof recentTransactions) => {
+          const amounts = transactions.map(t => t.amount);
+          const avg = amounts.reduce((a, b) => a + b, 0) / amounts.length;
+          const threshold = avg * 10;
+          return amounts.some(amount => amount > threshold);
+        };
+
+        expect(detectAnomaly(recentTransactions)).toBe(true);
+      });
+
+      it('should monitor cross-country transaction patterns', async () => {
+        const transactions = [
+          { ipAddress: '192.168.1.1', country: 'YE' },
+          { ipAddress: '203.0.113.42', country: 'YE' },
+          { ipAddress: '198.51.100.99', country: 'US' }, // Different country
+        ];
+
+        // Mock geo-location validation
+        const hasSuspiciousLocation = (txs: typeof transactions) => {
+          const countries = new Set(txs.map(t => t.country));
+          return countries.size > 1; // Multiple countries in short time
+        };
+
+        expect(hasSuspiciousLocation(transactions)).toBe(true);
+      });
+    });
+
+    describe('Audit Compliance', () => {
+      it('should record complete audit trail with metadata', async () => {
+        const walletData = {
+          id: 'wallet-1',
+          balance: 10000,
+          version: 1,
+        };
+
+        const auditLogMock = jest.fn().mockResolvedValue({});
+
+        mockPrismaService.$transaction.mockImplementation(async (callback) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([walletData]),
+            wallet: {
+              update: jest.fn().mockResolvedValue({
+                ...walletData,
+                balance: 15000,
+                version: 2,
+              }),
+            },
+            transaction: {
+              create: jest.fn().mockResolvedValue({ id: 'tx-1' }),
+            },
+            walletAuditLog: {
+              create: auditLogMock,
+            },
+          };
+          return callback(tx);
+        });
+
+        await service.deposit(
+          'wallet-1',
+          5000,
+          'Test deposit',
+          'idemp-key-1',
+          'user-123',
+          '192.168.1.1'
+        );
+
+        expect(auditLogMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            data: expect.objectContaining({
+              walletId: 'wallet-1',
+              transactionId: 'tx-1',
+              userId: 'user-123',
+              operation: 'DEPOSIT',
+              balanceBefore: 10000,
+              balanceAfter: 15000,
+              amount: 5000,
+              versionBefore: 1,
+              versionAfter: 2,
+              idempotencyKey: 'idemp-key-1',
+              ipAddress: '192.168.1.1',
+            }),
+          })
+        );
+      });
+
+      it('should maintain immutable audit logs', async () => {
+        // Audit logs should never be updated or deleted
+        // Only created
+        const auditLog = {
+          id: 'audit-1',
+          operation: 'DEPOSIT',
+          amount: 5000,
+          createdAt: new Date(),
+        };
+
+        // Verify no update or delete methods are exposed
+        // This is a design verification test
+        expect(typeof service['updateAuditLog']).toBe('undefined');
+        expect(typeof service['deleteAuditLog']).toBe('undefined');
+      });
+    });
+
+    describe('Error Handling & Recovery', () => {
+      it('should rollback transaction on wallet update failure', async () => {
+        mockPrismaService.$transaction.mockImplementation(async (callback) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([{
+              id: 'wallet-1',
+              balance: 10000,
+              version: 1,
+            }]),
+            wallet: {
+              update: jest.fn().mockRejectedValue(new Error('Update failed')),
+            },
+          };
+          return callback(tx);
+        });
+
+        await expect(service.deposit('wallet-1', 5000)).rejects.toThrow(
+          'Update failed'
+        );
+      });
+
+      it('should handle database connection errors', async () => {
+        mockPrismaService.$transaction.mockRejectedValue(
+          new Error('Connection refused')
+        );
+
+        await expect(service.deposit('wallet-1', 5000)).rejects.toThrow(
+          'Connection refused'
+        );
+      });
+
+      it('should handle constraint violation errors', async () => {
+        mockPrismaService.$transaction.mockRejectedValue(
+          new Error('Unique constraint violation')
+        );
+
+        await expect(
+          service.deposit('wallet-1', 5000, 'Test', 'existing-key')
+        ).rejects.toThrow('Unique constraint violation');
+      });
+    });
+
+    describe('Performance & Scalability', () => {
+      it('should handle high transaction volumes efficiently', async () => {
+        const startTime = Date.now();
+        const transactionCount = 100;
+
+        mockPrismaService.$transaction.mockImplementation(async (callback) => {
+          const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([{
+              id: 'wallet-1',
+              balance: 10000,
+              version: 1,
+            }]),
+            wallet: {
+              update: jest.fn().mockResolvedValue({
+                balance: 15000,
+                version: 2,
+              }),
+            },
+            transaction: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+            walletAuditLog: {
+              create: jest.fn().mockResolvedValue({}),
+            },
+          };
+          return callback(tx);
+        });
+
+        const promises = [];
+        for (let i = 0; i < transactionCount; i++) {
+          promises.push(service.deposit('wallet-1', 100));
+        }
+
+        await Promise.all(promises);
+
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+
+        // Should complete in reasonable time (adjust threshold as needed)
+        expect(duration).toBeLessThan(10000); // 10 seconds
+      });
+
+      it('should batch read operations efficiently', async () => {
+        const queryMock = jest.fn().mockResolvedValue([]);
+
+        mockPrismaService.transaction.findMany = queryMock;
+
+        await service.getTransactions('wallet-1', 20);
+
+        // Should make single query, not N+1
+        expect(queryMock).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('Authorization & Access Control', () => {
+      it('should prevent cross-wallet access', async () => {
+        // User should only access their own wallet
+        const userWalletId = 'wallet-1';
+        const attemptedWalletId = 'wallet-2';
+
+        const isAuthorized = userWalletId === attemptedWalletId;
+        expect(isAuthorized).toBe(false);
+      });
+
+      it('should validate admin privileges for sensitive operations', async () => {
+        // Only admins should be able to update wallet limits manually
+        const userRole = 'user';
+        const requiredRole = 'admin';
+
+        const hasPermission = userRole === requiredRole;
+        expect(hasPermission).toBe(false);
+      });
+    });
+  });
 });

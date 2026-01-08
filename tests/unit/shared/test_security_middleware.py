@@ -4,15 +4,17 @@ Tests for Security Headers and CORS Middleware
 """
 
 import os
+
 import pytest
+
+from shared.middleware.cors import (
+    DEFAULT_ORIGINS,
+    get_cors_config,
+    get_cors_origins,
+)
 from shared.middleware.security_headers import (
     SecurityHeadersMiddleware,
     get_security_headers_config,
-)
-from shared.middleware.cors import (
-    get_cors_origins,
-    get_cors_config,
-    DEFAULT_ORIGINS,
 )
 
 
@@ -171,6 +173,7 @@ class TestSecurityHeadersMiddleware:
 
     def test_middleware_default_csp(self):
         """Test middleware creates default CSP"""
+
         # Create a mock app
         class MockApp:
             pass
@@ -182,6 +185,7 @@ class TestSecurityHeadersMiddleware:
 
     def test_middleware_custom_csp(self):
         """Test middleware accepts custom CSP"""
+
         class MockApp:
             pass
 
@@ -196,6 +200,7 @@ class TestSecurityHeadersMiddleware:
             del os.environ["ENVIRONMENT"]
 
         try:
+
             class MockApp:
                 pass
 
@@ -211,6 +216,7 @@ class TestSecurityHeadersMiddleware:
         os.environ["ENVIRONMENT"] = "production"
 
         try:
+
             class MockApp:
                 pass
 
@@ -224,6 +230,7 @@ class TestSecurityHeadersMiddleware:
 
     def test_middleware_csp_no_unsafe_inline(self):
         """Test default CSP does not include unsafe-inline"""
+
         class MockApp:
             pass
 
@@ -233,6 +240,7 @@ class TestSecurityHeadersMiddleware:
 
     def test_middleware_enable_flags(self):
         """Test middleware respects enable flags"""
+
         class MockApp:
             pass
 

@@ -100,9 +100,7 @@ async def test_find_clear_observations():
             print(f"      Clear Pixels: {obs.clear_pixels}%")
 
     assert all(obs.cloud_cover <= max_cloud for obs in observations)
-    assert all(
-        obs.quality_score >= 0 and obs.quality_score <= 1 for obs in observations
-    )
+    assert all(obs.quality_score >= 0 and obs.quality_score <= 1 for obs in observations)
     print("\n✅ Clear observations test passed!")
 
 

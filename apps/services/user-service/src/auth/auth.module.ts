@@ -18,10 +18,10 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { PrismaModule } from '../prisma/prisma.module';
 
-// Import token revocation services
-import { RedisTokenRevocationStore } from '@sahool/nestjs-auth/services/token-revocation';
-import { TokenRevocationGuard } from '@sahool/nestjs-auth/guards/token-revocation.guard';
-import { JWTConfig } from '@sahool/nestjs-auth/config/jwt.config';
+// Import token revocation services from local utils
+import { RedisTokenRevocationStore } from '../utils/token-revocation';
+import { TokenRevocationGuard } from '../utils/token-revocation.guard';
+import { JWTConfig } from '../utils/jwt.config';
 
 @Module({
   imports: [

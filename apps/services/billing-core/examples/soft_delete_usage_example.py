@@ -67,9 +67,7 @@ class SoftDeleteExamplesService:
         self.session.commit()
         return subscription
 
-    def get_active_subscriptions(
-        self, tenant_id: str | None = None
-    ) -> list[Subscription]:
+    def get_active_subscriptions(self, tenant_id: str | None = None) -> list[Subscription]:
         """
         Example 2: Get all active subscriptions
         مثال 2: الحصول على جميع الاشتراكات النشطة
@@ -214,9 +212,7 @@ class SoftDeleteExamplesService:
             "active": active_count,
             "deleted": deleted_count,
             "total": total_count,
-            "deletion_rate": (
-                (deleted_count / total_count * 100) if total_count > 0 else 0
-            ),
+            "deletion_rate": ((deleted_count / total_count * 100) if total_count > 0 else 0),
         }
 
         print("Subscription Statistics:")
@@ -240,9 +236,7 @@ class SoftDeleteExamplesService:
         """
         # Get subscription including deleted ones
         subscription = (
-            self.session.query(Subscription)
-            .filter(Subscription.id == subscription_id)
-            .first()
+            self.session.query(Subscription).filter(Subscription.id == subscription_id).first()
         )
 
         if not subscription:
@@ -262,9 +256,7 @@ class SoftDeleteExamplesService:
 
         return result
 
-    def get_deletion_audit_trail(
-        self, start_date: datetime, end_date: datetime
-    ) -> list[dict]:
+    def get_deletion_audit_trail(self, start_date: datetime, end_date: datetime) -> list[dict]:
         """
         Example 9: Get deletion audit trail for a date range
         مثال 9: الحصول على سجل تدقيق الحذف لنطاق تاريخ
@@ -317,9 +309,7 @@ class SoftDeleteExamplesService:
 
         # Find recently deleted subscriptions
         recent_deleted = (
-            self.session.query(Subscription)
-            .filter(Subscription.deleted_at >= cutoff_time)
-            .all()
+            self.session.query(Subscription).filter(Subscription.deleted_at >= cutoff_time).all()
         )
 
         count = 0
@@ -406,9 +396,7 @@ class SoftDeleteExamplesService:
 
         # Find old deleted subscriptions
         old_deleted = (
-            self.session.query(Subscription)
-            .filter(Subscription.deleted_at < cutoff_date)
-            .all()
+            self.session.query(Subscription).filter(Subscription.deleted_at < cutoff_date).all()
         )
 
         count = len(old_deleted)

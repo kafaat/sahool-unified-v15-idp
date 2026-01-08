@@ -152,9 +152,7 @@ async def example_4_water_balance():
     print(f"  Total Precipitation: {balance['summary']['total_precipitation_mm']} mm")
     print(f"  Total ETc (ET0 × Kc): {balance['summary']['total_etc_mm']} mm")
     print(f"  Water Balance: {balance['summary']['total_balance_mm']} mm")
-    print(
-        f"  Status: {balance['summary']['status']} ({balance['summary']['status_ar']})"
-    )
+    print(f"  Status: {balance['summary']['status']} ({balance['summary']['status_ar']})")
 
     if balance["summary"]["total_balance_mm"] < -100:
         print("\n  ⚠️  SEVERE WATER DEFICIT!")
@@ -183,9 +181,7 @@ async def example_5_frost_protection():
     print("📍 Location: Sanaa Highlands (15.3694°N, 44.1910°E)")
     print("🏔️  Elevation: ~2,250m (frost-prone)")
 
-    frost_risks = await weather.get_frost_risk(
-        latitude=15.3694, longitude=44.1910, days=7
-    )
+    frost_risks = await weather.get_frost_risk(latitude=15.3694, longitude=44.1910, days=7)
 
     print("\n❄️  7-Day Frost Risk Assessment:")
 
@@ -200,9 +196,7 @@ async def example_5_frost_protection():
         }.get(risk.risk_level, "❓")
 
         print(f"\n  {icon} {risk.date}: {risk.min_temp_c}°C")
-        print(
-            f"     Risk: {risk.risk_level.upper()} ({risk.frost_probability:.0%} probability)"
-        )
+        print(f"     Risk: {risk.risk_level.upper()} ({risk.frost_probability:.0%} probability)")
         print(f"     {risk.recommendation_en}")
 
         if risk.risk_level in ["severe", "high"]:
@@ -270,19 +264,16 @@ async def example_6_seasonal_comparison():
     # Calculate differences
     temp_diff = this_year.summary["avg_temp_c"] - last_year.summary["avg_temp_c"]
     precip_diff = (
-        this_year.summary["total_precipitation_mm"]
-        - last_year.summary["total_precipitation_mm"]
+        this_year.summary["total_precipitation_mm"] - last_year.summary["total_precipitation_mm"]
     )
     gdd_diff = this_year.summary["gdd_base_10"] - last_year.summary["gdd_base_10"]
 
     print("\n  📈 Year-over-Year Changes:")
     print(f"  Temperature: {temp_diff:+.1f}°C")
     print(
-        f"  Precipitation: {precip_diff:+.1f} mm ({precip_diff/last_year.summary['total_precipitation_mm']*100:+.1f}%)"
+        f"  Precipitation: {precip_diff:+.1f} mm ({precip_diff / last_year.summary['total_precipitation_mm'] * 100:+.1f}%)"
     )
-    print(
-        f"  GDD: {gdd_diff:+.1f} ({gdd_diff/last_year.summary['gdd_base_10']*100:+.1f}%)"
-    )
+    print(f"  GDD: {gdd_diff:+.1f} ({gdd_diff / last_year.summary['gdd_base_10'] * 100:+.1f}%)")
 
     if temp_diff > 1:
         print("\n  🌡️  This year is significantly warmer")

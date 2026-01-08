@@ -44,8 +44,7 @@ from typing import Any
 import aiohttp
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("sahool-simulator")
 
@@ -66,12 +65,20 @@ SAUDI_LOCATIONS = [
 
 CROP_TYPES = ["wheat", "barley", "dates", "tomatoes", "cucumbers", "alfalfa", "corn", "grapes"]
 EQUIPMENT_TYPES = ["tractor", "harvester", "irrigation_pump", "sprayer", "seeder", "cultivator"]
-TASK_TYPES = ["irrigation", "fertilization", "harvesting", "planting", "pest_control", "maintenance"]
+TASK_TYPES = [
+    "irrigation",
+    "fertilization",
+    "harvesting",
+    "planting",
+    "pest_control",
+    "maintenance",
+]
 ALERT_TYPES = ["weather", "pest", "disease", "equipment", "irrigation", "harvest"]
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # STATISTICS
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @dataclass
 class ServiceStats:
@@ -87,6 +94,7 @@ class ServiceStats:
     @property
     def avg_latency(self) -> float:
         return (self.total_latency_ms / self.success) if self.success > 0 else 0.0
+
 
 @dataclass
 class SimulatorStats:
@@ -107,9 +115,11 @@ class SimulatorStats:
         else:
             stats.failed += 1
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # BASE SERVICE SIMULATOR
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class ServiceSimulator(ABC):
     """Base class for service simulators."""
@@ -143,10 +153,7 @@ class ServiceSimulator(ABC):
 
         try:
             async with self.session.request(
-                method, url,
-                headers=self.headers,
-                timeout=aiohttp.ClientTimeout(total=30),
-                **kwargs
+                method, url, headers=self.headers, timeout=aiohttp.ClientTimeout(total=30), **kwargs
             ) as response:
                 latency = (time.time() - start) * 1000
                 success = response.status in [200, 201, 202, 204, 404]
@@ -176,18 +183,24 @@ class ServiceSimulator(ABC):
     async def simulate(self):
         pass
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # AUTH SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class AuthSimulator(ServiceSimulator):
     service_name = "auth"
 
     async def login(self, username: str, password: str) -> str | None:
-        success, data = await self.request("POST", "/api/auth/login", json={
-            "username": username,
-            "password": password,
-        })
+        success, data = await self.request(
+            "POST",
+            "/api/auth/login",
+            json={
+                "username": username,
+                "password": password,
+            },
+        )
         if success and isinstance(data, dict):
             self.token = data.get("access_token") or data.get("token")
             return self.token
@@ -202,9 +215,11 @@ class AuthSimulator(ServiceSimulator):
         user = random.choice(users)
         await self.login(user[0], user[1])
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # FIELD SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class FieldSimulator(ServiceSimulator):
     service_name = "fields"
@@ -217,29 +232,37 @@ class FieldSimulator(ServiceSimulator):
 
     async def create_field(self):
         location = random.choice(SAUDI_LOCATIONS)
-        return await self.request("POST", "/api/fields", json={
-            "name": f"Field-{uuid.uuid4().hex[:8]}",
-            "crop_type": random.choice(CROP_TYPES),
-            "area_hectares": random.uniform(1, 100),
-            "location": {
-                "latitude": location["lat"] + random.uniform(-0.1, 0.1),
-                "longitude": location["lng"] + random.uniform(-0.1, 0.1),
-                "region": location["region"],
+        return await self.request(
+            "POST",
+            "/api/fields",
+            json={
+                "name": f"Field-{uuid.uuid4().hex[:8]}",
+                "crop_type": random.choice(CROP_TYPES),
+                "area_hectares": random.uniform(1, 100),
+                "location": {
+                    "latitude": location["lat"] + random.uniform(-0.1, 0.1),
+                    "longitude": location["lng"] + random.uniform(-0.1, 0.1),
+                    "region": location["region"],
+                },
+                "soil_type": random.choice(["sandy", "clay", "loam", "silt"]),
+                "irrigation_type": random.choice(["drip", "sprinkler", "flood", "center_pivot"]),
             },
-            "soil_type": random.choice(["sandy", "clay", "loam", "silt"]),
-            "irrigation_type": random.choice(["drip", "sprinkler", "flood", "center_pivot"]),
-        })
+        )
 
     async def add_reading(self, field_id: int):
-        return await self.request("POST", f"/api/fields/{field_id}/readings", json={
-            "soil_moisture": random.uniform(15, 60),
-            "soil_temperature": random.uniform(15, 40),
-            "ph_level": random.uniform(5.5, 8.0),
-            "nitrogen": random.uniform(10, 100),
-            "phosphorus": random.uniform(5, 50),
-            "potassium": random.uniform(50, 200),
-            "timestamp": datetime.now(UTC).isoformat(),
-        })
+        return await self.request(
+            "POST",
+            f"/api/fields/{field_id}/readings",
+            json={
+                "soil_moisture": random.uniform(15, 60),
+                "soil_temperature": random.uniform(15, 40),
+                "ph_level": random.uniform(5.5, 8.0),
+                "nitrogen": random.uniform(10, 100),
+                "phosphorus": random.uniform(5, 50),
+                "potassium": random.uniform(50, 200),
+                "timestamp": datetime.now(UTC).isoformat(),
+            },
+        )
 
     async def simulate(self):
         action = random.choice(["list", "get", "create", "reading"])
@@ -252,9 +275,11 @@ class FieldSimulator(ServiceSimulator):
         else:
             await self.add_reading(random.randint(1, 50))
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # WEATHER SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class WeatherSimulator(ServiceSimulator):
     service_name = "weather"
@@ -266,7 +291,9 @@ class WeatherSimulator(ServiceSimulator):
         return await self.request("GET", f"/api/weather/forecast?lat={lat}&lng={lng}&days={days}")
 
     async def get_historical(self, lat: float, lng: float, start: str, end: str):
-        return await self.request("GET", f"/api/weather/historical?lat={lat}&lng={lng}&start={start}&end={end}")
+        return await self.request(
+            "GET", f"/api/weather/historical?lat={lat}&lng={lng}&start={start}&end={end}"
+        )
 
     async def simulate(self):
         location = random.choice(SAUDI_LOCATIONS)
@@ -280,13 +307,17 @@ class WeatherSimulator(ServiceSimulator):
             end = datetime.now()
             start = end - timedelta(days=30)
             await self.get_historical(
-                location["lat"], location["lng"],
-                start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+                location["lat"],
+                location["lng"],
+                start.strftime("%Y-%m-%d"),
+                end.strftime("%Y-%m-%d"),
             )
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # BILLING SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class BillingSimulator(ServiceSimulator):
     service_name = "billing"
@@ -301,12 +332,16 @@ class BillingSimulator(ServiceSimulator):
         return await self.request("GET", f"/api/billing/usage?period={period}")
 
     async def create_payment(self):
-        return await self.request("POST", "/api/billing/payments", json={
-            "amount": random.uniform(100, 5000),
-            "currency": "SAR",
-            "payment_method": random.choice(["credit_card", "bank_transfer", "mada"]),
-            "description": f"Payment for services - {datetime.now().strftime('%Y-%m')}",
-        })
+        return await self.request(
+            "POST",
+            "/api/billing/payments",
+            json={
+                "amount": random.uniform(100, 5000),
+                "currency": "SAR",
+                "payment_method": random.choice(["credit_card", "bank_transfer", "mada"]),
+                "description": f"Payment for services - {datetime.now().strftime('%Y-%m')}",
+            },
+        )
 
     async def simulate(self):
         action = random.choice(["invoices", "subscription", "usage", "payment"])
@@ -319,9 +354,11 @@ class BillingSimulator(ServiceSimulator):
         else:
             await self.create_payment()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # INVENTORY SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class InventorySimulator(ServiceSimulator):
     service_name = "inventory"
@@ -336,17 +373,25 @@ class InventorySimulator(ServiceSimulator):
         return await self.request("GET", f"/api/inventory/items/{item_id}")
 
     async def add_stock(self, item_id: str):
-        return await self.request("POST", f"/api/inventory/items/{item_id}/stock", json={
-            "quantity": random.randint(10, 500),
-            "unit": random.choice(["kg", "liters", "units", "bags"]),
-            "batch_number": f"BATCH-{uuid.uuid4().hex[:8]}",
-            "expiry_date": (datetime.now() + timedelta(days=random.randint(30, 365))).strftime("%Y-%m-%d"),
-            "supplier": f"Supplier-{random.randint(1, 10)}",
-            "unit_cost": random.uniform(10, 500),
-        })
+        return await self.request(
+            "POST",
+            f"/api/inventory/items/{item_id}/stock",
+            json={
+                "quantity": random.randint(10, 500),
+                "unit": random.choice(["kg", "liters", "units", "bags"]),
+                "batch_number": f"BATCH-{uuid.uuid4().hex[:8]}",
+                "expiry_date": (datetime.now() + timedelta(days=random.randint(30, 365))).strftime(
+                    "%Y-%m-%d"
+                ),
+                "supplier": f"Supplier-{random.randint(1, 10)}",
+                "unit_cost": random.uniform(10, 500),
+            },
+        )
 
     async def get_forecast(self, item_id: str):
-        return await self.request("GET", f"/api/inventory/analytics/forecast/{item_id}?forecast_days=90")
+        return await self.request(
+            "GET", f"/api/inventory/analytics/forecast/{item_id}?forecast_days=90"
+        )
 
     async def simulate(self):
         categories = ["seeds", "fertilizers", "pesticides", "tools", "equipment_parts"]
@@ -361,9 +406,11 @@ class InventorySimulator(ServiceSimulator):
         else:
             await self.get_forecast(f"item-{random.randint(1, 100)}")
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # MARKETPLACE SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class MarketplaceSimulator(ServiceSimulator):
     service_name = "marketplace"
@@ -378,21 +425,25 @@ class MarketplaceSimulator(ServiceSimulator):
         return await self.request("GET", f"/api/marketplace/products/{product_id}")
 
     async def create_order(self):
-        return await self.request("POST", "/api/marketplace/orders", json={
-            "items": [
-                {
-                    "product_id": f"prod-{random.randint(1, 100)}",
-                    "quantity": random.randint(1, 10),
-                }
-                for _ in range(random.randint(1, 5))
-            ],
-            "shipping_address": {
-                "city": random.choice(SAUDI_LOCATIONS)["name"],
-                "street": f"Street {random.randint(1, 100)}",
-                "postal_code": f"{random.randint(10000, 99999)}",
+        return await self.request(
+            "POST",
+            "/api/marketplace/orders",
+            json={
+                "items": [
+                    {
+                        "product_id": f"prod-{random.randint(1, 100)}",
+                        "quantity": random.randint(1, 10),
+                    }
+                    for _ in range(random.randint(1, 5))
+                ],
+                "shipping_address": {
+                    "city": random.choice(SAUDI_LOCATIONS)["name"],
+                    "street": f"Street {random.randint(1, 100)}",
+                    "postal_code": f"{random.randint(10000, 99999)}",
+                },
+                "payment_method": random.choice(["cod", "credit_card", "bank_transfer"]),
             },
-            "payment_method": random.choice(["cod", "credit_card", "bank_transfer"]),
-        })
+        )
 
     async def get_orders(self):
         return await self.request("GET", "/api/marketplace/orders?page=1&limit=20")
@@ -410,9 +461,11 @@ class MarketplaceSimulator(ServiceSimulator):
         else:
             await self.get_orders()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CHAT SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class ChatSimulator(ServiceSimulator):
     service_name = "chat"
@@ -421,7 +474,9 @@ class ChatSimulator(ServiceSimulator):
         return await self.request("GET", "/api/chat/conversations")
 
     async def get_messages(self, conversation_id: str):
-        return await self.request("GET", f"/api/chat/conversations/{conversation_id}/messages?limit=50")
+        return await self.request(
+            "GET", f"/api/chat/conversations/{conversation_id}/messages?limit=50"
+        )
 
     async def send_message(self, conversation_id: str):
         messages = [
@@ -432,16 +487,26 @@ class ChatSimulator(ServiceSimulator):
             "What is the recommended fertilizer for wheat?",
             "How to detect early signs of disease?",
         ]
-        return await self.request("POST", f"/api/chat/conversations/{conversation_id}/messages", json={
-            "content": random.choice(messages),
-            "type": "text",
-        })
+        return await self.request(
+            "POST",
+            f"/api/chat/conversations/{conversation_id}/messages",
+            json={
+                "content": random.choice(messages),
+                "type": "text",
+            },
+        )
 
     async def start_ai_chat(self):
-        return await self.request("POST", "/api/chat/ai/start", json={
-            "topic": random.choice(["irrigation", "pest_control", "fertilization", "harvesting"]),
-            "language": random.choice(["ar", "en"]),
-        })
+        return await self.request(
+            "POST",
+            "/api/chat/ai/start",
+            json={
+                "topic": random.choice(
+                    ["irrigation", "pest_control", "fertilization", "harvesting"]
+                ),
+                "language": random.choice(["ar", "en"]),
+            },
+        )
 
     async def simulate(self):
         action = random.choice(["list", "messages", "send", "ai"])
@@ -456,9 +521,11 @@ class ChatSimulator(ServiceSimulator):
         else:
             await self.start_ai_chat()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # NDVI PROCESSOR SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class NDVISimulator(ServiceSimulator):
     service_name = "ndvi"
@@ -469,27 +536,32 @@ class NDVISimulator(ServiceSimulator):
     async def get_timeseries(self, field_id: str):
         end = datetime.now()
         start = end - timedelta(days=90)
-        return await self.request("GET",
-            f"/api/ndvi/fields/{field_id}/timeseries?start={start.strftime('%Y-%m-%d')}&end={end.strftime('%Y-%m-%d')}"
+        return await self.request(
+            "GET",
+            f"/api/ndvi/fields/{field_id}/timeseries?start={start.strftime('%Y-%m-%d')}&end={end.strftime('%Y-%m-%d')}",
         )
 
     async def request_processing(self, field_id: str):
-        return await self.request("POST", "/api/ndvi/process", json={
-            "field_id": field_id,
-            "source": random.choice(["sentinel-2", "landsat-8", "modis"]),
-            "date_range": {
-                "start": (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
-                "end": datetime.now().strftime("%Y-%m-%d"),
+        return await self.request(
+            "POST",
+            "/api/ndvi/process",
+            json={
+                "field_id": field_id,
+                "source": random.choice(["sentinel-2", "landsat-8", "modis"]),
+                "date_range": {
+                    "start": (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d"),
+                    "end": datetime.now().strftime("%Y-%m-%d"),
+                },
+                "options": {
+                    "cloud_mask": True,
+                    "atmospheric_correction": True,
+                },
             },
-            "options": {
-                "cloud_mask": True,
-                "atmospheric_correction": True,
-            }
-        })
+        )
 
     async def get_change_analysis(self, field_id: str):
-        return await self.request("GET",
-            f"/api/ndvi/fields/{field_id}/change?date1=2024-01-01&date2=2024-06-01"
+        return await self.request(
+            "GET", f"/api/ndvi/fields/{field_id}/change?date1=2024-01-01&date2=2024-06-01"
         )
 
     async def simulate(self):
@@ -505,9 +577,11 @@ class NDVISimulator(ServiceSimulator):
         else:
             await self.get_change_analysis(field_id)
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # VEGETATION ANALYSIS SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class VegetationSimulator(ServiceSimulator):
     service_name = "vegetation"
@@ -537,20 +611,28 @@ class VegetationSimulator(ServiceSimulator):
         else:
             await self.get_growth_stage(field_id)
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # YIELD PREDICTION SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class YieldSimulator(ServiceSimulator):
     service_name = "yield"
 
     async def predict_yield(self, field_id: str):
-        return await self.request("POST", "/api/yield/predict", json={
-            "field_id": field_id,
-            "crop_type": random.choice(CROP_TYPES),
-            "planting_date": (datetime.now() - timedelta(days=random.randint(30, 120))).strftime("%Y-%m-%d"),
-            "area_hectares": random.uniform(1, 100),
-        })
+        return await self.request(
+            "POST",
+            "/api/yield/predict",
+            json={
+                "field_id": field_id,
+                "crop_type": random.choice(CROP_TYPES),
+                "planting_date": (
+                    datetime.now() - timedelta(days=random.randint(30, 120))
+                ).strftime("%Y-%m-%d"),
+                "area_hectares": random.uniform(1, 100),
+            },
+        )
 
     async def get_historical(self, field_id: str):
         return await self.request("GET", f"/api/yield/fields/{field_id}/historical")
@@ -574,9 +656,11 @@ class YieldSimulator(ServiceSimulator):
         else:
             await self.get_factors(field_id)
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CROP INTELLIGENCE SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class CropIntelligenceSimulator(ServiceSimulator):
     service_name = "crop-intelligence"
@@ -585,15 +669,30 @@ class CropIntelligenceSimulator(ServiceSimulator):
         return await self.request("GET", f"/api/crops/fields/{field_id}/recommendations")
 
     async def diagnose_disease(self):
-        return await self.request("POST", "/api/crops/diagnose", json={
-            "crop_type": random.choice(CROP_TYPES),
-            "symptoms": random.sample([
-                "yellow_leaves", "wilting", "spots", "stunted_growth",
-                "brown_tips", "curling", "holes", "discoloration"
-            ], random.randint(1, 4)),
-            "location": random.choice(SAUDI_LOCATIONS)["region"],
-            "growth_stage": random.choice(["seedling", "vegetative", "flowering", "fruiting", "mature"]),
-        })
+        return await self.request(
+            "POST",
+            "/api/crops/diagnose",
+            json={
+                "crop_type": random.choice(CROP_TYPES),
+                "symptoms": random.sample(
+                    [
+                        "yellow_leaves",
+                        "wilting",
+                        "spots",
+                        "stunted_growth",
+                        "brown_tips",
+                        "curling",
+                        "holes",
+                        "discoloration",
+                    ],
+                    random.randint(1, 4),
+                ),
+                "location": random.choice(SAUDI_LOCATIONS)["region"],
+                "growth_stage": random.choice(
+                    ["seedling", "vegetative", "flowering", "fruiting", "mature"]
+                ),
+            },
+        )
 
     async def get_pest_alerts(self, region: str):
         return await self.request("GET", f"/api/crops/pests/alerts?region={region}")
@@ -614,9 +713,11 @@ class CropIntelligenceSimulator(ServiceSimulator):
         else:
             await self.get_planting_calendar(random.choice(CROP_TYPES), location["region"])
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # EQUIPMENT SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class EquipmentSimulator(ServiceSimulator):
     service_name = "equipment"
@@ -628,22 +729,32 @@ class EquipmentSimulator(ServiceSimulator):
         return await self.request("GET", f"/api/equipment/{equipment_id}")
 
     async def log_usage(self, equipment_id: str):
-        return await self.request("POST", f"/api/equipment/{equipment_id}/usage", json={
-            "hours": random.uniform(0.5, 8),
-            "fuel_consumption": random.uniform(5, 50),
-            "operator_id": f"operator-{random.randint(1, 20)}",
-            "field_id": f"field-{random.randint(1, 50)}",
-            "task_type": random.choice(TASK_TYPES),
-            "timestamp": datetime.now(UTC).isoformat(),
-        })
+        return await self.request(
+            "POST",
+            f"/api/equipment/{equipment_id}/usage",
+            json={
+                "hours": random.uniform(0.5, 8),
+                "fuel_consumption": random.uniform(5, 50),
+                "operator_id": f"operator-{random.randint(1, 20)}",
+                "field_id": f"field-{random.randint(1, 50)}",
+                "task_type": random.choice(TASK_TYPES),
+                "timestamp": datetime.now(UTC).isoformat(),
+            },
+        )
 
     async def schedule_maintenance(self, equipment_id: str):
-        return await self.request("POST", f"/api/equipment/{equipment_id}/maintenance", json={
-            "type": random.choice(["routine", "repair", "inspection"]),
-            "scheduled_date": (datetime.now() + timedelta(days=random.randint(1, 30))).strftime("%Y-%m-%d"),
-            "description": "Scheduled maintenance",
-            "priority": random.choice(["low", "medium", "high"]),
-        })
+        return await self.request(
+            "POST",
+            f"/api/equipment/{equipment_id}/maintenance",
+            json={
+                "type": random.choice(["routine", "repair", "inspection"]),
+                "scheduled_date": (datetime.now() + timedelta(days=random.randint(1, 30))).strftime(
+                    "%Y-%m-%d"
+                ),
+                "description": "Scheduled maintenance",
+                "priority": random.choice(["low", "medium", "high"]),
+            },
+        )
 
     async def simulate(self):
         equipment_id = f"equip-{random.randint(1, 30)}"
@@ -658,9 +769,11 @@ class EquipmentSimulator(ServiceSimulator):
         else:
             await self.schedule_maintenance(equipment_id)
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # TASK SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TaskSimulator(ServiceSimulator):
     service_name = "tasks"
@@ -672,22 +785,32 @@ class TaskSimulator(ServiceSimulator):
         return await self.request("GET", path)
 
     async def create_task(self):
-        return await self.request("POST", "/api/tasks", json={
-            "title": f"Task-{uuid.uuid4().hex[:8]}",
-            "type": random.choice(TASK_TYPES),
-            "field_id": f"field-{random.randint(1, 50)}",
-            "assignee_id": f"worker-{random.randint(1, 20)}",
-            "priority": random.choice(["low", "medium", "high", "urgent"]),
-            "due_date": (datetime.now() + timedelta(days=random.randint(1, 14))).strftime("%Y-%m-%d"),
-            "description": "Auto-generated task for simulation",
-            "estimated_hours": random.uniform(1, 8),
-        })
+        return await self.request(
+            "POST",
+            "/api/tasks",
+            json={
+                "title": f"Task-{uuid.uuid4().hex[:8]}",
+                "type": random.choice(TASK_TYPES),
+                "field_id": f"field-{random.randint(1, 50)}",
+                "assignee_id": f"worker-{random.randint(1, 20)}",
+                "priority": random.choice(["low", "medium", "high", "urgent"]),
+                "due_date": (datetime.now() + timedelta(days=random.randint(1, 14))).strftime(
+                    "%Y-%m-%d"
+                ),
+                "description": "Auto-generated task for simulation",
+                "estimated_hours": random.uniform(1, 8),
+            },
+        )
 
     async def update_task(self, task_id: str):
-        return await self.request("PATCH", f"/api/tasks/{task_id}", json={
-            "status": random.choice(["pending", "in_progress", "completed", "cancelled"]),
-            "progress": random.randint(0, 100),
-        })
+        return await self.request(
+            "PATCH",
+            f"/api/tasks/{task_id}",
+            json={
+                "status": random.choice(["pending", "in_progress", "completed", "cancelled"]),
+                "progress": random.randint(0, 100),
+            },
+        )
 
     async def get_worker_tasks(self, worker_id: str):
         return await self.request("GET", f"/api/tasks/workers/{worker_id}?status=pending")
@@ -704,9 +827,11 @@ class TaskSimulator(ServiceSimulator):
         else:
             await self.get_worker_tasks(f"worker-{random.randint(1, 20)}")
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # NOTIFICATION SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class NotificationSimulator(ServiceSimulator):
     service_name = "notifications"
@@ -724,17 +849,21 @@ class NotificationSimulator(ServiceSimulator):
         return await self.request("GET", "/api/notifications/preferences")
 
     async def update_preferences(self):
-        return await self.request("PUT", "/api/notifications/preferences", json={
-            "email": random.choice([True, False]),
-            "push": random.choice([True, False]),
-            "sms": random.choice([True, False]),
-            "categories": {
-                "weather": True,
-                "tasks": True,
-                "alerts": True,
-                "marketing": random.choice([True, False]),
-            }
-        })
+        return await self.request(
+            "PUT",
+            "/api/notifications/preferences",
+            json={
+                "email": random.choice([True, False]),
+                "push": random.choice([True, False]),
+                "sms": random.choice([True, False]),
+                "categories": {
+                    "weather": True,
+                    "tasks": True,
+                    "alerts": True,
+                    "marketing": random.choice([True, False]),
+                },
+            },
+        )
 
     async def simulate(self):
         action = random.choice(["list", "read", "preferences", "update"])
@@ -748,9 +877,11 @@ class NotificationSimulator(ServiceSimulator):
         else:
             await self.update_preferences()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # ALERT SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class AlertSimulator(ServiceSimulator):
     service_name = "alerts"
@@ -765,10 +896,14 @@ class AlertSimulator(ServiceSimulator):
         return await self.request("GET", f"/api/alerts/{alert_id}")
 
     async def acknowledge_alert(self, alert_id: str):
-        return await self.request("POST", f"/api/alerts/{alert_id}/acknowledge", json={
-            "action_taken": random.choice(["reviewed", "addressed", "scheduled", "dismissed"]),
-            "notes": "Acknowledged via simulation",
-        })
+        return await self.request(
+            "POST",
+            f"/api/alerts/{alert_id}/acknowledge",
+            json={
+                "action_taken": random.choice(["reviewed", "addressed", "scheduled", "dismissed"]),
+                "notes": "Acknowledged via simulation",
+            },
+        )
 
     async def get_active_alerts(self):
         return await self.request("GET", "/api/alerts/active")
@@ -785,9 +920,11 @@ class AlertSimulator(ServiceSimulator):
         else:
             await self.get_active_alerts()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # RESEARCH/ANALYTICS SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class ResearchSimulator(ServiceSimulator):
     service_name = "research"
@@ -799,15 +936,23 @@ class ResearchSimulator(ServiceSimulator):
         return await self.request("GET", f"/api/analytics/fields/{field_id}")
 
     async def generate_report(self):
-        return await self.request("POST", "/api/reports/generate", json={
-            "type": random.choice(["yield", "costs", "efficiency", "sustainability"]),
-            "period": random.choice(["weekly", "monthly", "quarterly", "yearly"]),
-            "fields": [f"field-{i}" for i in random.sample(range(1, 51), random.randint(1, 10))],
-            "format": random.choice(["pdf", "excel", "csv"]),
-        })
+        return await self.request(
+            "POST",
+            "/api/reports/generate",
+            json={
+                "type": random.choice(["yield", "costs", "efficiency", "sustainability"]),
+                "period": random.choice(["weekly", "monthly", "quarterly", "yearly"]),
+                "fields": [
+                    f"field-{i}" for i in random.sample(range(1, 51), random.randint(1, 10))
+                ],
+                "format": random.choice(["pdf", "excel", "csv"]),
+            },
+        )
 
     async def get_benchmarks(self):
-        return await self.request("GET", f"/api/analytics/benchmarks?crop={random.choice(CROP_TYPES)}")
+        return await self.request(
+            "GET", f"/api/analytics/benchmarks?crop={random.choice(CROP_TYPES)}"
+        )
 
     async def simulate(self):
         action = random.choice(["overview", "field", "report", "benchmarks"])
@@ -821,9 +966,11 @@ class ResearchSimulator(ServiceSimulator):
         else:
             await self.get_benchmarks()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # ADVISORY SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class AdvisorySimulator(ServiceSimulator):
     service_name = "advisory"
@@ -838,12 +985,16 @@ class AdvisorySimulator(ServiceSimulator):
             "What are the signs of nitrogen deficiency?",
             "How to improve soil drainage?",
         ]
-        return await self.request("POST", "/api/advisory/ask", json={
-            "question": random.choice(questions),
-            "crop_type": random.choice(CROP_TYPES),
-            "field_id": f"field-{random.randint(1, 50)}",
-            "language": random.choice(["ar", "en"]),
-        })
+        return await self.request(
+            "POST",
+            "/api/advisory/ask",
+            json={
+                "question": random.choice(questions),
+                "crop_type": random.choice(CROP_TYPES),
+                "field_id": f"field-{random.randint(1, 50)}",
+                "language": random.choice(["ar", "en"]),
+            },
+        )
 
     async def get_seasonal_advice(self, region: str):
         return await self.request("GET", f"/api/advisory/seasonal?region={region}")
@@ -864,9 +1015,11 @@ class AdvisorySimulator(ServiceSimulator):
         else:
             await self.get_best_practices(random.choice(CROP_TYPES))
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # IOT SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class IoTSimulator(ServiceSimulator):
     service_name = "iot"
@@ -908,11 +1061,15 @@ class IoTSimulator(ServiceSimulator):
                 "pressure": random.uniform(1000, 1030),
             }
 
-        return await self.request("POST", "/api/iot/telemetry", json={
-            "topic": f"sahool/iot/{device_type}/{device_id}",
-            "payload": payload,
-            "qos": 1,
-        })
+        return await self.request(
+            "POST",
+            "/api/iot/telemetry",
+            json={
+                "topic": f"sahool/iot/{device_type}/{device_id}",
+                "payload": payload,
+                "qos": 1,
+            },
+        )
 
     async def get_device_history(self, device_id: str):
         return await self.request("GET", f"/api/iot/devices/{device_id}/history?limit=100")
@@ -930,9 +1087,11 @@ class IoTSimulator(ServiceSimulator):
         else:
             await self.get_device_history(device_id)
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # INDICATORS SERVICE
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class IndicatorsSimulator(ServiceSimulator):
     service_name = "indicators"
@@ -961,9 +1120,11 @@ class IndicatorsSimulator(ServiceSimulator):
         else:
             await self.get_efficiency_metrics()
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN SIMULATOR
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class ComprehensiveSimulator:
     """Main simulator orchestrating all service simulators."""
@@ -999,10 +1160,7 @@ class ComprehensiveSimulator:
 
     async def user_session(self, session: aiohttp.ClientSession, user_id: int):
         """Simulate a single user session."""
-        simulators = [
-            cls(session, self.gateway_url, self.stats)
-            for cls in self.SIMULATOR_CLASSES
-        ]
+        simulators = [cls(session, self.gateway_url, self.stats) for cls in self.SIMULATOR_CLASSES]
 
         # Authenticate first
         auth = simulators[0]
@@ -1044,8 +1202,7 @@ class ComprehensiveSimulator:
         async with aiohttp.ClientSession() as session:
             # Create user tasks
             tasks = [
-                asyncio.create_task(self.user_session(session, i))
-                for i in range(self.num_users)
+                asyncio.create_task(self.user_session(session, i)) for i in range(self.num_users)
             ]
 
             # Run for specified duration
@@ -1073,7 +1230,9 @@ class ComprehensiveSimulator:
         logger.info("")
         logger.info("  Service Results:")
         logger.info("  " + "-" * 76)
-        logger.info(f"  {'Service':<25} {'Requests':>10} {'Success':>10} {'Failed':>10} {'Rate':>10} {'Avg Latency':>12}")
+        logger.info(
+            f"  {'Service':<25} {'Requests':>10} {'Success':>10} {'Failed':>10} {'Rate':>10} {'Avg Latency':>12}"
+        )
         logger.info("  " + "-" * 76)
 
         total_requests = 0
@@ -1092,7 +1251,9 @@ class ComprehensiveSimulator:
 
         logger.info("  " + "-" * 76)
         overall_rate = (total_success / total_requests * 100) if total_requests > 0 else 0
-        logger.info(f"  {'TOTAL':<25} {total_requests:>10} {total_success:>10} {total_failed:>10} {overall_rate:>9.1f}%")
+        logger.info(
+            f"  {'TOTAL':<25} {total_requests:>10} {total_success:>10} {total_failed:>10} {overall_rate:>9.1f}%"
+        )
         logger.info("=" * 80)
 
     def save_results(self):
@@ -1122,7 +1283,7 @@ class ComprehensiveSimulator:
                 "requests": sum(s.requests for s in self.stats.services.values()),
                 "success": sum(s.success for s in self.stats.services.values()),
                 "failed": sum(s.failed for s in self.stats.services.values()),
-            }
+            },
         }
 
         filename = f"comprehensive_simulation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -1131,44 +1292,38 @@ class ComprehensiveSimulator:
 
         logger.info(f"  Results saved to: {filename}")
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN ENTRY POINT
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def main():
-    parser = argparse.ArgumentParser(
-        description="SAHOOL IDP - Comprehensive Services Simulator"
-    )
+    parser = argparse.ArgumentParser(description="SAHOOL IDP - Comprehensive Services Simulator")
     parser.add_argument(
-        "--gateway", "-g",
+        "--gateway",
+        "-g",
         default="http://localhost:8081",
-        help="Kong Gateway URL (default: http://localhost:8081)"
+        help="Kong Gateway URL (default: http://localhost:8081)",
     )
     parser.add_argument(
-        "--users", "-u",
-        type=int,
-        default=10,
-        help="Number of virtual users (default: 10)"
+        "--users", "-u", type=int, default=10, help="Number of virtual users (default: 10)"
     )
     parser.add_argument(
-        "--duration", "-d",
-        type=int,
-        default=60,
-        help="Duration in seconds (default: 60)"
+        "--duration", "-d", type=int, default=60, help="Duration in seconds (default: 60)"
     )
 
     args = parser.parse_args()
 
     simulator = ComprehensiveSimulator(
-        gateway_url=args.gateway,
-        num_users=args.users,
-        duration_seconds=args.duration
+        gateway_url=args.gateway, num_users=args.users, duration_seconds=args.duration
     )
 
     try:
         asyncio.run(simulator.run())
     except KeyboardInterrupt:
         logger.info("\nSimulation stopped by user")
+
 
 if __name__ == "__main__":
     main()

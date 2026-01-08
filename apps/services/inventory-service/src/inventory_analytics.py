@@ -174,9 +174,7 @@ class InventoryAnalytics:
                 supplier_lead_time = supplier.lead_time_days
 
         safety_stock_days = 7  # Buffer
-        reorder_days = max(
-            0, days_until_stockout - supplier_lead_time - safety_stock_days
-        )
+        reorder_days = max(0, days_until_stockout - supplier_lead_time - safety_stock_days)
         reorder_date = date.today() + timedelta(days=reorder_days)
 
         # Recommended order quantity
@@ -225,9 +223,7 @@ class InventoryAnalytics:
             stmt = stmt.join(ItemCategory).where(ItemCategory.code == category)
 
         if low_stock_only:
-            stmt = stmt.where(
-                InventoryItem.current_stock <= InventoryItem.reorder_level
-            )
+            stmt = stmt.where(InventoryItem.current_stock <= InventoryItem.reorder_level)
 
         result = await self.db.execute(stmt)
         items = result.scalars().all()
@@ -287,14 +283,10 @@ class InventoryAnalytics:
             total_value += item_value
 
             # By category
-            by_category[category_name] = (
-                by_category.get(category_name, 0.0) + item_value
-            )
+            by_category[category_name] = by_category.get(category_name, 0.0) + item_value
 
             # By warehouse
-            by_warehouse[warehouse_name] = (
-                by_warehouse.get(warehouse_name, 0.0) + item_value
-            )
+            by_warehouse[warehouse_name] = by_warehouse.get(warehouse_name, 0.0) + item_value
 
             # Track for top items
             item_values.append(
@@ -308,11 +300,7 @@ class InventoryAnalytics:
             )
 
             # Expiring items
-            if (
-                item.has_expiry
-                and item.expiry_date
-                and item.expiry_date <= expiring_threshold
-            ):
+            if item.has_expiry and item.expiry_date and item.expiry_date <= expiring_threshold:
                 expiring_value += item_value
 
         # Sort and get top items
@@ -322,9 +310,7 @@ class InventoryAnalytics:
         # Add percentages - prevent division by zero
         for item in top_items:
             item["percentage"] = (
-                round((item["value"] / total_value * 100), 2)
-                if total_value > 0
-                else 0.0
+                round((item["value"] / total_value * 100), 2) if total_value > 0 else 0.0
             )
 
         return InventoryValuation(
@@ -336,9 +322,7 @@ class InventoryAnalytics:
             expiring_value=round(expiring_value, 2),
         )
 
-    async def get_turnover_analysis(
-        self, period_days: int = 365
-    ) -> list[TurnoverMetrics]:
+    async def get_turnover_analysis(self, period_days: int = 365) -> list[TurnoverMetrics]:
         """
         Analyze inventory turnover.
 
@@ -378,9 +362,7 @@ class InventoryAnalytics:
             # Calculate turnover ratio - prevent division by zero
             if avg_inventory_value > 0:
                 turnover_ratio = float(cogs / avg_inventory_value)
-                days_of_inventory = (
-                    365 / turnover_ratio if turnover_ratio > 0 else 999.0
-                )
+                days_of_inventory = 365 / turnover_ratio if turnover_ratio > 0 else 999.0
             else:
                 turnover_ratio = 0.0
                 days_of_inventory = 999.0
@@ -518,11 +500,7 @@ class InventoryAnalytics:
                 is_dead = True
                 reason = f"No movement for {days_since_movement} days"
 
-            if (
-                item.has_expiry
-                and item.expiry_date
-                and item.expiry_date <= expiry_threshold
-            ):
+            if item.has_expiry and item.expiry_date and item.expiry_date <= expiry_threshold:
                 is_dead = True
                 days_to_expiry = (item.expiry_date - date.today()).days
                 if reason:
@@ -542,9 +520,7 @@ class InventoryAnalytics:
                         "unit_cost": float(item.average_cost),
                         "total_value": round(item_value, 2),
                         "reason": reason,
-                        "expiry_date": (
-                            item.expiry_date.isoformat() if item.expiry_date else None
-                        ),
+                        "expiry_date": (item.expiry_date.isoformat() if item.expiry_date else None),
                         "last_movement_date": (
                             last_movement.date().isoformat() if last_movement else None
                         ),
@@ -593,9 +569,7 @@ class InventoryAnalytics:
         monthly_consumption = {int(row.month): float(row.total_qty) for row in rows}
 
         # Calculate average - prevent division by zero
-        avg_consumption = sum(monthly_consumption.values()) / max(
-            len(monthly_consumption), 1
-        )
+        avg_consumption = sum(monthly_consumption.values()) / max(len(monthly_consumption), 1)
 
         # Calculate seasonal factors (relative to average) - prevent division by zero
         seasonal_factor = {}
@@ -605,9 +579,7 @@ class InventoryAnalytics:
             )
 
         # Identify peak and low months
-        sorted_months = sorted(
-            seasonal_factor.items(), key=lambda x: x[1], reverse=True
-        )
+        sorted_months = sorted(seasonal_factor.items(), key=lambda x: x[1], reverse=True)
         peak_months = [m for m, f in sorted_months[:3] if f > 1.2]
         low_months = [m for m, f in sorted_months[-3:] if f < 0.8]
 
@@ -662,22 +634,16 @@ class InventoryAnalytics:
                     "reorder_level": item.reorder_level,
                     "reorder_quantity": item.reorder_quantity,
                     "recommended_order_qty": (
-                        forecast.recommended_order_qty
-                        if forecast
-                        else item.reorder_quantity
+                        forecast.recommended_order_qty if forecast else item.reorder_quantity
                     ),
-                    "days_until_stockout": (
-                        forecast.days_until_stockout if forecast else 0
-                    ),
+                    "days_until_stockout": (forecast.days_until_stockout if forecast else 0),
                     "supplier_name": supplier.name if supplier else None,
                     "lead_time_days": supplier.lead_time_days if supplier else 7,
                     "urgency": (
                         "critical"
                         if item.available_stock <= 0
                         else (
-                            "high"
-                            if forecast and forecast.days_until_stockout <= 7
-                            else "medium"
+                            "high" if forecast and forecast.days_until_stockout <= 7 else "medium"
                         )
                     ),
                 }
@@ -736,9 +702,7 @@ class InventoryAnalytics:
         for item in item_values:
             cumulative_value += item["value"]
             # Prevent division by zero
-            percentage = (
-                (cumulative_value / total_value * 100) if total_value > 0 else 0.0
-            )
+            percentage = (cumulative_value / total_value * 100) if total_value > 0 else 0.0
 
             item["cumulative_value"] = round(cumulative_value, 2)
             item["cumulative_percentage"] = round(percentage, 2)
@@ -761,9 +725,7 @@ class InventoryAnalytics:
                 "items": a_items,
                 "count": len(a_items),
                 "percentage_of_items": (
-                    round(len(a_items) / len(item_values) * 100, 1)
-                    if item_values
-                    else 0
+                    round(len(a_items) / len(item_values) * 100, 1) if item_values else 0
                 ),
                 "value": round(sum(i["value"] for i in a_items), 2),
                 "percentage_of_value": (
@@ -776,9 +738,7 @@ class InventoryAnalytics:
                 "items": b_items,
                 "count": len(b_items),
                 "percentage_of_items": (
-                    round(len(b_items) / len(item_values) * 100, 1)
-                    if item_values
-                    else 0
+                    round(len(b_items) / len(item_values) * 100, 1) if item_values else 0
                 ),
                 "value": round(sum(i["value"] for i in b_items), 2),
                 "percentage_of_value": (
@@ -791,9 +751,7 @@ class InventoryAnalytics:
                 "items": c_items,
                 "count": len(c_items),
                 "percentage_of_items": (
-                    round(len(c_items) / len(item_values) * 100, 1)
-                    if item_values
-                    else 0
+                    round(len(c_items) / len(item_values) * 100, 1) if item_values else 0
                 ),
                 "value": round(sum(i["value"] for i in c_items), 2),
                 "percentage_of_value": (
@@ -870,21 +828,15 @@ class InventoryAnalytics:
 
             # By field
             if txn.field_id:
-                by_field[txn.field_id] = (
-                    by_field.get(txn.field_id, Decimal("0.0")) + cost
-                )
+                by_field[txn.field_id] = by_field.get(txn.field_id, Decimal("0.0")) + cost
 
             # By crop
             if txn.crop_season_id:
-                by_crop[txn.crop_season_id] = (
-                    by_crop.get(txn.crop_season_id, Decimal("0.0")) + cost
-                )
+                by_crop[txn.crop_season_id] = by_crop.get(txn.crop_season_id, Decimal("0.0")) + cost
 
             # Monthly trend
             month_key = txn.transaction_date.strftime("%Y-%m")
-            monthly_trend[month_key] = (
-                monthly_trend.get(month_key, Decimal("0.0")) + cost
-            )
+            monthly_trend[month_key] = monthly_trend.get(month_key, Decimal("0.0")) + cost
 
         return {
             "period": {

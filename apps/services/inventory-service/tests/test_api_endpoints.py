@@ -103,9 +103,7 @@ class TestAnalyticsEndpoints:
                     "days_until_stockout": 100,
                 }
             )
-            mock_instance.get_consumption_forecast = AsyncMock(
-                return_value=mock_forecast
-            )
+            mock_instance.get_consumption_forecast = AsyncMock(return_value=mock_forecast)
             mock_analytics.return_value = mock_instance
 
             response = client.get(
@@ -118,9 +116,7 @@ class TestAnalyticsEndpoints:
 
     def test_get_all_forecasts_endpoint(self, client):
         """Test all forecasts endpoint"""
-        response = client.get(
-            "/v1/analytics/forecasts", params={"tenant_id": "test-tenant"}
-        )
+        response = client.get("/v1/analytics/forecasts", params={"tenant_id": "test-tenant"})
 
         # Validates endpoint structure
         assert response.status_code in [200, 500]
@@ -135,9 +131,7 @@ class TestAnalyticsEndpoints:
 
     def test_get_valuation_endpoint(self, client):
         """Test inventory valuation endpoint"""
-        response = client.get(
-            "/v1/analytics/valuation", params={"tenant_id": "test-tenant"}
-        )
+        response = client.get("/v1/analytics/valuation", params={"tenant_id": "test-tenant"})
 
         assert response.status_code in [200, 500]
 
@@ -170,9 +164,7 @@ class TestAnalyticsEndpoints:
 
     def test_get_abc_analysis_endpoint(self, client):
         """Test ABC analysis endpoint"""
-        response = client.get(
-            "/v1/analytics/abc-analysis", params={"tenant_id": "test-tenant"}
-        )
+        response = client.get("/v1/analytics/abc-analysis", params={"tenant_id": "test-tenant"})
 
         assert response.status_code in [200, 500]
 
@@ -187,9 +179,7 @@ class TestAnalyticsEndpoints:
 
     def test_get_cost_analysis_endpoint(self, client):
         """Test cost analysis endpoint"""
-        response = client.get(
-            "/v1/analytics/cost-analysis", params={"tenant_id": "test-tenant"}
-        )
+        response = client.get("/v1/analytics/cost-analysis", params={"tenant_id": "test-tenant"})
 
         assert response.status_code in [200, 500]
 
@@ -204,9 +194,7 @@ class TestAnalyticsEndpoints:
 
     def test_get_dashboard_endpoint(self, client):
         """Test dashboard metrics endpoint"""
-        response = client.get(
-            "/v1/analytics/dashboard", params={"tenant_id": "test-tenant"}
-        )
+        response = client.get("/v1/analytics/dashboard", params={"tenant_id": "test-tenant"})
 
         assert response.status_code in [200, 500]
 

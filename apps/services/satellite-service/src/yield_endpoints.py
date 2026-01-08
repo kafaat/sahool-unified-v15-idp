@@ -57,9 +57,7 @@ class YieldPredictionRequest(BaseModel):
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     planting_date: date | None = Field(None, description="تاريخ الزراعة")
-    field_area_ha: float = Field(
-        default=1.0, ge=0.01, description="مساحة الحقل بالهكتار"
-    )
+    field_area_ha: float = Field(default=1.0, ge=0.01, description="مساحة الحقل بالهكتار")
 
     # Optional: provide NDVI time series (if available)
     ndvi_series: list[float] | None = Field(
@@ -69,17 +67,11 @@ class YieldPredictionRequest(BaseModel):
 
     # Weather data (optional - will be estimated if not provided)
     precipitation_mm: float | None = Field(None, description="الأمطار الكلية (مم)")
-    avg_temp_min: float | None = Field(
-        None, description="متوسط درجة الحرارة الصغرى (°س)"
-    )
-    avg_temp_max: float | None = Field(
-        None, description="متوسط درجة الحرارة الكبرى (°س)"
-    )
+    avg_temp_min: float | None = Field(None, description="متوسط درجة الحرارة الصغرى (°س)")
+    avg_temp_max: float | None = Field(None, description="متوسط درجة الحرارة الكبرى (°س)")
 
     # Optional: soil moisture from SAR
-    soil_moisture: float | None = Field(
-        None, ge=0, le=1, description="رطوبة التربة (0-1)"
-    )
+    soil_moisture: float | None = Field(None, ge=0, le=1, description="رطوبة التربة (0-1)")
 
 
 class YieldPredictionResponse(BaseModel):
@@ -162,9 +154,7 @@ async def predict_yield(request: YieldPredictionRequest):
                 days=90,  # Last 3 months
                 satellite=SatelliteSource.SENTINEL2,
             )
-            request.ndvi_series = [
-                point["ndvi"] for point in timeseries_data["timeseries"]
-            ]
+            request.ndvi_series = [point["ndvi"] for point in timeseries_data["timeseries"]]
             data_sources.append("sentinel-2_ndvi_timeseries")
         except Exception as e:
             logger.warning(f"Failed to fetch NDVI timeseries: {e}")
@@ -180,12 +170,8 @@ async def predict_yield(request: YieldPredictionRequest):
     # Prepare weather data
     if request.avg_temp_min is not None and request.avg_temp_max is not None:
         # Generate daily temperature series (assume 90 days)
-        temp_min_series = [
-            request.avg_temp_min + random.uniform(-3, 3) for _ in range(90)
-        ]
-        temp_max_series = [
-            request.avg_temp_max + random.uniform(-3, 3) for _ in range(90)
-        ]
+        temp_min_series = [request.avg_temp_min + random.uniform(-3, 3) for _ in range(90)]
+        temp_max_series = [request.avg_temp_max + random.uniform(-3, 3) for _ in range(90)]
         data_sources.append("user_provided_weather")
     else:
         # Use Yemen regional defaults based on location
@@ -218,9 +204,7 @@ async def predict_yield(request: YieldPredictionRequest):
                 end_date=date.today(),
             )
             if sar_result and sar_result.soil_moisture_timeseries:
-                soil_moisture = sar_result.soil_moisture_timeseries[
-                    -1
-                ].soil_moisture_m3m3
+                soil_moisture = sar_result.soil_moisture_timeseries[-1].soil_moisture_m3m3
                 data_sources.append("sentinel-1_sar_soil_moisture")
         except Exception as e:
             logger.warning(f"Failed to fetch SAR soil moisture: {e}")
@@ -276,9 +260,7 @@ async def predict_yield(request: YieldPredictionRequest):
 @app.get("/v1/yield-history/{field_id}")
 async def get_yield_history(
     field_id: str,
-    seasons: int = Query(
-        default=5, ge=1, le=20, description="Number of past seasons to retrieve"
-    ),
+    seasons: int = Query(default=5, ge=1, le=20, description="Number of past seasons to retrieve"),
     crop_code: str | None = Query(None, description="Filter by crop code"),
 ):
     """
@@ -377,12 +359,8 @@ async def get_yield_history(
 
 @app.get("/v1/regional-yields/{governorate}")
 async def get_regional_yields(
-    governorate: str = Path(
-        ..., description="Yemen governorate (e.g., 'ibb', 'taiz', 'hodeidah')"
-    ),
-    crop: str | None = Query(
-        None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"
-    ),
+    governorate: str = Path(..., description="Yemen governorate (e.g., 'ibb', 'taiz', 'hodeidah')"),
+    crop: str | None = Query(None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"),
 ):
     """
     الحصول على إحصائيات الإنتاجية الإقليمية | Get Regional Yield Statistics
@@ -442,9 +420,7 @@ async def get_regional_yields(
         crops_to_show = []
 
     if not crops_to_show:
-        raise HTTPException(
-            status_code=404, detail=f"No crop data available for {governorate}"
-        )
+        raise HTTPException(status_code=404, detail=f"No crop data available for {governorate}")
 
     # Generate regional statistics
     regional_stats = []

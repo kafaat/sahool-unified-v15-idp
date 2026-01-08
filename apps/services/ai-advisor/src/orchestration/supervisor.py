@@ -219,9 +219,7 @@ Respond with a JSON object containing:
                     agent = self.agents[agent_name]
                     agent_query = query_breakdown.get(agent_name, query)
 
-                    response = await agent.think(
-                        query=agent_query, context=context, use_rag=True
-                    )
+                    response = await agent.think(query=agent_query, context=context, use_rag=True)
                     agent_responses[agent_name] = response
 
             # Synthesize responses
@@ -299,13 +297,9 @@ Provide a well-structured, comprehensive answer that addresses the user's query.
             )
 
         messages = [
-            SystemMessage(
-                content="You are an expert agricultural advisor synthesizing insights."
-            ),
+            SystemMessage(content="You are an expert agricultural advisor synthesizing insights."),
             HumanMessage(
-                content=synthesis_prompt.format(
-                    query=query, responses="\n".join(responses_text)
-                )
+                content=synthesis_prompt.format(query=query, responses="\n".join(responses_text))
             ),
         ]
 

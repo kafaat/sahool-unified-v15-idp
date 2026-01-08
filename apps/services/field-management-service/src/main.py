@@ -12,29 +12,20 @@ from datetime import UTC, datetime
 from fastapi import FastAPI, HTTPException, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field
 
 # Add shared middleware to path
-shared_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "shared")
-)
+shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 sys.path.insert(0, shared_path)
-from errors_py import setup_exception_handlers, add_request_id_middleware
-
 import logging
 
 from profitability_analyzer import (
     CostCategory,
     ProfitabilityAnalyzer,
 )
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging
 logging.basicConfig(
@@ -56,9 +47,7 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10
-            )
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Database connected")
         except Exception as e:
@@ -68,24 +57,34 @@ async def lifespan(app: FastAPI):
         app.state.db_pool = None
 
     # Try NATS connection
-    nats_url = os.getenv("NATS_URL")
+    nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
     if nats_url:
         try:
-            import nats
+            sys.path.insert(0, os.path.dirname(__file__))
+            from events import NatsPublisher
+            from events.nats_publisher import set_publisher
 
-            app.state.nc = await nats.connect(nats_url)
-            app.state.nats_connected = True
-            logger.info("NATS connected")
+            publisher = NatsPublisher()
+            connected = await publisher.connect(nats_url)
+            if connected:
+                set_publisher(publisher)
+                app.state.nats_publisher = publisher
+                app.state.nats_connected = True
+                logger.info(f"✅ NATS connected: {nats_url}")
+            else:
+                app.state.nats_publisher = None
+                app.state.nats_connected = False
+                logger.warning(f"⚠️ NATS connection failed: {nats_url}")
         except Exception as e:
-            logger.warning(f"NATS connection failed: {e}")
-            app.state.nc = None
+            logger.warning(f"⚠️ NATS connection error: {e}")
+            app.state.nats_publisher = None
+            app.state.nats_connected = False
     else:
-        app.state.nc = None
+        app.state.nats_publisher = None
+        app.state.nats_connected = False
 
     # Initialize profitability analyzer
-    app.state.analyzer = ProfitabilityAnalyzer(
-        db_pool=getattr(app.state, "db_pool", None)
-    )
+    app.state.analyzer = ProfitabilityAnalyzer(db_pool=getattr(app.state, "db_pool", None))
 
     logger.info("Field Core ready on port 8090")
     yield
@@ -93,8 +92,12 @@ async def lifespan(app: FastAPI):
     # Cleanup
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         await app.state.db_pool.close()
-    if hasattr(app.state, "nc") and app.state.nc:
-        await app.state.nc.close()
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            await app.state.nats_publisher.disconnect()
+            logger.info("✅ NATS disconnected")
+        except Exception as e:
+            logger.error(f"❌ Error disconnecting from NATS: {e}")
     logger.info("Field Core shutting down")
 
 
@@ -268,6 +271,23 @@ async def analyze_profitability(request: AnalyzeCropRequest):
         # Get recommendations
         recommendations = analyzer.generate_recommendations(analysis)
 
+        # Publish profitability analyzed event
+        if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+            try:
+                from events import publish_profitability_analyzed
+
+                await publish_profitability_analyzed(
+                    field_id=request.field_id,
+                    crop_season_id=request.crop_season_id,
+                    crop_code=request.crop_code,
+                    profit_margin=analysis.get("profit_margin_pct", 0.0),
+                    roi=analysis.get("roi_pct", 0.0),
+                    break_even_yield=analysis.get("break_even_yield_kg_ha", 0.0),
+                    recommendations=[r.get("recommendation", "") for r in recommendations],
+                )
+            except Exception as e:
+                logger.warning(f"Failed to publish profitability_analyzed event: {e}")
+
         return {"analysis": analysis, "recommendations": recommendations}
     except Exception as e:
         logger.error(f"Error analyzing profitability: {e}")
@@ -287,8 +307,7 @@ async def get_season_summary(request: AnalyzeSeasonRequest):
         crops_data = [
             {
                 "field_id": crop.field_id,
-                "crop_season_id": crop.crop_season_id
-                or f"{crop.field_id}-{request.season_year}",
+                "crop_season_id": crop.crop_season_id or f"{crop.field_id}-{request.season_year}",
                 "crop_code": crop.crop_code,
                 "area_ha": crop.area_ha,
                 "costs": crop.costs,
@@ -346,9 +365,7 @@ async def calculate_break_even(
     crop_code: str = Query(..., description="Crop code"),
     area_ha: float = Query(..., gt=0, description="Area in hectares"),
     total_costs: float = Query(..., gt=0, description="Total costs in YER"),
-    expected_price: float = Query(
-        ..., gt=0, description="Expected price per kg in YER"
-    ),
+    expected_price: float = Query(..., gt=0, description="Expected price per kg in YER"),
 ):
     """
     Calculate break-even yield and price for a crop.
@@ -409,9 +426,7 @@ async def get_benchmarks(
     try:
         analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
-        benchmarks = await analyzer.get_regional_benchmarks(
-            crop_code=crop_code, region=region
-        )
+        benchmarks = await analyzer.get_regional_benchmarks(crop_code=crop_code, region=region)
 
         if not benchmarks:
             raise HTTPException(
@@ -438,9 +453,7 @@ async def get_cost_breakdown(
     try:
         analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
-        breakdown = await analyzer.get_cost_breakdown(
-            crop_code=crop_code, area_ha=area_ha
-        )
+        breakdown = await analyzer.get_cost_breakdown(crop_code=crop_code, area_ha=area_ha)
 
         if not breakdown:
             raise HTTPException(

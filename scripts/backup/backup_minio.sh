@@ -50,7 +50,8 @@ declare -A RETENTION_DAYS=(
 
 # MinIO configuration - إعدادات MinIO
 MINIO_ALIAS="${MINIO_ALIAS:-primary}"
-MINIO_ENDPOINT="${MINIO_ENDPOINT:-http://minio:9000}"
+# Updated to use HTTPS after TLS setup (2026-01-06 security hardening)
+MINIO_ENDPOINT="${MINIO_ENDPOINT:-https://minio:9000}"
 MINIO_ACCESS_KEY="${MINIO_ROOT_USER:-${MINIO_ACCESS_KEY}}"
 MINIO_SECRET_KEY="${MINIO_ROOT_PASSWORD:-${MINIO_SECRET_KEY}}"
 
@@ -59,6 +60,12 @@ BACKUP_MINIO_ALIAS="${BACKUP_MINIO_ALIAS:-backup}"
 BACKUP_MINIO_ENDPOINT="${BACKUP_MINIO_ENDPOINT:-}"
 BACKUP_MINIO_ACCESS_KEY="${BACKUP_MINIO_ACCESS_KEY:-}"
 BACKUP_MINIO_SECRET_KEY="${BACKUP_MINIO_SECRET_KEY:-}"
+
+# Backup encryption configuration - تكوين تشفير النسخ الاحتياطي
+# SECURITY: Enabled by default after security hardening (2026-01-06)
+BACKUP_ENCRYPTION_ENABLED="${BACKUP_ENCRYPTION_ENABLED:-true}"
+BACKUP_ENCRYPTION_KEY="${BACKUP_ENCRYPTION_KEY:-}"
+BACKUP_ENCRYPTION_ALGORITHM="${BACKUP_ENCRYPTION_ALGORITHM:-aes-256-cbc}"
 
 # AWS S3 configuration (optional) - إعدادات AWS S3 (اختياري)
 AWS_S3_ENABLED="${AWS_S3_BACKUP_ENABLED:-false}"
@@ -185,14 +192,14 @@ EOF
 configure_minio_aliases() {
     info_message "Configuring MinIO aliases..."
 
-    # Configure primary MinIO
-    if ! mc alias set "${MINIO_ALIAS}" "${MINIO_ENDPOINT}" "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}" >> "${LOG_FILE}" 2>&1; then
+    # Configure primary MinIO (with --insecure for self-signed TLS certificates)
+    if ! mc alias set "${MINIO_ALIAS}" "${MINIO_ENDPOINT}" "${MINIO_ACCESS_KEY}" "${MINIO_SECRET_KEY}" --insecure >> "${LOG_FILE}" 2>&1; then
         error_exit "Failed to configure primary MinIO alias"
     fi
 
     # Configure backup MinIO (if different)
     if [ -n "$BACKUP_MINIO_ENDPOINT" ]; then
-        if ! mc alias set "${BACKUP_MINIO_ALIAS}" "${BACKUP_MINIO_ENDPOINT}" "${BACKUP_MINIO_ACCESS_KEY}" "${BACKUP_MINIO_SECRET_KEY}" >> "${LOG_FILE}" 2>&1; then
+        if ! mc alias set "${BACKUP_MINIO_ALIAS}" "${BACKUP_MINIO_ENDPOINT}" "${BACKUP_MINIO_ACCESS_KEY}" "${BACKUP_MINIO_SECRET_KEY}" --insecure >> "${LOG_FILE}" 2>&1; then
             warning_message "Failed to configure backup MinIO alias"
         fi
     fi

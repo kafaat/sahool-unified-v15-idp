@@ -4,13 +4,14 @@ Tests for API Versioning Middleware
 """
 
 import pytest
+
 from shared.middleware.api_versioning import (
+    DEFAULT_VERSION,
+    SUPPORTED_VERSIONS,
     APIVersion,
     VersionedRouter,
     extract_api_version,
     get_version_info,
-    SUPPORTED_VERSIONS,
-    DEFAULT_VERSION,
 )
 
 

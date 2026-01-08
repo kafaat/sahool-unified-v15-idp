@@ -94,6 +94,13 @@ infrastructure:
         requests:
           cpu: 500m
           memory: 1Gi
+    # VPA Configuration for PostgreSQL (Stateful Database)
+    # CRITICAL: "Off" mode - VPA only provides recommendations, never auto-updates
+    # Prevents disruption to database connections and ensures data consistency
+    vpa:
+      enabled: true
+      updateMode: "Off"  # Never auto-update database pods
+      controlledValues: "RequestsOnly"  # Only update requests, preserve limits
 
   redis:
     enabled: true
@@ -114,6 +121,13 @@ infrastructure:
         requests:
           cpu: 100m
           memory: 256Mi
+    # VPA Configuration for Redis (Stateful Cache/Data Store)
+    # CRITICAL: "Off" mode - VPA only provides recommendations, never auto-updates
+    # Prevents disruption to cache connections and session data
+    vpa:
+      enabled: true
+      updateMode: "Off"  # Never auto-update Redis pods
+      controlledValues: "RequestsOnly"  # Only update requests, preserve limits
 
   nats:
     enabled: true
@@ -135,6 +149,13 @@ infrastructure:
       requests:
         cpu: 200m
         memory: 512Mi
+    # VPA Configuration for NATS (Stateful Message Broker with JetStream)
+    # CRITICAL: "Off" mode - VPA only provides recommendations, never auto-updates
+    # Prevents disruption to message streams and persistent message storage
+    vpa:
+      enabled: true
+      updateMode: "Off"  # Never auto-update NATS pods
+      controlledValues: "RequestsOnly"  # Only update requests, preserve limits
 
   kong:
     enabled: true
@@ -160,6 +181,13 @@ infrastructure:
       requests:
         cpu: 200m
         memory: 512Mi
+    # VPA Configuration for Kong (API Gateway with PostgreSQL connection)
+    # "Initial" mode - Only applies recommendations when pods are created
+    # Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   qdrant:
     enabled: false  # Only for Enterprise
@@ -176,6 +204,13 @@ infrastructure:
       requests:
         cpu: 500m
         memory: 1Gi
+    # VPA Configuration for Qdrant (Stateful Vector Database)
+    # CRITICAL: "Off" mode - VPA only provides recommendations, never auto-updates
+    # Prevents disruption to vector database and AI embeddings
+    vpa:
+      enabled: true
+      updateMode: "Off"  # Never auto-update Qdrant pods
+      controlledValues: "RequestsOnly"  # Only update requests, preserve limits
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Application Services - Organized by Package Tier
@@ -215,6 +250,12 @@ services:
         value: production
       - name: PORT
         value: "3000"
+    # VPA Configuration for Field Core (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   weatherCore:
     enabled: true
@@ -240,6 +281,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for Weather Core (Stateless service)
+    # "Auto" mode - Safe for stateless services without persistent connections
+    vpa:
+      enabled: true
+      updateMode: "Auto"  # Can safely auto-update stateless pods
+      controlledValues: "RequestsAndLimits"
 
   astronomicalCalendar:
     enabled: true
@@ -259,6 +306,12 @@ services:
         memory: 128Mi
     autoscaling:
       enabled: false
+    # VPA Configuration for Astronomical Calendar (Stateless service)
+    # "Auto" mode - Safe for stateless services without persistent connections
+    vpa:
+      enabled: true
+      updateMode: "Auto"  # Can safely auto-update stateless pods
+      controlledValues: "RequestsAndLimits"
 
   agroAdvisor:
     enabled: true
@@ -284,6 +337,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for Agro Advisor (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   notificationService:
     enabled: true
@@ -309,6 +368,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for Notification Service (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database/queue connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   # ═════════════════════════════════════════════════════════════════════════════
   # 🚜 PROFESSIONAL PACKAGE - Additional Services
@@ -338,6 +403,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for Satellite Service (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   ndviEngine:
     enabled: false
@@ -363,6 +434,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for NDVI Engine (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   cropHealthAi:
     enabled: false
@@ -388,6 +465,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for Crop Health AI (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   irrigationSmart:
     enabled: false
@@ -407,6 +490,12 @@ services:
         memory: 256Mi
     autoscaling:
       enabled: false
+    # VPA Configuration for Irrigation Smart (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   virtualSensors:
     enabled: false
@@ -426,6 +515,12 @@ services:
         memory: 256Mi
     autoscaling:
       enabled: false
+    # VPA Configuration for Virtual Sensors (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   yieldEngine:
     enabled: false
@@ -445,6 +540,12 @@ services:
         memory: 512Mi
     autoscaling:
       enabled: false
+    # VPA Configuration for Yield Engine (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   fertilizerAdvisor:
     enabled: false
@@ -464,6 +565,12 @@ services:
         memory: 256Mi
     autoscaling:
       enabled: false
+    # VPA Configuration for Fertilizer Advisor (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   inventoryService:
     enabled: false
@@ -489,6 +596,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for Inventory Service (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   # ═════════════════════════════════════════════════════════════════════════════
   # 🏢 ENTERPRISE PACKAGE - Advanced Services
@@ -518,6 +631,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for AI Advisor (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   iotGateway:
     enabled: false
@@ -543,6 +662,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for IoT Gateway (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   researchCore:
     enabled: false
@@ -562,6 +687,12 @@ services:
         memory: 1Gi
     autoscaling:
       enabled: false
+    # VPA Configuration for Research Core (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   marketplaceService:
     enabled: false
@@ -587,6 +718,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for Marketplace Service (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   billingCore:
     enabled: false
@@ -612,6 +749,12 @@ services:
     pdb:
       enabled: true
       minAvailable: 1
+    # VPA Configuration for Billing Core (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   disasterAssessment:
     enabled: false
@@ -631,6 +774,12 @@ services:
         memory: 1Gi
     autoscaling:
       enabled: false
+    # VPA Configuration for Disaster Assessment (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   cropGrowthModel:
     enabled: false
@@ -650,6 +799,12 @@ services:
         memory: 2Gi
     autoscaling:
       enabled: false
+    # VPA Configuration for Crop Growth Model (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
   laiEstimation:
     enabled: false
@@ -669,6 +824,12 @@ services:
         memory: 1Gi
     autoscaling:
       enabled: false
+    # VPA Configuration for LAI Estimation (Database-connected service)
+    # "Initial" mode - Safe for services with persistent database connections
+    vpa:
+      enabled: true
+      updateMode: "Initial"  # Only update on pod creation
+      controlledValues: "RequestsAndLimits"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Ingress Configuration
@@ -779,9 +940,9 @@ networkPolicy:
         - protocol: TCP
           port: 4222  # NATS
         - protocol: TCP
-          port: 53    # DNS
-          protocol: UDP
-          port: 53
+          port: 53    # DNS TCP
+        - protocol: UDP
+          port: 53    # DNS UDP
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Security Configuration
@@ -851,7 +1012,8 @@ vpa:
   # - Initial: Only applies recommendations when pods are created
   # - Recreate: Updates running pods by evicting and recreating them
   # - Auto: Same as Recreate, automatically updates running pods
-  updateMode: "Auto"
+  # SECURITY: Default is "Initial" for safety. Stateful services use "Off"
+  updateMode: "Initial"
   # controlledValues: "RequestsAndLimits" or "RequestsOnly"
   # Determines whether VPA updates both requests and limits or only requests
   controlledValues: "RequestsAndLimits"

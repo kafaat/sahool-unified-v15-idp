@@ -8,11 +8,15 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   constructor() {
     super({
       log: [
-        { emit: 'event', level: 'query' },
         { emit: 'stdout', level: 'info' },
         { emit: 'stdout', level: 'warn' },
         { emit: 'stdout', level: 'error' },
       ],
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
     });
   }
 
@@ -26,5 +30,18 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     this.logger.log('Disconnecting from database...');
     await this.$disconnect();
     this.logger.log('Database disconnected');
+  }
+
+  /**
+   * Get current connection status
+   */
+  async getConnectionStatus() {
+    try {
+      await this.$queryRaw`SELECT 1`;
+      return { connected: true, timestamp: new Date().toISOString() };
+    } catch (error) {
+      this.logger.error('Database connection check failed:', error);
+      return { connected: false, timestamp: new Date().toISOString() };
+    }
   }
 }

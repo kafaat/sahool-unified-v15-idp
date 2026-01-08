@@ -110,9 +110,7 @@ def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
                 }
             ]
         else:
-            predictions = [
-                {"prediction": "general_result", "confidence": 0.85, "value": 0.75}
-            ]
+            predictions = [{"prediction": "general_result", "confidence": 0.85, "value": 0.75}]
 
         result = {
             "predictions": predictions,
@@ -133,8 +131,7 @@ def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
                     [p for p in predictions if p.get("confidence", 0) > 0.9]
                 ),
                 "average_confidence": (
-                    sum([p.get("confidence", 0) for p in predictions])
-                    / len(predictions)
+                    sum([p.get("confidence", 0) for p in predictions]) / len(predictions)
                     if predictions
                     else 0
                 ),

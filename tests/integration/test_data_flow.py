@@ -65,9 +65,7 @@ async def test_nats_jetstream():
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get("http://localhost:8222/jsz")
-            assert (
-                response.status_code == 200
-            ), "JetStream monitoring should be accessible"
+            assert response.status_code == 200, "JetStream monitoring should be accessible"
 
             data = response.json()
             # JetStream should be enabled
@@ -235,9 +233,7 @@ async def test_ai_advisor_qdrant_integration():
 @pytest.mark.dataflow
 @pytest.mark.slow
 @pytest.mark.asyncio
-async def test_field_to_ndvi_data_flow(
-    auth_headers: dict[str, str], sample_field: dict[str, Any]
-):
+async def test_field_to_ndvi_data_flow(auth_headers: dict[str, str], sample_field: dict[str, Any]):
     """
     Test data flow from Field Ops to NDVI Engine
     اختبار تدفق البيانات من عمليات الحقول إلى محرك NDVI

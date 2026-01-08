@@ -8,6 +8,7 @@ Field-First Architecture:
 """
 
 # Field-First: Action Template Support
+import os
 import sys
 import uuid
 from datetime import datetime, timedelta
@@ -17,18 +18,13 @@ from typing import Any
 from fastapi import FastAPI
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field
 
 sys.path.insert(0, "/app")
-from errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
 try:
     from shared.contracts.actions import (
         ActionTemplate,
@@ -565,9 +561,7 @@ def generate_schedule(
                 "fertilizers": [
                     {
                         "name_ar": rec.fertilizer_name_ar,
-                        "quantity_kg": round(
-                            rec.quantity_kg_per_hectare * split_factor, 1
-                        ),
+                        "quantity_kg": round(rec.quantity_kg_per_hectare * split_factor, 1),
                         "method_ar": rec.application_method_ar,
                     }
                     for rec in recommendations
@@ -651,25 +645,20 @@ def get_recommendation(request: FertilizerRequest):
     )
 
     # Select fertilizers
-    recommendations = select_fertilizers(
-        npk_needs, request.organic_only, request.budget_yer
-    )
+    recommendations = select_fertilizers(npk_needs, request.organic_only, request.budget_yer)
 
     # Generate schedule
     schedule = generate_schedule(request.crop, request.growth_stage, recommendations)
 
     # Calculate totals
     total_n = sum(
-        rec.quantity_kg_per_hectare * rec.npk_content["N"] / 100
-        for rec in recommendations
+        rec.quantity_kg_per_hectare * rec.npk_content["N"] / 100 for rec in recommendations
     )
     total_p = sum(
-        rec.quantity_kg_per_hectare * rec.npk_content["P"] / 100
-        for rec in recommendations
+        rec.quantity_kg_per_hectare * rec.npk_content["P"] / 100 for rec in recommendations
     )
     total_k = sum(
-        rec.quantity_kg_per_hectare * rec.npk_content["K"] / 100
-        for rec in recommendations
+        rec.quantity_kg_per_hectare * rec.npk_content["K"] / 100 for rec in recommendations
     )
     total_cost = sum(rec.cost_estimate_yer for rec in recommendations)
 
@@ -801,11 +790,7 @@ def interpret_soil_analysis(analysis: SoilAnalysis):
         "overall_fertility": (
             "جيدة"
             if len([i for i in interpretations_ar if "🟢" in i]) > 3
-            else (
-                "متوسطة"
-                if len([i for i in interpretations_ar if "🔴" in i]) < 2
-                else "ضعيفة"
-            )
+            else ("متوسطة" if len([i for i in interpretations_ar if "🔴" in i]) < 2 else "ضعيفة")
         ),
     }
 

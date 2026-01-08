@@ -30,16 +30,6 @@ from typing import Any
 import httpx
 import nats
 from fastapi import (
-
-# Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
-
     BackgroundTasks,
     Depends,
     FastAPI,
@@ -48,6 +38,21 @@ from shared.observability.middleware import ObservabilityMiddleware
     Query,
     Request,
 )
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+try:
+    from shared.middleware import (
+        RequestLoggingMiddleware,
+        TenantContextMiddleware,
+        setup_cors,
+    )
+    from shared.observability.middleware import ObservabilityMiddleware
+except ImportError:
+    RequestLoggingMiddleware = None
+    TenantContextMiddleware = None
+    setup_cors = None
+    ObservabilityMiddleware = None
 from nats.js.api import RetentionPolicy
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -59,7 +64,17 @@ from .database import check_db_connection, close_db, db_health_check, get_db, in
 from .repository import BillingRepository
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
-from errors_py import setup_exception_handlers, add_request_id_middleware
+
+# Configure logging early so it can be used in imports
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("sahool-billing")
+
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+except ImportError:
+    setup_exception_handlers = None
+    add_request_id_middleware = None
+
 try:
     from auth.dependencies import (
         api_key_auth,
@@ -81,9 +96,7 @@ except ImportError:
     async def get_current_active_user():
         """Fallback - blocks access in production, allows in dev only"""
         if ENVIRONMENT not in ("development", "dev", "test", "testing"):
-            raise HTTPException(
-                status_code=503, detail="Authentication service unavailable"
-            )
+            raise HTTPException(status_code=503, detail="Authentication service unavailable")
         logger.warning("Auth bypass active - DEVELOPMENT MODE ONLY")
         return None
 
@@ -92,9 +105,7 @@ except ImportError:
 
         async def check_roles():
             if ENVIRONMENT not in ("development", "dev", "test", "testing"):
-                raise HTTPException(
-                    status_code=503, detail="Authorization service unavailable"
-                )
+                raise HTTPException(status_code=503, detail="Authorization service unavailable")
             logger.warning(f"Role check bypassed for {roles} - DEVELOPMENT MODE ONLY")
             return None
 
@@ -103,15 +114,11 @@ except ImportError:
     async def api_key_auth():
         """Fallback - blocks access in production, allows in dev only"""
         if ENVIRONMENT not in ("development", "dev", "test", "testing"):
-            raise HTTPException(
-                status_code=503, detail="API key auth service unavailable"
-            )
+            raise HTTPException(status_code=503, detail="API key auth service unavailable")
         return None
 
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sahool-billing")
+# Note: logging already configured above
 
 # =============================================================================
 # NATS Configuration - تكوين الرسائل
@@ -184,9 +191,7 @@ async def lifespan(app: FastAPI):
             # Initialize default plans in database
             await init_default_plans_in_db()
         else:
-            logger.warning(
-                "Database connection check failed - some features may not work"
-            )
+            logger.warning("Database connection check failed - some features may not work")
     except Exception as e:
         logger.error(f"Database initialization failed: {e}")
         logger.warning("Service will start but database features will be unavailable")
@@ -208,8 +213,10 @@ app = FastAPI(
 )
 
 # Setup unified error handling
-setup_exception_handlers(app)
-add_request_id_middleware(app)
+if setup_exception_handlers:
+    setup_exception_handlers(app)
+if add_request_id_middleware:
+    add_request_id_middleware(app)
 
 # Rate Limiting - Security measure for payment endpoints
 try:
@@ -231,9 +238,7 @@ DEFAULT_CURRENCY = os.getenv("DEFAULT_CURRENCY", "USD")
 YER_EXCHANGE_RATE = float(os.getenv("YER_EXCHANGE_RATE", "250"))  # 1 USD = 250 YER
 
 # Tharwatt Payment Gateway Configuration - بوابة ثروات
-THARWATT_BASE_URL = os.getenv(
-    "THARWATT_BASE_URL", "https://developers-test.tharwatt.com:5253"
-)
+THARWATT_BASE_URL = os.getenv("THARWATT_BASE_URL", "https://developers-test.tharwatt.com:5253")
 THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
 THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
 THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
@@ -253,9 +258,7 @@ def verify_tenant_access(current_user, tenant_id: str) -> bool:
         return True  # No auth - allow access (dev mode)
 
     # Super admins can access any tenant
-    if hasattr(current_user, "has_any_role") and current_user.has_any_role(
-        ["super_admin"]
-    ):
+    if hasattr(current_user, "has_any_role") and current_user.has_any_role(["super_admin"]):
         return True
 
     # Users can only access their own tenant
@@ -866,9 +869,7 @@ async def init_default_plans_in_db():
                     await repo.plans.upsert(**plan_data)
                     logger.info(f"Initialized plan: {plan_data['plan_id']}")
                 except Exception as e:
-                    logger.error(
-                        f"Failed to initialize plan {plan_data['plan_id']}: {e}"
-                    )
+                    logger.error(f"Failed to initialize plan {plan_data['plan_id']}: {e}")
 
             logger.info("Default plans initialized successfully")
     except Exception as e:
@@ -924,9 +925,7 @@ def get_billing_period_end(start_date: date, cycle: BillingCycle) -> date:
         return start_date + timedelta(days=365)
 
 
-async def check_usage_limit_db(
-    db: AsyncSession, tenant_id: str, metric: str
-) -> dict[str, Any]:
+async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) -> dict[str, Any]:
     """
     Check usage limits for a tenant (database version)
     التحقق من حدود الاستخدام للمستأجر (نسخة قاعدة البيانات)
@@ -1067,9 +1066,7 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
                 "name_ar": p.name_ar,
                 "tier": p.tier.value,
                 "pricing": {
-                    "monthly_usd": float(
-                        Decimal(str(p.pricing.get("monthly_usd", "0")))
-                    ),
+                    "monthly_usd": float(Decimal(str(p.pricing.get("monthly_usd", "0")))),
                     "monthly_yer": float(
                         convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))
                     ),
@@ -1111,15 +1108,11 @@ async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
             "created_at": plan.created_at.isoformat(),
         },
         "pricing_yer": {
-            "monthly": float(
-                convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))
-            ),
+            "monthly": float(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
             "quarterly": float(
                 convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))
             ),
-            "yearly": float(
-                convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))
-            ),
+            "yearly": float(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
         },
     }
 
@@ -1232,9 +1225,7 @@ async def create_tenant(
         start_date=today,
         end_date=get_billing_period_end(today, request.billing_cycle),
         status=(
-            db_models.SubscriptionStatus.TRIAL
-            if trial_end
-            else db_models.SubscriptionStatus.ACTIVE
+            db_models.SubscriptionStatus.TRIAL if trial_end else db_models.SubscriptionStatus.ACTIVE
         ),
         trial_end_date=trial_end,
     )
@@ -1335,9 +1326,7 @@ async def get_subscription(
             "end_date": subscription.end_date.isoformat(),
             "next_billing_date": subscription.next_billing_date.isoformat(),
             "trial_end_date": (
-                subscription.trial_end_date.isoformat()
-                if subscription.trial_end_date
-                else None
+                subscription.trial_end_date.isoformat() if subscription.trial_end_date else None
             ),
         },
         "plan": (
@@ -1533,9 +1522,7 @@ async def get_quota(
             "limit": limit if limit != -1 else "unlimited",
             "used": check.get("used", 0),
             "remaining": check.get("remaining", "unlimited" if limit == -1 else 0),
-            "percentage": (
-                round((check.get("used", 0) / limit) * 100, 1) if limit > 0 else 0
-            ),
+            "percentage": (round((check.get("used", 0) / limit) * 100, 1) if limit > 0 else 0),
         }
 
     return {
@@ -1798,9 +1785,7 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
         except httpx.HTTPError as e:
             logger.error(f"Tharwatt API error: {e}")
             # Security: Don't expose internal error details to client
-            raise HTTPException(
-                502, "Payment gateway temporarily unavailable. Please try again."
-            )
+            raise HTTPException(502, "Payment gateway temporarily unavailable. Please try again.")
 
 
 async def call_stripe_api(payment: Any, token: str) -> dict:
@@ -1825,9 +1810,7 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
     except Exception as e:
         logger.error(f"Stripe API error: {e}")
         # Security: Don't expose internal error details to client
-        raise HTTPException(
-            502, "Payment processing failed. Please try again or contact support."
-        )
+        raise HTTPException(502, "Payment processing failed. Please try again or contact support.")
 
 
 @app.post("/v1/payments")
@@ -1893,9 +1876,7 @@ async def create_payment(
                     payment.id, external_id=stripe_response.get("stripe_charge_id")
                 )
             else:
-                await repo.payments.update(
-                    payment.id, status=db_models.PaymentStatus.PROCESSING
-                )
+                await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
 
     elif request.method == PaymentMethod.THARWATT and THARWATT_API_KEY:
         # Tharwatt Payment Gateway - بوابة ثروات
@@ -1911,12 +1892,8 @@ async def create_payment(
                 },
             )()
             tharwatt_response = await call_tharwatt_api(temp_payment, phone_number)
-            await repo.payments.update(
-                payment.id, status=db_models.PaymentStatus.PROCESSING
-            )
-            logger.info(
-                f"Tharwatt payment initiated: {payment.id} - Response: {tharwatt_response}"
-            )
+            await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
+            logger.info(f"Tharwatt payment initiated: {payment.id} - Response: {tharwatt_response}")
 
     elif request.method == PaymentMethod.CASH:
         await repo.payments.mark_succeeded(payment.id)
@@ -2031,9 +2008,7 @@ def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
 
     # Validate signature is present
     if not signature:
-        logger.error(
-            "Tharwatt webhook signature missing in X-Tharwatt-Signature header"
-        )
+        logger.error("Tharwatt webhook signature missing in X-Tharwatt-Signature header")
         return False
 
     try:
@@ -2092,9 +2067,7 @@ async def tharwatt_webhook(
             break
 
     if not payment:
-        logger.warning(
-            f"Tharwatt webhook: Payment not found for reference {payload.reference}"
-        )
+        logger.warning(f"Tharwatt webhook: Payment not found for reference {payload.reference}")
         raise HTTPException(404, "Payment not found")
 
     # Update payment status
@@ -2130,9 +2103,7 @@ async def tharwatt_webhook(
     elif payload.status == "failed":
         payment.status = PaymentStatus.FAILED
         payment.failure_reason = payload.error_message or "Payment failed"
-        logger.warning(
-            f"Tharwatt payment failed: {payment.payment_id} - {payload.error_message}"
-        )
+        logger.warning(f"Tharwatt payment failed: {payment.payment_id} - {payload.error_message}")
 
         # Publish payment failed event
         background_tasks.add_task(
@@ -2291,9 +2262,7 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
                 elif stripe_status == "canceled":
                     subscription.status = SubscriptionStatus.CANCELED
 
-                logger.info(
-                    f"Stripe subscription updated: {subscription_id} -> {stripe_status}"
-                )
+                logger.info(f"Stripe subscription updated: {subscription_id} -> {stripe_status}")
 
                 # Publish subscription event
                 background_tasks.add_task(

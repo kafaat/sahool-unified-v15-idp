@@ -38,18 +38,14 @@ SERVICES = {
     "weather": ServiceConfig("Weather Advanced", "خدمة الطقس المتقدمة", 8092),
     "fertilizer": ServiceConfig("Fertilizer Advisor", "مستشار الأسمدة", 8093),
     "irrigation": ServiceConfig("Irrigation Smart", "الري الذكي", 8094),
-    "crop_health": ServiceConfig(
-        "Crop Health AI", "صحة المحاصيل بالذكاء الاصطناعي", 8095
-    ),
+    "crop_health": ServiceConfig("Crop Health AI", "صحة المحاصيل بالذكاء الاصطناعي", 8095),
     "virtual_sensors": ServiceConfig("Virtual Sensors", "المستشعرات الافتراضية", 8096),
     "community": ServiceConfig("Community Chat", "مجتمع المزارعين", 8097),
     "yield_engine": ServiceConfig("Yield Engine", "محرك الإنتاجية", 8098),
     "iot_gateway": ServiceConfig("IoT Gateway", "بوابة إنترنت الأشياء", 8100),
     "equipment": ServiceConfig("Equipment Manager", "إدارة المعدات", 8101),
     "notifications": ServiceConfig("Notification Service", "خدمة الإشعارات", 8109),
-    "astronomical": ServiceConfig(
-        "Astronomical Calendar", "التقويم الفلكي اليمني", 8111
-    ),
+    "astronomical": ServiceConfig("Astronomical Calendar", "التقويم الفلكي اليمني", 8111),
 }
 
 
@@ -227,9 +223,7 @@ class MockWeatherService(MockBackendService):
             "timestamp": datetime.now().isoformat(),
         }
 
-    def get_forecast(
-        self, lat: float, lng: float, days: int = 7
-    ) -> list[dict[str, Any]]:
+    def get_forecast(self, lat: float, lng: float, days: int = 7) -> list[dict[str, Any]]:
         """Get weather forecast"""
         self.request_count += 1
         import random
@@ -242,9 +236,7 @@ class MockWeatherService(MockBackendService):
                     "date": (datetime.now() + timedelta(days=i)).strftime("%Y-%m-%d"),
                     "high": round(random.uniform(28, 38), 1),
                     "low": round(random.uniform(18, 25), 1),
-                    "condition": random.choice(
-                        ["sunny", "cloudy", "rainy", "partly_cloudy"]
-                    ),
+                    "condition": random.choice(["sunny", "cloudy", "rainy", "partly_cloudy"]),
                     "precipitation_chance": random.randint(0, 100),
                 }
             )

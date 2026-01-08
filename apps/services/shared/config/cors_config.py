@@ -97,9 +97,7 @@ def get_allowed_origins() -> list[str]:
     cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
     if cors_origins_env:
         # Remove wildcard in production for security
-        origins = [
-            origin.strip() for origin in cors_origins_env.split(",") if origin.strip()
-        ]
+        origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
 
         environment = os.getenv("ENVIRONMENT", "development").lower()
         if "*" in origins and environment == "production":
@@ -306,7 +304,7 @@ def validate_origin(origin: str) -> bool:
 def _get_cors_settings() -> dict:
     """
     Get CORS settings dictionary for backward compatibility.
-    
+
     Returns:
         dict: CORS middleware settings with keys:
             - allow_origins: List of allowed origin URLs
@@ -315,7 +313,7 @@ def _get_cors_settings() -> dict:
             - allow_headers: List of allowed request headers
             - expose_headers: List of headers to expose
             - max_age: Preflight cache duration in seconds
-    
+
     Example:
         >>> settings = _get_cors_settings()
         >>> print(settings['allow_origins'])
@@ -354,44 +352,44 @@ def _get_cors_settings() -> dict:
 class _CORSSettings:
     """
     Lazy loader for CORS settings to avoid expensive operations at import time.
-    
+
     This class implements the dict-like interface and loads settings only when first accessed.
     Thread-safe singleton pattern ensures consistent behavior across the application.
-    
+
     Example:
         >>> from apps.services.shared.config.cors_config import CORS_SETTINGS
         >>> app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
     """
-    
+
     def __init__(self):
         """Initialize with None settings - will be loaded on first access."""
         self._settings = None
-    
+
     def _ensure_settings_loaded(self):
         """Load settings if not already loaded."""
         if self._settings is None:
             self._settings = _get_cors_settings()
-    
+
     def __getitem__(self, key):
         self._ensure_settings_loaded()
         return self._settings[key]
-    
+
     def __iter__(self):
         self._ensure_settings_loaded()
         return iter(self._settings)
-    
+
     def keys(self):
         self._ensure_settings_loaded()
         return self._settings.keys()
-    
+
     def values(self):
         self._ensure_settings_loaded()
         return self._settings.values()
-    
+
     def items(self):
         self._ensure_settings_loaded()
         return self._settings.items()
-    
+
     def get(self, key, default=None):
         self._ensure_settings_loaded()
         return self._settings.get(key, default)

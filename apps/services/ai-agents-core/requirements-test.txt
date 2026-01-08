@@ -1,0 +1,39 @@
+# Test Dependencies for AI Agents Core
+# متطلبات الاختبار لنواة وكلاء الذكاء الاصطناعي
+
+# Base requirements
+-r requirements.txt
+
+# Testing Framework
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-mock>=3.11.1
+pytest-timeout>=2.1.0
+pytest-xdist>=3.3.1  # For parallel test execution
+
+# HTTP Testing
+httpx>=0.25.0
+requests>=2.31.0
+requests-mock>=1.11.0
+
+# Mocking and Fixtures
+faker>=19.0.0
+factory-boy>=3.3.0
+
+# Coverage
+coverage[toml]>=7.3.0
+
+# Code Quality (optional but recommended)
+black>=23.7.0
+flake8>=6.1.0
+mypy>=1.5.0
+isort>=5.12.0
+pylint>=2.17.0
+
+# Performance Testing
+locust>=2.15.1  # For load testing (optional)
+
+# Test Reporting
+pytest-html>=3.2.0
+pytest-json-report>=1.5.0

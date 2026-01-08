@@ -32,6 +32,11 @@ import { AuthService, LoginDto } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
+// Extend Express Request to include user property set by JWT guard
+interface AuthenticatedRequest extends Request {
+  user?: { id: string; email: string; tenantId?: string };
+}
+
 // DTOs
 class LoginRequestDto implements LoginDto {
   @ApiProperty({
@@ -114,7 +119,9 @@ export class AuthController {
     @Req() request: Request,
   ) {
     const ip = request.ip || request.socket.remoteAddress;
-    console.log(`Login attempt from IP: ${ip} for email: ${loginDto.email}`);
+    // SECURITY: Don't log email addresses - only log anonymized info for auditing
+    // Use a hash or masked email for correlation if needed in production logging system
+    console.log(`Login attempt from IP: ${ip}`);
 
     return this.authService.login(loginDto);
   }
@@ -145,16 +152,21 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
-  async logout(@Req() request: Request) {
-    // Extract token from Authorization header
+  async logout(@Req() request: AuthenticatedRequest) {
+    // Extract token from Authorization header with secure validation
     const authorization = request.headers.authorization;
     if (!authorization) {
       throw new UnauthorizedException('No token provided');
     }
 
-    const token = authorization.split(' ')[1];
-    if (!token) {
-      throw new UnauthorizedException('Invalid token format');
+    // SECURITY: Validate Bearer token format properly
+    const parts = authorization.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      throw new UnauthorizedException('Invalid token format: expected "Bearer <token>"');
+    }
+    const token = parts[1];
+    if (!token || token.length < 10) {
+      throw new UnauthorizedException('Invalid token: token is too short');
     }
 
     // Get user from request (set by JWT guard)
@@ -201,7 +213,7 @@ export class AuthController {
     },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async logoutAll(@Req() request: Request) {
+  async logoutAll(@Req() request: AuthenticatedRequest) {
     const user = request.user as any;
     if (!user || !user.id) {
       throw new UnauthorizedException('User not found in request');
@@ -264,7 +276,7 @@ export class AuthController {
     description: 'Current user information',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getCurrentUser(@Req() request: Request) {
+  async getCurrentUser(@Req() request: AuthenticatedRequest) {
     const user = request.user as any;
 
     return {

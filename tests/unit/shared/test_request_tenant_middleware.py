@@ -3,20 +3,22 @@ Tests for Request Size and Tenant Context Middleware
 اختبارات middleware حجم الطلب وسياق المستأجر
 """
 
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
+
 from shared.middleware.request_size import (
-    RequestSizeLimiter,
     DEFAULT_MAX_BODY_SIZE,
-    DEFAULT_MAX_JSON_SIZE,
     DEFAULT_MAX_FILE_SIZE,
+    DEFAULT_MAX_JSON_SIZE,
+    RequestSizeLimiter,
     configure_size_limits,
 )
 from shared.middleware.tenant_context import (
     TenantContext,
     get_current_tenant,
-    get_optional_tenant,
     get_current_tenant_id,
+    get_optional_tenant,
     tenant_filter_dict,
 )
 
@@ -112,10 +114,7 @@ class TestRequestSizeLimiter:
 
         mock_request = MagicMock()
         mock_request.method = "POST"
-        mock_request.headers = {
-            "content-type": "application/json",
-            "content-length": "1000"
-        }
+        mock_request.headers = {"content-type": "application/json", "content-length": "1000"}
 
         allowed, error, status = limiter.check_request(mock_request)
         assert allowed is True
@@ -126,10 +125,7 @@ class TestRequestSizeLimiter:
 
         mock_request = MagicMock()
         mock_request.method = "POST"
-        mock_request.headers = {
-            "content-type": "application/json",
-            "content-length": "1000"
-        }
+        mock_request.headers = {"content-type": "application/json", "content-length": "1000"}
 
         allowed, error, status = limiter.check_request(mock_request)
         assert allowed is False
@@ -142,10 +138,7 @@ class TestRequestSizeLimiter:
 
         mock_request = MagicMock()
         mock_request.method = "POST"
-        mock_request.headers = {
-            "content-type": "application/xml",
-            "content-length": "100"
-        }
+        mock_request.headers = {"content-type": "application/xml", "content-length": "100"}
 
         allowed, error, status = limiter.check_request(mock_request)
         assert allowed is False
@@ -157,10 +150,7 @@ class TestRequestSizeLimiter:
 
         mock_request = MagicMock()
         mock_request.method = "POST"
-        mock_request.headers = {
-            "content-type": "application/json",
-            "content-length": "invalid"
-        }
+        mock_request.headers = {"content-type": "application/json", "content-length": "invalid"}
 
         allowed, error, status = limiter.check_request(mock_request)
         assert allowed is False
@@ -195,11 +185,7 @@ class TestTenantContext:
 
     def test_tenant_context_with_user(self):
         """Test TenantContext with user info"""
-        ctx = TenantContext(
-            id="tenant-123",
-            user_id="user-456",
-            roles=["admin", "user"]
-        )
+        ctx = TenantContext(id="tenant-123", user_id="user-456", roles=["admin", "user"])
         assert ctx.id == "tenant-123"
         assert ctx.user_id == "user-456"
         assert ctx.roles == ["admin", "user"]

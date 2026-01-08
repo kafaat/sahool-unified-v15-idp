@@ -31,6 +31,8 @@ logger = logging.getLogger("sahool-billing")
 # =============================================================================
 
 # Database URL from environment
+# TLS/SSL: DATABASE_URL must include sslmode=require for production
+# Example: postgresql+asyncpg://user:pass@host:5432/db?sslmode=require
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_billing",
@@ -121,9 +123,7 @@ def get_engine() -> AsyncEngine:
 
         _engine = create_async_engine(DATABASE_URL, **engine_kwargs)
 
-        logger.info(
-            f"Database engine created: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}"
-        )
+        logger.info(f"Database engine created: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}")
 
     return _engine
 

@@ -52,9 +52,7 @@ class SatelliteTool:
                 if end_date:
                     params["end_date"] = end_date
 
-                response = await client.get(
-                    f"{self.base_url}/api/v1/satellite/ndvi", params=params
-                )
+                response = await client.get(f"{self.base_url}/api/v1/satellite/ndvi", params=params)
                 response.raise_for_status()
 
                 result = response.json()

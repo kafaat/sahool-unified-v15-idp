@@ -45,9 +45,7 @@ class TestFieldCreateModel:
         """Field should accept GeoJSON geometry"""
         geometry = {
             "type": "Polygon",
-            "coordinates": [
-                [[45.0, 15.0], [45.1, 15.0], [45.1, 15.1], [45.0, 15.1], [45.0, 15.0]]
-            ],
+            "coordinates": [[[45.0, 15.0], [45.1, 15.0], [45.1, 15.1], [45.0, 15.1], [45.0, 15.0]]],
         }
 
         field = FieldCreate(

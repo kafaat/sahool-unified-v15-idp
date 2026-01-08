@@ -55,12 +55,8 @@ class AgentCapability(BaseModel):
     name: str = Field(..., description="Capability name")
     description: str = Field(..., description="Capability description")
     description_ar: str | None = Field(None, description="Arabic description")
-    input_schema: dict[str, Any] | None = Field(
-        None, description="JSON Schema for input"
-    )
-    output_schema: dict[str, Any] | None = Field(
-        None, description="JSON Schema for output"
-    )
+    input_schema: dict[str, Any] | None = Field(None, description="JSON Schema for input")
+    output_schema: dict[str, Any] | None = Field(None, description="JSON Schema for output")
     examples: list[dict[str, Any]] | None = Field(
         default_factory=list, description="Usage examples"
     )
@@ -128,9 +124,7 @@ class AgentEndpoint(BaseModel):
     method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"] = Field(
         default="POST", description="HTTP method"
     )
-    headers: dict[str, str] | None = Field(
-        default_factory=dict, description="Required headers"
-    )
+    headers: dict[str, str] | None = Field(default_factory=dict, description="Required headers")
     timeout_seconds: int = Field(default=30, description="Request timeout")
 
     class Config:
@@ -157,9 +151,7 @@ class AgentMetadata(BaseModel):
     homepage: HttpUrl | None = Field(None, description="Agent homepage")
     documentation: HttpUrl | None = Field(None, description="Documentation URL")
     source_code: HttpUrl | None = Field(None, description="Source code repository")
-    created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation timestamp"
-    )
+    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
     updated_at: datetime = Field(
         default_factory=datetime.utcnow, description="Last update timestamp"
     )
@@ -193,9 +185,7 @@ class AgentCard(BaseModel):
     agent_id: str = Field(..., description="Unique agent identifier", min_length=1)
     name: str = Field(..., description="Agent name", min_length=1)
     name_ar: str | None = Field(None, description="Arabic name")
-    version: str = Field(
-        ..., description="Agent version (semver)", pattern=r"^\d+\.\d+\.\d+$"
-    )
+    version: str = Field(..., description="Agent version (semver)", pattern=r"^\d+\.\d+\.\d+$")
 
     # Description / الوصف
     description: str = Field(..., description="Agent description", min_length=1)
@@ -205,9 +195,7 @@ class AgentCard(BaseModel):
     capabilities: list[AgentCapability] = Field(
         default_factory=list, description="Agent capabilities"
     )
-    skills: list[AgentSkill] = Field(
-        default_factory=list, description="Agent skills/expertise"
-    )
+    skills: list[AgentSkill] = Field(default_factory=list, description="Agent skills/expertise")
 
     # Communication / التواصل
     input_modes: list[InputMode] = Field(
@@ -221,9 +209,7 @@ class AgentCard(BaseModel):
 
     # Endpoints / نقاط النهاية
     endpoint: AgentEndpoint = Field(..., description="Primary agent endpoint")
-    health_endpoint: HttpUrl | None = Field(
-        None, description="Health check endpoint"
-    )
+    health_endpoint: HttpUrl | None = Field(None, description="Health check endpoint")
 
     # Security / الأمان
     security_scheme: SecurityScheme = Field(

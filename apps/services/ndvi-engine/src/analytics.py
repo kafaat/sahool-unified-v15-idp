@@ -236,9 +236,7 @@ def _generate_trend_messages(
 
 
 def _strength_ar(strength: str) -> str:
-    return {"strong": "قوي", "moderate": "متوسط", "weak": "ضعيف"}.get(
-        strength, strength
-    )
+    return {"strong": "قوي", "moderate": "متوسط", "weak": "ضعيف"}.get(strength, strength)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -369,9 +367,7 @@ def compare_to_historical_mean(
     z_score = 0.0 if historical_std == 0 else (current_value - historical_mean) / historical_std
 
     deviation_pct = (
-        ((current_value - historical_mean) / historical_mean * 100)
-        if historical_mean != 0
-        else 0
+        ((current_value - historical_mean) / historical_mean * 100) if historical_mean != 0 else 0
     )
 
     # Interpret z-score
@@ -414,9 +410,7 @@ def get_seasonal_baseline(
     Returns:
         Baseline statistics or None if insufficient data
     """
-    monthly_values = [
-        obs.ndvi_mean for obs in series if obs.obs_date.month == target_month
-    ]
+    monthly_values = [obs.ndvi_mean for obs in series if obs.obs_date.month == target_month]
 
     if len(monthly_values) < 3:
         return None

@@ -95,8 +95,11 @@ describe('SahoolApiClient', () => {
   });
 
   describe('Field Operations', () => {
+    // Valid JWT format with far future expiration (exp=9999999999)
+    const validTestToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjk5OTk5OTk5OTl9.test';
+
     beforeEach(() => {
-      apiClient.setToken('test-token');
+      apiClient.setToken(validTestToken);
     });
 
     it('should fetch fields list', async () => {
@@ -197,8 +200,11 @@ describe('SahoolApiClient', () => {
   });
 
   describe('NDVI Analysis', () => {
+    // Valid JWT format with far future expiration (exp=9999999999)
+    const validTestToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjk5OTk5OTk5OTl9.test';
+
     beforeEach(() => {
-      apiClient.setToken('test-token');
+      apiClient.setToken(validTestToken);
     });
 
     it('should fetch field NDVI data', async () => {
@@ -286,8 +292,11 @@ describe('SahoolApiClient', () => {
   });
 
   describe('Task Operations', () => {
+    // Valid JWT format with far future expiration (exp=9999999999)
+    const validTestToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjk5OTk5OTk5OTl9.test';
+
     beforeEach(() => {
-      apiClient.setToken('test-token');
+      apiClient.setToken(validTestToken);
     });
 
     it('should fetch tasks with filters', async () => {
@@ -648,8 +657,12 @@ describe('SahoolApiClient', () => {
   });
 
   describe('CSRF Protection', () => {
+    // Valid JWT format with far future expiration (exp=9999999999)
+    // This prevents the token from being treated as expired
+    const validTestToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjk5OTk5OTk5OTl9.test';
+
     beforeEach(() => {
-      apiClient.setToken('test-token');
+      apiClient.setToken(validTestToken);
       vi.clearAllMocks();
     });
 

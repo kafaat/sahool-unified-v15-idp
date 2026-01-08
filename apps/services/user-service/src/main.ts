@@ -15,8 +15,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from '../../shared/errors';
-import { RequestLoggingInterceptor } from '../../shared/middleware/request-logging';
+import { HttpExceptionFilter } from './utils/http-exception.filter';
+import { RequestLoggingInterceptor } from './utils/request-logging.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -105,7 +105,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const port = process.env.PORT || 3020;
+  const port = process.env.PORT || 3025;
   await app.listen(port);
 
   console.log(`

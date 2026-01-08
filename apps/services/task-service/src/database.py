@@ -15,10 +15,9 @@ from sqlalchemy.pool import QueuePool
 # Import shared database components
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from database.base import Base
-from database.config import DatabaseConfig
 
 # Import models to ensure they're registered with Base
-from .models import Task, TaskEvidence, TaskHistory
+from .models import Task
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +67,7 @@ def init_database(create_tables: bool = True) -> None:
     try:
         database_url = get_database_url()
 
-        logger.info(f"Initializing database connection...")
+        logger.info("Initializing database connection...")
 
         # Create engine with connection pooling
         _engine = create_engine(
@@ -176,7 +175,6 @@ def seed_demo_data(db: Session) -> None:
     إضافة مهام تجريبية للاختبار
     """
     from datetime import datetime, timedelta
-    from .models import Task
 
     logger.info("Checking if demo data exists...")
 

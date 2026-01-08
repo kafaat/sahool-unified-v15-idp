@@ -9,20 +9,13 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path as PathLib
-from uuid import uuid4
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
 
 # Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-from shared.middleware import (
-    RequestLoggingMiddleware,
-    TenantContextMiddleware,
-    setup_cors,
-)
-from shared.observability.middleware import ObservabilityMiddleware
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from sqlalchemy.orm import Session
 
@@ -40,8 +33,9 @@ except ImportError:
     # Fallback if shared module not available
     def setup_cors_middleware(app):
         pass
-from errors_py import setup_exception_handlers, add_request_id_middleware
 
+
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .database import SessionLocal, check_db_connection, get_db
 from .db_models import Alert as DBAlert
@@ -65,9 +59,9 @@ from .repository import (
     delete_alert,
     delete_alert_rule,
     get_alert,
+    get_alert_rules_by_field,
     get_alert_statistics,
     get_alerts_by_field,
-    get_alert_rules_by_field,
     update_alert_status,
 )
 
@@ -87,9 +81,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def get_tenant_id(
-    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
-) -> str:
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
     """Extract and validate tenant ID from X-Tenant-Id header"""
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
@@ -179,9 +171,7 @@ async def handle_ndvi_anomaly(data: dict):
                 tenant_id=data.get("tenant_id"),
                 type=AlertType.NDVI_ANOMALY,
                 severity=(
-                    AlertSeverity.HIGH
-                    if data.get("severity") == "high"
-                    else AlertSeverity.MEDIUM
+                    AlertSeverity.HIGH if data.get("severity") == "high" else AlertSeverity.MEDIUM
                 ),
                 title=f"شذوذ في مؤشر NDVI - {data.get('anomaly_type', 'غير محدد')}",
                 title_en=f"NDVI Anomaly Detected - {data.get('anomaly_type', 'unknown')}",
@@ -232,9 +222,7 @@ async def handle_weather_alert(data: dict):
                 metadata=data,
                 source_service="weather-service",
                 expires_at=(
-                    datetime.fromisoformat(data["expires_at"])
-                    if data.get("expires_at")
-                    else None
+                    datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
                 ),
             )
         )
@@ -251,11 +239,7 @@ async def handle_iot_threshold(data: dict):
         value = data.get("value", "N/A")
         threshold = data.get("threshold", "N/A")
 
-        alert_type = (
-            AlertType.SOIL_MOISTURE
-            if "moisture" in metric.lower()
-            else AlertType.GENERAL
-        )
+        alert_type = AlertType.SOIL_MOISTURE if "moisture" in metric.lower() else AlertType.GENERAL
 
         alert = await create_alert_internal(
             AlertCreate(
@@ -321,9 +305,7 @@ def health():
         "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
             "nats": (
-                "connected"
-                if getattr(app.state, "publisher", None) is not None
-                else "disconnected"
+                "connected" if getattr(app.state, "publisher", None) is not None else "disconnected"
             )
         },
     }
@@ -358,12 +340,8 @@ def readiness():
             db = SessionLocal()
             from sqlalchemy import func, select
 
-            alerts_count = db.execute(
-                select(func.count()).select_from(DBAlert)
-            ).scalar() or 0
-            rules_count = db.execute(
-                select(func.count()).select_from(DBAlertRule)
-            ).scalar() or 0
+            alerts_count = db.execute(select(func.count()).select_from(DBAlert)).scalar() or 0
+            rules_count = db.execute(select(func.count()).select_from(DBAlertRule)).scalar() or 0
             db.close()
         except Exception:
             pass
@@ -437,9 +415,7 @@ async def create_alert_internal(alert_data: AlertCreate) -> dict:
 
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
-async def create_alert_endpoint(
-    alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id)
-):
+async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id)):
     """
     إنشاء تنبيه جديد
     Create a new alert
@@ -464,6 +440,7 @@ async def get_alert_endpoint(
     Get a specific alert
     """
     from uuid import UUID
+
     try:
         alert_uuid = UUID(alert_id)
     except ValueError:
@@ -480,9 +457,7 @@ async def get_alerts_by_field_endpoint(
     field_id: str = Path(..., description="معرف الحقل"),
     status: AlertStatus | None = Query(None, description="تصفية حسب الحالة"),
     severity: AlertSeverity | None = Query(None, description="تصفية حسب الخطورة"),
-    alert_type: AlertType | None = Query(
-        None, alias="type", description="تصفية حسب النوع"
-    ),
+    alert_type: AlertType | None = Query(None, alias="type", description="تصفية حسب النوع"),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
     tenant_id: str = Depends(get_tenant_id),
@@ -526,6 +501,7 @@ async def update_alert_endpoint(
     Update alert status
     """
     from uuid import UUID
+
     try:
         alert_uuid = UUID(alert_id)
     except ValueError:
@@ -539,11 +515,7 @@ async def update_alert_endpoint(
     old_status = alert.status
 
     if update_data.status:
-        user_id = (
-            update_data.acknowledged_by
-            or update_data.dismissed_by
-            or update_data.resolved_by
-        )
+        user_id = update_data.acknowledged_by or update_data.dismissed_by or update_data.resolved_by
 
         updated_alert = update_alert_status(
             db,
@@ -586,6 +558,7 @@ async def delete_alert_endpoint(
     Delete an alert
     """
     from uuid import UUID
+
     try:
         alert_uuid = UUID(alert_id)
     except ValueError:
@@ -627,6 +600,7 @@ async def acknowledge_alert(
     Acknowledge an alert
     """
     from uuid import UUID
+
     try:
         alert_uuid = UUID(alert_id)
     except ValueError:
@@ -660,9 +634,7 @@ async def acknowledge_alert(
     return updated_alert.to_dict()
 
 
-@app.post(
-    "/alerts/{alert_id}/resolve", response_model=AlertResponse, tags=["Alert Actions"]
-)
+@app.post("/alerts/{alert_id}/resolve", response_model=AlertResponse, tags=["Alert Actions"])
 async def resolve_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
     user_id: str = Query(..., description="معرف المستخدم"),
@@ -675,6 +647,7 @@ async def resolve_alert(
     Resolve an alert
     """
     from uuid import UUID
+
     try:
         alert_uuid = UUID(alert_id)
     except ValueError:
@@ -709,9 +682,7 @@ async def resolve_alert(
     return updated_alert.to_dict()
 
 
-@app.post(
-    "/alerts/{alert_id}/dismiss", response_model=AlertResponse, tags=["Alert Actions"]
-)
+@app.post("/alerts/{alert_id}/dismiss", response_model=AlertResponse, tags=["Alert Actions"])
 async def dismiss_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
     user_id: str = Query(..., description="معرف المستخدم"),
@@ -723,6 +694,7 @@ async def dismiss_alert(
     Dismiss an alert
     """
     from uuid import UUID
+
     try:
         alert_uuid = UUID(alert_id)
     except ValueError:
@@ -795,6 +767,7 @@ async def get_rules(
     else:
         # Get all rules, then filter by enabled status if specified
         from sqlalchemy import select
+
         from .db_models import AlertRule
 
         query = select(AlertRule)
@@ -814,6 +787,7 @@ async def delete_rule(
     Delete an alert rule
     """
     from uuid import UUID
+
     try:
         rule_uuid = UUID(rule_id)
     except ValueError:
@@ -848,9 +822,7 @@ async def get_stats(
     days = int(period.replace("d", ""))
 
     # Get statistics from repository
-    stats = get_alert_statistics(
-        db, tenant_id=tenant_id, field_id=field_id, days=days
-    )
+    stats = get_alert_statistics(db, tenant_id=tenant_id, field_id=field_id, days=days)
 
     # Calculate rates
     total = stats["total_alerts"]

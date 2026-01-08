@@ -23,7 +23,6 @@ def mock_all_dependencies():
             with patch("src.main.DiseaseExpertAgent") as mock_disease:
                 with patch("src.main.IrrigationAdvisorAgent") as mock_irrigation:
                     with patch("src.main.YieldPredictorAgent") as mock_yield:
-
                         # Create mock agent instances
                         mock_field_instance = AsyncMock()
                         mock_field_instance.analyze_field = AsyncMock(
@@ -32,12 +31,8 @@ def mock_all_dependencies():
                         mock_field.return_value = mock_field_instance
 
                         mock_disease_instance = AsyncMock()
-                        mock_disease_instance.diagnose = AsyncMock(
-                            return_value={"disease": "none"}
-                        )
-                        mock_disease_instance.assess_risk = AsyncMock(
-                            return_value={"risk": "low"}
-                        )
+                        mock_disease_instance.diagnose = AsyncMock(return_value={"disease": "none"})
+                        mock_disease_instance.assess_risk = AsyncMock(return_value={"risk": "low"})
                         mock_disease.return_value = mock_disease_instance
 
                         mock_irrigation_instance = AsyncMock()
@@ -47,9 +42,7 @@ def mock_all_dependencies():
                         mock_irrigation.return_value = mock_irrigation_instance
 
                         mock_yield_instance = AsyncMock()
-                        mock_yield_instance.predict_yield = AsyncMock(
-                            return_value={"yield": 1000}
-                        )
+                        mock_yield_instance.predict_yield = AsyncMock(return_value={"yield": 1000})
                         mock_yield.return_value = mock_yield_instance
 
                         mocks["field_agent"] = mock_field
@@ -62,7 +55,6 @@ def mock_all_dependencies():
                             with patch("src.main.WeatherTool") as mock_weather_tool:
                                 with patch("src.main.SatelliteTool") as mock_sat_tool:
                                     with patch("src.main.AgroTool") as mock_agro_tool:
-
                                         crop_tool_instance = AsyncMock()
                                         crop_tool_instance.analyze_image = AsyncMock(
                                             return_value={"healthy": True}
@@ -70,9 +62,7 @@ def mock_all_dependencies():
                                         mock_crop_tool.return_value = crop_tool_instance
 
                                         weather_tool_instance = AsyncMock()
-                                        mock_weather_tool.return_value = (
-                                            weather_tool_instance
-                                        )
+                                        mock_weather_tool.return_value = weather_tool_instance
 
                                         sat_tool_instance = AsyncMock()
                                         sat_tool_instance.get_ndvi = AsyncMock(
@@ -89,20 +79,17 @@ def mock_all_dependencies():
                                         mocks["agro_tool"] = mock_agro_tool
 
                                         # Mock RAG components
-                                        with patch(
-                                            "src.main.EmbeddingsManager"
-                                        ) as mock_emb, patch(
-                                            "src.main.KnowledgeRetriever"
-                                        ) as mock_ret, patch(
-                                            "src.main.Supervisor"
-                                        ) as mock_sup:
-
+                                        with (
+                                            patch("src.main.EmbeddingsManager") as mock_emb,
+                                            patch("src.main.KnowledgeRetriever") as mock_ret,
+                                            patch("src.main.Supervisor") as mock_sup,
+                                        ):
                                             emb_instance = Mock()
                                             mock_emb.return_value = emb_instance
 
                                             ret_instance = Mock()
-                                            ret_instance.get_collection_info = (
-                                                Mock(return_value={"docs": 100})
+                                            ret_instance.get_collection_info = Mock(
+                                                return_value={"docs": 100}
                                             )
                                             mock_ret.return_value = ret_instance
 
@@ -110,9 +97,7 @@ def mock_all_dependencies():
                                             sup_instance.coordinate = AsyncMock(
                                                 return_value={
                                                     "answer": "Agricultural advice here",
-                                                    "agents_used": [
-                                                        "field_analyst"
-                                                    ],
+                                                    "agents_used": ["field_analyst"],
                                                 }
                                             )
                                             sup_instance.get_available_agents = Mock(
@@ -199,13 +184,9 @@ class TestAdvisorEndpoints:
         data = response.json()
         assert data["status"] == "success"
 
-    def test_get_recommendations_irrigation(
-        self, client, sample_recommendation_request
-    ):
+    def test_get_recommendations_irrigation(self, client, sample_recommendation_request):
         """Test /v1/advisor/recommend for irrigation"""
-        response = client.post(
-            "/v1/advisor/recommend", json=sample_recommendation_request
-        )
+        response = client.post("/v1/advisor/recommend", json=sample_recommendation_request)
 
         assert response.status_code == 200
         data = response.json()
@@ -253,9 +234,7 @@ class TestAdvisorEndpoints:
 
     def test_analyze_field(self, client, sample_field_analysis_request):
         """Test /v1/advisor/analyze-field endpoint"""
-        response = client.post(
-            "/v1/advisor/analyze-field", json=sample_field_analysis_request
-        )
+        response = client.post("/v1/advisor/analyze-field", json=sample_field_analysis_request)
 
         assert response.status_code == 200
         data = response.json()

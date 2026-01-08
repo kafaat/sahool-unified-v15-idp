@@ -139,9 +139,7 @@ class IoTRulesWorker:
             if not all([field_id, sensor_type, value is not None]):
                 return
 
-            print(
-                f"📥 Sensor: {sensor_type}={value} from {device_id} (field: {field_id})"
-            )
+            print(f"📥 Sensor: {sensor_type}={value} from {device_id} (field: {field_id})")
 
             # Store recent reading
             self._store_reading(field_id, sensor_type, value, device_id)
@@ -160,9 +158,7 @@ class IoTRulesWorker:
         except Exception as e:
             print(f"❌ Error handling sensor reading: {e}")
 
-    def _store_reading(
-        self, field_id: str, sensor_type: str, value: float, device_id: str
-    ):
+    def _store_reading(self, field_id: str, sensor_type: str, value: float, device_id: str):
         """Store recent reading for combined rule evaluation"""
         if field_id not in self._recent_readings:
             self._recent_readings[field_id] = []
@@ -220,16 +216,12 @@ class IoTRulesWorker:
         # Check cooldown
         if task_key in self._recent_tasks:
             last_created = self._recent_tasks[task_key]
-            if datetime.now(UTC) - last_created < timedelta(
-                minutes=self._cooldown_minutes
-            ):
+            if datetime.now(UTC) - last_created < timedelta(minutes=self._cooldown_minutes):
                 print(f"⏳ Skipping task (cooldown): {recommendation.title_en}")
                 return
 
         # Calculate due date
-        due_date = datetime.now(UTC) + timedelta(
-            hours=recommendation.urgency_hours
-        )
+        due_date = datetime.now(UTC) + timedelta(hours=recommendation.urgency_hours)
 
         # Add device info to metadata
         metadata = recommendation.metadata or {}

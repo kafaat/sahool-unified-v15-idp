@@ -186,9 +186,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
     unit = _normalize_unit(unit_raw) if unit_raw else _get_default_unit(sensor_type)
 
     # Extract timestamp
-    timestamp_raw = (
-        raw.get("timestamp") or raw.get("ts") or raw.get("time") or raw.get("t")
-    )
+    timestamp_raw = raw.get("timestamp") or raw.get("ts") or raw.get("time") or raw.get("t")
 
     if timestamp_raw:
         # Try to parse if it's a string
@@ -196,9 +194,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
             timestamp = timestamp_raw
         elif isinstance(timestamp_raw, int | float):
             # Assume Unix timestamp
-            timestamp = datetime.fromtimestamp(
-                timestamp_raw, tz=UTC
-            ).isoformat()
+            timestamp = datetime.fromtimestamp(timestamp_raw, tz=UTC).isoformat()
         else:
             timestamp = datetime.now(UTC).isoformat()
     else:

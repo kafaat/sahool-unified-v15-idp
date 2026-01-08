@@ -92,9 +92,7 @@ class PredictionService:
     }
 
     def __init__(self, model_path: str | None = None):
-        self.model_path = model_path or os.getenv(
-            "MODEL_PATH", "models/plant_disease_model.tflite"
-        )
+        self.model_path = model_path or os.getenv("MODEL_PATH", "models/plant_disease_model.tflite")
         self.model = None
         self.is_loaded = False
         self.is_real_model = False
@@ -120,9 +118,7 @@ class PredictionService:
                     self.is_real_model = True
                     logger.info("✅ TFLite model loaded successfully!")
 
-                elif self.model_path.endswith(".h5") or self.model_path.endswith(
-                    ".keras"
-                ):
+                elif self.model_path.endswith(".h5") or self.model_path.endswith(".keras"):
                     import tensorflow as tf
 
                     self.model = tf.keras.models.load_model(self.model_path)
@@ -209,7 +205,7 @@ class PredictionService:
         تشغيل استدلال محاكاة للتطوير
         Run simulated inference for development
         """
-        seed = hash(image_bytes[:100]) % 2 ** 32 if image_bytes else np.random.randint(0, 2 ** 32)
+        seed = hash(image_bytes[:100]) % 2**32 if image_bytes else np.random.randint(0, 2**32)
         np.random.seed(seed)
 
         weights = np.ones(len(self.class_names))

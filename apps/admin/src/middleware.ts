@@ -21,6 +21,10 @@ import {
   getCSPHeaderName,
   getCSPConfig,
 } from '@/lib/security/csp-config';
+import {
+  validateCsrfRequest,
+  generateCsrfToken,
+} from '@/lib/security/csrf-server';
 import { verifyToken, isTokenExpired } from '@/lib/auth/jwt-verify';
 import {
   isPublicRoute,
@@ -130,6 +134,28 @@ export async function middleware(request: NextRequest) {
   }
 
   // ============================================
+  // CSRF VALIDATION (for state-changing requests)
+  // ============================================
+  const csrfValidation = validateCsrfRequest(request);
+  if (!csrfValidation.valid) {
+    // For API routes, return JSON error
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        {
+          error: 'CSRF validation failed',
+          message: csrfValidation.error,
+        },
+        { status: 403 }
+      );
+    }
+
+    // For page routes, redirect to login with error
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('error', 'csrf_failed');
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // ============================================
   // IDLE TIMEOUT CHECK
   // ============================================
   const lastActivityStr = request.cookies.get('sahool_admin_last_activity')?.value;
@@ -160,6 +186,21 @@ export async function middleware(request: NextRequest) {
 
   // Generate nonce for CSP
   const nonce = generateNonce();
+
+  // ============================================
+  // CSRF TOKEN GENERATION
+  // ============================================
+  let csrfToken = request.cookies.get('sahool_admin_csrf')?.value;
+  if (!csrfToken) {
+    csrfToken = generateCsrfToken();
+    response.cookies.set('sahool_admin_csrf', csrfToken, {
+      httpOnly: false, // Must be readable by JavaScript for AJAX requests
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 24, // 24 hours
+    });
+  }
 
   // Store nonce in response headers for use in HTML
   response.headers.set('X-Nonce', nonce);

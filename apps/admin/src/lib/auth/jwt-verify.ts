@@ -26,7 +26,8 @@ export interface TokenPayload extends JWTPayload {
 export async function verifyToken(token: string): Promise<TokenPayload> {
   try {
     // Get JWT secret from environment
-    const secret = process.env.JWT_SECRET || process.env.NEXT_PUBLIC_JWT_SECRET;
+    // SECURITY: Never use NEXT_PUBLIC_* for secrets - they are exposed to the client
+    const secret = process.env.JWT_SECRET;
 
     if (!secret) {
       throw new Error('JWT_SECRET is not configured');

@@ -57,17 +57,18 @@
     "docs:admin": "npm run docs --workspace=apps/admin"
   },
   "devDependencies": {
-    "typedoc": "^0.27.6",
-    "typescript": "5.7.2",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "22.12.0",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "vitest": "3.2.4",
-    "@vitest/coverage-v8": "3.2.4",
     "@vitejs/plugin-react": "^4.5.2",
+    "@vitest/coverage-v8": "3.2.4",
+    "eslint-plugin-react": "^7.37.5",
     "jsdom": "^26.1.0",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/jest-dom": "^6.6.3"
+    "typedoc": "^0.27.6",
+    "typescript": "5.7.2",
+    "vitest": "3.2.4"
   },
   "overrides": {
     "@types/react": "19.2.7",

@@ -156,7 +156,7 @@ function generateMockWeatherConditions(days: number): WeatherCondition[] {
   const now = new Date();
 
   for (let day = 0; day < days; day++) {
-    for (let hour of [6, 9, 12, 15, 18]) {
+    for (const hour of [6, 9, 12, 15, 18]) {
       const timestamp = new Date(now);
       timestamp.setDate(timestamp.getDate() + day);
       timestamp.setHours(hour, 0, 0, 0);

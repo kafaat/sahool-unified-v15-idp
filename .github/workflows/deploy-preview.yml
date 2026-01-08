@@ -39,12 +39,13 @@ jobs:
           cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
-        working-directory: apps/web
         run: npm ci || npm install
 
+      - name: Build workspace packages
+        run: npm run build:packages
+
       - name: Build application
-        working-directory: apps/web
-        run: npm run build
+        run: npm run build --workspace=apps/web
         env:
           CI: true
           NEXT_PUBLIC_API_URL: ${{ secrets.PREVIEW_API_URL != '' && secrets.PREVIEW_API_URL || 'https://api.sahool.dev' }}

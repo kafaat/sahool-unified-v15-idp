@@ -3,9 +3,9 @@
   "ci": {
     "collect": {
       "numberOfRuns": 3,
-      "startServerCommand": "npm run start",
-      "startServerReadyPattern": "ready on",
-      "startServerReadyTimeout": 30000
+      "startServerCommand": "npm run start --workspace=apps/web",
+      "startServerReadyPattern": "Ready|ready|Starting|Local:",
+      "startServerReadyTimeout": 60000
     },
     "assert": {
       "assertions": {

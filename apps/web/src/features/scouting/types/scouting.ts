@@ -406,11 +406,11 @@ export interface ApiScoutingResponse<T> {
   message_ar?: string;
 }
 
-export interface ApiSessionResponse extends ApiScoutingResponse<ScoutingSession> {}
-export interface ApiSessionsListResponse extends ApiScoutingResponse<ScoutingSession[]> {}
-export interface ApiObservationResponse extends ApiScoutingResponse<Observation> {}
-export interface ApiObservationsListResponse extends ApiScoutingResponse<Observation[]> {}
-export interface ApiStatisticsResponse extends ApiScoutingResponse<ScoutingStatistics> {}
+export type ApiSessionResponse = ApiScoutingResponse<ScoutingSession>;
+export type ApiSessionsListResponse = ApiScoutingResponse<ScoutingSession[]>;
+export type ApiObservationResponse = ApiScoutingResponse<Observation>;
+export type ApiObservationsListResponse = ApiScoutingResponse<Observation[]>;
+export type ApiStatisticsResponse = ApiScoutingResponse<ScoutingStatistics>;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Utility Types

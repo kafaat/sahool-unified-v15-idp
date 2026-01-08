@@ -62,7 +62,6 @@ interface MapClickHandlerProps {
 
 const MapClickHandler: React.FC<MapClickHandlerProps> = ({ onMapClick, enabled }) => {
   useMapEvents({
-    // @ts-ignore - TODO: react-leaflet 4.2.1 types incompatible with React 19
     click: (e: any) => {
       if (enabled) {
         onMapClick([e.latlng.lat, e.latlng.lng]);

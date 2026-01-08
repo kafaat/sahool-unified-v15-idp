@@ -158,7 +158,7 @@ export const ReportsPageExample: React.FC<ReportsPageExampleProps> = ({
             </li>
             <li className="flex items-start gap-2">
               <span className="font-bold">4.</span>
-              <span>اضغط على "إنشاء التقرير" وانتظر حتى يكتمل الإنشاء</span>
+              <span>اضغط على &quot;إنشاء التقرير&quot; وانتظر حتى يكتمل الإنشاء</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="font-bold">5.</span>

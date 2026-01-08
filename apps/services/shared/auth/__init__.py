@@ -17,11 +17,23 @@ from .jwt import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    generate_jti,
     verify_token,
 )
 from .models import Permission, Role, User
 from .password import hash_password, verify_password
 from .rbac import PermissionChecker, RBACManager
+from .revocation_middleware import (
+    TokenRevocationMiddleware,
+    check_token_revocation,
+)
+from .token_revocation import (
+    RedisTokenRevocationStore,
+    RevocationCheckResult,
+    RevocationInfo,
+    RevocationStats,
+    get_revocation_store,
+)
 
 __all__ = [
     # Config
@@ -31,6 +43,7 @@ __all__ = [
     "create_refresh_token",
     "verify_token",
     "decode_token",
+    "generate_jti",
     "TokenData",
     # Dependencies
     "get_current_user",
@@ -49,4 +62,12 @@ __all__ = [
     # RBAC
     "RBACManager",
     "PermissionChecker",
+    # Token Revocation
+    "RedisTokenRevocationStore",
+    "RevocationInfo",
+    "RevocationCheckResult",
+    "RevocationStats",
+    "get_revocation_store",
+    "TokenRevocationMiddleware",
+    "check_token_revocation",
 ]

@@ -65,6 +65,7 @@ from .email_client import get_email_client
 from .preferences_controller import router as preferences_router
 from .preferences_service import PreferencesService
 from .repository import (
+    FarmerProfileRepository,
     NotificationLogRepository,
     NotificationPreferenceRepository,
     NotificationRepository,
@@ -292,58 +293,30 @@ class IrrigationReminderRequest(BaseModel):
 
 
 # =============================================================================
-# In-Memory Storage (Replace with Database in Production)
+# Database Storage - MIGRATED TO POSTGRESQL ✅
 # =============================================================================
 
-# TODO: MIGRATE TO POSTGRESQL
-# Current: FARMER_PROFILES stored in-memory (lost on restart)
-# Required:
-#   1. Create 'farmer_profiles' table in PostgreSQL schema
-#      Columns: farmer_id (PK), name, name_ar, governorate, district, phone, fcm_token, language
-#   2. Create 'farmer_crops' junction table
-#      Columns: farmer_id (FK), crop_type
-#   3. Create 'farmer_fields' junction table
-#      Columns: farmer_id (FK), field_id
-#   4. Create 'farmer_channels' junction table
-#      Columns: farmer_id (FK), channel
-#   5. Create Tortoise ORM model in models.py: FarmerProfile, FarmerCrop, FarmerField, FarmerChannel
-#   6. Create repository in repository.py: FarmerProfileRepository
-#   7. Update /v1/farmers/register endpoint to use FarmerProfileRepository.create()
-#   8. Update determine_recipients_by_criteria() to query database
-#   9. Update /healthz stats to query database count
-# Migration Priority: HIGH - Farmer data is critical and should persist
-
-# Simulated farmer profiles
-FARMER_PROFILES: dict[str, FarmerProfile] = {
-    "farmer-1": FarmerProfile(
-        farmer_id="farmer-1",
-        name="Ahmed Ali",
-        name_ar="أحمد علي",
-        governorate=Governorate.SANAA,
-        crops=[CropType.TOMATO, CropType.COFFEE],
-        field_ids=["field-1", "field-2"],
-        phone="+967771234567",
-        email="ahmed.ali@example.com",
-    ),
-    "farmer-2": FarmerProfile(
-        farmer_id="farmer-2",
-        name="Mohammed Hassan",
-        name_ar="محمد حسن",
-        governorate=Governorate.IBB,
-        crops=[CropType.BANANA, CropType.MANGO],
-        field_ids=["field-3"],
-        phone="+967772345678",
-        email="mohammed.hassan@example.com",
-    ),
-}
-
-# TODO: MIGRATE TO POSTGRESQL
-# Current: NOTIFICATIONS dict is redundant (already using database via NotificationRepository)
-# Action: Remove NOTIFICATIONS and FARMER_NOTIFICATIONS dicts entirely
-# Note: These are legacy from pre-database implementation and no longer used
-# Migration Priority: LOW - Already migrated to database, just remove unused code
-NOTIFICATIONS: dict[str, Notification] = {}
-FARMER_NOTIFICATIONS: dict[str, list[str]] = {}  # farmer_id -> [notification_ids]
+# ✅ MIGRATION COMPLETED - All farmer data now stored in PostgreSQL
+#
+# Previous in-memory storage has been migrated to the following database tables:
+#   - farmer_profiles: Main farmer information (id, farmer_id, name, governorate, etc.)
+#   - farmer_crops: Junction table for farmer's crops (farmer_id, crop_type)
+#   - farmer_fields: Junction table for farmer's fields (farmer_id, field_id)
+#
+# Database operations are handled by FarmerProfileRepository in repository.py
+#
+# Changes made:
+#   ✅ Created FarmerProfile, FarmerCrop, FarmerField models in models.py
+#   ✅ Created FarmerProfileRepository in repository.py
+#   ✅ Updated /v1/farmers/register endpoint to use FarmerProfileRepository.create()
+#   ✅ Updated determine_recipients_by_criteria() to query database
+#   ✅ Updated all send_*_notification() functions to query database
+#   ✅ Updated /healthz and /v1/stats endpoints to query database
+#
+# Note: NOTIFICATIONS and FARMER_NOTIFICATIONS were already using NotificationRepository
+# and have been removed as they were redundant legacy code.
+#
+# Migration completed: 2026-01-08
 
 
 # =============================================================================
@@ -379,7 +352,7 @@ async def create_notification(
         target_farmers = []
     if data is None:
         data = {}
-    recipients = determine_recipients_by_criteria(
+    recipients = await determine_recipients_by_criteria(
         target_farmers=target_farmers,
         target_governorates=target_governorates,
         target_crops=target_crops,
@@ -485,10 +458,10 @@ async def send_notification_via_channel(
 
 
 async def send_sms_notification(notification, farmer_id: str):
-    """إرسال إشعار عبر SMS"""
+    """إرسال إشعار عبر SMS - Database version"""
     try:
-        # Get farmer profile to get phone number
-        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        # Get farmer profile from database to get phone number
+        farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.phone:
             logger.warning(f"No phone number for farmer {farmer_id}")
             await NotificationLogRepository.create_log(
@@ -543,10 +516,10 @@ async def send_sms_notification(notification, farmer_id: str):
 
 
 async def send_email_notification(notification, farmer_id: str):
-    """إرسال إشعار عبر البريد الإلكتروني"""
+    """إرسال إشعار عبر البريد الإلكتروني - Database version"""
     try:
-        # Get farmer profile to get email address
-        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        # Get farmer profile from database to get email address
+        farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.email:
             logger.warning(f"No email address for farmer {farmer_id}")
             await NotificationLogRepository.create_log(
@@ -619,10 +592,10 @@ async def send_email_notification(notification, farmer_id: str):
 
 
 async def send_push_notification(notification, farmer_id: str):
-    """إرسال إشعار عبر Firebase Push"""
+    """إرسال إشعار عبر Firebase Push - Database version"""
     try:
-        # Get farmer profile to get FCM token
-        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        # Get farmer profile from database to get FCM token
+        farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.fcm_token:
             logger.warning(f"No FCM token for farmer {farmer_id}")
             await NotificationLogRepository.create_log(
@@ -692,10 +665,10 @@ async def send_push_notification(notification, farmer_id: str):
 
 
 async def send_whatsapp_notification(notification, farmer_id: str):
-    """إرسال إشعار عبر WhatsApp"""
+    """إرسال إشعار عبر WhatsApp - Database version"""
     try:
-        # Get farmer profile to get WhatsApp number
-        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        # Get farmer profile from database to get WhatsApp number
+        farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.phone:
             logger.warning(f"No WhatsApp number for farmer {farmer_id}")
             await NotificationLogRepository.create_log(
@@ -738,12 +711,12 @@ async def send_whatsapp_notification(notification, farmer_id: str):
         )
 
 
-def determine_recipients_by_criteria(
+async def determine_recipients_by_criteria(
     target_farmers: list[str] = None,
     target_governorates: list[Governorate] = None,
     target_crops: list[CropType] = None,
 ) -> list[str]:
-    """تحديد المستلمين بناءً على معايير الإشعار"""
+    """تحديد المستلمين بناءً على معايير الإشعار - Database version"""
     # If specific farmers targeted, return them
     if target_crops is None:
         target_crops = []
@@ -754,25 +727,32 @@ def determine_recipients_by_criteria(
     if target_farmers:
         return target_farmers
 
-    # Otherwise filter from registered farmers
-    recipients = set()
+    # Convert enums to strings for database query
+    governorates_list = [g.value for g in target_governorates] if target_governorates else None
+    crops_list = [c.value for c in target_crops] if target_crops else None
 
-    for farmer_id, profile in FARMER_PROFILES.items():
-        # Filter by governorate
-        if target_governorates and profile.governorate not in target_governorates:
-            continue
+    # Query database for matching farmers
+    try:
+        profiles = await FarmerProfileRepository.find_by_criteria(
+            governorates=governorates_list,
+            crops=crops_list,
+            is_active=True,
+        )
 
-        # Filter by crops
-        if target_crops and not any(crop in profile.crops for crop in target_crops):
-            continue
+        # Extract farmer IDs
+        recipients = [profile.farmer_id for profile in profiles]
 
-        recipients.add(farmer_id)
+        # If no farmers match and no criteria specified, return all registered farmers (broadcast)
+        if not recipients and not target_governorates and not target_crops:
+            all_profiles = await FarmerProfileRepository.get_all(is_active=True, limit=1000)
+            recipients = [profile.farmer_id for profile in all_profiles]
 
-    # If no farmers match, return all registered farmers (broadcast)
-    if not recipients and not target_governorates and not target_crops:
-        return list(FARMER_PROFILES.keys())
+        return recipients
 
-    return list(recipients)
+    except Exception as e:
+        logger.error(f"Error determining recipients from database: {e}")
+        # Fallback to empty list if database query fails
+        return []
 
 
 def get_weather_alert_message(alert_type: str, governorate: Governorate) -> tuple:
@@ -1015,6 +995,12 @@ async def health_check():
     db_ok = db_health.get("connected", False)
     is_healthy = nats_ok or db_ok  # At least one critical dependency should work
 
+    # Get farmer count from database
+    try:
+        farmer_count = await FarmerProfileRepository.get_count() if db_ok else 0
+    except Exception:
+        farmer_count = 0
+
     return {
         "status": "healthy" if is_healthy else "degraded",
         "service": "notification-service",
@@ -1023,7 +1009,7 @@ async def health_check():
         "nats_connected": nats_ok,
         "database": db_health,
         "stats": db_stats,
-        "registered_farmers": len(FARMER_PROFILES),
+        "registered_farmers": farmer_count,
     }
 
 
@@ -1306,19 +1292,38 @@ async def get_broadcast_notifications(
 
 
 @app.post("/v1/farmers/register")
-def register_farmer(profile: FarmerProfile):
-    """تسجيل مزارع للإشعارات"""
-    FARMER_PROFILES[profile.farmer_id] = profile
-    FARMER_NOTIFICATIONS[profile.farmer_id] = []
+async def register_farmer(profile: FarmerProfile):
+    """تسجيل مزارع للإشعارات - Database version"""
+    try:
+        # Convert CropType enums to strings
+        crops_list = [crop.value for crop in profile.crops]
 
-    logger.info(f"👨‍🌾 Farmer registered: {profile.farmer_id} ({profile.name_ar})")
+        # Create or update farmer profile in database
+        db_profile = await FarmerProfileRepository.create(
+            farmer_id=profile.farmer_id,
+            name=profile.name,
+            name_ar=profile.name_ar,
+            governorate=profile.governorate.value,
+            district=profile.district,
+            crops=crops_list,
+            field_ids=profile.field_ids,
+            phone=profile.phone,
+            email=profile.email,
+            fcm_token=profile.fcm_token,
+            language=profile.language,
+        )
 
-    return {
-        "success": True,
-        "farmer_id": profile.farmer_id,
-        "message": "تم تسجيل المزارع بنجاح",
-        "message_en": "Farmer registered successfully",
-    }
+        logger.info(f"👨‍🌾 Farmer registered: {profile.farmer_id} ({profile.name_ar})")
+
+        return {
+            "success": True,
+            "farmer_id": profile.farmer_id,
+            "message": "تم تسجيل المزارع بنجاح",
+            "message_en": "Farmer registered successfully",
+        }
+    except Exception as e:
+        logger.error(f"Error registering farmer: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to register farmer: {str(e)}")
 
 
 @app.put("/v1/farmers/{farmer_id}/preferences")
@@ -1372,7 +1377,7 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
 
 @app.get("/v1/stats")
 async def get_notification_stats():
-    """إحصائيات الإشعارات"""
+    """إحصائيات الإشعارات - Database version"""
     db_stats = await get_db_stats()
 
     # Get additional stats from database
@@ -1393,10 +1398,17 @@ async def get_notification_stats():
         expires_at__gt=datetime.utcnow(),
     ).count()
 
+    # Get farmer count from database
+    try:
+        farmer_count = await FarmerProfileRepository.get_count()
+    except Exception as e:
+        logger.error(f"Error getting farmer count: {e}")
+        farmer_count = 0
+
     return {
         "total_notifications": db_stats.get("total_notifications", 0),
         "pending_notifications": db_stats.get("pending_notifications", 0),
-        "registered_farmers": len(FARMER_PROFILES),  # In-memory cache
+        "registered_farmers": farmer_count,
         "total_templates": db_stats.get("total_templates", 0),
         "total_preferences": db_stats.get("total_preferences", 0),
         "by_type": total_by_type,

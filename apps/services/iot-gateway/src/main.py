@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field, ValidationInfo, field_validator
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware import setup_cors
 
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
@@ -254,6 +255,44 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Setup CORS
+setup_cors(app)
+
+# Rate Limiting - Critical for IoT endpoints to prevent sensor data flooding
+try:
+    from shared.middleware.rate_limiter import setup_rate_limiting, RateLimitTier
+    from fastapi import Request
+
+    def iot_tier_func(request: Request) -> RateLimitTier:
+        """Determine rate limit tier for IoT Gateway endpoints"""
+        # Check for internal service header
+        if request.headers.get("X-Internal-Service"):
+            return RateLimitTier.INTERNAL
+
+        # Batch endpoints can have higher limits
+        if request.url.path == "/sensor/batch":
+            return RateLimitTier.PREMIUM
+
+        # Single sensor readings get standard limits
+        if request.url.path == "/sensor/reading":
+            return RateLimitTier.STANDARD
+
+        # Device management endpoints get higher limits
+        if request.url.path.startswith("/device"):
+            return RateLimitTier.PREMIUM
+
+        return RateLimitTier.STANDARD
+
+    rate_limiter = setup_rate_limiting(
+        app,
+        use_redis=os.getenv("REDIS_URL") is not None,
+        tier_func=iot_tier_func,
+        exclude_paths=["/healthz", "/health", "/stats"],
+    )
+    logger.info("Rate limiting enabled for iot-gateway")
+except ImportError:
+    logger.warning("Rate limiter not available - proceeding without rate limiting")
 
 
 # Add exception handler to prevent crashes

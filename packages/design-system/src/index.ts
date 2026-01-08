@@ -7,6 +7,9 @@
 export { tokens } from '../tokens/tokens';
 export type { TokenColors, TokenSpacing } from '../tokens/tokens';
 
+// Import tokens for internal use
+import { tokens } from '../tokens/tokens';
+
 // Utility functions
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -25,16 +28,14 @@ export function getColor(
   category: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'domain',
   shade: string
 ): string {
-  const { tokens } = require('../tokens/tokens');
-  return tokens.colors[category]?.[shade] || '';
+  return (tokens.colors[category] as Record<string, string>)?.[shade] || '';
 }
 
 /**
  * Get spacing value from tokens
  */
 export function getSpacing(size: string): string {
-  const { tokens } = require('../tokens/tokens');
-  return tokens.spacing[size] || '0';
+  return (tokens.spacing as Record<string, string>)[size] || '0';
 }
 
 // Component utilities

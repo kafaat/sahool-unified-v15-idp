@@ -1,0 +1,507 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kubernetes Configuration for PostgreSQL with WAL-G
+# تكوين Kubernetes لـ PostgreSQL مع WAL-G
+# ═══════════════════════════════════════════════════════════════════════════════
+# This file provides example Kubernetes manifests for deploying PostgreSQL
+# with WAL-G continuous archiving to S3/MinIO
+# ═══════════════════════════════════════════════════════════════════════════════
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Namespace
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sahool-database
+  labels:
+    name: sahool-database
+    environment: production
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Secret for S3/MinIO Credentials
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-walg-s3-credentials
+  namespace: sahool-database
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: "your-minio-access-key"
+  AWS_SECRET_ACCESS_KEY: "your-minio-secret-key"
+  AWS_ENDPOINT: "http://minio.sahool-storage.svc.cluster.local:9000"
+  AWS_REGION: "us-east-1"
+  WALG_S3_PREFIX: "s3://sahool-wal-archive/pg-primary"
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ConfigMap for PostgreSQL Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-walg-config
+  namespace: sahool-database
+data:
+  # WAL-G configuration
+  WALG_COMPRESSION_METHOD: "brotli"
+  WALG_DELTA_MAX_STEPS: "6"
+  WALG_UPLOAD_CONCURRENCY: "4"
+  WALG_DOWNLOAD_CONCURRENCY: "4"
+  AWS_S3_FORCE_PATH_STYLE: "true"
+  WALG_LOG_LEVEL: "INFO"
+
+  # PostgreSQL configuration snippet for WAL archiving
+  postgresql-walg.conf: |
+    # WAL Archiving Configuration
+    archive_mode = on
+    archive_command = '/usr/local/bin/wal-archive.sh %p %f'
+    archive_timeout = 1h
+    wal_level = replica
+    max_wal_senders = 10
+
+  # WAL archive script
+  wal-archive.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    WAL_PATH="$1"
+    WAL_FILE="$2"
+    LOCAL_ARCHIVE_DIR="/var/lib/postgresql/wal_archive"
+    mkdir -p "${LOCAL_ARCHIVE_DIR}"
+
+    # Use WAL-G if available
+    if command -v wal-g >/dev/null 2>&1; then
+        if wal-g wal-push "${WAL_PATH}"; then
+            cp "${WAL_PATH}" "${LOCAL_ARCHIVE_DIR}/${WAL_FILE}"
+            exit 0
+        fi
+    fi
+
+    # Fallback to local copy
+    cp "${WAL_PATH}" "${LOCAL_ARCHIVE_DIR}/${WAL_FILE}"
+
+  # WAL restore script
+  wal-restore.sh: |
+    #!/bin/bash
+    set -euo pipefail
+    WAL_FILE="$1"
+    WAL_DEST="$2"
+    LOCAL_ARCHIVE_DIR="/var/lib/postgresql/wal_archive"
+
+    # Try local archive first
+    if [ -f "${LOCAL_ARCHIVE_DIR}/${WAL_FILE}" ]; then
+        cp "${LOCAL_ARCHIVE_DIR}/${WAL_FILE}" "${WAL_DEST}"
+        exit 0
+    fi
+
+    # Try WAL-G
+    if command -v wal-g >/dev/null 2>&1; then
+        if wal-g wal-fetch "${WAL_FILE}" "${WAL_DEST}"; then
+            exit 0
+        fi
+    fi
+
+    exit 1
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# PersistentVolumeClaim for PostgreSQL Data
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-pvc
+  namespace: sahool-database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: fast-ssd  # Adjust to your storage class
+  resources:
+    requests:
+      storage: 100Gi
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# PersistentVolumeClaim for WAL Archive (Local)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-wal-archive-pvc
+  namespace: sahool-database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 50Gi
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# StatefulSet for PostgreSQL with WAL-G
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-walg
+  namespace: sahool-database
+  labels:
+    app: postgres
+    component: database
+    backup: walg
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        component: database
+        backup: walg
+    spec:
+      containers:
+      - name: postgres
+        image: sahool/postgres-walg:16-3.4  # Custom image with WAL-G
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          name: postgres
+          protocol: TCP
+
+        env:
+        # PostgreSQL credentials
+        - name: POSTGRES_USER
+          value: "sahool"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: password
+        - name: POSTGRES_DB
+          value: "sahool"
+
+        # S3/MinIO credentials from secret
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: postgres-walg-s3-credentials
+              key: AWS_ACCESS_KEY_ID
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: postgres-walg-s3-credentials
+              key: AWS_SECRET_ACCESS_KEY
+        - name: AWS_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: postgres-walg-s3-credentials
+              key: AWS_ENDPOINT
+        - name: AWS_REGION
+          valueFrom:
+            secretKeyRef:
+              name: postgres-walg-s3-credentials
+              key: AWS_REGION
+        - name: WALG_S3_PREFIX
+          valueFrom:
+            secretKeyRef:
+              name: postgres-walg-s3-credentials
+              key: WALG_S3_PREFIX
+
+        # WAL-G configuration from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: postgres-walg-config
+
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-wal-archive
+          mountPath: /var/lib/postgresql/wal_archive
+        - name: postgres-logs
+          mountPath: /var/log/postgresql
+        - name: postgres-config
+          mountPath: /etc/postgresql/conf.d
+          readOnly: true
+        - name: wal-scripts
+          mountPath: /usr/local/bin/wal-archive.sh
+          subPath: wal-archive.sh
+          readOnly: true
+        - name: wal-scripts
+          mountPath: /usr/local/bin/wal-restore.sh
+          subPath: wal-restore.sh
+          readOnly: true
+
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+          limits:
+            cpu: "4000m"
+            memory: "8Gi"
+
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pg_isready -U sahool
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - pg_isready -U sahool
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+      volumes:
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: postgres-data-pvc
+      - name: postgres-wal-archive
+        persistentVolumeClaim:
+          claimName: postgres-wal-archive-pvc
+      - name: postgres-logs
+        emptyDir: {}
+      - name: postgres-config
+        configMap:
+          name: postgres-walg-config
+          items:
+          - key: postgresql-walg.conf
+            path: postgresql-walg.conf
+      - name: wal-scripts
+        configMap:
+          name: postgres-walg-config
+          defaultMode: 0755
+          items:
+          - key: wal-archive.sh
+            path: wal-archive.sh
+          - key: wal-restore.sh
+            path: wal-restore.sh
+
+      securityContext:
+        fsGroup: 999  # postgres group
+        runAsUser: 999  # postgres user
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# Service for PostgreSQL
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: sahool-database
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
+  selector:
+    app: postgres
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# CronJob for Automated Backups
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-walg-backup
+  namespace: sahool-database
+spec:
+  # Run daily at 2 AM
+  schedule: "0 2 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: sahool/postgres-walg:16-3.4
+            command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Starting backup at $(date)"
+
+              # Wait for PostgreSQL to be ready
+              until pg_isready -h postgres -U sahool; do
+                echo "Waiting for PostgreSQL..."
+                sleep 5
+              done
+
+              # Create backup
+              echo "Creating base backup..."
+              wal-g backup-push /var/lib/postgresql/data
+
+              # List backups
+              echo "Current backups:"
+              wal-g backup-list
+
+              # Clean up old backups (keep last 7)
+              echo "Cleaning up old backups..."
+              wal-g delete retain 7 --confirm
+
+              echo "Backup completed at $(date)"
+
+            env:
+            - name: PGHOST
+              value: "postgres"
+            - name: PGUSER
+              value: "sahool"
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+
+            envFrom:
+            - secretRef:
+                name: postgres-walg-s3-credentials
+            - configMapRef:
+                name: postgres-walg-config
+
+            volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+              readOnly: true
+
+          volumes:
+          - name: postgres-data
+            persistentVolumeClaim:
+              claimName: postgres-data-pvc
+              readOnly: true
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# CronJob for Backup Verification
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-walg-verify
+  namespace: sahool-database
+spec:
+  # Run weekly on Sunday at 3 AM
+  schedule: "0 3 * * 0"
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgres-backup-verify
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: verify
+            image: sahool/postgres-walg:16-3.4
+            command:
+            - /bin/bash
+            - -c
+            - |
+              echo "Verifying backups at $(date)"
+
+              # List all backups
+              echo "Available backups:"
+              wal-g backup-list
+
+              # Get latest backup
+              LATEST_BACKUP=$(wal-g backup-list | tail -1 | awk '{print $1}')
+              echo "Latest backup: ${LATEST_BACKUP}"
+
+              # Show backup details
+              echo "Backup details:"
+              wal-g backup-show ${LATEST_BACKUP}
+
+              # Check WAL archiving status
+              echo "Checking WAL archiving..."
+              psql -h postgres -U sahool -c "SELECT * FROM pg_stat_archiver;"
+
+              echo "Verification completed at $(date)"
+
+            env:
+            - name: PGHOST
+              value: "postgres"
+            - name: PGUSER
+              value: "sahool"
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: password
+
+            envFrom:
+            - secretRef:
+                name: postgres-walg-s3-credentials
+            - configMapRef:
+                name: postgres-walg-config
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# NetworkPolicy (Optional - for security)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: postgres-network-policy
+  namespace: sahool-database
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  # Allow connections from application pods
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: sahool-apps
+    ports:
+    - protocol: TCP
+      port: 5432
+  egress:
+  # Allow connections to MinIO/S3
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: sahool-storage
+    ports:
+    - protocol: TCP
+      port: 9000
+  # Allow DNS
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53

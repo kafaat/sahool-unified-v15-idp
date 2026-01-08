@@ -15,3 +15,6 @@ fastapi==0.115.5
 
 # Pydantic (pinned for consistency)
 pydantic==2.9.2
+
+# Redis for token revocation
+redis[hiredis]==5.2.1

@@ -5,6 +5,9 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 
+// Maximum delay between reconnection attempts (30 seconds)
+const MAX_RECONNECT_DELAY = 30000;
+
 export interface WSMessage<T = unknown> {
   type: string;
   payload: T;
@@ -72,9 +75,12 @@ export function useWebSocket({
         setIsConnected(false);
         onDisconnect?.();
 
-        // Auto-reconnect with backoff
+        // Auto-reconnect with exponential backoff (capped at MAX_RECONNECT_DELAY)
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
-          const delay = reconnectInterval * Math.pow(1.5, reconnectAttemptsRef.current);
+          const delay = Math.min(
+            reconnectInterval * Math.pow(1.5, reconnectAttemptsRef.current),
+            MAX_RECONNECT_DELAY
+          );
           reconnectAttemptsRef.current++;
           reconnectTimeoutRef.current = setTimeout(connect, delay);
         }

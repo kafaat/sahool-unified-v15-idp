@@ -1,0 +1,77 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - PostgreSQL WAL-G Archiving Configuration
+# Docker Compose Override for WAL Archiving to S3/MinIO
+# ═══════════════════════════════════════════════════════════════════════════════
+# Usage:
+#   docker-compose -f docker-compose.yml -f docker-compose.walg.yml up -d
+#
+# This overlay adds WAL-G continuous archiving to the main PostgreSQL service
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PostgreSQL with WAL-G Support
+  # ─────────────────────────────────────────────────────────────────────────────
+  postgres:
+    # Use custom image with WAL-G installed
+    build:
+      context: ./config/postgres
+      dockerfile: Dockerfile.walg
+    # Override image to use our custom build
+    image: sahool/postgres-walg:16-3.4
+
+    # Add WAL-G environment variables
+    environment:
+      # PostgreSQL credentials (inherited from base)
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+
+      # WAL-G S3 Configuration
+      WALG_S3_PREFIX: ${WALG_S3_PREFIX:-s3://sahool-wal-archive/pg-primary}
+
+      # S3/MinIO Connection
+      AWS_ENDPOINT: ${AWS_ENDPOINT:-${S3_ENDPOINT:-http://minio:9000}}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-${S3_ACCESS_KEY:-${MINIO_ROOT_USER}}}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-${S3_SECRET_KEY:-${MINIO_ROOT_PASSWORD}}}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_S3_FORCE_PATH_STYLE: "true"
+
+      # WAL-G Performance Settings
+      WALG_COMPRESSION_METHOD: ${WALG_COMPRESSION_METHOD:-brotli}
+      WALG_DELTA_MAX_STEPS: ${WALG_DELTA_MAX_STEPS:-6}
+      WALG_UPLOAD_CONCURRENCY: ${WALG_UPLOAD_CONCURRENCY:-4}
+      WALG_DOWNLOAD_CONCURRENCY: ${WALG_DOWNLOAD_CONCURRENCY:-4}
+
+      # WAL Archive Settings
+      WAL_ARCHIVE_ENABLED: ${WAL_ARCHIVE_ENABLED:-true}
+      WAL_ARCHIVE_LOG: /var/log/postgresql/wal-archive.log
+      WAL_RESTORE_LOG: /var/log/postgresql/wal-restore.log
+
+      # Backup Retention
+      WALG_RETAIN_BACKUPS: ${WALG_RETAIN_BACKUPS:-7}
+      WALG_RETAIN_AFTER_DAYS: ${WALG_RETAIN_AFTER_DAYS:-30}
+
+    # Add volumes for WAL archiving
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - postgres_wal_archive:/var/lib/postgresql/wal_archive
+      - postgres_logs:/var/log/postgresql
+      - ./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./config/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      - ./config/postgres/scripts:/usr/local/bin:ro
+
+    # Override command to use custom config
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+
+volumes:
+  # Additional volumes for WAL-G
+  postgres_wal_archive:
+    driver: local
+  postgres_logs:
+    driver: local

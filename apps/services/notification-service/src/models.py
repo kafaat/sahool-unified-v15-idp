@@ -328,3 +328,163 @@ class NotificationLog(Model):
 
     def __str__(self):
         return f"NotificationLog({self.notification_id}, {self.channel}, {self.status})"
+
+
+class FarmerProfile(Model):
+    """
+    نموذج ملف المزارع
+    Farmer Profile - stores farmer information for personalized notifications
+    """
+
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=100, index=True, null=True)
+
+    # Farmer identification
+    farmer_id = fields.CharField(
+        max_length=100,
+        unique=True,
+        index=True,
+        description="Unique farmer identifier (from auth system)",
+    )
+
+    # Basic information
+    name = fields.CharField(max_length=255, description="Farmer name (English)")
+    name_ar = fields.CharField(max_length=255, null=True, description="Farmer name (Arabic)")
+
+    # Location
+    governorate = fields.CharField(
+        max_length=50,
+        index=True,
+        description="Governorate (sanaa, aden, taiz, etc.)",
+    )
+    district = fields.CharField(max_length=100, null=True, description="District/Area")
+
+    # Contact information
+    phone = fields.CharField(max_length=20, null=True, description="Phone number for SMS/WhatsApp")
+    email = fields.CharField(max_length=255, null=True, description="Email address")
+    fcm_token = fields.CharField(
+        max_length=500,
+        null=True,
+        description="Firebase Cloud Messaging token for push notifications",
+    )
+
+    # Preferences
+    language = fields.CharField(
+        max_length=5,
+        default="ar",
+        description="Preferred language (ar, en)",
+    )
+
+    # Status
+    is_active = fields.BooleanField(default=True, index=True, description="Whether profile is active")
+
+    # Metadata
+    metadata = fields.JSONField(null=True, description="Additional farmer metadata")
+
+    # Timestamps
+    created_at = fields.DatetimeField(auto_now_add=True, index=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+    last_login_at = fields.DatetimeField(
+        null=True,
+        description="Last time farmer logged in or interacted",
+    )
+
+    class Meta:
+        table = "farmer_profiles"
+        ordering = ["-created_at"]
+        indexes = [
+            ("tenant_id", "farmer_id"),
+            ("governorate", "is_active"),
+        ]
+
+    def __str__(self):
+        return f"FarmerProfile({self.farmer_id}, {self.name_ar or self.name})"
+
+
+class FarmerCrop(Model):
+    """
+    نموذج محاصيل المزارع
+    Farmer Crop - junction table for farmer's crops
+    """
+
+    id = fields.UUIDField(pk=True)
+    farmer = fields.ForeignKeyField(
+        "models.FarmerProfile",
+        related_name="farmer_crops",
+        on_delete=fields.CASCADE,
+    )
+
+    # Crop information
+    crop_type = fields.CharField(
+        max_length=50,
+        index=True,
+        description="Crop type (tomato, wheat, coffee, etc.)",
+    )
+
+    # Optional: specific crop details
+    area_hectares = fields.FloatField(
+        null=True,
+        description="Cultivated area in hectares",
+    )
+    planting_date = fields.DateField(null=True, description="When the crop was planted")
+    harvest_date = fields.DateField(null=True, description="Expected harvest date")
+
+    # Status
+    is_active = fields.BooleanField(default=True, description="Whether this crop is still active")
+
+    # Timestamps
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "farmer_crops"
+        unique_together = (("farmer_id", "crop_type"),)
+        indexes = [
+            ("crop_type", "is_active"),
+        ]
+
+    def __str__(self):
+        return f"FarmerCrop({self.farmer_id}, {self.crop_type})"
+
+
+class FarmerField(Model):
+    """
+    نموذج حقول المزارع
+    Farmer Field - junction table for farmer's field IDs
+    """
+
+    id = fields.UUIDField(pk=True)
+    farmer = fields.ForeignKeyField(
+        "models.FarmerProfile",
+        related_name="farmer_fields",
+        on_delete=fields.CASCADE,
+    )
+
+    # Field information
+    field_id = fields.CharField(
+        max_length=100,
+        index=True,
+        description="Field identifier (from field management system)",
+    )
+    field_name = fields.CharField(max_length=255, null=True, description="Field name/label")
+
+    # Location (optional, can be more specific than farmer's general location)
+    latitude = fields.FloatField(null=True, description="Field latitude")
+    longitude = fields.FloatField(null=True, description="Field longitude")
+
+    # Status
+    is_active = fields.BooleanField(default=True, description="Whether this field is still active")
+
+    # Timestamps
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "farmer_fields"
+        unique_together = (("farmer_id", "field_id"),)
+        indexes = [
+            ("field_id", "is_active"),
+        ]
+
+    def __str__(self):
+        return f"FarmerField({self.farmer_id}, {self.field_id})"

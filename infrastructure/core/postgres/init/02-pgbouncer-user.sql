@@ -2,6 +2,11 @@
 -- Create PgBouncer user for auth_query
 -- This user is used by PgBouncer to query PostgreSQL for password verification
 -- Supports SCRAM-SHA-256 authentication (PostgreSQL 16 default)
+--
+-- AUTHENTICATION METHOD: SCRAM-SHA-256
+-- - PostgreSQL password_encryption = scram-sha-256 (postgresql.conf line 133)
+-- - pg_hba.conf uses scram-sha-256 for all authentication methods
+-- - PgBouncer auth_type = scram-sha-256 (upgraded from md5)
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Create pgbouncer user if it doesn't exist
@@ -80,7 +85,18 @@ ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
 -- Grant execute permission to pgbouncer user
 GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO pgbouncer;
 
+-- Grant execute permission to sahool user (used as auth_user in PgBouncer config)
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'sahool') THEN
+        GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO sahool;
+        RAISE NOTICE 'Granted EXECUTE on pgbouncer.get_auth() to sahool user';
+    END IF;
+END
+$$;
+
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Note for pgbouncer.ini auth_query:
 -- Use: auth_query = SELECT usename, passwd FROM pgbouncer.get_auth($1)
+-- This function returns SCRAM-SHA-256 password hashes from pg_shadow
 -- ═══════════════════════════════════════════════════════════════════════════════

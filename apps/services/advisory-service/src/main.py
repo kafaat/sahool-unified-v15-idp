@@ -90,11 +90,22 @@ from .kb import (
 )
 
 
+# Import token revocation
+try:
+    from auth.token_revocation import get_revocation_store
+    from auth.revocation_middleware import TokenRevocationMiddleware
+
+    REVOCATION_AVAILABLE = True
+except ImportError:
+    REVOCATION_AVAILABLE = False
+
+
 # Lifespan context manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup - initialize state first to avoid AttributeError
     app.state.publisher = None
+    app.state.revocation_store = None
     print("🌱 Starting Agro Advisor Service...")
     try:
         publisher = await get_publisher()
@@ -103,11 +114,23 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️ NATS connection failed (running without events): {e}")
 
+    # Initialize token revocation store
+    if REVOCATION_AVAILABLE:
+        try:
+            revocation_store = get_revocation_store()
+            await revocation_store.initialize()
+            app.state.revocation_store = revocation_store
+            print("✅ Token revocation store initialized")
+        except Exception as e:
+            print(f"⚠️ Token revocation store failed (running without revocation): {e}")
+
     yield
 
     # Shutdown
     if getattr(app.state, "publisher", None):
         await app.state.publisher.close()
+    if getattr(app.state, "revocation_store", None):
+        await app.state.revocation_store.close()
     print("👋 Agro Advisor shutting down")
 
 
@@ -121,6 +144,13 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Add token revocation middleware
+if REVOCATION_AVAILABLE:
+    app.add_middleware(
+        TokenRevocationMiddleware,
+        exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
+    )
 
 
 # ============== Health Check ==============

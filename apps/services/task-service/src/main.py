@@ -427,12 +427,41 @@ async def startup_event():
         logger.error(f"Failed to initialize database: {e}", exc_info=True)
         # Don't raise - allow service to start even if DB fails
 
+    # Initialize NATS connection
+    nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
+    logger.info(f"Connecting to NATS at {nats_url}...")
+    try:
+        sys.path.insert(0, os.path.dirname(__file__))
+        from events import NatsPublisher
+        from events.nats_publisher import set_publisher
+
+        publisher = NatsPublisher()
+        connected = await publisher.connect(nats_url)
+        if connected:
+            set_publisher(publisher)
+            app.state.nats_publisher = publisher
+            logger.info(f"✅ NATS connected: {nats_url}")
+        else:
+            app.state.nats_publisher = None
+            logger.warning(f"⚠️ NATS connection failed: {nats_url}")
+    except Exception as e:
+        logger.warning(f"⚠️ NATS connection error: {e}")
+        app.state.nats_publisher = None
+
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """Close database connections"""
     logger.info("Closing task-service database connections...")
     close_database()
+
+    # Disconnect from NATS
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            await app.state.nats_publisher.disconnect()
+            logger.info("✅ NATS disconnected")
+        except Exception as e:
+            logger.error(f"❌ Error disconnecting from NATS: {e}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1012,7 +1041,18 @@ async def validate_and_enrich_task_with_astronomy(task: Task, task_type: TaskTyp
 @app.get("/healthz")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "service": SERVICE_NAME}
+    nats_status = "disconnected"
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        nats_status = "connected" if app.state.nats_publisher.connected else "disconnected"
+
+    return {
+        "status": "healthy",
+        "service": SERVICE_NAME,
+        "dependencies": {
+            "database": "connected",  # Assuming DB is connected if service started
+            "nats": nats_status,
+        },
+    }
 
 
 @app.get("/api/v1/tasks", response_model=dict)
@@ -1198,6 +1238,24 @@ async def create_task(
         task.astronomical_recommendation = data.astronomical_recommendation
 
     tasks_db[task_id] = task
+
+    # Publish task created event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_created
+
+            await publish_task_created(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                task_type=task.task_type.value,
+                priority=task.priority.value,
+                field_id=task.field_id,
+                assigned_to=task.assigned_to,
+                due_date=task.due_date.isoformat() if task.due_date else None,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_created event: {e}")
+
     return task
 
 
@@ -1222,6 +1280,20 @@ async def update_task(
 
     task.updated_at = datetime.utcnow()
     tasks_db[task_id] = task
+
+    # Publish task updated event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_updated
+
+            await publish_task_updated(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                changes=update_data,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_updated event: {e}")
+
     return task
 
 
@@ -1262,6 +1334,21 @@ async def complete_task(
         task.metadata = {**(task.metadata or {}), **data.completion_metadata}
 
     tasks_db[task_id] = task
+
+    # Publish task completed event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_completed
+
+            await publish_task_completed(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                completed_by=task.assigned_to or "system",
+                actual_duration_minutes=data.actual_duration_minutes,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_completed event: {e}")
+
     return task
 
 
@@ -1281,6 +1368,20 @@ async def start_task(
     task.status = TaskStatus.IN_PROGRESS
     task.updated_at = datetime.utcnow()
     tasks_db[task_id] = task
+
+    # Publish task started event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_started
+
+            await publish_task_started(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                started_by=task.assigned_to or "system",
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_started event: {e}")
+
     return task
 
 
@@ -1301,6 +1402,21 @@ async def cancel_task(
         task.metadata = {**(task.metadata or {}), "cancel_reason": reason}
 
     tasks_db[task_id] = task
+
+    # Publish task cancelled event
+    if hasattr(app.state, "nats_publisher") and app.state.nats_publisher:
+        try:
+            from events import publish_task_cancelled
+
+            await publish_task_cancelled(
+                task_id=task_id,
+                tenant_id=tenant_id,
+                cancelled_by=task.assigned_to or "system",
+                reason=reason,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish task_cancelled event: {e}")
+
     return task
 
 

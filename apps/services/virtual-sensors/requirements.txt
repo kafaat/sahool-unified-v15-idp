@@ -9,7 +9,7 @@ python-multipart==0.0.18
 
 # Data Validation
 pydantic==2.9.2
-pydantic-settings==2.6.1
+pydantic-settings==2.7.1
 
 # HTTP Client (for weather integration)
 httpx==0.28.1

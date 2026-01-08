@@ -29,7 +29,8 @@ RUN npm install --legacy-peer-deps && npm run build
 # Return to app directory and install dependencies
 WORKDIR /app
 COPY apps/services/field-management-service/package.json ./
-RUN npm install --legacy-peer-deps
+COPY apps/services/field-management-service/package-lock.json ./
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # Copy Prisma schema and generate client
 COPY apps/services/field-management-service/prisma ./prisma
@@ -70,8 +71,10 @@ RUN npm install -g npm@11.7.0
 COPY --from=builder /app/packages ./packages
 
 # Copy package files and install production dependencies
+# NOTE: Using npm ci for deterministic builds with package-lock.json
 COPY --from=builder /app/package.json ./
-RUN npm install --omit=dev --legacy-peer-deps
+COPY --from=builder /app/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps || npm install --omit=dev --legacy-peer-deps
 
 # Copy Prisma schema and regenerate client for production environment
 # Add retry logic for network resilience

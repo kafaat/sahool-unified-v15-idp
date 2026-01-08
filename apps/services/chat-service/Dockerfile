@@ -43,9 +43,12 @@ WORKDIR /app
 # Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
 RUN apk add --no-cache curl openssl openssl-dev
 
-# Copy package files
+# Copy package files and install production dependencies
+# NOTE: Using npm ci for deterministic builds with package-lock.json
 COPY apps/services/chat-service/package.json ./
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+COPY apps/services/chat-service/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
 COPY --from=builder /workspace/chat-service/prisma ./prisma/

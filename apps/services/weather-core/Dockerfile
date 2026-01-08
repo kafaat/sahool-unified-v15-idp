@@ -39,12 +39,13 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY apps/services/weather-core/requirements.txt .
 
-# Copy shared libraries
+# Copy shared libraries (required for shared.errors_py, shared.logging_config, shared.auth)
+COPY shared/ ./shared/
 
 # Copy source
-COPY src/ ./src/
+COPY apps/services/weather-core/src/ ./src/
 
 # Install dependencies and set ownership
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \

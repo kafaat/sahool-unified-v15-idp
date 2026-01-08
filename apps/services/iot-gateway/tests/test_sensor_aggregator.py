@@ -67,7 +67,9 @@ class TestSensorAggregator(unittest.TestCase):
         )
         readings.append(outlier)
 
-        outliers = self.aggregator.detect_outliers(readings, method="zscore", threshold=2.0)
+        outliers = self.aggregator.detect_outliers(
+            readings, method="zscore", threshold=2.0
+        )
 
         # يجب أن يكتشف على الأقل قيمة شاذة واحدة
         # Should detect at least one outlier
@@ -331,7 +333,9 @@ class TestSensorAggregator(unittest.TestCase):
         # المجموع التراكمي يجب أن يساوي مجموع القيم
         # Cumulative sum should equal sum of values
         self.assertIsNotNone(aggregated.cumulative_sum)
-        self.assertAlmostEqual(aggregated.cumulative_sum, sum(rainfall_values), places=1)
+        self.assertAlmostEqual(
+            aggregated.cumulative_sum, sum(rainfall_values), places=1
+        )
 
 
 class TestSensorReadingModel(unittest.TestCase):

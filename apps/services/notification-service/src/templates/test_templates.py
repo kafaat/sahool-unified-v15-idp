@@ -153,7 +153,9 @@ def test_sms_formatting():
         "confidence": 92,
     }
 
-    sms = manager.format_for_sms("disease_detected", context, language="ar", max_length=160)
+    sms = manager.format_for_sms(
+        "disease_detected", context, language="ar", max_length=160
+    )
 
     print(f"✓ SMS Text ({len(sms)} chars): {sms}")
 
@@ -255,8 +257,12 @@ def test_convenience_function():
     }
 
     # Test different channels
-    push = render_notification("irrigation_reminder", context, "ar", NotificationChannel.PUSH)
-    sms = render_notification("irrigation_reminder", context, "ar", NotificationChannel.SMS)
+    push = render_notification(
+        "irrigation_reminder", context, "ar", NotificationChannel.PUSH
+    )
+    sms = render_notification(
+        "irrigation_reminder", context, "ar", NotificationChannel.SMS
+    )
 
     print(f"✓ Push: {push['notification']['title']}")
     print(f"✓ SMS: {sms[:50]}...")
@@ -267,10 +273,18 @@ def test_convenience_function():
 def run_all_tests():
     """Run all tests"""
     print("\n")
-    print("╔════════════════════════════════════════════════════════════════════════════╗")
-    print("║  SAHOOL Notification Template System - Test Suite                         ║")
-    print("║  نظام قوالب الإشعارات - مجموعة الاختبارات                                ║")
-    print("╚════════════════════════════════════════════════════════════════════════════╝")
+    print(
+        "╔════════════════════════════════════════════════════════════════════════════╗"
+    )
+    print(
+        "║  SAHOOL Notification Template System - Test Suite                         ║"
+    )
+    print(
+        "║  نظام قوالب الإشعارات - مجموعة الاختبارات                                ║"
+    )
+    print(
+        "╚════════════════════════════════════════════════════════════════════════════╝"
+    )
     print()
 
     tests = [

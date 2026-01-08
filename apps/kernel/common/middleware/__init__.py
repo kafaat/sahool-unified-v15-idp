@@ -52,4 +52,6 @@ __all__ = [
 
 __version__ = "1.0.0"
 __author__ = "SAHOOL Development Team"
-__description__ = "Advanced rate limiting middleware with multiple strategies and Redis support"
+__description__ = (
+    "Advanced rate limiting middleware with multiple strategies and Redis support"
+)

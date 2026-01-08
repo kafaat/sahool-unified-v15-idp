@@ -14,12 +14,12 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'apps/frontend/**'
+      - 'apps/web/**'
       - 'apps/mobile/**'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'apps/frontend/**'
+      - 'apps/web/**'
       - 'apps/mobile/**'
   workflow_dispatch:
 
@@ -31,7 +31,7 @@ jobs:
   lighthouse-web:
     name: Web Performance Audit
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('apps/frontend/web/**') != '' }}
+    if: ${{ hashFiles('apps/web/**') != '' }}
 
     steps:
       - name: Checkout code
@@ -42,14 +42,14 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: 'apps/frontend/web/package-lock.json'
+          cache-dependency-path: 'apps/web/package-lock.json'
 
       - name: Install dependencies
-        working-directory: apps/frontend/web
+        working-directory: apps/web
         run: npm ci || npm install
 
       - name: Build application
-        working-directory: apps/frontend/web
+        working-directory: apps/web
         run: npm run build
         env:
           CI: true
@@ -101,6 +101,9 @@ jobs:
 
       - name: Install Lighthouse
         run: npm install -g @lhci/cli
+
+      - name: Install serve
+        run: npm install -g serve
 
       - name: Serve and audit
         working-directory: apps/mobile

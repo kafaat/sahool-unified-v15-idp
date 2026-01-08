@@ -53,12 +53,15 @@ jobs:
         run: |
           echo "🔍 Scanning for hardcoded secrets..."
 
+          FOUND=0
+
           # Check for private keys
           if grep -rn "-----BEGIN.*PRIVATE KEY-----" \
             --include="*.py" --include="*.js" --include="*.ts" \
             --include="*.yml" --include="*.yaml" \
             --exclude-dir=".git" --exclude-dir="node_modules" . 2>/dev/null; then
             echo "❌ Found embedded private keys"
+            FOUND=1
           fi
 
           # Check for AWS credentials
@@ -66,6 +69,7 @@ jobs:
             --include="*.py" --include="*.js" --include="*.ts" \
             --exclude-dir=".git" --exclude-dir="node_modules" . 2>/dev/null; then
             echo "❌ Found AWS Access Key"
+            FOUND=1
           fi
 
           # Check for API keys
@@ -74,6 +78,11 @@ jobs:
             --exclude-dir=".git" --exclude-dir="node_modules" \
             --exclude="*test*" . 2>/dev/null | grep -v "getenv" | grep -v "environ"; then
             echo "❌ Found hardcoded API keys"
+            FOUND=1
+          fi
+
+          if [ $FOUND -eq 1 ]; then
+            exit 1
           fi
 
           echo "✅ No secrets detected"
@@ -109,6 +118,7 @@ jobs:
 
           if [ $FOUND -eq 1 ]; then
             echo "⚠️  Sensitive files detected (informational only)"
+            exit 1
           fi
 
           echo "✅ No sensitive files found"
@@ -524,8 +534,11 @@ jobs:
       - dependency-scan-nodejs
       - sast-python
       - sast-semgrep
+      - sast-codeql
+      - container-scan
       - dockerfile-scan
       - iac-scan
+      - dependabot-check
     if: always()
     steps:
       - name: Generate security summary
@@ -555,7 +568,7 @@ jobs:
           echo "- Ensure all Dockerfiles follow best practices" >> $GITHUB_STEP_SUMMARY
 
       - name: Notify on critical findings
-        if: ${{ failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && secrets.SLACK_WEBHOOK_URL != '' }}
+        if: ${{ failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
         uses: 8398a7/action-slack@v3
         with:
           status: custom

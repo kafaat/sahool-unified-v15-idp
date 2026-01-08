@@ -1,0 +1,31 @@
+{{/*
+# ============================================================================
+# Service Template for Sahool Services
+# قالب الخدمة لخدمات سهول
+# ============================================================================
+*/}}
+{{- range $serviceName, $service := .Values.services }}
+{{- if $service.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $service.name }}
+  labels:
+    {{- include "sahool.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $service.name }}
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ $service.port | default 8000 }}"
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ $service.port | default 8000 }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ $service.name }}
+    {{- include "sahool.selectorLabels" $ | nindent 4 }}
+{{- end }}
+{{- end }}

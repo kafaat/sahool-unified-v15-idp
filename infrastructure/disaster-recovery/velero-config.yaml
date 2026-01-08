@@ -1,0 +1,190 @@
+# ============================================================================
+# Velero Backup Configuration for Sahool Platform
+# تكوين Velero للنسخ الاحتياطي لمنصة سهول
+# ============================================================================
+
+# Velero Installation (using Helm)
+# helm install velero vmware-tanzu/velero \
+#   --namespace velero \
+#   --create-namespace \
+#   -f velero-config.yaml
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: velero
+  labels:
+    app.kubernetes.io/name: velero
+    app.kubernetes.io/part-of: sahool-dr
+---
+# Backup Storage Location
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: sahool-backup-primary
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: sahool-dr
+spec:
+  provider: aws
+  default: true
+  objectStorage:
+    bucket: sahool-velero-backups
+    prefix: riyadh
+  config:
+    region: me-south-1
+    s3ForcePathStyle: "true"
+  credential:
+    name: velero-credentials
+    key: cloud
+---
+# Secondary Backup Location (Jeddah)
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  name: sahool-backup-secondary
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: sahool-dr
+spec:
+  provider: aws
+  objectStorage:
+    bucket: sahool-velero-backups-jeddah
+    prefix: jeddah
+  config:
+    region: me-south-1
+    s3ForcePathStyle: "true"
+  credential:
+    name: velero-credentials
+    key: cloud
+---
+# Volume Snapshot Location
+apiVersion: velero.io/v1
+kind: VolumeSnapshotLocation
+metadata:
+  name: sahool-snapshots
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: sahool-dr
+spec:
+  provider: aws
+  config:
+    region: me-south-1
+---
+# Scheduled Backup - Daily Full Backup
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: sahool-daily-backup
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: sahool-dr
+spec:
+  # Every day at 2:00 AM (KSA time = UTC+3)
+  schedule: "0 23 * * *"
+  template:
+    # Include sahool namespaces
+    includedNamespaces:
+      - sahool
+      - sahool-staging
+    # Exclude test/temp resources
+    excludedResources:
+      - events
+      - events.events.k8s.io
+    # Include PVs
+    snapshotVolumes: true
+    # Storage location
+    storageLocation: sahool-backup-primary
+    volumeSnapshotLocations:
+      - sahool-snapshots
+    # TTL - keep backups for 30 days
+    ttl: 720h
+    # Labels
+    metadata:
+      labels:
+        backup-type: daily
+        environment: production
+---
+# Scheduled Backup - Hourly Incremental
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: sahool-hourly-backup
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: sahool-dr
+spec:
+  # Every hour
+  schedule: "0 * * * *"
+  template:
+    includedNamespaces:
+      - sahool
+    # Only config maps and secrets (stateless backup)
+    includedResources:
+      - configmaps
+      - secrets
+      - deployments
+      - services
+      - ingresses
+    snapshotVolumes: false
+    storageLocation: sahool-backup-primary
+    ttl: 168h  # 7 days
+    metadata:
+      labels:
+        backup-type: hourly
+---
+# Scheduled Backup - Weekly Full (to secondary region)
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: sahool-weekly-dr-backup
+  namespace: velero
+  labels:
+    app.kubernetes.io/part-of: sahool-dr
+spec:
+  # Every Friday at 1:00 AM (before weekend)
+  schedule: "0 22 * * 4"
+  template:
+    includedNamespaces:
+      - sahool
+      - sahool-staging
+      - observability
+    snapshotVolumes: true
+    # Store in secondary region for DR
+    storageLocation: sahool-backup-secondary
+    volumeSnapshotLocations:
+      - sahool-snapshots
+    ttl: 2160h  # 90 days
+    metadata:
+      labels:
+        backup-type: weekly-dr
+        region: jeddah
+---
+# Pre-backup Hook for Database Consistency
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: velero-backup-hooks
+  namespace: velero
+data:
+  pre-backup.sh: |
+    #!/bin/bash
+    # Flush PostgreSQL WAL before backup
+    psql -h $DATABASE_HOST -U $DATABASE_USER -c "SELECT pg_switch_wal();"
+
+    # Create checkpoint
+    psql -h $DATABASE_HOST -U $DATABASE_USER -c "CHECKPOINT;"
+
+    echo "Pre-backup tasks completed"
+
+  post-backup.sh: |
+    #!/bin/bash
+    # Verify backup
+    velero backup describe $BACKUP_NAME
+
+    # Send notification
+    curl -X POST $SLACK_WEBHOOK \
+      -H 'Content-Type: application/json' \
+      -d '{"text":"✅ Sahool backup completed: '$BACKUP_NAME'"}'
+
+    echo "Post-backup tasks completed"

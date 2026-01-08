@@ -1,0 +1,123 @@
+# ============================================================================
+# ArgoCD Application - Sahool Platform
+# تطبيق ArgoCD - منصة سهول
+# ============================================================================
+# GitOps deployment for Sahool Platform
+# نشر GitOps لمنصة سهول
+# ============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sahool-platform
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: sahool-platform
+    app.kubernetes.io/part-of: sahool
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: sahool
+
+  source:
+    repoURL: https://github.com/kafaat/sahool-unified-v15-idp.git
+    targetRevision: main
+    path: infrastructure/helm/sahool-platform
+
+    helm:
+      releaseName: sahool
+      valueFiles:
+        - values.yaml
+        - values-production.yaml
+
+      # Override specific values
+      parameters:
+        - name: global.environment
+          value: production
+        - name: global.imageRegistry
+          value: ghcr.io
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sahool
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - ApplyOutOfSyncOnly=true
+      - Validate=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Ignore differences for specific fields
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+    - group: autoscaling
+      kind: HorizontalPodAutoscaler
+      jsonPointers:
+        - /spec/minReplicas
+        - /spec/maxReplicas
+
+  # Health checks
+  revisionHistoryLimit: 10
+---
+# ============================================================================
+# ArgoCD Application - Sahool Staging
+# تطبيق ArgoCD - بيئة التجريب
+# ============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sahool-platform-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: sahool-platform
+    app.kubernetes.io/part-of: sahool
+    environment: staging
+spec:
+  project: sahool
+
+  source:
+    repoURL: https://github.com/kafaat/sahool-unified-v15-idp.git
+    targetRevision: develop
+    path: infrastructure/helm/sahool-platform
+
+    helm:
+      releaseName: sahool-staging
+      valueFiles:
+        - values.yaml
+        - values-staging.yaml
+
+      parameters:
+        - name: global.environment
+          value: staging
+        - name: autoscaling.minReplicas
+          value: "1"
+        - name: autoscaling.maxReplicas
+          value: "3"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sahool-staging
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

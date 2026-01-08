@@ -1,0 +1,226 @@
+# ============================================================================
+# OpenTelemetry Collector Configuration
+# تكوين جامع OpenTelemetry
+# ============================================================================
+# Unified telemetry collection for traces, metrics, and logs
+# جمع موحد للتتبع والمقاييس والسجلات
+# ============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: observability
+  labels:
+    app: otel-collector
+    app.kubernetes.io/name: otel-collector
+    app.kubernetes.io/part-of: sahool-observability
+data:
+  collector.yaml: |
+    # Receivers - مستقبلات البيانات
+    receivers:
+      # OTLP receiver for traces, metrics, and logs
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+            cors:
+              allowed_origins:
+                - "https://*.sahool.sa"
+                - "http://localhost:*"
+
+      # Prometheus receiver for scraping metrics
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: 'sahool-services'
+              kubernetes_sd_configs:
+                - role: pod
+              relabel_configs:
+                - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+                  action: keep
+                  regex: true
+                - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+                  action: replace
+                  target_label: __metrics_path__
+                  regex: (.+)
+                - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+                  action: replace
+                  regex: ([^:]+)(?::\d+)?;(\d+)
+                  replacement: $$1:$$2
+                  target_label: __address__
+
+      # Jaeger receiver for backward compatibility
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:14250
+          thrift_http:
+            endpoint: 0.0.0.0:14268
+          thrift_compact:
+            endpoint: 0.0.0.0:6831
+
+      # Zipkin receiver
+      zipkin:
+        endpoint: 0.0.0.0:9411
+
+      # Host metrics for infrastructure monitoring
+      hostmetrics:
+        collection_interval: 30s
+        scrapers:
+          cpu:
+          memory:
+          disk:
+          network:
+          load:
+
+      # Kubernetes cluster metrics
+      k8s_cluster:
+        collection_interval: 30s
+
+    # Processors - معالجات البيانات
+    processors:
+      # Batch processor for efficiency
+      batch:
+        send_batch_size: 1000
+        timeout: 10s
+        send_batch_max_size: 1500
+
+      # Memory limiter to prevent OOM
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: 1500
+        spike_limit_mib: 500
+
+      # Resource detection
+      resourcedetection:
+        detectors: [env, system, docker, gcp, ec2, eks, azure, aks]
+        timeout: 5s
+        override: false
+
+      # Attributes processor for adding metadata
+      attributes:
+        actions:
+          - key: environment
+            value: production
+            action: upsert
+          - key: platform
+            value: sahool
+            action: upsert
+          - key: region
+            value: me-south-1
+            action: upsert
+
+      # Tail-based sampling for traces
+      tail_sampling:
+        decision_wait: 10s
+        num_traces: 100000
+        expected_new_traces_per_sec: 1000
+        policies:
+          # Always sample errors
+          - name: errors-policy
+            type: status_code
+            status_code:
+              status_codes: [ERROR]
+          # Sample slow requests
+          - name: latency-policy
+            type: latency
+            latency:
+              threshold_ms: 1000
+          # Probabilistic sampling for normal requests
+          - name: probabilistic-policy
+            type: probabilistic
+            probabilistic:
+              sampling_percentage: 10
+
+      # Filter processor
+      filter:
+        metrics:
+          exclude:
+            match_type: regexp
+            metric_names:
+              - ".*_temp_.*"
+
+    # Exporters - مصدرات البيانات
+    exporters:
+      # Debug exporter
+      debug:
+        verbosity: detailed
+        sampling_initial: 5
+        sampling_thereafter: 200
+
+      # Prometheus exporter
+      prometheus:
+        endpoint: "0.0.0.0:8889"
+        namespace: sahool
+        const_labels:
+          platform: sahool
+        resource_to_telemetry_conversion:
+          enabled: true
+
+      # Jaeger exporter for traces
+      jaeger:
+        endpoint: jaeger-collector.observability.svc:14250
+        tls:
+          insecure: true
+
+      # OTLP exporter to Tempo (alternative)
+      otlp:
+        endpoint: tempo.observability.svc:4317
+        tls:
+          insecure: true
+
+      # Loki exporter for logs
+      loki:
+        endpoint: http://loki.observability.svc:3100/loki/api/v1/push
+        labels:
+          attributes:
+            service.name: "service_name"
+            service.namespace: "service_namespace"
+          resource:
+            environment: "environment"
+
+    # Extensions
+    extensions:
+      # Health check
+      health_check:
+        endpoint: 0.0.0.0:13133
+
+      # Performance profiler
+      pprof:
+        endpoint: 0.0.0.0:1777
+
+      # zPages for debugging
+      zpages:
+        endpoint: 0.0.0.0:55679
+
+    # Service configuration
+    service:
+      extensions: [health_check, pprof, zpages]
+
+      pipelines:
+        # Traces pipeline
+        traces:
+          receivers: [otlp, jaeger, zipkin]
+          processors: [memory_limiter, resourcedetection, attributes, tail_sampling, batch]
+          exporters: [jaeger, otlp]
+
+        # Metrics pipeline
+        metrics:
+          receivers: [otlp, prometheus, hostmetrics, k8s_cluster]
+          processors: [memory_limiter, resourcedetection, attributes, filter, batch]
+          exporters: [prometheus]
+
+        # Logs pipeline
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, resourcedetection, attributes, batch]
+          exporters: [loki]
+
+      telemetry:
+        logs:
+          level: info
+        metrics:
+          address: 0.0.0.0:8888

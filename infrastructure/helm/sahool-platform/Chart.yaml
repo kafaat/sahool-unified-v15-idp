@@ -1,0 +1,46 @@
+# ============================================================================
+# Sahool Platform Helm Chart
+# مخطط Helm لمنصة سهول
+# ============================================================================
+apiVersion: v2
+name: sahool-platform
+description: |
+  منصة سهول للذكاء الزراعي - Helm Chart شامل لنشر جميع الخدمات
+  Sahool Agricultural Intelligence Platform - Comprehensive Helm Chart
+
+type: application
+version: 1.0.0
+appVersion: "15.0.0"
+
+keywords:
+  - agriculture
+  - iot
+  - ai
+  - microservices
+  - saudi-arabia
+
+home: https://sahool.sa
+sources:
+  - https://github.com/kafaat/sahool-unified-v15-idp
+
+maintainers:
+  - name: Sahool Team
+    email: platform@sahool.sa
+
+dependencies:
+  - name: postgresql
+    version: "13.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: redis
+    version: "18.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+  - name: nats
+    version: "1.x.x"
+    repository: "https://nats-io.github.io/k8s/helm/charts/"
+    condition: nats.enabled
+
+annotations:
+  category: Platform
+  licenses: Proprietary

@@ -1,0 +1,325 @@
+# ============================================================================
+# Sahool Platform - Default Values
+# القيم الافتراضية لمنصة سهول
+# ============================================================================
+
+# Global settings - الإعدادات العامة
+global:
+  # Image registry
+  imageRegistry: ghcr.io
+  imagePullSecrets:
+    - name: ghcr-secret
+
+  # Environment
+  environment: production
+
+  # Domain configuration
+  domain: sahool.sa
+
+  # Resource defaults
+  resources:
+    small:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    medium:
+      requests:
+        cpu: 250m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+    large:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+
+# ============================================================================
+# Core Services - الخدمات الأساسية
+# ============================================================================
+services:
+  # User Service - خدمة المستخدمين
+  userService:
+    enabled: true
+    name: user-service
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-user-service
+      tag: "v15.0.0"
+      pullPolicy: IfNotPresent
+    port: 8000
+    resources: medium
+    env:
+      - name: DATABASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: sahool-secrets
+            key: database-url
+      - name: JWT_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: sahool-secrets
+            key: jwt-secret
+    probes:
+      liveness:
+        path: /health
+        initialDelaySeconds: 30
+        periodSeconds: 10
+      readiness:
+        path: /health
+        initialDelaySeconds: 5
+        periodSeconds: 5
+
+  # Chat Service - خدمة المحادثات
+  chatService:
+    enabled: true
+    name: chat-service
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-chat-service
+      tag: "v15.0.0"
+    port: 8000
+    resources: medium
+
+  # IoT Service - خدمة إنترنت الأشياء
+  iotService:
+    enabled: true
+    name: iot-service
+    replicaCount: 3
+    image:
+      repository: kafaat/sahool-iot-service
+      tag: "v15.0.0"
+    port: 8000
+    resources: large
+
+  # Satellite Service - خدمة الأقمار الصناعية
+  satelliteService:
+    enabled: true
+    name: satellite-service
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-satellite-service
+      tag: "v15.0.0"
+    port: 8000
+    resources: large
+
+  # Weather Service - خدمة الطقس
+  weatherService:
+    enabled: true
+    name: weather-advanced
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-weather-advanced
+      tag: "v15.0.0"
+    port: 8000
+    resources: medium
+
+  # Notification Service - خدمة الإشعارات
+  notificationService:
+    enabled: true
+    name: notification-service
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-notification-service
+      tag: "v15.0.0"
+    port: 8000
+    resources: small
+
+  # Marketplace Service - خدمة السوق
+  marketplaceService:
+    enabled: true
+    name: marketplace-service
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-marketplace-service
+      tag: "v15.0.0"
+    port: 3000
+    resources: medium
+
+  # Crop Intelligence Service - خدمة ذكاء المحاصيل
+  cropIntelligenceService:
+    enabled: true
+    name: crop-intelligence-service
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-crop-intelligence-service
+      tag: "v15.0.0"
+    port: 8000
+    resources: large
+
+  # Irrigation Smart - الري الذكي
+  irrigationSmart:
+    enabled: true
+    name: irrigation-smart
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-irrigation-smart
+      tag: "v15.0.0"
+    port: 8000
+    resources: medium
+
+  # Yield Engine - محرك الإنتاجية
+  yieldEngine:
+    enabled: true
+    name: yield-engine
+    replicaCount: 2
+    image:
+      repository: kafaat/sahool-yield-engine
+      tag: "v15.0.0"
+    port: 8000
+    resources: large
+
+# ============================================================================
+# Autoscaling - التوسع التلقائي
+# ============================================================================
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+
+# ============================================================================
+# Pod Disruption Budget - ميزانية تعطيل البودات
+# ============================================================================
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+  # OR use maxUnavailable: 1
+
+# ============================================================================
+# Network Policies - سياسات الشبكة
+# ============================================================================
+networkPolicies:
+  enabled: true
+  defaultDenyIngress: true
+  defaultDenyEgress: false
+
+# ============================================================================
+# Ingress - المدخل
+# ============================================================================
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: api.sahool.sa
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: sahool-tls
+      hosts:
+        - api.sahool.sa
+        - "*.sahool.sa"
+
+# ============================================================================
+# Service Account - حساب الخدمة
+# ============================================================================
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: ""
+  name: sahool-service-account
+
+# ============================================================================
+# Security Context - سياق الأمان
+# ============================================================================
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# ============================================================================
+# Dependencies - التبعيات
+# ============================================================================
+postgresql:
+  enabled: false  # Use external RDS
+  # If enabled, configure here
+
+redis:
+  enabled: false  # Use external ElastiCache
+  # If enabled, configure here
+
+nats:
+  enabled: true
+  nats:
+    jetstream:
+      enabled: true
+      memStorage:
+        enabled: true
+        size: 1Gi
+      fileStorage:
+        enabled: true
+        size: 10Gi
+
+# ============================================================================
+# Monitoring - المراقبة
+# ============================================================================
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+  prometheusRule:
+    enabled: true
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate detected
+      - alert: HighLatency
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High latency detected
+
+# ============================================================================
+# Tracing - التتبع
+# ============================================================================
+tracing:
+  enabled: true
+  provider: jaeger
+  samplingRate: 0.1
+  endpoint: "http://jaeger-collector:14268/api/traces"

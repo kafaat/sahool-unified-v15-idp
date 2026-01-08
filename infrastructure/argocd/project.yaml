@@ -1,0 +1,132 @@
+# ============================================================================
+# ArgoCD Project - Sahool
+# مشروع ArgoCD - سهول
+# ============================================================================
+# Defines permissions and access for Sahool applications
+# يحدد الصلاحيات والوصول لتطبيقات سهول
+# ============================================================================
+
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: sahool
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: sahool-project
+    app.kubernetes.io/part-of: sahool
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: |
+    منصة سهول للذكاء الزراعي
+    Sahool Agricultural Intelligence Platform
+
+  # Source repositories
+  sourceRepos:
+    - https://github.com/kafaat/sahool-unified-v15-idp.git
+    - https://charts.bitnami.com/bitnami
+    - https://nats-io.github.io/k8s/helm/charts/
+
+  # Destination clusters and namespaces
+  destinations:
+    - namespace: sahool
+      server: https://kubernetes.default.svc
+    - namespace: sahool-staging
+      server: https://kubernetes.default.svc
+    - namespace: sahool-dev
+      server: https://kubernetes.default.svc
+
+  # Cluster resource whitelist
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+    - group: networking.k8s.io
+      kind: IngressClass
+
+  # Namespace resource blacklist
+  namespaceResourceBlacklist:
+    - group: ''
+      kind: ResourceQuota
+    - group: ''
+      kind: LimitRange
+
+  # Namespace resource whitelist
+  namespaceResourceWhitelist:
+    - group: ''
+      kind: '*'
+    - group: apps
+      kind: '*'
+    - group: batch
+      kind: '*'
+    - group: networking.k8s.io
+      kind: '*'
+    - group: autoscaling
+      kind: '*'
+    - group: policy
+      kind: '*'
+
+  # Roles for project access
+  roles:
+    - name: admin
+      description: Admin role for Sahool project
+      policies:
+        - p, proj:sahool:admin, applications, *, sahool/*, allow
+        - p, proj:sahool:admin, repositories, *, sahool/*, allow
+        - p, proj:sahool:admin, clusters, get, sahool/*, allow
+      groups:
+        - sahool-admins
+
+    - name: developer
+      description: Developer role for Sahool project
+      policies:
+        - p, proj:sahool:developer, applications, get, sahool/*, allow
+        - p, proj:sahool:developer, applications, sync, sahool/*, allow
+        - p, proj:sahool:developer, applications, action/*, sahool/*, allow
+      groups:
+        - sahool-developers
+
+    - name: viewer
+      description: Read-only access for Sahool project
+      policies:
+        - p, proj:sahool:viewer, applications, get, sahool/*, allow
+        - p, proj:sahool:viewer, logs, get, sahool/*, allow
+      groups:
+        - sahool-viewers
+
+  # Orphaned resources monitoring
+  orphanedResources:
+    warn: true
+    ignore:
+      - group: ''
+        kind: ConfigMap
+        name: kube-root-ca.crt
+
+  # Sync windows for controlled deployments
+  syncWindows:
+    # Allow syncs during business hours (KSA timezone UTC+3)
+    - kind: allow
+      schedule: '0 6 * * 0-4'  # Sunday-Thursday 9:00 AM KSA
+      duration: 10h
+      applications:
+        - sahool-platform-staging
+      manualSync: true
+
+    # Deny production syncs during peak hours
+    - kind: deny
+      schedule: '0 9 * * 0-4'  # Peak hours 12:00-18:00 KSA
+      duration: 6h
+      applications:
+        - sahool-platform
+      manualSync: false
+
+    # Allow production syncs during maintenance window
+    - kind: allow
+      schedule: '0 21 * * 4'  # Thursday 00:00 KSA (Friday morning)
+      duration: 6h
+      applications:
+        - sahool-platform
+      manualSync: true

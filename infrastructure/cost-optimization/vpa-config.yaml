@@ -1,0 +1,160 @@
+# ============================================================================
+# Vertical Pod Autoscaler (VPA) Configuration
+# تكوين التوسع العمودي التلقائي
+# ============================================================================
+# VPA يقوم بتحليل استخدام الموارد وتقديم توصيات للتحجيم الصحيح
+# VPA analyzes resource usage and provides right-sizing recommendations
+# ============================================================================
+
+# VPA for User Service
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: user-service-vpa
+  namespace: sahool
+  labels:
+    app.kubernetes.io/part-of: sahool-cost-optimization
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  updatePolicy:
+    # Recommend only - don't auto-apply
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: 50m
+          memory: 64Mi
+        maxAllowed:
+          cpu: 2
+          memory: 4Gi
+        controlledResources: ["cpu", "memory"]
+        controlledValues: RequestsAndLimits
+---
+# VPA for IoT Service (High usage)
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: iot-service-vpa
+  namespace: sahool
+  labels:
+    app.kubernetes.io/part-of: sahool-cost-optimization
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: iot-service
+  updatePolicy:
+    updateMode: "Auto"  # Auto-apply for high-traffic service
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: 200m
+          memory: 256Mi
+        maxAllowed:
+          cpu: 4
+          memory: 8Gi
+---
+# VPA for Satellite Service (Variable load)
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: satellite-service-vpa
+  namespace: sahool
+  labels:
+    app.kubernetes.io/part-of: sahool-cost-optimization
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: satellite-service
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: 100m
+          memory: 128Mi
+        maxAllowed:
+          cpu: 4
+          memory: 8Gi
+---
+# VPA for Weather Service
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: weather-service-vpa
+  namespace: sahool
+  labels:
+    app.kubernetes.io/part-of: sahool-cost-optimization
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: weather-advanced
+  updatePolicy:
+    updateMode: "Off"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: 50m
+          memory: 64Mi
+        maxAllowed:
+          cpu: 2
+          memory: 4Gi
+---
+# VPA for Notification Service (Low usage)
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: notification-service-vpa
+  namespace: sahool
+  labels:
+    app.kubernetes.io/part-of: sahool-cost-optimization
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: notification-service
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: 25m
+          memory: 32Mi
+        maxAllowed:
+          cpu: 500m
+          memory: 512Mi
+---
+# VPA for Crop Intelligence Service (ML workload)
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: crop-intelligence-vpa
+  namespace: sahool
+  labels:
+    app.kubernetes.io/part-of: sahool-cost-optimization
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: crop-intelligence-service
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: 200m
+          memory: 512Mi
+        maxAllowed:
+          cpu: 8
+          memory: 16Gi

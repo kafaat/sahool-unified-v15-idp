@@ -1,0 +1,34 @@
+{{/*
+# ============================================================================
+# Pod Disruption Budget (PDB) for Sahool Services
+# ميزانية تعطيل البودات لخدمات سهول
+# ============================================================================
+# يضمن وجود عدد أدنى من البودات أثناء الصيانة أو التحديثات
+# Ensures minimum pods available during maintenance or updates
+*/}}
+{{- if .Values.podDisruptionBudget.enabled }}
+{{- range $serviceName, $service := .Values.services }}
+{{- if $service.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $service.name }}-pdb
+  labels:
+    {{- include "sahool.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $service.name }}
+spec:
+  {{- if $.Values.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ $.Values.podDisruptionBudget.minAvailable }}
+  {{- else if $.Values.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ $.Values.podDisruptionBudget.maxUnavailable }}
+  {{- else }}
+  minAvailable: 1
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ $service.name }}
+      {{- include "sahool.selectorLabels" $ | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

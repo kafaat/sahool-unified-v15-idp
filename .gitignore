@@ -219,3 +219,4 @@ config/nats/.env.nkey
 config/nats/.env.nkey.backup.*
 config/nats/generated/
 *.creds
+.env.test

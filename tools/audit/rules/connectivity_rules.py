@@ -36,7 +36,7 @@ def check_localhost_usage(repo_root: Path) -> list:
             continue
 
         try:
-            content = py_file.read_text()
+            content = py_file.read_text(encoding='utf-8')
         except Exception:
             continue
 
@@ -76,7 +76,7 @@ def check_service_discovery(repo_root: Path) -> list:
     if not compose_file.exists():
         return findings
 
-    content = compose_file.read_text()
+    content = compose_file.read_text(encoding='utf-8')
 
     # Extract service names from compose
     service_pattern = r"^\s{2}(\w[\w-]*):\s*$"
@@ -119,7 +119,7 @@ def check_api_gateway_routes(repo_root: Path) -> list:
         # Check if Kong is used
         compose_file = repo_root / "docker-compose.yml"
         if compose_file.exists():
-            content = compose_file.read_text()
+            content = compose_file.read_text(encoding='utf-8')
             if "kong:" in content.lower():
                 findings.append(
                     {
@@ -145,7 +145,7 @@ def check_cors_configuration(repo_root: Path) -> list:
             continue
 
         try:
-            content = main_py.read_text()
+            content = main_py.read_text(encoding='utf-8')
         except Exception:
             continue
 

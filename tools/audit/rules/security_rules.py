@@ -41,7 +41,7 @@ def check_hardcoded_secrets(repo_root: Path) -> list:
             continue
 
         try:
-            content = py_file.read_text()
+            content = py_file.read_text(encoding='utf-8')
         except Exception:
             continue
 
@@ -80,7 +80,7 @@ def check_jwt_configuration(repo_root: Path) -> list:
     jwt_files = []
     for py_file in repo_root.rglob("*.py"):
         try:
-            content = py_file.read_text()
+            content = py_file.read_text(encoding='utf-8')
             if "jwt" in content.lower() or "jose" in content.lower():
                 jwt_files.append((py_file, content))
         except Exception:
@@ -141,7 +141,7 @@ def check_rbac_implementation(repo_root: Path) -> list:
         if "test" in str(py_file).lower():
             continue
         try:
-            content = py_file.read_text().lower()
+            content = py_file.read_text(encoding='utf-8').lower()
             if any(pattern in content for pattern in rbac_patterns):
                 has_rbac = True
                 break
@@ -177,7 +177,7 @@ def check_tenant_isolation(repo_root: Path) -> list:
             continue
 
         try:
-            content = repo_file.read_text()
+            content = repo_file.read_text(encoding='utf-8')
         except Exception:
             continue
 
@@ -214,7 +214,7 @@ def check_input_validation(repo_root: Path) -> list:
             continue
 
         try:
-            content = main_py.read_text()
+            content = main_py.read_text(encoding='utf-8')
         except Exception:
             continue
 
@@ -255,7 +255,7 @@ def check_sql_injection(repo_root: Path) -> list:
             continue
 
         try:
-            content = py_file.read_text()
+            content = py_file.read_text(encoding='utf-8')
         except Exception:
             continue
 

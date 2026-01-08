@@ -64,7 +64,7 @@ def check_docker_compose(repo_root: Path) -> list:
         )
         return findings
 
-    content = compose_file.read_text()
+    content = compose_file.read_text(encoding='utf-8')
 
     # Check for common issues
     if "version:" not in content and "services:" not in content:

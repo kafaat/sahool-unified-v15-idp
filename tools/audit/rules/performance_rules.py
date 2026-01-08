@@ -35,7 +35,7 @@ def check_database_indexes(repo_root: Path) -> list:
 
     for migration in migration_files:
         try:
-            content = migration.read_text().lower()
+            content = migration.read_text(encoding='utf-8').lower()
             for col in index_columns:
                 if f"index" in content and col in content:
                     found_indexes.add(col)
@@ -78,7 +78,7 @@ def check_pagination(repo_root: Path) -> list:
                 continue
 
             try:
-                content = py_file.read_text()
+                content = py_file.read_text(encoding='utf-8')
             except Exception:
                 continue
 
@@ -125,7 +125,7 @@ def check_caching(repo_root: Path) -> list:
         if "test" in str(py_file).lower():
             continue
         try:
-            content = py_file.read_text().lower()
+            content = py_file.read_text(encoding='utf-8').lower()
             if any(pattern in content for pattern in cache_patterns):
                 has_caching = True
                 break
@@ -164,7 +164,7 @@ def check_async_patterns(repo_root: Path) -> list:
             continue
 
         try:
-            content = main_py.read_text()
+            content = main_py.read_text(encoding='utf-8')
         except Exception:
             continue
 
@@ -208,7 +208,7 @@ def check_n_plus_one(repo_root: Path) -> list:
             continue
 
         try:
-            content = py_file.read_text()
+            content = py_file.read_text(encoding='utf-8')
         except Exception:
             continue
 

@@ -29,7 +29,7 @@ def check_structured_logging(repo_root: Path) -> list:
     # Check requirements files
     for req_file in repo_root.rglob("requirements*.txt"):
         try:
-            content = req_file.read_text().lower()
+            content = req_file.read_text(encoding='utf-8').lower()
             if any(lib in content for lib in logging_libs):
                 has_structured_logging = True
                 break
@@ -40,7 +40,7 @@ def check_structured_logging(repo_root: Path) -> list:
     pyproject = repo_root / "pyproject.toml"
     if pyproject.exists():
         try:
-            content = pyproject.read_text().lower()
+            content = pyproject.read_text(encoding='utf-8').lower()
             if any(lib in content for lib in logging_libs):
                 has_structured_logging = True
         except Exception:
@@ -80,7 +80,7 @@ def check_health_endpoints(repo_root: Path) -> list:
             continue
 
         try:
-            content = main_py.read_text()
+            content = main_py.read_text(encoding='utf-8')
         except Exception:
             continue
 
@@ -113,7 +113,7 @@ def check_metrics_endpoint(repo_root: Path) -> list:
         if "test" in str(py_file).lower():
             continue
         try:
-            content = py_file.read_text().lower()
+            content = py_file.read_text(encoding='utf-8').lower()
             if any(pattern in content for pattern in metrics_patterns):
                 has_metrics = True
                 break
@@ -153,7 +153,7 @@ def check_correlation_id(repo_root: Path) -> list:
         if "test" in str(py_file).lower():
             continue
         try:
-            content = py_file.read_text().lower()
+            content = py_file.read_text(encoding='utf-8').lower()
             if any(pattern in content for pattern in correlation_patterns):
                 has_correlation = True
                 break
@@ -192,7 +192,7 @@ def check_error_handling(repo_root: Path) -> list:
             continue
 
         try:
-            content = main_py.read_text()
+            content = main_py.read_text(encoding='utf-8')
         except Exception:
             continue
 

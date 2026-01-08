@@ -10,11 +10,20 @@ Usage:
 """
 
 import argparse
+import io
 import sys
 from datetime import datetime
 from pathlib import Path
 
 import yaml
+
+# Fix encoding for Windows console
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        # Python < 3.7
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
@@ -167,7 +176,7 @@ def main():
     if args.format in ("markdown", "both"):
         md_output = markdown_report.generate(results)
         if args.output and args.format == "markdown":
-            Path(args.output).write_text(md_output)
+            Path(args.output).write_text(md_output, encoding='utf-8')
             print(f"📄 Report saved to: {args.output}")
         else:
             print(md_output)
@@ -176,7 +185,7 @@ def main():
         json_output = json_report.generate(results)
         output_path = args.output or "audit_report.json"
         if args.format == "json" or args.format == "both":
-            Path(output_path).write_text(json_output)
+            Path(output_path).write_text(json_output, encoding='utf-8')
             print(f"📄 JSON report saved to: {output_path}")
 
     # Exit with appropriate code

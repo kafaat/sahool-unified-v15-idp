@@ -105,13 +105,13 @@ jobs:
         run: |
           echo "✅ Validating OpenAPI specifications..."
 
-          # Install OpenAPI validator
-          npm install -g @ibm/openapi-validator
+          # Install Spectral OpenAPI validator (replacement for deprecated @ibm/openapi-validator)
+          npm install -g @stoplight/spectral-cli
 
           for spec in ${{ env.DOCS_DIR }}/openapi/*.json; do
             if [ -f "$spec" ]; then
               echo "Validating: $spec"
-              lint-openapi "$spec" || true
+              spectral lint "$spec" --ruleset spectral:oas || true
             fi
           done
 

@@ -329,9 +329,9 @@ services:
       - REVIEW_ON_CHANGE=true
       - MAX_FILE_SIZE=1000000
       - API_HOST=0.0.0.0
-      - API_PORT=8096
+      - API_PORT=8102
     ports:
-      - "8096:8096"
+      - "8102:8102"
     volumes:
       - .:/app/codebase:ro
       - code_review_logs:/app/logs
@@ -339,6 +339,12 @@ services:
       ollama:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8102/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     networks:
       - sahool-network
     deploy:

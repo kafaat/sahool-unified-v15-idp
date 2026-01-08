@@ -453,6 +453,7 @@ app = FastAPI(
 
 
 @app.get("/health", response_model=HealthResponse)
+@app.get("/healthz", response_model=HealthResponse)
 async def health_check():
     """Health check endpoint"""
     service = get_service()

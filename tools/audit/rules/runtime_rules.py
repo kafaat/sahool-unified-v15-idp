@@ -50,7 +50,8 @@ def check_healthchecks_defined(repo_root: Path) -> list:
         if current_service and "healthcheck:" in line:
             service_has_healthcheck[current_service] = True
 
-    # Skip infrastructure services
+    # Skip infrastructure services and one-shot containers
+    # One-shot containers run once and exit (like model loaders, migrations)
     infra_services = {
         "postgres",
         "redis",
@@ -64,6 +65,16 @@ def check_healthchecks_defined(repo_root: Path) -> list:
         "grafana",
         "networks",
         "volumes",
+        # One-shot containers that run and exit
+        "ollama-model-loader",
+        "milvus-etcd",
+        "milvus-minio",
+        "milvus-standalone",
+        "etcd",
+        # YAML section markers (not services)
+        "services",
+        "x-logging",
+        "x-healthcheck",
     }
 
     for service, has_healthcheck in service_has_healthcheck.items():

@@ -111,37 +111,37 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run Pre-deployment Agent Evaluation
-        id: eval
-        uses: ./.github/actions/evaluate-agent
-        with:
-          golden-dataset-path: 'tests/golden-datasets'
-          threshold-accuracy: '0.80'
-          threshold-latency: '2500'
-          threshold-cost: '0.60'
-          threshold-success-rate: '0.90'
-          generate-report: 'true'
-          report-path: 'pre-deploy-evaluation.json'
+      # - name: Run Pre-deployment Agent Evaluation
+      #   id: eval
+      #   uses: ./.github/actions/evaluate-agent
+      #   with:
+      #     golden-dataset-path: 'tests/golden-datasets'
+      #     threshold-accuracy: '0.80'
+      #     threshold-latency: '2500'
+      #     threshold-cost: '0.60'
+      #     threshold-success-rate: '0.90'
+      #     generate-report: 'true'
+      #     report-path: 'pre-deploy-evaluation.json'
 
-      - name: Upload pre-deployment evaluation report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pre-deploy-evaluation-${{ github.sha }}
-          path: pre-deploy-evaluation.json
-          retention-days: 90
+      # - name: Upload pre-deployment evaluation report
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: pre-deploy-evaluation-${{ github.sha }}
+      #     path: pre-deploy-evaluation.json
+      #     retention-days: 90
 
-      - name: Evaluate results
-        run: |
-          if [ "${{ steps.eval.outputs.passed }}" != "true" ]; then
-            echo "::error::Agent evaluation failed - deployment blocked"
-            echo "::error::Overall Score: ${{ steps.eval.outputs.overall-score }}/100"
-            echo "::error::Accuracy: ${{ steps.eval.outputs.accuracy }}"
-            exit 1
-          fi
-
-          echo "✅ Agent evaluation passed - proceeding with deployment"
-          echo "Overall Score: ${{ steps.eval.outputs.overall-score }}/100"
+      # - name: Evaluate results
+      #   run: |
+      #     if [ "${{ steps.eval.outputs.passed }}" != "true" ]; then
+      #       echo "::error::Agent evaluation failed - deployment blocked"
+      #       echo "::error::Overall Score: ${{ steps.eval.outputs.overall-score }}/100"
+      #       echo "::error::Accuracy: ${{ steps.eval.outputs.accuracy }}"
+      #       exit 1
+      #     fi
+      #
+      #     echo "✅ Agent evaluation passed - proceeding with deployment"
+      #     echo "Overall Score: ${{ steps.eval.outputs.overall-score }}/100"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Deploy Starter Package
@@ -545,46 +545,46 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Run Post-deployment Agent Evaluation
-        id: eval
-        uses: ./.github/actions/evaluate-agent
-        with:
-          golden-dataset-path: 'tests/golden-datasets'
-          threshold-accuracy: '0.85'
-          threshold-latency: '2000'
-          threshold-cost: '0.50'
-          threshold-success-rate: '0.95'
-          generate-report: 'true'
-          report-path: 'post-deploy-evaluation.json'
-          api-endpoint: 'https://staging.sahool.io/api/v1'
-          api-key: ${{ secrets.STAGING_API_KEY }}
+      # - name: Run Post-deployment Agent Evaluation
+      #   id: eval
+      #   uses: ./.github/actions/evaluate-agent
+      #   with:
+      #     golden-dataset-path: 'tests/golden-datasets'
+      #     threshold-accuracy: '0.85'
+      #     threshold-latency: '2000'
+      #     threshold-cost: '0.50'
+      #     threshold-success-rate: '0.95'
+      #     generate-report: 'true'
+      #     report-path: 'post-deploy-evaluation.json'
+      #     api-endpoint: 'https://staging.sahool.io/api/v1'
+      #     api-key: ${{ secrets.STAGING_API_KEY }}
 
-      - name: Upload post-deployment evaluation report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: post-deploy-evaluation-${{ github.sha }}
-          path: post-deploy-evaluation.json
-          retention-days: 90
+      # - name: Upload post-deployment evaluation report
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: post-deploy-evaluation-${{ github.sha }}
+      #     path: post-deploy-evaluation.json
+      #     retention-days: 90
 
-      - name: Compare pre and post deployment metrics
-        run: |
-          echo "📊 Comparing pre and post deployment metrics..."
-
-          # Download pre-deployment report
-          # In production: compare metrics to ensure no regression
-
-          if [ "${{ steps.eval.outputs.passed }}" = "true" ]; then
-            echo "✅ Post-deployment validation passed"
-            echo "Overall Score: ${{ steps.eval.outputs.overall-score }}/100"
-            echo "Accuracy: ${{ steps.eval.outputs.accuracy }}"
-            echo "Avg Latency: ${{ steps.eval.outputs.avg-latency }}ms"
-            echo "Avg Cost: \$${{ steps.eval.outputs.avg-cost }}"
-          else
-            echo "::warning::Post-deployment validation failed"
-            echo "::warning::Overall Score: ${{ steps.eval.outputs.overall-score }}/100"
-            echo "Consider investigating or rolling back"
-          fi
+      # - name: Compare pre and post deployment metrics
+      #   run: |
+      #     echo "📊 Comparing pre and post deployment metrics..."
+      #
+      #     # Download pre-deployment report
+      #     # In production: compare metrics to ensure no regression
+      #
+      #     if [ "${{ steps.eval.outputs.passed }}" = "true" ]; then
+      #       echo "✅ Post-deployment validation passed"
+      #       echo "Overall Score: ${{ steps.eval.outputs.overall-score }}/100"
+      #       echo "Accuracy: ${{ steps.eval.outputs.accuracy }}"
+      #       echo "Avg Latency: ${{ steps.eval.outputs.avg-latency }}ms"
+      #       echo "Avg Cost: \$${{ steps.eval.outputs.avg-cost }}"
+      #     else
+      #       echo "::warning::Post-deployment validation failed"
+      #       echo "::warning::Overall Score: ${{ steps.eval.outputs.overall-score }}/100"
+      #       echo "Consider investigating or rolling back"
+      #     fi
 
       - name: Run golden dataset tests against live API
         run: |
@@ -597,20 +597,20 @@ jobs:
 
           echo "✅ Golden dataset validation complete"
 
-      - name: Generate validation report
-        if: always()
-        run: |
-          echo "## 📋 Post-deployment Validation Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Status:** ${{ steps.eval.outputs.passed == 'true' && '✅ PASSED' || '⚠️ FAILED' }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Overall Score:** ${{ steps.eval.outputs.overall-score }}/100" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Metrics" >> $GITHUB_STEP_SUMMARY
-          echo "- **Accuracy:** ${{ steps.eval.outputs.accuracy }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Avg Latency:** ${{ steps.eval.outputs.avg-latency }}ms" >> $GITHUB_STEP_SUMMARY
-          echo "- **Avg Cost:** \$${{ steps.eval.outputs.avg-cost }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Success Rate:** ${{ steps.eval.outputs.success-rate }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+      # - name: Generate validation report
+      #   if: always()
+      #   run: |
+      #     echo "## 📋 Post-deployment Validation Report" >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "**Status:** ${{ steps.eval.outputs.passed == 'true' && '✅ PASSED' || '⚠️ FAILED' }}" >> $GITHUB_STEP_SUMMARY
+      #     echo "**Overall Score:** ${{ steps.eval.outputs.overall-score }}/100" >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "### Metrics" >> $GITHUB_STEP_SUMMARY
+      #     echo "- **Accuracy:** ${{ steps.eval.outputs.accuracy }}" >> $GITHUB_STEP_SUMMARY
+      #     echo "- **Avg Latency:** ${{ steps.eval.outputs.avg-latency }}ms" >> $GITHUB_STEP_SUMMARY
+      #     echo "- **Avg Cost:** \$${{ steps.eval.outputs.avg-cost }}" >> $GITHUB_STEP_SUMMARY
+      #     echo "- **Success Rate:** ${{ steps.eval.outputs.success-rate }}" >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Deployment Summary

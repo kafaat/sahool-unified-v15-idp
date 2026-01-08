@@ -47,7 +47,7 @@ jobs:
         run: npm run build
         env:
           CI: true
-          NEXT_PUBLIC_API_URL: ${{ secrets.PREVIEW_API_URL || 'https://api.sahool.dev' }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.PREVIEW_API_URL != '' && secrets.PREVIEW_API_URL || 'https://api.sahool.dev' }}
 
       - name: Deploy to Surge.sh
         id: surge
@@ -95,6 +95,7 @@ jobs:
         continue-on-error: true
 
       - name: Comment Preview URL
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
@@ -174,7 +175,7 @@ jobs:
         run: |
           flutter build web --release --base-href "/sahool-mobile/"
         env:
-          API_BASE_URL: ${{ secrets.PREVIEW_API_URL || 'https://api.sahool.dev' }}
+          API_BASE_URL: ${{ secrets.PREVIEW_API_URL != '' && secrets.PREVIEW_API_URL || 'https://api.sahool.dev' }}
 
       - name: Deploy Flutter Web to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -184,6 +185,7 @@ jobs:
           destination_dir: mobile-preview/pr-${{ github.event.pull_request.number }}
 
       - name: Comment Flutter Preview URL
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
@@ -228,6 +230,7 @@ jobs:
         continue-on-error: true
 
       - name: Comment cleanup
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |

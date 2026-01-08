@@ -10,12 +10,12 @@
 name: Vercel Preview
 
 on:
-  push:
-    branches-ignore:
-      - main
-      - master
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - master
 
 permissions:
   contents: read
@@ -30,7 +30,7 @@ jobs:
   deploy-preview:
     name: Deploy Preview to Vercel
     runs-on: ubuntu-latest
-    if: env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+    if: secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != ''
 
     steps:
       - name: Checkout code
@@ -118,7 +118,7 @@ jobs:
   deploy-production:
     name: Deploy Production to Vercel
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && env.VERCEL_ORG_ID != '' && env.VERCEL_PROJECT_ID != ''
+    if: github.ref == 'refs/heads/main' && secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != ''
 
     steps:
       - name: Checkout code

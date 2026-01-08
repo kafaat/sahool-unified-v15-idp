@@ -102,6 +102,9 @@ jobs:
       - name: Install Lighthouse
         run: npm install -g @lhci/cli
 
+      - name: Install serve
+        run: npm install -g serve
+
       - name: Serve and audit
         working-directory: apps/mobile
         run: |

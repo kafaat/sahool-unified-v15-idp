@@ -119,7 +119,9 @@ export class AuthController {
     @Req() request: Request,
   ) {
     const ip = request.ip || request.socket.remoteAddress;
-    console.log(`Login attempt from IP: ${ip} for email: ${loginDto.email}`);
+    // SECURITY: Don't log email addresses - only log anonymized info for auditing
+    // Use a hash or masked email for correlation if needed in production logging system
+    console.log(`Login attempt from IP: ${ip}`);
 
     return this.authService.login(loginDto);
   }
@@ -151,15 +153,20 @@ export class AuthController {
   })
   @ApiResponse({ status: 401, description: 'Unauthorized - Invalid or missing token' })
   async logout(@Req() request: AuthenticatedRequest) {
-    // Extract token from Authorization header
+    // Extract token from Authorization header with secure validation
     const authorization = request.headers.authorization;
     if (!authorization) {
       throw new UnauthorizedException('No token provided');
     }
 
-    const token = authorization.split(' ')[1];
-    if (!token) {
-      throw new UnauthorizedException('Invalid token format');
+    // SECURITY: Validate Bearer token format properly
+    const parts = authorization.split(' ');
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      throw new UnauthorizedException('Invalid token format: expected "Bearer <token>"');
+    }
+    const token = parts[1];
+    if (!token || token.length < 10) {
+      throw new UnauthorizedException('Invalid token: token is too short');
     }
 
     // Get user from request (set by JWT guard)

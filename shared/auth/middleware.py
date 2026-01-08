@@ -3,6 +3,7 @@ JWT Authentication Middleware for FastAPI
 Middleware to extract and validate JWT tokens from requests
 """
 
+import ipaddress
 import json
 import logging
 import time
@@ -343,8 +344,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         return response
 
+    def _is_valid_ip(self, ip_str: str) -> bool:
+        """Validate IP address format to prevent injection attacks."""
+        try:
+            ipaddress.ip_address(ip_str)
+            return True
+        except (ValueError, TypeError):
+            return False
+
     def _get_identifier(self, request: Request) -> str:
-        """Get unique identifier for rate limiting (not a Flask route)"""
+        """Get unique identifier for rate limiting with IP validation."""
         if hasattr(request.state, "user") and request.state.user:
             # nosemgrep
             return f"user:{request.state.user.id}"
@@ -352,9 +361,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # Fallback to IP address (check for proxy headers)
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
-            client_ip = forwarded_for.split(",")[0].strip()
+            try:
+                # SECURITY: Validate and extract first IP from comma-separated list
+                ips = [ip.strip() for ip in forwarded_for.split(",")]
+                if ips and self._is_valid_ip(ips[0]):
+                    client_ip = ips[0]
+                else:
+                    logger.warning(f"Invalid X-Forwarded-For header format: {forwarded_for[:50]}")
+                    client_ip = "unknown"
+            except (ValueError, AttributeError) as e:
+                logger.warning(f"Error parsing X-Forwarded-For header: {e}")
+                client_ip = "unknown"
         else:
-            client_ip = request.client.host if request.client else "unknown"
+            # Validate direct client IP
+            raw_ip = request.client.host if request.client else None
+            client_ip = raw_ip if raw_ip and self._is_valid_ip(raw_ip) else "unknown"
 
         # nosemgrep
         return f"ip:{client_ip}"

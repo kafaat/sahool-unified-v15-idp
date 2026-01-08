@@ -40,12 +40,13 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY apps/services/crop-health/requirements.txt .
 
-# Copy shared libraries
+# Copy shared libraries (required for shared.errors_py, shared.auth, shared.cors_config)
+COPY shared/ ./shared/
 
 # Copy source
-COPY src/ ./src/
+COPY apps/services/crop-health/src/ ./src/
 
 # Install dependencies and set ownership
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \

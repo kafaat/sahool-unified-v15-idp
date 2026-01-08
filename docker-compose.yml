@@ -1275,8 +1275,8 @@ services:
     profiles:
       - deprecated  # Only runs when explicitly enabled
     build:
-      context: ./apps/services/field-ops
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/field-ops/Dockerfile
     container_name: sahool-field-ops-deprecated
     environment:
       - PORT=8080
@@ -1361,8 +1361,8 @@ services:
   # Billing Core Service
   billing-core:
     build:
-      context: ./apps/services/billing-core
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/billing-core/Dockerfile
     container_name: sahool-billing-core
     environment:
       - PORT=8089
@@ -1744,8 +1744,8 @@ services:
   # Field Chat Service
   field-chat:
     build:
-      context: ./apps/services/field-chat
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/field-chat/Dockerfile
     container_name: sahool-field-chat
     environment:
       - PORT=8099
@@ -1864,8 +1864,8 @@ services:
   # Provider Config Service
   provider-config:
     build:
-      context: ./apps/services/provider-config
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/provider-config/Dockerfile
     container_name: sahool-provider-config
     environment:
       - PORT=8104
@@ -2021,8 +2021,8 @@ services:
   # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
   ndvi-engine:
     build:
-      context: ./apps/services/ndvi-engine
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/ndvi-engine/Dockerfile
     container_name: sahool-ndvi-engine
     labels:
       - "com.sahool.deprecated=true"
@@ -2075,8 +2075,8 @@ services:
   # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
   weather-core:
     build:
-      context: ./apps/services/weather-core
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/weather-core/Dockerfile
     container_name: sahool-weather-core
     labels:
       - "com.sahool.deprecated=true"
@@ -2497,8 +2497,8 @@ services:
   # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
   crop-health:
     build:
-      context: ./apps/services/crop-health
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/crop-health/Dockerfile
     container_name: sahool-crop-health
     labels:
       - "com.sahool.deprecated=true"

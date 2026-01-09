@@ -8,8 +8,18 @@ Provides the foundational event structure for all SAHOOL domain events.
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any
+from pathlib import Path
+from typing import Any, ClassVar
 from uuid import UUID, uuid4
+
+import jsonschema
+from jsonschema import ValidationError
+
+# Schema directory relative to this file
+_SCHEMA_DIR = Path(__file__).parent.parent / "schemas"
+
+# Cache for loaded schemas
+_schema_cache: dict[str, dict] = {}
 
 
 @dataclass
@@ -59,9 +69,10 @@ class BaseEvent:
     - SCHEMA_PATH: str (path to JSON schema)
     """
 
-    EVENT_TYPE: str = ""
-    EVENT_VERSION: str = "1.0.0"
-    SCHEMA_PATH: str = ""
+    # Class-level constants (override in subclasses)
+    EVENT_TYPE: ClassVar[str] = ""
+    EVENT_VERSION: ClassVar[str] = "1.0.0"
+    SCHEMA_PATH: ClassVar[str] = ""
 
     # Required fields
     tenant_id: UUID
@@ -119,9 +130,67 @@ class BaseEvent:
         return cls.from_dict(json.loads(json_str))
 
     def validate(self) -> bool:
-        """Validate event against its JSON schema"""
-        # TODO: Implement JSON schema validation
+        """
+        Validate event against its JSON schema.
+
+        Returns:
+            bool: True if validation passes
+
+        Raises:
+            ValidationError: If the event data does not conform to the schema
+            FileNotFoundError: If the schema file cannot be found
+        """
+        if not self.SCHEMA_PATH:
+            # No schema defined, skip validation
+            return True
+
+        schema = self._load_schema(self.SCHEMA_PATH)
+        event_data = self.to_dict()
+
+        # Create a registry with local schemas for $ref resolution
+        from referencing import Registry, Resource
+
+        registry = Registry()
+
+        # Load all local schemas to resolve $ref references
+        for schema_file in _SCHEMA_DIR.glob("*.json"):
+            local_schema = self._load_schema(schema_file.name)
+            schema_id = local_schema.get("$id", f"file://{schema_file}")
+            # Also register by filename for relative refs
+            resource = Resource.from_contents(local_schema)
+            registry = registry.with_resource(schema_id, resource)
+            registry = registry.with_resource(schema_file.name, resource)
+
+        validator = jsonschema.Draft7Validator(schema, registry=registry)
+        validator.validate(event_data)
         return True
+
+    @staticmethod
+    def _load_schema(schema_path: str) -> dict[str, Any]:
+        """
+        Load and cache a JSON schema from the schemas directory.
+
+        Args:
+            schema_path: Relative path to the schema file
+
+        Returns:
+            dict: The loaded JSON schema
+
+        Raises:
+            FileNotFoundError: If the schema file doesn't exist
+        """
+        if schema_path in _schema_cache:
+            return _schema_cache[schema_path]
+
+        full_path = _SCHEMA_DIR / schema_path
+        if not full_path.exists():
+            raise FileNotFoundError(f"Schema file not found: {full_path}")
+
+        with open(full_path, encoding="utf-8") as f:
+            schema = json.load(f)
+
+        _schema_cache[schema_path] = schema
+        return schema
 
     def __str__(self) -> str:
         return f"{self.event_type}(id={self.event_id}, tenant={self.tenant_id})"

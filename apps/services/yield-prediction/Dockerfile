@@ -34,10 +34,10 @@ WORKDIR /app
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Copy package files and install production dependencies
+# Copy package files from builder (includes generated package-lock.json)
 # NOTE: reflect-metadata MUST be in dependencies (not devDependencies) for NestJS to work
-COPY apps/services/yield-prediction/package.json ./
-COPY apps/services/yield-prediction/package-lock.json ./
+COPY --from=builder /workspace/yield-prediction/package.json ./
+COPY --from=builder /workspace/yield-prediction/package-lock.json ./
 
 # Install only production dependencies using npm ci for deterministic builds
 # reflect-metadata is required at runtime for NestJS decorators and DI

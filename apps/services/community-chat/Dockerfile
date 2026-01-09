@@ -12,14 +12,14 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files from service directory
+COPY apps/services/community-chat/package.json apps/services/community-chat/package-lock.json* ./
 
 # Install all dependencies (including devDependencies for build) with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy source code
-COPY src/ ./src/
+COPY apps/services/community-chat/src/ ./src/
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image
@@ -36,9 +36,12 @@ RUN apk add --no-cache curl
 
 WORKDIR /app
 
-# Copy only production dependencies with retry for network resilience
-COPY package.json package-lock.json* ./
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
+# Copy package files from builder and install production dependencies
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm cache clean --force
 
 # Copy source code
 COPY --from=builder /app/src/ ./src/

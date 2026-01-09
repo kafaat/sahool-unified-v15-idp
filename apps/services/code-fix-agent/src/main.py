@@ -260,19 +260,19 @@ async def metrics(request: Request):
     # Format for Prometheus
     prometheus_metrics = f"""# HELP code_fix_agent_requests_total Total number of requests
 # TYPE code_fix_agent_requests_total counter
-code_fix_agent_requests_total {metrics['total_requests']}
+code_fix_agent_requests_total {metrics["total_requests"]}
 
 # HELP code_fix_agent_success_rate Success rate percentage
 # TYPE code_fix_agent_success_rate gauge
-code_fix_agent_success_rate {metrics['success_rate_percent']}
+code_fix_agent_success_rate {metrics["success_rate_percent"]}
 
 # HELP code_fix_agent_response_time_ms Average response time in milliseconds
 # TYPE code_fix_agent_response_time_ms gauge
-code_fix_agent_response_time_ms {metrics['avg_response_time_ms']}
+code_fix_agent_response_time_ms {metrics["avg_response_time_ms"]}
 
 # HELP code_fix_agent_patterns_learned Number of patterns learned
 # TYPE code_fix_agent_patterns_learned gauge
-code_fix_agent_patterns_learned {metrics['patterns_learned']}
+code_fix_agent_patterns_learned {metrics["patterns_learned"]}
 """
 
     return JSONResponse(content=prometheus_metrics, media_type="text/plain")

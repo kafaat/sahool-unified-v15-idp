@@ -13,7 +13,6 @@ Implements a Learning + Utility-Based agent for:
 Follows best practices from Claude Agent SDK and A2A Protocol.
 """
 
-import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -494,9 +493,7 @@ class CodeFixAgent:
 
             elif action.action_type == "apply_fix":
                 result["fix"] = action.parameters.get("fix")
-                result["requires_review"] = action.parameters.get(
-                    "requires_review", False
-                )
+                result["requires_review"] = action.parameters.get("requires_review", False)
 
             elif action.action_type == "generate_tests":
                 result["tests"] = action.parameters.get("tests", [])
@@ -563,9 +560,7 @@ class CodeFixAgent:
 
             # Add action info to result
             result["action"] = action.to_dict()
-            result["total_time_ms"] = (
-                datetime.now() - start_time
-            ).total_seconds() * 1000
+            result["total_time_ms"] = (datetime.now() - start_time).total_seconds() * 1000
 
             return result
 
@@ -627,7 +622,9 @@ class CodeFixAgent:
                     }
                 },
                 confidence=0.85,
-                priority=2 if top_issue.severity in [IssueSeverity.CRITICAL, IssueSeverity.HIGH] else 3,
+                priority=2
+                if top_issue.severity in [IssueSeverity.CRITICAL, IssueSeverity.HIGH]
+                else 3,
                 reasoning=f"Found {len(issues)} issues, highest severity: {top_issue.severity.value}",
                 reasoning_ar=f"تم العثور على {len(issues)} مشكلة، أعلى شدة: {top_issue.severity.value}",
                 source_agent=self.agent_id,
@@ -781,9 +778,7 @@ class CodeFixAgent:
 
         return issues
 
-    async def _check_syntax(
-        self, code: str, language: SupportedLanguage
-    ) -> list[CodeIssue]:
+    async def _check_syntax(self, code: str, language: SupportedLanguage) -> list[CodeIssue]:
         """التحقق من الأخطاء النحوية"""
         issues = []
 
@@ -810,9 +805,7 @@ class CodeFixAgent:
 
         return issues
 
-    async def _check_imports(
-        self, code: str, language: SupportedLanguage
-    ) -> list[CodeIssue]:
+    async def _check_imports(self, code: str, language: SupportedLanguage) -> list[CodeIssue]:
         """التحقق من مشاكل الاستيراد"""
         issues = []
 
@@ -844,9 +837,7 @@ class CodeFixAgent:
 
         return issues
 
-    async def _check_security(
-        self, code: str, language: SupportedLanguage
-    ) -> list[CodeIssue]:
+    async def _check_security(self, code: str, language: SupportedLanguage) -> list[CodeIssue]:
         """التحقق من مشاكل الأمان"""
         issues = []
 
@@ -909,9 +900,7 @@ class CodeFixAgent:
 
         return issues
 
-    async def _check_style(
-        self, code: str, language: SupportedLanguage
-    ) -> list[CodeIssue]:
+    async def _check_style(self, code: str, language: SupportedLanguage) -> list[CodeIssue]:
         """التحقق من مشاكل الأسلوب"""
         issues = []
 
@@ -987,9 +976,7 @@ class CodeFixAgent:
     # FIX GENERATION
     # ========================================================================
 
-    async def _generate_fixes_for_errors(
-        self, errors: list[dict], code: str
-    ) -> list[CodeFix]:
+    async def _generate_fixes_for_errors(self, errors: list[dict], code: str) -> list[CodeFix]:
         """توليد إصلاحات للأخطاء"""
         fixes = []
 
@@ -1035,9 +1022,7 @@ class CodeFixAgent:
         else:
             return IssueType.BUG
 
-    async def _generate_fix_for_issue(
-        self, issue: CodeIssue, code: str
-    ) -> CodeFix | None:
+    async def _generate_fix_for_issue(self, issue: CodeIssue, code: str) -> CodeFix | None:
         """توليد إصلاح لمشكلة محددة"""
         # This would integrate with LLM for complex fixes
         # For now, return None for unhandled cases
@@ -1152,19 +1137,13 @@ class CodeFixAgent:
     def get_metrics(self) -> dict[str, Any]:
         """الحصول على مقاييس الأداء"""
         avg_response_time = (
-            self.total_response_time_ms / self.total_requests
-            if self.total_requests > 0
-            else 0
+            self.total_response_time_ms / self.total_requests if self.total_requests > 0 else 0
         )
         success_rate = (
-            self.successful_requests / self.total_requests * 100
-            if self.total_requests > 0
-            else 0
+            self.successful_requests / self.total_requests * 100 if self.total_requests > 0 else 0
         )
         avg_reward = (
-            sum(self.reward_history) / len(self.reward_history)
-            if self.reward_history
-            else 0
+            sum(self.reward_history) / len(self.reward_history) if self.reward_history else 0
         )
 
         return {

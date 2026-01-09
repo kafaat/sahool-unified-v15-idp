@@ -3,9 +3,16 @@ Unit Tests for Code Fix Agent
 اختبارات الوحدة لوكيل إصلاح الكود
 """
 
+import sys
+from pathlib import Path
+
 import pytest
 
-from apps.services.code_fix_agent.src.agent.code_fix_agent import (
+# Add the src directory to the path for imports
+src_path = Path(__file__).parent.parent.parent / "src"
+sys.path.insert(0, str(src_path))
+
+from agent.code_fix_agent import (
     AgentPercept,
     AgentStatus,
     CodeFixAgent,
@@ -160,8 +167,14 @@ class TestUtilityFunction:
 
     def test_severity_multipliers(self, agent):
         """اختبار مضاعفات الشدة"""
-        assert agent.SEVERITY_MULTIPLIERS[IssueSeverity.CRITICAL] > agent.SEVERITY_MULTIPLIERS[IssueSeverity.HIGH]
-        assert agent.SEVERITY_MULTIPLIERS[IssueSeverity.HIGH] > agent.SEVERITY_MULTIPLIERS[IssueSeverity.LOW]
+        assert (
+            agent.SEVERITY_MULTIPLIERS[IssueSeverity.CRITICAL]
+            > agent.SEVERITY_MULTIPLIERS[IssueSeverity.HIGH]
+        )
+        assert (
+            agent.SEVERITY_MULTIPLIERS[IssueSeverity.HIGH]
+            > agent.SEVERITY_MULTIPLIERS[IssueSeverity.LOW]
+        )
 
 
 class TestLearning:
@@ -193,10 +206,12 @@ class TestLearning:
         agent.success_patterns["test_pattern"] = 0.5
 
         # Successful feedback
-        await agent.learn({
-            "fix_successful": True,
-            "pattern_key": "test_pattern",
-        })
+        await agent.learn(
+            {
+                "fix_successful": True,
+                "pattern_key": "test_pattern",
+            }
+        )
 
         # Rate should increase
         assert agent.success_patterns["test_pattern"] > 0.5
@@ -251,4 +266,4 @@ def bar():
         metrics = agent._calculate_code_metrics(code)
         assert metrics["total_lines"] == 7
         assert metrics["comment_lines"] == 1
-        assert metrics["blank_lines"] == 1
+        assert metrics["blank_lines"] == 2  # One between functions + trailing newline

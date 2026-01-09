@@ -1,0 +1,2093 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>مقترح وكيل الذكاء الاصطناعي لإصلاح وتنفيذ الأكواد - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              مقترح وكيل الذكاء الاصطناعي لإصلاح وتنفيذ الأكواد
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-ops.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/satellite.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Satellite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">مقترح وكيل الذكاء الاصطناعي لإصلاح وتنفيذ الأكواد<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="ai-code-agent-proposal-for-sahool-platform">AI Code Agent Proposal for SAHOOL Platform<a class="headerlink" href="#ai-code-agent-proposal-for-sahool-platform" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ</strong>: يناير 2026
+<strong>الإصدار</strong>: 1.0.0
+<strong>المؤلف</strong>: AI Architecture Team
+<strong>الحالة</strong>: مقترح للمراجعة</p>
+<hr />
+<h2 id="1-executive-summary">1. ملخص تنفيذي / Executive Summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<p>يقدم هذا المقترح تصميم وكيل ذكاء اصطناعي متخصص لإصلاح وتنفيذ الأكواد داخل منصة سهول، يتبع أحدث الممارسات في تصميم وكلاء الذكاء الاصطناعي وفقاً لإطار عمل Claude Agent SDK ومعايير A2A Protocol.</p>
+<hr />
+<h2 id="2-current-architecture-review">2. مراجعة الهيكل الحالي / Current Architecture Review<a class="headerlink" href="#2-current-architecture-review" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 هيكل الوكلاء الحالي<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<p>المشروع يتضمن بنية تحتية متقدمة للوكلاء تشمل:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">apps</span><span class="o">/</span><span class="n">services</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">ai</span><span class="o">-</span><span class="n">agents</span><span class="o">-</span><span class="n">core</span><span class="o">/</span><span class="w">          </span><span class="p">#</span><span class="w"> </span><span class="err">النواة</span><span class="w"> </span><span class="err">الأساسية</span><span class="w"> </span><span class="err">للوكلاء</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">src</span><span class="o">/</span><span class="n">agents</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="n">base_agent</span><span class="p">.</span><span class="n">py</span><span class="w">    </span><span class="p">#</span><span class="w"> </span><span class="err">الفئة</span><span class="w"> </span><span class="err">الأساسية</span><span class="w"> </span><span class="p">(</span><span class="mh">5</span><span class="w"> </span><span class="err">أنواع</span><span class="w"> </span><span class="err">وكلاء</span><span class="p">)</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="n">coordinator</span><span class="o">/</span><span class="w">     </span><span class="p">#</span><span class="w"> </span><span class="err">منسق</span><span class="w"> </span><span class="err">الوكلاء</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="n">specialist</span><span class="o">/</span><span class="w">      </span><span class="p">#</span><span class="w"> </span><span class="err">الوكلاء</span><span class="w"> </span><span class="err">المتخصصين</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="k">edge</span><span class="o">/</span><span class="w">            </span><span class="p">#</span><span class="w"> </span><span class="err">وكلاء</span><span class="w"> </span><span class="err">الحافة</span>
+<span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="n">learning</span><span class="o">/</span><span class="w">        </span><span class="p">#</span><span class="w"> </span><span class="err">وكلاء</span><span class="w"> </span><span class="err">التعلم</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">ai</span><span class="o">-</span><span class="n">advisor</span><span class="o">/</span><span class="w">              </span><span class="p">#</span><span class="w"> </span><span class="err">خدمة</span><span class="w"> </span><span class="err">الاستشارات</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">agent</span><span class="o">-</span><span class="n">registry</span><span class="o">/</span><span class="w">          </span><span class="p">#</span><span class="w"> </span><span class="err">سجل</span><span class="w"> </span><span class="err">الوكلاء</span>
+</code></pre></div>
+
+<h3 id="22-base_agentpy">2.2 أنواع الوكلاء المطبقة (base_agent.py)<a class="headerlink" href="#22-base_agentpy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>النوع</th>
+<th>الوصف</th>
+<th>الاستخدام</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SIMPLE_REFLEX</code></td>
+<td>إذا كان الشرط → نفذ الإجراء</td>
+<td>ردود فعل سريعة</td>
+</tr>
+<tr>
+<td><code>MODEL_BASED</code></td>
+<td>نموذج داخلي للبيئة</td>
+<td>تتبع الحالة</td>
+</tr>
+<tr>
+<td><code>GOAL_BASED</code></td>
+<td>قرارات بناءً على الأهداف</td>
+<td>تخطيط</td>
+</tr>
+<tr>
+<td><code>UTILITY_BASED</code></td>
+<td>اختيار أفضل النتائج</td>
+<td>تحسين</td>
+</tr>
+<tr>
+<td><code>LEARNING</code></td>
+<td>يتعلم من التجربة</td>
+<td>تحسين مستمر</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-agent-layers">2.3 طبقات الوكلاء (Agent Layers)<a class="headerlink" href="#23-agent-layers" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────┐
+│                    LEARNING LAYER                            │
+│  (Model Updater, Feedback Learner, Knowledge Miner)         │
+├─────────────────────────────────────────────────────────────┤
+│                   COORDINATOR LAYER                          │
+│  (Master Coordinator - حل النزاعات وتوزيع الموارد)          │
+├─────────────────────────────────────────────────────────────┤
+│                   SPECIALIST LAYER                           │
+│  (Disease Expert, Yield Predictor, Irrigation Advisor...)   │
+├─────────────────────────────────────────────────────────────┤
+│                      EDGE LAYER                              │
+│  (Mobile Agent, IoT Agent, Drone Agent) - &lt; 100ms           │
+└─────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="24">2.4 نقاط القوة في التصميم الحالي<a class="headerlink" href="#24" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>بروتوكول A2A متكامل</strong> - تعريفات موحدة في <code>governance/agents.yaml</code>
+✅ <strong>نظام تقييم شامل</strong> - <code>tests/evaluation/evaluator.py</code> مع:
+  - تحليل التشابه الدلالي (Semantic Similarity)
+  - فحص السلامة (Safety Checker)
+  - تقييم زمن الاستجابة (Latency Evaluation)
+✅ <strong>بروتوكول MCP</strong> - تكامل مع Model Context Protocol
+✅ <strong>نظام حل النزاعات</strong> - في Master Coordinator
+✅ <strong>دعم ثنائي اللغة</strong> - عربي/إنجليزي</p>
+<h3 id="25">2.5 الفجوات المحددة<a class="headerlink" href="#25" title="Permanent link">&para;</a></h3>
+<p>⚠️ <strong>لا يوجد وكيل متخصص لإصلاح/تنفيذ الكود</strong>
+⚠️ <strong>محدودية التكامل مع أدوات التطوير (IDE, Git)</strong>
+⚠️ <strong>غياب آلية تنفيذ آمنة للكود (Sandboxing)</strong>
+⚠️ <strong>نقص في آليات التحقق والاختبار التلقائي</strong></p>
+<hr />
+<h2 id="3-code-fix-agent-proposal">3. مقترح وكيل إصلاح الكود / Code Fix Agent Proposal<a class="headerlink" href="#3-code-fix-agent-proposal" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 نظرة عامة<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────────────────────────────┐
+│                    CODE FIX AGENT                                │
+│                 وكيل إصلاح وتنفيذ الكود                          │
+├─────────────────────────────────────────────────────────────────┤
+│  Type: UTILITY_BASED + LEARNING                                 │
+│  Layer: SPECIALIST                                              │
+│  Response Time: &lt; 5s for analysis, &lt; 30s for fixes              │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<h3 id="32-capabilities">3.2 القدرات الأساسية (Capabilities)<a class="headerlink" href="#32-capabilities" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nt">code-fix-agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Code</span><span class="nv"> </span><span class="s">Fix</span><span class="nv"> </span><span class="s">Agent&quot;</span>
+<span class="w">  </span><span class="nt">name_ar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;وكيل</span><span class="nv"> </span><span class="s">إصلاح</span><span class="nv"> </span><span class="s">الكود&quot;</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
+<span class="w">  </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">intelligence</span>
+
+<span class="w">  </span><span class="nt">capabilities</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;analyze_code&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;تحليل</span><span class="nv"> </span><span class="s">الكود</span><span class="nv"> </span><span class="s">واكتشاف</span><span class="nv"> </span><span class="s">المشاكل&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;code_snippet&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;language&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">code_snippet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="p p-Indicator">,</span><span class="nt"> enum</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;python&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;typescript&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;dart&quot;</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">file_path</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">context</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">object</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">issues</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">severity</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">suggestions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fix_code&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;إصلاح</span><span class="nv"> </span><span class="s">الكود</span><span class="nv"> </span><span class="s">تلقائياً&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;code_snippet&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;issue_type&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">code_snippet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">issue_type</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">fix_strategy</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">fixed_code</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">changes_made</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">confidence</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">number</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;implement_feature&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;تنفيذ</span><span class="nv"> </span><span class="s">ميزة</span><span class="nv"> </span><span class="s">جديدة&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;specification&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;target_files&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">specification</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">target_files</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">design_patterns</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">implementation</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">object</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">tests</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">documentation</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;refactor_code&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;إعادة</span><span class="nv"> </span><span class="s">هيكلة</span><span class="nv"> </span><span class="s">الكود&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;code_snippet&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;refactor_type&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">code_snippet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">refactor_type</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">target_pattern</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">refactored_code</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">improvements</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;generate_tests&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;توليد</span><span class="nv"> </span><span class="s">اختبارات</span><span class="nv"> </span><span class="s">تلقائية&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;code_snippet&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">code_snippet</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">test_framework</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">coverage_target</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">number</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">tests</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">coverage_estimate</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">number</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;review_pr&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;مراجعة</span><span class="nv"> </span><span class="s">طلب</span><span class="nv"> </span><span class="s">السحب&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;pr_diff&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">pr_diff</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">context_files</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">review_comments</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">approval_status</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">suggestions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+
+<h3 id="33">3.3 الهيكل التقني المقترح<a class="headerlink" href="#33" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">services</span><span class="o">/</span><span class="nx">code</span><span class="o">-</span><span class="nx">fix</span><span class="o">-</span><span class="nx">agent</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">Dockerfile</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">requirements</span><span class="p">.</span><span class="nx">txt</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">README</span><span class="p">.</span><span class="nx">md</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">main</span><span class="p">.</span><span class="nx">py</span><span class="w">                    </span><span class="err">#</span><span class="w"> </span><span class="nx">FastAPI</span><span class="w"> </span><span class="nx">entry</span><span class="w"> </span><span class="nx">point</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">agent</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">code_fix_agent</span><span class="p">.</span><span class="nx">py</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="nx">Main</span><span class="w"> </span><span class="nx">agent</span><span class="w"> </span><span class="kd">class</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">analyzers</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">python_analyzer</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">typescript_analyzer</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">dart_analyzer</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">fixers</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">bug_fixer</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">security_fixer</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">performance_fixer</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">generators</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">code_generator</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">test_generator</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="nx">doc_generator</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">tools</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">ast_tools</span><span class="p">.</span><span class="nx">py</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">Abstract</span><span class="w"> </span><span class="nx">Syntax</span><span class="w"> </span><span class="nx">Tree</span><span class="w"> </span><span class="nx">utilities</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">git_tools</span><span class="p">.</span><span class="nx">py</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">Git</span><span class="w"> </span><span class="nx">integration</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">sandbox</span><span class="p">.</span><span class="nx">py</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Safe</span><span class="w"> </span><span class="nx">code</span><span class="w"> </span><span class="nx">execution</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">lsp_client</span><span class="p">.</span><span class="nx">py</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Language</span><span class="w"> </span><span class="nx">Server</span><span class="w"> </span><span class="nx">Protocol</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">knowledge</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">patterns</span><span class="p">.</span><span class="nx">py</span><span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nx">Design</span><span class="w"> </span><span class="nx">patterns</span><span class="w"> </span><span class="nx">database</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">best_practices</span><span class="p">.</span><span class="nx">py</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="nx">SAHOOL</span><span class="w"> </span><span class="nx">best</span><span class="w"> </span><span class="nx">practices</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">codebase_context</span><span class="p">.</span><span class="nx">py</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Project</span><span class="o">-</span><span class="nx">specific</span><span class="w"> </span><span class="nx">knowledge</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="kn">api</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="nx">v1</span><span class="o">/</span>
+<span class="err">│</span><span class="w">           </span><span class="err">├──</span><span class="w"> </span><span class="nx">analyze</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">           </span><span class="err">├──</span><span class="w"> </span><span class="nx">fix</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">           </span><span class="err">└──</span><span class="w"> </span><span class="nx">implement</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">tests</span><span class="o">/</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">unit</span><span class="o">/</span>
+<span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="nx">integration</span><span class="o">/</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="nx">golden_dataset</span><span class="o">/</span>
+</code></pre></div>
+
+<h3 id="34">3.4 تصميم الفئة الأساسية<a class="headerlink" href="#34" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">SAHOOL Code Fix Agent</span>
+<span class="sd">وكيل إصلاح وتنفيذ الكود</span>
+
+<span class="sd">Implements a Learning + Utility-Based agent for:</span>
+<span class="sd">- Code analysis and bug detection</span>
+<span class="sd">- Automated code fixes</span>
+<span class="sd">- Feature implementation</span>
+<span class="sd">- Code refactoring</span>
+<span class="sd">- Test generation</span>
+<span class="sd">- PR review</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">apps.services.ai_agents_core.src.agents.base_agent</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AgentAction</span><span class="p">,</span>
+    <span class="n">AgentContext</span><span class="p">,</span>
+    <span class="n">AgentLayer</span><span class="p">,</span>
+    <span class="n">AgentPercept</span><span class="p">,</span>
+    <span class="n">AgentType</span><span class="p">,</span>
+    <span class="n">BaseAgent</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">IssueType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;أنواع مشاكل الكود&quot;&quot;&quot;</span>
+    <span class="n">BUG</span> <span class="o">=</span> <span class="s2">&quot;bug&quot;</span>
+    <span class="n">SECURITY</span> <span class="o">=</span> <span class="s2">&quot;security&quot;</span>
+    <span class="n">PERFORMANCE</span> <span class="o">=</span> <span class="s2">&quot;performance&quot;</span>
+    <span class="n">STYLE</span> <span class="o">=</span> <span class="s2">&quot;style&quot;</span>
+    <span class="n">TYPE_ERROR</span> <span class="o">=</span> <span class="s2">&quot;type_error&quot;</span>
+    <span class="n">LOGIC_ERROR</span> <span class="o">=</span> <span class="s2">&quot;logic_error&quot;</span>
+    <span class="n">MEMORY_LEAK</span> <span class="o">=</span> <span class="s2">&quot;memory_leak&quot;</span>
+    <span class="n">RACE_CONDITION</span> <span class="o">=</span> <span class="s2">&quot;race_condition&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FixStrategy</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;استراتيجيات الإصلاح&quot;&quot;&quot;</span>
+    <span class="n">MINIMAL</span> <span class="o">=</span> <span class="s2">&quot;minimal&quot;</span>          <span class="c1"># أقل تغيير ممكن</span>
+    <span class="n">COMPREHENSIVE</span> <span class="o">=</span> <span class="s2">&quot;comprehensive&quot;</span>  <span class="c1"># إصلاح شامل</span>
+    <span class="n">REFACTOR</span> <span class="o">=</span> <span class="s2">&quot;refactor&quot;</span>        <span class="c1"># إعادة هيكلة</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CodeIssue</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;مشكلة في الكود&quot;&quot;&quot;</span>
+    <span class="n">issue_type</span><span class="p">:</span> <span class="n">IssueType</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># critical, high, medium, low</span>
+    <span class="n">line_start</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">line_end</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description_ar</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">suggestion</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CodeFix</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;إصلاح الكود&quot;&quot;&quot;</span>
+    <span class="n">original_code</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">fixed_code</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">changes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">tests_needed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CodeFixAgent</span><span class="p">(</span><span class="n">BaseAgent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    وكيل إصلاح وتنفيذ الكود</span>
+<span class="sd">    Code Fix and Implementation Agent</span>
+
+<span class="sd">    Combines Utility-Based decision making with Learning capabilities</span>
+<span class="sd">    for intelligent code analysis and fixes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Priority weights for different issue types</span>
+    <span class="n">ISSUE_PRIORITIES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">IssueType</span><span class="o">.</span><span class="n">SECURITY</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">IssueType</span><span class="o">.</span><span class="n">MEMORY_LEAK</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+        <span class="n">IssueType</span><span class="o">.</span><span class="n">RACE_CONDITION</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>
+        <span class="n">IssueType</span><span class="o">.</span><span class="n">BUG</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+        <span class="n">IssueType</span><span class="o">.</span><span class="n">TYPE_ERROR</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>
+        <span class="n">IssueType</span><span class="o">.</span><span class="n">LOGIC_ERROR</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+        <span class="n">IssueType</span><span class="o">.</span><span class="n">PERFORMANCE</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="n">IssueType</span><span class="o">.</span><span class="n">STYLE</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;code_fix_agent_001&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">agent_id</span><span class="o">=</span><span class="n">agent_id</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Code Fix Agent&quot;</span><span class="p">,</span>
+            <span class="n">name_ar</span><span class="o">=</span><span class="s2">&quot;وكيل إصلاح الكود&quot;</span><span class="p">,</span>
+            <span class="n">agent_type</span><span class="o">=</span><span class="n">AgentType</span><span class="o">.</span><span class="n">LEARNING</span><span class="p">,</span>  <span class="c1"># Learning agent for continuous improvement</span>
+            <span class="n">layer</span><span class="o">=</span><span class="n">AgentLayer</span><span class="o">.</span><span class="n">SPECIALIST</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;AI agent for code analysis, fixes, and implementation&quot;</span><span class="p">,</span>
+            <span class="n">description_ar</span><span class="o">=</span><span class="s2">&quot;وكيل ذكاء اصطناعي لتحليل وإصلاح وتنفيذ الكود&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Initialize analyzers and tools</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_analyzers</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_knowledge_base</span><span class="p">()</span>
+
+        <span class="c1"># Set utility function for fix selection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_utility_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fix_utility</span><span class="p">)</span>
+
+        <span class="c1"># Track fix history for learning</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fix_history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">success_patterns</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fix_utility</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">AgentAction</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">AgentContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        دالة المنفعة لتقييم خيارات الإصلاح</span>
+<span class="sd">        Utility function to evaluate fix options</span>
+
+<span class="sd">        Considers:</span>
+<span class="sd">        - Issue severity and priority</span>
+<span class="sd">        - Fix confidence</span>
+<span class="sd">        - Code change size (minimal preferred)</span>
+<span class="sd">        - Historical success rate</span>
+<span class="sd">        - Test coverage impact</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">action</span><span class="o">.</span><span class="n">action_type</span> <span class="o">!=</span> <span class="s2">&quot;apply_fix&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">parameters</span>
+
+        <span class="c1"># Severity factor (higher priority = higher utility)</span>
+        <span class="n">issue_type</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issue_type&quot;</span><span class="p">)</span>
+        <span class="n">severity_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ISSUE_PRIORITIES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">IssueType</span><span class="p">(</span><span class="n">issue_type</span><span class="p">),</span> <span class="mi">50</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>
+
+        <span class="c1"># Confidence factor</span>
+        <span class="n">confidence</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="c1"># Change size factor (smaller changes preferred)</span>
+        <span class="n">change_size</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;change_size&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="n">size_factor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">change_size</span> <span class="o">/</span> <span class="mi">500</span><span class="p">))</span>
+
+        <span class="c1"># Historical success factor</span>
+        <span class="n">pattern_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">issue_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fix_pattern&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;default&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">success_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">success_patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pattern_key</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+
+        <span class="c1"># Calculate combined utility</span>
+        <span class="n">utility</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mf">0.30</span> <span class="o">*</span> <span class="n">severity_score</span> <span class="o">+</span>
+            <span class="mf">0.25</span> <span class="o">*</span> <span class="n">confidence</span> <span class="o">+</span>
+            <span class="mf">0.20</span> <span class="o">*</span> <span class="n">size_factor</span> <span class="o">+</span>
+            <span class="mf">0.25</span> <span class="o">*</span> <span class="n">success_rate</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">utility</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">perceive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percept</span><span class="p">:</span> <span class="n">AgentPercept</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        استقبال المدخلات للتحليل</span>
+<span class="sd">        Receive inputs for analysis</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">percept</span><span class="o">.</span><span class="n">percept_type</span> <span class="o">==</span> <span class="s2">&quot;code_snippet&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percept</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="k">elif</span> <span class="n">percept</span><span class="o">.</span><span class="n">percept_type</span> <span class="o">==</span> <span class="s2">&quot;file_context&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">[</span><span class="s2">&quot;context&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percept</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="k">elif</span> <span class="n">percept</span><span class="o">.</span><span class="n">percept_type</span> <span class="o">==</span> <span class="s2">&quot;error_log&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">[</span><span class="s2">&quot;errors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percept</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="k">elif</span> <span class="n">percept</span><span class="o">.</span><span class="n">percept_type</span> <span class="o">==</span> <span class="s2">&quot;pr_diff&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">[</span><span class="s2">&quot;diff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percept</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="k">elif</span> <span class="n">percept</span><span class="o">.</span><span class="n">percept_type</span> <span class="o">==</span> <span class="s2">&quot;specification&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">[</span><span class="s2">&quot;spec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percept</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">think</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentAction</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        تحليل الكود واتخاذ القرار</span>
+<span class="sd">        Analyze code and decide on action</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Determine task type</span>
+        <span class="k">if</span> <span class="s2">&quot;errors&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_error_fix</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="s2">&quot;diff&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_pr_review</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="s2">&quot;spec&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_implementation</span><span class="p">()</span>
+
+        <span class="k">elif</span> <span class="s2">&quot;code&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">beliefs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_code_analysis</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">act</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">AgentAction</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        تنفيذ الإجراء</span>
+<span class="sd">        Execute the action</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Implementation details...</span>
+        <span class="k">pass</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">learn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feedback</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        التعلم من نتائج الإصلاحات</span>
+<span class="sd">        Learn from fix results</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">learn</span><span class="p">(</span><span class="n">feedback</span><span class="p">)</span>
+
+        <span class="c1"># Update success patterns</span>
+        <span class="k">if</span> <span class="n">feedback</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fix_successful&quot;</span><span class="p">):</span>
+            <span class="n">pattern_key</span> <span class="o">=</span> <span class="n">feedback</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pattern_key&quot;</span><span class="p">)</span>
+            <span class="n">current_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">success_patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pattern_key</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+            <span class="c1"># Exponential moving average</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">success_patterns</span><span class="p">[</span><span class="n">pattern_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mf">0.9</span> <span class="o">*</span> <span class="n">current_rate</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="mf">1.0</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pattern_key</span> <span class="o">=</span> <span class="n">feedback</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pattern_key&quot;</span><span class="p">)</span>
+            <span class="n">current_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">success_patterns</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pattern_key</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">success_patterns</span><span class="p">[</span><span class="n">pattern_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mf">0.9</span> <span class="o">*</span> <span class="n">current_rate</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="mf">0.0</span>
+            <span class="p">)</span>
+</code></pre></div>
+
+<h3 id="35-mcp-model-context-protocol">3.5 تكامل MCP (Model Context Protocol)<a class="headerlink" href="#35-mcp-model-context-protocol" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة أدوات جديدة لـ shared/mcp/tools.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CodeFixMCPTools</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;MCP Tools for Code Fix Agent&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_tool_definitions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;analyze_code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Analyze code for bugs, security issues, and improvements. Returns detailed analysis with suggestions.&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;inputSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Code snippet to analyze&quot;</span>
+                        <span class="p">},</span>
+                        <span class="s2">&quot;language&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;typescript&quot;</span><span class="p">,</span> <span class="s2">&quot;dart&quot;</span><span class="p">],</span>
+                            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Programming language&quot;</span>
+                        <span class="p">},</span>
+                        <span class="s2">&quot;analysis_depth&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;quick&quot;</span><span class="p">,</span> <span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="s2">&quot;deep&quot;</span><span class="p">],</span>
+                            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="s2">&quot;standard&quot;</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;language&quot;</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;fix_bug&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Automatically fix detected bug in code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;inputSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;bug_description&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;fix_strategy&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;enum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;minimal&quot;</span><span class="p">,</span> <span class="s2">&quot;comprehensive&quot;</span><span class="p">,</span> <span class="s2">&quot;refactor&quot;</span><span class="p">]</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;bug_description&quot;</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;generate_tests&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Generate unit tests for code&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;inputSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;code&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;language&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;framework&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Test framework (pytest, vitest, flutter_test)&quot;</span>
+                        <span class="p">},</span>
+                        <span class="s2">&quot;coverage_target&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="mi">80</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;language&quot;</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;review_changes&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Review code changes and provide feedback&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;inputSchema&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="s2">&quot;diff&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;context&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+                        <span class="s2">&quot;review_focus&quot;</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;array&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">},</span>
+                            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Focus areas: security, performance, style, logic&quot;</span>
+                        <span class="p">}</span>
+                    <span class="p">},</span>
+                    <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;diff&quot;</span><span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+</code></pre></div>
+
+<h3 id="36-evaluation-system">3.6 نظام التقييم (Evaluation System)<a class="headerlink" href="#36-evaluation-system" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة لـ tests/evaluation/</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CodeFixEvaluator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    تقييم أداء وكيل إصلاح الكود</span>
+<span class="sd">    Evaluate Code Fix Agent Performance</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">METRICS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;fix_accuracy&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;نسبة الإصلاحات الصحيحة&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">0.35</span><span class="p">,</span>
+            <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.85</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;time_to_fix&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;متوسط وقت الإصلاح&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+            <span class="s2">&quot;threshold_ms&quot;</span><span class="p">:</span> <span class="mi">5000</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;regression_rate&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;معدل الأخطاء الناتجة عن الإصلاح&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+            <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.05</span>  <span class="c1"># Max 5%</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;test_pass_rate&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;نسبة نجاح الاختبارات بعد الإصلاح&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+            <span class="s2">&quot;threshold&quot;</span><span class="p">:</span> <span class="mf">0.95</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;تقييم شامل&quot;&quot;&quot;</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Fix accuracy</span>
+        <span class="n">successful_fixes</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;fix_correct&quot;</span><span class="p">])</span>
+        <span class="n">scores</span><span class="p">[</span><span class="s2">&quot;fix_accuracy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">successful_fixes</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="c1"># Time to fix</span>
+        <span class="n">avg_time</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;time_ms&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">scores</span><span class="p">[</span><span class="s2">&quot;time_to_fix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">avg_time</span> <span class="o">/</span> <span class="mi">10000</span><span class="p">))</span>
+
+        <span class="c1"># Regression rate</span>
+        <span class="n">regressions</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;caused_regression&quot;</span><span class="p">))</span>
+        <span class="n">scores</span><span class="p">[</span><span class="s2">&quot;regression_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">regressions</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+
+        <span class="c1"># Test pass rate</span>
+        <span class="n">tests_passed</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tests_passed&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">)</span>
+        <span class="n">tests_total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tests_total&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">)</span>
+        <span class="n">scores</span><span class="p">[</span><span class="s2">&quot;test_pass_rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tests_passed</span> <span class="o">/</span> <span class="n">tests_total</span>
+
+        <span class="c1"># Weighted overall score</span>
+        <span class="n">overall</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="n">scores</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span> <span class="o">*</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">METRICS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;scores&quot;</span><span class="p">:</span> <span class="n">scores</span><span class="p">,</span>
+            <span class="s2">&quot;overall&quot;</span><span class="p">:</span> <span class="n">overall</span><span class="p">,</span>
+            <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">scores</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">METRICS</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;threshold&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">scores</span>
+            <span class="p">)</span>
+        <span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="4-implementation-plan">4. خطة التنفيذ / Implementation Plan<a class="headerlink" href="#4-implementation-plan" title="Permanent link">&para;</a></h2>
+<h3 id="1-phase-1-foundation">المرحلة 1: الأساس (Phase 1: Foundation)<a class="headerlink" href="#1-phase-1-foundation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المهمة</th>
+<th>الأولوية</th>
+<th>المتطلبات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>إنشاء هيكل خدمة code-fix-agent</td>
+<td>عالية</td>
+<td>Python, FastAPI</td>
+</tr>
+<tr>
+<td>تنفيذ CodeFixAgent base class</td>
+<td>عالية</td>
+<td>ai-agents-core</td>
+</tr>
+<tr>
+<td>تكامل مع AST analyzers</td>
+<td>عالية</td>
+<td>Python AST, typescript-parser</td>
+</tr>
+<tr>
+<td>Sandbox للتنفيذ الآمن</td>
+<td>عالية</td>
+<td>Docker, seccomp</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-phase-2-analysis">المرحلة 2: التحليل (Phase 2: Analysis)<a class="headerlink" href="#2-phase-2-analysis" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المهمة</th>
+<th>الأولوية</th>
+<th>المتطلبات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python Analyzer</td>
+<td>عالية</td>
+<td>pylint, mypy, bandit</td>
+</tr>
+<tr>
+<td>TypeScript Analyzer</td>
+<td>عالية</td>
+<td>ESLint, TypeScript compiler</td>
+</tr>
+<tr>
+<td>Dart Analyzer</td>
+<td>متوسطة</td>
+<td>dart analyze</td>
+</tr>
+<tr>
+<td>Security Scanner</td>
+<td>عالية</td>
+<td>semgrep, CodeQL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-phase-3-fixing">المرحلة 3: الإصلاح (Phase 3: Fixing)<a class="headerlink" href="#3-phase-3-fixing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المهمة</th>
+<th>الأولوية</th>
+<th>المتطلبات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bug Fixer</td>
+<td>عالية</td>
+<td>Pattern matching, LLM</td>
+</tr>
+<tr>
+<td>Security Fixer</td>
+<td>عالية</td>
+<td>OWASP guidelines</td>
+</tr>
+<tr>
+<td>Performance Optimizer</td>
+<td>متوسطة</td>
+<td>Profiling integration</td>
+</tr>
+<tr>
+<td>Test Generator</td>
+<td>عالية</td>
+<td>pytest, vitest templates</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-phase-4-integration">المرحلة 4: التكامل (Phase 4: Integration)<a class="headerlink" href="#4-phase-4-integration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المهمة</th>
+<th>الأولوية</th>
+<th>المتطلبات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git Integration</td>
+<td>عالية</td>
+<td>GitPython</td>
+</tr>
+<tr>
+<td>CI/CD Integration</td>
+<td>عالية</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td>IDE Plugin Support</td>
+<td>منخفضة</td>
+<td>LSP</td>
+</tr>
+<tr>
+<td>A2A Protocol Registration</td>
+<td>عالية</td>
+<td>governance/agents.yaml</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-best-practices-applied">5. أفضل الممارسات المتبعة / Best Practices Applied<a class="headerlink" href="#5-best-practices-applied" title="Permanent link">&para;</a></h2>
+<h3 id="51-agent-design">5.1 تصميم الوكيل (Agent Design)<a class="headerlink" href="#51-agent-design" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>ReAct Pattern</strong> - Reasoning + Acting
+✅ <strong>Tool Use</strong> - استخدام أدوات محددة
+✅ <strong>Memory Management</strong> - ذاكرة قصيرة وطويلة المدى
+✅ <strong>Self-Reflection</strong> - تقييم ذاتي للنتائج</p>
+<h3 id="52-safety">5.2 السلامة (Safety)<a class="headerlink" href="#52-safety" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Sandboxed Execution</strong> - تنفيذ معزول
+✅ <strong>Input Validation</strong> - التحقق من المدخلات
+✅ <strong>Rate Limiting</strong> - تحديد معدل الطلبات
+✅ <strong>Audit Logging</strong> - تسجيل كامل</p>
+<h3 id="53-scalability">5.3 القابلية للتوسع (Scalability)<a class="headerlink" href="#53-scalability" title="Permanent link">&para;</a></h3>
+<p>✅ <strong>Horizontal Scaling</strong> - توسع أفقي
+✅ <strong>Async Processing</strong> - معالجة غير متزامنة
+✅ <strong>Caching</strong> - تخزين مؤقت للنتائج
+✅ <strong>Queue-based</strong> - معالجة عبر الطوابير</p>
+<hr />
+<h2 id="6-a2a-protocol">6. تعريف A2A Protocol<a class="headerlink" href="#6-a2a-protocol" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># إضافة لـ governance/agents.yaml</span>
+
+<span class="nt">code-fix-agent</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Code</span><span class="nv"> </span><span class="s">Fix</span><span class="nv"> </span><span class="s">Agent&quot;</span>
+<span class="w">  </span><span class="nt">name_ar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;وكيل</span><span class="nv"> </span><span class="s">إصلاح</span><span class="nv"> </span><span class="s">الكود&quot;</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.0.0&quot;</span>
+<span class="w">  </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">intelligence</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;AI</span><span class="nv"> </span><span class="s">agent</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">automated</span><span class="nv"> </span><span class="s">code</span><span class="nv"> </span><span class="s">analysis,</span><span class="nv"> </span><span class="s">bug</span><span class="nv"> </span><span class="s">fixing,</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">implementation&quot;</span>
+<span class="w">  </span><span class="nt">description_ar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;وكيل</span><span class="nv"> </span><span class="s">ذكاء</span><span class="nv"> </span><span class="s">اصطناعي</span><span class="nv"> </span><span class="s">لتحليل</span><span class="nv"> </span><span class="s">وإصلاح</span><span class="nv"> </span><span class="s">وتنفيذ</span><span class="nv"> </span><span class="s">الكود</span><span class="nv"> </span><span class="s">تلقائياً&quot;</span>
+
+<span class="w">  </span><span class="nt">capabilities</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;analyze_code&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Comprehensive</span><span class="nv"> </span><span class="s">code</span><span class="nv"> </span><span class="s">analysis&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;code&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;language&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">code</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="p p-Indicator">,</span><span class="nt"> enum</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;python&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;typescript&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;dart&quot;</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">issues</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">suggestions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;fix_code&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Automated</span><span class="nv"> </span><span class="s">bug</span><span class="nv"> </span><span class="s">fixing&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;code&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;issue&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">fixed_code</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">confidence</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">number</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;implement_feature&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Feature</span><span class="nv"> </span><span class="s">implementation</span><span class="nv"> </span><span class="s">from</span><span class="nv"> </span><span class="s">specification&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;specification&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">implementation</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">object</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">tests</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;generate_tests&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Automated</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">generation&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;code&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">tests</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">coverage</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">number</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;review_pr&quot;</span>
+<span class="w">      </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Pull</span><span class="nv"> </span><span class="s">request</span><span class="nv"> </span><span class="s">review&quot;</span>
+<span class="w">      </span><span class="nt">input_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;diff&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">output_schema</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">object</span>
+<span class="w">        </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">comments</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">array</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">          </span><span class="nt">approval</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">string</span><span class="w"> </span><span class="p p-Indicator">}</span>
+
+<span class="w">  </span><span class="nt">skills</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">skill_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;code_analysis&quot;</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Code</span><span class="nv"> </span><span class="s">Analysis&quot;</span>
+<span class="w">      </span><span class="nt">name_ar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;تحليل</span><span class="nv"> </span><span class="s">الكود&quot;</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;expert&quot;</span>
+<span class="w">      </span><span class="nt">keywords</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;analysis&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;bugs&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;security&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;performance&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">skill_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;code_generation&quot;</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Code</span><span class="nv"> </span><span class="s">Generation&quot;</span>
+<span class="w">      </span><span class="nt">name_ar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;توليد</span><span class="nv"> </span><span class="s">الكود&quot;</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;expert&quot;</span>
+<span class="w">      </span><span class="nt">keywords</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;generation&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;implementation&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;refactoring&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">skill_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;testing&quot;</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Test</span><span class="nv"> </span><span class="s">Generation&quot;</span>
+<span class="w">      </span><span class="nt">name_ar</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;توليد</span><span class="nv"> </span><span class="s">الاختبارات&quot;</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;advanced&quot;</span>
+<span class="w">      </span><span class="nt">keywords</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;testing&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;unit-tests&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;coverage&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="nt">dependencies</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">git-service</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ci-cd-pipeline</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sandbox-service</span>
+
+<span class="w">  </span><span class="nt">endpoint</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://api.sahool.app/agents/code-fix/invoke&quot;</span>
+<span class="w">    </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;POST&quot;</span>
+
+<span class="w">  </span><span class="nt">health_endpoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://api.sahool.app/agents/code-fix/health&quot;</span>
+
+<span class="w">  </span><span class="nt">security</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">scheme</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;bearer&quot;</span>
+<span class="w">    </span><span class="nt">requires_authentication</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">requires_developer_role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">  </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;code&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;development&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;ai&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;automation&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;testing&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">organization</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;SAHOOL&quot;</span>
+<span class="w">    </span><span class="nt">license</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;MIT&quot;</span>
+
+<span class="w">  </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;proposed&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-conclusion">7. الخلاصة / Conclusion<a class="headerlink" href="#7-conclusion" title="Permanent link">&para;</a></h2>
+<p>هذا المقترح يقدم وكيل ذكاء اصطناعي متكامل لإصلاح وتنفيذ الكود يتوافق مع:</p>
+<ol>
+<li>✅ البنية التحتية الحالية لوكلاء سهول</li>
+<li>✅ بروتوكول A2A المعتمد</li>
+<li>✅ معايير MCP للتكامل</li>
+<li>✅ أفضل ممارسات Claude Agent SDK</li>
+<li>✅ متطلبات الأمان والسلامة</li>
+</ol>
+<h3 id="_2">الخطوات التالية<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li>مراجعة المقترح من فريق التطوير</li>
+<li>الموافقة على خطة التنفيذ</li>
+<li>تخصيص الموارد</li>
+<li>بدء التنفيذ المرحلي</li>
+</ol>
+<hr />
+<p><strong>التوقيع</strong>: AI Architecture Team
+<strong>التاريخ</strong>: يناير 2026</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

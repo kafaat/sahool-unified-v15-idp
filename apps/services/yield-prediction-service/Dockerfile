@@ -47,8 +47,8 @@ RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintime
 # Copy built application
 COPY --from=builder /workspace/yield-prediction-service/dist ./dist
 
-# Expose port
-EXPOSE 8098
+# Expose port (changed from 8098 to avoid conflict with yield-engine)
+EXPOSE 8129
 
 # Set ownership and switch to non-root user (use existing node user)
 RUN chown -R node:node /app
@@ -56,7 +56,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8098/api/v1/yield/health || exit 1
+    CMD curl -f http://localhost:8129/api/v1/yield/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

@@ -34,9 +34,11 @@ WORKDIR /app
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Copy package files
-COPY apps/services/crop-growth-model/package.json apps/services/crop-growth-model/package-lock.json* ./
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Copy package files from builder (includes generated package-lock.json)
+COPY --from=builder /workspace/crop-growth-model/package.json ./
+COPY --from=builder /workspace/crop-growth-model/package-lock.json ./
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy built application
 COPY --from=builder /workspace/crop-growth-model/dist ./dist

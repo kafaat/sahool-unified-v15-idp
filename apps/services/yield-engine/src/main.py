@@ -99,6 +99,7 @@ class YieldRequest(BaseModel):
     soil_quality: str | None = Field("medium", description="جودة التربة: poor/medium/good")
     irrigation_type: str | None = Field("rain-fed", description="نوع الري")
     governorate: str | None = Field(None, description="المحافظة")
+    target_yield_kg_ha: float | None = Field(None, ge=0, description="الإنتاجية المستهدفة (كجم/هكتار)")
 
 
 class YieldPrediction(BaseModel):

@@ -43,10 +43,12 @@ WORKDIR /app
 # Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
 RUN apk add --no-cache curl openssl openssl-dev
 
-# Copy package files
-COPY apps/services/marketplace-service/package.json apps/services/marketplace-service/package-lock.json* ./
-# Install with increased retries and timeout for network resilience
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Copy package files from builder (includes generated package-lock.json)
+COPY --from=builder /workspace/marketplace-service/package.json ./
+COPY --from=builder /workspace/marketplace-service/package-lock.json ./
+# Install with npm ci (deterministic) with fallback to npm install
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema from builder
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/

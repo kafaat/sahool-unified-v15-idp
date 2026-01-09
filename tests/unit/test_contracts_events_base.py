@@ -64,6 +64,45 @@ class SampleEventInvalidSchema(BaseEvent):
         return {"test_field": self.test_field}
 
 
+# Sample valid GeoJSON geometries for testing
+VALID_POLYGON = {
+    "type": "Polygon",
+    "coordinates": [
+        [
+            [35.123, 31.456],  # longitude, latitude
+            [35.234, 31.456],
+            [35.234, 31.567],
+            [35.123, 31.567],
+            [35.123, 31.456],  # closed ring - first and last must match
+        ]
+    ],
+}
+
+VALID_MULTIPOLYGON = {
+    "type": "MultiPolygon",
+    "coordinates": [
+        [
+            [
+                [35.0, 31.0],
+                [35.1, 31.0],
+                [35.1, 31.1],
+                [35.0, 31.1],
+                [35.0, 31.0],
+            ]
+        ],
+        [
+            [
+                [36.0, 32.0],
+                [36.1, 32.0],
+                [36.1, 32.1],
+                [36.0, 32.1],
+                [36.0, 32.0],
+            ]
+        ],
+    ],
+}
+
+
 class TestEventValidation:
     """Tests for BaseEvent.validate() method"""
 
@@ -81,7 +120,7 @@ class TestEventValidation:
             tenant_id=uuid4(),
             field_id=uuid4(),
             name="Test Field",
-            geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]},
+            geometry=VALID_POLYGON,
             area_hectares=10.5,
         )
         assert event.validate() is True
@@ -100,15 +139,135 @@ class TestEventValidation:
         """Test that validate() raises ValidationError for invalid data"""
         from jsonschema import ValidationError
 
-        # Create event with invalid geometry type (should be Polygon or MultiPolygon)
+        # Create event with empty name (minimum length is 1)
         event = SampleEventWithSchema(
             tenant_id=uuid4(),
             field_id=uuid4(),
-            name="",  # Empty name - minimum length is 1
-            geometry={"type": "InvalidType", "coordinates": []},
+            name="",
+            geometry=VALID_POLYGON,
             area_hectares=-1.0,  # Negative area - minimum is 0
         )
 
+        with pytest.raises(ValidationError):
+            event.validate()
+
+
+class TestGeoJSONGeometryValidation:
+    """Tests for GeoJSON geometry validation (RFC 7946 compliant)"""
+
+    def test_valid_polygon_geometry(self):
+        """Test validation passes for valid Polygon geometry"""
+        event = SampleEventWithSchema(
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            name="Field with Polygon",
+            geometry=VALID_POLYGON,
+            area_hectares=5.0,
+        )
+        assert event.validate() is True
+
+    def test_valid_multipolygon_geometry(self):
+        """Test validation passes for valid MultiPolygon geometry"""
+        event = SampleEventWithSchema(
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            name="Field with MultiPolygon",
+            geometry=VALID_MULTIPOLYGON,
+            area_hectares=15.0,
+        )
+        assert event.validate() is True
+
+    def test_polygon_with_altitude(self):
+        """Test validation passes for Polygon with altitude (3D coordinates)"""
+        geometry = {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [35.0, 31.0, 100.0],  # longitude, latitude, altitude
+                    [35.1, 31.0, 100.0],
+                    [35.1, 31.1, 100.0],
+                    [35.0, 31.1, 100.0],
+                    [35.0, 31.0, 100.0],
+                ]
+            ],
+        }
+        event = SampleEventWithSchema(
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            name="Field with 3D coordinates",
+            geometry=geometry,
+            area_hectares=5.0,
+        )
+        assert event.validate() is True
+
+    def test_invalid_geometry_type(self):
+        """Test validation fails for invalid geometry type"""
+        from jsonschema import ValidationError
+
+        event = SampleEventWithSchema(
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            name="Field with invalid type",
+            geometry={"type": "Point", "coordinates": [35.0, 31.0]},  # Point not allowed
+            area_hectares=5.0,
+        )
+        with pytest.raises(ValidationError):
+            event.validate()
+
+    def test_polygon_with_insufficient_points(self):
+        """Test validation fails for polygon with less than 4 points"""
+        from jsonschema import ValidationError
+
+        event = SampleEventWithSchema(
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            name="Field with invalid polygon",
+            geometry={
+                "type": "Polygon",
+                "coordinates": [
+                    [[35.0, 31.0], [35.1, 31.0], [35.0, 31.0]]  # Only 3 points
+                ],
+            },
+            area_hectares=5.0,
+        )
+        with pytest.raises(ValidationError):
+            event.validate()
+
+    def test_polygon_with_empty_coordinates(self):
+        """Test validation fails for polygon with empty coordinates"""
+        from jsonschema import ValidationError
+
+        event = SampleEventWithSchema(
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            name="Field with empty coordinates",
+            geometry={"type": "Polygon", "coordinates": []},
+            area_hectares=5.0,
+        )
+        with pytest.raises(ValidationError):
+            event.validate()
+
+    def test_polygon_with_invalid_position_format(self):
+        """Test validation fails for invalid position format"""
+        from jsonschema import ValidationError
+
+        event = SampleEventWithSchema(
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            name="Field with invalid positions",
+            geometry={
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [35.0],  # Only 1 coordinate instead of 2
+                        [35.1],
+                        [35.1],
+                        [35.0],
+                    ]
+                ],
+            },
+            area_hectares=5.0,
+        )
         with pytest.raises(ValidationError):
             event.validate()
 
@@ -125,7 +284,7 @@ class TestSchemaLoading:
             tenant_id=uuid4(),
             field_id=uuid4(),
             name="Test Field",
-            geometry={"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 0]]]},
+            geometry=VALID_POLYGON,
             area_hectares=10.5,
         )
 
@@ -185,7 +344,7 @@ class TestBaseEventSerialization:
             tenant_id=uuid4(),
             field_id=uuid4(),
             name="Test Field",
-            geometry={"type": "Polygon", "coordinates": []},
+            geometry=VALID_POLYGON,
             area_hectares=10.5,
         )
 
@@ -205,7 +364,7 @@ class TestBaseEventSerialization:
             tenant_id=tenant_id,
             field_id=uuid4(),
             name="Test Field",
-            geometry={"type": "Polygon", "coordinates": []},
+            geometry=VALID_POLYGON,
             area_hectares=10.5,
         )
 
@@ -220,3 +379,19 @@ class TestBaseEventSerialization:
         assert result["tenant_id"] == str(tenant_id)
         assert result["event_type"] == "field.created"
         assert result["event_version"] == "1.0.0"
+
+    def test_geometry_preserved_in_serialization(self):
+        """Test that geometry coordinates are preserved during serialization"""
+        import json
+
+        event = SampleEventWithSchema(
+            tenant_id=uuid4(),
+            field_id=uuid4(),
+            name="Test Field",
+            geometry=VALID_POLYGON,
+            area_hectares=10.5,
+        )
+
+        result = event.to_dict()
+        assert result["payload"]["geometry"]["type"] == "Polygon"
+        assert result["payload"]["geometry"]["coordinates"] == VALID_POLYGON["coordinates"]

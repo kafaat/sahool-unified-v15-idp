@@ -45,7 +45,7 @@ dependencies:
 
   # Device Security
   flutter_jailbreak_detection: ^1.10.0
-  secure_application: ^3.7.1  # Screenshot prevention
+  secure_application: ^4.1.0  # Screenshot prevention (upgraded for rxdart compatibility)
 
   # UI
   cupertino_icons: ^1.0.8

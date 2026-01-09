@@ -6,13 +6,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { RedisTokenRevocationStore } from '../services/token-revocation';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Mock Redis
+// Mock Redis (hoisted to avoid initialization issues)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const mockRedis = {
+const mockRedis = vi.hoisted(() => ({
   connect: vi.fn().mockResolvedValue(undefined),
   quit: vi.fn().mockResolvedValue(undefined),
   ping: vi.fn().mockResolvedValue('PONG'),
@@ -22,7 +21,7 @@ const mockRedis = {
   del: vi.fn(),
   keys: vi.fn(),
   on: vi.fn(),
-};
+}));
 
 vi.mock('redis', () => ({
   createClient: vi.fn().mockReturnValue(mockRedis),
@@ -37,6 +36,8 @@ vi.mock('../config/jwt.config', () => ({
     REDIS_DB: 0,
   },
 }));
+
+import { RedisTokenRevocationStore } from '../services/token-revocation';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Test Suite

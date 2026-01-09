@@ -33,6 +33,7 @@ class SampleEvent(BaseEvent):
     field_id: str
     field_name: str
     action: str = "created"
+    tenant_id: str | None = None
 
 
 @pytest.fixture

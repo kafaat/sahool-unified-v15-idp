@@ -121,7 +121,7 @@ class CertificatePinningService {
       if (pins.isEmpty) {
         if (enforceStrict) {
           if (kDebugMode) {
-            print('❌ No certificate pins configured for host: $host');
+            debugPrint('❌ No certificate pins configured for host: $host');
           }
           return false;
         }
@@ -133,27 +133,27 @@ class CertificatePinningService {
       for (final pin in pins) {
         if (pin.isExpired) {
           if (kDebugMode) {
-            print('⚠️ Pin expired for host: $host');
+            debugPrint('⚠️ Pin expired for host: $host');
           }
           continue;
         }
 
         if (_matchPin(cert, pin)) {
           if (kDebugMode) {
-            print('✅ Certificate pin matched for host: $host');
+            debugPrint('✅ Certificate pin matched for host: $host');
           }
           return true;
         }
       }
 
       if (kDebugMode) {
-        print('❌ Certificate validation failed for host: $host');
-        print('   Certificate fingerprint: ${_getCertificateFingerprint(cert)}');
+        debugPrint('❌ Certificate validation failed for host: $host');
+        debugPrint('   Certificate fingerprint: ${_getCertificateFingerprint(cert)}');
       }
       return false;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error validating certificate: $e');
+        debugPrint('❌ Error validating certificate: $e');
       }
       return false;
     }
@@ -371,7 +371,7 @@ Future<String?> getCertificateFingerprintFromUrl(String url) async {
     return fingerprint;
   } catch (e) {
     if (kDebugMode) {
-      print('Error getting certificate fingerprint: $e');
+      debugPrint('Error getting certificate fingerprint: $e');
     }
     return null;
   }

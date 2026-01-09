@@ -26,11 +26,11 @@ class EnvConfig {
     try {
       await dotenv.load(fileName: '.env');
       if (kDebugMode) {
-        print('✅ Environment configuration loaded from .env');
+        debugPrint('✅ Environment configuration loaded from .env');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('⚠️ Could not load .env file. Using dart-define/defaults.');
+        debugPrint('⚠️ Could not load .env file. Using dart-define/defaults.');
       }
     }
 
@@ -358,21 +358,21 @@ class EnvConfig {
   static void printConfig() {
     if (!kDebugMode) return;
 
-    print('');
-    print('╔════════════════════════════════════════════════════════════╗');
-    print('║           SAHOOL Environment Configuration                 ║');
-    print('╠════════════════════════════════════════════════════════════╣');
-    print('║ Environment: ${environment.name.padRight(45)}║');
-    print('║ Version: ${fullVersion.padRight(49)}║');
-    print('╠════════════════════════════════════════════════════════════╣');
-    print('║ API: ${apiBaseUrl.padRight(52)}║');
-    print('║ WS: ${wsBaseUrl.padRight(53)}║');
-    print('╠════════════════════════════════════════════════════════════╣');
-    print('║ Features:                                                  ║');
-    print('║   Offline: ${(enableOfflineMode ? "✓" : "✗").padRight(47)}║');
-    print('║   Push: ${(enablePushNotifications ? "✓" : "✗").padRight(50)}║');
-    print('║   Analytics: ${(enableAnalytics ? "✓" : "✗").padRight(45)}║');
-    print('╚════════════════════════════════════════════════════════════╝');
-    print('');
+    debugPrint('');
+    debugPrint('╔════════════════════════════════════════════════════════════╗');
+    debugPrint('║           SAHOOL Environment Configuration                 ║');
+    debugPrint('╠════════════════════════════════════════════════════════════╣');
+    debugPrint('║ Environment: ${environment.name.padRight(45)}║');
+    debugPrint('║ Version: ${fullVersion.padRight(49)}║');
+    debugPrint('╠════════════════════════════════════════════════════════════╣');
+    debugPrint('║ API: ${apiBaseUrl.padRight(52)}║');
+    debugPrint('║ WS: ${wsBaseUrl.padRight(53)}║');
+    debugPrint('╠════════════════════════════════════════════════════════════╣');
+    debugPrint('║ Features:                                                  ║');
+    debugPrint('║   Offline: ${(enableOfflineMode ? "✓" : "✗").padRight(47)}║');
+    debugPrint('║   Push: ${(enablePushNotifications ? "✓" : "✗").padRight(50)}║');
+    debugPrint('║   Analytics: ${(enableAnalytics ? "✓" : "✗").padRight(45)}║');
+    debugPrint('╚════════════════════════════════════════════════════════════╝');
+    debugPrint('');
   }
 }

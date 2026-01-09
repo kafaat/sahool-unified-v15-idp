@@ -377,7 +377,7 @@ class TestDiseaseRiskFactors:
         actions = diagnose_zone(obs)
 
         # Should have multiple types of actions
-        action_types = set(a["type"] for a in actions)
+        action_types = {a["type"] for a in actions}
         assert len(action_types) >= 2  # Should have multiple action types
 
         # Should include both irrigation and other actions

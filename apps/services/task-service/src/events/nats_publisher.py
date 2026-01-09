@@ -6,7 +6,7 @@ Publishes task-related events to NATS event bus
 import json
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import nats
@@ -19,7 +19,7 @@ class NatsPublisher:
     """NATS Event Publisher for Task Service"""
 
     def __init__(self):
-        self.nc: Optional[NatsClient] = None
+        self.nc: NatsClient | None = None
         self.connected = False
 
     async def connect(self, nats_url: str) -> bool:
@@ -57,7 +57,7 @@ class NatsPublisher:
         subject: str,
         event_type: str,
         payload: dict[str, Any],
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> bool:
         """
         Publish event to NATS
@@ -97,10 +97,10 @@ class NatsPublisher:
 
 
 # Global publisher instance
-_publisher: Optional[NatsPublisher] = None
+_publisher: NatsPublisher | None = None
 
 
-def get_publisher() -> Optional[NatsPublisher]:
+def get_publisher() -> NatsPublisher | None:
     """Get global NATS publisher instance"""
     return _publisher
 
@@ -121,9 +121,9 @@ async def publish_task_created(
     tenant_id: str,
     task_type: str,
     priority: str,
-    field_id: Optional[str] = None,
-    assigned_to: Optional[str] = None,
-    due_date: Optional[str] = None,
+    field_id: str | None = None,
+    assigned_to: str | None = None,
+    due_date: str | None = None,
 ) -> bool:
     """
     Publish task created event
@@ -196,7 +196,7 @@ async def publish_task_assigned(
     task_id: str,
     tenant_id: str,
     assigned_to: str,
-    assigned_by: Optional[str] = None,
+    assigned_by: str | None = None,
 ) -> bool:
     """
     Publish task assigned event
@@ -263,7 +263,7 @@ async def publish_task_completed(
     task_id: str,
     tenant_id: str,
     completed_by: str,
-    actual_duration_minutes: Optional[int] = None,
+    actual_duration_minutes: int | None = None,
 ) -> bool:
     """
     Publish task completed event
@@ -298,7 +298,7 @@ async def publish_task_cancelled(
     task_id: str,
     tenant_id: str,
     cancelled_by: str,
-    reason: Optional[str] = None,
+    reason: str | None = None,
 ) -> bool:
     """
     Publish task cancelled event

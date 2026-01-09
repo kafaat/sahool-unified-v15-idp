@@ -455,7 +455,7 @@ class TestNATSIntegration:
             "expires_in_hours": 24,
         }
 
-        with patch("src.main.create_notification", new=AsyncMock()) as mock_create:
+        with patch("src.main.create_notification", new=AsyncMock()):
             create_notification_from_nats(nats_event)
             # Note: This is sync, so we can't await, but we can verify it was called
             # In reality, this would be tested with proper async handling

@@ -10,6 +10,9 @@ import io
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
+if TYPE_CHECKING:
+    from ..data_exporter import ExportResult
+
 try:
     from reportlab.graphics.charts.barcharts import VerticalBarChart
     from reportlab.graphics.charts.lineplots import LinePlot

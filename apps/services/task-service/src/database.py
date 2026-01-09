@@ -98,7 +98,7 @@ def init_database(create_tables: bool = True) -> None:
             logger.debug("Database connection established")
 
         # Test connection
-        with _engine.connect() as conn:
+        with _engine.connect():
             logger.info("Database connection test successful")
 
         # Create tables if requested

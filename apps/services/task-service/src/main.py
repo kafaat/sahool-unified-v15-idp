@@ -23,12 +23,12 @@ import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from .repository import TaskRepository
 from sqlalchemy.orm import Session
 
 # Database imports
 from .database import close_database, get_db, init_database, init_demo_data_if_needed
 from .models import Task as TaskModel
+from .repository import TaskRepository
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -949,7 +949,7 @@ async def fetch_astronomical_data(due_date: datetime, task_type: TaskType) -> di
             }
 
             # Determine optimal time based on season and activity
-            season_info = astro_data.get("season", {})
+            astro_data.get("season", {})
             if activity in ["ري", "رش"]:
                 result["optimal_time"] = "06:00-08:00"  # Early morning for irrigation/spraying
             elif activity == "حصاد":
@@ -2058,7 +2058,7 @@ async def validate_date_for_activity(
 
     # Validate date format
     try:
-        date_obj = datetime.strptime(data.date, "%Y-%m-%d")
+        datetime.strptime(data.date, "%Y-%m-%d")
     except ValueError:
         raise HTTPException(
             status_code=400,

@@ -26,15 +26,16 @@ from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request, st
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from pydantic import BaseModel, Field
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.observers import Observer
+
 from .agricultural_rules import AgriculturalAnalysis, AgriculturalRulesEngine
 
 # Local imports
 from .cache import CacheBackend, create_cache_backend, generate_cache_key
 from .github_integration import GitHubIntegration, PRReviewResult
-from pydantic import BaseModel, Field
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-from watchdog.events import FileSystemEvent, FileSystemEventHandler
-from watchdog.observers import Observer
 
 # Ensure logs directory exists
 Path("/app/logs").mkdir(parents=True, exist_ok=True)

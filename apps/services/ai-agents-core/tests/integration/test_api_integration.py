@@ -9,10 +9,10 @@ End-to-end API integration tests:
 - Performance testing
 """
 
-import pytest
 from datetime import datetime
-from fastapi.testclient import TestClient
 
+import pytest
+from fastapi.testclient import TestClient
 
 # ============================================================================
 # Test Complete Analysis Workflow via API

@@ -89,11 +89,10 @@ from .kb import (
     search_diseases,
 )
 
-
 # Import token revocation
 try:
-    from auth.token_revocation import get_revocation_store
     from auth.revocation_middleware import TokenRevocationMiddleware
+    from auth.token_revocation import get_revocation_store
 
     REVOCATION_AVAILABLE = True
 except ImportError:

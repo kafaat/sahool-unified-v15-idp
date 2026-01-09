@@ -11,10 +11,10 @@ Tests for complete multi-agent workflows:
 - End-to-end field analysis
 """
 
-import pytest
 from datetime import datetime
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
 
+import pytest
 from agents import (
     AgentContext,
     AgentPercept,
@@ -24,7 +24,6 @@ from agents import (
 )
 
 from tests.mocks import MockDiseaseDetectionModel, MockWeatherAPI
-
 
 # ============================================================================
 # Test Disease Detection and Treatment Workflow
@@ -257,8 +256,8 @@ class TestMultiAgentCoordination:
         """Test conflict resolution when agents recommend different actions"""
         coordinator = MasterCoordinatorAgent()
 
-        from agents.coordinator.master_coordinator import AgentRecommendation
         from agents import AgentAction
+        from agents.coordinator.master_coordinator import AgentRecommendation
 
         # Create conflicting recommendations
         irrigation_action = AgentAction(
@@ -425,7 +424,7 @@ class TestFeedbackWorkflow:
         )
 
         result = await disease_agent.run(percept)
-        recommendation = result["action"]
+        result["action"]
 
         # Step 2: Receive feedback
         feedback = {
@@ -469,7 +468,7 @@ class TestFeedbackWorkflow:
         # Simulate multiple feedback cycles
         for i in range(10):
             feedback = {
-                "correct": True if i > 3 else False,  # Improves over time
+                "correct": i > 3,  # Improves over time
                 "reward": 0.1 * i,  # Increasing rewards
             }
             await disease_agent.learn(feedback)

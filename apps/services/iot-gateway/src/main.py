@@ -276,8 +276,8 @@ setup_cors(app)
 
 # Rate Limiting - Critical for IoT endpoints to prevent sensor data flooding
 try:
-    from shared.middleware.rate_limiter import setup_rate_limiting, RateLimitTier
     from fastapi import Request
+    from shared.middleware.rate_limiter import RateLimitTier, setup_rate_limiting
 
     def iot_tier_func(request: Request) -> RateLimitTier:
         """Determine rate limit tier for IoT Gateway endpoints"""

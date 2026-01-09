@@ -91,8 +91,8 @@ class TestHistoricalDataRetrieval:
 
     def test_historical_data_empty_range(self):
         """Test historical data with no data in range"""
-        start_date = date(2020, 1, 1)
-        end_date = date(2020, 1, 31)
+        date(2020, 1, 1)
+        date(2020, 1, 31)
 
         # No data available for this range
         data = []

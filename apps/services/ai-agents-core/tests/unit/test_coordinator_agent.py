@@ -11,16 +11,15 @@ Tests for coordinator functionality:
 - Utility-based coordination
 """
 
-import pytest
 from datetime import datetime
 
+import pytest
 from agents import (
     AgentAction,
     AgentContext,
     AgentPercept,
     MasterCoordinatorAgent,
 )
-
 
 # ============================================================================
 # Test Coordinator Initialization

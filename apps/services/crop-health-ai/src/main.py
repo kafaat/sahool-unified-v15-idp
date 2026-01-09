@@ -26,6 +26,9 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 
+# Configure logger early
+logger = logging.getLogger(__name__)
+
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 

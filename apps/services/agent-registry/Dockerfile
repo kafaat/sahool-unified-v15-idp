@@ -1,12 +1,6 @@
-# ╔════════════════════════════════════════════════════════════════════════════╗
-# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
-# ║ This service has port conflict with: field-ops (port 8080)                 ║
-# ║ Port Conflict: 8080 → Suggested new port: 8121                             ║
-# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
-# ╚════════════════════════════════════════════════════════════════════════════╝
-#
 # SAHOOL Agent Registry Service - Dockerfile
 # ===========================================
+# Port: 8121
 
 FROM python:3.11-slim
 
@@ -38,11 +32,11 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8121
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8080/healthz').raise_for_status()"
+    CMD python -c "import httpx; httpx.get('http://localhost:8121/healthz').raise_for_status()"
 
 # Run the service
-CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8121"]

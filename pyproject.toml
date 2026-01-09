@@ -82,6 +82,8 @@ ignore = [
     "B026",  # Star-arg unpacking - valid pattern in some cases
     # Non-essential style rules - relaxed for productivity
     "SIM102", # Nested if statements - style preference
+    "SIM103", # Return condition directly - sometimes less clear
+    "SIM105", # Use contextlib.suppress - explicit try-except often clearer
     "SIM108", # Ternary operator - readability preference
     "SIM115", # Context manager for files - not always needed
     "SIM117", # Multiple context managers - style preference
@@ -90,6 +92,7 @@ ignore = [
     "E731",   # Lambda assignment - sometimes cleaner
     "F841",   # Unused variable - often intentional placeholders
     "UP035",  # Deprecated typing imports - backwards compat
+    "I001",   # Import sorting - auto-formatter handles this
 ]
 fixable = ["ALL"]
 
@@ -98,7 +101,8 @@ fixable = ["ALL"]
 "**/__init__.py" = ["F401"]
 "**/main.py" = ["E402", "F401", "F821"]  # Allow imports after sys.path modifications
 "**/examples/*" = ["F401", "F821", "E402"]  # Example code may have unused imports
-"**/example*.py" = ["F401", "F821"]  # Example files
+"**/example*.py" = ["F401", "F821", "E402"]  # Example files
+"**/*_example*.py" = ["F401", "F821", "E402"]  # Example files with prefix
 "archive/**" = ["F401", "F841", "F821", "E402"]  # Legacy archive code
 "legacy/**" = ["F401", "F841", "F821", "E402"]  # Legacy code
 "**/seeds/*" = ["F401"]  # Seed files
@@ -106,6 +110,16 @@ fixable = ["ALL"]
 "scripts/**" = ["F401", "E402"]  # Scripts may have conditional imports
 "**/services/*/src/*" = ["F401", "E402"]  # Services may have conditional imports
 "apps/kernel/**" = ["F401", "E402"]  # Kernel modules
+"shared/auth/*" = ["F401", "F821", "E402"]  # Auth module examples
+"shared/a2a/*" = ["F401", "F821"]  # A2A optional dependencies
+"shared/libs/*" = ["F401"]  # Shared libs
+"shared/observability/*" = ["F401"]  # Observability optional deps
+"shared/events/*" = ["SIM103"]  # Event handlers style
+"**/verify*.py" = ["F401", "F821"]  # Verification scripts
+"**/test_*.py" = ["F401", "F821"]  # Test files outside tests folder
+"apps/mobile/**/scripts/*" = ["F401"]  # Mobile scripts
+"apps/mobile/**/test/*" = ["F401", "F402"]  # Mobile test simulations
+"apps/services/shared/**" = ["F401"]  # Services shared code
 
 [tool.ruff.format]
 quote-style = "double"

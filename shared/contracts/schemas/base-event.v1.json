@@ -55,7 +55,7 @@
       "description": "User who triggered the event (if applicable)"
     },
     "source": {
-      "type": "object",
+      "type": ["object", "null"],
       "required": ["service", "version"],
       "properties": {
         "service": {
@@ -73,7 +73,7 @@
       }
     },
     "metadata": {
-      "type": "object",
+      "type": ["object", "null"],
       "additionalProperties": true,
       "description": "Additional metadata for the event"
     },

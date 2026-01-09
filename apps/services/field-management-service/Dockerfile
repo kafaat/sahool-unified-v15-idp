@@ -24,13 +24,14 @@ COPY packages/field-shared ./packages/field-shared
 # Build field-shared package first (needed for TypeScript compilation)
 # Install its dependencies and build it
 WORKDIR /app/packages/field-shared
-RUN npm install --legacy-peer-deps && npm run build
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm run build
 
 # Return to app directory and install dependencies
 WORKDIR /app
 COPY apps/services/field-management-service/package.json ./
 COPY apps/services/field-management-service/package-lock.json ./
-RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and generate client
 COPY apps/services/field-management-service/prisma ./prisma
@@ -74,7 +75,8 @@ COPY --from=builder /app/packages ./packages
 # NOTE: Using npm ci for deterministic builds with package-lock.json
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/package-lock.json ./
-RUN npm ci --omit=dev --legacy-peer-deps || npm install --omit=dev --legacy-peer-deps
+RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and regenerate client for production environment
 # Add retry logic for network resilience

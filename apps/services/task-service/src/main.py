@@ -451,7 +451,7 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Close database connections"""
+    """Close database connections and cleanup resources"""
     logger.info("Closing task-service database connections...")
     close_database()
 
@@ -462,6 +462,14 @@ async def shutdown_event():
             logger.info("✅ NATS disconnected")
         except Exception as e:
             logger.error(f"❌ Error disconnecting from NATS: {e}")
+
+    # Close NDVI client
+    try:
+        from .ndvi_client import close_ndvi_client
+        await close_ndvi_client()
+        logger.info("✅ NDVI client closed")
+    except Exception as e:
+        logger.warning(f"Could not close NDVI client: {e}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -1609,87 +1617,68 @@ async def get_task_suggestions_for_field(
     logger.info(f"Generating task suggestions for field: {field_id}")
 
     try:
-        # TODO: Call NDVI service to get field health data
-        # For now, return mock suggestions based on common scenarios
+        # Import NDVI client for field health analysis
+        from .ndvi_client import (
+            get_ndvi_client,
+            get_task_suggestions_from_health,
+        )
+
+        # Get NDVI client and fetch field health data
+        ndvi_client = get_ndvi_client()
+        health_data = await ndvi_client.get_field_health(field_id)
+
+        logger.info(
+            f"Field {field_id} health: score={health_data.health_score}, "
+            f"status={health_data.health_status.value}"
+        )
+
+        # Generate task suggestions based on actual field health data
+        raw_suggestions = get_task_suggestions_from_health(health_data)
+
+        # Convert to TaskSuggestion objects
         suggestions = []
+        for raw in raw_suggestions:
+            # Map task type string to TaskType enum
+            task_type_map = {
+                "scouting": TaskType.SCOUTING,
+                "irrigation": TaskType.IRRIGATION,
+                "sampling": TaskType.SAMPLING,
+                "spraying": TaskType.SPRAYING,
+                "fertilization": TaskType.FERTILIZATION,
+                "harvest": TaskType.HARVEST,
+                "other": TaskType.OTHER,
+            }
+            task_type = task_type_map.get(raw.get("task_type", "other"), TaskType.OTHER)
 
-        # Mock NDVI data analysis (replace with actual service call)
-        # Example: Low NDVI suggests irrigation or nutrient issues
-        suggestions.append(
-            TaskSuggestion(
-                task_type=TaskType.IRRIGATION,
-                priority=TaskPriority.HIGH,
-                title="Increase Irrigation Frequency",
-                title_ar="زيادة تكرار الري",
-                description=(
-                    "Recent NDVI trend shows declining vegetation health. "
-                    "Consider increasing irrigation frequency or duration "
-                    "to address potential water stress."
-                ),
-                description_ar=(
-                    "يُظهر اتجاه NDVI الأخير تراجعاً في صحة النباتات. "
-                    "فكر في زيادة تكرار الري أو مدته "
-                    "لمعالجة الإجهاد المائي المحتمل."
-                ),
-                reason="NDVI declining trend detected",
-                reason_ar="تم اكتشاف اتجاه تراجع في NDVI",
-                confidence=0.75,
-                suggested_due_days=2,
-                metadata={
-                    "analysis_type": "trend_analysis",
-                    "data_points": 7,
-                },
-            )
-        )
+            # Map priority string to TaskPriority enum
+            priority_map = {
+                "urgent": TaskPriority.URGENT,
+                "high": TaskPriority.HIGH,
+                "medium": TaskPriority.MEDIUM,
+                "low": TaskPriority.LOW,
+            }
+            priority = priority_map.get(raw.get("priority", "medium"), TaskPriority.MEDIUM)
 
-        suggestions.append(
-            TaskSuggestion(
-                task_type=TaskType.SCOUTING,
-                priority=TaskPriority.MEDIUM,
-                title="Field Inspection - Vegetation Health",
-                title_ar="فحص الحقل - الصحة النباتية",
-                description=(
-                    "Conduct visual inspection to verify satellite observations. "
-                    "Check for pest activity, disease symptoms, and overall plant vigor."
-                ),
-                description_ar=(
-                    "قم بفحص بصري للتحقق من ملاحظات الأقمار الصناعية. "
-                    "تحقق من نشاط الآفات وأعراض الأمراض وحيوية النبات العامة."
-                ),
-                reason="Verification of satellite data",
-                reason_ar="التحقق من بيانات الأقمار الصناعية",
-                confidence=0.85,
-                suggested_due_days=3,
-                metadata={
-                    "recommended_time": "morning",
-                },
+            suggestions.append(
+                TaskSuggestion(
+                    task_type=task_type,
+                    priority=priority,
+                    title=raw.get("title", ""),
+                    title_ar=raw.get("title_ar", ""),
+                    description=raw.get("description", ""),
+                    description_ar=raw.get("description_ar", ""),
+                    reason=raw.get("reason", ""),
+                    reason_ar=raw.get("reason_ar", ""),
+                    confidence=raw.get("confidence", 0.5),
+                    suggested_due_days=raw.get("suggested_due_days", 3),
+                    metadata={
+                        "source": "ndvi_analysis",
+                        "health_score": health_data.health_score,
+                        "health_status": health_data.health_status.value,
+                        "ndvi_mean": health_data.ndvi_mean,
+                    },
+                )
             )
-        )
-
-        suggestions.append(
-            TaskSuggestion(
-                task_type=TaskType.SAMPLING,
-                priority=TaskPriority.MEDIUM,
-                title="Soil Nutrient Testing",
-                title_ar="فحص مغذيات التربة",
-                description=(
-                    "Collect soil samples from areas showing low NDVI values. "
-                    "Test for N, P, K, and micronutrient levels to guide fertilization."
-                ),
-                description_ar=(
-                    "جمع عينات التربة من المناطق ذات قيم NDVI منخفضة. "
-                    "اختبر مستويات N و P و K والعناصر الدقيقة لتوجيه التسميد."
-                ),
-                reason="Nutrient deficiency suspected",
-                reason_ar="يُشتبه في نقص المغذيات",
-                confidence=0.65,
-                suggested_due_days=5,
-                metadata={
-                    "sample_count": 5,
-                    "test_types": ["NPK", "micronutrients"],
-                },
-            )
-        )
 
         logger.info(f"Generated {len(suggestions)} task suggestions for field {field_id}")
 
@@ -1698,12 +1687,55 @@ async def get_task_suggestions_for_field(
             "suggestions": [s.model_dump() for s in suggestions],
             "total": len(suggestions),
             "generated_at": datetime.utcnow().isoformat(),
+            "health_summary": {
+                "score": health_data.health_score,
+                "status": health_data.health_status.value,
+                "needs_attention": health_data.needs_attention,
+                "vegetation_coverage": health_data.vegetation_coverage,
+            },
         }
 
     except Exception as e:
         logger.error(f"Error generating task suggestions: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Failed to generate task suggestions: {str(e)}"
+        )
+
+
+@app.get("/api/v1/fields/{field_id}/health", response_model=dict)
+async def get_field_health(
+    field_id: str,
+    tenant_id: str = Depends(get_tenant_id),
+):
+    """
+    Get field health analysis from NDVI data
+    الحصول على تحليل صحة الحقل من بيانات NDVI
+
+    Returns comprehensive field health analysis including:
+    - Health score (0-10)
+    - Zone classification (healthy, stressed, critical)
+    - NDVI statistics
+    - Alerts and suggested actions
+    """
+    logger.info(f"Fetching health data for field: {field_id}")
+
+    try:
+        from .ndvi_client import get_ndvi_client
+
+        ndvi_client = get_ndvi_client()
+        health_data = await ndvi_client.get_field_health(field_id)
+
+        return {
+            "field_id": field_id,
+            "tenant_id": tenant_id,
+            "health": health_data.to_dict(),
+            "fetched_at": datetime.utcnow().isoformat(),
+        }
+
+    except Exception as e:
+        logger.error(f"Error fetching field health: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Failed to fetch field health: {str(e)}"
         )
 
 

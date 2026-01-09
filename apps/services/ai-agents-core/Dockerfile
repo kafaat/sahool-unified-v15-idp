@@ -9,11 +9,14 @@ WORKDIR /app
 RUN groupadd -r sahool && useradd -r -g sahool sahool
 
 # Install dependencies
-COPY requirements.txt .
+COPY apps/services/ai-agents-core/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared modules (required for imports from shared/)
+COPY apps/services/shared/ ./shared/
+
 # Copy source
-COPY src/ ./src/
+COPY apps/services/ai-agents-core/src/ ./src/
 
 # Set ownership to non-root user
 RUN chown -R sahool:sahool /app

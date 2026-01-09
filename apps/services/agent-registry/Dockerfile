@@ -22,6 +22,9 @@ COPY apps/services/agent-registry/requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared modules (required for imports from shared/)
+COPY apps/services/shared/ ./shared/
+
 # Copy service code
 COPY apps/services/agent-registry/src /app/src
 

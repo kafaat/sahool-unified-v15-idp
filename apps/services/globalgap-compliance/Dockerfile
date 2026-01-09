@@ -23,13 +23,16 @@ RUN groupadd -r sahool && useradd -r -g sahool sahool
 WORKDIR /app
 
 # Copy requirements first for caching | نسخ المتطلبات أولاً للتخزين المؤقت
-COPY requirements.txt .
+COPY apps/services/globalgap-compliance/requirements.txt .
 
 # Install Python dependencies | تثبيت تبعيات Python
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared modules (required for imports from shared/) | نسخ الوحدات المشتركة
+COPY apps/services/shared/ ./shared/
+
 # Copy source code | نسخ الكود المصدري
-COPY src/ ./src/
+COPY apps/services/globalgap-compliance/src/ ./src/
 
 # Change ownership | تغيير الملكية
 RUN chown -R sahool:sahool /app

@@ -1,469 +1,335 @@
-# SAHOOL Platform - Fix Plan
-
-**Generated:** 2026-01-08T21:10:00Z
-**Engineer:** Code Engineer Agent
-**Total Fixes:** 8 critical + 4 recommended
-
----
-
-## Fix Order Strategy
-
-Fixes are ordered by:
-1. **Dependency chain** - Infrastructure before services
-2. **Impact scope** - Wider impact fixes first
-3. **Risk level** - Lower risk fixes first
-
-```
-Fix 1: .env file → Unblocks ALL services
-Fix 2: PgBouncer → Enables database
-Fix 3: Certificates directories → Enables volume mounts
-Fix 4: .env.example missing vars → Prevents future errors
-Fix 5: Kong port mismatch → Fixes code-review route
-Fix 6: Kong non-existent services → Prevents healthcheck failures
-Fix 7: Ollama optional profile → Allows GPU-less deployment
-Fix 8: Health check alignment → Improves monitoring
-```
+# 02-fix-plan.md — SAHOOL Platform Fix Plan
+**Timestamp:** 2026-01-09T00:00:00Z
+**Analysis:** Static Configuration Review
+**Docker Status:** Not available in this environment
 
 ---
 
-## Fix 1: Create .env File from Template
+## Executive Summary
 
-### Service
-**Target:** Environment Configuration
-**Symptom:** `error: POSTGRES_PASSWORD is required` (and 25+ similar errors)
-**Evidence:** `.env` file does not exist; `.env.example` exists with template values
-**Root Cause:** No environment file created for deployment
+This fix plan addresses configuration issues identified through static analysis of the SAHOOL v16.0.0 platform. The fixes are ordered by priority and dependency chain.
 
-### Proposed Changes
+---
 
-**File:** `.env` (new file)
+## Pre-Requisite Fixes (Before Stack Start)
 
-**Action:** Copy `.env.example` to `.env` with development-safe placeholder values
+### Fix 0: Create Environment File
+**Priority:** CRITICAL
+**Impact:** Stack cannot start without this
 
+**Symptom:**
+- docker-compose uses `${VAR:?error message}` syntax
+- Missing .env file causes immediate failure
+
+**Evidence:**
+```yaml
+POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+```
+
+**Root Cause:**
+- .env file does not exist (only .env.example template)
+
+**Proposed Change:**
 ```bash
+cd /home/user/sahool-unified-v15-idp
 cp .env.example .env
-# Then edit .env with development values
+# Edit .env with secure values
 ```
 
-**Required Substitutions for Development:**
-
-| Variable | Example Value |
-|----------|---------------|
-| POSTGRES_PASSWORD | dev_postgres_password_123 |
-| REDIS_PASSWORD | dev_redis_password_123 |
-| JWT_SECRET_KEY | dev_jwt_secret_key_at_least_32_chars_long |
-| NATS_USER | sahool_app |
-| NATS_PASSWORD | dev_nats_password_123 |
-| NATS_ADMIN_USER | nats_admin |
-| NATS_ADMIN_PASSWORD | dev_nats_admin_password_123 |
-| NATS_MONITOR_USER | nats_monitor |
-| NATS_MONITOR_PASSWORD | dev_nats_monitor_password_123 |
-| NATS_CLUSTER_USER | nats_cluster |
-| NATS_CLUSTER_PASSWORD | dev_nats_cluster_password_123 |
-| NATS_SYSTEM_USER | nats_system |
-| NATS_SYSTEM_PASSWORD | dev_nats_system_password_123 |
-| NATS_JETSTREAM_KEY | dev_jetstream_encryption_key_32chr |
-| ETCD_ROOT_USERNAME | root |
-| ETCD_ROOT_PASSWORD | dev_etcd_password_123 |
-| MINIO_ROOT_USER | sahool_minio_admin_dev |
-| MINIO_ROOT_PASSWORD | dev_minio_password_secure_123 |
-| STARTER_JWT_SECRET | dev_starter_jwt_secret_32_chars_min |
-| PROFESSIONAL_JWT_SECRET | dev_professional_jwt_secret_32_chr |
-| ENTERPRISE_JWT_SECRET | dev_enterprise_jwt_secret_32_chars |
-| RESEARCH_JWT_SECRET | dev_research_jwt_secret_32_chars_x |
-| ADMIN_JWT_SECRET | dev_admin_jwt_secret_32_characters |
-
-### Validation Steps
+**Validation:**
 ```bash
-docker compose config  # Should not show any errors
+# Verify all required vars are set
+grep -E "^[A-Z].*=" .env | wc -l
 ```
 
-### Risk Level
-**LOW** - Creates new file, does not modify existing
-
-### Rollback Plan
-```bash
-rm .env
-```
+**Risk Level:** Low
+**Rollback:** Delete .env file
 
 ---
 
-## Fix 2: Fix PgBouncer Hardcoded Password
+## Fix Order (Container by Container)
 
-### Service
-**Target:** pgbouncer
-**Symptom:** FATAL: password authentication failed
-**Evidence:** `infrastructure/core/pgbouncer/pgbouncer.ini:8` contains hardcoded password
-**Root Cause:** Password hardcoded instead of environment variable placeholder
+### Fix 1: PostgreSQL (postgres)
+**Service:** postgres
+**Priority:** CRITICAL (First in dependency chain)
 
-### Proposed Changes
+**Symptom:**
+- First service to start
+- All other services depend on it
 
-**File:** `infrastructure/core/pgbouncer/pgbouncer.ini`
+**Evidence:**
+- depends_on chains start here
+- Health check: `pg_isready -U sahool`
 
-**Before:**
-```ini
-sahool = host=postgres port=5432 dbname=sahool user=sahool password=change_this_secure_password_in_production
+**Proposed Changes:**
+1. Ensure POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB in .env
+2. Verify init scripts exist in `infrastructure/core/postgres/init/`
+
+**Validation:**
+```bash
+docker compose up -d postgres
+docker compose ps postgres
+docker compose logs postgres | tail -20
 ```
 
-**After:**
-```ini
-; Password is injected via DB_PASSWORD environment variable by edoburu/pgbouncer image
-; Do not specify password here - it will be added automatically
-sahool = host=postgres port=5432 dbname=sahool
+**Risk Level:** Low
+**Rollback:** `docker compose down postgres`
+
+---
+
+### Fix 2: PgBouncer (pgbouncer)
+**Service:** pgbouncer
+**Priority:** HIGH (Connection pooler for all services)
+
+**Symptom:**
+- Authentication issues noted in comments
+- Services may fail to connect
+
+**Evidence:**
+```yaml
+# Line 96-98 in docker-compose.yml
+# Health check - temporarily using a simple port check since authentication is failing
+# TODO: Fix password authentication
 ```
 
-**Also update line 14:**
-```ini
-; Use wildcard for dynamic databases
-* = host=postgres port=5432
-```
+**Root Cause:**
+- PgBouncer auth_type configuration mismatch
+- Password hash format may not match
 
-### Validation Steps
+**Proposed Changes:**
+1. Verify pgbouncer.ini auth_type matches POSTGRES credentials
+2. Check userlist.txt format
+
+**Files to Review:**
+- `infrastructure/core/pgbouncer/pgbouncer.ini`
+- `infrastructure/core/pgbouncer/userlist.txt`
+
+**Validation:**
 ```bash
 docker compose up -d pgbouncer
-docker compose logs pgbouncer | grep -i "error\|fail"
-docker compose exec pgbouncer psql -h localhost -p 6432 -U sahool -d sahool -c "SELECT 1"
+docker compose exec pgbouncer pgbouncer -R
+docker compose logs pgbouncer | tail -20
 ```
 
-### Risk Level
-**LOW** - Configuration change, easily reversible
-
-### Rollback Plan
-```bash
-git checkout infrastructure/core/pgbouncer/pgbouncer.ini
-```
+**Risk Level:** Medium
+**Rollback:** Restart postgres and pgbouncer
 
 ---
 
-## Fix 3: Create Required Directories for Volume Mounts
+### Fix 3: Redis (redis)
+**Service:** redis
+**Priority:** HIGH (Session & cache)
 
-### Service
-**Target:** minio, multiple TLS-enabled services
-**Symptom:** Container fails to start due to missing mount path
-**Evidence:** `secrets/minio-certs/production/certs` directory does not exist
-**Root Cause:** Required directories not created
+**Symptom:**
+- Redis requires password authentication
+- ACL configuration for multi-user access
 
-### Proposed Changes
+**Evidence:**
+```yaml
+command: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "${REDIS_PASSWORD:?...}"]
+```
 
-**Action:** Create empty directories with placeholder files
+**Config File Status:** EXISTS
+- `infrastructure/redis/redis-secure.conf` ✓
 
+**Proposed Changes:**
+1. Ensure REDIS_PASSWORD in .env
+2. Optionally set ACL passwords for enhanced security
+
+**Validation:**
 ```bash
-# MinIO certs directory
-mkdir -p secrets/minio-certs/production/certs
-touch secrets/minio-certs/production/certs/.gitkeep
-
-# TLS certs directory (already partially exists)
-mkdir -p config/certs
-touch config/certs/.gitkeep
-
-# Kong SSL directory
-mkdir -p infrastructure/gateway/kong/ssl
-touch infrastructure/gateway/kong/ssl/.gitkeep
+docker compose up -d redis
+docker compose exec redis redis-cli -a $REDIS_PASSWORD ping
 ```
 
-**Add .gitignore entries:**
-```
-# Secrets - never commit actual certificates
-secrets/minio-certs/production/certs/*.crt
-secrets/minio-certs/production/certs/*.key
-secrets/minio-certs/production/certs/*.pem
-config/certs/*.crt
-config/certs/*.key
-config/certs/*.pem
-```
-
-### Validation Steps
-```bash
-ls -la secrets/minio-certs/production/certs/
-ls -la config/certs/
-docker compose config | grep -A2 "minio-certs"
-```
-
-### Risk Level
-**LOW** - Creates empty directories only
-
-### Rollback Plan
-```bash
-rm -rf secrets/minio-certs
-```
+**Risk Level:** Low
+**Rollback:** `docker compose restart redis`
 
 ---
 
-## Fix 4: Add Missing Environment Variables to .env.example
+### Fix 4: NATS (nats)
+**Service:** nats
+**Priority:** HIGH (Message queue)
 
-### Service
-**Target:** Environment template
-**Symptom:** docker-compose.yml requires variables not in .env.example
-**Evidence:** NATS_SYSTEM_USER, NATS_SYSTEM_PASSWORD, NATS_JETSTREAM_KEY missing
-**Root Cause:** .env.example not synchronized with docker-compose.yml
+**Symptom:**
+- Requires 10 authentication environment variables
+- JetStream encryption key required
 
-### Proposed Changes
-
-**File:** `.env.example`
-
-**Add after line 127 (NATS_CLUSTER_PASSWORD):**
-```bash
-# NATS System Account (for internal monitoring)
-NATS_SYSTEM_USER=nats_system
-NATS_SYSTEM_PASSWORD=change_this_secure_nats_system_password_32_chars
-
-# NATS JetStream Encryption Key (AES-256)
-# Generate with: openssl rand -hex 32
-NATS_JETSTREAM_KEY=change_this_jetstream_encryption_key_64_hex_chars
+**Evidence:**
+```yaml
+NATS_USER: ${NATS_USER:?NATS_USER is required}
+NATS_PASSWORD: ${NATS_PASSWORD:?NATS_PASSWORD is required}
+# ... 8 more required vars
+NATS_JETSTREAM_KEY: ${NATS_JETSTREAM_KEY:?NATS_JETSTREAM_KEY is required}
 ```
 
-### Validation Steps
+**Config File Status:** EXISTS
+- `config/nats/nats.conf` ✓
+- `config/nats/nats-secure.conf` ✓
+
+**Proposed Changes:**
+1. Set all 10 NATS environment variables in .env
+2. Generate NATS_JETSTREAM_KEY (AES-256 key)
+
+**Validation:**
 ```bash
-grep -E "NATS_SYSTEM|NATS_JETSTREAM" .env.example
-docker compose config 2>&1 | grep -i "nats"
+docker compose up -d nats
+curl http://localhost:8222/healthz
+docker compose logs nats | tail -20
 ```
 
-### Risk Level
-**LOW** - Updates template file only
-
-### Rollback Plan
-```bash
-git checkout .env.example
-```
+**Risk Level:** Medium
+**Rollback:** `docker compose restart nats`
 
 ---
 
-## Fix 5: Fix Kong code-review-service Port
+### Fix 5: MQTT Broker (mqtt)
+**Service:** mqtt
+**Priority:** MEDIUM (IoT communication)
 
-### Service
-**Target:** kong (API Gateway)
-**Symptom:** /api/v1/code-review returns 502 Bad Gateway
-**Evidence:** Kong upstream targets port 8096, service runs on 8102
-**Root Cause:** Kong config has wrong port number
+**Symptom:**
+- Password file generated dynamically at startup
 
-### Proposed Changes
-
-**File:** `infrastructure/gateway/kong/kong.yml`
-
-**Before (line 462):**
+**Evidence:**
 ```yaml
-- name: code-review-upstream
-  targets:
-    - target: code-review-service:8096
+command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd ..."
 ```
 
-**After:**
-```yaml
-- name: code-review-upstream
-  targets:
-    - target: code-review-service:8102
-```
+**Config File Status:** UNKNOWN
+- `infrastructure/core/mqtt/mosquitto.conf` - need to verify
 
-**Also update health check path (line 467):**
-```yaml
-healthchecks:
-  active:
-    http_path: /health  # Matches docker-compose healthcheck
-```
+**Proposed Changes:**
+1. Verify mosquitto.conf exists
+2. Set MQTT_USER and MQTT_PASSWORD in .env
 
-### Validation Steps
+**Validation:**
 ```bash
-docker compose restart kong
-curl -f http://localhost:8000/api/v1/code-review/health || echo "Still failing"
-docker compose logs kong | grep code-review
+docker compose up -d mqtt
+docker compose logs mqtt | tail -20
 ```
 
-### Risk Level
-**LOW** - Configuration change
-
-### Rollback Plan
-```bash
-git checkout infrastructure/gateway/kong/kong.yml
-docker compose restart kong
-```
+**Risk Level:** Low
+**Rollback:** `docker compose restart mqtt`
 
 ---
 
-## Fix 6: Comment Out Non-Existent Kong Upstreams/Services
+### Fix 6: TLS Certificates
+**Priority:** LOW (Development can use non-TLS)
 
-### Service
-**Target:** kong (API Gateway)
-**Symptom:** DNS resolution failures, healthcheck timeouts
-**Evidence:** 16 services defined in Kong but not in docker-compose.yml
-**Root Cause:** Kong config includes services not yet implemented
+**Symptom:**
+- TLS required for production
+- Certificate directory exists but empty
 
-### Proposed Changes
+**Evidence:**
+- `config/certs/` contains only generation script
+- No actual .crt, .key files
 
-**File:** `infrastructure/gateway/kong/kong.yml`
+**Proposed Changes:**
+For Development (non-TLS):
+- No changes needed, use nats.conf (not nats-secure.conf)
 
-**Action:** Comment out upstreams and services for non-existent services:
-
-Services to comment out:
-- user-service-upstream (lines 489-514)
-- agent-registry-upstream (lines 516-541)
-- ai-agents-core-upstream (lines 543-568)
-- globalgap-compliance-upstream (lines 570-595)
-- analytics-service-upstream (lines 597-622)
-- reporting-service-upstream (lines 624-649)
-- integration-service-upstream (lines 651-676)
-- audit-service-upstream (lines 678-703)
-- export-service-upstream (lines 705-730)
-- import-service-upstream (lines 732-757)
-- admin-dashboard-upstream (lines 759-784)
-- monitoring-service-upstream (lines 786-811)
-- logging-service-upstream (lines 813-838)
-- tracing-service-upstream (lines 840-865)
-- cache-service-upstream (lines 867-892)
-- search-service-upstream (lines 894-919)
-
-And corresponding services section entries (lines 2308-2972)
-
-**Alternative:** Set these upstreams to a placeholder target that returns 503
-
-### Validation Steps
+For Production:
 ```bash
-docker compose exec kong kong config parse /kong/declarative/kong.yml
-docker compose restart kong
-docker compose logs kong | grep -i "error\|warn"
+cd config/certs
+./generate-internal-tls.sh
 ```
 
-### Risk Level
-**MEDIUM** - Large configuration change, but easily reversible
-
-### Rollback Plan
+**Validation:**
 ```bash
-git checkout infrastructure/gateway/kong/kong.yml
-docker compose restart kong
+ls -la config/certs/*.crt
+ls -la config/certs/*.key
 ```
+
+**Risk Level:** Low (dev), Medium (prod)
+**Rollback:** Delete generated certificates
 
 ---
 
-## Fix 7: Make Ollama Optional with Profile
+### Fix 7: Kong API Gateway
+**Priority:** HIGH (API routing)
 
-### Service
-**Target:** ollama, ollama-model-loader, code-review-service
-**Symptom:** Services fail on non-GPU systems
-**Evidence:** `driver: nvidia` device requirement
-**Root Cause:** GPU is required but not available in all environments
+**Symptom:**
+- Kong uses separate compose file
+- Requires its own PostgreSQL database
 
-### Proposed Changes
+**Evidence:**
+- `infrastructure/gateway/kong/docker-compose.yml`
+- Uses kong-database service
 
-**File:** `docker-compose.yml`
+**Proposed Changes:**
+1. Set KONG_PG_PASSWORD in .env
+2. Run Kong migrations before gateway
 
-**Add profile to ollama service (around line 374):**
-```yaml
-ollama:
-  profiles:
-    - gpu
-    - ai
-  image: ollama/ollama:0.5.4
-  # ... rest of config
-```
-
-**Add profile to ollama-model-loader (around line 422):**
-```yaml
-ollama-model-loader:
-  profiles:
-    - gpu
-    - ai
-  image: curlimages/curl:8.11.1
-  # ... rest of config
-```
-
-**Make code-review-service ollama dependency optional (around line 473):**
-```yaml
-code-review-service:
-  # ... existing config
-  depends_on:
-    ollama:
-      condition: service_healthy
-      required: false  # Make optional
-```
-
-Or add profile:
-```yaml
-code-review-service:
-  profiles:
-    - gpu
-    - ai
-```
-
-### Validation Steps
+**Validation:**
 ```bash
-# Without GPU services:
+cd infrastructure/gateway/kong
 docker compose up -d
-
-# With GPU services:
-docker compose --profile gpu up -d
+curl http://localhost:8001/status
 ```
 
-### Risk Level
-**MEDIUM** - Changes service availability behavior
-
-### Rollback Plan
-```bash
-git checkout docker-compose.yml
-```
+**Risk Level:** Medium
+**Rollback:** `docker compose down` in kong directory
 
 ---
 
-## Fix 8: Align Health Check Paths
+## Application Services (Bulk Fix)
 
-### Service
-**Target:** Multiple services
-**Symptom:** Kong healthchecks may fail despite healthy services
-**Evidence:** Kong uses `/healthz`, some services use `/health`
-**Root Cause:** Inconsistent health endpoint naming
+### Fix 8: All Application Services
+**Priority:** MEDIUM (After infrastructure stable)
 
-### Proposed Changes
+**Symptom:**
+- Services depend on infrastructure
+- May have missing env vars
 
-**File:** `infrastructure/gateway/kong/kong.yml`
+**Proposed Changes:**
+1. Ensure DATABASE_URL points to pgbouncer:6432
+2. Set service-specific environment variables
+3. Start services in batches
 
-**Update healthcheck paths to match actual service endpoints:**
-
-| Upstream | Current Path | Correct Path |
-|----------|--------------|--------------|
-| iot-gateway-upstream | /healthz | /health |
-| marketplace-service-upstream | /healthz | /api/v1/healthz |
-| mcp-server-upstream | /health | /health (OK) |
-| code-review-upstream | /health | /health (OK) |
-
-### Validation Steps
+**Validation:**
 ```bash
-# Test each service health endpoint
-curl http://localhost:8106/health  # iot-gateway
-curl http://localhost:3010/api/v1/healthz  # marketplace
+# Start core services first
+docker compose up -d field-management-service marketplace-service
+
+# Check health
+curl http://localhost:3000/health
 ```
 
-### Risk Level
-**LOW** - Configuration only
-
-### Rollback Plan
-```bash
-git checkout infrastructure/gateway/kong/kong.yml
-```
+**Risk Level:** Low
+**Rollback:** `docker compose down <service>`
 
 ---
 
-## Implementation Order Summary
+## Summary Checklist
 
-| Order | Fix | Time Est. | Dependencies |
-|-------|-----|-----------|--------------|
-| 1 | Create .env | 5 min | None |
-| 2 | Fix PgBouncer | 2 min | None |
-| 3 | Create directories | 2 min | None |
-| 4 | Update .env.example | 2 min | None |
-| 5 | Fix Kong port | 2 min | Fix 1 |
-| 6 | Comment Kong services | 10 min | Fix 5 |
-| 7 | Make Ollama optional | 5 min | None |
-| 8 | Align health paths | 5 min | Fix 5 |
+### Before Starting Stack:
+- [ ] Create .env from .env.example
+- [ ] Set all POSTGRES_* variables
+- [ ] Set REDIS_PASSWORD
+- [ ] Set all NATS_* variables (10 total)
+- [ ] Set JWT_SECRET_KEY
+- [ ] Verify config files exist
 
-**Total estimated time:** ~35 minutes
+### Infrastructure Startup Order:
+1. [ ] postgres
+2. [ ] pgbouncer (wait for postgres healthy)
+3. [ ] redis
+4. [ ] nats
+5. [ ] mqtt
+6. [ ] qdrant
+
+### Application Startup:
+7. [ ] kong
+8. [ ] core services (field-management, marketplace)
+9. [ ] remaining services
+
+### Validation:
+- [ ] All containers running
+- [ ] Health checks passing
+- [ ] API endpoints responding
 
 ---
 
-## Post-Fix Validation Checklist
-
-- [ ] `docker compose config` runs without errors
-- [ ] `docker compose up -d postgres` starts successfully
-- [ ] `docker compose up -d pgbouncer` connects to postgres
-- [ ] `docker compose up -d redis` starts with authentication
-- [ ] `docker compose up -d nats` starts with authentication
-- [ ] `docker compose up -d kong` loads declarative config
-- [ ] `docker compose ps` shows all expected services healthy
-- [ ] `curl http://localhost:8000/health` returns 200
+*Fix Plan generated by Code Engineer Agent*
+*SAHOOL v16.0.0 - Configuration Fix Plan*

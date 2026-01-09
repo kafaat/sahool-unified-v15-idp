@@ -87,7 +87,7 @@ class TestHealthEndpoint:
         response = client.get("/healthz")
         assert response.status_code == 200
         # Check for deprecation headers
-        assert "X-API-Deprecated" in response.headers or True  # May or may not be set
+        assert True  # May or may not be set
 
 
 class TestDeprecationHeaders:

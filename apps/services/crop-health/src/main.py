@@ -15,6 +15,7 @@ Migration Path:
 from __future__ import annotations
 
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from typing import Any, Literal

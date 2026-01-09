@@ -41,8 +41,9 @@ from shared.middleware import (
     TenantContextMiddleware,
     setup_cors,
 )
-from .middleware import RateLimitMiddleware, rate_limiter
 from shared.observability.middleware import ObservabilityMiddleware
+
+from .middleware import RateLimitMiddleware, rate_limiter
 
 # Configure structured logging with PII masking | تكوين السجلات المنظمة مع إخفاء المعلومات الشخصية
 structlog.configure(
@@ -301,10 +302,11 @@ async def health_check():
     Health check endpoint with dependency validation
     نقطة فحص الصحة مع التحقق من التبعيات
     """
-    embeddings_ok = embeddings_manager is not None
-    retriever_ok = knowledge_retriever is not None
+    embeddings_ok = app_state.get("embeddings") is not None
+    retriever_ok = app_state.get("retriever") is not None
+    agents = app_state.get("agents", {})
     agents_count = len(
-        [a for a in [field_analyst, disease_expert, irrigation_advisor, yield_predictor] if a]
+        [a for a in agents.values() if a]
     )
 
     is_healthy = embeddings_ok or retriever_ok or agents_count > 0

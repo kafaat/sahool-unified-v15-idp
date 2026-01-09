@@ -180,7 +180,7 @@ class TestMockMqttClient:
             received.append(msg)
 
         # Subscribe and process
-        task = asyncio.create_task(client.subscribe("test/#", handler))
+        asyncio.create_task(client.subscribe("test/#", handler))
         await asyncio.sleep(0.3)  # Wait for processing
         client.stop()
         await asyncio.sleep(0.1)
@@ -426,7 +426,7 @@ class TestMqttSubscription:
         client.queue_message("test/topic", {"value": 2})
 
         # Subscribe
-        task = asyncio.create_task(client.subscribe("test/#", handler))
+        asyncio.create_task(client.subscribe("test/#", handler))
         await asyncio.sleep(0.3)
         client.stop()
         await asyncio.sleep(0.1)
@@ -445,7 +445,7 @@ class TestMqttSubscription:
         client.queue_message("test/topic", {"value": 1})
 
         # Subscribe with failing handler (should not crash)
-        task = asyncio.create_task(client.subscribe("test/#", failing_handler))
+        asyncio.create_task(client.subscribe("test/#", failing_handler))
         await asyncio.sleep(0.3)
         client.stop()
         await asyncio.sleep(0.1)
@@ -467,7 +467,6 @@ class TestMqttReconnection:
         """Test that subscribe reconnects on connection loss"""
         client = MqttClient()
 
-        call_count = 0
 
         async def handler(msg: MqttMessage):
             pass
@@ -481,7 +480,7 @@ class TestMqttReconnection:
             ]
 
             # Start subscribe in background
-            task = asyncio.create_task(client.subscribe("test/#", handler))
+            asyncio.create_task(client.subscribe("test/#", handler))
 
             # Let it try to connect and fail
             await asyncio.sleep(0.1)
@@ -533,7 +532,7 @@ class TestMqttIntegration:
                     await handle_mqtt_message(msg)
 
         # Subscribe and process
-        task = asyncio.create_task(client.subscribe("sahool/#", handler))
+        asyncio.create_task(client.subscribe("sahool/#", handler))
         await asyncio.sleep(0.3)
         client.stop()
         await asyncio.sleep(0.1)
@@ -580,7 +579,7 @@ class TestMqttIntegration:
                 with patch("apps.services.iot_gateway.src.main.publisher", publisher):
                     await handle_mqtt_message(msg)
 
-        task = asyncio.create_task(client.subscribe("sahool/#", handler))
+        asyncio.create_task(client.subscribe("sahool/#", handler))
         await asyncio.sleep(0.6)
         client.stop()
         await asyncio.sleep(0.1)
@@ -664,7 +663,7 @@ class TestMqttPerformance:
             messages_received.append(msg)
 
         # Process
-        task = asyncio.create_task(client.subscribe("test/#", handler))
+        asyncio.create_task(client.subscribe("test/#", handler))
         await asyncio.sleep(1.0)  # Give time to process
         client.stop()
         await asyncio.sleep(0.1)
@@ -693,7 +692,7 @@ class TestMqttPerformance:
         async def handler(msg: MqttMessage):
             received.append(msg)
 
-        task = asyncio.create_task(client.subscribe("test/#", handler))
+        asyncio.create_task(client.subscribe("test/#", handler))
         await asyncio.sleep(0.3)
         client.stop()
         await asyncio.sleep(0.1)
@@ -758,7 +757,7 @@ class TestMqttErrorRecovery:
         client.queue_message("test/topic", {"value": 2})
 
         # Process
-        task = asyncio.create_task(client.subscribe("test/#", handler))
+        asyncio.create_task(client.subscribe("test/#", handler))
         await asyncio.sleep(0.3)
         client.stop()
         await asyncio.sleep(0.1)

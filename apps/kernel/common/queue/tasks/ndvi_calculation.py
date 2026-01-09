@@ -513,7 +513,7 @@ def handle_ndvi_calculation(payload: dict[str, Any]) -> dict[str, Any]:
         field_id = payload.get("field_id")
         red_band_name = payload.get("red_band", "B4")
         nir_band_name = payload.get("nir_band", "B8")
-        generate_map = payload.get("generate_map", True)
+        payload.get("generate_map", True)
         include_array = payload.get("include_array", False)
 
         if not image_url or not field_id:

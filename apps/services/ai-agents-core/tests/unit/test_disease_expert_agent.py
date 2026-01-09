@@ -11,11 +11,10 @@ Tests for disease expert functionality:
 - Severity assessment
 """
 
-import pytest
 from datetime import datetime
 
+import pytest
 from agents import AgentContext, AgentPercept, DiseaseExpertAgent
-
 
 # ============================================================================
 # Test Disease Expert Agent Initialization

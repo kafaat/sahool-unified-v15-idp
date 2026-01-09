@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -300,7 +301,7 @@ class SyncMetricsService {
 
       _metricsController.add(_currentMetrics);
     } catch (e) {
-      print('Failed to load sync metrics: $e');
+      debugPrint('Failed to load sync metrics: $e');
     }
   }
 
@@ -315,7 +316,7 @@ class SyncMetricsService {
       final weeklyData = _weeklyMetrics.map((key, value) => MapEntry(key, value.toJson()));
       await _prefs.setString(_weeklyMetricsKey, jsonEncode(weeklyData));
     } catch (e) {
-      print('Failed to save sync metrics: $e');
+      debugPrint('Failed to save sync metrics: $e');
     }
   }
 

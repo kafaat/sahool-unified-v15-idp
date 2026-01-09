@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 
 /// خدمة المزامنة - Sync Service
 ///
@@ -50,7 +51,7 @@ class SyncService {
     _isSyncing = true;
 
     try {
-      print('🔄 جاري البحث عن مهام غير متزامنة...');
+      debugPrint('🔄 جاري البحث عن مهام غير متزامنة...');
 
       // التحقق من الاتصال
       final online = await isOnline();
@@ -88,7 +89,7 @@ class SyncService {
         syncedCount += sampleResult;
       }
 
-      print('✅ تم رفع $syncedCount عنصر للسيرفر');
+      debugPrint('✅ تم رفع $syncedCount عنصر للسيرفر');
 
       return SyncResult(
         success: true,
@@ -96,7 +97,7 @@ class SyncService {
         syncedCount: syncedCount,
       );
     } catch (e) {
-      print('❌ خطأ في المزامنة: $e');
+      debugPrint('❌ خطأ في المزامنة: $e');
       return SyncResult(
         success: false,
         message: 'خطأ في المزامنة: $e',

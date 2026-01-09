@@ -6,7 +6,7 @@ Middleware to check token revocation status before processing requests.
 """
 
 import logging
-from typing import Callable
+from collections.abc import Callable
 
 from fastapi import Request, Response, status
 from fastapi.responses import JSONResponse

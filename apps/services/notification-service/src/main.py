@@ -1299,7 +1299,7 @@ async def register_farmer(profile: FarmerProfile):
         crops_list = [crop.value for crop in profile.crops]
 
         # Create or update farmer profile in database
-        db_profile = await FarmerProfileRepository.create(
+        await FarmerProfileRepository.create(
             farmer_id=profile.farmer_id,
             name=profile.name,
             name_ar=profile.name_ar,

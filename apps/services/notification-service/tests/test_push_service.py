@@ -53,7 +53,7 @@ class TestFirebaseClientInitialization:
 
     def test_initialize_with_credentials_dict(self, firebase_client, mock_firebase_credentials):
         """Test initialization with credentials dictionary"""
-        with patch("firebase_admin.initialize_app") as mock_init:
+        with patch("firebase_admin.initialize_app"):
             result = firebase_client.initialize(credentials_dict=mock_firebase_credentials)
 
             assert result is True
@@ -63,7 +63,7 @@ class TestFirebaseClientInitialization:
         """Test initialization from environment variables"""
         with patch.dict(
             "os.environ", {"FIREBASE_CREDENTIALS_JSON": json.dumps(mock_firebase_credentials)}
-        ), patch("firebase_admin.initialize_app") as mock_init:
+        ), patch("firebase_admin.initialize_app"):
             result = firebase_client.initialize()
 
             assert result is True
@@ -225,7 +225,7 @@ class TestTopicNotifications:
         """Test topic notification with custom data"""
         firebase_client._initialized = True
 
-        with patch("firebase_admin.messaging.send", return_value="msg-123") as mock_send:
+        with patch("firebase_admin.messaging.send", return_value="msg-123"):
             result = firebase_client.send_to_topic(
                 topic="pest_alerts_sanaa",
                 title="Pest Alert",
@@ -463,7 +463,7 @@ class TestBilingualSupport:
         firebase_client._initialized = True
 
         with patch("firebase_admin.messaging.send", return_value="msg-123") as mock_send:
-            result = firebase_client.send_notification(
+            firebase_client.send_notification(
                 token="token-123",
                 title="Weather Alert",
                 body="Frost expected",
@@ -485,7 +485,7 @@ class TestBilingualSupport:
         firebase_client._initialized = True
 
         with patch("firebase_admin.messaging.send", return_value="msg-123") as mock_send:
-            result = firebase_client.send_notification(
+            firebase_client.send_notification(
                 token="token-123", title="Test", body="Test body"
             )
 

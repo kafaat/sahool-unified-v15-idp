@@ -29,6 +29,7 @@ Usage:
 """
 
 import asyncio
+import contextlib
 import logging
 import os
 from dataclasses import dataclass, field
@@ -240,10 +241,8 @@ class VaultClient:
         """Disconnect from Vault"""
         if self._renewal_task:
             self._renewal_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._renewal_task
-            except asyncio.CancelledError:
-                pass
             self._renewal_task = None
 
         self._connected = False

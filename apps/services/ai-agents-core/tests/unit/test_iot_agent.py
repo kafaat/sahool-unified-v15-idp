@@ -11,11 +11,10 @@ Tests for IoT agent functionality:
 - Edge response time
 """
 
-import pytest
 from datetime import datetime, timedelta
 
+import pytest
 from agents import AgentContext, AgentPercept, AgentStatus, IoTAgent
-
 
 # ============================================================================
 # Test IoT Agent Initialization
@@ -455,7 +454,7 @@ class TestActuatorControl:
         """Test start irrigation opens valve and pump"""
         agent = IoTAgent()
 
-        action = AgentPercept(
+        AgentPercept(
             percept_type="control",
             data={"type": "start_irrigation", "duration_minutes": 30},
             source="controller",

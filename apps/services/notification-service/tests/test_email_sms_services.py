@@ -47,7 +47,7 @@ class TestSMSClient:
                 "TWILIO_AUTH_TOKEN": "env_token",
                 "TWILIO_FROM_NUMBER": "+1234567890",
             },
-        ), patch("src.sms_client.TwilioClient") as mock_twilio:
+        ), patch("src.sms_client.TwilioClient"):
             client = SMSClient()
             result = client.initialize()
 
@@ -102,7 +102,7 @@ class TestSMSClient:
         mock_twilio_client.messages.create = MagicMock(return_value=mock_message)
         client._client = mock_twilio_client
 
-        result = await client.send_sms(
+        await client.send_sms(
             to="+967771234567", body="Weather alert", body_ar="تنبيه طقس", language="ar"
         )
 
@@ -287,7 +287,7 @@ class TestEmailClient:
                 "SENDGRID_FROM_EMAIL": "noreply@sahool.com",
                 "SENDGRID_FROM_NAME": "SAHOOL",
             },
-        ), patch("src.email_client.SendGridAPIClient") as mock_sendgrid:
+        ), patch("src.email_client.SendGridAPIClient"):
             client = EmailClient()
             result = client.initialize()
 

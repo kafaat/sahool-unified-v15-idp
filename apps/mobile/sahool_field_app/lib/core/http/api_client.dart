@@ -40,10 +40,10 @@ class ApiClient {
       _certificatePinningService!.configureDio(_dio);
 
       if (kDebugMode) {
-        print('🔒 SSL Certificate Pinning enabled');
-        print('   Strict mode: ${config.strictCertificatePinning}');
-        print('   Debug bypass: ${config.allowPinningDebugBypass}');
-        print('   Configured domains: ${_certificatePinningService!.getConfiguredDomains()}');
+        debugPrint('🔒 SSL Certificate Pinning enabled');
+        debugPrint('   Strict mode: ${config.strictCertificatePinning}');
+        debugPrint('   Debug bypass: ${config.allowPinningDebugBypass}');
+        debugPrint('   Configured domains: ${_certificatePinningService!.getConfiguredDomains()}');
       }
     }
 
@@ -246,7 +246,7 @@ class _LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (kDebugMode) {
-      print('📤 ${options.method} ${options.path}');
+      debugPrint('📤 ${options.method} ${options.path}');
       // Note: Authorization headers and request body are intentionally not logged
     }
     handler.next(options);
@@ -255,7 +255,7 @@ class _LoggingInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
-      print('📥 ${response.statusCode} ${response.requestOptions.path}');
+      debugPrint('📥 ${response.statusCode} ${response.requestOptions.path}');
       // Note: Response body is intentionally not logged to prevent data leakage
     }
     handler.next(response);
@@ -264,7 +264,7 @@ class _LoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
-      print('❌ ${err.type} ${err.requestOptions.path}');
+      debugPrint('❌ ${err.type} ${err.requestOptions.path}');
     }
     handler.next(err);
   }

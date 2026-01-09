@@ -28,11 +28,11 @@ RUN useradd --create-home --shell /bin/bash --uid 1000 appuser && \
     chown -R appuser:appuser /app
 USER appuser
 
-# Expose port
-EXPOSE 8093
+# Expose port (changed from 8093 to avoid conflict with advisory-service)
+EXPOSE 8127
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8093/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8127/healthz')" || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8093"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8127"]

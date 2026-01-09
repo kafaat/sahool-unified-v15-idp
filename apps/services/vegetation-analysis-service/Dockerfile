@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir --upgrade pip
 # Install dependencies with retry logic for network resilience
 COPY apps/services/vegetation-analysis-service/requirements.txt .
 RUN for i in 1 2 3; do \
-        pip install --no-cache-dir -r requirements.txt && break || \
+        pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && break || \
         (echo "Attempt $i failed, retrying..." && sleep $((i * 5))); \
     done
 

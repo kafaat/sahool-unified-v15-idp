@@ -34,7 +34,7 @@ COPY apps/services/weather-service/src/ ./src/
 
 # Upgrade pip, install dependencies, and set ownership
 RUN pip install --upgrade pip || true && \
-    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
     chown -R sahool:sahool /app
 
 USER sahool

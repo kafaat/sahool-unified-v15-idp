@@ -20,7 +20,7 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY apps/services/agent-registry/requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules (required for imports from shared/)
 COPY apps/services/shared/ ./shared/

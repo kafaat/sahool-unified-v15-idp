@@ -22,10 +22,14 @@ WORKDIR /app
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install Python dependencies
+# Install Python dependencies with retry logic for network resilience
 COPY apps/services/virtual-sensors/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir \
+    --timeout=300 \
+    --retries=10 \
+    -r requirements.txt || \
+    (sleep 5 && pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt)
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image

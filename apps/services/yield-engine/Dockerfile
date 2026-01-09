@@ -30,7 +30,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY apps/services/yield-engine/requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production

@@ -17,7 +17,7 @@ COPY requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # ============================================================================
 # Production Image

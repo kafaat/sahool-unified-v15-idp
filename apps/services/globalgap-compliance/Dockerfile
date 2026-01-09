@@ -26,7 +26,7 @@ WORKDIR /app
 COPY apps/services/globalgap-compliance/requirements.txt .
 
 # Install Python dependencies | تثبيت تبعيات Python
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules (required for imports from shared/) | نسخ الوحدات المشتركة
 COPY apps/services/shared/ ./shared/

@@ -13,7 +13,7 @@ RUN groupadd --system --gid 1000 sahool && \
 
 # Copy requirements
 COPY apps/services/mcp-server/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared modules
 COPY shared/ /app/shared/

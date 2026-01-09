@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "@sahool/field-shared": "file:./packages/field-shared",
+    "@sahool/field-shared": "file:../../../packages/field-shared",
     "dotenv": "^16.4.7",
     "prisma": "^5.22.0",
     "reflect-metadata": "^0.2.2"

@@ -3,7 +3,7 @@
 
 # Stage 1: Builder
 # المرحلة 1: البناء
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 # Set working directory | تعيين مجلد العمل
 WORKDIR /app

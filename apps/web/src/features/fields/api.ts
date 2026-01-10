@@ -337,7 +337,7 @@ export const fieldsApi = {
 
       const response = await api.get(`/api/v1/fields/stats?${params.toString()}`);
       return response.data.data || response.data;
-    } catch (error) {
+    } catch {
       logger.warn('Failed to fetch field stats from API, calculating from mock data');
 
       // Calculate stats from mock data

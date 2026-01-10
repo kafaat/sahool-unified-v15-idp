@@ -28,11 +28,10 @@ export function generateMockUser(overrides: Partial<MockUser> = {}): MockUser {
   const firstName = randomItem(arabicNames.firstNames);
   const lastName = randomItem(arabicNames.lastNames);
   const name = `${firstName} ${lastName}`;
-  const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@sahool.ye`.replace(/[\u0600-\u06FF]/g, 'user');
 
   return {
     id: generateId(),
-    email: `user${Math.floor(Math.random() * 1000)}@sahool.ye`,
+    email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@sahool.ye`.replace(/[\u0600-\u06FF]/g, 'user'),
     name,
     role: randomItem<UserRole>(['admin', 'manager', 'operator', 'viewer']),
     tenantId: generateId(),

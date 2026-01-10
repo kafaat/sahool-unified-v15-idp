@@ -23,6 +23,18 @@ import {
   filterOnlyDeleted,
 } from '../soft-delete';
 
+// Type for middleware params that can be mutated
+interface MiddlewareParams {
+  model: string;
+  action: string;
+  args: {
+    where?: Record<string, unknown>;
+    data?: Record<string, unknown>;
+    deletedBy?: string;
+    includeDeleted?: boolean;
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Middleware Tests
 // ─────────────────────────────────────────────────────────────────────────────
@@ -38,7 +50,7 @@ describe('createSoftDeleteMiddleware', () => {
 
   describe('DELETE operations', () => {
     it('should convert delete to update with deletedAt', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'delete',
         args: { where: { id: '123' } },
@@ -47,12 +59,12 @@ describe('createSoftDeleteMiddleware', () => {
       await middleware(params, next);
 
       expect(params.action).toBe('update');
-      expect(params.args.data.deletedAt).toBeInstanceOf(Date);
-      expect(params.args.data.deletedBy).toBeNull();
+      expect(params.args.data?.deletedAt).toBeInstanceOf(Date);
+      expect(params.args.data?.deletedBy).toBeNull();
     });
 
     it('should include deletedBy when provided', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'delete',
         args: { where: { id: '123' }, deletedBy: 'user-456' },
@@ -60,11 +72,11 @@ describe('createSoftDeleteMiddleware', () => {
 
       await middleware(params, next);
 
-      expect(params.args.data.deletedBy).toBe('user-456');
+      expect(params.args.data?.deletedBy).toBe('user-456');
     });
 
     it('should convert deleteMany to updateMany', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'deleteMany',
         args: { where: { status: 'DEPRECATED' } },
@@ -73,13 +85,13 @@ describe('createSoftDeleteMiddleware', () => {
       await middleware(params, next);
 
       expect(params.action).toBe('updateMany');
-      expect(params.args.data.deletedAt).toBeInstanceOf(Date);
+      expect(params.args.data?.deletedAt).toBeInstanceOf(Date);
     });
   });
 
   describe('FIND operations', () => {
     it('should add deletedAt filter to findMany', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'findMany',
         args: { where: {} },
@@ -87,11 +99,11 @@ describe('createSoftDeleteMiddleware', () => {
 
       await middleware(params, next);
 
-      expect(params.args.where.deletedAt).toBeNull();
+      expect(params.args.where?.deletedAt).toBeNull();
     });
 
     it('should add deletedAt filter to findUnique', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'findUnique',
         args: { where: { id: '123' } },
@@ -99,11 +111,11 @@ describe('createSoftDeleteMiddleware', () => {
 
       await middleware(params, next);
 
-      expect(params.args.where.deletedAt).toBeNull();
+      expect(params.args.where?.deletedAt).toBeNull();
     });
 
     it('should add deletedAt filter to count', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'count',
         args: { where: {} },
@@ -111,11 +123,11 @@ describe('createSoftDeleteMiddleware', () => {
 
       await middleware(params, next);
 
-      expect(params.args.where.deletedAt).toBeNull();
+      expect(params.args.where?.deletedAt).toBeNull();
     });
 
     it('should not override existing deletedAt filter', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'findMany',
         args: { where: { deletedAt: { not: null } } },
@@ -123,11 +135,11 @@ describe('createSoftDeleteMiddleware', () => {
 
       await middleware(params, next);
 
-      expect(params.args.where.deletedAt).toEqual({ not: null });
+      expect(params.args.where?.deletedAt).toEqual({ not: null });
     });
 
     it('should skip filter when includeDeleted is true', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'findMany',
         args: { where: {}, includeDeleted: true },
@@ -135,12 +147,12 @@ describe('createSoftDeleteMiddleware', () => {
 
       await middleware(params, next);
 
-      expect(params.args.where.deletedAt).toBeUndefined();
+      expect(params.args.where?.deletedAt).toBeUndefined();
       expect(params.args.includeDeleted).toBeUndefined(); // Should be removed
     });
 
     it('should create where clause if not present', async () => {
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'findMany',
         args: {},
@@ -158,7 +170,7 @@ describe('createSoftDeleteMiddleware', () => {
         excludedModels: ['AuditLog'],
       });
 
-      const params = {
+      const params: MiddlewareParams = {
         model: 'AuditLog',
         action: 'delete',
         args: { where: { id: '123' } },
@@ -178,7 +190,7 @@ describe('createSoftDeleteMiddleware', () => {
         logger: mockLogger,
       });
 
-      const params = {
+      const params: MiddlewareParams = {
         model: 'Product',
         action: 'delete',
         args: { where: { id: '123' } },

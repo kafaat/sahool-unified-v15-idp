@@ -291,17 +291,23 @@ services:
   mqtt:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
+    user: root
     environment:
       - MQTT_USER=${MQTT_USER:-sahool_iot}
       - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
     volumes:
-      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl:ro
+      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf.orig:ro
+      - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl.source:ro
       - mqtt_passwd:/mosquitto/config
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
-    # Generate passwd file dynamically from environment variables
-    command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USER} $${MQTT_PASSWORD} && chmod 600 /mosquitto/config/passwd && exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
+    # Fix file permissions to eliminate warnings:
+    # 1. Create passwd file, then explicitly set root:root ownership (required by future Mosquitto versions)
+    # 2. Remove any existing ACL file (may have wrong perms from Docker entrypoint)
+    # 3. Copy ACL file from read-only mount to writable volume location with correct ownership
+    # 4. Create modified mosquitto.conf that points to the fixed ACL file
+    # 5. Switch to mosquitto user before starting mosquitto daemon (use su -c since su-exec not available)
+    command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USER} $${MQTT_PASSWORD} && chmod 600 /mosquitto/config/passwd && chown root:root /mosquitto/config/passwd 2>&1 || true && rm -f /mosquitto/config/acl && cp /mosquitto/config/acl.source /mosquitto/config/acl && chown mosquitto:mosquitto /mosquitto/config/acl && chmod 600 /mosquitto/config/acl && sed 's|acl_file /mosquitto/config/acl.source|acl_file /mosquitto/config/acl|' /mosquitto/config/mosquitto.conf.orig > /mosquitto/config/mosquitto.conf && exec su -s /bin/sh mosquitto -c '/usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf'"
     ports:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
@@ -596,7 +602,11 @@ services:
       MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-jwt}
 
       # Audit logging configuration (disabled for development - requires webhook URL)
-      MINIO_AUDIT_WEBHOOK_ENABLE: ${MINIO_AUDIT_WEBHOOK_ENABLE:-off}
+      # NOTE: MinIO audit webhook is configured via `mc admin config set`, not environment variables.
+      # If you need audit webhook, configure it AFTER MinIO starts using: mc admin config set primary audit_webhook:1 endpoint="http://webhook-url"
+      # For development, disable audit webhook to avoid configuration errors
+      # This variable is only a flag - actual webhook config must be set via MinIO admin API
+      MINIO_AUDIT_WEBHOOK_ENABLE: "off"
 
       # Domain configuration for virtual-host-style requests
       MINIO_DOMAIN: ${MINIO_DOMAIN:-minio.sahool.local}

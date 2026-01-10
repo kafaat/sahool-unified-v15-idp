@@ -27,7 +27,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 # Import database models and services
-from models import Database
+from .models import Database
 
 app = FastAPI(
     title="SAHOOL Provider Configuration Service",

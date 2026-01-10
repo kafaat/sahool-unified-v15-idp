@@ -298,16 +298,15 @@ services:
     volumes:
       - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf.orig:ro
       - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl.source:ro
+      - ./infrastructure/core/mqtt/init-mqtt.sh:/init-mqtt.sh:ro
       - mqtt_passwd:/mosquitto/config
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
-    # Fix file permissions to eliminate warnings:
-    # 1. Create passwd file, then explicitly set root:root ownership (required by future Mosquitto versions)
-    # 2. Remove any existing ACL file (may have wrong perms from Docker entrypoint)
-    # 3. Copy ACL file from read-only mount to writable volume location with correct ownership
-    # 4. Create modified mosquitto.conf that points to the fixed ACL file
-    # 5. Switch to mosquitto user before starting mosquitto daemon (use su -c since su-exec not available)
-    command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USER} $${MQTT_PASSWORD} && chmod 600 /mosquitto/config/passwd && chown root:root /mosquitto/config/passwd 2>&1 || true && rm -f /mosquitto/config/acl && cp /mosquitto/config/acl.source /mosquitto/config/acl && chown mosquitto:mosquitto /mosquitto/config/acl && chmod 600 /mosquitto/config/acl && sed 's|acl_file /mosquitto/config/acl.source|acl_file /mosquitto/config/acl|' /mosquitto/config/mosquitto.conf.orig > /mosquitto/config/mosquitto.conf && exec su -s /bin/sh mosquitto -c '/usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf'"
+    # Fix file permissions using root user to eliminate warnings
+    # The Docker entrypoint chowns /mosquitto to mosquitto:mosquitto when running as root
+    # Our init script fixes permissions after entrypoint and starts mosquitto
+    entrypoint: ["/bin/sh", "/init-mqtt.sh"]
+    command: []
     ports:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
@@ -1880,7 +1879,7 @@ services:
     environment:
       - PORT=8104
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-password}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
     ports:

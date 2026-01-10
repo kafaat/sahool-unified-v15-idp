@@ -91,8 +91,8 @@ services:
 
   field_ops_test:
     build:
-      context: ./apps/services/field-ops
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/field-ops/Dockerfile
     container_name: sahool-field-ops-test
     environment:
       - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
@@ -121,8 +121,8 @@ services:
 
   ndvi_engine_test:
     build:
-      context: ./apps/services/ndvi-engine
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/ndvi-engine/Dockerfile
     container_name: sahool-ndvi-engine-test
     environment:
       - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
@@ -149,8 +149,8 @@ services:
 
   weather_core_test:
     build:
-      context: ./apps/services/weather-core
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/weather-core/Dockerfile
     container_name: sahool-weather-core-test
     environment:
       - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
@@ -178,8 +178,8 @@ services:
 
   billing_core_test:
     build:
-      context: ./apps/services/billing-core
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/billing-core/Dockerfile
     container_name: sahool-billing-core-test
     environment:
       - PORT=8089
@@ -207,8 +207,8 @@ services:
 
   ai_advisor_test:
     build:
-      context: ./apps/services/ai-advisor
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/ai-advisor/Dockerfile
     container_name: sahool-ai-advisor-test
     environment:
       - SERVICE_PORT=8112

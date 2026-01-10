@@ -9,7 +9,7 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -543,12 +543,18 @@ def search_crops_endpoint(q: str):
 
 
 @app.get("/crops")
-def list_all_crops():
-    """List all crops grouped by category"""
+def list_all_crops(
+    limit: int = Query(default=100, ge=1, le=500, description="Maximum number of crops per category"),
+    offset: int = Query(default=0, ge=0, description="Number of crops to skip per category"),
+):
+    """List all crops grouped by category with pagination"""
     crops_by_category = {}
+    total_crops = 0
 
     for category in CropCategory:
         crops_in_category = get_crops_by_category(category)
+        # Apply pagination per category
+        paginated_crops = crops_in_category[offset : offset + limit]
         crops_by_category[category.value] = [
             {
                 "code": crop.code,
@@ -561,10 +567,15 @@ def list_all_crops():
                 "yemen_regions": crop.yemen_regions or [],
                 "has_local_varieties": bool(crop.local_varieties),
             }
-            for crop in crops_in_category
+            for crop in paginated_crops
         ]
+        total_crops += len(crops_in_category)
 
     return {
+        "categories": crops_by_category,
+        "total_crops": total_crops,
+        "limit": limit,
+        "offset": offset,
         "crops_by_category": crops_by_category,
         "total_crops": len(ALL_CROPS),
         "category_counts": CATEGORIES_COUNT,

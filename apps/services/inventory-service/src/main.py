@@ -39,7 +39,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     # Fallback for local development only - requires explicit opt-in
     if os.getenv("ALLOW_DEV_DEFAULTS", "false").lower() == "true":
-        DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_inventory"
+        # Use environment variables for host/port, fallback to localhost only in dev
+        db_host = os.getenv("POSTGRES_HOST", "localhost")
+        db_port = os.getenv("POSTGRES_PORT", "5432")
+        db_user = os.getenv("POSTGRES_USER", "postgres")
+        db_password = os.getenv("POSTGRES_PASSWORD", "postgres")
+        db_name = os.getenv("POSTGRES_DB", "sahool_inventory")
+        DATABASE_URL = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
         logger.warning("⚠️ Using development database defaults - NOT FOR PRODUCTION")
     else:
         raise ValueError(
@@ -103,7 +109,7 @@ add_request_id_middleware(app)
 # CORS Configuration - secure origins from environment
 CORS_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:3001,http://localhost:8080",
+    os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080"),
 ).split(",")
 app.add_middleware(
     CORSMiddleware,

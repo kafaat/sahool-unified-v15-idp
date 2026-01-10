@@ -702,18 +702,30 @@ def get_device_status(device_id: str):
 
 
 @app.get("/devices")
-def list_devices(field_id: str = None, device_type: str = None):
-    """List registered devices"""
+async def list_devices(
+    field_id: str | None = Query(None, description="Filter by field ID"),
+    device_type: str | None = Query(None, description="Filter by device type"),
+    limit: int = Query(default=50, ge=1, le=100, description="Maximum number of devices to return"),
+    offset: int = Query(default=0, ge=0, description="Number of devices to skip"),
+):
+    """List registered devices with pagination"""
     if field_id:
-        devices = registry.get_by_field(field_id)
+        all_devices = registry.get_by_field(field_id)
     elif device_type:
-        devices = registry.get_by_type(device_type)
+        all_devices = registry.get_by_type(device_type)
     else:
-        devices = registry.list_all()
+        all_devices = registry.list_all()
+
+    # Apply pagination
+    total = len(all_devices)
+    paginated_devices = all_devices[offset : offset + limit]
 
     return {
-        "devices": [d.to_dict() for d in devices],
-        "count": len(devices),
+        "devices": [d.to_dict() for d in paginated_devices],
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "has_more": (offset + limit) < total,
     }
 
 

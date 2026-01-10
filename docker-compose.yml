@@ -1092,6 +1092,7 @@ services:
       dockerfile: apps/services/crop-growth-model/Dockerfile
     container_name: sahool-crop-growth-model
     environment:
+      - TZ=Asia/Aden
       - PORT=3023
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}

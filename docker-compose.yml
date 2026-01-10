@@ -1218,8 +1218,8 @@ services:
   # Kept temporarily for backwards compatibility
   community-chat:
     build:
-      context: ./apps/services/community-chat
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/community-chat/Dockerfile
     container_name: sahool-community-chat
     environment:
       - PORT=8097
@@ -2175,8 +2175,8 @@ services:
   # Astronomical Calendar Service
   astronomical-calendar:
     build:
-      context: ./apps/services/astronomical-calendar
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/astronomical-calendar/Dockerfile
     container_name: sahool-astronomical-calendar
     environment:
       - PORT=8111
@@ -2539,8 +2539,8 @@ services:
   # Agro Rules Worker - NATS Event-Driven Worker
   agro-rules:
     build:
-      context: ./apps/services/agro-rules
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/agro-rules/Dockerfile
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222

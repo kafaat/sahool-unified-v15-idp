@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
+import 'package:safe_device/safe_device.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'security_config.dart';
 
@@ -142,7 +142,7 @@ class DeviceIntegrityService {
 
         // Check for root access
         try {
-          isRooted = await FlutterJailbreakDetection.jailbroken;
+          isRooted = await SafeDevice.isJailBroken;
           if (isRooted) {
             threats.add('Android device is rooted');
             debugPrint('🚨 Root access detected');
@@ -153,7 +153,7 @@ class DeviceIntegrityService {
 
         // Check for developer options
         try {
-          isDeveloperModeEnabled = await FlutterJailbreakDetection.developerMode;
+          isDeveloperModeEnabled = await SafeDevice.isDevelopmentModeEnable;
           if (isDeveloperModeEnabled) {
             threats.add('Developer options enabled');
             debugPrint('⚠️ Developer mode enabled');
@@ -185,7 +185,7 @@ class DeviceIntegrityService {
 
         // Check for jailbreak
         try {
-          isJailbroken = await FlutterJailbreakDetection.jailbroken;
+          isJailbroken = await SafeDevice.isJailBroken;
           if (isJailbroken) {
             threats.add('iOS device is jailbroken');
             debugPrint('🚨 Jailbreak detected');

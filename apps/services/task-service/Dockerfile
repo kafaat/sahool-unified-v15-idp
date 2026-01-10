@@ -54,9 +54,6 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 COPY shared/ ./shared/
 COPY apps/services/shared/ ./apps/services/shared/
 
-# Create compatibility layer: copy errors_py to shared/errors_py so imports work
-RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
-
 # Copy source
 COPY apps/services/task-service/src/ ./src/
 

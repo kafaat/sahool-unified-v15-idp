@@ -45,12 +45,6 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 # Copy shared libraries (required for shared.middleware, shared.observability, shared.errors_py)
 COPY shared/ ./shared/
 
-# Copy services shared modules (needed for errors_py module)
-COPY apps/services/shared/ ./apps/services/shared/
-
-# Create compatibility layer: copy errors_py to shared/errors_py so imports work
-RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
-
 # Copy application source
 COPY apps/services/billing-core/src ./src
 

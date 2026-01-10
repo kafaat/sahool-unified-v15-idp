@@ -46,12 +46,6 @@ COPY apps/services/ndvi-engine/requirements.txt .
 # Copy shared libraries (required for shared.errors_py, shared.auth)
 COPY shared/ ./shared/
 
-# Copy services shared modules (needed for errors_py module)
-COPY apps/services/shared/ ./apps/services/shared/
-
-# Create compatibility layer: copy errors_py to shared/errors_py so imports work
-RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
-
 # Copy source
 COPY apps/services/ndvi-engine/src/ ./src/
 

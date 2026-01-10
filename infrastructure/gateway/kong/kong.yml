@@ -452,6 +452,36 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
+  # -----------------------------
+  # Platform endpoints
+  # -----------------------------
+  - name: root-endpoint
+    url: http://kong:8000
+    routes:
+      - name: root-route
+        paths: ["/"]
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          content_type: "application/json"
+          body: '{"platform":"SAHOOL","version":"16.0.0","description":"National Agricultural Intelligence Platform","status":"operational","endpoints":{"/health":"Health check","/ping":"Ping check","/api/v1":"API Gateway"},"documentation":"https://github.com/kafaat/sahool-unified-v15-idp"}'
+
+  - name: health-check
+    url: http://kong:8000
+    routes:
+      - name: health-route
+        paths: ["/health", "/ping"]
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          message: "SAHOOL Platform is healthy"
+
 # ------------------------------------------------------------------------------
 # Intentionally NOT added to Kong (non-HTTP APIs / internal infra / workers)
 # - postgres, pgbouncer, redis, nats, nats-prometheus-exporter, mqtt, qdrant

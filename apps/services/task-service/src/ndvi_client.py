@@ -205,7 +205,7 @@ class NDVIClient:
         """
         حساب محلي باستخدام وحدة NDVI
         Local calculation using NDVI module
-        
+
         NOTE: Heavy CPU-bound calculations run in executor to avoid blocking event loop
         """
         import asyncio

@@ -312,11 +312,11 @@ async def list_diseases(
 ):
     """📋 قائمة الأمراض المدعومة مع الترقيم"""
     all_diseases = disease_service.get_all_diseases(crop_type)
-    
+
     # Apply pagination
     total = len(all_diseases)
     paginated_diseases = all_diseases[offset : offset + limit]
-    
+
     return {
         "diseases": paginated_diseases,
         "total": total,

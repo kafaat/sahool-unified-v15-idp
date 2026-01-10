@@ -13,5 +13,8 @@ httpx==0.28.1
 # Utilities
 python-dotenv==1.0.1
 
+# Redis cache
+redis[hiredis]==5.0.1
+
 # ML/Scientific Computing
 numpy==1.26.4

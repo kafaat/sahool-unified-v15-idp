@@ -209,7 +209,7 @@ export async function getSprayWindows(
       if (response.data?.success && response.data?.data) {
         return response.data;
       }
-    } catch (apiError) {
+    } catch {
       // Backend not available, fall through to client-side calculation
       logger.info('Action windows API not available, calculating client-side');
     }
@@ -309,7 +309,7 @@ export async function getIrrigationWindows(
       if (response.data?.success && response.data?.data) {
         return response.data;
       }
-    } catch (apiError) {
+    } catch {
       logger.info('Action windows API not available, calculating client-side');
     }
 
@@ -473,7 +473,7 @@ export async function getActionRecommendations(
       if (response.data?.success && response.data?.data) {
         return response.data;
       }
-    } catch (apiError) {
+    } catch {
       logger.info('Action windows API not available, generating client-side');
     }
 

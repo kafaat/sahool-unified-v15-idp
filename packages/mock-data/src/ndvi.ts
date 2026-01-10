@@ -3,7 +3,7 @@
  * بيانات مؤشر الغطاء النباتي الوهمية
  */
 
-import { generateId, randomFloat, randomItem } from './utils';
+import { generateId, randomFloat } from './utils';
 
 export type VegetationHealth = 'excellent' | 'good' | 'moderate' | 'poor' | 'critical';
 

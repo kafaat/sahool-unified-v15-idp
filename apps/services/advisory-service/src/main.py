@@ -576,8 +576,6 @@ def list_all_crops(
         "total_crops": total_crops,
         "limit": limit,
         "offset": offset,
-        "crops_by_category": crops_by_category,
-        "total_crops": len(ALL_CROPS),
         "category_counts": CATEGORIES_COUNT,
     }
 

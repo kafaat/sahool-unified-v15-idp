@@ -462,6 +462,7 @@ services:
         paths: ["/"]
         strip_path: false
         protocols: ["http", "https"]
+        methods: ["GET"]
     plugins:
       - name: request-termination
         config:
@@ -476,6 +477,7 @@ services:
         paths: ["/health", "/ping"]
         strip_path: false
         protocols: ["http", "https"]
+        methods: ["GET"]
     plugins:
       - name: request-termination
         config:

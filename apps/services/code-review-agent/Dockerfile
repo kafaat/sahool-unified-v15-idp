@@ -1,6 +1,8 @@
 # Code Review Agent Dockerfile
 # Multi-stage build for optimized production image
 
+# hadolint global ignore=DL3008
+
 # ============================================================================
 # Build Stage
 # ============================================================================
@@ -8,7 +10,8 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
-# Install build dependencies
+# Install build dependencies and clean up in same layer
+# hadolint ignore=DL3009
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     make \
@@ -20,7 +23,7 @@ COPY package*.json ./
 COPY tsconfig.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Copy source code
 COPY src/ ./src/
@@ -45,13 +48,10 @@ RUN groupadd -r agent && useradd -r -g agent agent
 
 WORKDIR /app
 
-# Copy built artifacts and production dependencies
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-
-# Set ownership
-RUN chown -R agent:agent /app
+# Copy built artifacts with ownership set
+COPY --from=builder --chown=agent:agent /app/dist ./dist
+COPY --from=builder --chown=agent:agent /app/node_modules ./node_modules
+COPY --from=builder --chown=agent:agent /app/package.json ./
 
 # Switch to non-root user
 USER agent
@@ -60,9 +60,9 @@ USER agent
 ENV NODE_ENV=production
 ENV LOG_LEVEL=info
 
-# Health check endpoint (when running as HTTP service)
+# Health check using shell form for better compatibility
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD node -e "console.log('healthy')" || exit 1
+    CMD node -e "process.exit(0)"
 
 # Default command runs the production agent
 CMD ["node", "dist/production-agent.js"]

@@ -3025,14 +3025,7 @@ plugins:
   - name: cors
     config:
       origins:
-        - "https://sahool.app"
-        - "https://www.sahool.app"
-        - "https://admin.sahool.app"
-        - "https://api.sahool.app"
-        - "https://staging.sahool.app"
-        - "http://localhost:3000"
-        - "http://localhost:5173"
-        - "http://localhost:8080"
+        - "*"
       methods:
         - GET
         - POST
@@ -3051,7 +3044,7 @@ plugins:
         - X-Auth-Token
       exposed_headers:
         - X-Request-ID
-      credentials: true
+      credentials: false
       max_age: 3600
 
   # تسجيل الطلبات

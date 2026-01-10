@@ -20,6 +20,12 @@ RUN for i in 1 2 3; do \
 # Copy shared modules (from repo root)
 COPY shared/ ./shared/
 
+# Copy services shared modules (needed for errors_py module)
+COPY apps/services/shared/ ./apps/services/shared/
+
+# Create compatibility layer: copy errors_py to shared/errors_py so imports work
+RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
+
 # Copy source code
 COPY apps/services/vegetation-analysis-service/src/ ./src/
 

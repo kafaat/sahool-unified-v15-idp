@@ -35,7 +35,7 @@
       "@sahool/utils": ["../../packages/shared-utils/src"],
       "@sahool/api-client": ["../../packages/api-client/src"],
       "@sahool/api": ["../../packages/api-client/src"],
-"@sahool/i18n": ["../../packages/i18n/src"],
+      "@sahool/i18n": ["../../packages/i18n/src"],
       "@sahool/shared-types": ["../../packages/shared-types/src"],
       "@sahool/shared-types/*": ["../../packages/shared-types/src/*"]
     }

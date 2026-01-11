@@ -300,7 +300,7 @@ services:
       prometheus.io/port: '8021'
       prometheus.io/path: /metrics
   satellite-service:
-    enabled: true
+    enabled: false
     name: satellite-service
     image:
       repository: ghcr.io/kafaat/sahool-satellite-service
@@ -332,7 +332,7 @@ services:
       prometheus.io/port: '8090'
       prometheus.io/path: /metrics
   weather-advanced:
-    enabled: true
+    enabled: false
     name: weather-advanced
     image:
       repository: ghcr.io/kafaat/sahool-weather-advanced
@@ -396,7 +396,7 @@ services:
       prometheus.io/port: '8091'
       prometheus.io/path: /metrics
   crop-health-ai:
-    enabled: true
+    enabled: false
     name: crop-health-ai
     image:
       repository: ghcr.io/kafaat/sahool-crop-health-ai
@@ -492,7 +492,7 @@ services:
       prometheus.io/port: '8098'
       prometheus.io/path: /metrics
   fertilizer-advisor:
-    enabled: true
+    enabled: false
     name: fertilizer-advisor
     image:
       repository: ghcr.io/kafaat/sahool-fertilizer-advisor

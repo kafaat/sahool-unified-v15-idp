@@ -445,7 +445,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # SATELLITE SERVICE - خدمة الأقمار الصناعية
+  # SATELLITE SERVICE - خدمة الأقمار الصناعية (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   satellite-service:
     name: "Satellite Service"
@@ -457,7 +457,9 @@ services:
     port: 8090
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: vegetation-analysis-service
+    deprecation_date: "2026-01-11"
     version: "15.4.0"
     events:
       produces:
@@ -484,7 +486,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # WEATHER ADVANCED - خدمة الطقس المتقدمة
+  # WEATHER ADVANCED - خدمة الطقس المتقدمة (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   weather-advanced:
     name: "Weather Advanced"
@@ -496,7 +498,9 @@ services:
     port: 8092
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: weather-service
+    deprecation_date: "2026-01-11"
     events:
       produces:
         - WeatherObserved.v1
@@ -547,7 +551,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # CROP HEALTH AI - سهول فيجن
+  # CROP HEALTH AI - سهول فيجن (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   crop-health-ai:
     name: "Crop Health AI"
@@ -559,7 +563,9 @@ services:
     port: 8095
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: crop-intelligence-service
+    deprecation_date: "2026-01-11"
     events:
       produces:
         - CropHealthAssessed.v1
@@ -634,7 +640,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # FERTILIZER ADVISOR - مستشار التسميد
+  # FERTILIZER ADVISOR - مستشار التسميد (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   fertilizer-advisor:
     name: "Fertilizer Advisor"
@@ -646,7 +652,9 @@ services:
     port: 8093
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: advisory-service
+    deprecation_date: "2026-01-11"
     events:
       produces:
         - FertilizerPlanProposed.v1

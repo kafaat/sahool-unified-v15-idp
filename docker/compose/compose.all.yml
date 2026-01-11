@@ -243,16 +243,16 @@ services:
       context: ../../apps/services/agro-rules
       dockerfile: Dockerfile
     ports:
-    - None:None
+    - 8151:8151
     environment:
-    - PORT=None
+    - PORT=8151
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:NoneNone
+      - http://localhost:8151/healthz
       interval: 30s
       timeout: 10s
       retries: 3

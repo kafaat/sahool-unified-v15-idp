@@ -627,9 +627,9 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: null
+    port: 8151
     healthCheck:
-      path: null
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -643,13 +643,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: None
+      value: '8151'
     serviceAccount:
       create: true
       name: sahool-agro-rules
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: None
+      prometheus.io/port: '8151'
       prometheus.io/path: /metrics
   crop-intelligence-service:
     enabled: true
@@ -980,7 +980,7 @@ ingress:
     - path: /api/v1/agro/rules
       pathType: Prefix
       service: agro-rules
-      port: null
+      port: 8151
     - path: /api/v1/crop/intelligence/service
       pathType: Prefix
       service: crop-intelligence-service

@@ -766,9 +766,9 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/agro-rules"
-    port: null  # NATS worker - no HTTP port
-    protocol: nats
-    health_endpoint: null
+    port: 8151
+    protocol: http
+    health_endpoint: "/healthz"
     status: active
     events:
       produces:

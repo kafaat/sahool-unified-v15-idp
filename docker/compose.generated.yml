@@ -848,10 +848,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-agro-rules
     ports:
-    - None:None
+    - 8151:8151
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=None
+    - PORT=8151
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -860,7 +860,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:NoneNone
+      - http://localhost:8151/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -877,7 +877,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=agro-rules
-    - sahool.port=None
+    - sahool.port=8151
     - sahool.category=crop
     - traefik.enable=true
     - traefik.http.routers.agro-rules.rule=PathPrefix(`/api/v1/agro/rules`)

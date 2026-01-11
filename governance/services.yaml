@@ -732,6 +732,220 @@ services:
       memory: "256Mi"
       replicas: 1
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # MCP SERVER - خادم بروتوكول سياق النموذج
+  # ═══════════════════════════════════════════════════════════════════════════
+  mcp-server:
+    name: "MCP Server"
+    name_ar: "خادم MCP"
+    type: python
+    category: integration
+    layer: business
+    path: "apps/services/mcp-server"
+    port: 8200
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces: []
+      consumes: []
+    dependencies:
+      - kong
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AGRO RULES - قواعد الزراعة
+  # ═══════════════════════════════════════════════════════════════════════════
+  agro-rules:
+    name: "Agro Rules Worker"
+    name_ar: "عامل القواعد الزراعية"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/agro-rules"
+    port: null  # NATS worker - no HTTP port
+    protocol: nats
+    health_endpoint: null
+    status: active
+    events:
+      produces:
+        - AgroRuleEvaluated.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - nats
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CROP INTELLIGENCE SERVICE - خدمة ذكاء المحاصيل
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop-intelligence-service:
+    name: "Crop Intelligence Service"
+    name_ar: "خدمة ذكاء المحاصيل"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/crop-intelligence-service"
+    port: 8095
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - CropHealthAssessed.v1
+        - DiseaseDetected.v1
+      consumes:
+        - IndexTileReady.v1
+        - SatelliteSceneIngested.v1
+    dependencies:
+      - satellite-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # EQUIPMENT SERVICE - خدمة المعدات
+  # ═══════════════════════════════════════════════════════════════════════════
+  equipment-service:
+    name: "Equipment Service"
+    name_ar: "خدمة المعدات"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/equipment-service"
+    port: 8130
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - EquipmentStatusUpdated.v1
+      consumes: []
+    database:
+      type: postgresql
+      name: sahool_equipment
+    dependencies: []
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # TASK SERVICE - خدمة المهام
+  # ═══════════════════════════════════════════════════════════════════════════
+  task-service:
+    name: "Task Service"
+    name_ar: "خدمة المهام"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/task-service"
+    port: 8131
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - TaskCreated.v1
+        - TaskCompleted.v1
+      consumes:
+        - IrrigationAlertIssued.v1
+        - FertilizerPlanProposed.v1
+    database:
+      type: postgresql
+      name: sahool_tasks
+    dependencies: []
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WS GATEWAY - بوابة WebSocket
+  # ═══════════════════════════════════════════════════════════════════════════
+  ws-gateway:
+    name: "WebSocket Gateway"
+    name_ar: "بوابة WebSocket"
+    type: python
+    category: integration
+    layer: business
+    path: "apps/services/ws-gateway"
+    port: 8140
+    protocol: websocket
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces: []
+      consumes:
+        - NotificationSent.v1
+    dependencies:
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NDVI PROCESSOR - معالج NDVI
+  # ═══════════════════════════════════════════════════════════════════════════
+  ndvi-processor:
+    name: "NDVI Processor"
+    name_ar: "معالج NDVI"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/ndvi-processor"
+    port: 8141
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - NDVIProcessed.v1
+      consumes:
+        - SatelliteSceneIngested.v1
+    dependencies:
+      - satellite-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD INTELLIGENCE - ذكاء الحقول
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-intelligence:
+    name: "Field Intelligence"
+    name_ar: "ذكاء الحقول"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/field-intelligence"
+    port: 8142
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - FieldAnalysisCompleted.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - NDVIProcessed.v1
+    dependencies:
+      - indicators-service
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Applications (Frontend)
 # ─────────────────────────────────────────────────────────────────────────────

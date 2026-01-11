@@ -209,6 +209,34 @@ services:
           memory: 384Mi
     depends_on:
     - indicators-service
+  vegetation-analysis-service:
+    build:
+      context: ../../apps/services/vegetation-analysis-service
+      dockerfile: Dockerfile
+    ports:
+    - 8019:8019
+    environment:
+    - PORT=8019
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8019/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
 networks:
   sahool-network:
     driver: bridge

@@ -843,6 +843,102 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8142'
       prometheus.io/path: /metrics
+  vegetation-analysis-service:
+    enabled: true
+    name: vegetation-analysis-service
+    image:
+      repository: ghcr.io/kafaat/sahool-vegetation-analysis-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8019
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8019'
+    serviceAccount:
+      create: true
+      name: sahool-vegetation-analysis-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8019'
+      prometheus.io/path: /metrics
+  weather-service:
+    enabled: true
+    name: weather-service
+    image:
+      repository: ghcr.io/kafaat/sahool-weather-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8108
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 256Mi
+      limits:
+        cpu: 300000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8108'
+    serviceAccount:
+      create: true
+      name: sahool-weather-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8108'
+      prometheus.io/path: /metrics
+  advisory-service:
+    enabled: true
+    name: advisory-service
+    image:
+      repository: ghcr.io/kafaat/sahool-advisory-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8160
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 384Mi
+      limits:
+        cpu: 400000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8160'
+    serviceAccount:
+      create: true
+      name: sahool-advisory-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8160'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -1005,6 +1101,18 @@ ingress:
       pathType: Prefix
       service: field-intelligence
       port: 8142
+    - path: /api/v1/vegetation/analysis/service
+      pathType: Prefix
+      service: vegetation-analysis-service
+      port: 8019
+    - path: /api/v1/weather/service
+      pathType: Prefix
+      service: weather-service
+      port: 8108
+    - path: /api/v1/advisory/service
+      pathType: Prefix
+      service: advisory-service
+      port: 8160
   tls:
   - secretName: sahool-tls
     hosts:

@@ -29,6 +29,13 @@ from .decision_engine import (
     diagnose_zone,
     generate_vrt_properties,
 )
+from .disease_detection import (
+    CropType,
+    DiseaseDetection,
+    DiseaseSeverity,
+    detect_diseases,
+    get_overall_health_status,
+)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Pydantic Schemas
@@ -714,6 +721,159 @@ def quick_diagnose(body: ObservationIn, zone_id: str = Query(default="zone_temp"
         "status": classify_zone_status(actions),
         "actions": actions,
         "indices_received": body.indices.model_dump(),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Disease Detection Endpoints
+# نقاط نهاية كشف الأمراض
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class DiseaseDetectionRequest(BaseModel):
+    """طلب كشف الأمراض"""
+
+    ndvi: float = Field(..., ge=-1, le=1, description="NDVI value")
+    evi: float = Field(..., ge=-1, le=1, description="EVI value")
+    ndre: float = Field(..., ge=-1, le=1, description="NDRE value")
+    ndwi: float = Field(..., ge=-1, le=1, description="NDWI value")
+    lci: float = Field(..., ge=-1, le=1, description="LCI value")
+    savi: float = Field(..., ge=-1, le=1, description="SAVI value")
+    crop_type: CropType = Field(default=CropType.UNKNOWN, description="نوع المحصول")
+    humidity_pct: float | None = Field(default=None, ge=0, le=100, description="الرطوبة %")
+    temp_c: float | None = Field(default=None, ge=-50, le=60, description="الحرارة °C")
+
+
+@app.post("/api/v1/disease/detect")
+def detect_crop_diseases(body: DiseaseDetectionRequest):
+    """
+    كشف الأمراض المحتملة من المؤشرات النباتية
+    Detect potential diseases from vegetation indices
+
+    Returns diseases with severity, confidence, and treatment recommendations.
+    """
+    detections = detect_diseases(
+        ndvi=body.ndvi,
+        evi=body.evi,
+        ndre=body.ndre,
+        ndwi=body.ndwi,
+        lci=body.lci,
+        savi=body.savi,
+        crop_type=body.crop_type,
+        humidity_pct=body.humidity_pct,
+        temp_c=body.temp_c,
+    )
+
+    health_en, health_ar = get_overall_health_status(detections)
+
+    return {
+        "overall_health": {
+            "status_en": health_en,
+            "status_ar": health_ar,
+        },
+        "detection_count": len(detections),
+        "detections": [d.to_dict() for d in detections],
+        "input_indices": {
+            "ndvi": body.ndvi,
+            "evi": body.evi,
+            "ndre": body.ndre,
+            "ndwi": body.ndwi,
+            "lci": body.lci,
+            "savi": body.savi,
+        },
+        "environmental_context": {
+            "crop_type": body.crop_type.value,
+            "humidity_pct": body.humidity_pct,
+            "temp_c": body.temp_c,
+        },
+    }
+
+
+@app.post("/api/v1/fields/{field_id}/zones/{zone_id}/disease-analysis")
+def analyze_zone_diseases(
+    field_id: str,
+    zone_id: str,
+    humidity_pct: float | None = Query(default=None, ge=0, le=100),
+    temp_c: float | None = Query(default=None, ge=-50, le=60),
+    crop_type: CropType = Query(default=CropType.UNKNOWN),
+):
+    """
+    تحليل أمراض المنطقة من آخر رصد
+    Analyze zone diseases from latest observation
+
+    Combines the latest observation data with optional environmental
+    context to detect potential diseases.
+    """
+    if field_id not in OBSERVATIONS or zone_id not in OBSERVATIONS[field_id]:
+        raise HTTPException(status_code=404, detail="Zone not found or no observations")
+
+    obs_list = OBSERVATIONS[field_id][zone_id]
+    if not obs_list:
+        raise HTTPException(status_code=404, detail="No observations for this zone")
+
+    # Get latest observation
+    latest = obs_list[-1]
+    idx = latest["indices"]
+
+    # Detect diseases
+    detections = detect_diseases(
+        ndvi=idx["ndvi"],
+        evi=idx["evi"],
+        ndre=idx["ndre"],
+        ndwi=idx["ndwi"],
+        lci=idx["lci"],
+        savi=idx["savi"],
+        crop_type=crop_type,
+        humidity_pct=humidity_pct,
+        temp_c=temp_c,
+    )
+
+    health_en, health_ar = get_overall_health_status(detections)
+
+    # Get zone metadata
+    zone_meta = ZONES.get(field_id, {}).get(zone_id, {})
+
+    return {
+        "field_id": field_id,
+        "zone_id": zone_id,
+        "zone_name": zone_meta.get("name", zone_id),
+        "zone_name_ar": zone_meta.get("name_ar"),
+        "observation_date": latest.get("captured_at"),
+        "overall_health": {
+            "status_en": health_en,
+            "status_ar": health_ar,
+        },
+        "detection_count": len(detections),
+        "detections": [d.to_dict() for d in detections],
+        "indices": idx,
+    }
+
+
+@app.get("/api/v1/disease/types")
+def list_disease_types():
+    """
+    قائمة أنواع الأمراض المدعومة
+    List supported disease types
+    """
+    from .disease_detection import DiseaseType, TreatmentType
+
+    return {
+        "disease_types": [
+            {"value": dt.value, "name": dt.name}
+            for dt in DiseaseType
+        ],
+        "treatment_types": [
+            {"value": tt.value, "name": tt.name}
+            for tt in TreatmentType
+        ],
+        "crop_types": [
+            {"value": ct.value, "name": ct.name}
+            for ct in CropType
+        ],
+        "severity_levels": [
+            {"value": ds.value, "name": ds.name}
+            for ds in DiseaseSeverity
+        ],
     }
 
 

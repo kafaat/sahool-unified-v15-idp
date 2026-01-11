@@ -39,7 +39,14 @@ from shared.errors_py import (
 
 from .events import get_publisher
 from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvider
-from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
+from .risks import (
+    assess_weather,
+    get_irrigation_adjustment,
+    heat_stress_risk,
+    calculate_evapotranspiration,
+    calculate_growing_degree_days,
+    calculate_spray_window,
+)
 
 # Configuration
 USE_MOCK_WEATHER = os.getenv("USE_MOCK_WEATHER", "false").lower() == "true"
@@ -403,6 +410,192 @@ async def get_providers():
             "total": 1,
             "configured": 1,
         }
+
+
+# ============== Advanced Agricultural Endpoints ==============
+
+
+class ETRequest(BaseModel):
+    """Evapotranspiration calculation request"""
+    tenant_id: str
+    field_id: str
+    temp_c: float = Field(ge=-50, le=60)
+    humidity_pct: float = Field(ge=0, le=100)
+    wind_speed_kmh: float = Field(ge=0)
+    solar_radiation_mj: float = Field(default=15.0, ge=0, le=50)
+
+
+class GDDRequest(BaseModel):
+    """Growing Degree Days calculation request"""
+    tenant_id: str
+    field_id: str
+    temp_max_c: float = Field(ge=-50, le=60)
+    temp_min_c: float = Field(ge=-50, le=60)
+    base_temp_c: float = Field(default=10.0, ge=0, le=30)
+    upper_temp_c: float = Field(default=30.0, ge=20, le=50)
+
+
+class SprayWindowRequest(BaseModel):
+    """Spray window assessment request"""
+    tenant_id: str
+    field_id: str
+    temp_c: float = Field(ge=-50, le=60)
+    humidity_pct: float = Field(ge=0, le=100)
+    wind_speed_kmh: float = Field(ge=0)
+    precipitation_probability: float = Field(default=0, ge=0, le=100)
+
+
+@app.post("/weather/evapotranspiration")
+async def calculate_et(req: ETRequest):
+    """
+    Calculate Reference Evapotranspiration (ET0)
+    حساب التبخر-نتح المرجعي
+
+    Uses FAO-56 Penman-Monteith equation (simplified).
+    Essential for irrigation scheduling.
+
+    Returns:
+        ET0 in mm/day with irrigation recommendations
+    """
+    result = calculate_evapotranspiration(
+        temp_c=req.temp_c,
+        humidity_pct=req.humidity_pct,
+        wind_speed_kmh=req.wind_speed_kmh,
+        solar_radiation_mj=req.solar_radiation_mj,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "evapotranspiration": result,
+    }
+
+
+@app.post("/weather/gdd")
+async def calculate_gdd(req: GDDRequest):
+    """
+    Calculate Growing Degree Days (GDD)
+    حساب أيام النمو الحراري
+
+    GDD predicts crop development stages based on accumulated heat.
+    Essential for phenology modeling and harvest prediction.
+
+    Returns:
+        Daily GDD with growth rate classification
+    """
+    result = calculate_growing_degree_days(
+        temp_max_c=req.temp_max_c,
+        temp_min_c=req.temp_min_c,
+        base_temp_c=req.base_temp_c,
+        upper_temp_c=req.upper_temp_c,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "growing_degree_days": result,
+    }
+
+
+@app.post("/weather/spray-window")
+async def assess_spray_window(req: SprayWindowRequest):
+    """
+    Assess spray window suitability
+    تقييم مدى ملاءمة نافذة الرش
+
+    Evaluates if current conditions are suitable for pesticide/herbicide application.
+    Considers temperature, humidity, wind, and precipitation probability.
+
+    Returns:
+        Spray suitability score and recommendations
+    """
+    result = calculate_spray_window(
+        temp_c=req.temp_c,
+        humidity_pct=req.humidity_pct,
+        wind_speed_kmh=req.wind_speed_kmh,
+        precipitation_probability=req.precipitation_probability,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "spray_window": result,
+    }
+
+
+@app.post("/weather/agricultural-report")
+async def get_agricultural_report(req: LocationRequest):
+    """
+    Comprehensive agricultural weather report
+    تقرير الطقس الزراعي الشامل
+
+    Combines current weather, alerts, ET0, GDD, and spray window
+    into a single comprehensive report for farmers.
+    """
+    # Get current weather
+    if app.state.multi_provider:
+        weather_data = await app.state.multi_provider.get_current_weather(
+            lat=req.lat, lon=req.lon
+        )
+    else:
+        weather_data = await app.state.weather_provider.get_current_weather(
+            lat=req.lat, lon=req.lon
+        )
+
+    if "error" in weather_data:
+        raise ExternalServiceException(
+            service_name="Weather Provider",
+            message=weather_data["error"]
+        )
+
+    temp_c = weather_data.get("temperature_c", 25)
+    humidity_pct = weather_data.get("humidity_percent", 50)
+    wind_speed_kmh = weather_data.get("wind_speed_kmh", 10)
+
+    # Calculate all metrics
+    et_result = calculate_evapotranspiration(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    gdd_result = calculate_growing_degree_days(
+        temp_max_c=temp_c + 5,  # Estimated daily range
+        temp_min_c=temp_c - 5,
+    )
+
+    spray_result = calculate_spray_window(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    # Assess alerts
+    alerts = assess_weather(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    # Irrigation adjustment
+    irrigation = get_irrigation_adjustment(
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        wind_speed_kmh=wind_speed_kmh,
+    )
+
+    return {
+        "tenant_id": req.tenant_id,
+        "field_id": req.field_id,
+        "location": {"lat": req.lat, "lon": req.lon},
+        "current_weather": weather_data,
+        "evapotranspiration": et_result,
+        "growing_degree_days": gdd_result,
+        "spray_window": spray_result,
+        "irrigation_adjustment": irrigation,
+        "alerts": [a.to_dict() for a in alerts],
+        "alert_count": len(alerts),
+    }
 
 
 if __name__ == "__main__":

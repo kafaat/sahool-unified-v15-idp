@@ -887,10 +887,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-crop-intelligence-service
     ports:
-    - 8095:8095
+    - 8150:8150
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8095
+    - PORT=8150
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -899,7 +899,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8095/health
+      - http://localhost:8150/health
       interval: 30s
       timeout: 10s
       retries: 3
@@ -916,7 +916,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=crop-intelligence-service
-    - sahool.port=8095
+    - sahool.port=8150
     - sahool.category=crop
     - traefik.enable=true
     - traefik.http.routers.crop-intelligence-service.rule=PathPrefix(`/api/v1/crop/intelligence/service`)

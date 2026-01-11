@@ -793,7 +793,7 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/crop-intelligence-service"
-    port: 8095
+    port: 8150
     protocol: http
     health_endpoint: "/health"
     status: active

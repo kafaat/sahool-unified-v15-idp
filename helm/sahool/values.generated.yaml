@@ -659,7 +659,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8095
+    port: 8150
     healthCheck:
       path: /health
       initialDelaySeconds: 30
@@ -675,13 +675,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8095'
+      value: '8150'
     serviceAccount:
       create: true
       name: sahool-crop-intelligence-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8095'
+      prometheus.io/port: '8150'
       prometheus.io/path: /metrics
   equipment-service:
     enabled: true
@@ -984,7 +984,7 @@ ingress:
     - path: /api/v1/crop/intelligence/service
       pathType: Prefix
       service: crop-intelligence-service
-      port: 8095
+      port: 8150
     - path: /api/v1/equipment/service
       pathType: Prefix
       service: equipment-service

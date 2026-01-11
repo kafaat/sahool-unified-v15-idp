@@ -136,16 +136,16 @@ services:
       context: ../../apps/services/crop-intelligence-service
       dockerfile: Dockerfile
     ports:
-    - 8095:8095
+    - 8150:8150
     environment:
-    - PORT=8095
+    - PORT=8150
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8095/health
+      - http://localhost:8150/health
       interval: 30s
       timeout: 10s
       retries: 3

@@ -25,7 +25,8 @@ jobs:
   preview-web:
     name: Web Preview
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('apps/web/package.json') != '' }}
+    # Only run if secrets are configured (SURGE_TOKEN or NETLIFY_AUTH_TOKEN)
+    if: ${{ hashFiles('apps/web/package.json') != '' && (secrets.SURGE_TOKEN != '' || secrets.NETLIFY_AUTH_TOKEN != '') }}
 
     steps:
       - name: Checkout code
@@ -154,7 +155,8 @@ jobs:
   preview-flutter:
     name: Flutter Web Preview
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' }}
+    # Only run for main branches, not PRs (to avoid permission issues)
+    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' && github.event_name != 'pull_request' }}
 
     steps:
       - name: Checkout code

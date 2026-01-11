@@ -287,7 +287,6 @@ jobs:
           EOF
 
       - name: Generate code (Drift, Freezed, etc.)
-        if: matrix.test-type == 'build-android' || matrix.test-type == 'unit-tests'
         run: |
           echo "Generating code with build_runner..."
           dart run build_runner clean || true

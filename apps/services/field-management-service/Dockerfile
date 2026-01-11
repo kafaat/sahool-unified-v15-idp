@@ -30,8 +30,12 @@ RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20
 WORKDIR /app
 COPY apps/services/field-management-service/package.json ./
 COPY apps/services/field-management-service/package-lock.json ./
-RUN npm ci --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Fix the file: path reference for Docker build context (../../../packages -> ./packages)
+# Then remove package-lock.json to allow npm install to regenerate it with correct paths
+RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || \
+    sed -i '' 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
+RUN rm -f package-lock.json || true
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and generate client
 COPY apps/services/field-management-service/prisma ./prisma

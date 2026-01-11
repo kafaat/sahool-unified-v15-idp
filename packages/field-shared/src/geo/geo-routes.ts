@@ -159,7 +159,7 @@ geoRoutes.get("/farms/nearby", async (req: Request, res: Response) => {
  */
 geoRoutes.get("/fields/:fieldId/area", async (req: Request, res: Response) => {
     try {
-        const { fieldId } = req.params;
+        const fieldId = Array.isArray(req.params.fieldId) ? req.params.fieldId[0] : req.params.fieldId;
 
         if (!isValidUUID(fieldId)) {
             return res.status(400).json({
@@ -192,7 +192,7 @@ geoRoutes.get("/fields/:fieldId/area", async (req: Request, res: Response) => {
  */
 geoRoutes.post("/fields/:fieldId/contains-point", async (req: Request, res: Response) => {
     try {
-        const { fieldId } = req.params;
+        const fieldId = Array.isArray(req.params.fieldId) ? req.params.fieldId[0] : req.params.fieldId;
         const { lat, lng } = req.body;
 
         if (!isValidUUID(fieldId)) {
@@ -283,7 +283,8 @@ geoRoutes.get("/fields/bbox", async (req: Request, res: Response) => {
  */
 geoRoutes.get("/fields/:fieldId1/distance/:fieldId2", async (req: Request, res: Response) => {
     try {
-        const { fieldId1, fieldId2 } = req.params;
+        const fieldId1 = Array.isArray(req.params.fieldId1) ? req.params.fieldId1[0] : req.params.fieldId1;
+        const fieldId2 = Array.isArray(req.params.fieldId2) ? req.params.fieldId2[0] : req.params.fieldId2;
 
         if (!isValidUUID(fieldId1) || !isValidUUID(fieldId2)) {
             return res.status(400).json({
@@ -369,7 +370,7 @@ geoRoutes.get("/region/stats", async (req: Request, res: Response) => {
  */
 geoRoutes.get("/fields/:fieldId/geojson", async (req: Request, res: Response) => {
     try {
-        const { fieldId } = req.params;
+        const fieldId = Array.isArray(req.params.fieldId) ? req.params.fieldId[0] : req.params.fieldId;
 
         if (!isValidUUID(fieldId)) {
             return res.status(400).json({
@@ -398,7 +399,7 @@ geoRoutes.get("/fields/:fieldId/geojson", async (req: Request, res: Response) =>
  */
 geoRoutes.get("/farms/:farmId/geojson", async (req: Request, res: Response) => {
     try {
-        const { farmId } = req.params;
+        const farmId = Array.isArray(req.params.farmId) ? req.params.farmId[0] : req.params.farmId;
 
         if (!isValidUUID(farmId)) {
             return res.status(400).json({
@@ -427,7 +428,7 @@ geoRoutes.get("/farms/:farmId/geojson", async (req: Request, res: Response) => {
  */
 geoRoutes.get("/farms/:farmId/fields", async (req: Request, res: Response) => {
     try {
-        const { farmId } = req.params;
+        const farmId = Array.isArray(req.params.farmId) ? req.params.farmId[0] : req.params.farmId;
 
         if (!isValidUUID(farmId)) {
             return res.status(400).json({
@@ -509,7 +510,7 @@ geoRoutes.post("/fields", async (req: Request, res: Response) => {
  */
 geoRoutes.put("/fields/:fieldId/boundary", async (req: Request, res: Response) => {
     try {
-        const { fieldId } = req.params;
+        const fieldId = Array.isArray(req.params.fieldId) ? req.params.fieldId[0] : req.params.fieldId;
         const { boundary_geojson } = req.body;
 
         if (!isValidUUID(fieldId)) {

@@ -168,9 +168,10 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
      */
     app.get("/api/v1/fields/:id", async (req: Request, res: Response) => {
         try {
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const fieldRepo = AppDataSource.getRepository(Field);
             const field = await fieldRepo.findOne({
-                where: { id: req.params.id }
+                where: { id }
             });
     
             if (!field) {
@@ -351,9 +352,10 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
      */
     app.put("/api/v1/fields/:id", async (req: Request, res: Response) => {
         try {
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const fieldRepo = AppDataSource.getRepository(Field);
             const field = await fieldRepo.findOne({
-                where: { id: req.params.id }
+                where: { id }
             });
     
             if (!field) {
@@ -415,8 +417,9 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
      */
     app.delete("/api/v1/fields/:id", async (req: Request, res: Response) => {
         try {
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const fieldRepo = AppDataSource.getRepository(Field);
-            const result = await fieldRepo.delete(req.params.id);
+            const result = await fieldRepo.delete(id);
     
             if (result.affected === 0) {
                 return res.status(404).json({
@@ -499,9 +502,10 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
      */
     app.get("/api/v1/fields/:id/ndvi", async (req: Request, res: Response) => {
         try {
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const fieldRepo = AppDataSource.getRepository(Field);
             const field = await fieldRepo.findOne({
-                where: { id: req.params.id }
+                where: { id }
             });
     
             if (!field) {
@@ -565,6 +569,7 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
      */
     app.put("/api/v1/fields/:id/ndvi", async (req: Request, res: Response) => {
         try {
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const fieldRepo = AppDataSource.getRepository(Field);
             const { value, source } = req.body;
     
@@ -576,7 +581,7 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
             }
     
             const field = await fieldRepo.findOne({
-                where: { id: req.params.id }
+                where: { id }
             });
     
             if (!field) {
@@ -1119,7 +1124,7 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
      */
     app.get("/api/v1/fields/:id/boundary-history", async (req: Request, res: Response) => {
         try {
-            const { id } = req.params;
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { limit = 20 } = req.query;
     
             const historyRepo = AppDataSource.getRepository(FieldBoundaryHistory);
@@ -1188,9 +1193,9 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
      */
     app.post("/api/v1/fields/:id/boundary-history/rollback", async (req: Request, res: Response) => {
         try {
-            const { id } = req.params;
+            const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
             const { historyId, userId, reason } = req.body;
-    
+
             if (!historyId) {
                 return res.status(400).json({
                     success: false,

@@ -101,7 +101,7 @@ router.post("/operations", async (req: Request, res: Response) => {
  */
 router.get("/operations/:id", async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const operation = _operations.get(id);
 
         if (!operation) {
@@ -185,7 +185,7 @@ router.get("/operations", async (req: Request, res: Response) => {
  */
 router.post("/operations/:id/complete", async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const operation = _operations.get(id);
 
         if (!operation) {
@@ -220,7 +220,7 @@ router.post("/operations/:id/complete", async (req: Request, res: Response) => {
  */
 router.patch("/operations/:id", async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const operation = _operations.get(id);
 
         if (!operation) {
@@ -261,7 +261,7 @@ router.patch("/operations/:id", async (req: Request, res: Response) => {
  */
 router.delete("/operations/:id", async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
         if (!_operations.has(id)) {
             return res.status(404).json({
@@ -291,7 +291,7 @@ router.delete("/operations/:id", async (req: Request, res: Response) => {
  */
 router.get("/stats/tenant/:tenant_id", async (req: Request, res: Response) => {
     try {
-        const { tenant_id } = req.params;
+        const tenant_id = Array.isArray(req.params.tenant_id) ? req.params.tenant_id[0] : req.params.tenant_id;
 
         const tenantOps = Array.from(_operations.values()).filter(
             o => o.tenant_id === tenant_id

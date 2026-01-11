@@ -291,17 +291,22 @@ services:
   mqtt:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
+    user: root
     environment:
       - MQTT_USER=${MQTT_USER:-sahool_iot}
       - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
     volumes:
-      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl:ro
+      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf.orig:ro
+      - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl.source:ro
+      - ./infrastructure/core/mqtt/init-mqtt.sh:/init-mqtt.sh:ro
       - mqtt_passwd:/mosquitto/config
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
-    # Generate passwd file dynamically from environment variables
-    command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USER} $${MQTT_PASSWORD} && chmod 600 /mosquitto/config/passwd && exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
+    # Fix file permissions using root user to eliminate warnings
+    # The Docker entrypoint chowns /mosquitto to mosquitto:mosquitto when running as root
+    # Our init script fixes permissions after entrypoint and starts mosquitto
+    entrypoint: ["/bin/sh", "/init-mqtt.sh"]
+    command: []
     ports:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
@@ -596,7 +601,11 @@ services:
       MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-jwt}
 
       # Audit logging configuration (disabled for development - requires webhook URL)
-      MINIO_AUDIT_WEBHOOK_ENABLE: ${MINIO_AUDIT_WEBHOOK_ENABLE:-off}
+      # NOTE: MinIO audit webhook is configured via `mc admin config set`, not environment variables.
+      # If you need audit webhook, configure it AFTER MinIO starts using: mc admin config set primary audit_webhook:1 endpoint="http://webhook-url"
+      # For development, disable audit webhook to avoid configuration errors
+      # This variable is only a flag - actual webhook config must be set via MinIO admin API
+      MINIO_AUDIT_WEBHOOK_ENABLE: "off"
 
       # Domain configuration for virtual-host-style requests
       MINIO_DOMAIN: ${MINIO_DOMAIN:-minio.sahool.local}
@@ -709,7 +718,7 @@ services:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: 127.0.0.1:8001
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       # SSL disabled for development - enable in production with valid certificates
       # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
@@ -855,7 +864,7 @@ services:
     environment:
       - PORT=3010
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-password}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -898,7 +907,7 @@ services:
     environment:
       - PORT=3015
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-password}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -1083,6 +1092,7 @@ services:
       dockerfile: apps/services/crop-growth-model/Dockerfile
     container_name: sahool-crop-growth-model
     environment:
+      - TZ=Asia/Aden
       - PORT=3023
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
@@ -1218,8 +1228,8 @@ services:
   # Kept temporarily for backwards compatibility
   community-chat:
     build:
-      context: ./apps/services/community-chat
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/community-chat/Dockerfile
     container_name: sahool-community-chat
     environment:
       - PORT=8097
@@ -1722,7 +1732,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8098/healthz')"]
+      test: ["CMD", "curl", "-f", "http://localhost:8098/api/v1/yield/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1804,7 +1814,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1870,7 +1880,7 @@ services:
     environment:
       - PORT=8104
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-password}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
@@ -2175,8 +2185,8 @@ services:
   # Astronomical Calendar Service
   astronomical-calendar:
     build:
-      context: ./apps/services/astronomical-calendar
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/astronomical-calendar/Dockerfile
     container_name: sahool-astronomical-calendar
     environment:
       - PORT=8111
@@ -2331,7 +2341,7 @@ services:
     ports:
       - "8113:8113"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       nats:
         condition: service_healthy
@@ -2539,8 +2549,8 @@ services:
   # Agro Rules Worker - NATS Event-Driven Worker
   agro-rules:
     build:
-      context: ./apps/services/agro-rules
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/agro-rules/Dockerfile
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222

@@ -344,5 +344,55 @@ class TestHealthCheckEndpoint:
         pytest.fail("health-check request-termination plugin not found")
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# Tests - Root Endpoint
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestRootEndpoint:
+    """Test root endpoint configuration."""
+
+    def test_root_endpoint_service_exists(self, kong_config):
+        """Verify root-endpoint service exists."""
+        service_names = [s["name"] for s in kong_config["services"]]
+        assert "root-endpoint" in service_names
+
+    def test_root_endpoint_has_slash_path(self, kong_config):
+        """Verify root-endpoint has / path configured."""
+        for service in kong_config["services"]:
+            if service["name"] == "root-endpoint":
+                for route in service.get("routes", []):
+                    paths = route.get("paths", [])
+                    assert "/" in paths, "root-endpoint should have / path"
+                    return
+        pytest.fail("root-endpoint route not found")
+
+    def test_root_endpoint_returns_json(self, kong_config):
+        """Verify root-endpoint returns JSON response."""
+        for service in kong_config["services"]:
+            if service["name"] == "root-endpoint":
+                for plugin in service.get("plugins", []):
+                    if plugin.get("name") == "request-termination":
+                        config = plugin.get("config", {})
+                        assert config.get("status_code") == 200
+                        assert config.get("content_type") == "application/json"
+                        assert "body" in config
+                        return
+        pytest.fail("root-endpoint request-termination plugin not found")
+
+    def test_root_endpoint_contains_platform_info(self, kong_config):
+        """Verify root-endpoint contains SAHOOL platform information."""
+        for service in kong_config["services"]:
+            if service["name"] == "root-endpoint":
+                for plugin in service.get("plugins", []):
+                    if plugin.get("name") == "request-termination":
+                        body = plugin["config"].get("body", "")
+                        assert "SAHOOL" in body
+                        assert "version" in body
+                        assert "16.0.0" in body
+                        return
+        pytest.fail("root-endpoint body not found")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

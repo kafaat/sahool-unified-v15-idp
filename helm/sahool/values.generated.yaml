@@ -587,6 +587,262 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8110'
       prometheus.io/path: /metrics
+  mcp-server:
+    enabled: true
+    name: mcp-server
+    image:
+      repository: ghcr.io/kafaat/sahool-mcp-server
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8200
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8200'
+    serviceAccount:
+      create: true
+      name: sahool-mcp-server
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8200'
+      prometheus.io/path: /metrics
+  agro-rules:
+    enabled: true
+    name: agro-rules
+    image:
+      repository: ghcr.io/kafaat/sahool-agro-rules
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: null
+    healthCheck:
+      path: null
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: None
+    serviceAccount:
+      create: true
+      name: sahool-agro-rules
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: None
+      prometheus.io/path: /metrics
+  crop-intelligence-service:
+    enabled: true
+    name: crop-intelligence-service
+    image:
+      repository: ghcr.io/kafaat/sahool-crop-intelligence-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8095
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8095'
+    serviceAccount:
+      create: true
+      name: sahool-crop-intelligence-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8095'
+      prometheus.io/path: /metrics
+  equipment-service:
+    enabled: true
+    name: equipment-service
+    image:
+      repository: ghcr.io/kafaat/sahool-equipment-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8130
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8130'
+    serviceAccount:
+      create: true
+      name: sahool-equipment-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8130'
+      prometheus.io/path: /metrics
+  task-service:
+    enabled: true
+    name: task-service
+    image:
+      repository: ghcr.io/kafaat/sahool-task-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8131
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8131'
+    serviceAccount:
+      create: true
+      name: sahool-task-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8131'
+      prometheus.io/path: /metrics
+  ws-gateway:
+    enabled: true
+    name: ws-gateway
+    image:
+      repository: ghcr.io/kafaat/sahool-ws-gateway
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8140
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 256Mi
+      limits:
+        cpu: 300000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8140'
+    serviceAccount:
+      create: true
+      name: sahool-ws-gateway
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8140'
+      prometheus.io/path: /metrics
+  ndvi-processor:
+    enabled: true
+    name: ndvi-processor
+    image:
+      repository: ghcr.io/kafaat/sahool-ndvi-processor
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8141
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8141'
+    serviceAccount:
+      create: true
+      name: sahool-ndvi-processor
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8141'
+      prometheus.io/path: /metrics
+  field-intelligence:
+    enabled: true
+    name: field-intelligence
+    image:
+      repository: ghcr.io/kafaat/sahool-field-intelligence
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8142
+    healthCheck:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 400m
+        memory: 384Mi
+      limits:
+        cpu: 400000m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8142'
+    serviceAccount:
+      create: true
+      name: sahool-field-intelligence
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8142'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -717,6 +973,38 @@ ingress:
       pathType: Prefix
       service: notification-service
       port: 8110
+    - path: /api/v1/mcp/server
+      pathType: Prefix
+      service: mcp-server
+      port: 8200
+    - path: /api/v1/agro/rules
+      pathType: Prefix
+      service: agro-rules
+      port: null
+    - path: /api/v1/crop/intelligence/service
+      pathType: Prefix
+      service: crop-intelligence-service
+      port: 8095
+    - path: /api/v1/equipment/service
+      pathType: Prefix
+      service: equipment-service
+      port: 8130
+    - path: /api/v1/task/service
+      pathType: Prefix
+      service: task-service
+      port: 8131
+    - path: /api/v1/ws/gateway
+      pathType: Prefix
+      service: ws-gateway
+      port: 8140
+    - path: /api/v1/ndvi/processor
+      pathType: Prefix
+      service: ndvi-processor
+      port: 8141
+    - path: /api/v1/field/intelligence
+      pathType: Prefix
+      service: field-intelligence
+      port: 8142
   tls:
   - secretName: sahool-tls
     hosts:

@@ -273,8 +273,11 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: Create required asset directories
+        run: |
+          mkdir -p assets/icon assets/images assets/icons assets/fonts
+
       - name: Create .env file
-        if: matrix.test-type == 'build-android'
         run: |
           cat > .env << EOF
           API_BASE_URL=https://api.sahool.app

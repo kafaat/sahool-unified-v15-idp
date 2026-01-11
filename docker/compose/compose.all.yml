@@ -238,6 +238,110 @@ services:
           memory: 1Gi
     depends_on:
     - satellite-service
+  agro-rules:
+    build:
+      context: ../../apps/services/agro-rules
+      dockerfile: Dockerfile
+    ports:
+    - 8151:8151
+    environment:
+    - PORT=8151
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8151/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+    depends_on:
+    - nats
+  crop-intelligence-service:
+    build:
+      context: ../../apps/services/crop-intelligence-service
+      dockerfile: Dockerfile
+    ports:
+    - 8150:8150
+    environment:
+    - PORT=8150
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8150/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - satellite-service
+  ndvi-processor:
+    build:
+      context: ../../apps/services/ndvi-processor
+      dockerfile: Dockerfile
+    ports:
+    - 8141:8141
+    environment:
+    - PORT=8141
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8141/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - satellite-service
+  field-intelligence:
+    build:
+      context: ../../apps/services/field-intelligence
+      dockerfile: Dockerfile
+    ports:
+    - 8142:8142
+    environment:
+    - PORT=8142
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8142/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - indicators-service
   marketplace-service:
     build:
       context: ../../apps/services/marketplace-service
@@ -358,6 +462,106 @@ services:
         limits:
           cpus: '200'
           memory: 256Mi
+  mcp-server:
+    build:
+      context: ../../apps/services/mcp-server
+      dockerfile: Dockerfile
+    ports:
+    - 8200:8200
+    environment:
+    - PORT=8200
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8200/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+    depends_on:
+    - kong
+  equipment-service:
+    build:
+      context: ../../apps/services/equipment-service
+      dockerfile: Dockerfile
+    ports:
+    - 8130:8130
+    environment:
+    - PORT=8130
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8130/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+  task-service:
+    build:
+      context: ../../apps/services/task-service
+      dockerfile: Dockerfile
+    ports:
+    - 8131:8131
+    environment:
+    - PORT=8131
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8131/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+  ws-gateway:
+    build:
+      context: ../../apps/services/ws-gateway
+      dockerfile: Dockerfile
+    ports:
+    - 8140:8140
+    environment:
+    - PORT=8140
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8140/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+    depends_on:
+    - nats
   iot-service:
     build:
       context: ../../apps/services/iot-service

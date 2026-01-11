@@ -34,7 +34,7 @@
 param(
     [string]$Services = "",
     [int]$Lines = 100,
-    [int]$Parallel = 20,
+    [int]$Parallel = 5,
     [switch]$OnlyErrors,
     [string]$OutputFile = ""
 )
@@ -91,7 +91,7 @@ function Test-DeepSeekModel {
 function Install-DeepSeekModel {
     Write-ColorOutput "Downloading deepseek-coder:6.7b model..." "Yellow"
     try {
-        $body = @{ name = "deepseek-coder:6.7b" } | ConvertTo-Json
+        $body = @{ name = "deepseek-coder" } | ConvertTo-Json
         $response = Invoke-RestMethod -Uri "http://localhost:11434/api/pull" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 3600
         Write-ColorOutput "Model downloaded successfully!" "Green"
         return $true
@@ -175,6 +175,12 @@ function Test-HasErrors {
 function Invoke-LogAnalysis {
     param([string]$ServiceName, [string]$Logs)
 
+    # Truncate logs if too long (keep last 2500 characters to avoid prompt truncation and reduce processing time)
+    # Reduced from 4000 to 2500 for CPU-only Ollama performance
+    if ($Logs.Length -gt 2500) {
+        $Logs = "...[TRUNCATED - showing last 2500 chars]...`n" + $Logs.Substring($Logs.Length - 2500)
+    }
+
     $prompt = @"
 You are a Docker and DevOps expert analyzing logs from the '$ServiceName' container.
 Analyze the following logs and provide:
@@ -198,11 +204,30 @@ Provide your analysis in a structured format with clear sections.
             stream = $false
             options = @{
                 temperature = 0.3
-                num_predict = 2048
+                num_predict = 1024
+                num_ctx = 3072
             }
         } | ConvertTo-Json -Depth 3
 
-        $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 120
+        # Retry logic for timeout resilience (CPU-only Ollama is slower)
+        $maxRetries = 2
+        $retryCount = 0
+        $response = $null
+        
+        while ($retryCount -le $maxRetries) {
+            try {
+                $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 600
+                break
+            }
+            catch {
+                $retryCount++
+                if ($retryCount -gt $maxRetries) {
+                    throw
+                }
+                Start-Sleep -Seconds (5 * $retryCount)
+            }
+        }
+        
         return $response.response
     }
     catch {
@@ -285,7 +310,7 @@ if ($serviceData.Count -eq 0) {
     exit 0
 }
 
-Write-Section "Analyzing Logs with DeepSeek Coder ($Parallel concurrent agents)"
+Write-Section "Analyzing Logs with DeepSeek Coder ($Parallel concurrent agents - reduced for CPU-only mode)"
 
 # Results storage
 $results = @{}
@@ -306,6 +331,12 @@ $runspacePool.Open()
 foreach ($service in $serviceData.Keys) {
     $powershell = [powershell]::Create().AddScript({
         param($ServiceName, $Logs)
+
+        # Truncate logs if too long (keep last 2500 characters to avoid prompt truncation and reduce processing time)
+        # Reduced from 4000 to 2500 for CPU-only Ollama performance
+        if ($Logs.Length -gt 2500) {
+            $Logs = "...[TRUNCATED - showing last 2500 chars]...`n" + $Logs.Substring($Logs.Length - 2500)
+        }
 
         $prompt = @"
 You are a Docker and DevOps expert analyzing logs from the '$ServiceName' container.
@@ -347,11 +378,29 @@ $Logs
                 stream = $false
                 options = @{
                     temperature = 0.3
-                    num_predict = 2048
+                    num_predict = 1024
+                    num_ctx = 3072
                 }
             } | ConvertTo-Json -Depth 3
 
-            $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 180
+            # Retry logic for timeout resilience (CPU-only Ollama is slower)
+            $maxRetries = 2
+            $retryCount = 0
+            $response = $null
+            
+            while ($retryCount -le $maxRetries) {
+                try {
+                    $response = Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 600
+                    break
+                }
+                catch {
+                    $retryCount++
+                    if ($retryCount -gt $maxRetries) {
+                        throw
+                    }
+                    Start-Sleep -Seconds (5 * $retryCount)
+                }
+            }
             return @{
                 Service = $ServiceName
                 Analysis = $response.response

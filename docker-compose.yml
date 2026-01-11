@@ -291,17 +291,22 @@ services:
   mqtt:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
+    user: root
     environment:
       - MQTT_USER=${MQTT_USER:-sahool_iot}
       - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
     volumes:
-      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl:ro
+      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf.orig:ro
+      - ./infrastructure/core/mqtt/acl:/mosquitto/config/acl.source:ro
+      - ./infrastructure/core/mqtt/init-mqtt.sh:/init-mqtt.sh:ro
       - mqtt_passwd:/mosquitto/config
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
-    # Generate passwd file dynamically from environment variables
-    command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USER} $${MQTT_PASSWORD} && chmod 600 /mosquitto/config/passwd && exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
+    # Fix file permissions using root user to eliminate warnings
+    # The Docker entrypoint chowns /mosquitto to mosquitto:mosquitto when running as root
+    # Our init script fixes permissions after entrypoint and starts mosquitto
+    entrypoint: ["/bin/sh", "/init-mqtt.sh"]
+    command: []
     ports:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
@@ -371,7 +376,10 @@ services:
 
   # Ollama with DeepSeek Coder - Local LLM for Docker Log Analysis
   # Supports 20+ concurrent agents for parallel analysis
+  # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
   ollama:
+    profiles:
+      - gpu
     image: ollama/ollama:0.5.4
     container_name: sahool-ollama
     volumes:
@@ -386,6 +394,13 @@ services:
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_NUM_PARALLEL=24
       - OLLAMA_MAX_LOADED_MODELS=2
+      # GPU Configuration - Force GPU-only execution
+      # تكوين GPU - إجبار التنفيذ على GPU فقط
+      - OLLAMA_NUM_GPU=${OLLAMA_NUM_GPU:-1}
+      # Use first GPU (set to "0,1" for multiple GPUs)
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      # Force all layers to GPU (999 = all layers, disables CPU fallback)
+      - OLLAMA_GPU_LAYERS=${OLLAMA_GPU_LAYERS:-999}
     healthcheck:
       test: ["CMD-SHELL", "ollama list || exit 1"]
       interval: 30s
@@ -403,12 +418,19 @@ services:
         reservations:
           cpus: '1'
           memory: 2G
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     networks:
       - sahool-network
 
   # Ollama Model Loader - Downloads deepseek model on startup
   # تحميل نموذج DeepSeek عند بدء التشغيل
+  # NOTE: Only runs when gpu profile is active
   ollama-model-loader:
+    profiles:
+      - gpu
     image: curlimages/curl:8.11.1
     container_name: sahool-ollama-model-loader
     depends_on:
@@ -440,7 +462,10 @@ services:
 
   # Real-time Code Review Service - Monitors codebase and reviews with DeepSeek
   # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
+  # NOTE: Requires Ollama with GPU. Use: docker compose --profile gpu up -d
   code-review-service:
+    profiles:
+      - gpu
     build:
       context: .
       dockerfile: apps/services/code-review-service/Dockerfile
@@ -463,7 +488,7 @@ services:
       ollama:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8102/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; r=urllib.request.urlopen('http://localhost:8102/health'); exit(0) if r.getcode()==200 else exit(1)"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -576,7 +601,11 @@ services:
       MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-jwt}
 
       # Audit logging configuration (disabled for development - requires webhook URL)
-      MINIO_AUDIT_WEBHOOK_ENABLE: ${MINIO_AUDIT_WEBHOOK_ENABLE:-off}
+      # NOTE: MinIO audit webhook is configured via `mc admin config set`, not environment variables.
+      # If you need audit webhook, configure it AFTER MinIO starts using: mc admin config set primary audit_webhook:1 endpoint="http://webhook-url"
+      # For development, disable audit webhook to avoid configuration errors
+      # This variable is only a flag - actual webhook config must be set via MinIO admin API
+      MINIO_AUDIT_WEBHOOK_ENABLE: "off"
 
       # Domain configuration for virtual-host-style requests
       MINIO_DOMAIN: ${MINIO_DOMAIN:-minio.sahool.local}
@@ -689,7 +718,7 @@ services:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: 127.0.0.1:8001
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       # SSL disabled for development - enable in production with valid certificates
       # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
@@ -835,7 +864,7 @@ services:
     environment:
       - PORT=3010
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-password}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -878,7 +907,7 @@ services:
     environment:
       - PORT=3015
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-password}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
@@ -1063,6 +1092,7 @@ services:
       dockerfile: apps/services/crop-growth-model/Dockerfile
     container_name: sahool-crop-growth-model
     environment:
+      - TZ=Asia/Aden
       - PORT=3023
       - NODE_ENV=production
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
@@ -1198,8 +1228,8 @@ services:
   # Kept temporarily for backwards compatibility
   community-chat:
     build:
-      context: ./apps/services/community-chat
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/community-chat/Dockerfile
     container_name: sahool-community-chat
     environment:
       - PORT=8097
@@ -1255,8 +1285,8 @@ services:
     profiles:
       - deprecated  # Only runs when explicitly enabled
     build:
-      context: ./apps/services/field-ops
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/field-ops/Dockerfile
     container_name: sahool-field-ops-deprecated
     environment:
       - PORT=8080
@@ -1341,8 +1371,8 @@ services:
   # Billing Core Service
   billing-core:
     build:
-      context: ./apps/services/billing-core
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/billing-core/Dockerfile
     container_name: sahool-billing-core
     environment:
       - PORT=8089
@@ -1390,8 +1420,8 @@ services:
   # Consolidates: satellite-service, ndvi-processor, ndvi-engine, lai-estimation
   vegetation-analysis-service:
     build:
-      context: ./apps/services
-      dockerfile: vegetation-analysis-service/Dockerfile
+      context: .
+      dockerfile: apps/services/vegetation-analysis-service/Dockerfile
     container_name: sahool-vegetation-analysis-service
     environment:
       - PORT=8090
@@ -1479,8 +1509,8 @@ services:
   # Consolidates: weather-core, weather-advanced
   weather-service:
     build:
-      context: ./apps/services
-      dockerfile: weather-service/Dockerfile
+      context: .
+      dockerfile: apps/services/weather-service/Dockerfile
     container_name: sahool-weather-service
     environment:
       - PORT=8092
@@ -1702,7 +1732,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8098/healthz')"]
+      test: ["CMD", "curl", "-f", "http://localhost:8098/api/v1/yield/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1724,8 +1754,8 @@ services:
   # Field Chat Service
   field-chat:
     build:
-      context: ./apps/services/field-chat
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/field-chat/Dockerfile
     container_name: sahool-field-chat
     environment:
       - PORT=8099
@@ -1784,7 +1814,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1844,13 +1874,13 @@ services:
   # Provider Config Service
   provider-config:
     build:
-      context: ./apps/services/provider-config
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/provider-config/Dockerfile
     container_name: sahool-provider-config
     environment:
       - PORT=8104
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-password}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
     ports:
@@ -1891,8 +1921,8 @@ services:
   # Removal Target: v17.0.0
   agro-advisor:
     build:
-      context: ./apps/services
-      dockerfile: agro-advisor/Dockerfile
+      context: .
+      dockerfile: apps/services/agro-advisor/Dockerfile
     container_name: sahool-agro-advisor
     labels:
       - "com.sahool.deprecated=true"
@@ -2001,8 +2031,8 @@ services:
   # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
   ndvi-engine:
     build:
-      context: ./apps/services/ndvi-engine
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/ndvi-engine/Dockerfile
     container_name: sahool-ndvi-engine
     labels:
       - "com.sahool.deprecated=true"
@@ -2055,8 +2085,8 @@ services:
   # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
   weather-core:
     build:
-      context: ./apps/services/weather-core
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/weather-core/Dockerfile
     container_name: sahool-weather-core
     labels:
       - "com.sahool.deprecated=true"
@@ -2155,8 +2185,8 @@ services:
   # Astronomical Calendar Service
   astronomical-calendar:
     build:
-      context: ./apps/services/astronomical-calendar
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/astronomical-calendar/Dockerfile
     container_name: sahool-astronomical-calendar
     environment:
       - PORT=8111
@@ -2311,7 +2341,7 @@ services:
     ports:
       - "8113:8113"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       nats:
         condition: service_healthy
@@ -2477,8 +2507,8 @@ services:
   # Status: DEPRECATED - DO NOT USE FOR NEW DEPLOYMENTS
   crop-health:
     build:
-      context: ./apps/services/crop-health
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/crop-health/Dockerfile
     container_name: sahool-crop-health
     labels:
       - "com.sahool.deprecated=true"
@@ -2519,8 +2549,8 @@ services:
   # Agro Rules Worker - NATS Event-Driven Worker
   agro-rules:
     build:
-      context: ./apps/services/agro-rules
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/agro-rules/Dockerfile
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222

@@ -24,9 +24,10 @@ import sys
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
-from database import init_db, close_db, check_db_health
-from models import FarmerProfile, FarmerCrop, FarmerField
 from repository import FarmerProfileRepository
+
+from database import check_db_health, close_db, init_db
+from models import FarmerCrop, FarmerField, FarmerProfile
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("migration")

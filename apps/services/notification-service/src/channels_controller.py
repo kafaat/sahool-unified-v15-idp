@@ -190,28 +190,37 @@ async def list_channels(
     tenant_id: str | None = Query(None, description="Tenant ID"),
     channel_type: str | None = Query(None, description="Filter by channel type"),
     enabled_only: bool = Query(False, description="Show only enabled channels"),
+    limit: int = Query(default=50, ge=1, le=100, description="Maximum number of channels to return"),
+    offset: int = Query(default=0, ge=0, description="Number of channels to skip"),
 ):
     """
-    الحصول على قائمة قنوات الإشعار للمستخدم
-    Get list of notification channels for a user
+    الحصول على قائمة قنوات الإشعار للمستخدم مع الترقيم
+    Get list of notification channels for a user with pagination
 
     Filters:
     - **channel_type**: email, sms, push, whatsapp, in_app
     - **enabled_only**: Show only enabled channels
     """
     try:
-        channels = await ChannelsService.list_user_channels(
+        all_channels = await ChannelsService.list_user_channels(
             user_id=user_id,
             tenant_id=tenant_id,
             channel_type=channel_type,
             enabled_only=enabled_only,
         )
 
+        # Apply pagination
+        total = len(all_channels)
+        paginated_channels = all_channels[offset : offset + limit]
+
         return {
             "success": True,
             "user_id": user_id,
-            "total": len(channels),
-            "channels": channels,
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+            "has_more": (offset + limit) < total,
+            "channels": paginated_channels,
         }
 
     except ValueError as e:

@@ -1074,10 +1074,7 @@ class FieldRulesEngine:
         value: Any = event
 
         for part in parts:
-            if isinstance(value, dict):
-                value = value.get(part)
-            else:
-                value = getattr(value, part, None)
+            value = value.get(part) if isinstance(value, dict) else getattr(value, part, None)
 
             if value is None:
                 return None
@@ -1629,8 +1626,12 @@ class FieldRulesEngine:
 # Module Exports - تصدير الوحدة
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Alias for backward compatibility
+RulesEngine = FieldRulesEngine
+
 __all__ = [
     "FieldRulesEngine",
+    "RulesEngine",  # Alias for backward compatibility
     "ServiceClient",
     "get_default_rules",
 ]

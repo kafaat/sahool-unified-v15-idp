@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
 import '../config/config.dart';
@@ -41,7 +42,7 @@ class SyncEngine {
     // Also sync when network comes back online
     _networkStatus.onlineStream.listen((online) {
       if (online) {
-        print('📶 Network restored - triggering sync');
+        debugPrint('📶 Network restored - triggering sync');
         runOnce();
       }
     });
@@ -129,7 +130,7 @@ class SyncEngine {
         await database.markOutboxDone(item.id);
         processed++;
       } catch (e) {
-        print('❌ Outbox item failed: ${item.id} - $e');
+        debugPrint('❌ Outbox item failed: ${item.id} - $e');
         await database.bumpOutboxRetry(item.id);
         failed++;
 
@@ -290,7 +291,7 @@ class SyncEngine {
         }
       }
     } catch (e) {
-      print('⚠️ Failed to pull tasks: $e');
+      debugPrint('⚠️ Failed to pull tasks: $e');
 
       // Record failure
       if (operationId != null) {

@@ -56,8 +56,8 @@ export class UsersService {
         passwordHash,
         firstName: createUserDto.firstName,
         lastName: createUserDto.lastName,
-        role: createUserDto.role,
-        status: createUserDto.status || UserStatus.PENDING,
+        role: createUserDto.role as any, // Cast to Prisma UserRole enum
+        status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
         emailVerified: createUserDto.emailVerified || false,
         phoneVerified: createUserDto.phoneVerified || false,
       },
@@ -66,9 +66,10 @@ export class UsersService {
         profile: {
           select: {
             id: true,
-            avatar: true,
-            bio: true,
-            location: true,
+            avatarUrl: true,
+            address: true,
+            city: true,
+            region: true,
           },
         },
       },
@@ -107,9 +108,10 @@ export class UsersService {
           profile: {
             select: {
               id: true,
-              avatar: true,
-              bio: true,
-              location: true,
+              avatarUrl: true,
+              address: true,
+              city: true,
+              region: true,
             },
           },
         },
@@ -142,11 +144,11 @@ export class UsersService {
         profile: {
           select: {
             id: true,
-            avatar: true,
-            bio: true,
-            location: true,
+            avatarUrl: true,
+            address: true,
+            city: true,
+            region: true,
             dateOfBirth: true,
-            language: true,
           },
         },
         sessions: {
@@ -158,7 +160,7 @@ export class UsersService {
           select: {
             id: true,
             expiresAt: true,
-            deviceInfo: true,
+            userAgent: true,
             ipAddress: true,
           },
         },
@@ -189,9 +191,10 @@ export class UsersService {
         profile: {
           select: {
             id: true,
-            avatar: true,
-            bio: true,
-            location: true,
+            avatarUrl: true,
+            address: true,
+            city: true,
+            region: true,
           },
         },
       },
@@ -262,9 +265,10 @@ export class UsersService {
         profile: {
           select: {
             id: true,
-            avatar: true,
-            bio: true,
-            location: true,
+            avatarUrl: true,
+            address: true,
+            city: true,
+            region: true,
           },
         },
       },

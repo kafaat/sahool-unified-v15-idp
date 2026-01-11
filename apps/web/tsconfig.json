@@ -38,5 +38,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "vitest.config.ts", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "e2e/**", "src/test/**"]
+  "exclude": ["node_modules", "vitest.config.ts", "playwright.config.ts", "sentry.*.ts", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "e2e/**", "src/test/**", "src/__tests__/**"]
 }

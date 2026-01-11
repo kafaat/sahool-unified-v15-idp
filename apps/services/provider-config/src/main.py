@@ -7,6 +7,7 @@ Port: 8104
 """
 
 import os
+import sys
 from datetime import datetime
 from enum import Enum
 from typing import Any
@@ -16,14 +17,17 @@ from fastapi import Depends, FastAPI, HTTPException
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from database_service import CacheManager, ProviderConfigService
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+from .database_service import CacheManager, ProviderConfigService
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 # Import database models and services
-from models import Database
+from .models import Database
 
 app = FastAPI(
     title="SAHOOL Provider Configuration Service",
@@ -36,10 +40,6 @@ setup_exception_handlers(app)
 add_request_id_middleware(app)
 
 # CORS - Secure configuration
-import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 try:
     from shared.cors_config import CORS_SETTINGS

@@ -20,6 +20,8 @@ Usage:
     await publisher.publish(event)
 """
 
+from jsonschema import ValidationError
+
 from .analytics_events import NDVICalculatedEvent, YieldPredictedEvent
 from .base import BaseEvent, EventMetadata
 from .consumer import EventConsumer
@@ -34,6 +36,7 @@ __all__ = [
     # Base
     "BaseEvent",
     "EventMetadata",
+    "ValidationError",
     # Field Events
     "FieldCreatedEvent",
     "FieldUpdatedEvent",

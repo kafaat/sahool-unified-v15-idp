@@ -45,8 +45,8 @@ RUN mkdir -p /root/.pip && \
 COPY apps/services/agro-advisor/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
-# Copy shared libraries
-COPY apps/services/shared/ ./shared/
+# Copy shared libraries (from repo root)
+COPY shared/ ./shared/
 
 # Copy source
 COPY apps/services/agro-advisor/src/ ./src/

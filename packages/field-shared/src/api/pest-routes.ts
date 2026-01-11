@@ -80,9 +80,10 @@ pestRoutes.get("/incidents", async (req: Request, res: Response) => {
  */
 pestRoutes.get("/incidents/:id", async (req: Request, res: Response) => {
     try {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const incidentRepo = AppDataSource.getRepository(PestIncident);
         const incident = await incidentRepo.findOne({
-            where: { id: req.params.id },
+            where: { id },
             relations: ["treatments"]
         });
 
@@ -208,9 +209,10 @@ pestRoutes.post("/incidents", async (req: Request, res: Response) => {
  */
 pestRoutes.put("/incidents/:id", async (req: Request, res: Response) => {
     try {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const incidentRepo = AppDataSource.getRepository(PestIncident);
         const incident = await incidentRepo.findOne({
-            where: { id: req.params.id }
+            where: { id }
         });
 
         if (!incident) {
@@ -293,9 +295,10 @@ pestRoutes.put("/incidents/:id", async (req: Request, res: Response) => {
  */
 pestRoutes.patch("/incidents/:id/status", async (req: Request, res: Response) => {
     try {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const incidentRepo = AppDataSource.getRepository(PestIncident);
         const incident = await incidentRepo.findOne({
-            where: { id: req.params.id }
+            where: { id }
         });
 
         if (!incident) {
@@ -341,9 +344,10 @@ pestRoutes.patch("/incidents/:id/status", async (req: Request, res: Response) =>
  */
 pestRoutes.delete("/incidents/:id", async (req: Request, res: Response) => {
     try {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const incidentRepo = AppDataSource.getRepository(PestIncident);
         const incident = await incidentRepo.findOne({
-            where: { id: req.params.id }
+            where: { id }
         });
 
         if (!incident) {
@@ -430,9 +434,10 @@ pestRoutes.get("/treatments", async (req: Request, res: Response) => {
  */
 pestRoutes.get("/treatments/:id", async (req: Request, res: Response) => {
     try {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const treatmentRepo = AppDataSource.getRepository(PestTreatment);
         const treatment = await treatmentRepo.findOne({
-            where: { id: req.params.id },
+            where: { id },
             relations: ["incident"]
         });
 
@@ -558,9 +563,10 @@ pestRoutes.post("/treatments", async (req: Request, res: Response) => {
  */
 pestRoutes.put("/treatments/:id", async (req: Request, res: Response) => {
     try {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const treatmentRepo = AppDataSource.getRepository(PestTreatment);
         const treatment = await treatmentRepo.findOne({
-            where: { id: req.params.id }
+            where: { id }
         });
 
         if (!treatment) {
@@ -629,9 +635,10 @@ pestRoutes.put("/treatments/:id", async (req: Request, res: Response) => {
  */
 pestRoutes.delete("/treatments/:id", async (req: Request, res: Response) => {
     try {
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         const treatmentRepo = AppDataSource.getRepository(PestTreatment);
         const treatment = await treatmentRepo.findOne({
-            where: { id: req.params.id }
+            where: { id }
         });
 
         if (!treatment) {
@@ -665,8 +672,8 @@ pestRoutes.delete("/treatments/:id", async (req: Request, res: Response) => {
  */
 pestRoutes.get("/incidents/:incidentId/treatments", async (req: Request, res: Response) => {
     try {
+        const incidentId = Array.isArray(req.params.incidentId) ? req.params.incidentId[0] : req.params.incidentId;
         const treatmentRepo = AppDataSource.getRepository(PestTreatment);
-        const { incidentId } = req.params;
 
         const treatments = await treatmentRepo.find({
             where: { incidentId },

@@ -26,6 +26,9 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 
+# Configure logger early
+logger = logging.getLogger(__name__)
+
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -304,9 +307,23 @@ async def batch_diagnose(
 @app.get("/v1/diseases", response_model=list[dict])
 async def list_diseases(
     crop_type: CropType | None = Query(None, description="فلترة حسب نوع المحصول"),
+    limit: int = Query(default=50, ge=1, le=100, description="Maximum number of diseases to return"),
+    offset: int = Query(default=0, ge=0, description="Number of diseases to skip"),
 ):
-    """📋 قائمة الأمراض المدعومة"""
-    return disease_service.get_all_diseases(crop_type)
+    """📋 قائمة الأمراض المدعومة مع الترقيم"""
+    all_diseases = disease_service.get_all_diseases(crop_type)
+
+    # Apply pagination
+    total = len(all_diseases)
+    paginated_diseases = all_diseases[offset : offset + limit]
+
+    return {
+        "diseases": paginated_diseases,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "has_more": (offset + limit) < total,
+    }
 
 
 @app.get("/v1/crops", response_model=list[dict])

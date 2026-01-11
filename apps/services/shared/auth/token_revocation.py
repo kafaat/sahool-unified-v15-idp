@@ -8,7 +8,7 @@ Port of NestJS token-revocation.ts to Python for FastAPI services.
 import json
 import logging
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
@@ -470,11 +470,10 @@ class RedisTokenRevocationStore:
             return RevocationCheckResult(is_revoked=True, reason="family_revoked")
 
         # Check user-level revocation
-        if user_id and issued_at:
-            if await self.is_user_token_revoked(user_id, issued_at):
-                return RevocationCheckResult(
-                    is_revoked=True, reason="user_tokens_revoked"
-                )
+        if user_id and issued_at and await self.is_user_token_revoked(user_id, issued_at):
+            return RevocationCheckResult(
+                is_revoked=True, reason="user_tokens_revoked"
+            )
 
         # Check tenant-level revocation
         if tenant_id and issued_at:

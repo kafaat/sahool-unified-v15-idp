@@ -111,11 +111,16 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
 
-            // SECURITY: Release builds MUST use proper keystore - no fallback to debug signing
             val releaseConfig = signingConfigs.getByName("release")
 
-            // Validate that keystore is properly configured
-            if (releaseConfig.storeFile == null || !releaseConfig.storeFile!!.exists()) {
+            // Check if proper keystore is configured
+            val hasValidKeystore = releaseConfig.storeFile != null && releaseConfig.storeFile!!.exists()
+
+            // Allow CI builds to use debug signing when keystore is not configured
+            // Production releases MUST use proper keystore
+            val isCI = System.getenv("CI") == "true" || System.getenv("GITHUB_ACTIONS") == "true"
+
+            if (!hasValidKeystore && !isCI) {
                 throw GradleException(
                     """
                     |
@@ -152,7 +157,14 @@ android {
                 )
             }
 
-            signingConfig = releaseConfig
+            // Use proper keystore if configured, otherwise fall back to debug (CI only)
+            signingConfig = if (hasValidKeystore) {
+                releaseConfig
+            } else {
+                // CI builds can use debug signing for verification purposes
+                println("⚠️ WARNING: Using debug signing for CI release build. NOT suitable for production!")
+                signingConfigs.getByName("debug")
+            }
 
             // Use production ProGuard rules with aggressive obfuscation
             proguardFiles(

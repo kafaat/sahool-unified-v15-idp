@@ -40,6 +40,12 @@ class BaseEvent(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow, description="Event timestamp")
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str | None = Field(None, description="Service that emitted the event")
+    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
+
+    @property
+    def event_type(self) -> str:
+        """Return the event type name (class name)"""
+        return self.__class__.__name__
 
     class Config:
         json_encoders = {

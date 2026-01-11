@@ -11,7 +11,7 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -26,6 +26,13 @@ except ImportError:
         pass
 
     def add_request_id_middleware(app):
+        pass
+
+try:
+    from shared.middleware import setup_cors
+except ImportError:
+    # Fallback if shared.middleware is not available
+    def setup_cors(app):
         pass
 
 from .events import IoTPublisher, get_publisher
@@ -269,8 +276,8 @@ setup_cors(app)
 
 # Rate Limiting - Critical for IoT endpoints to prevent sensor data flooding
 try:
-    from shared.middleware.rate_limiter import setup_rate_limiting, RateLimitTier
     from fastapi import Request
+    from shared.middleware.rate_limiter import RateLimitTier, setup_rate_limiting
 
     def iot_tier_func(request: Request) -> RateLimitTier:
         """Determine rate limit tier for IoT Gateway endpoints"""
@@ -695,18 +702,30 @@ def get_device_status(device_id: str):
 
 
 @app.get("/devices")
-def list_devices(field_id: str = None, device_type: str = None):
-    """List registered devices"""
+async def list_devices(
+    field_id: str | None = Query(None, description="Filter by field ID"),
+    device_type: str | None = Query(None, description="Filter by device type"),
+    limit: int = Query(default=50, ge=1, le=100, description="Maximum number of devices to return"),
+    offset: int = Query(default=0, ge=0, description="Number of devices to skip"),
+):
+    """List registered devices with pagination"""
     if field_id:
-        devices = registry.get_by_field(field_id)
+        all_devices = registry.get_by_field(field_id)
     elif device_type:
-        devices = registry.get_by_type(device_type)
+        all_devices = registry.get_by_type(device_type)
     else:
-        devices = registry.list_all()
+        all_devices = registry.list_all()
+
+    # Apply pagination
+    total = len(all_devices)
+    paginated_devices = all_devices[offset : offset + limit]
 
     return {
-        "devices": [d.to_dict() for d in devices],
-        "count": len(devices),
+        "devices": [d.to_dict() for d in paginated_devices],
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "has_more": (offset + limit) < total,
     }
 
 

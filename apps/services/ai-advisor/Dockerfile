@@ -3,7 +3,7 @@
 
 # Stage 1: Builder
 # المرحلة 1: البناء
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
 # Set working directory | تعيين مجلد العمل
 WORKDIR /app
@@ -52,6 +52,9 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Create non-root user | إنشاء مستخدم غير جذر
 RUN useradd -m -u 1000 -s /bin/bash appuser && \
     chown -R appuser:appuser /app
+
+# Copy shared modules | نسخ الوحدات المشتركة
+COPY --chown=appuser:appuser apps/services/shared/ /app/shared/
 
 # Copy application code | نسخ كود التطبيق
 COPY --chown=appuser:appuser apps/services/ai-advisor/src /app/src

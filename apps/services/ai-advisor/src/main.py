@@ -25,7 +25,6 @@ from .agents import (
 from .config import settings
 from .middleware import (
     InputValidationMiddleware,
-    rate_limiter,
 )
 from .monitoring import cost_tracker
 from .orchestration import Supervisor
@@ -34,28 +33,32 @@ from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared.errors_py import setup_exception_handlers
 
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
-    rate_limit_middleware,
     setup_cors,
 )
 from shared.observability.middleware import ObservabilityMiddleware
+
+from .middleware import RateLimitMiddleware, rate_limiter
 
 # Configure structured logging with PII masking | تكوين السجلات المنظمة مع إخفاء المعلومات الشخصية
 structlog.configure(
     processors=[
         structlog.stdlib.add_log_level,
-        structlog.stdlib.add_logger_name,
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         pii_masking_processor,  # Mask PII before rendering
         structlog.processors.JSONRenderer(),
-    ]
+    ],
+    wrapper_class=structlog.stdlib.BoundLogger,
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    cache_logger_on_first_use=True,
 )
 
 logger = structlog.get_logger()
@@ -268,7 +271,7 @@ app.add_middleware(
 app.add_middleware(InputValidationMiddleware)
 
 # 6. Rate limiting middleware - Prevent abuse of AI endpoints
-app.add_middleware(rate_limit_middleware, rate_limiter=rate_limiter)
+app.add_middleware(RateLimitMiddleware, rate_limiter=rate_limiter)
 
 # 7. Token revocation middleware - Check if tokens are revoked
 if REVOCATION_AVAILABLE:
@@ -299,10 +302,11 @@ async def health_check():
     Health check endpoint with dependency validation
     نقطة فحص الصحة مع التحقق من التبعيات
     """
-    embeddings_ok = embeddings_manager is not None
-    retriever_ok = knowledge_retriever is not None
+    embeddings_ok = app_state.get("embeddings") is not None
+    retriever_ok = app_state.get("retriever") is not None
+    agents = app_state.get("agents", {})
     agents_count = len(
-        [a for a in [field_analyst, disease_expert, irrigation_advisor, yield_predictor] if a]
+        [a for a in agents.values() if a]
     )
 
     is_healthy = embeddings_ok or retriever_ok or agents_count > 0

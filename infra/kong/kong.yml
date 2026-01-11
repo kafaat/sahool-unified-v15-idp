@@ -2990,6 +2990,22 @@ services:
           status_code: 200
           message: "SAHOOL Platform is healthy"
 
+  - name: root-endpoint
+    url: http://kong:8000
+    routes:
+      - name: root-route
+        paths:
+          - /
+        strip_path: false
+        methods:
+          - GET
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          content_type: "application/json"
+          body: '{"platform":"SAHOOL","version":"16.0.0","description":"National Agricultural Intelligence Platform","status":"operational","endpoints":{"/health":"Health check","/ping":"Ping check","/api/v1":"API Gateway"},"documentation":"https://github.com/kafaat/sahool-unified-v15-idp"}'
+
 # ============================================================================
 # الإضافات العامة - Global Plugins
 # ============================================================================

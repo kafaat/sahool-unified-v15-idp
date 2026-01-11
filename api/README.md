@@ -85,6 +85,61 @@ We provide OpenAPI 3.0 specifications for all our services:
 
 ---
 
+## Platform Endpoints
+
+The SAHOOL API Gateway provides several platform-level endpoints for monitoring and information.
+
+### Root Endpoint
+
+Get information about the SAHOOL platform.
+
+**Endpoint**: `GET /`
+
+**Authentication**: None required
+
+**Example Request**:
+```bash
+curl -X GET http://localhost:8000/
+```
+
+**Response** (200 OK):
+```json
+{
+  "platform": "SAHOOL",
+  "version": "16.0.0",
+  "description": "National Agricultural Intelligence Platform",
+  "status": "operational",
+  "endpoints": {
+    "/health": "Health check",
+    "/ping": "Ping check",
+    "/api/v1": "API Gateway"
+  },
+  "documentation": "https://github.com/kafaat/sahool-unified-v15-idp"
+}
+```
+
+### Health Check Endpoints
+
+Check the health status of the API Gateway.
+
+**Endpoints**: 
+- `GET /health`
+- `GET /ping`
+
+**Authentication**: None required
+
+**Example Request**:
+```bash
+curl -X GET http://localhost:8000/health
+```
+
+**Response** (200 OK):
+```
+SAHOOL Platform is healthy
+```
+
+---
+
 ## Authentication
 
 All API endpoints require authentication using JWT (JSON Web Tokens).

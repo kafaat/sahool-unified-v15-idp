@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment]
+      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, field-intelligence]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, research-core]
+      services: [notification-service, marketplace-service, billing-core, community-chat, research-core, mcp-server, task-service, equipment-service, ws-gateway]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"

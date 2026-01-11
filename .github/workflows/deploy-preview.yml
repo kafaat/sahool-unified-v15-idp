@@ -9,11 +9,19 @@
 name: Deploy Preview
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    paths:
-      - 'apps/web/**'
-      - 'apps/mobile/**'
+  # Disabled: requires SURGE_TOKEN or NETLIFY_AUTH_TOKEN secrets
+  # Enable when secrets are configured in repository settings
+  # pull_request:
+  #   types: [opened, synchronize, reopened, closed]
+  #   paths:
+  #     - 'apps/web/**'
+  #     - 'apps/mobile/**'
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to deploy'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -25,8 +33,7 @@ jobs:
   preview-web:
     name: Web Preview
     runs-on: ubuntu-latest
-    # Only run if secrets are configured (SURGE_TOKEN or NETLIFY_AUTH_TOKEN)
-    if: ${{ hashFiles('apps/web/package.json') != '' && (secrets.SURGE_TOKEN != '' || secrets.NETLIFY_AUTH_TOKEN != '') }}
+    if: ${{ hashFiles('apps/web/package.json') != '' }}
 
     steps:
       - name: Checkout code
@@ -155,8 +162,7 @@ jobs:
   preview-flutter:
     name: Flutter Web Preview
     runs-on: ubuntu-latest
-    # Only run for main branches, not PRs (to avoid permission issues)
-    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' && github.event_name != 'pull_request' }}
+    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' }}
 
     steps:
       - name: Checkout code

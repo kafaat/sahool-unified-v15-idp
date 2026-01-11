@@ -17,6 +17,12 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise OSError("DATABASE_URL environment variable is required. See .env.example for format")
 
+# Tortoise ORM requires 'postgres://' scheme, not 'postgresql://'
+# Normalize the URL scheme for Tortoise ORM compatibility
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgres://", 1)
+    logger.info("Normalized DATABASE_URL scheme from 'postgresql://' to 'postgres://' for Tortoise ORM")
+
 # Tortoise ORM configuration
 TORTOISE_ORM = {
     "connections": {

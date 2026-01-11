@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
+import 'package:safe_device/safe_device.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'security_config.dart';
@@ -337,7 +337,7 @@ class DeviceSecurityService {
   /// فحص صلاحيات الروت أو الجيلبريك
   Future<SecurityThreat?> _checkRootJailbreak() async {
     try {
-      final isJailbroken = await FlutterJailbreakDetection.jailbroken;
+      final isJailbroken = await SafeDevice.isJailBroken;
 
       if (isJailbroken) {
         return SecurityThreat(
@@ -364,7 +364,7 @@ class DeviceSecurityService {
   /// فحص إذا كان التطبيق يعمل على محاكي
   Future<SecurityThreat?> _checkEmulator() async {
     try {
-      final isRunningOnEmulator = await FlutterJailbreakDetection.developerMode;
+      final isRunningOnEmulator = await SafeDevice.isRealDevice == false;
 
       if (isRunningOnEmulator) {
         // Severity based on security level
@@ -415,7 +415,7 @@ class DeviceSecurityService {
   /// فحص إذا كان وضع المطور مفعل
   Future<SecurityThreat?> _checkDeveloperMode() async {
     try {
-      final isDeveloperMode = await FlutterJailbreakDetection.developerMode;
+      final isDeveloperMode = await SafeDevice.isDevelopmentModeEnable;
 
       if (isDeveloperMode) {
         // Lower severity - developer mode is common

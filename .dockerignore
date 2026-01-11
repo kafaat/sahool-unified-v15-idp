@@ -1,0 +1,110 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform Docker Ignore
+# Root-level .dockerignore for repository-wide builds
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE & Editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (keep README for reference)
+docs/
+*.md
+!README.md
+
+# Testing artifacts
+coverage/
+coverage_html/
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.nyc_output/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+env/
+venv/
+ENV/
+.venv/
+
+# Node modules (will be installed in container)
+node_modules/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Local data
+data/
+*.db
+*.sqlite
+
+# Helm/K8s local
+helm/
+gitops/
+infrastructure/
+
+# IDP
+idp/
+
+# Test fixtures and mocks (large files)
+tests/fixtures/
+tests/load/
+
+# Flutter
+apps/mobile/
+*.apk
+*.ipa
+
+# Web/Admin builds
+apps/web/node_modules/
+apps/web/.next/
+apps/admin/node_modules/
+apps/admin/.next/
+
+# Config files not needed in container (keep yaml for services)
+# Note: openapi.yaml and other service configs should be included
+
+# CI/CD
+.github/
+
+# Governance (not needed in containers)
+governance/
+
+# Scripts
+scripts/
+
+# Packages node_modules
+packages/*/node_modules/
+packages/*/.next/
+packages/*/dist/

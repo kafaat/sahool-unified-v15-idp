@@ -21,13 +21,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
-from database_service import CacheManager, ProviderConfigService
+from .database_service import CacheManager, ProviderConfigService
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 # Import database models and services
-from models import Database
+from .models import Database
 
 app = FastAPI(
     title="SAHOOL Provider Configuration Service",

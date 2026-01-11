@@ -205,7 +205,10 @@ class NDVIClient:
         """
         حساب محلي باستخدام وحدة NDVI
         Local calculation using NDVI module
+
+        NOTE: Heavy CPU-bound calculations run in executor to avoid blocking event loop
         """
+        import asyncio
         try:
             # Import the NDVI calculation module
             from apps.kernel.common.queue.tasks.ndvi_calculation import (
@@ -221,7 +224,9 @@ class NDVIClient:
                 payload["red_band_data"] = red_band_data
                 payload["nir_band_data"] = nir_band_data
 
-            result = handle_ndvi_calculation(payload)
+            # Run CPU-intensive NDVI calculation in thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(None, handle_ndvi_calculation, payload)
             return self._parse_ndvi_response(field_id, result)
 
         except ImportError:

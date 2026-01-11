@@ -3,13 +3,16 @@ SAHOOL Alert Service - Database Configuration
 إعدادات قاعدة البيانات لخدمة التنبيهات
 """
 
+import logging
 import os
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from .db_models import Base
+
+logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Database Configuration
@@ -108,8 +111,10 @@ def check_db_connection() -> bool:
     """
     try:
         db = SessionLocal()
-        db.execute("SELECT 1")
+        db.execute(text("SELECT 1"))
         db.close()
+        logger.info("Database connection check successful")
         return True
-    except Exception:
+    except Exception as e:
+        logger.error(f"Database connection check failed: {e}", exc_info=True)
         return False

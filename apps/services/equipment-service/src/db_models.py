@@ -176,10 +176,11 @@ class Equipment(Base):
     )
 
     # Additional metadata
-    metadata: Mapped[dict | None] = mapped_column(
+    extra_metadata: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
         default=dict,
+        name="metadata",  # Map to existing column name in database
         comment="Additional equipment metadata (JSON)",
     )
 

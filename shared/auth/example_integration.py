@@ -5,6 +5,8 @@ Example Integration: Two-Factor Authentication
 This file demonstrates how to integrate 2FA into a FastAPI application.
 """
 
+import os
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -140,7 +142,7 @@ async def startup_event():
                 email="admin@sahool.io",
                 name="Test Admin",
                 name_ar="مسؤول تجريبي",
-                password="admin123",  # Change this in production!
+                password=os.getenv("TEST_ADMIN_PASSWORD", "admin123"),  # Use TEST_ADMIN_PASSWORD env var
                 roles=["admin"],
             )
             print(f"✅ Test admin user created: {test_user.email}")

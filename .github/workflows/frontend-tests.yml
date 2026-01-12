@@ -226,6 +226,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Free disk space
+        run: |
+          echo "Freeing disk space for Flutter build..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          df -h
+        working-directory: .
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -273,8 +283,11 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: Create required asset directories
+        run: |
+          mkdir -p assets/icon assets/images assets/icons assets/fonts
+
       - name: Create .env file
-        if: matrix.test-type == 'build-android'
         run: |
           cat > .env << EOF
           API_BASE_URL=https://api.sahool.app
@@ -284,11 +297,30 @@ jobs:
           EOF
 
       - name: Generate code (Drift, Freezed, etc.)
-        if: matrix.test-type == 'build-android' || matrix.test-type == 'unit-tests'
         run: |
           echo "Generating code with build_runner..."
+          echo "Working directory: $(pwd)"
           dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs
+          dart run build_runner build --delete-conflicting-outputs 2>&1 || {
+            echo "❌ Code generation failed! Retrying..."
+            dart run build_runner build --delete-conflicting-outputs
+          }
+          echo "✅ Code generation completed"
+          echo "Generated files:"
+          find lib -name "*.g.dart" -o -name "*.freezed.dart" 2>/dev/null | head -20 || echo "No generated files found"
+
+      - name: Verify generated code exists
+        run: |
+          if [ ! -f "lib/core/storage/database.g.dart" ]; then
+            echo "❌ ERROR: database.g.dart was not generated!"
+            echo "Running code generation again..."
+            dart run build_runner build --delete-conflicting-outputs
+            if [ ! -f "lib/core/storage/database.g.dart" ]; then
+              echo "❌ FATAL: Code generation failed after retry"
+              exit 1
+            fi
+          fi
+          echo "✅ database.g.dart exists"
 
       - name: Run Flutter Analyze
         if: matrix.test-type == 'analyze'

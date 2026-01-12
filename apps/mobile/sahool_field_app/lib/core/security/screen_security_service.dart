@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:secure_application/secure_application.dart';
 import 'security_config.dart';
 
+// Re-export securityConfigProvider for screens that use SecureScreen
+export 'security_config.dart' show securityConfigProvider, SecurityConfig;
+
 /// SAHOOL Screen Security Service
 /// خدمة حماية الشاشة من لقطات الشاشة والتسجيل
 ///

@@ -110,14 +110,27 @@ jobs:
       - name: Clean previous build artifacts
         run: |
           flutter clean
-          rm -rf .dart_tool/build
+          # Remove entire .dart_tool to ensure clean slate
+          rm -rf .dart_tool
+          rm -rf build
+          # Remove any existing generated files to force regeneration
+          find lib -name "*.g.dart" -delete 2>/dev/null || true
+          find lib -name "*.freezed.dart" -delete 2>/dev/null || true
           flutter pub get
 
       - name: Generate Drift database code
         run: |
           echo "Starting code generation..."
           dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log
+          # Run with verbose flag to diagnose issues
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
+            echo "First attempt output:"
+            tail -50 codegen.log
+            echo "Retrying with fresh state..."
+            rm -rf .dart_tool/build
+            touch lib/core/storage/database.dart
+            dart run build_runner build --delete-conflicting-outputs --verbose
+          }
           echo ""
           echo "📊 Generated files count:"
           echo "  .g.dart files: $(find lib -name '*.g.dart' | wc -l)"
@@ -127,6 +140,7 @@ jobs:
             echo "✅ database.g.dart generated successfully"
           else
             echo "❌ database.g.dart NOT found - build will fail"
+            echo "=== Full codegen log ==="
             cat codegen.log
             exit 1
           fi

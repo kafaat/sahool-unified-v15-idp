@@ -310,17 +310,30 @@ jobs:
         run: |
           echo "Cleaning previous build artifacts..."
           flutter clean
-          rm -rf .dart_tool/build
+          # Remove entire .dart_tool to ensure clean slate
+          rm -rf .dart_tool
+          rm -rf build
+          # Remove any existing generated files to force regeneration
+          find lib -name "*.g.dart" -delete 2>/dev/null || true
+          find lib -name "*.freezed.dart" -delete 2>/dev/null || true
           flutter pub get
 
       - name: Generate code (Drift, Freezed, etc.)
         run: |
           echo "Generating code with build_runner..."
           echo "Working directory: $(pwd)"
-          dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
-            echo "❌ Code generation failed! Retrying..."
-            dart run build_runner build --delete-conflicting-outputs
+          echo "Checking for files that need generation..."
+          find lib -name "*.dart" -exec grep -l "part '.*\.g\.dart'" {} \; | head -10
+          echo "---"
+          # Force clean build_runner cache
+          dart run build_runner clean 2>/dev/null || true
+          # Run with verbose flag for debugging
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
+            echo "❌ First attempt failed! Checking logs..."
+            cat codegen.log | tail -50
+            echo "Retrying with fresh state..."
+            rm -rf .dart_tool/build
+            dart run build_runner build --delete-conflicting-outputs --verbose
           }
           echo "✅ Code generation completed"
           echo "Generated files:"
@@ -330,14 +343,23 @@ jobs:
         run: |
           if [ ! -f "lib/core/storage/database.g.dart" ]; then
             echo "❌ ERROR: database.g.dart was not generated!"
-            echo "Running code generation again..."
-            dart run build_runner build --delete-conflicting-outputs
+            echo "=== Debugging info ==="
+            echo "Source file exists:"
+            ls -la lib/core/storage/database.dart
+            echo "=== Build log tail ==="
+            tail -100 codegen.log || true
+            echo "=== Trying force regeneration ==="
+            touch lib/core/storage/database.dart
+            dart run build_runner build --delete-conflicting-outputs --verbose
             if [ ! -f "lib/core/storage/database.g.dart" ]; then
               echo "❌ FATAL: Code generation failed after retry"
+              echo "=== Full codegen log ==="
+              cat codegen.log || true
               exit 1
             fi
           fi
           echo "✅ database.g.dart exists"
+          ls -la lib/core/storage/database.g.dart
 
       - name: Run Flutter Analyze
         if: matrix.test-type == 'analyze'

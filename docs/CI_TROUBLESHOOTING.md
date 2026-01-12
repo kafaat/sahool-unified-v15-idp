@@ -293,6 +293,23 @@ paths = [
   continue-on-error: true
 ```
 
+### 7.4 Shared Package Build Failures (Web/Admin)
+
+**Symptom:** Web App or Admin Dashboard build fails with module not found errors for @sahool packages.
+
+**Cause:** Shared packages (shared-utils, shared-ui, api-client, shared-hooks, i18n) need to be built before the apps that depend on them.
+
+**Solution:** Ensure `build:packages` script in root package.json includes all required packages:
+
+```json
+"build:packages": "npm run build --workspace=packages/shared-utils && npm run build --workspace=packages/i18n && npm run build --workspace=packages/shared-ui && npm run build --workspace=packages/api-client && npm run build --workspace=packages/shared-hooks"
+```
+
+**Prevention:**
+- When adding new shared packages that other apps depend on, add them to `build:packages`
+- Ensure the CI workflow runs `build:packages` before building apps
+- Don't use `continue-on-error: true` on the `build:packages` step
+
 ---
 
 ## Quick Reference: Common Fixes
@@ -305,6 +322,7 @@ paths = [
 | Module not found (Python) | Check Dockerfile COPY paths |
 | Cannot find module (TS) | Add path mapping to tsconfig |
 | Query param assertion | Use Pydantic model with Body() |
+| @sahool/package not found | Add to `build:packages` script |
 
 ---
 

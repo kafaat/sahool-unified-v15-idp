@@ -296,12 +296,19 @@ jobs:
           ENV=test
           EOF
 
+      - name: Clean previous build artifacts
+        run: |
+          echo "Cleaning previous build artifacts..."
+          flutter clean
+          rm -rf .dart_tool/build
+          flutter pub get
+
       - name: Generate code (Drift, Freezed, etc.)
         run: |
           echo "Generating code with build_runner..."
           echo "Working directory: $(pwd)"
           dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs 2>&1 || {
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
             echo "❌ Code generation failed! Retrying..."
             dart run build_runner build --delete-conflicting-outputs
           }

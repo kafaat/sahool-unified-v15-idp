@@ -141,7 +141,7 @@ class EmailClient:
             self._from_name = from_name
             self._initialized = True
 
-            logger.info(f"✅ Email client initialized successfully (from: {from_email})")
+            logger.info(f"✅ Email client initialized successfully (from: ***@{from_email.split('@')[-1] if from_email and '@' in from_email else '***'})")
             return True
 
         except Exception as e:
@@ -250,14 +250,14 @@ class EmailClient:
             response = await asyncio.to_thread(self._send_sync, mail=mail)
 
             if response:
-                logger.info(f"📧 Email sent successfully to {to}: {response}")
+                logger.info(f"📧 Email sent successfully to ***@{to.split('@')[-1] if to and '@' in to else '***'}: {response}")
                 return response
             else:
-                logger.error(f"Failed to send email to {to}")
+                logger.error(f"Failed to send email to ***@{to.split('@')[-1] if to and '@' in to else '***'}")
                 return None
 
         except Exception as e:
-            logger.error(f"Error sending email to {to}: {e}")
+            logger.error(f"Error sending email to ***@{to.split('@')[-1] if to and '@' in to else '***'}: {e}")
             return None
 
     def _send_sync(self, mail: Mail) -> str | None:

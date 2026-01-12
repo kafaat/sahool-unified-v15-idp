@@ -172,14 +172,14 @@ class SMSClient:
             response = await asyncio.to_thread(self._send_sync, to=to, content=content)
 
             if response:
-                logger.info(f"📱 SMS sent successfully to {to}: {response}")
+                logger.info(f"📱 SMS sent successfully to ***{to[-4:] if to else '****'}: {response}")
                 return response
             else:
-                logger.error(f"Failed to send SMS to {to}")
+                logger.error(f"Failed to send SMS to ***{to[-4:] if to else '****'}")
                 return None
 
         except Exception as e:
-            logger.error(f"Error sending SMS to {to}: {e}")
+            logger.error(f"Error sending SMS to ***{to[-4:] if to else '****'}: {e}")
             return None
 
     def _send_sync(self, to: str, content: str) -> str | None:

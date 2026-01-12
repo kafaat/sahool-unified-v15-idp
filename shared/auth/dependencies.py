@@ -541,5 +541,9 @@ def get_optional_user(
             tenant_id=payload.tenant_id,
             permissions=payload.permissions,
         )
-    except:
+    except AuthException as e:
+        logger.debug(f"Optional auth failed: {e.error.value}")
+        return None
+    except Exception as e:
+        logger.warning(f"Unexpected error in optional auth: {type(e).__name__}: {e}")
         return None

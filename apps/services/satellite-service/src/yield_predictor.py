@@ -45,11 +45,9 @@ for shared_path in SHARED_PATHS:
         break
 
 try:
-    from crops import ALL_CROPS, CropInfo, get_crop
+    from crops import CropInfo, get_crop
 except ImportError:
     # Fallback for standalone testing
-    ALL_CROPS = {}
-
     def get_crop(code: str):
         return None
 

@@ -9,11 +9,19 @@
 name: Deploy Preview
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, closed]
-    paths:
-      - 'apps/web/**'
-      - 'apps/mobile/**'
+  # Disabled: requires SURGE_TOKEN or NETLIFY_AUTH_TOKEN secrets
+  # Enable when secrets are configured in repository settings
+  # pull_request:
+  #   types: [opened, synchronize, reopened, closed]
+  #   paths:
+  #     - 'apps/web/**'
+  #     - 'apps/mobile/**'
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to deploy'
+        required: true
+        type: string
 
 permissions:
   contents: read

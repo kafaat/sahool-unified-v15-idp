@@ -26,7 +26,10 @@
       "@sahool/api-client": ["../../packages/api-client/src"],
       "@sahool/shared-ui": ["../../packages/shared-ui/src"],
       "@sahool/shared-utils": ["../../packages/shared-utils/src"],
-      "@sahool/shared-hooks": ["../../packages/shared-hooks/src"]
+      "@sahool/shared-hooks": ["../../packages/shared-hooks/src"],
+      "@sahool/i18n": ["../../packages/i18n/src"],
+      "@sahool/shared-types": ["../../packages/shared-types/src"],
+      "@sahool/shared-types/*": ["../../packages/shared-types/src/*"]
     },
     "target": "ES2017"
   },

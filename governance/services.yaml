@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [satellite-service, iot-service, weather-advanced, virtual-sensors]
+      services: [satellite-service, iot-service, weather-advanced, virtual-sensors, weather-service]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment]
+      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment, agro-rules, crop-intelligence-service, ndvi-processor, field-intelligence, vegetation-analysis-service]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction]
+      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction, advisory-service]
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, research-core]
+      services: [notification-service, marketplace-service, billing-core, community-chat, research-core, mcp-server, task-service, equipment-service, ws-gateway]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -445,7 +445,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # SATELLITE SERVICE - خدمة الأقمار الصناعية
+  # SATELLITE SERVICE - خدمة الأقمار الصناعية (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   satellite-service:
     name: "Satellite Service"
@@ -457,7 +457,9 @@ services:
     port: 8090
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: vegetation-analysis-service
+    deprecation_date: "2026-01-11"
     version: "15.4.0"
     events:
       produces:
@@ -484,7 +486,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # WEATHER ADVANCED - خدمة الطقس المتقدمة
+  # WEATHER ADVANCED - خدمة الطقس المتقدمة (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   weather-advanced:
     name: "Weather Advanced"
@@ -496,7 +498,9 @@ services:
     port: 8092
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: weather-service
+    deprecation_date: "2026-01-11"
     events:
       produces:
         - WeatherObserved.v1
@@ -547,7 +551,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # CROP HEALTH AI - سهول فيجن
+  # CROP HEALTH AI - سهول فيجن (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   crop-health-ai:
     name: "Crop Health AI"
@@ -559,7 +563,9 @@ services:
     port: 8095
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: crop-intelligence-service
+    deprecation_date: "2026-01-11"
     events:
       produces:
         - CropHealthAssessed.v1
@@ -634,7 +640,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # FERTILIZER ADVISOR - مستشار التسميد
+  # FERTILIZER ADVISOR - مستشار التسميد (DEPRECATED)
   # ═══════════════════════════════════════════════════════════════════════════
   fertilizer-advisor:
     name: "Fertilizer Advisor"
@@ -646,7 +652,9 @@ services:
     port: 8093
     protocol: http
     health_endpoint: "/health"
-    status: active
+    status: deprecated
+    replaced_by: advisory-service
+    deprecation_date: "2026-01-11"
     events:
       produces:
         - FertilizerPlanProposed.v1
@@ -730,6 +738,316 @@ services:
     resources:
       cpu: "200m"
       memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # MCP SERVER - خادم بروتوكول سياق النموذج
+  # ═══════════════════════════════════════════════════════════════════════════
+  mcp-server:
+    name: "MCP Server"
+    name_ar: "خادم MCP"
+    type: python
+    category: integration
+    layer: business
+    path: "apps/services/mcp-server"
+    port: 8200
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces: []
+      consumes: []
+    dependencies:
+      - kong
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AGRO RULES - قواعد الزراعة
+  # ═══════════════════════════════════════════════════════════════════════════
+  agro-rules:
+    name: "Agro Rules Worker"
+    name_ar: "عامل القواعد الزراعية"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/agro-rules"
+    port: 8151
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    events:
+      produces:
+        - AgroRuleEvaluated.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - nats
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CROP INTELLIGENCE SERVICE - خدمة ذكاء المحاصيل
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop-intelligence-service:
+    name: "Crop Intelligence Service"
+    name_ar: "خدمة ذكاء المحاصيل"
+    type: python
+    category: crop
+    layer: intelligence
+    path: "apps/services/crop-intelligence-service"
+    port: 8150
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - CropHealthAssessed.v1
+        - DiseaseDetected.v1
+      consumes:
+        - IndexTileReady.v1
+        - SatelliteSceneIngested.v1
+    dependencies:
+      - satellite-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # EQUIPMENT SERVICE - خدمة المعدات
+  # ═══════════════════════════════════════════════════════════════════════════
+  equipment-service:
+    name: "Equipment Service"
+    name_ar: "خدمة المعدات"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/equipment-service"
+    port: 8130
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - EquipmentStatusUpdated.v1
+      consumes: []
+    database:
+      type: postgresql
+      name: sahool_equipment
+    dependencies: []
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # TASK SERVICE - خدمة المهام
+  # ═══════════════════════════════════════════════════════════════════════════
+  task-service:
+    name: "Task Service"
+    name_ar: "خدمة المهام"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/task-service"
+    port: 8131
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - TaskCreated.v1
+        - TaskCompleted.v1
+      consumes:
+        - IrrigationAlertIssued.v1
+        - FertilizerPlanProposed.v1
+    database:
+      type: postgresql
+      name: sahool_tasks
+    dependencies: []
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WS GATEWAY - بوابة WebSocket
+  # ═══════════════════════════════════════════════════════════════════════════
+  ws-gateway:
+    name: "WebSocket Gateway"
+    name_ar: "بوابة WebSocket"
+    type: python
+    category: integration
+    layer: business
+    path: "apps/services/ws-gateway"
+    port: 8140
+    protocol: websocket
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces: []
+      consumes:
+        - NotificationSent.v1
+    dependencies:
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NDVI PROCESSOR - معالج NDVI
+  # ═══════════════════════════════════════════════════════════════════════════
+  ndvi-processor:
+    name: "NDVI Processor"
+    name_ar: "معالج NDVI"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/ndvi-processor"
+    port: 8141
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - NDVIProcessed.v1
+      consumes:
+        - SatelliteSceneIngested.v1
+    dependencies:
+      - satellite-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD INTELLIGENCE - ذكاء الحقول
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-intelligence:
+    name: "Field Intelligence"
+    name_ar: "ذكاء الحقول"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/field-intelligence"
+    port: 8142
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    events:
+      produces:
+        - FieldAnalysisCompleted.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - NDVIProcessed.v1
+    dependencies:
+      - indicators-service
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # VEGETATION ANALYSIS SERVICE - خدمة تحليل الغطاء النباتي
+  # Replaces: satellite-service (deprecated)
+  # ═══════════════════════════════════════════════════════════════════════════
+  vegetation-analysis-service:
+    name: "Vegetation Analysis Service"
+    name_ar: "خدمة تحليل الغطاء النباتي"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/vegetation-analysis-service"
+    port: 8019
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    replaces: satellite-service
+    events:
+      produces:
+        - VegetationIndexCalculated.v1
+        - NDVITimeseriesReady.v1
+        - FieldBoundaryDetected.v1
+      consumes:
+        - SatelliteSceneIngested.v1
+        - WeatherDataReady.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WEATHER SERVICE - خدمة الطقس
+  # Replaces: weather-advanced (deprecated)
+  # ═══════════════════════════════════════════════════════════════════════════
+  weather-service:
+    name: "Weather Service"
+    name_ar: "خدمة الطقس"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/weather-service"
+    port: 8108
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    replaces: weather-advanced
+    events:
+      produces:
+        - WeatherForecastReady.v1
+        - WeatherAlertIssued.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "300m"
+      memory: "256Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ADVISORY SERVICE - خدمة الاستشارات
+  # Replaces: fertilizer-advisor (deprecated)
+  # ═══════════════════════════════════════════════════════════════════════════
+  advisory-service:
+    name: "Advisory Service"
+    name_ar: "خدمة الاستشارات"
+    type: python
+    category: core
+    layer: decision
+    path: "apps/services/advisory-service"
+    port: 8160
+    protocol: http
+    health_endpoint: "/health"
+    status: active
+    replaces: fertilizer-advisor
+    events:
+      produces:
+        - AdvisoryGenerated.v1
+        - FertilizerRecommendation.v1
+      consumes:
+        - SoilAnalysisCompleted.v1
+        - CropHealthAssessed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - postgres
+      - redis
+      - nats
+    resources:
+      cpu: "400m"
+      memory: "384Mi"
       replicas: 1
 
 # ─────────────────────────────────────────────────────────────────────────────

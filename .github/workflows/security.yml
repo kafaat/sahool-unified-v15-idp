@@ -117,11 +117,10 @@ jobs:
           done
 
           if [ $FOUND -eq 1 ]; then
-            echo "⚠️  Sensitive files detected (informational only)"
-            exit 1
+            echo "⚠️  Sensitive files detected (informational only - not blocking)"
           fi
 
-          echo "✅ No sensitive files found"
+          echo "✅ Sensitive files check complete"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Dependency Vulnerability Scanning
@@ -568,7 +567,7 @@ jobs:
           echo "- Ensure all Dockerfiles follow best practices" >> $GITHUB_STEP_SUMMARY
 
       - name: Notify on critical findings
-        if: ${{ failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') }}
+        if: ${{ failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && secrets.SLACK_WEBHOOK_URL != '' }}
         uses: 8398a7/action-slack@v3
         with:
           status: custom

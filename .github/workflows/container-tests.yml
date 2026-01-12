@@ -181,10 +181,61 @@ jobs:
           - name: chat-service
             path: apps/services/chat-service
             port: 8018
+          - name: mcp-server
+            path: apps/services/mcp-server
+            port: 8200
+          - name: vegetation-analysis-service
+            path: apps/services/vegetation-analysis-service
+            port: 8019
+          - name: field-service
+            path: apps/services/field-service
+            port: 8020
+          - name: crop-intelligence-service
+            path: apps/services/crop-intelligence-service
+            port: 8021
+          - name: equipment-service
+            path: apps/services/equipment-service
+            port: 8022
+          - name: billing-core
+            path: apps/services/billing-core
+            port: 8023
+          - name: ndvi-processor
+            path: apps/services/ndvi-processor
+            port: 8024
+          - name: task-service
+            path: apps/services/task-service
+            port: 8025
+          - name: inventory-service
+            path: apps/services/inventory-service
+            port: 8026
+          - name: community-chat
+            path: apps/services/community-chat
+            port: 8027
+          - name: disaster-assessment
+            path: apps/services/disaster-assessment
+            port: 8028
+          - name: field-intelligence
+            path: apps/services/field-intelligence
+            port: 8029
+          - name: agro-rules
+            path: apps/services/agro-rules
+            port: 8030
+          - name: ws-gateway
+            path: apps/services/ws-gateway
+            port: 8031
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          echo "Freeing disk space for container builds..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          df -h
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -377,6 +428,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          echo "Freeing disk space for Docker Compose tests..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          df -h
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

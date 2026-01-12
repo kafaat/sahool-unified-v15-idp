@@ -2,6 +2,18 @@
 
 All notable changes to the SAHOOL Field mobile application.
 
+## [Unreleased]
+
+### 🔧 Bug Fixes
+- Fixed `SecureApplicationController` constructor for `secure_application 4.1.0` compatibility
+- Removed invalid `const` keyword from `SecureApplicationState()` instantiation
+- Fixed Drift code generation glob patterns in `build.yaml`
+- Added dependency injection support in `SyncEngine` for improved testability
+
+### 🧪 Testing
+- Fixed integration test runner to properly execute all tests with `--all` flag
+- Added `.env` file creation in CI for asset bundle requirements
+
 ## [16.0.0] - Golden Release 🏆
 
 ### ✨ New Features

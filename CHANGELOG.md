@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **CI/CD Pipeline Fixes** (PR #496)
+  - Fixed Flutter integration tests by adding `.env` file creation step
+  - Added `--all` flag to integration test runner script
+  - Fixed `SecureApplicationController` constructor for `secure_application 4.1.0` API changes
+  - Added Android SDK setup step after disk cleanup (was being deleted)
+  - Set `ANDROID_HOME` and `ANDROID_SDK_ROOT` environment variables
+  - Fixed Drift code generation glob patterns (`*.dart` for direct files)
+  - Enabled dependency injection in `SyncEngine` for better testability
+
+- **Security Fixes** (PR #496)
+  - Fixed CodeQL High-severity Log Injection vulnerability in `alert-service`
+  - Added `sanitize_log_input()` helper to escape control characters in user input
+  - Changed unsafe f-string logging to parameterized % formatting
+
 ### Added
 - **Docker Sequential Build Scripts** (PR #315)
   - `docker-one-by-one.ps1`: PowerShell script for sequential container builds

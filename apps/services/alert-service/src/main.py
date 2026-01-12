@@ -552,7 +552,12 @@ async def update_alert_endpoint(
                 updated_by=user_id,
             )
 
-        logger.info(f"Updated alert {sanitize_log_input(alert_id)}: {old_status} -> {updated_alert.status}")
+        logger.info(
+            "Updated alert %s: %s -> %s",
+            sanitize_log_input(alert_id),
+            sanitize_log_input(old_status),
+            sanitize_log_input(updated_alert.status),
+        )
         return updated_alert.to_dict()
 
     return alert.to_dict()

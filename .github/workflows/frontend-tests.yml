@@ -240,9 +240,9 @@ jobs:
         run: |
           echo "Freeing disk space for Flutter build..."
           sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
+          # Note: Don't delete /usr/local/lib/android - needed for Android builds
           df -h
         working-directory: .
 
@@ -252,12 +252,19 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
 
+      - name: Setup Android SDK
+        if: matrix.test-type == 'build-android'
+        uses: android-actions/setup-android@v3
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+        env:
+          ANDROID_HOME: ${{ runner.temp }}/android-sdk
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v4

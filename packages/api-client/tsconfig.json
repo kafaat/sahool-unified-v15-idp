@@ -5,8 +5,8 @@
     "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@sahool/shared-types": ["../shared-types/src"],
-      "@sahool/shared-types/*": ["../shared-types/src/*"]
+      "@sahool/shared-types": ["../shared-types/dist"],
+      "@sahool/shared-types/*": ["../shared-types/dist/*"]
     },
     "lib": ["ES2020", "DOM"],
     "declaration": true,

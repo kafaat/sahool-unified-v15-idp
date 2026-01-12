@@ -133,6 +133,34 @@ services:
     depends_on:
     - weather-advanced
     - virtual-sensors
+  advisory-service:
+    build:
+      context: ../../apps/services/advisory-service
+      dockerfile: Dockerfile
+    ports:
+    - 8160:8160
+    environment:
+    - PORT=8160
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8160/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+    - nats
 networks:
   sahool-network:
     driver: bridge

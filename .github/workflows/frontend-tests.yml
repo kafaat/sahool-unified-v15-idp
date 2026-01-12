@@ -69,8 +69,13 @@ jobs:
       - name: Build shared packages
         run: |
           echo "Building shared packages for Web App..."
-          npm run build:packages || echo "⚠️ build:packages script not found, continuing..."
-        continue-on-error: true
+          npm run build:packages 2>&1 | tee build-packages.log || {
+            echo "❌ Failed to build shared packages!"
+            echo "Check build-packages.log for details"
+            cat build-packages.log
+            exit 1
+          }
+          echo "✅ Shared packages built successfully"
 
       - name: Run Lint
         if: matrix.test-type == 'lint'
@@ -157,8 +162,13 @@ jobs:
       - name: Build shared packages
         run: |
           echo "Building shared packages for Admin Dashboard..."
-          npm run build:packages || echo "⚠️ build:packages script not found, continuing..."
-        continue-on-error: true
+          npm run build:packages 2>&1 | tee build-packages.log || {
+            echo "❌ Failed to build shared packages!"
+            echo "Check build-packages.log for details"
+            cat build-packages.log
+            exit 1
+          }
+          echo "✅ Shared packages built successfully"
 
       - name: Run Lint
         if: matrix.test-type == 'lint'
@@ -296,12 +306,19 @@ jobs:
           ENV=test
           EOF
 
+      - name: Clean previous build artifacts
+        run: |
+          echo "Cleaning previous build artifacts..."
+          flutter clean
+          rm -rf .dart_tool/build
+          flutter pub get
+
       - name: Generate code (Drift, Freezed, etc.)
         run: |
           echo "Generating code with build_runner..."
           echo "Working directory: $(pwd)"
           dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs 2>&1 || {
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
             echo "❌ Code generation failed! Retrying..."
             dart run build_runner build --delete-conflicting-outputs
           }
@@ -424,12 +441,32 @@ jobs:
           ENV=test
           EOF
 
+      - name: Clean previous build artifacts
+        run: |
+          echo "Cleaning previous build artifacts..."
+          flutter clean
+          rm -rf .dart_tool/build
+          flutter pub get
+
       - name: Generate code (Drift, Freezed, etc.)
         run: |
           echo "Generating code with build_runner..."
           dart run build_runner clean || true
           dart run build_runner build --delete-conflicting-outputs
         continue-on-error: true
+
+      - name: Verify generated code exists
+        run: |
+          if [ ! -f "lib/core/storage/database.g.dart" ]; then
+            echo "❌ ERROR: database.g.dart was not generated!"
+            echo "Running code generation again..."
+            dart run build_runner build --delete-conflicting-outputs
+            if [ ! -f "lib/core/storage/database.g.dart" ]; then
+              echo "❌ FATAL: Code generation failed after retry"
+              exit 1
+            fi
+          fi
+          echo "✅ database.g.dart exists"
 
       - name: Install CocoaPods
         run: |
@@ -594,11 +631,34 @@ jobs:
           ENV=test
           EOF
 
+      - name: Clean previous build artifacts
+        run: |
+          cd sahool_field_app
+          echo "Cleaning previous build artifacts..."
+          flutter clean
+          rm -rf .dart_tool/build
+          flutter pub get
+
       - name: Generate code
         run: |
           cd sahool_field_app
+          echo "Generating code with build_runner..."
           dart run build_runner clean || true
           dart run build_runner build --delete-conflicting-outputs
+
+      - name: Verify generated code exists
+        run: |
+          cd sahool_field_app
+          if [ ! -f "lib/core/storage/database.g.dart" ]; then
+            echo "❌ ERROR: database.g.dart was not generated!"
+            echo "Running code generation again..."
+            dart run build_runner build --delete-conflicting-outputs
+            if [ ! -f "lib/core/storage/database.g.dart" ]; then
+              echo "❌ FATAL: Code generation failed after retry"
+              exit 1
+            fi
+          fi
+          echo "✅ database.g.dart exists"
 
       - name: Enable KVM (for Android Emulator)
         run: |

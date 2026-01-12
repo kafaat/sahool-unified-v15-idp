@@ -76,6 +76,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def sanitize_log_input(value: str) -> str:
+    """
+    Sanitize user input for safe logging to prevent log injection attacks.
+    Removes/escapes newlines, carriage returns, and other control characters.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    # Replace newlines and carriage returns to prevent log injection
+    return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Authentication
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -425,7 +436,7 @@ async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depend
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     alert_data.tenant_id = tenant_id
     alert = await create_alert_internal(alert_data)
-    logger.info(f"Created alert {alert['id']} for field {alert['field_id']}")
+    logger.info(f"Created alert {alert['id']} for field {sanitize_log_input(alert['field_id'])}")
     return alert
 
 
@@ -541,7 +552,12 @@ async def update_alert_endpoint(
                 updated_by=user_id,
             )
 
-        logger.info(f"Updated alert {alert_id}: {old_status} -> {updated_alert.status}")
+        logger.info(
+            "Updated alert %s: %s -> %s",
+            sanitize_log_input(alert_id),
+            sanitize_log_input(old_status),
+            sanitize_log_input(updated_alert.status),
+        )
         return updated_alert.to_dict()
 
     return alert.to_dict()
@@ -575,7 +591,7 @@ async def delete_alert_endpoint(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     db.commit()
-    logger.info(f"Deleted alert {alert_id}")
+    logger.info(f"Deleted alert {sanitize_log_input(alert_id)}")
     return {"status": "deleted", "alert_id": alert_id}
 
 
@@ -726,14 +742,22 @@ async def dismiss_alert(
 
 
 @app.post("/alerts/rules", response_model=AlertRuleResponse, tags=["Alert Rules"])
-async def create_rule(rule_data: AlertRuleCreate, db: Session = Depends(get_db)):
+async def create_rule(
+    rule_data: AlertRuleCreate,
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
     """
     إنشاء قاعدة تنبيه
     Create an alert rule
     """
+    # Validate tenant matches request
+    if rule_data.tenant_id and rule_data.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
+
     db_rule = DBAlertRule(
         field_id=rule_data.field_id,
-        tenant_id=rule_data.tenant_id,
+        tenant_id=tenant_id,  # Use validated tenant_id
         name=rule_data.name,
         name_en=rule_data.name_en,
         enabled=rule_data.enabled,
@@ -746,7 +770,7 @@ async def create_rule(rule_data: AlertRuleCreate, db: Session = Depends(get_db))
     db.commit()
     db.refresh(rule)
 
-    logger.info(f"Created alert rule {rule.id} for field {rule_data.field_id}")
+    logger.info(f"Created alert rule {rule.id} for field {sanitize_log_input(rule_data.field_id)}")
     return rule.to_dict()
 
 
@@ -754,33 +778,36 @@ async def create_rule(rule_data: AlertRuleCreate, db: Session = Depends(get_db))
 async def get_rules(
     field_id: str | None = Query(None, description="تصفية حسب الحقل"),
     enabled: bool | None = Query(None, description="تصفية حسب الحالة"),
+    tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
     """
     جلب قواعد التنبيه
     Get alert rules
     """
+    from sqlalchemy import select
+
+    from .db_models import AlertRule
+
+    # Always filter by tenant_id for security
+    query = select(AlertRule).where(AlertRule.tenant_id == tenant_id)
+
     if field_id:
-        rules = get_alert_rules_by_field(
-            db, field_id=field_id, enabled_only=(enabled if enabled else False)
-        )
-    else:
-        # Get all rules, then filter by enabled status if specified
-        from sqlalchemy import select
+        query = query.where(AlertRule.field_id == field_id)
 
-        from .db_models import AlertRule
+    if enabled is not None:
+        query = query.where(AlertRule.enabled == enabled)
 
-        query = select(AlertRule)
-        if enabled is not None:
-            query = query.where(AlertRule.enabled == enabled)
-        rules = list(db.execute(query).scalars())
+    rules = list(db.execute(query).scalars())
 
     return [rule.to_dict() for rule in rules]
 
 
 @app.delete("/alerts/rules/{rule_id}", tags=["Alert Rules"])
 async def delete_rule(
-    rule_id: str = Path(..., description="معرف القاعدة"), db: Session = Depends(get_db)
+    rule_id: str = Path(..., description="معرف القاعدة"),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
 ):
     """
     حذف قاعدة تنبيه
@@ -788,17 +815,30 @@ async def delete_rule(
     """
     from uuid import UUID
 
+    from sqlalchemy import select
+
+    from .db_models import AlertRule
+
     try:
         rule_uuid = UUID(rule_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid rule ID format")
+
+    # Check if rule exists and belongs to tenant
+    query = select(AlertRule).where(
+        AlertRule.id == rule_uuid,
+        AlertRule.tenant_id == tenant_id,
+    )
+    rule = db.execute(query).scalar_one_or_none()
+    if not rule:
+        raise HTTPException(status_code=404, detail="Rule not found")
 
     deleted = delete_alert_rule(db, rule_uuid)
     if not deleted:
         raise HTTPException(status_code=404, detail="Rule not found")
 
     db.commit()
-    logger.info(f"Deleted alert rule {rule_id}")
+    logger.info(f"Deleted alert rule {sanitize_log_input(rule_id)}")
     return {"status": "deleted", "rule_id": rule_id}
 
 

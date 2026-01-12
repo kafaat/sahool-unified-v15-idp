@@ -37,17 +37,17 @@ alembic current
 python -m src.main
 
 # أو باستخدام uvicorn
-uvicorn src.main:app --host 0.0.0.0 --port 8107 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8113 --reload
 ```
 
 ### 5. اختبار الخدمة
 
 ```bash
 # التحقق من صحة الخدمة
-curl http://localhost:8107/health
+curl http://localhost:8113/health
 
 # عرض الوثائق التفاعلية
-open http://localhost:8107/docs
+open http://localhost:8113/docs
 ```
 
 ## الأوامر الأساسية | Basic Commands
@@ -184,8 +184,8 @@ DATABASE_URL=postgresql://user:password@host:5432/dbname
 # NATS (اختياري)
 NATS_URL=nats://localhost:4222
 
-# المنفذ (اختياري، افتراضي: 8107)
-PORT=8107
+# المنفذ (اختياري، افتراضي: 8113)
+PORT=8113
 ```
 
 ## استكشاف الأخطاء | Troubleshooting
@@ -224,14 +224,14 @@ alembic upgrade head
 
 1. ✅ قراءة [MIGRATIONS.md](MIGRATIONS.md) للتفاصيل الكاملة
 2. ✅ تشغيل [example_usage.py](example_usage.py) للتعلم
-3. ✅ استكشاف [/docs](http://localhost:8107/docs) للوثائق التفاعلية
+3. ✅ استكشاف [/docs](http://localhost:8113/docs) للوثائق التفاعلية
 4. ✅ دمج مع الخدمات الأخرى (NDVI, Weather, IoT)
 
 ## الدعم | Support
 
 - 📖 التوثيق: `MIGRATIONS.md`
 - 💻 الأمثلة: `example_usage.py`
-- 🔍 API Docs: `http://localhost:8107/docs`
+- 🔍 API Docs: `http://localhost:8113/docs`
 - 📝 الكود: `src/`
 
 ## الإصدار | Version

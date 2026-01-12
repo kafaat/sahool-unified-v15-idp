@@ -12,8 +12,8 @@ import 'sync_metrics_service.dart';
 class SyncEngine {
   final AppDatabase database;
   final SyncMetricsService? metricsService;
-  final NetworkStatus _networkStatus = NetworkStatus();
-  late final ApiClient _apiClient;
+  final NetworkStatus _networkStatus;
+  final ApiClient _apiClient;
 
   Timer? _syncTimer;
   bool _isSyncing = false;
@@ -24,9 +24,10 @@ class SyncEngine {
   SyncEngine({
     required this.database,
     this.metricsService,
-  }) {
-    _apiClient = ApiClient();
-  }
+    NetworkStatus? networkStatus,
+    ApiClient? apiClient,
+  })  : _networkStatus = networkStatus ?? NetworkStatus(),
+        _apiClient = apiClient ?? ApiClient();
 
   /// Get current tenant ID from API client
   String get _tenantId => _apiClient.tenantId;

@@ -241,7 +241,7 @@ alembic current
 
 ```bash
 # تشغيل مع uvicorn
-uvicorn src.main:app --host 0.0.0.0 --port 8107 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8113 --reload
 
 # أو
 python -m src.main
@@ -254,10 +254,10 @@ python -m src.main
 python example_usage.py
 
 # اختبار API
-curl http://localhost:8107/health
+curl http://localhost:8113/health
 
 # الوثائق التفاعلية
-open http://localhost:8107/docs
+open http://localhost:8113/docs
 ```
 
 ---

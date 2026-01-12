@@ -240,9 +240,9 @@ jobs:
         run: |
           echo "Freeing disk space for Flutter build..."
           sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
+          # Note: Don't delete /usr/local/lib/android - needed for Android builds
           df -h
         working-directory: .
 
@@ -252,12 +252,19 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
 
+      - name: Setup Android SDK
+        if: matrix.test-type == 'build-android'
+        uses: android-actions/setup-android@v3
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+        env:
+          ANDROID_HOME: ${{ runner.temp }}/android-sdk
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v4
@@ -310,17 +317,30 @@ jobs:
         run: |
           echo "Cleaning previous build artifacts..."
           flutter clean
-          rm -rf .dart_tool/build
+          # Remove entire .dart_tool to ensure clean slate
+          rm -rf .dart_tool
+          rm -rf build
+          # Remove any existing generated files to force regeneration
+          find lib -name "*.g.dart" -delete 2>/dev/null || true
+          find lib -name "*.freezed.dart" -delete 2>/dev/null || true
           flutter pub get
 
       - name: Generate code (Drift, Freezed, etc.)
         run: |
           echo "Generating code with build_runner..."
           echo "Working directory: $(pwd)"
-          dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log || {
-            echo "❌ Code generation failed! Retrying..."
-            dart run build_runner build --delete-conflicting-outputs
+          echo "Checking for files that need generation..."
+          find lib -name "*.dart" -exec grep -l "part '.*\.g\.dart'" {} \; | head -10
+          echo "---"
+          # Force clean build_runner cache
+          dart run build_runner clean 2>/dev/null || true
+          # Run with verbose flag for debugging
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
+            echo "❌ First attempt failed! Checking logs..."
+            cat codegen.log | tail -50
+            echo "Retrying with fresh state..."
+            rm -rf .dart_tool/build
+            dart run build_runner build --delete-conflicting-outputs --verbose
           }
           echo "✅ Code generation completed"
           echo "Generated files:"
@@ -328,16 +348,46 @@ jobs:
 
       - name: Verify generated code exists
         run: |
+          echo "=== Current working directory ==="
+          pwd
+          echo ""
+          echo "=== All generated .g.dart files ==="
+          find . -name "*.g.dart" -type f 2>/dev/null || echo "No .g.dart files found"
+          echo ""
+          echo "=== Searching for database.g.dart specifically ==="
+          find . -name "database.g.dart" -type f 2>/dev/null || echo "database.g.dart not found anywhere"
+          echo ""
+
           if [ ! -f "lib/core/storage/database.g.dart" ]; then
-            echo "❌ ERROR: database.g.dart was not generated!"
-            echo "Running code generation again..."
-            dart run build_runner build --delete-conflicting-outputs
+            echo "❌ ERROR: database.g.dart was not generated at expected path!"
+            echo "Expected path: lib/core/storage/database.g.dart"
+            echo ""
+            echo "=== Source file check ==="
+            ls -la lib/core/storage/database.dart 2>/dev/null || echo "Source file not found!"
+            echo ""
+            echo "=== Checking build.yaml ==="
+            cat build.yaml 2>/dev/null || echo "No build.yaml found"
+            echo ""
+            echo "=== Trying force regeneration with clean ==="
+            rm -rf .dart_tool/build
+            touch lib/core/storage/database.dart
+            dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee retry_codegen.log
+            echo ""
+            echo "=== After retry - searching for database.g.dart ==="
+            find . -name "database.g.dart" -type f 2>/dev/null || echo "Still not found"
+            echo ""
             if [ ! -f "lib/core/storage/database.g.dart" ]; then
               echo "❌ FATAL: Code generation failed after retry"
+              echo "=== Retry log ==="
+              cat retry_codegen.log || true
               exit 1
             fi
           fi
           echo "✅ database.g.dart exists"
+          ls -la lib/core/storage/database.g.dart
+          echo ""
+          echo "=== First 20 lines of database.g.dart ==="
+          head -20 lib/core/storage/database.g.dart
 
       - name: Run Flutter Analyze
         if: matrix.test-type == 'analyze'
@@ -586,9 +636,9 @@ jobs:
         run: |
           echo "Freeing disk space for mobile integration tests..."
           sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
+          # Note: Don't delete /usr/local/lib/android - needed for Android Emulator
           df -h
         working-directory: .
 
@@ -598,12 +648,18 @@ jobs:
           distribution: 'temurin'
           java-version: ${{ env.JAVA_VERSION }}
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+        env:
+          ANDROID_HOME: ${{ runner.temp }}/android-sdk
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
 
       - name: Cache Flutter dependencies
         uses: actions/cache@v4
@@ -670,7 +726,7 @@ jobs:
         run: |
           echo "Running Flutter integration tests..."
           chmod +x integration_test/run_tests.sh
-          ./integration_test/run_tests.sh
+          ./integration_test/run_tests.sh --all
         continue-on-error: true
 
       - name: Upload Integration Test Results

@@ -8,19 +8,39 @@ import '../../mocks/mock_app_database.dart';
 import '../../mocks/mock_network_status.dart';
 
 /// Mock ApiClient for testing
-class MockApiClient extends Mock implements ApiClient {}
+class MockApiClient extends Mock implements ApiClient {
+  @override
+  String get tenantId => 'tenant_test';
+}
 
 void main() {
   group('SyncEngine', () {
     late SyncEngine syncEngine;
     late MockAppDatabase mockDatabase;
     late MockNetworkStatus mockNetworkStatus;
+    late MockApiClient mockApiClient;
 
     setUp(() {
       mockDatabase = MockAppDatabase();
       mockNetworkStatus = MockNetworkStatus(isOnline: true);
+      mockApiClient = MockApiClient();
 
-      syncEngine = SyncEngine(database: mockDatabase);
+      // Setup default mock behaviors
+      when(() => mockApiClient.get(any(), queryParameters: any(named: 'queryParameters')))
+          .thenAnswer((_) async => <Map<String, dynamic>>[]);
+      when(() => mockApiClient.post(any(), any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => {});
+      when(() => mockApiClient.put(any(), any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => {});
+      when(() => mockApiClient.delete(any(), headers: any(named: 'headers')))
+          .thenAnswer((_) async => {});
+
+      // Inject all mocks into SyncEngine
+      syncEngine = SyncEngine(
+        database: mockDatabase,
+        networkStatus: mockNetworkStatus,
+        apiClient: mockApiClient,
+      );
 
       // Clear mock database before each test
       mockDatabase.clearAll();

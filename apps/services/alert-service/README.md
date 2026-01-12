@@ -6,7 +6,7 @@
 
 Agricultural alerts and warnings management service for fields and crops.
 
-**Port:** 8107
+**Port:** 8113
 **Version:** 15.4.0
 
 ---
@@ -167,7 +167,7 @@ Response:
 
 ```env
 # الخادم
-PORT=8107
+PORT=8113
 HOST=0.0.0.0
 
 # قاعدة البيانات

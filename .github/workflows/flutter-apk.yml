@@ -121,6 +121,11 @@ jobs:
       - name: Generate Drift database code
         run: |
           echo "Starting code generation..."
+          echo "Working directory: $(pwd)"
+          echo ""
+          echo "=== build.yaml content ==="
+          cat build.yaml
+          echo ""
           dart run build_runner clean || true
           # Run with verbose flag to diagnose issues
           dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
@@ -136,10 +141,16 @@ jobs:
           echo "  .g.dart files: $(find lib -name '*.g.dart' | wc -l)"
           echo "  .freezed.dart files: $(find lib -name '*.freezed.dart' | wc -l)"
           echo ""
+          echo "=== All generated .g.dart files ==="
+          find lib -name "*.g.dart" -type f 2>/dev/null || echo "No .g.dart files found"
+          echo ""
           if [ -f "lib/core/storage/database.g.dart" ]; then
             echo "✅ database.g.dart generated successfully"
+            head -10 lib/core/storage/database.g.dart
           else
             echo "❌ database.g.dart NOT found - build will fail"
+            echo "=== Searching for database.g.dart anywhere ==="
+            find . -name "database.g.dart" -type f 2>/dev/null || echo "Not found anywhere"
             echo "=== Full codegen log ==="
             cat codegen.log
             exit 1

@@ -23,8 +23,15 @@ targets:
       # Drift database configuration
       drift_dev:
         generate_for:
+          # Direct files in storage directory (database.dart is here)
+          - "lib/core/storage/*.dart"
+          # Subdirectories of storage
           - "lib/core/storage/**/*.dart"
+          # Database directory
+          - "lib/core/database/*.dart"
           - "lib/core/database/**/*.dart"
+          # Feature data files
+          - "lib/features/**/data/*.dart"
           - "lib/features/**/data/**/*.dart"
         options:
           store_date_time_values_as_text: true

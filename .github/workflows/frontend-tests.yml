@@ -341,25 +341,46 @@ jobs:
 
       - name: Verify generated code exists
         run: |
+          echo "=== Current working directory ==="
+          pwd
+          echo ""
+          echo "=== All generated .g.dart files ==="
+          find . -name "*.g.dart" -type f 2>/dev/null || echo "No .g.dart files found"
+          echo ""
+          echo "=== Searching for database.g.dart specifically ==="
+          find . -name "database.g.dart" -type f 2>/dev/null || echo "database.g.dart not found anywhere"
+          echo ""
+
           if [ ! -f "lib/core/storage/database.g.dart" ]; then
-            echo "❌ ERROR: database.g.dart was not generated!"
-            echo "=== Debugging info ==="
-            echo "Source file exists:"
-            ls -la lib/core/storage/database.dart
-            echo "=== Build log tail ==="
-            tail -100 codegen.log || true
-            echo "=== Trying force regeneration ==="
+            echo "❌ ERROR: database.g.dart was not generated at expected path!"
+            echo "Expected path: lib/core/storage/database.g.dart"
+            echo ""
+            echo "=== Source file check ==="
+            ls -la lib/core/storage/database.dart 2>/dev/null || echo "Source file not found!"
+            echo ""
+            echo "=== Checking build.yaml ==="
+            cat build.yaml 2>/dev/null || echo "No build.yaml found"
+            echo ""
+            echo "=== Trying force regeneration with clean ==="
+            rm -rf .dart_tool/build
             touch lib/core/storage/database.dart
-            dart run build_runner build --delete-conflicting-outputs --verbose
+            dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee retry_codegen.log
+            echo ""
+            echo "=== After retry - searching for database.g.dart ==="
+            find . -name "database.g.dart" -type f 2>/dev/null || echo "Still not found"
+            echo ""
             if [ ! -f "lib/core/storage/database.g.dart" ]; then
               echo "❌ FATAL: Code generation failed after retry"
-              echo "=== Full codegen log ==="
-              cat codegen.log || true
+              echo "=== Retry log ==="
+              cat retry_codegen.log || true
               exit 1
             fi
           fi
           echo "✅ database.g.dart exists"
           ls -la lib/core/storage/database.g.dart
+          echo ""
+          echo "=== First 20 lines of database.g.dart ==="
+          head -20 lib/core/storage/database.g.dart
 
       - name: Run Flutter Analyze
         if: matrix.test-type == 'analyze'

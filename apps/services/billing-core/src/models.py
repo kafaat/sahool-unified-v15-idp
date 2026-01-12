@@ -199,7 +199,7 @@ class Plan(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -208,7 +208,7 @@ class Plan(Base):
         nullable=False,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ آخر تحديث",
     )
 
@@ -286,7 +286,7 @@ class Tenant(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -295,7 +295,7 @@ class Tenant(Base):
         nullable=False,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ آخر تحديث",
     )
 
@@ -405,7 +405,7 @@ class Subscription(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -414,7 +414,7 @@ class Subscription(Base):
         nullable=False,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ آخر تحديث",
     )
 
@@ -581,7 +581,7 @@ class Invoice(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -706,7 +706,7 @@ class Payment(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         comment="تاريخ الإنشاء",
     )
 
@@ -773,7 +773,7 @@ class UsageRecord(Base):
         DateTime(timezone=True),
         nullable=False,
         default=datetime.utcnow,
-        server_default="CURRENT_TIMESTAMP",
+        server_default=text("CURRENT_TIMESTAMP"),
         index=True,
         comment="تاريخ التسجيل",
     )

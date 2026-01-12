@@ -76,6 +76,17 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def sanitize_log_input(value: str) -> str:
+    """
+    Sanitize user input for safe logging to prevent log injection attacks.
+    Removes/escapes newlines, carriage returns, and other control characters.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    # Replace newlines and carriage returns to prevent log injection
+    return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Authentication
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -425,7 +436,7 @@ async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depend
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     alert_data.tenant_id = tenant_id
     alert = await create_alert_internal(alert_data)
-    logger.info(f"Created alert {alert['id']} for field {alert['field_id']}")
+    logger.info(f"Created alert {alert['id']} for field {sanitize_log_input(alert['field_id'])}")
     return alert
 
 
@@ -541,7 +552,7 @@ async def update_alert_endpoint(
                 updated_by=user_id,
             )
 
-        logger.info(f"Updated alert {alert_id}: {old_status} -> {updated_alert.status}")
+        logger.info(f"Updated alert {sanitize_log_input(alert_id)}: {old_status} -> {updated_alert.status}")
         return updated_alert.to_dict()
 
     return alert.to_dict()
@@ -575,7 +586,7 @@ async def delete_alert_endpoint(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     db.commit()
-    logger.info(f"Deleted alert {alert_id}")
+    logger.info(f"Deleted alert {sanitize_log_input(alert_id)}")
     return {"status": "deleted", "alert_id": alert_id}
 
 
@@ -754,7 +765,7 @@ async def create_rule(
     db.commit()
     db.refresh(rule)
 
-    logger.info(f"Created alert rule {rule.id} for field {rule_data.field_id}")
+    logger.info(f"Created alert rule {rule.id} for field {sanitize_log_input(rule_data.field_id)}")
     return rule.to_dict()
 
 
@@ -822,7 +833,7 @@ async def delete_rule(
         raise HTTPException(status_code=404, detail="Rule not found")
 
     db.commit()
-    logger.info(f"Deleted alert rule {rule_id}")
+    logger.info(f"Deleted alert rule {sanitize_log_input(rule_id)}")
     return {"status": "deleted", "rule_id": rule_id}
 
 

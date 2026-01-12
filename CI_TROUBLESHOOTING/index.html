@@ -1375,6 +1375,17 @@
 <span class="w">  </span><span class="nt">continue-on-error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 
+<h3 id="74-shared-package-build-failures-webadmin">7.4 Shared Package Build Failures (Web/Admin)<a class="headerlink" href="#74-shared-package-build-failures-webadmin" title="Permanent link">&para;</a></h3>
+<p><strong>Symptom:</strong> Web App or Admin Dashboard build fails with module not found errors for @sahool packages.</p>
+<p><strong>Cause:</strong> Shared packages (shared-utils, shared-ui, api-client, shared-hooks, i18n) need to be built before the apps that depend on them.</p>
+<p><strong>Solution:</strong> Ensure <code>build:packages</code> script in root package.json includes all required packages:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">&quot;build:packages&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;npm run build --workspace=packages/shared-utils &amp;&amp; npm run build --workspace=packages/i18n &amp;&amp; npm run build --workspace=packages/shared-ui &amp;&amp; npm run build --workspace=packages/api-client &amp;&amp; npm run build --workspace=packages/shared-hooks&quot;</span>
+</code></pre></div>
+
+<p><strong>Prevention:</strong>
+- When adding new shared packages that other apps depend on, add them to <code>build:packages</code>
+- Ensure the CI workflow runs <code>build:packages</code> before building apps
+- Don't use <code>continue-on-error: true</code> on the <code>build:packages</code> step</p>
 <hr />
 <h2 id="quick-reference-common-fixes">Quick Reference: Common Fixes<a class="headerlink" href="#quick-reference-common-fixes" title="Permanent link">&para;</a></h2>
 <table>
@@ -1408,6 +1419,10 @@
 <tr>
 <td>Query param assertion</td>
 <td>Use Pydantic model with Body()</td>
+</tr>
+<tr>
+<td>@sahool/package not found</td>
+<td>Add to <code>build:packages</code> script</td>
 </tr>
 </tbody>
 </table>

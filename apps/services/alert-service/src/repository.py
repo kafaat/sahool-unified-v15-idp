@@ -177,7 +177,8 @@ def update_alert_status(
     Returns:
         Updated alert or None if not found
     """
-    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    query = select(Alert).where(Alert.id == alert_id)
+    alert = db.execute(query).scalar_one_or_none()
 
     if not alert:
         return None
@@ -247,7 +248,8 @@ def delete_alert(db: Session, alert_id: UUID) -> bool:
     Returns:
         True if deleted, False if not found
     """
-    alert = db.query(Alert).filter(Alert.id == alert_id).first()
+    query = select(Alert).where(Alert.id == alert_id)
+    alert = db.execute(query).scalar_one_or_none()
 
     if not alert:
         return False
@@ -392,7 +394,7 @@ def get_alert_rules_by_field(
         query = query.where(AlertRule.tenant_id == tenant_id)
 
     if enabled_only:
-        query = query.where(AlertRule.enabled is True)
+        query = query.where(AlertRule.enabled == True)  # noqa: E712
 
     query = query.order_by(AlertRule.created_at.desc())
 
@@ -410,7 +412,7 @@ def get_enabled_rules(db: Session, tenant_id: UUID | None = None) -> list[AlertR
     Returns:
         List of enabled alert rules
     """
-    query = select(AlertRule).where(AlertRule.enabled is True)
+    query = select(AlertRule).where(AlertRule.enabled == True)  # noqa: E712
 
     if tenant_id:
         query = query.where(AlertRule.tenant_id == tenant_id)
@@ -435,7 +437,8 @@ def update_alert_rule(
     Returns:
         Updated rule or None if not found
     """
-    rule = db.query(AlertRule).filter(AlertRule.id == rule_id).first()
+    query = select(AlertRule).where(AlertRule.id == rule_id)
+    rule = db.execute(query).scalar_one_or_none()
 
     if not rule:
         return None
@@ -460,7 +463,8 @@ def delete_alert_rule(db: Session, rule_id: UUID) -> bool:
     Returns:
         True if deleted, False if not found
     """
-    rule = db.query(AlertRule).filter(AlertRule.id == rule_id).first()
+    query = select(AlertRule).where(AlertRule.id == rule_id)
+    rule = db.execute(query).scalar_one_or_none()
 
     if not rule:
         return False
@@ -480,7 +484,8 @@ def mark_rule_triggered(db: Session, rule_id: UUID) -> AlertRule | None:
     Returns:
         Updated rule or None if not found
     """
-    rule = db.query(AlertRule).filter(AlertRule.id == rule_id).first()
+    query = select(AlertRule).where(AlertRule.id == rule_id)
+    rule = db.execute(query).scalar_one_or_none()
 
     if not rule:
         return None
@@ -507,7 +512,7 @@ def get_rules_ready_to_trigger(
     """
     now = datetime.now(UTC)
 
-    query = select(AlertRule).where(AlertRule.enabled is True)
+    query = select(AlertRule).where(AlertRule.enabled == True)  # noqa: E712
 
     if tenant_id:
         query = query.where(AlertRule.tenant_id == tenant_id)

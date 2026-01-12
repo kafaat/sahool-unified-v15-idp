@@ -69,8 +69,13 @@ jobs:
       - name: Build shared packages
         run: |
           echo "Building shared packages for Web App..."
-          npm run build:packages || echo "⚠️ build:packages script not found, continuing..."
-        continue-on-error: true
+          npm run build:packages 2>&1 | tee build-packages.log || {
+            echo "❌ Failed to build shared packages!"
+            echo "Check build-packages.log for details"
+            cat build-packages.log
+            exit 1
+          }
+          echo "✅ Shared packages built successfully"
 
       - name: Run Lint
         if: matrix.test-type == 'lint'
@@ -157,8 +162,13 @@ jobs:
       - name: Build shared packages
         run: |
           echo "Building shared packages for Admin Dashboard..."
-          npm run build:packages || echo "⚠️ build:packages script not found, continuing..."
-        continue-on-error: true
+          npm run build:packages 2>&1 | tee build-packages.log || {
+            echo "❌ Failed to build shared packages!"
+            echo "Check build-packages.log for details"
+            cat build-packages.log
+            exit 1
+          }
+          echo "✅ Shared packages built successfully"
 
       - name: Run Lint
         if: matrix.test-type == 'lint'

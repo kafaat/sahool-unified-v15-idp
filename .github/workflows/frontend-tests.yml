@@ -726,7 +726,7 @@ jobs:
         run: |
           echo "Running Flutter integration tests..."
           chmod +x integration_test/run_tests.sh
-          ./integration_test/run_tests.sh
+          ./integration_test/run_tests.sh --all
         continue-on-error: true
 
       - name: Upload Integration Test Results

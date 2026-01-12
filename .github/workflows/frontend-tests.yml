@@ -482,6 +482,15 @@ jobs:
         with:
           name: web-build
           path: apps/web/.next
+        continue-on-error: true
+
+      - name: Build Web App if artifact missing
+        run: |
+          if [ ! -d "apps/web/.next" ]; then
+            echo "Building Web App (artifact was missing)..."
+            cd apps/web && npm run build
+          fi
+        continue-on-error: true
 
       - name: Start Web App
         working-directory: apps/web

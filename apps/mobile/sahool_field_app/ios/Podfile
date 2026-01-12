@@ -33,9 +33,9 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
-  # Firebase pods
-  pod 'Firebase/Core'
-  pod 'Firebase/Messaging'
+  # Firebase pods - disabled (requires GoogleService-Info.plist)
+  # pod 'Firebase/Core'
+  # pod 'Firebase/Messaging'
 end
 
 post_install do |installer|

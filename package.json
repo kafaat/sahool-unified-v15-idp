@@ -40,7 +40,7 @@
     "prisma:generate": "for dir in apps/services/*/prisma; do [ -d \"$dir\" ] && (cd \"$(dirname \"$dir\")\" && npx prisma generate > /dev/null 2>&1) || true; done",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:admin": "npm run dev --workspace=apps/admin",
-    "build:packages": "npm run build --workspace=packages/shared-utils && npm run build --workspace=packages/i18n && npm run build --workspace=packages/shared-ui && npm run build --workspace=packages/api-client && npm run build --workspace=packages/shared-hooks",
+    "build:packages": "npm run build --workspace=packages/shared-types && npm run build --workspace=packages/shared-utils && npm run build --workspace=packages/i18n && npm run build --workspace=packages/shared-ui && npm run build --workspace=packages/api-client && npm run build --workspace=packages/shared-hooks",
     "build:web": "npm run build --workspace=apps/web",
     "build:admin": "npm run build --workspace=apps/admin",
     "build:all": "npm run build:packages && npm run build --workspaces --if-present",

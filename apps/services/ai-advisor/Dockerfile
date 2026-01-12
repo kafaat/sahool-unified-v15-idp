@@ -16,6 +16,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Create virtual environment to avoid pip root user warning
+# إنشاء بيئة افتراضية لتجنب تحذير المستخدم الجذر
+ENV VIRTUAL_ENV=/opt/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 # Copy requirements | نسخ المتطلبات
 COPY apps/services/ai-advisor/requirements.txt .
 
@@ -25,13 +31,13 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
-    echo "[install]" >> /root/.pip/pip.conf && \
-    echo "prefer-binary = true" >> /root/.pip/pip.conf
+RUN mkdir -p ~/.pip && \
+    echo "[global]" > ~/.pip/pip.conf && \
+    echo "timeout = 300" >> ~/.pip/pip.conf && \
+    echo "retries = 10" >> ~/.pip/pip.conf && \
+    echo "default-timeout = 300" >> ~/.pip/pip.conf && \
+    echo "[install]" >> ~/.pip/pip.conf && \
+    echo "prefer-binary = true" >> ~/.pip/pip.conf
 
 # Install Python dependencies | تثبيت تبعيات Python
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
@@ -45,9 +51,12 @@ WORKDIR /app
 
 # No runtime system dependencies needed - using Python for healthcheck
 
-# Copy Python packages from builder | نسخ حزم Python من البناء
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+# Copy virtual environment from builder | نسخ البيئة الافتراضية من البناء
+COPY --from=builder /opt/venv /opt/venv
+
+# Set virtual environment path | تعيين مسار البيئة الافتراضية
+ENV VIRTUAL_ENV=/opt/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Create non-root user | إنشاء مستخدم غير جذر
 RUN useradd -m -u 1000 -s /bin/bash appuser && \

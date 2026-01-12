@@ -48,6 +48,9 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 # Copy shared libraries (from repo root)
 COPY shared/ ./shared/
 
+# Copy services-shared modules (crops.py, yemen_varieties.py, etc.)
+COPY apps/services/shared/ ./services_shared/
+
 # Copy source
 COPY apps/services/agro-advisor/src/ ./src/
 

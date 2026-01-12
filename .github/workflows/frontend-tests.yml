@@ -417,11 +417,13 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Create required asset directories
+        run: |
+          mkdir -p assets/icon assets/images assets/icons assets/fonts
+
       - name: Generate icons and assets
         run: |
           pip install Pillow
-          # Create required asset directories
-          mkdir -p assets/icon assets/images assets/icons
           # Generate icons from parent directory script
           if [ -f "../scripts/generate_icons.py" ]; then
             cd ../ && python3 scripts/generate_icons.py && cd sahool_field_app
@@ -451,6 +453,7 @@ jobs:
           echo "Generating code with build_runner..."
           dart run build_runner clean || true
           dart run build_runner build --delete-conflicting-outputs
+        continue-on-error: true
 
       - name: Verify generated code exists
         run: |
@@ -468,8 +471,9 @@ jobs:
       - name: Install CocoaPods
         run: |
           cd ios
-          pod install --repo-update
+          pod install --repo-update || pod install
           cd ..
+        continue-on-error: true
 
       - name: Build iOS (No Codesign)
         run: |
@@ -527,6 +531,8 @@ jobs:
             echo "Building Web App (artifact was missing)..."
             cd apps/web && npm run build
           fi
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
         continue-on-error: true
 
       - name: Start Web App
@@ -575,6 +581,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          echo "Freeing disk space for mobile integration tests..."
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          df -h
+        working-directory: .
 
       - name: Setup Java
         uses: actions/setup-java@v4

@@ -21,7 +21,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from enum import Enum
 from pathlib import Path
@@ -371,7 +371,7 @@ class Plan(BaseModel):
     limits: dict[str, int]  # Feature limits
     is_active: bool = True
     trial_days: int = 14
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class TenantContact(BaseModel):
@@ -394,7 +394,7 @@ class Tenant(BaseModel):
     name_ar: str
     contact: TenantContact
     tax_id: str | None = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     is_active: bool = True
     metadata: dict[str, Any] = {}
 
@@ -424,8 +424,8 @@ class Subscription(BaseModel):
     stripe_subscription_id: str | None = None
 
     # Metadata
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class InvoiceLineItem(BaseModel):
@@ -472,7 +472,7 @@ class Invoice(BaseModel):
     notes_ar: str | None = None
 
     # Metadata
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     stripe_invoice_id: str | None = None
 
 
@@ -497,7 +497,7 @@ class Payment(BaseModel):
     receipt_url: str | None = None
 
     # Metadata
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class UsageRecord(BaseModel):
@@ -507,7 +507,7 @@ class UsageRecord(BaseModel):
     tenant_id: str
     metric: str
     quantity: int
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = {}
 
 
@@ -561,8 +561,78 @@ class CreatePaymentRequest(BaseModel):
 # =============================================================================
 
 # INVOICE_COUNTER: Global counter for invoice numbers
-# Will be replaced with database sequence in production
+# NOTE: This is an in-memory counter and will reset on service restart.
+# TODO: In production, this should be replaced with a database sequence or
+# a distributed counter (e.g., Redis INCR) to ensure unique invoice numbers
+# across multiple instances and restarts.
 INVOICE_COUNTER: int = 0
+
+# PLANS: In-memory plan definitions for backward compatibility with generate_invoice function
+# NOTE: This is a legacy structure. The service now uses database-driven plans via BillingRepository.
+# This dict is kept for backward compatibility with the generate_invoice() helper function.
+# New code should fetch plans from the database instead of using this dict.
+PLANS = {
+    "free": type(
+        "Plan",
+        (),
+        {
+            "plan_id": "free",
+            "name": "Free",
+            "name_ar": "مجاني",
+            "pricing": {
+                "monthly_usd": "0",
+                "quarterly_usd": "0",
+                "yearly_usd": "0",
+                "setup_fee_usd": "0",
+            },
+        },
+    )(),
+    "starter": type(
+        "Plan",
+        (),
+        {
+            "plan_id": "starter",
+            "name": "Starter",
+            "name_ar": "المبتدئ",
+            "pricing": {
+                "monthly_usd": "29",
+                "quarterly_usd": "79",
+                "yearly_usd": "290",
+                "setup_fee_usd": "0",
+            },
+        },
+    )(),
+    "professional": type(
+        "Plan",
+        (),
+        {
+            "plan_id": "professional",
+            "name": "Professional",
+            "name_ar": "الاحترافي",
+            "pricing": {
+                "monthly_usd": "99",
+                "quarterly_usd": "269",
+                "yearly_usd": "990",
+                "setup_fee_usd": "0",
+            },
+        },
+    )(),
+    "enterprise": type(
+        "Plan",
+        (),
+        {
+            "plan_id": "enterprise",
+            "name": "Enterprise",
+            "name_ar": "المؤسسات",
+            "pricing": {
+                "monthly_usd": "499",
+                "quarterly_usd": "1349",
+                "yearly_usd": "4990",
+                "setup_fee_usd": "0",
+            },
+        },
+    )(),
+}
 
 
 async def init_default_plans_in_db():
@@ -886,7 +956,7 @@ def generate_invoice_number() -> str:
     """توليد رقم الفاتورة"""
     global INVOICE_COUNTER
     INVOICE_COUNTER += 1
-    year = datetime.utcnow().year
+    year = datetime.now(UTC).year
     return f"SAH-{year}-{INVOICE_COUNTER:04d}"
 
 
@@ -961,7 +1031,7 @@ async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) ->
         return {"allowed": True, "limit": None, "used": 0, "remaining": "unlimited"}
 
     # Calculate current usage for the current month
-    current_month_start = datetime.utcnow().replace(
+    current_month_start = datetime.now(UTC).replace(
         day=1, hour=0, minute=0, second=0, microsecond=0
     )
     used = await repo.usage_records.get_metric_count(
@@ -981,7 +1051,7 @@ async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) ->
 def generate_invoice(subscription: Subscription) -> Invoice:
     """توليد فاتورة للاشتراك"""
     plan = PLANS[subscription.plan_id]
-    price = get_plan_price(plan, subscription.billing_cycle)
+    price = get_plan_price(plan.pricing, subscription.billing_cycle)
 
     line_items = [
         InvoiceLineItem(
@@ -2073,7 +2143,7 @@ async def tharwatt_webhook(
     # Update payment status
     if payload.status == "completed":
         payment.status = PaymentStatus.SUCCEEDED
-        payment.processed_at = datetime.utcnow()
+        payment.processed_at = datetime.now(UTC)
 
         # Update invoice
         invoice = INVOICES.get(payment.invoice_id)
@@ -2201,7 +2271,7 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
             payment = PAYMENTS.get(payment_id)
             if payment:
                 payment.status = PaymentStatus.SUCCEEDED
-                payment.processed_at = datetime.utcnow()
+                payment.processed_at = datetime.now(UTC)
                 payment.stripe_payment_id = data.get("id")
 
                 # Update invoice

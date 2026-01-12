@@ -2160,7 +2160,7 @@ services:
     ports:
       - "8110:8110"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy

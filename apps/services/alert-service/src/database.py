@@ -35,7 +35,8 @@ engine = create_engine(
     echo=False,  # Set to True for SQL query logging (debug only)
     connect_args={
         "connect_timeout": 10,  # Connection timeout in seconds
-        "options": "-c statement_timeout=30000",  # 30s query timeout
+        # Note: statement_timeout removed - PgBouncer doesn't support PostgreSQL startup parameters
+        # If needed, set statement_timeout at the session level or via SQL: SET statement_timeout = '30s'
     },
 )
 

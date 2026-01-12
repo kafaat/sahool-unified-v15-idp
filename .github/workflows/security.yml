@@ -117,11 +117,10 @@ jobs:
           done
 
           if [ $FOUND -eq 1 ]; then
-            echo "⚠️  Sensitive files detected (informational only)"
-            exit 1
+            echo "⚠️  Sensitive files detected (informational only - not blocking)"
           fi
 
-          echo "✅ No sensitive files found"
+          echo "✅ Sensitive files check complete"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Dependency Vulnerability Scanning

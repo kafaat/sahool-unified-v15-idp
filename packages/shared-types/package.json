@@ -2,17 +2,39 @@
   "name": "@sahool/shared-types",
   "version": "1.0.0",
   "description": "Shared TypeScript types for SAHOOL platform",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./auth": "./src/auth.ts",
-    "./api": "./src/api.ts",
-    "./express": "./src/express.ts",
-    "./websocket": "./src/websocket.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./auth": {
+      "import": "./dist/auth.js",
+      "require": "./dist/auth.js",
+      "types": "./dist/auth.d.ts"
+    },
+    "./api": {
+      "import": "./dist/api.js",
+      "require": "./dist/api.js",
+      "types": "./dist/api.d.ts"
+    },
+    "./express": {
+      "import": "./dist/express.js",
+      "require": "./dist/express.js",
+      "types": "./dist/express.d.ts"
+    },
+    "./websocket": {
+      "import": "./dist/websocket.js",
+      "require": "./dist/websocket.js",
+      "types": "./dist/websocket.d.ts"
+    }
   },
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
   },
   "keywords": [
     "sahool",

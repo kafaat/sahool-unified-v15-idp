@@ -170,7 +170,7 @@ class SecureScreen extends ConsumerStatefulWidget {
 }
 
 class _SecureScreenState extends ConsumerState<SecureScreen> {
-  final _secureApplicationController = SecureApplicationController(const SecureApplicationState());
+  final _secureApplicationController = SecureApplicationController(SecureApplicationState());
   bool _isSecured = false;
 
   @override

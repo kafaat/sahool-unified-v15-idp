@@ -56,14 +56,10 @@ jobs:
           pip install --upgrade pip
           pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pydantic jsonschema pyyaml
 
-      - name: Run AI module tests with coverage
+      - name: Run AI module tests
         run: |
           echo "🧪 Running AI module tests..."
-          pytest tests/unit/ai/ -v --tb=short \
-            --cov=tests/unit/ai \
-            --cov-report=xml:coverage-ai.xml \
-            --cov-report=html:coverage-ai-html \
-            --cov-report=term-missing
+          pytest tests/unit/ai/ -v --tb=short
         env:
           ENVIRONMENT: test
           PYTHONPATH: .
@@ -72,16 +68,9 @@ jobs:
           DATABASE_URL: ""
           NATS_URL: ""
 
-      - name: Upload AI coverage report
-        uses: actions/upload-artifact@v4
+      - name: Test summary
         if: always()
-        with:
-          name: ai-coverage-report
-          path: |
-            coverage-ai.xml
-            coverage-ai-html/
-          retention-days: 30
-          if-no-files-found: warn
+        run: echo "✅ AI module tests completed"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # TypeScript Tests

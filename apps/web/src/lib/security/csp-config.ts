@@ -14,6 +14,7 @@ export interface CSPDirectives {
   "default-src"?: string[];
   "script-src"?: string[];
   "style-src"?: string[];
+  "style-src-attr"?: string[];
   "img-src"?: string[];
   "font-src"?: string[];
   "connect-src"?: string[];
@@ -103,6 +104,12 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       "https://fonts.googleapis.com",
       // Allow inline styles only in development
       ...(isDevelopment ? ["'unsafe-inline'"] : []),
+    ],
+
+    // Style attributes (inline style="...") - Allow in development
+    "style-src-attr": [
+      ...(isDevelopment ? ["'unsafe-inline'"] : []),
+      ...(nonce ? [`'nonce-${nonce}'`] : []),
     ],
 
     // Image sources

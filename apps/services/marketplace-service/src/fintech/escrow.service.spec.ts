@@ -835,16 +835,14 @@ describe("EscrowService", () => {
               creditEvent: {
                 create: jest.fn().mockResolvedValue({}),
               },
-              $queryRaw: jest
-                .fn()
-                .mockResolvedValue([
-                  {
-                    id: "buyer-wallet",
-                    balance: 5000,
-                    escrowBalance: 1000,
-                    version: 1,
-                  },
-                ]),
+              $queryRaw: jest.fn().mockResolvedValue([
+                {
+                  id: "buyer-wallet",
+                  balance: 5000,
+                  escrowBalance: 1000,
+                  version: 1,
+                },
+              ]),
             };
             return callback(tx);
           },

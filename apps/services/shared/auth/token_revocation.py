@@ -286,7 +286,9 @@ class RedisTokenRevocationStore:
             logger.info(
                 "All user tokens revoked",
                 extra={
-                    "user_id_prefix": _sanitize_log_value(user_id[:8] if len(user_id) > 8 else user_id),
+                    "user_id_prefix": _sanitize_log_value(
+                        user_id[:8] if len(user_id) > 8 else user_id
+                    ),
                     "reason": _sanitize_log_value(reason),
                 },
             )
@@ -361,7 +363,9 @@ class RedisTokenRevocationStore:
             logger.info(
                 "All tenant tokens revoked",
                 extra={
-                    "tenant_id_prefix": _sanitize_log_value(tenant_id[:8] if len(tenant_id) > 8 else tenant_id),
+                    "tenant_id_prefix": _sanitize_log_value(
+                        tenant_id[:8] if len(tenant_id) > 8 else tenant_id
+                    ),
                     "reason": _sanitize_log_value(reason),
                 },
             )
@@ -436,7 +440,9 @@ class RedisTokenRevocationStore:
             logger.info(
                 "Token family revoked",
                 extra={
-                    "family_id_prefix": _sanitize_log_value(family_id[:8] if len(family_id) > 8 else family_id),
+                    "family_id_prefix": _sanitize_log_value(
+                        family_id[:8] if len(family_id) > 8 else family_id
+                    ),
                     "reason": _sanitize_log_value(reason),
                 },
             )

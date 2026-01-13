@@ -192,32 +192,32 @@ async def root():
         "version": SERVICE_VERSION,
         "description": "Knowledge Graph Service - Manages crop-disease-treatment relationships",
         "endpoints": {
-            "health": {
-                "GET": "/healthz",
-                "GET": "/readyz",
-                "GET": "/health",
-            },
-            "docs": {
-                "GET": "/docs",
-                "GET": "/redoc",
-            },
-            "entities": {
-                "GET": "/api/v1/entities/crops",
-                "GET": "/api/v1/entities/diseases",
-                "GET": "/api/v1/entities/treatments",
-                "GET": "/api/v1/entities/search",
-            },
-            "relationships": {
-                "GET": "/api/v1/relationships/affected-crops/{disease_id}",
-                "GET": "/api/v1/relationships/disease-treatments/{disease_id}",
-                "GET": "/api/v1/relationships/diseases-by-crop/{crop_id}",
-                "GET": "/api/v1/relationships/path/{source_type}/{source_id}/{target_type}/{target_id}",
-            },
-            "graphs": {
-                "GET": "/api/v1/graphs/stats",
-                "GET": "/api/v1/graphs/search",
-                "GET": "/api/v1/graphs/path",
-            },
+            "health": [
+                "GET /healthz",
+                "GET /readyz",
+                "GET /health",
+            ],
+            "docs": [
+                "GET /docs",
+                "GET /redoc",
+            ],
+            "entities": [
+                "GET /api/v1/entities/crops",
+                "GET /api/v1/entities/diseases",
+                "GET /api/v1/entities/treatments",
+                "GET /api/v1/entities/search",
+            ],
+            "relationships": [
+                "GET /api/v1/relationships/affected-crops/{disease_id}",
+                "GET /api/v1/relationships/disease-treatments/{disease_id}",
+                "GET /api/v1/relationships/diseases-by-crop/{crop_id}",
+                "GET /api/v1/relationships/path/{source_type}/{source_id}/{target_type}/{target_id}",
+            ],
+            "graphs": [
+                "GET /api/v1/graphs/stats",
+                "GET /api/v1/graphs/search",
+                "GET /api/v1/graphs/path",
+            ],
         },
     }
 

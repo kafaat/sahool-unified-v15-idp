@@ -14,3 +14,6 @@ export * from "./express";
 
 // WebSocket types
 export * from "./websocket";
+
+// Agricultural Monitoring types (Remote Sensing + AI)
+export * from "./monitoring";

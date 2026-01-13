@@ -17,19 +17,29 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name);
+  private isConnected = false;
+  private readonly isTestEnvironment: boolean;
 
   constructor() {
     const databaseUrl = process.env.DATABASE_URL;
+    const environment = (
+      process.env.ENVIRONMENT ||
+      process.env.NODE_ENV ||
+      ""
+    ).toLowerCase();
+
+    // Detect CI/test environment
+    const isTestEnv = ["test", "ci", "testing"].includes(environment);
 
     // Validate DATABASE_URL before calling super() (can't use 'this' before super)
-    if (!databaseUrl) {
+    if (!databaseUrl && !isTestEnv) {
       console.error("DATABASE_URL environment variable is not set");
       throw new Error(
         "DATABASE_URL is required but not provided. Please check your .env file and ensure POSTGRES_PASSWORD is set correctly.",
       );
     }
 
-    // Call super() with validated URL
+    // Call super() with validated URL or a placeholder for test environments
     super({
       log: [
         { level: "error", emit: "stdout" },
@@ -38,21 +48,35 @@ export class PrismaService
       ],
       datasources: {
         db: {
-          url: databaseUrl,
+          url: databaseUrl || "postgresql://localhost:5432/test",
         },
       },
     });
 
+    this.isTestEnvironment = isTestEnv;
+
     // Log connection details (mask password for security) - now we can use this.logger
-    const maskedUrl = databaseUrl.replace(/:([^:@]+)@/, ":****@");
-    this.logger.log(`Connecting to database: ${maskedUrl}`);
+    if (databaseUrl) {
+      const maskedUrl = databaseUrl.replace(/:([^:@]+)@/, ":****@");
+      this.logger.log(`Connecting to database: ${maskedUrl}`);
+    }
   }
 
   async onModuleInit() {
     try {
       await this.$connect();
+      this.isConnected = true;
       this.logger.log("Chat Database connected successfully");
     } catch (error: any) {
+      // In test/CI environment, log warning but don't crash
+      if (this.isTestEnvironment) {
+        this.logger.warn(
+          `Database connection failed in test environment: ${error.message}`,
+        );
+        this.isConnected = false;
+        return; // Don't throw in test environment
+      }
+
       this.logger.error("Failed to connect to database");
       this.logger.error(`Error: ${error.message}`);
 

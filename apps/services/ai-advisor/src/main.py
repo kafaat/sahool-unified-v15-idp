@@ -33,6 +33,30 @@ from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
 
+# Import context engineering modules | استيراد وحدات هندسة السياق
+try:
+    from shared.ai.context_engineering.compression import (
+        CompressionStrategy,
+        ContextCompressor,
+    )
+    from shared.ai.context_engineering.evaluation import (
+        EvaluationCriteria,
+        RecommendationType,
+        RecommendationEvaluator,
+    )
+    from shared.ai.context_engineering.memory import (
+        FarmMemory,
+        MemoryConfig,
+        MemoryType,
+        RelevanceScore,
+    )
+
+    CONTEXT_ENGINEERING_AVAILABLE = True
+except ImportError:
+    CONTEXT_ENGINEERING_AVAILABLE = False
+    logger = structlog.get_logger()
+    logger.warning("Context engineering modules not available")
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared.errors_py import setup_exception_handlers
 
@@ -133,6 +157,36 @@ class AgentResponse(BaseModel):
     error: str | None = None
 
 
+class CompressionInfo(BaseModel):
+    """Context compression information | معلومات ضغط السياق"""
+
+    original_tokens: int
+    compressed_tokens: int
+    compression_ratio: float
+    savings_percentage: float
+    strategy: str | None = None
+
+
+class EvaluationInfo(BaseModel):
+    """Recommendation evaluation information | معلومات تقييم التوصيات"""
+
+    overall_score: float
+    grade: str
+    is_approved: bool
+    feedback: str
+    improvements: list[str]
+    criteria_scores: dict[str, float] | None = None
+
+
+class EnhancedAgentResponse(AgentResponse):
+    """Enhanced agent response with compression and evaluation | استجابة وكيل محسنة"""
+
+    compression: CompressionInfo | None = None
+    evaluation: EvaluationInfo | None = None
+    memory_stored: bool = False
+    context_tokens_used: int | None = None
+
+
 # Global instances | المثيلات العامة
 app_state = {}
 
@@ -176,6 +230,43 @@ async def lifespan(app: FastAPI):
 
         supervisor = Supervisor(agents=agents)
 
+        # Initialize context engineering modules | تهيئة وحدات هندسة السياق
+        context_compressor = None
+        farm_memory = None
+        recommendation_evaluator = None
+
+        if CONTEXT_ENGINEERING_AVAILABLE:
+            try:
+                # Initialize compression | تهيئة الضغط
+                context_compressor = ContextCompressor(
+                    default_strategy=CompressionStrategy.HYBRID, max_tokens=4000
+                )
+                logger.info("context_compressor_initialized")
+
+                # Initialize memory with tenant isolation | تهيئة الذاكرة مع عزل المستأجرين
+                memory_config = MemoryConfig(
+                    window_size=20,
+                    max_entries=1000,
+                    ttl_hours=24,
+                    enable_compression=True,
+                    persist_to_storage=False,
+                )
+                farm_memory = FarmMemory(config=memory_config)
+                logger.info("farm_memory_initialized")
+
+                # Initialize evaluator with heuristics fallback | تهيئة المُقيّم مع القواعس الاحتياطية
+                recommendation_evaluator = RecommendationEvaluator(
+                    llm_client=None,  # Will use heuristics fallback
+                    passing_threshold=0.7,
+                    use_heuristics_fallback=True,
+                )
+                logger.info("recommendation_evaluator_initialized")
+
+            except Exception as e:
+                logger.error("context_engineering_initialization_failed", error=str(e))
+                # Continue without context engineering modules if initialization fails
+                CONTEXT_ENGINEERING_AVAILABLE = False
+
         # Store in app state | التخزين في حالة التطبيق
         app_state["embeddings"] = embeddings_manager
         app_state["retriever"] = knowledge_retriever
@@ -187,6 +278,9 @@ async def lifespan(app: FastAPI):
         }
         app_state["agents"] = agents
         app_state["supervisor"] = supervisor
+        app_state["context_compressor"] = context_compressor
+        app_state["farm_memory"] = farm_memory
+        app_state["recommendation_evaluator"] = recommendation_evaluator
 
         # Initialize A2A agent if available | تهيئة وكيل A2A إذا كان متاحاً
         if A2A_AVAILABLE:
@@ -225,6 +319,16 @@ async def lifespan(app: FastAPI):
     # Close revocation store
     if revocation_store := app_state.get("revocation_store"):
         await revocation_store.close()
+
+    # Log memory and evaluation statistics | تسجيل إحصائيات الذاكرة والتقييم
+    if farm_memory := app_state.get("farm_memory"):
+        stats = farm_memory.get_stats()
+        logger.info("farm_memory_stats", **stats)
+
+    if evaluator := app_state.get("recommendation_evaluator"):
+        stats = evaluator.get_stats()
+        logger.info("evaluation_stats", **stats)
+
     app_state.clear()
 
 
@@ -319,17 +423,22 @@ async def health_check():
     }
 
 
-@app.post("/v1/advisor/ask", response_model=AgentResponse, tags=["Advisor"])
+@app.post("/v1/advisor/ask", response_model=EnhancedAgentResponse, tags=["Advisor"])
 async def ask_question(request: QuestionRequest):
     """
     Ask a general question to the AI advisor
     طرح سؤال عام على المستشار الذكي
 
     The supervisor will route the question to appropriate agents.
+    Responses are compressed to optimize context window usage.
     سيوجه المشرف السؤال إلى الوكلاء المناسبين.
+    يتم ضغط الاستجابات لتحسين استخدام نافذة السياق.
     """
     try:
         supervisor = app_state.get("supervisor")
+        context_compressor = app_state.get("context_compressor")
+        farm_memory = app_state.get("farm_memory")
+
         if not supervisor:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -349,14 +458,74 @@ async def ask_question(request: QuestionRequest):
                 warnings=warnings,
             )
 
+        # Compress context if available | ضغط السياق إذا كان متاحاً
+        compression_info = None
+        compressed_context = request.context
+
+        if CONTEXT_ENGINEERING_AVAILABLE and context_compressor and request.context:
+            try:
+                compression_result = context_compressor.compress_field_data(
+                    request.context, strategy=CompressionStrategy.HYBRID
+                )
+                compression_info = CompressionInfo(
+                    original_tokens=compression_result.original_tokens,
+                    compressed_tokens=compression_result.compressed_tokens,
+                    compression_ratio=compression_result.compression_ratio,
+                    savings_percentage=compression_result.savings_percentage,
+                    strategy=compression_result.strategy.value,
+                )
+                compressed_context = {
+                    "original": request.context,
+                    "compressed": compression_result.compressed_text,
+                }
+                logger.info(
+                    "context_compressed",
+                    original_tokens=compression_result.original_tokens,
+                    compressed_tokens=compression_result.compressed_tokens,
+                    savings_pct=compression_result.savings_percentage,
+                )
+            except Exception as e:
+                logger.warning("context_compression_failed", error=str(e))
+                # Continue with original context if compression fails
+
         # Coordinate agents to answer
         # تنسيق الوكلاء للإجابة
         result = await supervisor.coordinate(
             query=sanitized_question,
-            context=request.context,
+            context=compressed_context or request.context,
         )
 
-        return AgentResponse(status="success", data=result)
+        # Store interaction in memory if available | تخزين التفاعل في الذاكرة إذا كان متاحاً
+        memory_stored = False
+        if CONTEXT_ENGINEERING_AVAILABLE and farm_memory and request.context:
+            try:
+                tenant_id = request.context.get(
+                    "tenant_id", request.context.get("field_id", "default")
+                )
+                field_id = request.context.get("field_id")
+
+                farm_memory.store(
+                    tenant_id=tenant_id,
+                    content={
+                        "question": sanitized_question,
+                        "response_summary": str(result).split("\n")[0][:200],
+                    },
+                    memory_type=MemoryType.CONVERSATION,
+                    field_id=field_id,
+                    relevance=RelevanceScore.HIGH,
+                )
+                memory_stored = True
+                logger.info("conversation_stored_in_memory", tenant_id=tenant_id)
+            except Exception as e:
+                logger.warning("memory_storage_failed", error=str(e))
+                # Continue even if memory storage fails
+
+        return EnhancedAgentResponse(
+            status="success",
+            data=result,
+            compression=compression_info,
+            memory_stored=memory_stored,
+        )
 
     except Exception as e:
         logger.error("ask_question_failed", error=str(e))
@@ -408,17 +577,22 @@ async def diagnose_disease(request: DiagnoseRequest):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@app.post("/v1/advisor/recommend", response_model=AgentResponse, tags=["Advisor"])
+@app.post("/v1/advisor/recommend", response_model=EnhancedAgentResponse, tags=["Advisor"])
 async def get_recommendations(request: RecommendationRequest):
     """
     Get agricultural recommendations
     الحصول على توصيات زراعية
 
     Routes to appropriate agent based on recommendation type.
+    Evaluates recommendations for quality and stores in memory.
     يوجه إلى الوكيل المناسب بناءً على نوع التوصية.
+    يقيم التوصيات من حيث الجودة ويخزنها في الذاكرة.
     """
     try:
         agents = app_state.get("agents")
+        farm_memory = app_state.get("farm_memory")
+        recommendation_evaluator = app_state.get("recommendation_evaluator")
+
         if not agents:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -448,7 +622,85 @@ async def get_recommendations(request: RecommendationRequest):
                 detail=f"Unknown recommendation type: {request.recommendation_type}",
             )
 
-        return AgentResponse(status="success", data=result)
+        # Evaluate recommendation if evaluator is available | تقييم التوصية إذا كان المقيم متاحاً
+        evaluation_info = None
+        if CONTEXT_ENGINEERING_AVAILABLE and recommendation_evaluator and result:
+            try:
+                recommendation_text = str(result).split("\n")[0] if isinstance(result, dict) else str(result)
+
+                # Map recommendation type to evaluation type | تعيين نوع التوصية إلى نوع التقييم
+                type_mapping = {
+                    "irrigation": RecommendationType.IRRIGATION,
+                    "fertilizer": RecommendationType.FERTILIZATION,
+                    "pest": RecommendationType.PEST_CONTROL,
+                }
+                eval_type = type_mapping.get(request.recommendation_type, RecommendationType.GENERAL)
+
+                eval_result = recommendation_evaluator.evaluate(
+                    recommendation=recommendation_text,
+                    context=request.field_data,
+                    query=f"Provide {request.recommendation_type} for {request.crop_type}",
+                    recommendation_type=eval_type,
+                )
+
+                evaluation_info = EvaluationInfo(
+                    overall_score=eval_result.overall_score,
+                    grade=eval_result.grade.value,
+                    is_approved=eval_result.is_approved,
+                    feedback=eval_result.feedback,
+                    improvements=eval_result.improvements,
+                    criteria_scores={
+                        k.value: v.score for k, v in eval_result.scores.items()
+                    },
+                )
+
+                logger.info(
+                    "recommendation_evaluated",
+                    type=request.recommendation_type,
+                    score=eval_result.overall_score,
+                    approved=eval_result.is_approved,
+                )
+            except Exception as e:
+                logger.warning("recommendation_evaluation_failed", error=str(e))
+                # Continue even if evaluation fails
+
+        # Store recommendation in memory if available | تخزين التوصية في الذاكرة إذا كان متاحاً
+        memory_stored = False
+        if CONTEXT_ENGINEERING_AVAILABLE and farm_memory:
+            try:
+                tenant_id = request.field_data.get("tenant_id", "default") if request.field_data else "default"
+                field_id = request.field_data.get("field_id") if request.field_data else None
+
+                # Determine relevance based on evaluation
+                relevance = RelevanceScore.HIGH
+                if evaluation_info and not evaluation_info.is_approved:
+                    relevance = RelevanceScore.MEDIUM
+
+                farm_memory.store(
+                    tenant_id=tenant_id,
+                    content={
+                        "type": request.recommendation_type,
+                        "crop_type": request.crop_type,
+                        "growth_stage": request.growth_stage,
+                        "recommendation": str(result).split("\n")[0][:300],
+                        "approved": evaluation_info.is_approved if evaluation_info else None,
+                    },
+                    memory_type=MemoryType.RECOMMENDATION,
+                    field_id=field_id,
+                    relevance=relevance,
+                )
+                memory_stored = True
+                logger.info("recommendation_stored_in_memory", tenant_id=tenant_id)
+            except Exception as e:
+                logger.warning("memory_storage_failed", error=str(e))
+                # Continue even if memory storage fails
+
+        return EnhancedAgentResponse(
+            status="success",
+            data=result,
+            evaluation=evaluation_info,
+            memory_stored=memory_stored,
+        )
 
     except HTTPException:
         raise
@@ -457,18 +709,22 @@ async def get_recommendations(request: RecommendationRequest):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@app.post("/v1/advisor/analyze-field", response_model=AgentResponse, tags=["Advisor"])
+@app.post("/v1/advisor/analyze-field", response_model=EnhancedAgentResponse, tags=["Advisor"])
 async def analyze_field(request: FieldAnalysisRequest):
     """
     Comprehensive field analysis
     تحليل شامل للحقل
 
     Coordinates multiple agents for complete field assessment.
+    Results are compressed and stored in memory for future reference.
     ينسق وكلاء متعددين لتقييم شامل للحقل.
+    يتم ضغط النتائج وتخزينها في الذاكرة للرجوع إليها لاحقاً.
     """
     try:
         agents = app_state.get("agents")
         tools = app_state.get("tools")
+        context_compressor = app_state.get("context_compressor")
+        farm_memory = app_state.get("farm_memory")
 
         if not agents or not tools:
             raise HTTPException(
@@ -530,13 +786,64 @@ async def analyze_field(request: FieldAnalysisRequest):
             )
             results["yield_prediction"] = yield_prediction
 
-        return AgentResponse(
+        # Compress field analysis results | ضغط نتائج تحليل الحقل
+        compression_info = None
+        if CONTEXT_ENGINEERING_AVAILABLE and context_compressor:
+            try:
+                compression_result = context_compressor.compress_field_data(
+                    {"field_id": request.field_id, "crop_type": request.crop_type, **results},
+                    strategy=CompressionStrategy.HYBRID,
+                )
+                compression_info = CompressionInfo(
+                    original_tokens=compression_result.original_tokens,
+                    compressed_tokens=compression_result.compressed_tokens,
+                    compression_ratio=compression_result.compression_ratio,
+                    savings_percentage=compression_result.savings_percentage,
+                    strategy=compression_result.strategy.value,
+                )
+                logger.info(
+                    "field_analysis_compressed",
+                    field_id=request.field_id,
+                    original_tokens=compression_result.original_tokens,
+                    compressed_tokens=compression_result.compressed_tokens,
+                )
+            except Exception as e:
+                logger.warning("field_analysis_compression_failed", error=str(e))
+                # Continue even if compression fails
+
+        # Store field state in memory | تخزين حالة الحقل في الذاكرة
+        memory_stored = False
+        if CONTEXT_ENGINEERING_AVAILABLE and farm_memory:
+            try:
+                farm_memory.store(
+                    tenant_id="default",
+                    content={
+                        "crop_type": request.crop_type,
+                        "ndvi": satellite_data.get("ndvi") if isinstance(satellite_data, dict) else None,
+                        "analysis_summary": str(field_analysis).split("\n")[0][:200] if field_analysis else "",
+                        "disease_risk_present": "disease_risk" in results,
+                    },
+                    memory_type=MemoryType.FIELD_STATE,
+                    field_id=request.field_id,
+                    relevance=RelevanceScore.CRITICAL,
+                )
+                memory_stored = True
+                logger.info("field_state_stored_in_memory", field_id=request.field_id)
+            except Exception as e:
+                logger.warning("memory_storage_failed", error=str(e))
+                # Continue even if memory storage fails
+
+        response_data = {
+            "field_id": request.field_id,
+            "crop_type": request.crop_type,
+            "analysis": results,
+        }
+
+        return EnhancedAgentResponse(
             status="success",
-            data={
-                "field_id": request.field_id,
-                "crop_type": request.crop_type,
-                "analysis": results,
-            },
+            data=response_data,
+            compression=compression_info,
+            memory_stored=memory_stored,
         )
 
     except Exception as e:
@@ -617,6 +924,131 @@ async def get_rag_info():
     except Exception as e:
         logger.error("get_rag_info_failed", error=str(e))
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/v1/advisor/memory/context", tags=["Memory"])
+async def get_memory_context(
+    tenant_id: str | None = None,
+    field_id: str | None = None,
+    query: str | None = None,
+    max_tokens: int = 2000,
+):
+    """
+    Retrieve relevant context from memory
+    استرجاع السياق ذي الصلة من الذاكرة
+
+    Returns relevant memory entries for a given query.
+    يعيد إدخالات الذاكرة ذات الصلة للاستعلام المعطى.
+    """
+    try:
+        farm_memory = app_state.get("farm_memory")
+
+        if not CONTEXT_ENGINEERING_AVAILABLE or not farm_memory:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Memory system not available",
+            )
+
+        if not tenant_id:
+            tenant_id = "default"
+
+        if not query:
+            query = "all"
+
+        context = farm_memory.get_relevant_context(
+            tenant_id=tenant_id,
+            query=query,
+            field_id=field_id,
+            max_tokens=max_tokens,
+        )
+
+        # Also get sliding window for recent entries
+        window_entries = farm_memory.get_sliding_window(
+            tenant_id=tenant_id,
+            field_id=field_id,
+        )
+
+        return {
+            "status": "success",
+            "tenant_id": tenant_id,
+            "field_id": field_id,
+            "context": context,
+            "recent_entries_count": len(window_entries),
+            "memory_stats": farm_memory.get_stats(),
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("get_memory_context_failed", error=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/v1/advisor/evaluation/stats", tags=["Evaluation"])
+async def get_evaluation_stats():
+    """
+    Get recommendation evaluation statistics
+    الحصول على إحصائيات تقييم التوصيات
+
+    Returns statistics about evaluated recommendations.
+    يعيد إحصائيات التوصيات المقيمة.
+    """
+    try:
+        evaluator = app_state.get("recommendation_evaluator")
+
+        if not CONTEXT_ENGINEERING_AVAILABLE or not evaluator:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Evaluation system not available",
+            )
+
+        stats = evaluator.get_stats()
+
+        return {
+            "status": "success",
+            "evaluation_stats": stats,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("get_evaluation_stats_failed", error=str(e))
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/v1/advisor/context-engineering/status", tags=["System"])
+async def get_context_engineering_status():
+    """
+    Get context engineering modules status
+    الحصول على حالة وحدات هندسة السياق
+    """
+    compressor = app_state.get("context_compressor")
+    memory = app_state.get("farm_memory")
+    evaluator = app_state.get("recommendation_evaluator")
+
+    memory_stats = memory.get_stats() if memory else None
+    eval_stats = evaluator.get_stats() if evaluator else None
+
+    return {
+        "status": "success",
+        "context_engineering_available": CONTEXT_ENGINEERING_AVAILABLE,
+        "modules": {
+            "compression": {
+                "available": compressor is not None,
+                "type": "ContextCompressor",
+            },
+            "memory": {
+                "available": memory is not None,
+                "type": "FarmMemory",
+                "stats": memory_stats,
+            },
+            "evaluation": {
+                "available": evaluator is not None,
+                "type": "RecommendationEvaluator",
+                "stats": eval_stats,
+            },
+        },
+    }
 
 
 @app.get("/v1/advisor/cost/usage", tags=["Monitoring"])

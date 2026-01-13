@@ -25,6 +25,18 @@ from pydantic import BaseModel, Field
 sys.path.insert(0, "/app")
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+# Context Engineering Integration
+try:
+    from context_integration import (
+        compress_soil_analysis,
+        compress_crop_data,
+        FertilizerRecommendationMemory,
+        evaluate_fertilizer_recommendation,
+    )
+    CONTEXT_ENGINEERING_AVAILABLE = True
+except ImportError:
+    CONTEXT_ENGINEERING_AVAILABLE = False
+
 try:
     from shared.contracts.actions import (
         ActionTemplate,
@@ -38,15 +50,36 @@ try:
 except ImportError:
     ACTION_TEMPLATE_AVAILABLE = False
 
-app = FastAPI(
-    title="SAHOOL Fertilizer Advisor | مستشار السماد",
-    version="15.3.0",
-    description="Comprehensive NPK recommendations, soil analysis, and fertilization scheduling",
-)
+def create_app():
+    """Create and configure the FastAPI application."""
+    app = FastAPI(
+        title="SAHOOL Fertilizer Advisor | مستشار السماد",
+        version="15.3.0",
+        description="Comprehensive NPK recommendations, soil analysis, and fertilization scheduling",
+    )
 
-# Setup unified error handling
-setup_exception_handlers(app)
-add_request_id_middleware(app)
+    # Setup unified error handling
+    setup_exception_handlers(app)
+    add_request_id_middleware(app)
+
+    # Context Engineering: Initialize recommendation memory
+    if CONTEXT_ENGINEERING_AVAILABLE:
+        try:
+            app.state.recommendation_memory = FertilizerRecommendationMemory()
+            app.state.context_engineering_enabled = True
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(
+                f"Failed to initialize recommendation memory: {e}"
+            )
+            app.state.context_engineering_enabled = False
+    else:
+        app.state.context_engineering_enabled = False
+
+    return app
+
+
+app = create_app()
 
 
 # =============================================================================
@@ -633,7 +666,17 @@ def list_fertilizers():
 
 @app.post("/v1/recommend", response_model=FertilizationPlan)
 def get_recommendation(request: FertilizerRequest):
-    """الحصول على توصيات التسميد"""
+    """الحصول على توصيات التسميد - مع دعم هندسة السياق"""
+
+    # Context Engineering: Compress soil and crop data before LLM processing
+    compression_metadata = None
+    if CONTEXT_ENGINEERING_AVAILABLE and request.soil_analysis:
+        try:
+            compression_metadata = compress_soil_analysis(request.soil_analysis)
+            compress_crop_data(request.crop, request.area_hectares, request.target_yield_kg_ha)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Context compression failed: {e}")
 
     # Calculate NPK needs
     npk_needs = calculate_npk_needs(
@@ -678,7 +721,7 @@ def get_recommendation(request: FertilizerRequest):
         warnings_ar.append("⚠️ التربة قلوية - استخدم أسمدة حامضية")
         warnings_en.append("⚠️ Alkaline soil - use acidifying fertilizers")
 
-    return FertilizationPlan(
+    plan = FertilizationPlan(
         plan_id=str(uuid.uuid4()),
         field_id=request.field_id,
         crop=request.crop,
@@ -699,6 +742,16 @@ def get_recommendation(request: FertilizerRequest):
         warnings_en=warnings_en,
         created_at=datetime.utcnow(),
     )
+
+    # Context Engineering: Store plan in memory and evaluate quality
+    if CONTEXT_ENGINEERING_AVAILABLE and app.state.context_engineering_enabled:
+        try:
+            app.state.recommendation_memory.store_plan(plan, compression_metadata)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Failed to store recommendation in memory: {e}")
+
+    return plan
 
 
 @app.post("/v1/soil-analysis/interpret")
@@ -1019,6 +1072,157 @@ def interpret_soil_analysis_with_action(analysis: SoilAnalysis):
         **result,
         "action_template": action.model_dump(),
         "task_card": action.to_task_card(),
+    }
+
+
+# =============================================================================
+# Context Engineering Endpoints
+# =============================================================================
+
+
+@app.post("/v1/recommend/evaluate")
+def evaluate_recommendation(plan: FertilizationPlan):
+    """
+    Evaluate quality of a fertilization recommendation.
+    تقييم جودة توصية التسميد
+
+    Uses LLM-as-Judge pattern to evaluate across multiple criteria:
+    - Accuracy: Is the NPK calculation correct?
+    - Actionability: Can the farmer implement it?
+    - Safety: Are warnings adequate?
+    - Relevance: Does it match the context?
+    - Completeness: All nutrients covered?
+    - Clarity: Understandable in Arabic/English?
+
+    Returns:
+        dict: Evaluation result with approval status and feedback
+    """
+    if not CONTEXT_ENGINEERING_AVAILABLE:
+        return {
+            "error": "Context engineering not available",
+            "message": "AI evaluation disabled in this environment",
+            "status": "disabled",
+        }
+
+    try:
+        evaluation = evaluate_fertilizer_recommendation(plan)
+        return {
+            **evaluation,
+            "status": "success",
+            "context_engineering_enabled": True,
+        }
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Recommendation evaluation failed: {e}")
+        return {
+            "error": str(e),
+            "status": "failed",
+            "context_engineering_enabled": True,
+        }
+
+
+@app.get("/v1/recommendations/recent")
+def get_recent_recommendations(field_id: str | None = None, limit: int = 5):
+    """
+    Retrieve recent fertilization recommendations from memory.
+    استرجاع التوصيات الأخيرة من الذاكرة
+
+    Args:
+        field_id: Optional field ID to filter by
+        limit: Maximum number of recommendations (default: 5, max: 20)
+
+    Returns:
+        dict: List of recent recommendations with metadata
+    """
+    if not CONTEXT_ENGINEERING_AVAILABLE or not app.state.context_engineering_enabled:
+        return {
+            "error": "Context engineering not available",
+            "recommendations": [],
+        }
+
+    try:
+        # Limit maximum to 20
+        limit = min(limit, 20)
+
+        recommendations = app.state.recommendation_memory.retrieve_recent_plans(
+            field_id=field_id,
+            limit=limit,
+        )
+
+        return {
+            "status": "success",
+            "field_id": field_id,
+            "count": len(recommendations),
+            "recommendations": recommendations,
+            "context_engineering_enabled": True,
+        }
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to retrieve recommendations: {e}")
+        return {
+            "error": str(e),
+            "status": "failed",
+            "recommendations": [],
+            "context_engineering_enabled": True,
+        }
+
+
+@app.post("/v1/soil-analysis/compress")
+def compress_soil_endpoint(analysis: SoilAnalysis):
+    """
+    Compress soil analysis data for LLM context.
+    ضغط بيانات تحليل التربة لسياق نموذج اللغة
+
+    Useful for understanding token optimization in AI interactions.
+
+    Returns:
+        dict: Compression metrics and compressed data
+    """
+    if not CONTEXT_ENGINEERING_AVAILABLE:
+        return {
+            "error": "Context engineering not available",
+            "status": "disabled",
+        }
+
+    try:
+        result = compress_soil_analysis(analysis)
+        return {
+            "status": "success",
+            "field_id": analysis.field_id,
+            **result,
+        }
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Soil compression failed: {e}")
+        return {
+            "error": str(e),
+            "status": "failed",
+            "context_engineering_enabled": True,
+        }
+
+
+@app.get("/v1/context-engineering/status")
+def get_context_engineering_status():
+    """
+    Check if context engineering is enabled and available.
+    التحقق من توفر هندسة السياق
+
+    Returns:
+        dict: Status information about context engineering
+    """
+    return {
+        "context_engineering_available": CONTEXT_ENGINEERING_AVAILABLE,
+        "context_engineering_enabled": (
+            app.state.context_engineering_enabled if CONTEXT_ENGINEERING_AVAILABLE else False
+        ),
+        "features": {
+            "compression": CONTEXT_ENGINEERING_AVAILABLE,
+            "memory_storage": CONTEXT_ENGINEERING_AVAILABLE,
+            "recommendation_evaluation": CONTEXT_ENGINEERING_AVAILABLE,
+        },
     }
 
 

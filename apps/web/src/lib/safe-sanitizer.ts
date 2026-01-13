@@ -131,8 +131,8 @@ function removeDangerousPatterns(input: string): string {
 /**
  * Remove dangerous tag content entirely (script, style, etc.)
  * This removes both the tag and its contents
- * Note: Patterns handle any characters before > to prevent bypass attacks
- * like </script > or </script\t\nfoo>
+ * Uses [\s\S]*? for content and handles malformed closing tags
+ * like </script >, </script\t\nbar>, </SCRIPT>, etc.
  */
 function removeDangerousTagContent(input: string): string {
   let result = input;
@@ -140,15 +140,21 @@ function removeDangerousTagContent(input: string): string {
   let iterations = 0;
 
   // Dangerous tags whose content should be completely removed
-  // Using [^>]* before > to handle ANY variations like </script >, </script\t\nbar>, etc.
+  // Pattern explanation:
+  // - <tagname\b - opening tag with word boundary
+  // - [\s\S]*? - any content (including newlines) non-greedy
+  // - <\/\s*tagname - closing tag with optional whitespace after </
+  // - \s* - optional whitespace after tag name
+  // - [^>]* - any other characters (handles </script\t\nbar>)
+  // - > - closing bracket
   const DANGEROUS_TAGS = [
-    /<script\b[^<]*(?:(?!<\/script[^>]*>)<[^<]*)*<\/script[^>]*>/gi,
-    /<style\b[^<]*(?:(?!<\/style[^>]*>)<[^<]*)*<\/style[^>]*>/gi,
-    /<noscript\b[^<]*(?:(?!<\/noscript[^>]*>)<[^<]*)*<\/noscript[^>]*>/gi,
-    /<iframe\b[^<]*(?:(?!<\/iframe[^>]*>)<[^<]*)*<\/iframe[^>]*>/gi,
-    /<object\b[^<]*(?:(?!<\/object[^>]*>)<[^<]*)*<\/object[^>]*>/gi,
-    /<embed\b[^<]*(?:(?!<\/embed[^>]*>)<[^<]*)*<\/embed[^>]*>/gi,
-    /<applet\b[^<]*(?:(?!<\/applet[^>]*>)<[^<]*)*<\/applet[^>]*>/gi,
+    /<script\b[\s\S]*?<\/\s*script\s*[^>]*>/gi,
+    /<style\b[\s\S]*?<\/\s*style\s*[^>]*>/gi,
+    /<noscript\b[\s\S]*?<\/\s*noscript\s*[^>]*>/gi,
+    /<iframe\b[\s\S]*?<\/\s*iframe\s*[^>]*>/gi,
+    /<object\b[\s\S]*?<\/\s*object\s*[^>]*>/gi,
+    /<embed\b[\s\S]*?<\/\s*embed\s*[^>]*>/gi,
+    /<applet\b[\s\S]*?<\/\s*applet\s*[^>]*>/gi,
   ];
 
   while (result !== previous && iterations < MAX_ITERATIONS) {
@@ -159,8 +165,9 @@ function removeDangerousTagContent(input: string): string {
       result = result.replace(freshPattern, "");
     }
 
-    // Also handle self-closing script tags (with any content before />)
-    result = result.replace(/<script[^>]*\/[^>]*>/gi, "");
+    // Handle self-closing and unclosed dangerous tags
+    result = result.replace(/<script\b[^>]*\/?>/gi, "");
+    result = result.replace(/<\/\s*script\s*[^>]*>/gi, "");
 
     iterations++;
   }

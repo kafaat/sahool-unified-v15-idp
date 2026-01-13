@@ -487,6 +487,12 @@ jobs:
 
       - name: Validate docker-compose file
         if: steps.check_compose.outputs.exists == 'true'
+        env:
+          POSTGRES_PASSWORD: ci_password_secure_123
+          POSTGRES_USER: ci_user
+          POSTGRES_DB: sahool_ci
+          REDIS_PASSWORD: ci_redis_password_123
+          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
         run: |
           echo "🔍 Validating docker-compose configuration..."
           docker compose -f ${{ matrix.compose-file.file }} config > /dev/null
@@ -494,6 +500,12 @@ jobs:
 
       - name: Pull required images
         if: steps.check_compose.outputs.exists == 'true'
+        env:
+          POSTGRES_PASSWORD: ci_password_secure_123
+          POSTGRES_USER: ci_user
+          POSTGRES_DB: sahool_ci
+          REDIS_PASSWORD: ci_redis_password_123
+          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
         run: |
           echo "⬇️ Pulling images defined in compose file..."
           docker compose -f ${{ matrix.compose-file.file }} pull --ignore-pull-failures || true
@@ -501,6 +513,12 @@ jobs:
       - name: Start docker-compose services
         if: steps.check_compose.outputs.exists == 'true'
         timeout-minutes: 10
+        env:
+          POSTGRES_PASSWORD: ci_password_secure_123
+          POSTGRES_USER: ci_user
+          POSTGRES_DB: sahool_ci
+          REDIS_PASSWORD: ci_redis_password_123
+          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
         run: |
           echo "🚀 Starting docker-compose services..."
           docker compose -f ${{ matrix.compose-file.file }} up -d --wait --wait-timeout 300 || {
@@ -511,6 +529,12 @@ jobs:
 
       - name: Check running services
         if: steps.check_compose.outputs.exists == 'true'
+        env:
+          POSTGRES_PASSWORD: ci_password_secure_123
+          POSTGRES_USER: ci_user
+          POSTGRES_DB: sahool_ci
+          REDIS_PASSWORD: ci_redis_password_123
+          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
         run: |
           echo "📊 Checking service status..."
           docker compose -f ${{ matrix.compose-file.file }} ps
@@ -532,6 +556,12 @@ jobs:
       - name: Test service connectivity
         if: steps.check_compose.outputs.exists == 'true'
         continue-on-error: true
+        env:
+          POSTGRES_PASSWORD: ci_password_secure_123
+          POSTGRES_USER: ci_user
+          POSTGRES_DB: sahool_ci
+          REDIS_PASSWORD: ci_redis_password_123
+          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
         run: |
           echo "🔗 Testing service connectivity..."
 
@@ -549,12 +579,24 @@ jobs:
 
       - name: Collect logs
         if: always() && steps.check_compose.outputs.exists == 'true'
+        env:
+          POSTGRES_PASSWORD: ci_password_secure_123
+          POSTGRES_USER: ci_user
+          POSTGRES_DB: sahool_ci
+          REDIS_PASSWORD: ci_redis_password_123
+          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
         run: |
           echo "📋 Collecting service logs..."
           docker compose -f ${{ matrix.compose-file.file }} logs --tail=100 > compose-${{ matrix.compose-file.name }}-logs.txt
 
       - name: Stop docker-compose
         if: always() && steps.check_compose.outputs.exists == 'true'
+        env:
+          POSTGRES_PASSWORD: ci_password_secure_123
+          POSTGRES_USER: ci_user
+          POSTGRES_DB: sahool_ci
+          REDIS_PASSWORD: ci_redis_password_123
+          JWT_SECRET_KEY: ci_jwt_secret_key_32_characters_min
         run: |
           echo "🛑 Stopping docker-compose services..."
           docker compose -f ${{ matrix.compose-file.file }} down -v --remove-orphans

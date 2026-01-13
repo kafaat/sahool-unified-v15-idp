@@ -131,7 +131,8 @@ function removeDangerousPatterns(input: string): string {
 /**
  * Remove dangerous tag content entirely (script, style, etc.)
  * This removes both the tag and its contents
- * Note: Patterns handle optional whitespace before > to prevent bypass
+ * Note: Patterns handle any characters before > to prevent bypass attacks
+ * like </script > or </script\t\nfoo>
  */
 function removeDangerousTagContent(input: string): string {
   let result = input;
@@ -139,15 +140,15 @@ function removeDangerousTagContent(input: string): string {
   let iterations = 0;
 
   // Dangerous tags whose content should be completely removed
-  // Using \s* before > to handle variations like </script > or </script  >
+  // Using [^>]* before > to handle ANY variations like </script >, </script\t\nbar>, etc.
   const DANGEROUS_TAGS = [
-    /<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi,
-    /<style\b[^<]*(?:(?!<\/style\s*>)<[^<]*)*<\/style\s*>/gi,
-    /<noscript\b[^<]*(?:(?!<\/noscript\s*>)<[^<]*)*<\/noscript\s*>/gi,
-    /<iframe\b[^<]*(?:(?!<\/iframe\s*>)<[^<]*)*<\/iframe\s*>/gi,
-    /<object\b[^<]*(?:(?!<\/object\s*>)<[^<]*)*<\/object\s*>/gi,
-    /<embed\b[^<]*(?:(?!<\/embed\s*>)<[^<]*)*<\/embed\s*>/gi,
-    /<applet\b[^<]*(?:(?!<\/applet\s*>)<[^<]*)*<\/applet\s*>/gi,
+    /<script\b[^<]*(?:(?!<\/script[^>]*>)<[^<]*)*<\/script[^>]*>/gi,
+    /<style\b[^<]*(?:(?!<\/style[^>]*>)<[^<]*)*<\/style[^>]*>/gi,
+    /<noscript\b[^<]*(?:(?!<\/noscript[^>]*>)<[^<]*)*<\/noscript[^>]*>/gi,
+    /<iframe\b[^<]*(?:(?!<\/iframe[^>]*>)<[^<]*)*<\/iframe[^>]*>/gi,
+    /<object\b[^<]*(?:(?!<\/object[^>]*>)<[^<]*)*<\/object[^>]*>/gi,
+    /<embed\b[^<]*(?:(?!<\/embed[^>]*>)<[^<]*)*<\/embed[^>]*>/gi,
+    /<applet\b[^<]*(?:(?!<\/applet[^>]*>)<[^<]*)*<\/applet[^>]*>/gi,
   ];
 
   while (result !== previous && iterations < MAX_ITERATIONS) {
@@ -158,8 +159,8 @@ function removeDangerousTagContent(input: string): string {
       result = result.replace(freshPattern, "");
     }
 
-    // Also handle self-closing script tags (with optional whitespace)
-    result = result.replace(/<script[^>]*\/\s*>/gi, "");
+    // Also handle self-closing script tags (with any content before />)
+    result = result.replace(/<script[^>]*\/[^>]*>/gi, "");
 
     iterations++;
   }

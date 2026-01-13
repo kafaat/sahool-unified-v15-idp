@@ -178,7 +178,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pydantic pyyaml jsonschema
+          pip install pydantic pyyaml jsonschema httpx
 
       - name: Validate skills server file
         run: |

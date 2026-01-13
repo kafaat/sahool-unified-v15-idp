@@ -527,7 +527,9 @@ export class LAIService {
 
   private simpleHash(str: string): number {
     let hash = 0;
-    for (let i = 0; i < str.length; i++) {
+    // Security: Limit string length to prevent DoS from long strings
+    const maxLength = Math.min(str.length, 1000);
+    for (let i = 0; i < maxLength; i++) {
       const char = str.charCodeAt(i);
       hash = (hash << 5) - hash + char;
       hash = hash & hash;

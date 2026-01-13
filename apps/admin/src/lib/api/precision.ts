@@ -4,6 +4,20 @@
 import { apiClient, API_URLS } from "../api";
 import { logger } from "../logger";
 
+/**
+ * Generate a unique ID for mock data.
+ * Uses crypto.randomUUID() when available, falls back to deterministic ID.
+ * Note: This is for mock/demo data only, not for security-sensitive operations.
+ */
+function generateMockId(prefix: string, index: number): string {
+  // Use crypto.randomUUID for unique IDs if available
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
+  }
+  // Fallback to deterministic ID based on index
+  return `${prefix}-${index + 1}-${Date.now().toString(36)}`;
+}
+
 // VRA (Variable Rate Application) Types
 export interface VRAPrescription {
   id: string;
@@ -185,8 +199,8 @@ function generateMockVRAPrescriptions(): VRAPrescription[] {
   ];
 
   return Array.from({ length: 15 }, (_, i) => ({
-    id: `vra-${i + 1}`,
-    farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
+    id: generateMockId("vra", i),
+    farmId: generateMockId("farm", i % 10),
     farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
     fieldName: `حقل ${String.fromCharCode(65 + (i % 5))}`,
     cropType: ["قمح", "بن", "قات", "ذرة"][Math.floor(Math.random() * 4)],

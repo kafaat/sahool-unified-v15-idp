@@ -13,6 +13,15 @@ import { Injectable } from "@nestjs/common";
 type Direction = "up" | "down" | "left" | "right";
 type ScenarioType = "general" | "flood" | "urban" | "rural" | "agricultural";
 
+// Security: Whitelist of allowed scenario types to prevent property injection
+const ALLOWED_SCENARIOS: Set<string> = new Set([
+  "general",
+  "flood",
+  "urban",
+  "rural",
+  "agricultural",
+]);
+
 export interface TileData {
   id: string;
   position: { row: number; col: number };
@@ -563,7 +572,11 @@ export class RSWorldModelService {
     const scenarioCounts: { [key in ScenarioType]?: number } = {};
 
     tiles.forEach((tile) => {
-      scenarioCounts[tile.scenario] = (scenarioCounts[tile.scenario] || 0) + 1;
+      // Security: Validate scenario against whitelist to prevent property injection
+      if (ALLOWED_SCENARIOS.has(tile.scenario)) {
+        scenarioCounts[tile.scenario] =
+          (scenarioCounts[tile.scenario] || 0) + 1;
+      }
     });
 
     const dominantScenario = Object.entries(scenarioCounts).sort(
@@ -572,9 +585,12 @@ export class RSWorldModelService {
 
     const scenarioDistribution: { [key in ScenarioType]?: number } = {};
     Object.entries(scenarioCounts).forEach(([scenario, count]) => {
-      scenarioDistribution[scenario as ScenarioType] = Math.round(
-        (count / tiles.length) * 100,
-      );
+      // Security: Validate scenario against whitelist
+      if (ALLOWED_SCENARIOS.has(scenario)) {
+        scenarioDistribution[scenario as ScenarioType] = Math.round(
+          (count / tiles.length) * 100,
+        );
+      }
     });
 
     // Generate risk assessment based on scenario

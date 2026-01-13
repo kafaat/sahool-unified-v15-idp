@@ -113,19 +113,50 @@ export const validators = {
 export const sanitizers = {
   /**
    * Remove all HTML tags and dangerous patterns
+   * Security: Uses iterative approach to handle encoded/nested attacks
    * @param input - The input string to sanitize
    * @returns Sanitized string
    */
   html: (input: string): string => {
     if (!input || typeof input !== "string") return "";
-    return input
-      .replace(/<[^>]*>/g, "") // Remove HTML tags
-      .replace(/javascript:/gi, "") // Remove javascript: protocol
-      .replace(/on\w+=/gi, "") // Remove event handlers
-      .replace(/data:/gi, "") // Remove data: protocol
-      .replace(/vbscript:/gi, "") // Remove vbscript: protocol
-      .replace(/file:/gi, "") // Remove file: protocol
-      .trim();
+
+    let sanitized = input;
+
+    // Iteratively decode and strip to handle nested/encoded HTML
+    const MAX_ITERATIONS = 5;
+    for (let i = 0; i < MAX_ITERATIONS; i++) {
+      const before = sanitized;
+
+      // Decode HTML entities first
+      sanitized = sanitized
+        .replace(/&lt;/gi, "<")
+        .replace(/&gt;/gi, ">")
+        .replace(/&#0*60;/gi, "<")
+        .replace(/&#0*62;/gi, ">")
+        .replace(/&#x0*3c;/gi, "<")
+        .replace(/&#x0*3e;/gi, ">")
+        .replace(/&amp;/gi, "&");
+
+      // Remove HTML tags
+      sanitized = sanitized.replace(/<[^>]*>/g, "");
+
+      // Remove dangerous patterns (with flexible whitespace matching)
+      sanitized = sanitized.replace(/javascript\s*:/gi, ""); // Remove javascript: protocol
+      sanitized = sanitized.replace(/on\w+\s*=/gi, ""); // Remove event handlers
+      sanitized = sanitized.replace(/data\s*:/gi, ""); // Remove data: protocol
+      sanitized = sanitized.replace(/vbscript\s*:/gi, ""); // Remove vbscript: protocol
+      sanitized = sanitized.replace(/file\s*:/gi, ""); // Remove file: protocol
+
+      // If no changes, we're done
+      if (sanitized === before) {
+        break;
+      }
+    }
+
+    // Final safety: remove any remaining angle brackets
+    sanitized = sanitized.replace(/[<>]/g, "");
+
+    return sanitized.trim();
   },
 
   /**
